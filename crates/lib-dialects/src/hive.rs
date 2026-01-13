@@ -6,7 +6,6 @@ use sqruff_lib_core::parser::grammar::anyof::one_of;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::vec_of_erased;
 
 pub fn raw_dialect() -> Dialect {
     let mut hive_dialect = super::ansi::dialect();
@@ -14,71 +13,72 @@ pub fn raw_dialect() -> Dialect {
     hive_dialect.add([
         (
             "CommentGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("COMMENT"),
-                Ref::new("QuotedLiteralSegment")
+            Sequence::new(vec![
+                Ref::keyword("COMMENT").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "LocationGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("LOCATION"),
-                Ref::new("QuotedLiteralSegment")
+            Sequence::new(vec![
+                Ref::keyword("LOCATION").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "SerdePropertiesGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("WITH"),
-                Ref::keyword("SERDEPROPERTIES"),
-                Ref::new("BracketedPropertyListGrammar")
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("SERDEPROPERTIES").to_matchable(),
+                Ref::new("BracketedPropertyListGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "StoredAsGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("STORED"),
-                Ref::keyword("AS"),
-                Ref::new("FileFormatGrammar")
+            Sequence::new(vec![
+                Ref::keyword("STORED").to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::new("FileFormatGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "StoredByGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("STORED"),
-                Ref::keyword("BY"),
-                Ref::new("QuotedLiteralSegment"),
-                Ref::new("SerdePropertiesGrammar").optional()
+            Sequence::new(vec![
+                Ref::keyword("STORED").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+                Ref::new("SerdePropertiesGrammar").optional().to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "StorageFormatGrammar".into(),
-            one_of(vec_of_erased![
-                Sequence::new(vec_of_erased![
-                    Ref::new("RowFormatClauseSegment").optional(),
-                    Ref::new("StoredAsGrammar").optional()
-                ]),
-                Ref::new("StoredByGrammar")
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("RowFormatClauseSegment").optional().to_matchable(),
+                    Ref::new("StoredAsGrammar").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("StoredByGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "TerminatedByGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("TERMINATED"),
-                Ref::keyword("BY"),
-                Ref::new("QuotedLiteralSegment")
+            Sequence::new(vec![
+                Ref::keyword("TERMINATED").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -86,22 +86,24 @@ pub fn raw_dialect() -> Dialect {
         (
             "MsckRepairTableStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::MsckRepairTableStatement, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("MSCK"),
-                    Ref::keyword("REPAIR"),
-                    Ref::keyword("TABLE"),
-                    Ref::new("TableReferenceSegment"),
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("ADD"),
-                            Ref::keyword("DROP"),
-                            Ref::keyword("SYNC")
-                        ]),
-                        Ref::keyword("PARTITIONS")
+                Sequence::new(vec![
+                    Ref::keyword("MSCK").to_matchable(),
+                    Ref::keyword("REPAIR").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("ADD").to_matchable(),
+                            Ref::keyword("DROP").to_matchable(),
+                            Ref::keyword("SYNC").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("PARTITIONS").to_matchable(),
                     ])
                     .config(|config| {
                         config.optional();
                     })
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -111,66 +113,75 @@ pub fn raw_dialect() -> Dialect {
         (
             "RowFormatClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::RowFormatClause, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ROW"),
-                    Ref::keyword("FORMAT"),
-                    one_of(vec_of_erased![
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("DELIMITED"),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("FIELDS"),
-                                Ref::new("TerminatedByGrammar"),
-                                Sequence::new(vec_of_erased![
-                                    Ref::keyword("ESCAPED"),
-                                    Ref::keyword("BY"),
-                                    Ref::new("QuotedLiteralSegment")
+                Sequence::new(vec![
+                    Ref::keyword("ROW").to_matchable(),
+                    Ref::keyword("FORMAT").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("DELIMITED").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("FIELDS").to_matchable(),
+                                Ref::new("TerminatedByGrammar").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ESCAPED").to_matchable(),
+                                    Ref::keyword("BY").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
                                 ])
                                 .config(|config| {
                                     config.optional();
                                 })
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            }),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("COLLECTION"),
-                                Ref::keyword("ITEMS"),
-                                Ref::new("TerminatedByGrammar")
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            }),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("MAP"),
-                                Ref::keyword("KEYS"),
-                                Ref::new("TerminatedByGrammar")
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            }),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("LINES"),
-                                Ref::new("TerminatedByGrammar")
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            }),
-                            Sequence::new(vec_of_erased![
-                                Ref::keyword("NULL"),
-                                Ref::keyword("DEFINED"),
-                                Ref::keyword("AS"),
-                                Ref::new("QuotedLiteralSegment")
+                                .to_matchable(),
                             ])
                             .config(|config| {
                                 config.optional();
                             })
-                        ]),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("SERDE"),
-                            Ref::new("QuotedLiteralSegment"),
-                            Ref::new("SerdePropertiesGrammar").optional()
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("COLLECTION").to_matchable(),
+                                Ref::keyword("ITEMS").to_matchable(),
+                                Ref::new("TerminatedByGrammar").to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            })
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("MAP").to_matchable(),
+                                Ref::keyword("KEYS").to_matchable(),
+                                Ref::new("TerminatedByGrammar").to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            })
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("LINES").to_matchable(),
+                                Ref::new("TerminatedByGrammar").to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            })
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("NULL").to_matchable(),
+                                Ref::keyword("DEFINED").to_matchable(),
+                                Ref::keyword("AS").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            })
+                            .to_matchable(),
                         ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SERDE").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("SerdePropertiesGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -180,16 +191,20 @@ pub fn raw_dialect() -> Dialect {
         (
             "StructTypeSchemaSegment".into(),
             NodeMatcher::new(SyntaxKind::StructTypeSchema, |_| {
-                Bracketed::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::new("SingleIdentifierGrammar"),
-                        Ref::new("ColonSegment"),
-                        Ref::new("DatatypeSegment"),
-                        Ref::new("CommentGrammar").optional()
-                    ])])
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("ColonSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Ref::new("CommentGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
                     .config(|_config| {
                         // config.bracket_type = "angle_bracket_pairs";
                     })
+                    .to_matchable(),
                 ])
                 .config(|config| {
                     config.bracket_pairs_set = "angle_bracket_pairs";
@@ -203,27 +218,35 @@ pub fn raw_dialect() -> Dialect {
         (
             "SkewedByClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::SkewedByClause, |_| {
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("SKEWED"),
-                    Ref::keyword("BY"),
-                    Ref::new("BracketedColumnReferenceListGrammar"),
-                    Ref::keyword("ON"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![one_of(
-                        vec_of_erased![
-                            Ref::new("LiteralGrammar"),
-                            Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![
-                                Ref::new("LiteralGrammar")
-                            ])])
-                        ]
-                    )])]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("STORED"),
-                        Ref::keyword("AS"),
-                        Ref::keyword("DIRECTORIES")
+                Sequence::new(vec![
+                    Ref::keyword("SKEWED").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::new("LiteralGrammar").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("STORED").to_matchable(),
+                        Ref::keyword("AS").to_matchable(),
+                        Ref::keyword("DIRECTORIES").to_matchable(),
                     ])
                     .config(|config| {
                         config.optional();
                     })
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -234,22 +257,26 @@ pub fn raw_dialect() -> Dialect {
 
     hive_dialect.replace_grammar(
         "StructTypeSegment",
-        Sequence::new(vec_of_erased![
-            Ref::keyword("STRUCT"),
-            Ref::new("StructTypeSchemaSegment").optional()
+        Sequence::new(vec![
+            Ref::keyword("STRUCT").to_matchable(),
+            Ref::new("StructTypeSchemaSegment")
+                .optional()
+                .to_matchable(),
         ])
         .to_matchable(),
     );
 
     hive_dialect.replace_grammar(
         "ArrayTypeSegment",
-        Sequence::new(vec_of_erased![
-            Ref::keyword("ARRAY"),
-            Bracketed::new(vec_of_erased![Ref::new("DatatypeSegment")]).config(|config| {
-                config.bracket_type = "angle";
-                config.bracket_pairs_set = "angle_bracket_pairs";
-                config.optional();
-            })
+        Sequence::new(vec![
+            Ref::keyword("ARRAY").to_matchable(),
+            Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                .config(|config| {
+                    config.bracket_type = "angle";
+                    config.bracket_pairs_set = "angle_bracket_pairs";
+                    config.optional();
+                })
+                .to_matchable(),
         ])
         .to_matchable(),
     );

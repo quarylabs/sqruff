@@ -10,7 +10,6 @@ use sqruff_lib_core::{
     dialects::{Dialect, init::DialectKind},
     helpers::ToMatchable,
     parser::grammar::{Ref, sequence::Sequence},
-    vec_of_erased,
 };
 
 pub fn dialect() -> Dialect {
@@ -40,20 +39,20 @@ pub fn dialect() -> Dialect {
     databricks.add([
         (
             "PrincipalIdentifierSegment".into(),
-            one_of(vec_of_erased![
-                Ref::new("NakedIdentifierSegment"),
-                Ref::new("BackQuotedIdentifierSegment"),
+            one_of(vec![
+                Ref::new("NakedIdentifierSegment").to_matchable(),
+                Ref::new("BackQuotedIdentifierSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "SetOwnerGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("SET").optional(),
-                Ref::keyword("OWNER"),
-                Ref::keyword("TO"),
-                Ref::new("PrincipalIdentifierSegment"),
+            Sequence::new(vec![
+                Ref::keyword("SET").optional().to_matchable(),
+                Ref::keyword("OWNER").to_matchable(),
+                Ref::keyword("TO").to_matchable(),
+                Ref::new("PrincipalIdentifierSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -68,11 +67,11 @@ pub fn dialect() -> Dialect {
         // https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-alter-catalog.html
         (
             "AlterCatalogStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("ALTER"),
-                Ref::keyword("CATALOG"),
-                Ref::new("CatalogReferenceSegment"),
-                Ref::new("SetOwnerGrammar"),
+            Sequence::new(vec![
+                Ref::keyword("ALTER").to_matchable(),
+                Ref::keyword("CATALOG").to_matchable(),
+                Ref::new("CatalogReferenceSegment").to_matchable(),
+                Ref::new("SetOwnerGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -81,12 +80,12 @@ pub fn dialect() -> Dialect {
         // https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-create-catalog.html
         (
             "CreateCatalogStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("CREATE"),
-                Ref::keyword("CATALOG"),
-                Ref::new("IfNotExistsGrammar").optional(),
-                Ref::new("CatalogReferenceSegment"),
-                Ref::new("CommentGrammar").optional(),
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("CATALOG").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("CatalogReferenceSegment").to_matchable(),
+                Ref::new("CommentGrammar").optional().to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -95,12 +94,12 @@ pub fn dialect() -> Dialect {
         // https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-drop-catalog.html
         (
             "DropCatalogStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DROP"),
-                Ref::keyword("CATALOG"),
-                Ref::new("IfExistsGrammar").optional(),
-                Ref::new("CatalogReferenceSegment"),
-                Ref::new("DropBehaviorGrammar").optional(),
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("CATALOG").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Ref::new("CatalogReferenceSegment").to_matchable(),
+                Ref::new("DropBehaviorGrammar").optional().to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -109,10 +108,10 @@ pub fn dialect() -> Dialect {
         // https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-use-catalog.html
         (
             "UseCatalogStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("USE"),
-                Ref::keyword("CATALOG"),
-                Ref::new("CatalogReferenceSegment"),
+            Sequence::new(vec![
+                Ref::keyword("USE").to_matchable(),
+                Ref::keyword("CATALOG").to_matchable(),
+                Ref::new("CatalogReferenceSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -121,16 +120,17 @@ pub fn dialect() -> Dialect {
         // https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-usedb.html
         (
             "UseDatabaseStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("USE"),
-                one_of(vec_of_erased![
-                    Ref::keyword("DATABASE"),
-                    Ref::keyword("SCHEMA"),
+            Sequence::new(vec![
+                Ref::keyword("USE").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("DATABASE").to_matchable(),
+                    Ref::keyword("SCHEMA").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
-                Ref::new("DatabaseReferenceSegment"),
+                })
+                .to_matchable(),
+                Ref::new("DatabaseReferenceSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -139,15 +139,16 @@ pub fn dialect() -> Dialect {
         // https://docs.databricks.com/sql/language-manual/sql-ref-syntax-aux-conf-mgmt-set-timezone.html
         (
             "SetTimeZoneStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("SET"),
-                Ref::keyword("TIME"),
-                Ref::keyword("ZONE"),
-                one_of(vec_of_erased![
-                    Ref::keyword("LOCAL"),
-                    Ref::new("QuotedLiteralSegment"),
-                    Ref::new("IntervalExpressionSegment")
-                ]),
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                Ref::keyword("TIME").to_matchable(),
+                Ref::keyword("ZONE").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("LOCAL").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("IntervalExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -156,26 +157,30 @@ pub fn dialect() -> Dialect {
         // https://docs.databricks.com/en/sql/language-manual/delta-optimize.html
         (
             "OptimizeTableStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("OPTIMIZE"),
-                Ref::new("TableReferenceSegment"),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("WHERE"),
-                    Ref::new("ExpressionSegment"),
+            Sequence::new(vec![
+                Ref::keyword("OPTIMIZE").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WHERE").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("ZORDER"),
-                    Ref::keyword("BY"),
-                    Bracketed::new(vec_of_erased![Delimited::new(vec_of_erased![Ref::new(
-                        "ColumnReferenceSegment"
-                    )])]),
+                })
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ZORDER").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
+                })
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -197,9 +202,10 @@ pub fn dialect() -> Dialect {
         ),
         (
             "IdentifierClauseSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("IDENTIFIER"),
-                Bracketed::new(vec_of_erased![Ref::new("SingleIdentifierGrammar")]),
+            Sequence::new(vec![
+                Ref::keyword("IDENTIFIER").to_matchable(),
+                Bracketed::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -208,11 +214,11 @@ pub fn dialect() -> Dialect {
             // Drop Volume Statement.
             // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-drop-volume.html
             "DropVolumeStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DROP"),
-                Ref::keyword("VOLUME"),
-                Ref::new("IfExistsGrammar").optional(),
-                Ref::new("VolumeReferenceSegment"),
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("VOLUME").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Ref::new("VolumeReferenceSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -227,10 +233,13 @@ pub fn dialect() -> Dialect {
             sparksql::dialect()
                 .grammar("DescribeObjectGrammar")
                 .copy(
-                    Some(vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::keyword("VOLUME"),
-                        Ref::new("VolumeReferenceSegment"),
-                    ])]),
+                    Some(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("VOLUME").to_matchable(),
+                            Ref::new("VolumeReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ]),
                     Some(0),
                     None,
                     None,
@@ -243,22 +252,24 @@ pub fn dialect() -> Dialect {
             // A `DECLARE [OR REPLACE] VARIABLE` statement.
             // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-declare-variable.html
             "DeclareOrReplaceVariableStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("DECLARE"),
-                Ref::new("OrReplaceGrammar").optional(),
-                Ref::keyword("VARIABLE").optional(),
-                Ref::new("SingleIdentifierGrammar"),
-                Ref::new("DatatypeSegment").optional(),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![
-                        Ref::keyword("DEFAULT"),
-                        Ref::new("EqualsSegment")
-                    ]),
-                    Ref::new("ExpressionSegment"),
+            Sequence::new(vec![
+                Ref::keyword("DECLARE").to_matchable(),
+                Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                Ref::keyword("VARIABLE").optional().to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Ref::new("DatatypeSegment").optional().to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
+                })
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -267,45 +278,54 @@ pub fn dialect() -> Dialect {
         // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-comment.html
         (
             "CommentOnStatementSegment".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("COMMENT"),
-                Ref::keyword("ON"),
-                one_of(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("CATALOG"),
-                        Ref::new("CatalogReferenceSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("DATABASE"),
-                            Ref::keyword("SCHEMA")
-                        ]),
-                        Ref::new("DatabaseReferenceSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("TABLE"),
-                        Ref::new("TableReferenceSegment"),
-                    ]),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("VOLUME"),
-                        Ref::new("VolumeReferenceSegment"),
-                    ]),
+            Sequence::new(vec![
+                Ref::keyword("COMMENT").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CATALOG").to_matchable(),
+                        Ref::new("CatalogReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("DATABASE").to_matchable(),
+                            Ref::keyword("SCHEMA").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("DatabaseReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TABLE").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("VOLUME").to_matchable(),
+                        Ref::new("VolumeReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     // TODO Split out individual items if they have references
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![
-                            Ref::keyword("CONNECTION"),
-                            Ref::keyword("PROVIDER"),
-                            Ref::keyword("RECIPIENT"),
-                            Ref::keyword("SHARE"),
-                        ]),
-                        Ref::new("ObjectReferenceSegment"),
-                    ]),
-                ]),
-                Ref::keyword("IS"),
-                one_of(vec_of_erased![
-                    Ref::new("QuotedLiteralSegment"),
-                    Ref::keyword("NULL"),
-                ]),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("CONNECTION").to_matchable(),
+                            Ref::keyword("PROVIDER").to_matchable(),
+                            Ref::keyword("RECIPIENT").to_matchable(),
+                            Ref::keyword("SHARE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("IS").to_matchable(),
+                one_of(vec![
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::keyword("NULL").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -316,25 +336,32 @@ pub fn dialect() -> Dialect {
         // - `LIKE` keyword is optional
         (
             "ShowDatabasesSchemasGrammar".into(),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("DATABASES"),
-                    Ref::keyword("SCHEMAS"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN"),]),
-                    Ref::new("DatabaseReferenceSegment"),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("DATABASES").to_matchable(),
+                    Ref::keyword("SCHEMAS").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        Ref::keyword("IN").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DatabaseReferenceSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("LIKE").optional(),
-                    Ref::new("QuotedLiteralSegment"),
+                })
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LIKE").optional().to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
+                })
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -345,25 +372,32 @@ pub fn dialect() -> Dialect {
         // - `LIKE` keyword is optional
         (
             "ShowDatabasesSchemasGrammar".into(),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("DATABASES"),
-                    Ref::keyword("SCHEMAS"),
-                ]),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN"),]),
-                    Ref::new("DatabaseReferenceSegment"),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("DATABASES").to_matchable(),
+                    Ref::keyword("SCHEMAS").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        Ref::keyword("IN").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DatabaseReferenceSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("LIKE").optional(),
-                    Ref::new("QuotedLiteralSegment"),
+                })
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LIKE").optional().to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
+                })
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -378,49 +412,59 @@ pub fn dialect() -> Dialect {
         // - `LIKE` keyword is optional
         (
             "ShowFunctionsGrammar".into(),
-            Sequence::new(vec_of_erased![
-                one_of(vec_of_erased![
-                    Ref::keyword("USER"),
-                    Ref::keyword("SYSTEM"),
-                    Ref::keyword("ALL"),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("USER").to_matchable(),
+                    Ref::keyword("SYSTEM").to_matchable(),
+                    Ref::keyword("ALL").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
-                Ref::keyword("FUNCTIONS"),
-                Sequence::new(vec_of_erased![
-                    Sequence::new(vec_of_erased![
-                        one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
-                        Ref::new("DatabaseReferenceSegment"),
+                })
+                .to_matchable(),
+                Ref::keyword("FUNCTIONS").to_matchable(),
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("FROM").to_matchable(),
+                            Ref::keyword("IN").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("DatabaseReferenceSegment").to_matchable(),
                     ])
                     .config(|config| {
                         config.optional();
-                    }),
-                    Sequence::new(vec_of_erased![
-                        Ref::keyword("LIKE").optional(),
-                        one_of(vec_of_erased![
+                    })
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("LIKE").optional().to_matchable(),
+                        one_of(vec![
                             // qualified function from a database
-                            Sequence::new(vec_of_erased![
-                                Ref::new("DatabaseReferenceSegment"),
-                                Ref::new("DotSegment"),
-                                Ref::new("FunctionNameSegment"),
+                            Sequence::new(vec![
+                                Ref::new("DatabaseReferenceSegment").to_matchable(),
+                                Ref::new("DotSegment").to_matchable(),
+                                Ref::new("FunctionNameSegment").to_matchable(),
                             ])
                             .config(|config| {
                                 config.disallow_gaps();
-                            }),
+                            })
+                            .to_matchable(),
                             // non-qualified function
-                            Ref::new("FunctionNameSegment"),
+                            Ref::new("FunctionNameSegment").to_matchable(),
                             // Regex/like string
-                            Ref::new("QuotedLiteralSegment"),
-                        ]),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .config(|config| {
                         config.optional();
-                    }),
+                    })
+                    .to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
+                })
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -430,22 +474,28 @@ pub fn dialect() -> Dialect {
         //     # - `LIKE` keyword is optional
         (
             "ShowTablesGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("TABLES"),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
-                    Ref::new("DatabaseReferenceSegment"),
+            Sequence::new(vec![
+                Ref::keyword("TABLES").to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        Ref::keyword("IN").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DatabaseReferenceSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("LIKE").optional(),
-                    Ref::new("QuotedLiteralSegment"),
+                })
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LIKE").optional().to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
+                })
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -455,22 +505,28 @@ pub fn dialect() -> Dialect {
         // - `LIKE` keyword is optional
         (
             "ShowViewsGrammar".into(),
-            Sequence::new(vec_of_erased![
-                Ref::keyword("VIEWS"),
-                Sequence::new(vec_of_erased![
-                    one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
-                    Ref::new("DatabaseReferenceSegment"),
+            Sequence::new(vec![
+                Ref::keyword("VIEWS").to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        Ref::keyword("IN").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DatabaseReferenceSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
-                Sequence::new(vec_of_erased![
-                    Ref::keyword("LIKE").optional(),
-                    Ref::new("QuotedLiteralSegment"),
+                })
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LIKE").optional().to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
-                }),
+                })
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -481,23 +537,32 @@ pub fn dialect() -> Dialect {
             sparksql::raw_dialect()
                 .grammar("ShowObjectGrammar")
                 .copy(
-                    Some(vec_of_erased![Sequence::new(vec_of_erased![
-                        Ref::keyword("VOLUMES"),
-                        Sequence::new(vec_of_erased![
-                            one_of(vec_of_erased![Ref::keyword("FROM"), Ref::keyword("IN")]),
-                            Ref::new("DatabaseReferenceSegment"),
+                    Some(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("VOLUMES").to_matchable(),
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::keyword("FROM").to_matchable(),
+                                    Ref::keyword("IN").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("DatabaseReferenceSegment").to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            })
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("LIKE").optional().to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            })
+                            .to_matchable(),
                         ])
-                        .config(|config| {
-                            config.optional();
-                        }),
-                        Sequence::new(vec_of_erased![
-                            Ref::keyword("LIKE").optional(),
-                            Ref::new("QuotedLiteralSegment"),
-                        ])
-                        .config(|config| {
-                            config.optional();
-                        }),
-                    ])]),
+                        .to_matchable(),
+                    ]),
                     None,
                     None,
                     None,
@@ -509,9 +574,13 @@ pub fn dialect() -> Dialect {
         // https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-dml-insert-into#insert-using-the-by-name-clause
         (
             "InsertBracketedColumnReferenceListGrammar".into(),
-            one_of(vec_of_erased![
-                Ref::new("BracketedColumnReferenceListGrammar"),
-                Sequence::new(vec_of_erased![Ref::keyword("BY"), Ref::keyword("NAME"),]),
+            one_of(vec![
+                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("BY").to_matchable(),
+                    Ref::keyword("NAME").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -521,16 +590,17 @@ pub fn dialect() -> Dialect {
     // A reference to an object.
     databricks.replace_grammar(
         "ObjectReferenceSegment",
-        Delimited::new(vec_of_erased![
-            one_of(vec_of_erased![
-                Ref::new("SingleIdentifierGrammar"),
-                Ref::new("IdentifierClauseSegment"),
-            ]),
-            Ref::new("ObjectReferenceDelimiterGrammar"),
+        Delimited::new(vec![
+            one_of(vec![
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Ref::new("IdentifierClauseSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),
         ])
         .config(|config| {
             config.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
-            config.terminators = vec_of_erased![Ref::new("ObjectReferenceTerminatorGrammar")];
+            config.terminators = vec![Ref::new("ObjectReferenceTerminatorGrammar").to_matchable()];
             config.disallow_gaps();
         })
         .to_matchable(),
@@ -545,7 +615,7 @@ pub fn dialect() -> Dialect {
             .match_grammar(&databricks)
             .unwrap()
             .copy(
-                Some(vec_of_erased![Ref::new("IdentifierClauseSegment")]),
+                Some(vec![Ref::new("IdentifierClauseSegment").to_matchable()]),
                 None,
                 Some(Ref::new("ValuesClauseSegment").to_matchable()),
                 None,
@@ -562,16 +632,16 @@ pub fn dialect() -> Dialect {
             .match_grammar(&databricks)
             .unwrap()
             .copy(
-                Some(vec_of_erased![
-                    Ref::new("AlterCatalogStatementSegment"),
-                    Ref::new("CreateCatalogStatementSegment"),
-                    Ref::new("DropCatalogStatementSegment"),
-                    Ref::new("UseCatalogStatementSegment"),
-                    Ref::new("DropVolumeStatementSegment"),
-                    Ref::new("SetTimeZoneStatementSegment"),
-                    Ref::new("OptimizeTableStatementSegment"),
-                    Ref::new("CommentOnStatementSegment"),
-                    Ref::new("DeclareOrReplaceVariableStatementSegment"),
+                Some(vec![
+                    Ref::new("AlterCatalogStatementSegment").to_matchable(),
+                    Ref::new("CreateCatalogStatementSegment").to_matchable(),
+                    Ref::new("DropCatalogStatementSegment").to_matchable(),
+                    Ref::new("UseCatalogStatementSegment").to_matchable(),
+                    Ref::new("DropVolumeStatementSegment").to_matchable(),
+                    Ref::new("SetTimeZoneStatementSegment").to_matchable(),
+                    Ref::new("OptimizeTableStatementSegment").to_matchable(),
+                    Ref::new("CommentOnStatementSegment").to_matchable(),
+                    Ref::new("DeclareOrReplaceVariableStatementSegment").to_matchable(),
                 ]),
                 None,
                 None,
@@ -585,36 +655,41 @@ pub fn dialect() -> Dialect {
     // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-qry-select-groupby.html
     databricks.replace_grammar(
         "GroupByClauseSegment",
-        Sequence::new(vec_of_erased![
-            Ref::keyword("GROUP"),
-            Ref::keyword("BY"),
-            MetaSegment::indent(),
-            one_of(vec_of_erased![
-                Ref::keyword("ALL"),
-                Delimited::new(vec_of_erased![
-                    Ref::new("CubeRollupClauseSegment"),
-                    Ref::new("GroupingSetsClauseSegment"),
-                    Ref::new("ColumnReferenceSegment"),
+        Sequence::new(vec![
+            Ref::keyword("GROUP").to_matchable(),
+            Ref::keyword("BY").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            one_of(vec![
+                Ref::keyword("ALL").to_matchable(),
+                Delimited::new(vec![
+                    Ref::new("CubeRollupClauseSegment").to_matchable(),
+                    Ref::new("GroupingSetsClauseSegment").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
                     // Can `GROUP BY 1`
-                    Ref::new("NumericLiteralSegment").optional(),
+                    Ref::new("NumericLiteralSegment").optional().to_matchable(),
                     // Can `GROUP BY coalesce(col, 1)`
-                    Ref::new("ExpressionSegment").optional(),
-                ]),
-                Sequence::new(vec_of_erased![
-                    Delimited::new(vec_of_erased![
-                        Ref::new("ColumnReferenceSegment"),
+                    Ref::new("ExpressionSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
                         // Can `GROUP BY 1`
-                        Ref::new("NumericLiteralSegment").optional(),
+                        Ref::new("NumericLiteralSegment").optional().to_matchable(),
                         // Can `GROUP BY coalesce(col, 1)`
-                        Ref::new("ExpressionSegment").optional(),
-                    ]),
-                    one_of(vec_of_erased![
-                        Ref::new("WithCubeRollupClauseSegment"),
-                        Ref::new("GroupingSetsClauseSegment"),
-                    ]),
-                ]),
-            ]),
-            MetaSegment::dedent(),
+                        Ref::new("ExpressionSegment").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::new("WithCubeRollupClauseSegment").to_matchable(),
+                        Ref::new("GroupingSetsClauseSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
         ])
         .to_matchable(),
     );

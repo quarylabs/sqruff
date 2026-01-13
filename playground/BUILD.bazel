@@ -15,6 +15,7 @@ The WASM bindings are built automatically from //crates/lib-wasm:sqruff-wasm-bin
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_rules_js//js:defs.bzl", "js_library")
 load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//playground:@playwright/test/package_json.bzl", playwright_test_bin = "bin")
 load("@npm//playground:vite/package_json.bzl", vite_bin = "bin")
 
 # Export package.json for the pnpm workspace data attribute
@@ -131,4 +132,27 @@ vite_bin.vite_binary(
     args = ["--host"],
     chdir = package_name(),
     data = VITE_DATA,
+)
+
+# Playwright end-to-end tests
+# Runs against the built playground using vite preview
+# Usage: bazel test //playground:playwright_test
+playwright_test_bin.playwright_test(
+    name = "playwright_test",
+    args = [
+        "test",
+        "--config=playwright.bazel.config.ts",
+    ],
+    chdir = package_name(),
+    data = VITE_DATA + [
+        ":node_modules/@playwright/test",
+        ":build",
+        "playwright.bazel.config.ts",
+        "@playwright//:chromium-headless-shell",
+    ] + glob(["tests/**/*.ts"]),
+    env = {
+        # Path needs to go up from _main/playground/ to runfiles root, then into the external repo
+        # The rootpath expands relative to _main workspace, so we need an extra ".." since we chdir to playground
+        "PLAYWRIGHT_BROWSERS_PATH": "../$(rootpath @playwright//:chromium-headless-shell)/..",
+    },
 )

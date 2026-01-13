@@ -11,45 +11,29 @@ permissions:
 concurrency:
   group: "pages"
   cancel-in-progress: true
-env:
-  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: false
 jobs:
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./playground
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
-      - name: Install pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # ratchet:pnpm/action-setup@v4
+      - name: Build playground with Bazel
+        uses: bazel-contrib/setup-bazel@e2567afeb14c4eb0d0f1117ed9cf94e20a8e9c47 # ratchet:bazel-contrib/setup-bazel@0.14.0
         with:
-          version: 10
-      - name: Set up Node
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # ratchet:actions/setup-node@v5
-        with:
-          node-version-file: ".nvmrc"
-          cache: "pnpm"
-      - name: Install Rust
-        run: rustup install nightly-2024-07-22 && rustup component add rust-src --toolchain nightly-2024-07-22-x86_64-unknown-linux-gnu
-      - name: Install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Build wasm
-        run: pnpm run build:wasm
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
       - name: Build playground
-        run: pnpm run build
+        run: bazelisk build //playground:build
       - name: Setup Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # ratchet:actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # ratchet:actions/upload-pages-artifact@v4
         with:
-          path: "playground/dist"
+          path: "bazel-bin/playground/dist"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # ratchet:actions/deploy-pages@v4

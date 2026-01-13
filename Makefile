@@ -38,8 +38,8 @@ rust_lint: ## Lint rust code
 	cargo hack check --each-feature --exclude-features=codegen-docs
 
 .PHONY: rust_test
-rust_test: ## Run rust tests
-	cd crates/cli-python && uv run maturin develop
+rust_test: python_sync ## Run rust tests
+	uv run maturin develop --manifest-path crates/cli-python/Cargo.toml
 	cargo test --no-fail-fast --manifest-path ./crates/cli/Cargo.toml
 	cargo test --no-fail-fast --all --all-features --exclude sqruff
 

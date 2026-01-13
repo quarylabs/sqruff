@@ -197,3 +197,29 @@ sh_test(
         "MACHETE": "$(rlocationpath @cargo_machete//:cargo-machete)",
     },
 )
+
+# Python tests using uv - run for each Python version
+[
+    sh_test(
+        name = "pytest_py{}".format(version.replace(".", "")),
+        size = "medium",
+        srcs = [".hacking/scripts/pytest_uv.sh"],
+        data = [
+            "pyproject.toml",
+            "uv.lock",
+            "//crates/cli-python:python_srcs",
+            "//crates/cli-python:test_fixtures",
+            "@uv//:uv",
+        ],
+        env = {
+            "UV": "$(rlocationpath @uv//:uv)",
+            "PYTHON_VERSION": version,
+        },
+    )
+    for version in [
+        "3.10",
+        "3.11",
+        "3.12",
+        "3.13",
+    ]
+]

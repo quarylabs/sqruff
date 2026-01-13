@@ -7,8 +7,13 @@ from sqruff.templaters.python_templater import FluffConfig
 
 
 def test_dbt():
-    current = Path(os.path.dirname(os.path.abspath(__file__)))
-    folder = current.joinpath("../../../tests/dbt_sample")
+    # Use PROJECT_ROOT env var if set (for Bazel sandbox), otherwise use __file__
+    if "PROJECT_ROOT" in os.environ:
+        project_root = Path(os.environ["PROJECT_ROOT"])
+        folder = project_root / "crates/cli-python/tests/dbt_sample"
+    else:
+        current = Path(os.path.dirname(os.path.abspath(__file__)))
+        folder = current.joinpath("../../../tests/dbt_sample")
     file = folder.joinpath("models/customers.sql")
     profiles = folder.joinpath("profiles")
 

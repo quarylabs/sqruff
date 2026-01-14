@@ -5194,10 +5194,6 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("WithCompoundStatementSegment").to_matchable(),
                 ])
                 .to_matchable(),
-                optionally_bracketed(vec![
-                    Ref::new("WithCompoundNonSelectStatementSegment").to_matchable(),
-                ])
-                .to_matchable(),
                 Ref::new("NonWithSelectableGrammar").to_matchable(),
                 Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
             ])
@@ -5215,16 +5211,15 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // NOTE: In ANSI SQL, CTEs (WITH clause) can only precede SELECT statements,
+        // not DML statements like INSERT/UPDATE/DELETE. This grammar is kept as a
+        // hook point for dialects that support CTE+DML (e.g., PostgreSQL, SQL Server,
+        // SQLite). Those dialects should either:
+        // 1. Add DML statements to NonWithSelectableGrammar (like PostgreSQL), or
+        // 2. Add WithCompoundNonSelectStatementSegment to their SelectableGrammar
         (
             "NonWithNonSelectableGrammar".into(),
-            one_of(vec![
-                Ref::new("UpdateStatementSegment").to_matchable(),
-                Ref::new("InsertStatementSegment").to_matchable(),
-                Ref::new("DeleteStatementSegment").to_matchable(),
-                Ref::new("MergeStatementSegment").to_matchable(),
-            ])
-            .to_matchable()
-            .into(),
+            Nothing::new().to_matchable().into(),
         ),
         (
             "NonSetSelectableGrammar".into(),

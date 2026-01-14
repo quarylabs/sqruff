@@ -1737,19 +1737,22 @@ pub fn raw_dialect() -> Dialect {
         hive_dialect.grammar("CreateTableStatementSegment").into(),
     )]);
 
+    // SparkSQL supports CTEs with DML statements (INSERT, UPDATE, DELETE, etc.)
+    // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
     sparksql_dialect.add([(
-        "NonWithNonSelectableGrammar".into(),
-        ansi::raw_dialect()
-            .grammar("NonWithNonSelectableGrammar")
-            .copy(
-                Some(vec_of_erased![Ref::new("InsertOverwriteDirectorySegment")]),
-                None,
-                None,
-                None,
-                Vec::new(),
-                false,
-            )
-            .into(),
+        "NonWithSelectableGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::new("SetExpressionSegment"),
+            optionally_bracketed(vec_of_erased![Ref::new("SelectStatementSegment")]),
+            Ref::new("NonSetSelectableGrammar"),
+            Ref::new("UpdateStatementSegment"),
+            Ref::new("InsertStatementSegment"),
+            Ref::new("DeleteStatementSegment"),
+            Ref::new("MergeStatementSegment"),
+            Ref::new("InsertOverwriteDirectorySegment"),
+        ])
+        .to_matchable()
+        .into(),
     )]);
 
     sparksql_dialect.replace_grammar(

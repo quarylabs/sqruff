@@ -575,6 +575,7 @@ test_snowflake_delete_cte:
 #      dialect: exasol
 
 test_pass_cte_no_select_final_statement:
+  # CTE+DML is not valid ANSI SQL, but is valid in PostgreSQL
   pass_str:
     WITH mycte AS (
     SELECT
@@ -588,6 +589,9 @@ test_pass_cte_no_select_final_statement:
     sometable.baz = mycte.bar
     FROM
     mycte;
+  configs:
+    core:
+      dialect: postgres
 
 # TODO Reinstate
 #test_tsql_select_system_as_identifier:

@@ -87,6 +87,22 @@ pub fn dialect() -> Dialect {
         "YY",
     ]);
 
+    // ClickHouse supports CTEs with DML statements (INSERT, UPDATE, DELETE)
+    // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
+    clickhouse_dialect.add([(
+        "NonWithSelectableGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::new("SetExpressionSegment"),
+            optionally_bracketed(vec_of_erased![Ref::new("SelectStatementSegment")]),
+            Ref::new("NonSetSelectableGrammar"),
+            Ref::new("UpdateStatementSegment"),
+            Ref::new("InsertStatementSegment"),
+            Ref::new("DeleteStatementSegment"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     clickhouse_dialect.add([
         (
             "SelectClauseTerminatorGrammar".into(),

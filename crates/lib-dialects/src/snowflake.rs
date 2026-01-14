@@ -255,6 +255,23 @@ pub fn dialect() -> Dialect {
         .sets_mut("warehouse_scaling_policies")
         .extend(["STANDARD", "ECONOMY"]);
 
+    // Snowflake supports CTEs with DML statements (INSERT, UPDATE, DELETE, MERGE)
+    // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
+    snowflake_dialect.add([(
+        "NonWithSelectableGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::new("SetExpressionSegment"),
+            optionally_bracketed(vec_of_erased![Ref::new("SelectStatementSegment")]),
+            Ref::new("NonSetSelectableGrammar"),
+            Ref::new("UpdateStatementSegment"),
+            Ref::new("InsertStatementSegment"),
+            Ref::new("DeleteStatementSegment"),
+            Ref::new("MergeStatementSegment"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     snowflake_dialect.add([
         (
             "ParameterAssignerSegment".into(),

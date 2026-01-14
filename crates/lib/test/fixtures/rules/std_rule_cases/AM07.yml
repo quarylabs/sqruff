@@ -458,6 +458,7 @@ test_query_on_snowflake_stage:
 
 
 test_pass_cte_no_select_final_statement:
+  # CTE+DML is not valid ANSI SQL, but is valid in PostgreSQL
   pass_str:
     WITH mycte AS (
     SELECT
@@ -471,6 +472,9 @@ test_pass_cte_no_select_final_statement:
     sometable.baz = mycte.bar
     FROM
     mycte;
+  configs:
+    core:
+      dialect: postgres
 
 test_fail_cte_no_select_final_statement:
   fail_str:

@@ -45,6 +45,23 @@ pub fn raw_dialect() -> Dialect {
         .sets_mut("unreserved_keywords")
         .extend(UNRESERVED_KEYWORDS);
 
+    // SQLite supports CTEs with DML statements (INSERT, UPDATE, DELETE)
+    // since version 3.8.3. We add these to NonWithSelectableGrammar so
+    // WithCompoundStatementSegment can use them.
+    sqlite_dialect.add([(
+        "NonWithSelectableGrammar".into(),
+        one_of(vec_of_erased![
+            Ref::new("SetExpressionSegment"),
+            optionally_bracketed(vec_of_erased![Ref::new("SelectStatementSegment")]),
+            Ref::new("NonSetSelectableGrammar"),
+            Ref::new("UpdateStatementSegment"),
+            Ref::new("InsertStatementSegment"),
+            Ref::new("DeleteStatementSegment"),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     sqlite_dialect.add([
         // SQLite blob literal segment (X'...' or x'...')
         (

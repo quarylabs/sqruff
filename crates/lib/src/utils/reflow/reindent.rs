@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 use std::mem::take;
+use std::rc::Rc;
 
 use ahash::{AHashMap, AHashSet};
 use itertools::{Itertools, chain, enumerate};
@@ -38,7 +39,7 @@ struct IndentPoint {
     initial_indent_balance: isize,
     last_line_break_idx: Option<usize>,
     is_line_break: bool,
-    untaken_indents: Vec<isize>,
+    untaken_indents: Rc<[isize]>,
 }
 
 impl IndentPoint {
@@ -285,7 +286,7 @@ fn crawl_indent_points(
     for (idx, elem) in enumerate(elements) {
         if let ReflowElement::Point(elem) = elem {
             let mut indent_stats =
-                IndentStats::from_combination(cached_indent_stats.clone(), elem.indent_impulse());
+                IndentStats::from_combination(cached_indent_stats.as_ref(), elem.indent_impulse());
 
             if !indent_stats.implicit_indents.is_empty() {
                 let mut unclosed_bracket = false;
@@ -338,7 +339,7 @@ fn crawl_indent_points(
                         initial_indent_balance: indent_balance,
                         last_line_break_idx: cached_point.last_line_break_idx,
                         is_line_break: true,
-                        untaken_indents: take(&mut untaken_indents),
+                        untaken_indents: take(&mut untaken_indents).into(),
                     });
                     // Before zeroing, crystallise any effect on overall
                     // balances.
@@ -360,7 +361,7 @@ fn crawl_indent_points(
                         initial_indent_balance: indent_balance,
                         last_line_break_idx: cached_point.last_line_break_idx,
                         is_line_break: false,
-                        untaken_indents: untaken_indents.clone(),
+                        untaken_indents: Rc::from(untaken_indents.as_slice()),
                     });
                 }
             }
@@ -380,7 +381,7 @@ fn crawl_indent_points(
                 initial_indent_balance: indent_balance,
                 last_line_break_idx,
                 is_line_break: has_newline,
-                untaken_indents: untaken_indents.clone(),
+                untaken_indents: Rc::from(untaken_indents.as_slice()),
             };
 
             if has_newline {
@@ -423,13 +424,16 @@ fn map_line_buffers(
 ) -> (Vec<IndentLine>, Vec<usize>) {
     let mut lines = Vec::new();
     let mut point_buffer = Vec::new();
-    let mut previous_points = AHashMap::new();
+    // Only store is_line_break flag - that's all we need from previous points
+    let mut previous_points_line_break: AHashMap<usize, bool> = AHashMap::new();
     let mut untaken_indent_locs = AHashMap::new();
     let mut imbalanced_locs = Vec::new();
 
     for indent_point in crawl_indent_points(elements, allow_implicit_indents) {
-        point_buffer.push(indent_point.clone());
-        previous_points.insert(indent_point.idx, indent_point.clone());
+        previous_points_line_break.insert(indent_point.idx, indent_point.is_line_break);
+        point_buffer.push(indent_point);
+        // Reference the just-pushed point to avoid cloning
+        let indent_point = point_buffer.last().unwrap();
 
         if !indent_point.is_line_break {
             let indent_stats = elements[indent_point.idx]
@@ -477,20 +481,19 @@ fn map_line_buffers(
                     continue;
                 }
 
-                let mut _pt = None;
+                // Find the first line break point in the range
+                let mut line_break_idx = None;
                 for j in loc..indent_point.idx {
-                    if let Some(pt) = previous_points.get(&j)
-                        && pt.is_line_break
-                    {
-                        _pt = Some(pt);
+                    if previous_points_line_break.get(&j) == Some(&true) {
+                        line_break_idx = Some(j);
                         break;
                     }
                 }
 
-                let _pt = _pt.unwrap();
+                let line_break_idx = line_break_idx.unwrap();
 
                 // Then check if all comments.
-                if (_pt.idx + 1..indent_point.idx).step_by(2).all(|k| {
+                if (line_break_idx + 1..indent_point.idx).step_by(2).all(|k| {
                     elements[k].class_types().intersects(
                         const {
                             &SyntaxSet::new(&[
@@ -511,7 +514,8 @@ fn map_line_buffers(
 
         untaken_indent_locs
             .retain(|&k, _| k <= indent_point.initial_indent_balance + indent_point.indent_trough);
-        point_buffer = vec![indent_point];
+        // Clone is cheap now with Rc<[isize]> for untaken_indents
+        point_buffer = vec![indent_point.clone()];
     }
 
     if point_buffer.len() > 1 {
@@ -1531,6 +1535,8 @@ impl Iterator for Range {
 
 #[cfg(test)]
 mod tests {
+    use std::rc::Rc;
+
     use pretty_assertions::assert_eq;
     use sqruff_lib::core::test_functions::parse_ansi_string;
 
@@ -1569,7 +1575,7 @@ mod tests {
                         initial_indent_balance: 0,
                         last_line_break_idx: None,
                         is_line_break: false,
-                        untaken_indents: Vec::new(),
+                        untaken_indents: Rc::from([]),
                     }],
                 },
                 &[],
@@ -1586,7 +1592,7 @@ mod tests {
                         initial_indent_balance: 3,
                         last_line_break_idx: 1.into(),
                         is_line_break: true,
-                        untaken_indents: Vec::new(),
+                        untaken_indents: Rc::from([]),
                     }],
                 },
                 &[],
@@ -1602,7 +1608,7 @@ mod tests {
                         initial_indent_balance: 3,
                         last_line_break_idx: Some(1),
                         is_line_break: true,
-                        untaken_indents: vec![1],
+                        untaken_indents: Rc::from([1]),
                     }],
                 },
                 &[],
@@ -1618,7 +1624,7 @@ mod tests {
                         initial_indent_balance: 3,
                         last_line_break_idx: Some(1),
                         is_line_break: true,
-                        untaken_indents: vec![1, 2],
+                        untaken_indents: Rc::from([1, 2]),
                     }],
                 },
                 &[],
@@ -1634,7 +1640,7 @@ mod tests {
                         initial_indent_balance: 3,
                         last_line_break_idx: Some(1),
                         is_line_break: true,
-                        untaken_indents: vec![2],
+                        untaken_indents: Rc::from([2]),
                     }],
                 },
                 &[2], // Forced indent takes us back up.
@@ -1650,7 +1656,7 @@ mod tests {
                         initial_indent_balance: 3,
                         last_line_break_idx: Some(1),
                         is_line_break: true,
-                        untaken_indents: vec![3],
+                        untaken_indents: Rc::from([3]),
                     }],
                 },
                 &[],
@@ -1666,7 +1672,7 @@ mod tests {
                         initial_indent_balance: 3,
                         last_line_break_idx: Some(1),
                         is_line_break: true,
-                        untaken_indents: vec![3],
+                        untaken_indents: Rc::from([3]),
                     }],
                 },
                 &[],

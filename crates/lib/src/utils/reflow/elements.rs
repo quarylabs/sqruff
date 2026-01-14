@@ -590,7 +590,7 @@ pub struct IndentStats {
 }
 
 impl IndentStats {
-    pub fn from_combination(first: Option<IndentStats>, second: &IndentStats) -> Self {
+    pub fn from_combination(first: Option<&IndentStats>, second: &IndentStats) -> Self {
         match first {
             Some(first_stats) => IndentStats {
                 impulse: first_stats.impulse + second.impulse,

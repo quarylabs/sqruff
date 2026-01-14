@@ -44,6 +44,8 @@
   "devDependencies": {
     "@eslint/js": "catalog:",
     "@rauschma/env-var": "^1.0.1",
+    "@secretlint/secretlint-rule-no-dotenv": "^10.1.2",
+    "@secretlint/secretlint-rule-preset-recommend": "^10.1.2",
     "@types/mocha": "^10.0.10",
     "@types/node": "~22.18.13",
     "@types/vscode": "1.96.0",

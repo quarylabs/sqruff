@@ -42,6 +42,12 @@ importers:
       '@rauschma/env-var':
         specifier: ^1.0.1
         version: 1.0.1
+      '@secretlint/secretlint-rule-no-dotenv':
+        specifier: ^10.1.2
+        version: 10.2.2
+      '@secretlint/secretlint-rule-preset-recommend':
+        specifier: ^10.1.2
+        version: 10.2.2
       '@types/mocha':
         specifier: ^10.0.10
         version: 10.0.10

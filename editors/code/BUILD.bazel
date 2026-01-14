@@ -1,3 +1,22 @@
+"""Bazel build configuration for the sqruff VS Code extension.
+
+The extension is a TypeScript project that uses esbuild for bundling.
+It supports both browser (WASM) and native (Node.js) modes.
+
+Build:
+- bazel build //editors/code:build
+
+Package (.vsix):
+- bazel build //editors/code:package
+
+The LSP WASM bindings are built automatically from //crates/lsp:sqruff-lsp-bindgen.
+"""
+
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_run_binary")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//editors/code:@vscode/vsce/package_json.bzl", vsce_bin = "bin")
+load("@npm//editors/code:eslint/package_json.bzl", eslint_bin = "bin")
+
 # Export files for the pnpm workspace data attribute and other build targets
 exports_files([
     "LICENSE",
@@ -5,10 +24,6 @@ exports_files([
     "README.md",
     "eslint.config.mjs",
 ])
-
-load("@aspect_rules_js//js:defs.bzl", "js_library")
-load("@npm//:defs.bzl", "npm_link_all_packages")
-load("@npm//editors/code:eslint/package_json.bzl", eslint_bin = "bin")
 
 # Link npm packages for the editors/code workspace
 npm_link_all_packages(name = "node_modules")
@@ -79,4 +94,79 @@ eslint_bin.eslint_binary(
         ":node_modules/typescript",
         ":node_modules/typescript-eslint",
     ],
+)
+
+# All extension source files
+filegroup(
+    name = "extension_srcs",
+    srcs = glob([
+        "src/**/*.ts",
+    ]) + [
+        "esbuild.js",
+        "tsconfig.json",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# Common data dependencies for esbuild
+ESBUILD_DATA = [
+    ":node_modules/@types/vscode",
+    ":node_modules/esbuild",
+    ":node_modules/typescript",
+    ":node_modules/vscode-languageclient",
+    ":node_modules/vscode-languageserver",
+    ":extension_srcs",
+]
+
+# esbuild binary wrapper that runs our custom esbuild.js script via node
+js_binary(
+    name = "esbuild_bin",
+    data = ESBUILD_DATA,
+    entry_point = "esbuild.js",
+)
+
+# Build the extension using esbuild
+# First copies WASM files to dist/, then runs esbuild which outputs additional files to dist/
+# Usage: bazel build //editors/code:build
+js_run_binary(
+    name = "build",
+    srcs = ESBUILD_DATA + [
+        "//crates/lsp:sqruff-lsp-bindgen",
+    ],
+    args = ["--production"],
+    chdir = package_name(),
+    env = {
+        # Tell esbuild.js where to find the WASM files
+        # Path is relative to esbuild.js location in bazel-out/.../bin/editors/code/
+        "SQRUFF_WASM_DIR": "../../crates/lsp/sqruff-lsp-bindgen",
+    },
+    out_dirs = ["dist"],
+    tool = ":esbuild_bin",
+    visibility = ["//visibility:public"],
+)
+
+# Package the extension as a .vsix file
+# Usage: bazel build //editors/code:package
+vsce_bin.vsce(
+    name = "package",
+    srcs = [
+        ":build",
+        ":node_modules/vscode-languageclient",
+        ":node_modules/vscode-languageserver",
+        # Secretlint dependencies required by vsce for security scanning
+        ":node_modules/@secretlint/secretlint-rule-preset-recommend",
+        ":node_modules/@secretlint/secretlint-rule-no-dotenv",
+        "LICENSE",
+        "README.md",
+        "package.json",
+    ],
+    args = [
+        "package",
+        "--no-dependencies",
+        "-o",
+        "vsix_out/sqruff.vsix",
+    ],
+    chdir = package_name(),
+    out_dirs = ["vsix_out"],
+    visibility = ["//visibility:public"],
 )

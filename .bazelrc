@@ -16,4 +16,14 @@ test --test_output=errors
 
 # CI-specific settings
 build:ci --color=yes
-test:ci --test_output=all
+build:ci --curses=no
+build:ci --show_timestamps
+build:ci --verbose_failures
+
+# CI test output settings - show errors only but with detailed summary
+test:ci --test_output=errors
+test:ci --test_summary=detailed
+test:ci --verbose_failures
+
+# Keep tests running even if some fail to show all failures at once
+test:ci --keep_going

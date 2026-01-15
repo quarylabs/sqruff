@@ -78,7 +78,11 @@ use_repo(playwright, "playwright")
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = "2024",
-    extra_target_triples = ["wasm32-unknown-unknown"],
+    extra_target_triples = [
+        "wasm32-unknown-unknown",
+        "x86_64-unknown-linux-musl",
+        "aarch64-unknown-linux-musl",
+    ],
     versions = ["1.92.0"],
 )
 use_repo(rust, "rust_toolchains")

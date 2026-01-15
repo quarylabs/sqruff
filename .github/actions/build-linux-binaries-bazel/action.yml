@@ -1,0 +1,65 @@
+name: "Build Linux Binaries with Bazel"
+description: "Build Linux musl binaries using Bazel"
+inputs:
+  package:
+    description: "Whether to package the binaries into archives"
+    required: false
+    default: "false"
+  publish:
+    description: "Whether to publish the binaries"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+    - uses: bazel-contrib/setup-bazel@083175551ceeceebc757ebee2127fde78840ca77 # ratchet:bazel-contrib/setup-bazel@0.18.0
+      with:
+        bazelisk-cache: true
+        disk-cache: release-${{ matrix.platform.target }}
+        repository-cache: true
+    - name: Install musl-tools
+      run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
+      shell: bash
+    - name: Install musl cross-compilation toolchain (aarch64)
+      if: matrix.platform.target == 'aarch64-unknown-linux-musl'
+      run: |
+        sudo apt-get install --yes gcc-aarch64-linux-gnu
+      shell: bash
+    - name: Build binary with Bazel
+      run: |
+        bazelisk build --config=ci //:${{ matrix.platform.bazel_target }}
+      shell: bash
+    - name: Copy binary to workspace root
+      run: |
+        cp bazel-bin/crates/cli/sqruff ${{ matrix.platform.bin }}
+        chmod +x ${{ matrix.platform.bin }}
+      shell: bash
+    - name: Strip binary
+      run: |
+        if [[ "${{ matrix.platform.target }}" == "x86_64-unknown-linux-musl" ]]; then
+          strip ${{ matrix.platform.bin }}
+        elif [[ "${{ matrix.platform.target }}" == "aarch64-unknown-linux-musl" ]]; then
+          aarch64-linux-gnu-strip ${{ matrix.platform.bin }} || true
+        fi
+      shell: bash
+    - name: Package as archive
+      if: inputs.package == 'true'
+      shell: bash
+      run: |
+        tar czvf ${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+    - name: Generate SHA-256 and Save to File
+      if: inputs.package == 'true'
+      shell: bash
+      run: |
+        if command -v shasum >/dev/null 2>&1; then
+          shasum -a 256 "${{ matrix.platform.name }}" > "${{ matrix.platform.name }}.sha256"
+        else
+          sha256sum "${{ matrix.platform.name }}" > "${{ matrix.platform.name }}.sha256"
+        fi
+    - name: Generate artifact attestation
+      if: inputs.publish == 'true'
+      uses: actions/attest-build-provenance@c074443f1aee8d4aeeae555aebba3282517141b2 # ratchet:actions/attest-build-provenance@v2
+      with:
+        subject-path: "sqruff-*"

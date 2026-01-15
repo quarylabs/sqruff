@@ -74,6 +74,45 @@ jobs:
           omitDraftDuringUpdate: true
           artifacts: |
             editors/code/*.vsix
+  release-linux:
+    name: Release Linux ${{ matrix.platform.target }}
+    runs-on: ubuntu-latest
+    needs:
+      - check-versions-match
+    permissions:
+      id-token: write
+      contents: write
+      attestations: write
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: sqruff-linux-x86_64-musl.tar.gz
+            target: x86_64-unknown-linux-musl
+            bin: sqruff
+            bazel_target: sqruff_linux_x86_64_musl
+          - name: sqruff-linux-aarch64-musl.tar.gz
+            target: aarch64-unknown-linux-musl
+            bin: sqruff
+            bazel_target: sqruff_linux_aarch64_musl
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
+      - uses: ./.github/actions/build-linux-binaries-bazel
+        with:
+          package: true
+          publish: true
+      - name: Publish GitHub release
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b # ratchet:ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          draft: true
+          omitBody: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+          omitDraftDuringUpdate: true
+          artifacts: |
+            sqruff-*
   release:
     name: Release ${{ matrix.platform.target }}
     runs-on: ${{ matrix.platform.os }}
@@ -88,14 +127,6 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - name: sqruff-linux-x86_64-musl.tar.gz
-            os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
-            bin: sqruff
-          - name: sqruff-linux-aarch64-musl.tar.gz
-            os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
-            bin: sqruff
           - name: sqruff-windows-x86_64.zip
             os: windows-latest
             target: x86_64-pc-windows-msvc
@@ -157,6 +188,7 @@ jobs:
     permissions: write-all
     needs:
       - release
+      - release-linux
       - release-vsix
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5

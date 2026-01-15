@@ -117,6 +117,16 @@ jobs:
 
 In addition to the CLI installation mechanism listed above, sqruff is also released as a [Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=Quary.sqruff).
 
+#### VS Code settings
+
+To point the extension at a custom binary, set `sqruff.executablePath` in `.vscode/settings.json`:
+
+```json
+{
+  "sqruff.executablePath": "/path/to/sqruff"
+}
+```
+
 ### Usage
 
 #### Linting

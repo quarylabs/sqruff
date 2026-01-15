@@ -15,6 +15,18 @@
     "Linters",
     "Formatters"
   ],
+  "contributes": {
+    "configuration": {
+      "title": "sqruff",
+      "properties": {
+        "sqruff.executablePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the sqruff executable. If empty, the extension tries the bundled binary and then PATH."
+        }
+      }
+    }
+  },
   "activationEvents": [
     "onLanguage:sql"
   ],

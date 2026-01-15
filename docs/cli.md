@@ -12,6 +12,7 @@ This document contains the help content for the `sqruff` command-line program.
 * [`sqruff rules`↴](#sqruff-rules)
 * [`sqruff dialects`↴](#sqruff-dialects)
 * [`sqruff templaters`↴](#sqruff-templaters)
+* [`sqruff baseline`↴](#sqruff-baseline)
 
 ## `sqruff`
 
@@ -28,6 +29,7 @@ sqruff is a sql formatter and linter
 * `rules` — Explain the available rules
 * `dialects` — List available dialects
 * `templaters` — List available templaters
+* `baseline` — Generate a baseline of existing violations
 
 ###### **Options:**
 
@@ -57,6 +59,7 @@ Lint SQL files via passing a list of files or using stdin
 
   Possible values: `human`, `github-annotation-native`, `json`
 
+* `--baseline <BASELINE>` — Path to a baseline file. Only violations not in the baseline will be reported
 
 
 
@@ -118,6 +121,22 @@ List available dialects
 List available templaters
 
 **Usage:** `sqruff templaters`
+
+
+
+## `sqruff baseline`
+
+Generate a baseline of existing violations
+
+**Usage:** `sqruff baseline [OPTIONS] [PATHS]...`
+
+###### **Arguments:**
+
+* `<PATHS>` — Files or directories to scan for creating a baseline. Use `-` to read from stdin
+
+###### **Options:**
+
+* `-o`, `--output <OUTPUT>` — Output file for the baseline. If not specified, outputs to stdout
 
 
 

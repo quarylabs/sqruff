@@ -48,6 +48,11 @@ pub enum Commands {
     Dialects,
     #[command(name = "templaters", about = "List available templaters")]
     Templaters,
+    #[command(
+        name = "baseline",
+        about = "Generate a baseline of existing violations"
+    )]
+    Baseline(BaselineArgs),
     #[cfg(feature = "parser")]
     #[command(
         name = "parse",
@@ -62,6 +67,18 @@ pub struct LintArgs {
     pub paths: Vec<PathBuf>,
     #[arg(default_value_t, short, long)]
     pub format: Format,
+    /// Path to a baseline file. Only violations not in the baseline will be reported.
+    #[arg(long)]
+    pub baseline: Option<PathBuf>,
+}
+
+#[derive(Debug, Parser)]
+pub struct BaselineArgs {
+    /// Files or directories to scan for creating a baseline. Use `-` to read from stdin.
+    pub paths: Vec<PathBuf>,
+    /// Output file for the baseline. If not specified, outputs to stdout.
+    #[arg(short, long)]
+    pub output: Option<PathBuf>,
 }
 
 #[derive(Debug, Parser)]

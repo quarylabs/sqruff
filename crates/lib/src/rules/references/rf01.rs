@@ -1,5 +1,3 @@
-use std::cell::RefCell;
-
 use ahash::AHashMap;
 use itertools::Itertools;
 use smol_str::SmolStr;
@@ -10,7 +8,7 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::object_reference::{
     ObjectReferenceLevel, ObjectReferencePart, ObjectReferenceSegment,
 };
-use sqruff_lib_core::utils::analysis::query::{Query, QueryInner, Selectable};
+use sqruff_lib_core::utils::analysis::query::{Query, Selectable};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -24,8 +22,7 @@ struct RF01QueryData {
     standalone_aliases: Vec<SmolStr>,
 }
 
-type QueryKey<'a> = *const RefCell<QueryInner<'a>>;
-type RF01State<'a> = AHashMap<QueryKey<'a>, RF01QueryData>;
+type RF01State<'a> = AHashMap<usize, RF01QueryData>;
 
 #[derive(Debug, Clone, Default)]
 pub struct RuleRF01 {
@@ -74,7 +71,7 @@ impl RuleRF01 {
         }
 
         if !object_ref_matches_table(&possible_references, &targets) {
-            if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
+            if let Some(parent) = query.parent().cloned() {
                 return self.resolve_reference(
                     r,
                     tbl_refs.clone(),
@@ -138,9 +135,8 @@ impl RuleRF01 {
         violations: &mut Vec<LintResult>,
     ) {
         payloads.entry(query.id()).or_default();
-        let selectables = std::mem::take(&mut RefCell::borrow_mut(&query.inner).selectables);
 
-        for selectable in &selectables {
+        for selectable in query.selectables() {
             if let Some(select_info) = selectable.select_info() {
                 let table_aliases = select_info.table_aliases;
                 let standalone_aliases = select_info.standalone_aliases;
@@ -156,7 +152,7 @@ impl RuleRF01 {
                     if !self.should_ignore_reference(&r, selectable) {
                         let violation = self.resolve_reference(
                             &r,
-                            self.get_table_refs(&r, RefCell::borrow(&query.inner).dialect),
+                            self.get_table_refs(&r, query.dialect()),
                             dml_target_table,
                             query.clone(),
                             payloads,
@@ -166,8 +162,6 @@ impl RuleRF01 {
                 }
             }
         }
-
-        RefCell::borrow_mut(&query.inner).selectables = selectables;
 
         for child in query.children() {
             self.analyze_table_references(child, dml_target_table, payloads, violations);

@@ -10,6 +10,8 @@ use sqruff_lib_core::dialects::init::{DialectKind, dialect_readout};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use sqruff_lib_dialects::kind_to_dialect;
+#[cfg(feature = "postgres")]
+use sqruff_lib_dialects::postgres::apply_pgvector_extension;
 
 use crate::utils::reflow::config::ReflowConfig;
 
@@ -121,7 +123,30 @@ impl FluffConfig {
             _value => DialectKind::default(),
         };
 
-        let dialect = kind_to_dialect(&dialect);
+        let mut dialect = kind_to_dialect(&dialect);
+
+        // Apply dialect extensions based on configuration
+        #[cfg(feature = "postgres")]
+        if let Some(ref mut dialect) = dialect {
+            if dialect.name() == DialectKind::Postgres {
+                // Check for postgres extensions configuration
+                if let Some(postgres_config) = configs.get("postgres") {
+                    if let Some(extensions) = postgres_config
+                        .as_map()
+                        .and_then(|m| m.get("extensions"))
+                        .and_then(|v| v.as_string())
+                    {
+                        // Parse comma-separated extension list
+                        for ext in extensions.split(',').map(|s| s.trim()) {
+                            if ext.eq_ignore_ascii_case("pgvector") {
+                                apply_pgvector_extension(dialect);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         for (in_key, out_key) in [
             // Deal with potential ignore & warning parameters
             ("ignore", "ignore"),

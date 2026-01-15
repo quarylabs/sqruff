@@ -38,7 +38,9 @@ function resolveExecutablePath(
   if (
     workspaceFolderPath !== undefined &&
     !path.isAbsolute(resolved) &&
-    (resolved.startsWith(".") || resolved.includes("/") || resolved.includes("\\"))
+    (resolved.startsWith(".") ||
+      resolved.includes("/") ||
+      resolved.includes("\\"))
   ) {
     resolved = path.join(workspaceFolderPath, resolved);
   }

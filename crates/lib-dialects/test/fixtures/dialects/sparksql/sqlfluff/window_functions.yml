@@ -37,7 +37,8 @@ file:
                     - naked_identifier: salary
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: row_rank
     - from_clause:
       - keyword: FROM
@@ -93,7 +94,8 @@ file:
                   - keyword: ROW
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: row_dense_rank
     - from_clause:
       - keyword: FROM
@@ -153,7 +155,8 @@ file:
                   - keyword: ROW
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: data_cume_dist
     - from_clause:
       - keyword: FROM
@@ -208,7 +211,8 @@ file:
                     - naked_identifier: salary
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: salary_min
     - from_clause:
       - keyword: FROM
@@ -259,7 +263,8 @@ file:
                     - naked_identifier: salary
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: salary_lag
       - comma: ','
       - select_clause_element:
@@ -297,7 +302,8 @@ file:
                     - naked_identifier: salary
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: salary_lead
     - from_clause:
       - keyword: FROM
@@ -350,7 +356,8 @@ file:
                     - naked_identifier: salary
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: salary_lag
       - comma: ','
       - select_clause_element:
@@ -390,7 +397,8 @@ file:
                     - naked_identifier: salary
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: salary_lead
     - from_clause:
       - keyword: FROM
@@ -443,7 +451,8 @@ file:
                     - naked_identifier: salary
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: salary_lag
       - comma: ','
       - select_clause_element:
@@ -483,7 +492,8 @@ file:
                     - naked_identifier: salary
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: salary_lead
     - from_clause:
       - keyword: FROM
@@ -525,7 +535,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_lead
       - comma: ','
       - select_clause_element:
@@ -548,7 +559,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_lag
       - comma: ','
       - select_clause_element:
@@ -571,7 +583,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_nth_value
       - comma: ','
       - select_clause_element:
@@ -591,7 +604,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_first_value
       - comma: ','
       - select_clause_element:
@@ -611,7 +625,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_last_value
     - from_clause:
       - keyword: FROM
@@ -620,20 +635,20 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test_ignore_null
-          - named_window:
-            - keyword: WINDOW
-            - named_window_expression:
-              - naked_identifier: w
-              - keyword: AS
-              - bracketed:
-                - start_bracket: (
-                - window_specification:
-                  - orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                      - naked_identifier: id
-                - end_bracket: )
+    - named_window:
+      - keyword: WINDOW
+      - named_window_expression:
+        - naked_identifier: w
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - window_specification:
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: id
+          - end_bracket: )
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -672,7 +687,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_lead
       - comma: ','
       - select_clause_element:
@@ -695,7 +711,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_lag
       - comma: ','
       - select_clause_element:
@@ -718,7 +735,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_nth_value
       - comma: ','
       - select_clause_element:
@@ -738,7 +756,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_first_value
       - comma: ','
       - select_clause_element:
@@ -758,7 +777,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_last_value
     - from_clause:
       - keyword: FROM
@@ -767,20 +787,20 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test_ignore_null
-          - named_window:
-            - keyword: WINDOW
-            - named_window_expression:
-              - naked_identifier: w
-              - keyword: AS
-              - bracketed:
-                - start_bracket: (
-                - window_specification:
-                  - orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                      - naked_identifier: id
-                - end_bracket: )
+    - named_window:
+      - keyword: WINDOW
+      - named_window_expression:
+        - naked_identifier: w
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - window_specification:
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: id
+          - end_bracket: )
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -825,7 +845,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_lead
       - comma: ','
       - select_clause_element:
@@ -850,7 +871,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_lag
       - comma: ','
       - select_clause_element:
@@ -875,7 +897,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_nth_value
       - comma: ','
       - select_clause_element:
@@ -897,7 +920,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_first_value
       - comma: ','
       - select_clause_element:
@@ -919,7 +943,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_last_value
     - from_clause:
       - keyword: FROM
@@ -929,24 +954,25 @@ file:
             - table_reference:
               - naked_identifier: test_ignore_null
           - alias_expression:
-            - keyword: AS
-            - naked_identifier: ignore_nulls
-          - named_window:
-            - keyword: WINDOW
-            - named_window_expression:
-              - naked_identifier: w
+            - alias_operator:
               - keyword: AS
-              - bracketed:
-                - start_bracket: (
-                - window_specification:
-                  - orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                      - naked_identifier: ignore_nulls
-                      - dot: .
-                      - naked_identifier: id
-                - end_bracket: )
+            - naked_identifier: ignore_nulls
+    - named_window:
+      - keyword: WINDOW
+      - named_window_expression:
+        - naked_identifier: w
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - window_specification:
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: ignore_nulls
+                - dot: .
+                - naked_identifier: id
+          - end_bracket: )
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY
@@ -993,7 +1019,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_lead
       - comma: ','
       - select_clause_element:
@@ -1018,7 +1045,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_lag
       - comma: ','
       - select_clause_element:
@@ -1043,7 +1071,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_nth_value
       - comma: ','
       - select_clause_element:
@@ -1065,7 +1094,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_first_value
       - comma: ','
       - select_clause_element:
@@ -1087,7 +1117,8 @@ file:
             - keyword: OVER
             - naked_identifier: w
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: v_last_value
     - from_clause:
       - keyword: FROM
@@ -1097,36 +1128,37 @@ file:
             - table_reference:
               - naked_identifier: test_ignore_null
           - alias_expression:
-            - keyword: AS
-            - naked_identifier: ignore_nulls
-          - named_window:
-            - keyword: WINDOW
-            - named_window_expression:
-              - naked_identifier: w
+            - alias_operator:
               - keyword: AS
-              - bracketed:
-                - start_bracket: (
-                - window_specification:
-                  - orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                      - naked_identifier: ignore_nulls
-                      - dot: .
-                      - naked_identifier: id
-                  - frame_clause:
-                    - keyword: range
-                    - keyword: between
-                    - interval_expression:
-                      - keyword: interval
-                      - interval_literal:
-                        - numeric_literal: '6'
-                        - date_part: days
-                    - keyword: preceding
-                    - keyword: and
-                    - keyword: current
-                    - keyword: row
-                - end_bracket: )
+            - naked_identifier: ignore_nulls
+    - named_window:
+      - keyword: WINDOW
+      - named_window_expression:
+        - naked_identifier: w
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - window_specification:
+            - orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: ignore_nulls
+                - dot: .
+                - naked_identifier: id
+            - frame_clause:
+              - keyword: range
+              - keyword: between
+              - interval_expression:
+                - keyword: interval
+                - interval_literal:
+                  - numeric_literal: '6'
+                  - date_part: days
+              - keyword: preceding
+              - keyword: and
+              - keyword: current
+              - keyword: row
+          - end_bracket: )
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY

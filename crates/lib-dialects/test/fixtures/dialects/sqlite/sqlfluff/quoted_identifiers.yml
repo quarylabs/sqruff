@@ -1,0 +1,64 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '`nih`'
+          - dot: .
+          - quoted_identifier: '`userID`'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - quoted_identifier: '`flight_notification_item_history`'
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - quoted_identifier: '`nih`'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '''nih'''
+          - dot: .
+          - quoted_identifier: '''userID'''
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - quoted_identifier: '''flight_notification_item_history'''
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - quoted_identifier: '''nih'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"nih"'
+          - dot: .
+          - quoted_identifier: '"userID"'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - quoted_identifier: '"flight_notification_item_history"'
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - quoted_identifier: '"nih"'
+- statement_terminator: ;

@@ -33,7 +33,8 @@ file:
                 - quoted_literal: '''cashew'''
             - keyword: end
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: fruit
     - from_clause:
       - keyword: from

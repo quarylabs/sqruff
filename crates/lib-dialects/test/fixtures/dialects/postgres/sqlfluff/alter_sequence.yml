@@ -5,7 +5,7 @@ file:
     - keyword: SEQUENCE
     - keyword: IF
     - keyword: EXISTS
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: AS
@@ -16,7 +16,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: INCREMENT
@@ -33,7 +33,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: INCREMENT
@@ -49,7 +49,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: START
@@ -62,7 +62,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: RESTART
@@ -76,7 +76,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: OWNED
@@ -90,7 +90,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - alter_sequence_options_segment:
       - keyword: OWNED
@@ -103,7 +103,7 @@ file:
     - keyword: SEQUENCE
     - keyword: IF
     - keyword: EXISTS
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - keyword: OWNER
     - keyword: TO
@@ -113,7 +113,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - keyword: OWNER
     - keyword: TO
@@ -123,7 +123,7 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - keyword: OWNER
     - keyword: TO
@@ -133,22 +133,41 @@ file:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - keyword: RENAME
     - keyword: TO
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo2
 - statement_terminator: ;
 - statement:
   - alter_sequence_statement:
     - keyword: ALTER
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
     - keyword: SET
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+  - alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+      - naked_identifier: foo
+    - alter_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - sign_indicator: '-'
+      - numeric_literal: '4'
+    - alter_sequence_options_segment:
+      - keyword: MINVALUE
+      - sign_indicator: '-'
+      - numeric_literal: '100'
+    - alter_sequence_options_segment:
+      - keyword: MAXVALUE
+      - sign_indicator: +
+      - numeric_literal: '2'
 - statement_terminator: ;

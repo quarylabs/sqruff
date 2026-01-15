@@ -23,8 +23,12 @@ pub mod databricks_keywords;
 pub mod duckdb;
 #[cfg(feature = "hive")]
 pub mod hive;
+#[cfg(feature = "hive")]
+mod hive_keywords;
 #[cfg(feature = "mysql")]
 pub mod mysql;
+#[cfg(feature = "mysql")]
+mod mysql_keywords;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 #[cfg(feature = "postgres")]
@@ -68,6 +72,8 @@ pub fn kind_to_dialect(kind: &DialectKind) -> Option<Dialect> {
         DialectKind::Databricks => databricks::dialect(),
         #[cfg(feature = "duckdb")]
         DialectKind::Duckdb => duckdb::dialect(),
+        #[cfg(feature = "hive")]
+        DialectKind::Hive => hive::dialect(),
         #[cfg(feature = "mysql")]
         DialectKind::Mysql => mysql::dialect(),
         #[cfg(feature = "postgres")]

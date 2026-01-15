@@ -25,7 +25,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -61,7 +62,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -97,7 +99,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -133,7 +136,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -169,7 +173,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -205,7 +210,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -241,7 +247,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -277,7 +284,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -313,7 +321,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -349,7 +358,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -385,7 +395,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -421,7 +432,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -457,7 +469,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -493,7 +506,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -529,7 +543,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -565,7 +580,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -601,7 +617,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -637,7 +654,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -673,7 +691,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -709,7 +728,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -745,7 +765,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -781,7 +802,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -817,7 +839,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -853,7 +876,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -889,7 +913,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -925,7 +950,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -961,7 +987,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -997,7 +1024,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1033,7 +1061,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1069,7 +1098,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1105,7 +1135,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1141,7 +1172,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1177,7 +1209,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1213,7 +1246,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1249,7 +1283,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1285,7 +1320,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1321,7 +1357,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1357,7 +1394,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1393,7 +1431,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1429,7 +1468,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1465,7 +1505,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1501,7 +1542,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1537,7 +1579,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1573,7 +1616,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1609,7 +1653,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1645,7 +1690,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1681,7 +1727,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1717,7 +1764,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1753,7 +1801,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1789,7 +1838,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1825,7 +1875,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1861,7 +1912,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1897,7 +1949,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1933,7 +1986,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -1969,7 +2023,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2005,7 +2060,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2041,7 +2097,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2077,7 +2134,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2113,7 +2171,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2149,7 +2208,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2185,7 +2245,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2221,7 +2282,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2257,7 +2319,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2293,7 +2356,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2329,7 +2393,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2365,7 +2430,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2401,7 +2467,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2437,7 +2504,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2473,7 +2541,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2509,7 +2578,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2545,7 +2615,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2581,7 +2652,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2617,7 +2689,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2653,7 +2726,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2689,7 +2763,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2725,7 +2800,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2761,7 +2837,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2797,7 +2874,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2833,7 +2911,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2869,7 +2948,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2905,7 +2985,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2941,7 +3022,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -2977,7 +3059,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -3013,7 +3096,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -3049,7 +3133,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -3085,7 +3170,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -3121,7 +3207,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -3157,7 +3244,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -3193,7 +3281,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -3229,7 +3318,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -3265,7 +3355,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -3301,7 +3392,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM
@@ -3337,7 +3429,8 @@ file:
                   - naked_identifier: sometime
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
     - from_clause:
       - keyword: FROM

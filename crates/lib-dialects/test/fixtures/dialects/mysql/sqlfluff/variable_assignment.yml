@@ -1,0 +1,66 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - variable: '@var1'
+          - assignment_operator: :=
+          - function:
+            - function_name:
+              - function_name_identifier: COUNT
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - star: '*'
+                - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t1
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: '@var1'
+    - assignment_operator: :=
+    - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: '@var1'
+    - assignment_operator: :=
+    - expression:
+      - variable: '@var2'
+      - assignment_operator: :=
+      - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+  - update_statement:
+    - keyword: UPDATE
+    - table_reference:
+      - naked_identifier: t1
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - column_reference:
+          - naked_identifier: c1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '2'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: c1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - variable: '@var1'
+        - assignment_operator: :=
+        - numeric_literal: '1'
+- statement_terminator: ;

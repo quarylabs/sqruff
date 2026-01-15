@@ -20,7 +20,8 @@ file:
                 - quoted_literal: '''America/New_York'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: date
       - comma: ','
       - select_clause_element:
@@ -55,7 +56,8 @@ file:
                   - keyword: END
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: tech_support
     - from_clause:
       - keyword: FROM

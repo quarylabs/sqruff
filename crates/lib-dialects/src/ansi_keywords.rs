@@ -1,5 +1,3 @@
-//! A list of all SQL keywords.
-
 pub(crate) const ANSI_RESERVED_KEYWORDS: &str = "SELECT
 JOIN
 ON

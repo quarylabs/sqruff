@@ -6,30 +6,35 @@ file:
       - select_clause_element:
         - bare_function: current_date
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: col1
       - comma: ','
       - select_clause_element:
         - bare_function: current_timestamp
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: col2
       - comma: ','
       - select_clause_element:
         - bare_function: current_time
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: col3
       - comma: ','
       - select_clause_element:
         - bare_function: localtime
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: col4
       - comma: ','
       - select_clause_element:
         - bare_function: localtimestamp
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: col5
 - statement_terminator: ;

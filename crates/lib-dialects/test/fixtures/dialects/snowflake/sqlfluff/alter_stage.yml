@@ -40,7 +40,7 @@ file:
     - object_reference:
       - naked_identifier: my_ext_stage
     - keyword: SET
-    - s3_external_stage_parameters:
+    - stage_parameters:
       - keyword: STORAGE_INTEGRATION
       - comparison_operator:
         - raw_comparison_operator: =
@@ -54,7 +54,7 @@ file:
     - object_reference:
       - naked_identifier: my_ext_stage
     - keyword: SET
-    - s3_external_stage_parameters:
+    - stage_parameters:
       - keyword: CREDENTIALS
       - comparison_operator:
         - raw_comparison_operator: =
@@ -77,7 +77,7 @@ file:
     - object_reference:
       - naked_identifier: my_ext_stage3
     - keyword: SET
-    - s3_external_stage_parameters:
+    - stage_parameters:
       - keyword: ENCRYPTION
       - comparison_operator:
         - raw_comparison_operator: =

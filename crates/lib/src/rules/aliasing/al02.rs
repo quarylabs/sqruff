@@ -83,11 +83,11 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        if matches!(
-            context.segment
-                .child(&SyntaxSet::new(&[SyntaxKind::AliasOperator])),
-            Some(alias_operator) if alias_operator.raw() == "="
-        ) {
+        if context
+            .segment
+            .child(&SyntaxSet::new(&[SyntaxKind::AliasOperator]))
+            .is_some_and(|alias_operator| alias_operator.raw() == "=")
+        {
             return Vec::new();
         }
 

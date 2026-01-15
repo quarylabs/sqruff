@@ -1,0 +1,75 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: col1
+        - data_type:
+          - primitive_type:
+            - keyword: INT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col2
+        - data_type:
+          - primitive_type:
+            - keyword: BIGINT
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col3
+        - data_type:
+          - primitive_type:
+            - keyword: STRING
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col4
+        - data_type:
+          - primitive_type:
+            - keyword: STRING
+        - column_constraint_segment:
+          - comment_clause:
+            - keyword: COMMENT
+            - quoted_literal: '''Column 4'''
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: '''This is a test table'''
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: '''\001'''
+      - keyword: COLLECTION
+      - keyword: ITEMS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: '''\002'''
+      - keyword: MAP
+      - keyword: KEYS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: '''\003'''
+      - keyword: LINES
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: '''\004'''
+      - keyword: 'NULL'
+      - keyword: DEFINED
+      - keyword: AS
+      - quoted_literal: '''\005'''
+    - keyword: STORED
+    - keyword: AS
+    - file_format: SEQUENCEFILE
+- statement_terminator: ;

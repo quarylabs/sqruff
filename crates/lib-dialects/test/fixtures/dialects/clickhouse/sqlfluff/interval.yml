@@ -356,7 +356,8 @@ file:
                 - dot: .
                 - naked_identifier: tbl2
             - alias_expression:
-              - keyword: as
+              - alias_operator:
+                - keyword: as
               - naked_identifier: db2_tbl2
           - join_on_condition:
             - keyword: on

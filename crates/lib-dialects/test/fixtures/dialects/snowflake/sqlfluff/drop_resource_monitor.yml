@@ -1,0 +1,11 @@
+file:
+- statement:
+  - drop_resource_monitor_statement:
+    - keyword: DROP
+    - keyword: RESOURCE
+    - keyword: MONITOR
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_rm
+- statement_terminator: ;

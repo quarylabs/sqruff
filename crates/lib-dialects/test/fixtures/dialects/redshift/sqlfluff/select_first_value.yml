@@ -7,21 +7,23 @@ file:
         - function:
           - function_name:
             - function_name_identifier: first_value
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: finalsaleprice
-            - keyword: ignore
-            - keyword: nulls
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: finalsaleprice
+              - keyword: ignore
+              - keyword: nulls
+              - end_bracket: )
           - over_clause:
             - keyword: over
             - bracketed:
               - start_bracket: (
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: c1
     - from_clause:
       - keyword: from

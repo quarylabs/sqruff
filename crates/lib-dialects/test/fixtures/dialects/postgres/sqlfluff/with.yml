@@ -38,7 +38,8 @@ file:
               - table_reference:
                 - naked_identifier: w
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: w1
           - join_clause:
             - keyword: JOIN
@@ -47,7 +48,8 @@ file:
                 - table_reference:
                   - naked_identifier: w
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: w2
             - join_on_condition:
               - keyword: ON
@@ -113,7 +115,8 @@ file:
               - table_reference:
                 - naked_identifier: w
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: w1
           - join_clause:
             - keyword: JOIN
@@ -122,7 +125,8 @@ file:
                 - table_reference:
                   - naked_identifier: w
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: w2
             - join_on_condition:
               - keyword: ON

@@ -52,16 +52,15 @@ file:
       - from_expression:
         - bracketed:
           - start_bracket: (
-          - bracketed:
-            - start_bracket: (
-            - from_expression:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - naked_identifier: my_table
-                - alias_expression:
-                  - naked_identifier: tt
-            - end_bracket: )
+          - from_expression_element:
+            - bracketed:
+              - start_bracket: (
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: my_table
+              - alias_expression:
+                - naked_identifier: tt
+              - end_bracket: )
           - end_bracket: )
 - statement_terminator: ;
 - statement:

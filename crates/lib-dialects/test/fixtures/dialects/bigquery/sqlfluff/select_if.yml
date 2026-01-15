@@ -37,7 +37,8 @@ file:
                 - quoted_literal: '''Origin'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: source
       - comma: ','
       - select_clause_element:
@@ -51,7 +52,8 @@ file:
                 - numeric_literal: '0'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: total
     - from_clause:
       - keyword: FROM
@@ -122,7 +124,8 @@ file:
                           - end_bracket: )
                   - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: vary
     - where_clause:
       - keyword: WHERE

@@ -1,0 +1,48 @@
+file:
+- statement:
+  - create_aggregate_statement:
+    - keyword: CREATE
+    - keyword: AGGREGATE
+    - object_reference:
+      - naked_identifier: agg_twocols
+    - bracketed:
+      - start_bracket: (
+      - word: numeric
+      - comma: ','
+      - word: numeric
+      - end_bracket: )
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - data_type:
+          - data_type_identifier: SFUNC
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: mysfunc_accum
+        - comma: ','
+        - data_type:
+          - data_type_identifier: STYPE
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: numeric
+        - comma: ','
+        - data_type:
+          - data_type_identifier: COMBINEFUNC
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: mycombine_accum
+        - comma: ','
+        - data_type:
+          - data_type_identifier: INITCOND
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - numeric_literal: '0'
+        - end_bracket: )
+- statement_terminator: ;

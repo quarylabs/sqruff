@@ -44,7 +44,8 @@ file:
                 - dot: .
                 - quoted_identifier: '"other_data"'
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: od
           - join_on_condition:
             - keyword: ON

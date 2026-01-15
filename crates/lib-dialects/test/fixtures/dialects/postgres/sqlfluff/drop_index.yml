@@ -3,14 +3,14 @@ file:
   - drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
 - statement_terminator: ;
 - statement:
   - drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - quoted_identifier: '"abc"'
 - statement_terminator: ;
 - statement:
@@ -19,20 +19,20 @@ file:
     - keyword: INDEX
     - keyword: IF
     - keyword: EXISTS
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
 - statement_terminator: ;
 - statement:
   - drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
     - comma: ','
-    - database_reference:
+    - index_reference:
       - quoted_identifier: '"def"'
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: ghi
 - statement_terminator: ;
 - statement:
@@ -41,20 +41,20 @@ file:
     - keyword: INDEX
     - keyword: IF
     - keyword: EXISTS
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: def
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: ghi
 - statement_terminator: ;
 - statement:
   - drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
     - keyword: CASCADE
 - statement_terminator: ;
@@ -62,13 +62,13 @@ file:
   - drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: def
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: ghi
     - keyword: CASCADE
 - statement_terminator: ;
@@ -78,13 +78,13 @@ file:
     - keyword: INDEX
     - keyword: IF
     - keyword: EXISTS
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: def
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: ghi
     - keyword: CASCADE
 - statement_terminator: ;
@@ -92,7 +92,7 @@ file:
   - drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
     - keyword: RESTRICT
 - statement_terminator: ;
@@ -100,13 +100,13 @@ file:
   - drop_index_statement:
     - keyword: DROP
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: def
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: ghi
     - keyword: RESTRICT
 - statement_terminator: ;
@@ -115,7 +115,7 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - keyword: CONCURRENTLY
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
 - statement_terminator: ;
 - statement:
@@ -125,7 +125,7 @@ file:
     - keyword: CONCURRENTLY
     - keyword: IF
     - keyword: EXISTS
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
 - statement_terminator: ;
 - statement:
@@ -133,10 +133,10 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - keyword: CONCURRENTLY
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: def
 - statement_terminator: ;
 - statement:
@@ -146,10 +146,10 @@ file:
     - keyword: CONCURRENTLY
     - keyword: IF
     - keyword: EXISTS
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: def
 - statement_terminator: ;
 - statement:
@@ -157,10 +157,10 @@ file:
     - keyword: DROP
     - keyword: INDEX
     - keyword: CONCURRENTLY
-    - database_reference:
+    - index_reference:
       - naked_identifier: abc
     - comma: ','
-    - database_reference:
+    - index_reference:
       - naked_identifier: def
     - keyword: CASCADE
 - statement_terminator: ;

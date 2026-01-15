@@ -42,7 +42,8 @@ file:
                   - keyword: ROW
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: bat
     - from_clause:
       - keyword: from

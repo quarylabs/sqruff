@@ -10,39 +10,30 @@ file:
     - from_clause:
       - keyword: FROM
       - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - function:
-              - function_name:
-                - naked_identifier: ML
-                - dot: .
-                - function_name_identifier: PREDICT
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
+        - ml_table_expression:
+          - keyword: ML
+          - dot: .
+          - naked_identifier: PREDICT
+          - bracketed:
+            - start_bracket: (
+            - keyword: MODEL
+            - object_reference:
+              - quoted_identifier: '`project.dataset.model`'
+            - comma: ','
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
                     - column_reference:
-                      - naked_identifier: MODEL
-                  - expression:
-                    - column_reference:
-                      - quoted_identifier: '`project.dataset.model`'
-                  - comma: ','
-                  - expression:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - select_statement:
-                          - select_clause:
-                            - keyword: SELECT
-                            - select_clause_element:
-                              - column_reference:
-                                - naked_identifier: user_id
-                          - from_clause:
-                            - keyword: FROM
-                            - from_expression:
-                              - from_expression_element:
-                                - table_expression:
-                                  - table_reference:
-                                    - quoted_identifier: '`project.dataset.stats`'
-                      - end_bracket: )
-                  - end_bracket: )
+                      - naked_identifier: user_id
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
+                      - table_expression:
+                        - table_reference:
+                          - quoted_identifier: '`project.dataset.stats`'
+              - end_bracket: )
+            - end_bracket: )

@@ -65,3 +65,149 @@ RAISE;
 RAISE USING MESSAGE = "Test";
 RAISE USING MESSAGE = error_message;
 END;
+
+CREATE OR REPLACE PROCEDURE place_name.proc_name
+(
+    _log STRUCT<
+        Process_ID STRING,
+        Debug INT64
+    >
+)
+
+BEGIN
+
+-- Declaration
+
+    DECLARE _source_table STRING;
+
+    CREATE OR REPLACE TEMP TABLE _session.__calendar_target_buffer
+    (
+        some_id INT64
+    );
+
+    --try
+    BEGIN
+
+        SET _metric_id = 1001;
+
+        -- define metric details
+        CALL some_place.some_name1 (
+            _some_id
+        );
+
+    --end try
+    END;
+END;
+
+CREATE OR REPLACE PROCEDURE place_name.proc_name
+(
+    _log STRUCT<
+        Process_ID STRING,
+        Debug INT64
+    >
+)
+
+BEGIN
+
+-- Declaration
+
+    DECLARE _source_table STRING;
+
+    CREATE OR REPLACE TEMP TABLE _session.__calendar_target_buffer
+    (
+        some_id INT64
+    );
+
+    --try
+    BEGIN
+
+        SET _metric_id = 1001;
+
+        -- define metric details
+        CALL some_place.some_name1 (
+            _some_id
+        );
+
+        FOR x IN
+            (
+                SELECT 1
+            )
+        DO
+            FOR y IN
+                (
+                    SELECT x
+                )
+            DO
+                BEGIN;
+                SELECT y;
+                COMMIT TRANSACTION;
+            END FOR;
+        END FOR;
+
+    --end try
+    END;
+END;
+
+CREATE OR REPLACE PROCEDURE place_name.proc_name
+(
+    _log STRUCT<
+        Process_ID STRING,
+        Debug INT64
+    >
+)
+OPTIONS
+(
+    strict_mode = TRUE,
+    description =
+'''
+Author:
+'''
+)
+BEGIN
+
+-- Declaration
+
+    DECLARE _source_table STRING;
+
+    CREATE OR REPLACE TEMP TABLE _session.__calendar_target_buffer
+    (
+        some_id INT64
+    );
+
+    --try
+    BEGIN
+
+        -- Initialization:
+
+        SET _metric_id = 1001;
+        -- define metric details
+        CALL some_place.some_name1 (
+            _some_id
+        );
+
+    EXCEPTION WHEN ERROR THEN
+        RAISE;
+    --end try
+    END;
+END;
+
+CREATE
+OR REPLACE PROCEDURE `kkk.dynamic_table_creator` (
+    IN table_suffix STRING, IN num_rows INT64
+)
+BEGIN
+    DECLARE table_name STRING;
+
+    SET
+    table_name = 'my_table_' || table_suffix;
+
+    EXECUTE IMMEDIATE '''
+    CREATE OR REPLACE TABLE `my_dataset.''' || table_name || '''` AS
+    SELECT
+        GENERATE_UUID() AS id,
+        RAND() AS random_value
+    FROM
+        UNNEST(GENERATE_ARRAY(1, ''' || num_rows || ''')) AS num
+    ''';
+
+END;

@@ -15,7 +15,8 @@ file:
             - colon: ':'
             - semi_structured_element: value
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: uncasted
       - comma: ','
       - select_clause_element:
@@ -30,7 +31,8 @@ file:
             - data_type:
               - data_type_identifier: bigint
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: field_id
       - comma: ','
       - select_clause_element:
@@ -45,7 +47,8 @@ file:
             - data_type:
               - data_type_identifier: STRING
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: field_val
       - comma: ','
       - select_clause_element:
@@ -62,7 +65,8 @@ file:
             - dot: .
             - semi_structured_element: foo
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: another_val
       - comma: ','
       - select_clause_element:
@@ -91,7 +95,8 @@ file:
             - data_type:
               - data_type_identifier: bigint
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: another_val
       - comma: ','
       - select_clause_element:
@@ -106,7 +111,8 @@ file:
             - dot: .
             - semi_structured_element: array_element_property
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: test_array_access
     - from_clause:
       - keyword: FROM
@@ -160,7 +166,8 @@ file:
                   - numeric_literal: '6'
                   - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: lat
       - comma: ','
       - select_clause_element:
@@ -186,7 +193,8 @@ file:
                   - numeric_literal: '6'
                   - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: lng
     - from_clause:
       - keyword: FROM

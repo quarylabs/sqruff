@@ -75,6 +75,17 @@ prettier_bin.prettier_binary(
     ],
 )
 
+# ESLint check for all TypeScript packages
+# Runs ESLint on both playground and editors/code
+# Usage: bazel test //:eslint_check
+test_suite(
+    name = "eslint_check",
+    tests = [
+        "//editors/code:eslint_check",
+        "//playground:eslint_check",
+    ],
+)
+
 # Shellcheck test for shell scripts
 shellcheck_test(
     name = "shellcheck",

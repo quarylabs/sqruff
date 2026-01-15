@@ -3,9 +3,15 @@ exports_files([
     "LICENSE",
     "package.json",
     "README.md",
+    "eslint.config.mjs",
 ])
 
 load("@aspect_rules_js//js:defs.bzl", "js_library")
+load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//editors/code:eslint/package_json.bzl", eslint_bin = "bin")
+
+# Link npm packages for the editors/code workspace
+npm_link_all_packages(name = "node_modules")
 
 # Source files for prettier formatting (referenced by root BUILD.bazel)
 # Wrapped in js_library to support cross-package usage with js_binary
@@ -23,4 +29,54 @@ js_library(
         ".vscode-test/**",
     ]),
     visibility = ["//visibility:public"],
+)
+
+# Source files for ESLint (TypeScript files in src/)
+js_library(
+    name = "eslint_srcs",
+    srcs = glob([
+        "src/**/*.ts",
+    ]) + [
+        "eslint.config.mjs",
+        "tsconfig.json",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# ESLint check test
+# Usage: bazel test //editors/code:eslint_check
+eslint_bin.eslint_test(
+    name = "eslint_check",
+    size = "small",
+    args = [
+        "src",
+        "--max-warnings",
+        "0",
+    ],
+    chdir = package_name(),
+    data = [
+        ":eslint_srcs",
+        ":node_modules/@eslint/js",
+        ":node_modules/eslint",
+        ":node_modules/typescript",
+        ":node_modules/typescript-eslint",
+    ],
+)
+
+# ESLint fix binary (for fixing locally)
+# Usage: bazel run //editors/code:eslint_fix
+eslint_bin.eslint_binary(
+    name = "eslint_fix",
+    args = [
+        "src",
+        "--fix",
+    ],
+    chdir = package_name(),
+    data = [
+        ":eslint_srcs",
+        ":node_modules/@eslint/js",
+        ":node_modules/eslint",
+        ":node_modules/typescript",
+        ":node_modules/typescript-eslint",
+    ],
 )

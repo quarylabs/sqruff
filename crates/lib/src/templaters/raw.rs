@@ -5,36 +5,45 @@ use sqruff_lib_core::templaters::TemplatedFile;
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;
-use crate::templaters::Templater;
+use crate::templaters::{ProcessingMode, Templater};
 
 #[derive(Default)]
 pub struct RawTemplater;
+
+impl RawTemplater {
+    fn process_single(
+        &self,
+        in_str: &str,
+        f_name: &str,
+    ) -> Result<TemplatedFile, SQLFluffUserError> {
+        TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None)
+            .map_err(|e| SQLFluffUserError::new(format!("Raw templater error: {e}")))
+    }
+}
 
 impl Templater for RawTemplater {
     fn name(&self) -> &'static str {
         "raw"
     }
 
-    fn can_process_in_parallel(&self) -> bool {
-        true
-    }
-
     fn description(&self) -> &'static str {
         r"The raw templater simply returns the input string as the output string. It passes through the input string unchanged and is useful if you need no templating. It is the default templater."
     }
 
+    fn processing_mode(&self) -> ProcessingMode {
+        ProcessingMode::Parallel
+    }
+
     fn process(
         &self,
-        in_str: &str,
-        f_name: &str,
+        files: &[(&str, &str)],
         _config: &FluffConfig,
         _formatter: &Option<Arc<dyn Formatter>>,
-    ) -> Result<TemplatedFile, SQLFluffUserError> {
-        if let Ok(tf) = TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None)
-        {
-            return Ok(tf);
-        }
-        panic!("Not implemented")
+    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+        files
+            .iter()
+            .map(|(content, fname)| self.process_single(content, fname))
+            .collect()
     }
 }
 
@@ -48,15 +57,14 @@ mod test {
         let templater = RawTemplater;
         let in_str = "SELECT * FROM {{blah}}";
 
-        let outstr = templater
-            .process(
-                in_str,
-                "test.sql",
-                &FluffConfig::from_source("", None),
-                &None,
-            )
-            .unwrap();
+        let results = templater.process(
+            &[(in_str, "test.sql")],
+            &FluffConfig::from_source("", None),
+            &None,
+        );
 
+        assert_eq!(results.len(), 1);
+        let outstr = results.into_iter().next().unwrap().unwrap();
         assert_eq!(outstr.templated_str, Some(in_str.to_string()));
     }
 }

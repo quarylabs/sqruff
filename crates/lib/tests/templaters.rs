@@ -40,8 +40,12 @@ fn main() {
                 let parser = Parser::from(dialect);
 
                 let templater = Linter::get_templater(&config);
+                let file_name = sql_file.to_string_lossy();
                 let templated_file = templater
-                    .process(&sql, &sql_file.to_string_lossy(), &config, &None)
+                    .process(&[(&sql, &file_name)], &config, &None)
+                    .into_iter()
+                    .next()
+                    .unwrap()
                     .unwrap();
 
                 let (tokens, errors) = lexer.lex(&tables, templated_file);

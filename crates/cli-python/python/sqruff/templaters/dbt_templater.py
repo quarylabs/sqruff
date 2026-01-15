@@ -848,6 +848,49 @@ class SnapshotExtension(StandaloneTag):
         return ""
 
 
+# Cache for templater instances keyed by project directory.
+# This allows reuse of expensive cached properties (manifest, config, compiler)
+# across multiple files in the same project.
+_templater_cache: Dict[str, "DbtTemplater"] = {}
+
+
+def _get_or_create_templater(
+    config: FluffConfig,
+    live_context: Dict[str, Any],
+) -> "DbtTemplater":
+    """Get an existing templater for the project or create a new one.
+
+    This function implements templater instance caching to avoid reloading
+    the dbt manifest and configuration for each file in the same project.
+    """
+    project_dir = os.path.abspath(
+        os.path.expanduser(config.dbt_project_dir or os.getcwd())
+    )
+
+    if project_dir not in _templater_cache:
+        templater_logger.debug(
+            "Creating new DbtTemplater instance for project: %s", project_dir
+        )
+        _templater_cache[project_dir] = DbtTemplater(
+            override_context=live_context, sqlfluff_config=config
+        )
+    else:
+        templater_logger.debug(
+            "Reusing cached DbtTemplater instance for project: %s", project_dir
+        )
+
+    return _templater_cache[project_dir]
+
+
+def clear_templater_cache() -> None:
+    """Clear the templater cache.
+
+    This can be useful in long-running processes or tests to reset state.
+    """
+    global _templater_cache
+    _templater_cache.clear()
+
+
 def process_from_rust(
     string: str,
     fname: str,
@@ -856,7 +899,7 @@ def process_from_rust(
 ) -> TemplatedFile:
     """Process the call from the rust side."""
     config = fluff_config_from_json(config_string)
-    templater = DbtTemplater(override_context=live_context, sqlfluff_config=config)
+    templater = _get_or_create_templater(config, live_context)
     try:
         fnames = templater.sequence_files([fname], config=config)
         fname = fnames[0]
@@ -873,3 +916,85 @@ def process_from_rust(
     if errors != []:
         raise ValueError
     return output
+
+
+def process_batch_from_rust(
+    files: List[Tuple[str, str]],
+    config_string: str,
+    live_context: Dict[str, Any],
+) -> List[Tuple[Optional[TemplatedFile], Optional[str]]]:
+    """Process multiple files in a batch from the Rust side.
+
+    This function provides optimized batch processing for dbt models by:
+    1. Reusing a single templater instance (and its cached manifest/config/compiler)
+    2. Sequencing all files together for proper ephemeral model ordering
+    3. Processing all files with shared state
+
+    Args:
+        files: List of (file_content, file_name) tuples
+        config_string: JSON string of the configuration
+        live_context: Context dictionary for templating
+
+    Returns:
+        List of (TemplatedFile | None, error_message | None) tuples.
+        For each input file, either the TemplatedFile is present (success)
+        or an error message is present (failure).
+    """
+    if not files:
+        return []
+
+    config = fluff_config_from_json(config_string)
+    templater = _get_or_create_templater(config, live_context)
+
+    # Build a mapping from fname to content for quick lookup
+    file_contents: Dict[str, str] = {}
+    fnames_input_order: List[str] = []
+    for content, fname in files:
+        file_contents[fname] = content
+        fnames_input_order.append(fname)
+
+    # Sequence all files together to handle ephemeral dependencies
+    try:
+        sequenced_fnames = templater.sequence_files(fnames_input_order, config=config)
+    except Exception as e:
+        # If sequencing fails, return error for all files
+        error_msg = f"Failed to sequence files: {e}"
+        return [(None, error_msg) for _ in files]
+
+    # Process files in sequenced order, but we need to return results
+    # in the original input order
+    results_by_fname: Dict[str, Tuple[Optional[TemplatedFile], Optional[str]]] = {}
+
+    for fname in sequenced_fnames:
+        if fname not in file_contents:
+            # This can happen if sequence_files returns a file we didn't provide
+            # (shouldn't happen but defensive coding)
+            continue
+
+        content = file_contents[fname]
+        try:
+            (output, errors) = templater.process(
+                in_str=content,
+                fname=fname,
+                context=live_context,
+                config=config,
+            )
+            if errors:
+                # Combine error messages
+                error_msgs = [str(e) for e in errors]
+                results_by_fname[fname] = (None, "; ".join(error_msgs))
+            else:
+                results_by_fname[fname] = (output, None)
+        except Exception as e:
+            results_by_fname[fname] = (None, str(e))
+
+    # Return results in original input order
+    results: List[Tuple[Optional[TemplatedFile], Optional[str]]] = []
+    for fname in fnames_input_order:
+        if fname in results_by_fname:
+            results.append(results_by_fname[fname])
+        else:
+            # File was in input but not processed (shouldn't happen)
+            results.append((None, f"File {fname} was not processed"))
+
+    return results

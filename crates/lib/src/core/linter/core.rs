@@ -13,7 +13,7 @@ use crate::core::rules::noqa::IgnoreMask;
 use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
 use crate::rules::get_ruleset;
 use crate::templaters::raw::RawTemplater;
-use crate::templaters::{TEMPLATERS, Templater};
+use crate::templaters::{ProcessingMode, TEMPLATERS, Templater};
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, ParallelIterator as _};
@@ -148,20 +148,33 @@ impl Linter {
 
         let mut files = Vec::with_capacity(paths.len());
 
-        if self.templater.can_process_in_parallel() {
-            paths
-                .par_iter()
-                .map(|path| {
+        match self.templater.processing_mode() {
+            ProcessingMode::Parallel => {
+                paths
+                    .par_iter()
+                    .map(|path| {
+                        let rendered = self.render_file(path.clone());
+                        self.lint_rendered(rendered, fix)
+                    })
+                    .collect_into_vec(&mut files);
+            }
+            ProcessingMode::Batch => {
+                // Use batch processing for templaters that support it (e.g., dbt).
+                // This allows sharing expensive initialization (manifest loading) across files.
+                let rendered_files = self.render_files_batch(&paths);
+                files.extend(
+                    rendered_files
+                        .into_iter()
+                        .map(|rendered| self.lint_rendered(rendered, fix)),
+                );
+            }
+            ProcessingMode::Sequential => {
+                files.extend(paths.iter().map(|path| {
                     let rendered = self.render_file(path.clone());
                     self.lint_rendered(rendered, fix)
-                })
-                .collect_into_vec(&mut files);
-        } else {
-            files.extend(paths.iter().map(|path| {
-                let rendered = self.render_file(path.clone());
-                self.lint_rendered(rendered, fix)
-            }));
-        };
+                }));
+            }
+        }
 
         LintingResult::new(files)
     }
@@ -174,6 +187,93 @@ impl Linter {
     pub fn render_file(&self, fname: String) -> RenderedFile {
         let in_str = std::fs::read_to_string(&fname).unwrap();
         self.render_string(&in_str, fname, &self.config).unwrap()
+    }
+
+    /// Render multiple files in a batch using the templater's batch processing.
+    ///
+    /// This is more efficient for templaters like dbt that have expensive
+    /// initialization (manifest loading) that can be shared across files.
+    pub fn render_files_batch(&self, fnames: &[String]) -> Vec<RenderedFile> {
+        if fnames.is_empty() {
+            return Vec::new();
+        }
+
+        // Check dialect before processing
+        if let Some(_error) = self.config.verify_dialect_specified() {
+            // Return error rendered files for all files
+            return fnames
+                .iter()
+                .map(|fname| {
+                    let source_str = std::fs::read_to_string(fname).unwrap_or_default();
+                    RenderedFile {
+                        templated_file: TemplatedFile::new(
+                            source_str.clone(),
+                            fname.clone(),
+                            None,
+                            None,
+                            None,
+                        )
+                        .expect("Creating raw TemplatedFile should not fail"),
+                        templater_violations: vec![],
+                        filename: fname.clone(),
+                        source_str,
+                    }
+                })
+                .collect();
+        }
+
+        // Read all files and prepare for batch processing
+        let files: Vec<(String, String)> = fnames
+            .iter()
+            .map(|fname| {
+                let content = std::fs::read_to_string(fname).unwrap_or_default();
+                let normalized = Self::normalise_newlines(&content).to_string();
+                (normalized, fname.clone())
+            })
+            .collect();
+
+        // Convert to slice of references for the process method
+        let file_refs: Vec<(&str, &str)> = files
+            .iter()
+            .map(|(content, fname)| (content.as_str(), fname.as_str()))
+            .collect();
+
+        // Process all files in batch
+        let results = self
+            .templater
+            .process(&file_refs, &self.config, &self.formatter);
+
+        // Convert results to RenderedFiles
+        results
+            .into_iter()
+            .zip(files.iter())
+            .map(|(result, (source_str, fname))| match result {
+                Ok(templated_file) => RenderedFile {
+                    templated_file,
+                    templater_violations: vec![],
+                    filename: fname.clone(),
+                    source_str: source_str.clone(),
+                },
+                Err(err) => {
+                    log::error!("Failed to template file {}: {:?}", fname, err);
+                    // Return a minimal RenderedFile with the error
+                    // The file will fail during linting with a parse error
+                    RenderedFile {
+                        templated_file: TemplatedFile::new(
+                            source_str.clone(),
+                            fname.clone(),
+                            None,
+                            None,
+                            None,
+                        )
+                        .expect("Creating raw TemplatedFile should not fail"),
+                        templater_violations: vec![],
+                        filename: fname.clone(),
+                        source_str: source_str.clone(),
+                    }
+                }
+            })
+            .collect()
     }
 
     pub fn lint_rendered(&self, rendered: RenderedFile, fix: bool) -> LintedFile {
@@ -377,18 +477,24 @@ impl Linter {
         }
 
         let templater_violations = vec![];
-        match self
-            .templater
-            .process(sql.as_ref(), filename.as_str(), config, &self.formatter)
-        {
-            Ok(templated_file) => Ok(RenderedFile {
+        let mut results = self.templater.process(
+            &[(sql.as_ref(), filename.as_str())],
+            config,
+            &self.formatter,
+        );
+
+        match results.pop() {
+            Some(Ok(templated_file)) => Ok(RenderedFile {
                 templated_file,
                 templater_violations,
                 filename,
                 source_str: sql.to_string(),
             }),
-            Err(err) => Err(SQLFluffUserError::new(format!(
+            Some(Err(err)) => Err(SQLFluffUserError::new(format!(
                 "Failed to template file {filename} with error {err:?}"
+            ))),
+            None => Err(SQLFluffUserError::new(format!(
+                "Templater returned no results for file {filename}"
             ))),
         }
     }

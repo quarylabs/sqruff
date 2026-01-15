@@ -1,8 +1,8 @@
 use super::Templater;
 use super::python::PythonTemplatedFile;
 use crate::core::config::FluffConfig;
-use crate::templaters::Formatter;
 use crate::templaters::python_shared::PythonFluffConfig;
+use crate::templaters::{Formatter, ProcessingMode};
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
@@ -11,25 +11,12 @@ use std::sync::Arc;
 
 pub struct JinjaTemplater;
 
-impl Templater for JinjaTemplater {
-    fn name(&self) -> &'static str {
-        "jinja"
-    }
-
-    fn can_process_in_parallel(&self) -> bool {
-        false
-    }
-
-    fn description(&self) -> &'static str {
-        "Not fully implemented yet. More details to come."
-    }
-
-    fn process(
+impl JinjaTemplater {
+    fn process_single(
         &self,
         in_str: &str,
         f_name: &str,
         config: &FluffConfig,
-        _: &Option<Arc<dyn Formatter>>,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
         let templated_file = Python::attach(|py| -> PyResult<TemplatedFile> {
             let main_module = PyModule::import(py, "sqruff.templaters.jinja_templater")?;
@@ -52,6 +39,32 @@ impl Templater for JinjaTemplater {
         })
         .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {e:?}")))?;
         Ok(templated_file)
+    }
+}
+
+impl Templater for JinjaTemplater {
+    fn name(&self) -> &'static str {
+        "jinja"
+    }
+
+    fn description(&self) -> &'static str {
+        "Not fully implemented yet. More details to come."
+    }
+
+    fn processing_mode(&self) -> ProcessingMode {
+        ProcessingMode::Sequential
+    }
+
+    fn process(
+        &self,
+        files: &[(&str, &str)],
+        config: &FluffConfig,
+        _: &Option<Arc<dyn Formatter>>,
+    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+        files
+            .iter()
+            .map(|(content, fname)| self.process_single(content, fname, config))
+            .collect()
     }
 }
 
@@ -81,9 +94,8 @@ FROM events
         let config = FluffConfig::from_source(source, None);
         let templater = JinjaTemplater;
 
-        let processed = templater
-            .process(JINJA_STRING, "test.sql", &config, &None)
-            .unwrap();
+        let results = templater.process(&[(JINJA_STRING, "test.sql")], &config, &None);
+        let processed = results.into_iter().next().unwrap().unwrap();
 
         assert_eq!(
             processed.templated(),
@@ -104,9 +116,8 @@ FROM events
     SELECT {{some_var}}
 {% endif %}
 "#;
-        let processed = templater
-            .process(instr, "test.sql", &config, &None)
-            .unwrap();
+        let results = templater.process(&[(instr, "test.sql")], &config, &None);
+        let processed = results.into_iter().next().unwrap().unwrap();
 
         assert_eq!(processed.templated(), "\n    \n    SELECT 1\n\n");
     }

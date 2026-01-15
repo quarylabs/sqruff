@@ -170,6 +170,23 @@ rust_clippy(
     deps = RUST_TARGETS,
 )
 
+# Codegen docs check - verify generated docs are up to date
+sh_test(
+    name = "codegen_docs_check",
+    size = "small",
+    srcs = [".hacking/scripts/codegen_docs_check.sh"],
+    data = [
+        "docs/cli.md",
+        "docs/rules.md",
+        "docs/templaters.md",
+        "//crates/cli:sqruff-codegen",
+        "//crates/cli-lib:codegen_templates",
+    ],
+    env = {
+        "CODEGEN": "$(rlocationpath //crates/cli:sqruff-codegen)",
+    },
+)
+
 # Cargo machete - check for unused dependencies
 # Note: Files are copied to a temp directory because cargo-machete doesn't follow symlinks
 sh_test(

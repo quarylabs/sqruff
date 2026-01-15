@@ -11,6 +11,19 @@ rust_binary(
     ],
 )
 
+# Binary with codegen-docs feature for generating documentation
+rust_binary(
+    name = "sqruff-codegen",
+    srcs = glob(["src/**/*.rs"]),
+    crate_features = ["codegen-docs"],
+    data = ["//crates/cli-lib:codegen_templates"],
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    visibility = ["//visibility:public"],
+    deps = all_crate_deps(normal = True) + [
+        "//crates/cli-lib:sqruff-cli-lib-codegen",
+    ],
+)
+
 filegroup(
     name = "machete_srcs",
     srcs = glob(

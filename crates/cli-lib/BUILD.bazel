@@ -13,6 +13,34 @@ rust_library(
     ],
 )
 
+# Variant with codegen-docs feature enabled for doc generation
+# codegen-docs requires the python feature which enables more templaters
+rust_library(
+    name = "sqruff-cli-lib-codegen",
+    srcs = glob(["src/**/*.rs"]),
+    compile_data = glob(["src/docs/*.md"]),
+    crate_features = [
+        "codegen-docs",
+        "python",
+    ],
+    crate_name = "sqruff_cli_lib",
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    visibility = ["//visibility:public"],
+    deps = all_crate_deps(normal = True) + [
+        "//crates/lib:sqruff-lib-python",
+        "//crates/lib-core:sqruff-lib-core",
+        "//crates/lsp:sqruff-lsp",
+        "@crates//:clap-markdown",
+        "@crates//:minijinja",
+    ],
+)
+
+filegroup(
+    name = "codegen_templates",
+    srcs = glob(["src/docs/*.md"]),
+    visibility = ["//visibility:public"],
+)
+
 filegroup(
     name = "machete_srcs",
     srcs = glob(

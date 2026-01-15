@@ -1,5 +1,4 @@
 use std::io::Write;
-use std::path::Path;
 
 use minijinja::{Environment, context};
 use serde::Serialize;
@@ -8,6 +7,11 @@ use sqruff_lib::rules::rules;
 use sqruff_lib::templaters::TEMPLATERS;
 
 use crate::commands::Cli;
+
+#[cfg(feature = "codegen-docs")]
+const RULES_TEMPLATE: &str = include_str!("docs/generate_rule_docs_template.md");
+#[cfg(feature = "codegen-docs")]
+const TEMPLATERS_TEMPLATE: &str = include_str!("docs/generate_templater_docs_template.md");
 
 #[cfg(feature = "codegen-docs")]
 pub(crate) fn codegen_docs() {
@@ -19,13 +23,7 @@ pub(crate) fn codegen_docs() {
 
     // Rules Docs
     let mut env = Environment::new();
-    let crate_dir = env!("CARGO_MANIFEST_DIR");
-    let template_path = Path::new(crate_dir)
-        .join("src")
-        .join("docs")
-        .join("generate_rule_docs_template.md");
-    let template = std::fs::read_to_string(template_path).expect("Failed to read template file");
-    env.add_template("rules", &template).unwrap();
+    env.add_template("rules", RULES_TEMPLATE).unwrap();
 
     let tmpl = env.get_template("rules").unwrap();
     let rules = rules();
@@ -38,13 +36,7 @@ pub(crate) fn codegen_docs() {
 
     // Templaters Docs
     let mut env = Environment::new();
-    let crate_dir = env!("CARGO_MANIFEST_DIR");
-    let template_path = Path::new(crate_dir)
-        .join("src")
-        .join("docs")
-        .join("generate_templater_docs_template.md");
-    let template = std::fs::read_to_string(template_path).expect("Failed to read template file");
-    env.add_template("templaters", &template).unwrap();
+    env.add_template("templaters", TEMPLATERS_TEMPLATE).unwrap();
 
     let tmpl = env.get_template("templaters").unwrap();
     let templaters = TEMPLATERS

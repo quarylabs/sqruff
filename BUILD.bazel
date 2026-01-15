@@ -1,3 +1,4 @@
+load("@aspect_bazel_lib//lib:transitions.bzl", "platform_transition_filegroup")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
 load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
@@ -185,4 +186,34 @@ sh_test(
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
         "MACHETE": "$(rlocationpath @cargo_machete//:cargo-machete)",
     },
+)
+
+# Platform definitions for cross-compilation
+platform(
+    name = "linux_x86_64_musl",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+platform(
+    name = "linux_aarch64_musl",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:aarch64",
+    ],
+)
+
+# Cross-compiled sqruff binaries for Linux musl targets
+platform_transition_filegroup(
+    name = "sqruff_linux_x86_64_musl",
+    srcs = ["//crates/cli:sqruff"],
+    target_platform = ":linux_x86_64_musl",
+)
+
+platform_transition_filegroup(
+    name = "sqruff_linux_aarch64_musl",
+    srcs = ["//crates/cli:sqruff"],
+    target_platform = ":linux_aarch64_musl",
 )

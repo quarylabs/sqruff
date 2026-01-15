@@ -163,21 +163,34 @@ jobs:
       - name: Sync dependencies with uv
         run: uv sync --python ${{ matrix.python-version }} --extra dev
       - run: make python_ci
-  build-binaries:
-    name: Build binaries for all platforms
-    runs-on: ${{ matrix.platform.os }}
+  build-linux-binaries:
+    name: Build Linux binaries with Bazel
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         platform:
           - name: sqruff-linux-x86_64-musl.tar.gz
-            os: ubuntu-latest
             target: x86_64-unknown-linux-musl
             bin: sqruff
+            bazel_target: sqruff_linux_x86_64_musl
           - name: sqruff-linux-aarch64-musl.tar.gz
-            os: ubuntu-latest
             target: aarch64-unknown-linux-musl
             bin: sqruff
+            bazel_target: sqruff_linux_aarch64_musl
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
+      - uses: ./.github/actions/build-linux-binaries-bazel
+        with:
+          package: false
+          publish: false
+  build-binaries:
+    name: Build binaries for other platforms
+    runs-on: ${{ matrix.platform.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
           - name: sqruff-windows-x86_64.zip
             os: windows-latest
             target: x86_64-pc-windows-msvc

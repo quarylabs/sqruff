@@ -98,6 +98,14 @@ cargo binstall sqruff
 cargo install sqruff
 ```
 
+#### Docker
+
+You can use in a Docker container with our official image:
+
+```bash
+docker pull ghcr.io/quarylabs/sqruff:latest
+```
+
 #### GitHub Action
 
 You can also use the GitHub Action to install and run sqruff in your CI/CD pipeline. Inside a GitHub Action, `sqruff` automatically outputs linting results in the GitHub format so they can be easily viewed in the PR tab.

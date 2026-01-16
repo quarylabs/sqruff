@@ -53,11 +53,11 @@ SELECT a, b FROM table_2
         // TODO This feels wrong and should bneed fixing
         &[
             DialectKind::Bigquery,
+            DialectKind::Clickhouse,
+            DialectKind::Duckdb,
             DialectKind::Postgres,
             DialectKind::Snowflake,
-            DialectKind::Clickhouse,
             DialectKind::Sparksql,
-            DialectKind::Duckdb,
         ]
     }
 

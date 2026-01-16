@@ -4,6 +4,7 @@ use sqruff_lib_core::parser::segments::ErasedSegment;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
+use crate::utils::reflow::rebreak::{LinePosition, LinePositionConfig};
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
 #[derive(Debug, Default, Clone)]
@@ -62,8 +63,8 @@ FROM foo
                 .config
                 .layout
                 .types
-                .get("comparison_operator")
-                .and_then(|config| config.line_position.as_deref())
+                .get(&SyntaxKind::ComparisonOperator)
+                .and_then(|config| config.line_position)
                 .expect("layout.type.comparison_operator.line_position must be configured");
 
             if self.check_trail_lead_shortcut(
@@ -78,8 +79,8 @@ FROM foo
                 .config
                 .layout
                 .types
-                .get("binary_operator")
-                .and_then(|config| config.line_position.as_deref())
+                .get(&SyntaxKind::BinaryOperator)
+                .and_then(|config| config.line_position)
                 .expect("layout.type.binary_operator.line_position must be configured");
 
             if self.check_trail_lead_shortcut(
@@ -118,7 +119,7 @@ impl RuleLT03 {
         &self,
         segment: &ErasedSegment,
         parent: &ErasedSegment,
-        line_position: &str,
+        line_position: LinePositionConfig,
     ) -> bool {
         let idx = parent
             .segments()
@@ -127,7 +128,7 @@ impl RuleLT03 {
             .unwrap();
 
         // Shortcut #1: Leading.
-        if line_position == "leading" {
+        if line_position.position == LinePosition::Leading {
             if self.seek_newline(parent.segments(), idx, Direction::Backward) {
                 return true;
             }
@@ -138,7 +139,7 @@ impl RuleLT03 {
             }
         }
         // Shortcut #2: Trailing.
-        else if line_position == "trailing" {
+        else if line_position.position == LinePosition::Trailing {
             if self.seek_newline(parent.segments(), idx, Direction::Forward) {
                 return true;
             }

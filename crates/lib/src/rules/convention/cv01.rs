@@ -2,6 +2,7 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
+use crate::core::config::NotEqualStyle;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
@@ -10,16 +11,8 @@ use crate::utils::functional::context::FunctionalContext;
 #[derive(Debug, Default, Clone)]
 pub struct RuleCV01;
 
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-enum PreferredNotEqualStyle {
-    #[default]
-    Consistent,
-    CStyle,
-    Ansi,
-}
-
 #[derive(Clone, Copy)]
-struct ConfigPreferredNotEqualStyle(PreferredNotEqualStyle);
+struct ConfigPreferredNotEqualStyle(NotEqualStyle);
 
 impl Rule for RuleCV01 {
     fn name(&self) -> &'static str {
@@ -59,21 +52,13 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
             .try_get::<ConfigPreferredNotEqualStyle>()
             .map(|cached| cached.0)
             .unwrap_or_else(|| {
-                let value = context
+                let style = context
                     .config
                     .rules
                     .convention_not_equal
-                    .preferred_not_equal_style
-                    .as_str();
-                let parsed = if value.eq_ignore_ascii_case("c_style") {
-                    PreferredNotEqualStyle::CStyle
-                } else if value.eq_ignore_ascii_case("ansi") {
-                    PreferredNotEqualStyle::Ansi
-                } else {
-                    PreferredNotEqualStyle::Consistent
-                };
-                context.set(ConfigPreferredNotEqualStyle(parsed));
-                parsed
+                    .preferred_not_equal_style;
+                context.set(ConfigPreferredNotEqualStyle(style));
+                style
             });
 
         // Get the comparison operator children
@@ -90,14 +75,14 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
         }
 
         // If style is consistent, add the style of the first occurrence to memory
-        let preferred_style = if preferred_not_equal_style == PreferredNotEqualStyle::Consistent {
-            if let Some(preferred_style) = context.try_get::<PreferredNotEqualStyle>() {
+        let preferred_style = if preferred_not_equal_style == NotEqualStyle::Consistent {
+            if let Some(preferred_style) = context.try_get::<NotEqualStyle>() {
                 preferred_style
             } else {
                 let style = if raw_operator_list == ["<", ">"] {
-                    PreferredNotEqualStyle::Ansi
+                    NotEqualStyle::Ansi
                 } else {
-                    PreferredNotEqualStyle::CStyle
+                    NotEqualStyle::CStyle
                 };
                 context.set(style);
                 style
@@ -108,13 +93,13 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
 
         // Define the replacement
         let replacement = match preferred_style {
-            PreferredNotEqualStyle::CStyle => {
+            NotEqualStyle::CStyle => {
                 vec!["!", "="]
             }
-            PreferredNotEqualStyle::Ansi => {
+            NotEqualStyle::Ansi => {
                 vec!["<", ">"]
             }
-            PreferredNotEqualStyle::Consistent => {
+            NotEqualStyle::Consistent => {
                 unreachable!("Consistent style should have been handled earlier")
             }
         };

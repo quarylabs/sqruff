@@ -7,6 +7,7 @@ use sqruff_lib_core::parser::segments::join::JoinClauseSegment;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
+use crate::core::config::JoinConditionOrder;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
@@ -68,7 +69,7 @@ left join bar
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let preferred_first_table_in_join_clause = &context
+        let preferred_first_table_in_join_clause = context
             .config
             .rules
             .structure_join_condition_order
@@ -203,7 +204,7 @@ left join bar
                     .iter()
                     .position(|x| x == &second_table)
                     .unwrap()
-                && preferred_first_table_in_join_clause == "earlier")
+                && preferred_first_table_in_join_clause == JoinConditionOrder::Earlier)
                 || (table_aliases
                     .iter()
                     .position(|x| x == &first_table)
@@ -212,7 +213,7 @@ left join bar
                         .iter()
                         .position(|x| x == &second_table)
                         .unwrap()
-                    && preferred_first_table_in_join_clause == "later")
+                    && preferred_first_table_in_join_clause == JoinConditionOrder::Later)
             {
                 fixes.push(LintFix::replace(
                     first_column_reference.clone(),

@@ -1,27 +1,20 @@
 use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
+use crate::core::config::GroupByOrderByStyle;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Clone, Copy)]
-struct PriorGroupByOrderByConvention(GroupByAndOrderByConvention);
+struct PriorGroupByOrderByConvention(GroupByOrderByStyle);
 
 #[derive(Clone, Copy)]
-struct CachedGroupByAndOrderByStyle(GroupByAndOrderByConvention);
+struct CachedGroupByAndOrderByStyle(GroupByOrderByStyle);
 
 #[derive(Debug, Clone, Default)]
 pub struct RuleAM06;
-
-#[derive(Debug, Clone, Copy, PartialEq, strum_macros::EnumString)]
-#[strum(serialize_all = "lowercase")]
-enum GroupByAndOrderByConvention {
-    Consistent,
-    Explicit,
-    Implicit,
-}
 
 impl Rule for RuleAM06 {
     fn name(&self) -> &'static str {
@@ -66,15 +59,13 @@ ORDER BY a ASC, b DESC
             .try_get::<CachedGroupByAndOrderByStyle>()
             .map(|cached| cached.0)
             .unwrap_or_else(|| {
-                let parsed = context
+                let style = context
                     .config
                     .rules
                     .ambiguous_column_references
-                    .group_by_and_order_by_style
-                    .parse()
-                    .unwrap_or(GroupByAndOrderByConvention::Consistent);
-                context.set(CachedGroupByAndOrderByStyle(parsed));
-                parsed
+                    .group_by_and_order_by_style;
+                context.set(CachedGroupByAndOrderByStyle(style));
+                style
             });
 
         let skip = FunctionalContext::new(context)
@@ -96,15 +87,15 @@ ORDER BY a ASC, b DESC
         let mut column_reference_category_map = AHashMap::new();
         column_reference_category_map.insert(
             SyntaxKind::ColumnReference,
-            GroupByAndOrderByConvention::Explicit,
+            GroupByOrderByStyle::Explicit,
         );
         column_reference_category_map.insert(
             SyntaxKind::Expression,
-            GroupByAndOrderByConvention::Explicit,
+            GroupByOrderByStyle::Explicit,
         );
         column_reference_category_map.insert(
             SyntaxKind::NumericLiteral,
-            GroupByAndOrderByConvention::Implicit,
+            GroupByOrderByStyle::Implicit,
         );
 
         let mut column_reference_category_set: Vec<_> = context
@@ -119,7 +110,7 @@ ORDER BY a ASC, b DESC
             return Vec::new();
         }
 
-        if group_by_and_order_by_style == GroupByAndOrderByConvention::Consistent {
+        if group_by_and_order_by_style == GroupByOrderByStyle::Consistent {
             if column_reference_category_set.len() > 1 {
                 return vec![LintResult::new(
                     context.segment.clone().into(),

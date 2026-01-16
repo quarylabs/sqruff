@@ -67,8 +67,8 @@ FROM foo
             .config
             .layout
             .types
-            .get("comma")
-            .and_then(|config| config.line_position.as_deref())
+            .get(&SyntaxKind::Comma)
+            .and_then(|config| config.line_position)
             .expect("layout.type.comma.line_position must be configured");
 
         if self.check_trail_lead_shortcut(

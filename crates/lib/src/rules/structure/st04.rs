@@ -170,18 +170,7 @@ FROM mytable
             .map(LintFix::delete)
             .collect_vec();
 
-        let tab_space_size = context
-            .config
-            .indentation
-            .tab_space_size
-            .expect("tab_space_size must be configured") as usize;
-        let indent_unit = context
-            .config
-            .indentation
-            .indent_unit
-            .as_deref()
-            .expect("indent_unit must be configured");
-        let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
+        let indent_unit = context.config.indentation.computed_indent_unit;
 
         let when_indent_str = indentation(&case1_children, case1_last_when, indent_unit);
         let end_indent_str = indentation(&case1_children, case1_first_case, indent_unit);

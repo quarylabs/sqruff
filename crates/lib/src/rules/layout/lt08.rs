@@ -7,6 +7,7 @@ use sqruff_lib_core::parser::segments::SegmentBuilder;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
+use crate::utils::reflow::rebreak::LinePosition;
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT08;
@@ -56,8 +57,8 @@ SELECT a FROM plop
             .config
             .layout
             .types
-            .get("comma")
-            .and_then(|config| config.line_position.as_deref())
+            .get(&SyntaxKind::Comma)
+            .and_then(|config| config.line_position)
             .expect("layout.type.comma.line_position must be configured");
         let expanded_segments = context.segment.iter_segments(
             const { &SyntaxSet::new(&[SyntaxKind::CommonTableExpression]) },
@@ -132,15 +133,18 @@ SELECT a FROM plop
             let mut fix_point = None;
 
             let num_newlines = if comma_style == "oneline" {
-                if global_comma_style == "trailing" {
+                if global_comma_style.position == LinePosition::Trailing {
                     fix_point = forward_slice[comma_seg_idx + 1].clone().into();
                     if forward_slice[comma_seg_idx + 1].is_type(SyntaxKind::Whitespace) {
                         is_replace = true;
                     }
-                } else if global_comma_style == "leading" {
+                } else if global_comma_style.position == LinePosition::Leading {
                     fix_point = forward_slice[comma_seg_idx].clone().into();
                 } else {
-                    unimplemented!("Unexpected global comma style {global_comma_style:?}");
+                    unimplemented!(
+                        "Unexpected global comma style {:?}",
+                        global_comma_style.position
+                    );
                 }
 
                 2

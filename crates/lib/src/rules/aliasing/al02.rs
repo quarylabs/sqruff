@@ -1,4 +1,4 @@
-use super::al01::{Aliasing, RuleAL01};
+use super::al01::RuleAL01;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
@@ -68,7 +68,7 @@ FROM foo
             return Vec::new();
         }
 
-        let aliasing = Aliasing::from_config(&context.config.rules.aliasing_column.aliasing);
+        let aliasing = context.config.rules.aliasing_column.aliasing;
         self.base.eval_with_aliasing(context, aliasing)
     }
 

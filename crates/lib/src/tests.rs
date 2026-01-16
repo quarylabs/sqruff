@@ -4,11 +4,11 @@ use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::context::ParseContext;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::segments::Tables;
 use sqruff_lib_core::parser::segments::test_functions::lex;
-use sqruff_lib_core::parser::{IndentationConfig as ParserIndentationConfig, Parser};
 
 #[test]
 fn test_dialect_ansi_file_lex() {
@@ -152,20 +152,9 @@ fn test_dialect_ansi_specific_segment_parses() {
     let dialect = config
         .dialect()
         .expect("Dialect is disabled. Please enable the corresponding feature.");
-    let indentation = &config.indentation;
-    let indentation_config = ParserIndentationConfig::from_bool_lookup(|key| match key {
-        "indented_joins" => indentation.indented_joins.unwrap_or_default(),
-        "indented_using_on" => indentation.indented_using_on.unwrap_or_default(),
-        "indented_on_contents" => indentation.indented_on_contents.unwrap_or_default(),
-        "indented_then" => indentation.indented_then.unwrap_or_default(),
-        "indented_then_contents" => indentation.indented_then_contents.unwrap_or_default(),
-        "indented_joins_on" => indentation.indented_joins_on.unwrap_or_default(),
-        "indented_ctes" => indentation.indented_ctes.unwrap_or_default(),
-        _ => false,
-    });
 
     for (segment_ref, sql_string) in cases {
-        let parser = Parser::new(&dialect, indentation_config);
+        let parser = Parser::new(&dialect, config.parser_indentation);
         let mut ctx: ParseContext = (&parser).into();
 
         let segment = dialect.r#ref(segment_ref);

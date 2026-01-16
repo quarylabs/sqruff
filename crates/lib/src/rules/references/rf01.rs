@@ -234,10 +234,10 @@ FROM foo
         // Disabled by default for dialects with dot-access semantics.
         &[
             DialectKind::Athena,
-            DialectKind::Redshift,
             DialectKind::Bigquery,
             DialectKind::Databricks,
             DialectKind::Duckdb,
+            DialectKind::Redshift,
             DialectKind::Sparksql,
         ]
     }

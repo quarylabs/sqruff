@@ -72,7 +72,7 @@ FROM foo AS vee
         // FIXME: simplify the condition
         if (context.segment.is_type(SyntaxKind::NakedIdentifier)
             && identifiers_policy_applicable(
-                &rules.unquoted_identifiers_policy,
+                rules.unquoted_identifiers_policy,
                 &context.parent_stack,
             )
             && context
@@ -80,14 +80,9 @@ FROM foo AS vee
                 .sets("unreserved_keywords")
                 .contains(context.segment.raw().to_uppercase().as_str()))
             || (context.segment.is_type(SyntaxKind::QuotedIdentifier)
-                && rules.quoted_identifiers_policy.as_ref().is_some_and(
-                    |quoted_identifiers_policy| {
-                        identifiers_policy_applicable(
-                            quoted_identifiers_policy,
-                            &context.parent_stack,
-                        )
-                    },
-                )
+                && rules.quoted_identifiers_policy.is_some_and(|quoted_identifiers_policy| {
+                    identifiers_policy_applicable(quoted_identifiers_policy, &context.parent_stack)
+                })
                 && (context
                     .dialect
                     .sets("unreserved_keywords")

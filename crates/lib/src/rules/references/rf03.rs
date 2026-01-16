@@ -12,7 +12,7 @@ use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::analysis::query::Query;
 
-use crate::core::config::FluffConfig;
+use crate::core::config::{FluffConfig, SingleTableReferences};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
@@ -351,8 +351,9 @@ FROM foo
             .rules
             .references_consistent
             .single_table_references
-            .as_deref()
-            .unwrap_or(context.config.rules.single_table_references.as_str());
+            .or(context.config.rules.single_table_references)
+            .unwrap_or(SingleTableReferences::Consistent)
+            .as_str();
 
         let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
         let mut visited: AHashSet<ErasedSegment> = AHashSet::new();

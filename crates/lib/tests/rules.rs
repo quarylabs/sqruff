@@ -4,7 +4,7 @@ use glob::glob;
 use serde::Deserialize;
 use serde_json::Value as JsonValue;
 use serde_with::{KeyValueMap, serde_as};
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::core::config::{FluffConfig, IndentUnitType};
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib_core::dialects::init::DialectKind;
 
@@ -28,7 +28,7 @@ fn value_to_i32(value: &JsonValue) -> Option<i32> {
 
 fn apply_indent_overrides(config: &mut FluffConfig, rules: &serde_json::Map<String, JsonValue>) {
     if let Some(value) = rules.get("indent_unit").and_then(|value| value.as_str()) {
-        config.indentation.indent_unit = Some(value.to_string());
+        config.indentation.indent_unit = Some(IndentUnitType::from_str(value).unwrap());
     }
 
     if let Some(value) = rules.get("tab_space_size").and_then(value_to_i32) {

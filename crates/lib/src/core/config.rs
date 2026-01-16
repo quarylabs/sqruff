@@ -1,4 +1,6 @@
-use crate::utils::reflow::config::ReflowConfig;
+use crate::utils::reflow::config::{ReflowConfig, Spacing};
+use crate::utils::reflow::rebreak::{LinePosition, LinePositionConfig};
+use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
 use ahash::AHashMap;
 use itertools::Itertools;
 use regex::Regex;
@@ -7,10 +9,696 @@ use serde::de::{self, Deserializer};
 use serde_json::Value as JsonValue;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::errors::SQLFluffUserError;
+use sqruff_lib_core::parser::IndentationConfig as ParserIndentationConfig;
 use sqruff_lib_dialects::kind_to_dialect;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
+
+/// Capitalisation policy for keywords and literals.
+/// Valid values: consistent, upper, lower, capitalise
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum CapitalisationPolicy {
+    #[default]
+    Consistent,
+    Upper,
+    Lower,
+    Capitalise,
+}
+
+impl FromStr for CapitalisationPolicy {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "upper" => Ok(Self::Upper),
+            "lower" => Ok(Self::Lower),
+            "capitalise" | "capitalize" => Ok(Self::Capitalise),
+            _ => Err(format!(
+                "Invalid capitalisation policy: '{}'. Valid values: consistent, upper, lower, capitalise",
+                s
+            )),
+        }
+    }
+}
+
+impl CapitalisationPolicy {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Upper => "upper",
+            Self::Lower => "lower",
+            Self::Capitalise => "capitalise",
+        }
+    }
+}
+
+/// Extended capitalisation policy with pascal case support.
+/// Valid values: consistent, upper, lower, capitalise, pascal
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ExtendedCapitalisationPolicy {
+    #[default]
+    Consistent,
+    Upper,
+    Lower,
+    Capitalise,
+    Pascal,
+}
+
+impl FromStr for ExtendedCapitalisationPolicy {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "upper" => Ok(Self::Upper),
+            "lower" => Ok(Self::Lower),
+            "capitalise" | "capitalize" => Ok(Self::Capitalise),
+            "pascal" => Ok(Self::Pascal),
+            _ => Err(format!(
+                "Invalid extended capitalisation policy: '{}'. Valid values: consistent, upper, lower, capitalise, pascal",
+                s
+            )),
+        }
+    }
+}
+
+impl ExtendedCapitalisationPolicy {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Upper => "upper",
+            Self::Lower => "lower",
+            Self::Capitalise => "capitalise",
+            Self::Pascal => "pascal",
+        }
+    }
+}
+
+/// Aliasing style for tables and columns.
+/// Valid values: explicit, implicit
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Aliasing {
+    #[default]
+    Explicit,
+    Implicit,
+}
+
+impl FromStr for Aliasing {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "explicit" => Ok(Self::Explicit),
+            "implicit" => Ok(Self::Implicit),
+            _ => Err(format!(
+                "Invalid aliasing: '{}'. Valid values: explicit, implicit",
+                s
+            )),
+        }
+    }
+}
+
+impl Aliasing {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Explicit => "explicit",
+            Self::Implicit => "implicit",
+        }
+    }
+}
+
+fn deserialize_aliasing<'de, D>(deserializer: D) -> Result<Aliasing, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    Aliasing::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Join qualification type.
+/// Valid values: inner, outer, both
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum JoinType {
+    #[default]
+    Inner,
+    Outer,
+    Both,
+}
+
+impl FromStr for JoinType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "inner" => Ok(Self::Inner),
+            "outer" => Ok(Self::Outer),
+            "both" => Ok(Self::Both),
+            _ => Err(format!(
+                "Invalid join type: '{}'. Valid values: inner, outer, both",
+                s
+            )),
+        }
+    }
+}
+
+impl JoinType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Inner => "inner",
+            Self::Outer => "outer",
+            Self::Both => "both",
+        }
+    }
+}
+
+fn deserialize_join_type<'de, D>(deserializer: D) -> Result<JoinType, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    JoinType::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Group by and order by style.
+/// Valid values: consistent, explicit, implicit
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum GroupByOrderByStyle {
+    #[default]
+    Consistent,
+    Explicit,
+    Implicit,
+}
+
+impl FromStr for GroupByOrderByStyle {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "explicit" => Ok(Self::Explicit),
+            "implicit" => Ok(Self::Implicit),
+            _ => Err(format!(
+                "Invalid group_by_and_order_by_style: '{}'. Valid values: consistent, explicit, implicit",
+                s
+            )),
+        }
+    }
+}
+
+impl GroupByOrderByStyle {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Explicit => "explicit",
+            Self::Implicit => "implicit",
+        }
+    }
+}
+
+fn deserialize_group_by_order_by_style<'de, D>(deserializer: D) -> Result<GroupByOrderByStyle, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    GroupByOrderByStyle::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Select clause trailing comma policy.
+/// Valid values: forbid, require
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TrailingCommaPolicy {
+    #[default]
+    Forbid,
+    Require,
+}
+
+impl FromStr for TrailingCommaPolicy {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "forbid" => Ok(Self::Forbid),
+            "require" => Ok(Self::Require),
+            _ => Err(format!(
+                "Invalid trailing comma policy: '{}'. Valid values: forbid, require",
+                s
+            )),
+        }
+    }
+}
+
+impl TrailingCommaPolicy {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Forbid => "forbid",
+            Self::Require => "require",
+        }
+    }
+}
+
+fn deserialize_trailing_comma_policy<'de, D>(deserializer: D) -> Result<TrailingCommaPolicy, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    TrailingCommaPolicy::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Preferred quoted literal style.
+/// Valid values: consistent, single_quotes, double_quotes
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum QuotedLiteralStyle {
+    #[default]
+    Consistent,
+    SingleQuotes,
+    DoubleQuotes,
+}
+
+impl FromStr for QuotedLiteralStyle {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "single_quotes" => Ok(Self::SingleQuotes),
+            "double_quotes" => Ok(Self::DoubleQuotes),
+            _ => Err(format!(
+                "Invalid quoted literal style: '{}'. Valid values: consistent, single_quotes, double_quotes",
+                s
+            )),
+        }
+    }
+}
+
+impl QuotedLiteralStyle {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::SingleQuotes => "single_quotes",
+            Self::DoubleQuotes => "double_quotes",
+        }
+    }
+}
+
+fn deserialize_quoted_literal_style<'de, D>(deserializer: D) -> Result<QuotedLiteralStyle, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    QuotedLiteralStyle::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Preferred type casting style.
+/// Valid values: consistent, cast, convert, shorthand
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TypeCastingStyle {
+    #[default]
+    Consistent,
+    Cast,
+    Convert,
+    Shorthand,
+    /// Used internally for segments that don't match any known casting style
+    Other,
+}
+
+impl FromStr for TypeCastingStyle {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "cast" => Ok(Self::Cast),
+            "convert" => Ok(Self::Convert),
+            "shorthand" => Ok(Self::Shorthand),
+            _ => Err(format!(
+                "Invalid type casting style: '{}'. Valid values: consistent, cast, convert, shorthand",
+                s
+            )),
+        }
+    }
+}
+
+impl TypeCastingStyle {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Cast => "cast",
+            Self::Convert => "convert",
+            Self::Shorthand => "shorthand",
+            Self::Other => "other",
+        }
+    }
+}
+
+fn deserialize_type_casting_style<'de, D>(deserializer: D) -> Result<TypeCastingStyle, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    TypeCastingStyle::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Preferred not equal style.
+/// Valid values: consistent, c_style, ansi
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum NotEqualStyle {
+    #[default]
+    Consistent,
+    CStyle,
+    Ansi,
+}
+
+impl FromStr for NotEqualStyle {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "c_style" => Ok(Self::CStyle),
+            "ansi" => Ok(Self::Ansi),
+            _ => Err(format!(
+                "Invalid not equal style: '{}'. Valid values: consistent, c_style, ansi",
+                s
+            )),
+        }
+    }
+}
+
+impl NotEqualStyle {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::CStyle => "c_style",
+            Self::Ansi => "ansi",
+        }
+    }
+}
+
+fn deserialize_not_equal_style<'de, D>(deserializer: D) -> Result<NotEqualStyle, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    NotEqualStyle::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Single table references style.
+/// Valid values: consistent, qualified, unqualified
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum SingleTableReferences {
+    #[default]
+    Consistent,
+    Qualified,
+    Unqualified,
+}
+
+impl FromStr for SingleTableReferences {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "qualified" => Ok(Self::Qualified),
+            "unqualified" => Ok(Self::Unqualified),
+            _ => Err(format!(
+                "Invalid single table references: '{}'. Valid values: consistent, qualified, unqualified",
+                s
+            )),
+        }
+    }
+}
+
+impl SingleTableReferences {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Qualified => "qualified",
+            Self::Unqualified => "unqualified",
+        }
+    }
+}
+
+fn deserialize_option_single_table_references<'de, D>(
+    deserializer: D,
+) -> Result<Option<SingleTableReferences>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: Option<String> = Option::deserialize(deserializer)?;
+    match s {
+        None => Ok(None),
+        Some(ref v) if v.eq_ignore_ascii_case("none") => Ok(None),
+        Some(v) => SingleTableReferences::from_str(&v)
+            .map(Some)
+            .map_err(de::Error::custom),
+    }
+}
+
+/// Identifiers policy.
+/// Valid values: all, aliases, column_aliases, none
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum IdentifiersPolicy {
+    #[default]
+    All,
+    Aliases,
+    ColumnAliases,
+    None,
+}
+
+impl FromStr for IdentifiersPolicy {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "all" => Ok(Self::All),
+            "aliases" => Ok(Self::Aliases),
+            "column_aliases" => Ok(Self::ColumnAliases),
+            "none" => Ok(Self::None),
+            _ => Err(format!(
+                "Invalid identifiers policy: '{}'. Valid values: all, aliases, column_aliases, none",
+                s
+            )),
+        }
+    }
+}
+
+impl IdentifiersPolicy {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::All => "all",
+            Self::Aliases => "aliases",
+            Self::ColumnAliases => "column_aliases",
+            Self::None => "none",
+        }
+    }
+}
+
+fn deserialize_identifiers_policy<'de, D>(deserializer: D) -> Result<IdentifiersPolicy, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    IdentifiersPolicy::from_str(&s).map_err(de::Error::custom)
+}
+
+fn deserialize_option_identifiers_policy<'de, D>(
+    deserializer: D,
+) -> Result<Option<IdentifiersPolicy>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: Option<String> = Option::deserialize(deserializer)?;
+    match s {
+        None => Ok(None),
+        Some(ref v) if v.eq_ignore_ascii_case("none") => Ok(Some(IdentifiersPolicy::None)),
+        Some(v) => IdentifiersPolicy::from_str(&v)
+            .map(Some)
+            .map_err(de::Error::custom),
+    }
+}
+
+/// Wildcard policy for select targets.
+/// Valid values: single, multiple
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum WildcardPolicy {
+    #[default]
+    Single,
+    Multiple,
+}
+
+impl FromStr for WildcardPolicy {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "single" => Ok(Self::Single),
+            "multiple" => Ok(Self::Multiple),
+            _ => Err(format!(
+                "Invalid wildcard policy: '{}'. Valid values: single, multiple",
+                s
+            )),
+        }
+    }
+}
+
+impl WildcardPolicy {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Single => "single",
+            Self::Multiple => "multiple",
+        }
+    }
+}
+
+fn deserialize_wildcard_policy<'de, D>(deserializer: D) -> Result<WildcardPolicy, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    WildcardPolicy::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Forbid subquery in clause.
+/// Valid values: join, from, both
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ForbidSubqueryIn {
+    #[default]
+    Join,
+    From,
+    Both,
+}
+
+impl FromStr for ForbidSubqueryIn {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "join" => Ok(Self::Join),
+            "from" => Ok(Self::From),
+            "both" => Ok(Self::Both),
+            _ => Err(format!(
+                "Invalid forbid_subquery_in: '{}'. Valid values: join, from, both",
+                s
+            )),
+        }
+    }
+}
+
+impl ForbidSubqueryIn {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Join => "join",
+            Self::From => "from",
+            Self::Both => "both",
+        }
+    }
+}
+
+fn deserialize_forbid_subquery_in<'de, D>(deserializer: D) -> Result<ForbidSubqueryIn, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    ForbidSubqueryIn::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Preferred first table in join clause.
+/// Valid values: earlier, later
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum JoinConditionOrder {
+    #[default]
+    Earlier,
+    Later,
+}
+
+impl FromStr for JoinConditionOrder {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "earlier" => Ok(Self::Earlier),
+            "later" => Ok(Self::Later),
+            _ => Err(format!(
+                "Invalid join condition order: '{}'. Valid values: earlier, later",
+                s
+            )),
+        }
+    }
+}
+
+impl JoinConditionOrder {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Earlier => "earlier",
+            Self::Later => "later",
+        }
+    }
+}
+
+impl std::fmt::Display for JoinConditionOrder {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+/// Indent unit type for indentation config.
+/// Valid values: space, tab
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum IndentUnitType {
+    #[default]
+    Space,
+    Tab,
+}
+
+impl FromStr for IndentUnitType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "space" => Ok(Self::Space),
+            "tab" => Ok(Self::Tab),
+            _ => Err(format!(
+                "Invalid indent unit: '{}'. Valid values: space, tab",
+                s
+            )),
+        }
+    }
+}
+
+impl IndentUnitType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Space => "space",
+            Self::Tab => "tab",
+        }
+    }
+}
+
+fn deserialize_option_indent_unit_type<'de, D>(
+    deserializer: D,
+) -> Result<Option<IndentUnitType>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: Option<String> = Option::deserialize(deserializer)?;
+    match s {
+        None => Ok(None),
+        Some(v) => IndentUnitType::from_str(&v)
+            .map(Some)
+            .map_err(de::Error::custom),
+    }
+}
+
+fn deserialize_join_condition_order<'de, D>(deserializer: D) -> Result<JoinConditionOrder, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    JoinConditionOrder::from_str(&s).map_err(de::Error::custom)
+}
 
 #[derive(Debug, Default)]
 struct ConfigLayer {
@@ -347,7 +1035,9 @@ fn apply_indentation_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         match key.as_str() {
-            "indent_unit" => indentation.indent_unit = parse_option_string_none_value(&value),
+            "indent_unit" => {
+                indentation.indent_unit = parse_option_indent_unit_type_value(&value)?
+            }
             "tab_space_size" => indentation.tab_space_size = parse_option_i32_value(&value),
             "hanging_indents" => indentation.hanging_indents = parse_boolish(&value),
             "indented_joins" => indentation.indented_joins = parse_boolish(&value),
@@ -378,7 +1068,10 @@ fn apply_layout_section(
     values: Vec<(String, String)>,
 ) -> Result<(), String> {
     if rest.len() == 2 && rest[0] == "type" {
-        let entry = layout.types.entry(rest[1].clone()).or_default();
+        let syntax_kind: SyntaxKind = rest[1]
+            .parse()
+            .map_err(|_| format!("Invalid layout type: {}", rest[1]))?;
+        let entry = layout.types.entry(syntax_kind).or_default();
         apply_layout_type_config(entry, values)?;
     }
     Ok(())
@@ -390,12 +1083,30 @@ fn apply_layout_type_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         match key.as_str() {
-            "spacing_before" => config.spacing_before = parse_option_string_none_value(&value),
-            "spacing_after" => config.spacing_after = parse_option_string_none_value(&value),
-            "spacing_within" => config.spacing_within = parse_option_string_none_value(&value),
-            "line_position" => config.line_position = parse_option_string_none_value(&value),
-            "align_within" => config.align_within = parse_option_string_none_value(&value),
-            "align_scope" => config.align_scope = parse_option_string_none_value(&value),
+            "spacing_before" => {
+                config.spacing_before =
+                    parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
+            }
+            "spacing_after" => {
+                config.spacing_after =
+                    parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
+            }
+            "spacing_within" => {
+                config.spacing_within =
+                    parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
+            }
+            "line_position" => {
+                config.line_position =
+                    parse_option_string_none_value(&value).map(|s| LinePositionConfig::from_str(&s))
+            }
+            "align_within" => {
+                config.align_within =
+                    parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
+            }
+            "align_scope" => {
+                config.align_scope =
+                    parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
+            }
             _ => {}
         }
     }
@@ -601,8 +1312,16 @@ fn apply_rules_root_config(
     for (key, value) in values {
         match key.as_str() {
             "allow_scalar" => rules.allow_scalar = parse_boolish_value(&value)?,
-            "single_table_references" => rules.single_table_references = value,
-            "unquoted_identifiers_policy" => rules.unquoted_identifiers_policy = value,
+            "single_table_references" => {
+                if value.eq_ignore_ascii_case("none") {
+                    rules.single_table_references = None;
+                } else {
+                    rules.single_table_references = Some(SingleTableReferences::from_str(&value)?);
+                }
+            }
+            "unquoted_identifiers_policy" => {
+                rules.unquoted_identifiers_policy = IdentifiersPolicy::from_str(&value)?;
+            }
             _ => {}
         }
     }
@@ -616,7 +1335,7 @@ fn apply_aliasing_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "aliasing" {
-            config.aliasing = value;
+            config.aliasing = Aliasing::from_str(&value)?;
         }
     }
     Ok(())
@@ -654,7 +1373,7 @@ fn apply_ambiguous_join_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "fully_qualify_join_types" {
-            config.fully_qualify_join_types = value;
+            config.fully_qualify_join_types = JoinType::from_str(&value)?;
         }
     }
     Ok(())
@@ -666,7 +1385,7 @@ fn apply_ambiguous_column_references_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "group_by_and_order_by_style" {
-            config.group_by_and_order_by_style = value;
+            config.group_by_and_order_by_style = GroupByOrderByStyle::from_str(&value)?;
         }
     }
     Ok(())
@@ -678,7 +1397,9 @@ fn apply_capitalisation_keywords_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         match key.as_str() {
-            "capitalisation_policy" => config.capitalisation_policy = value,
+            "capitalisation_policy" => {
+                config.capitalisation_policy = value.parse().map_err(|e| format!("{}", e))?
+            }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
             _ => {}
@@ -693,11 +1414,15 @@ fn apply_capitalisation_identifiers_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         match key.as_str() {
-            "extended_capitalisation_policy" => config.extended_capitalisation_policy = value,
+            "extended_capitalisation_policy" => {
+                config.extended_capitalisation_policy =
+                    value.parse().map_err(|e| format!("{}", e))?
+            }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
             "unquoted_identifiers_policy" => {
-                config.unquoted_identifiers_policy = parse_option_string_none_value(&value)
+                config.unquoted_identifiers_policy =
+                    parse_option_identifiers_policy_value(&value)?
             }
             _ => {}
         }
@@ -711,7 +1436,10 @@ fn apply_capitalisation_functions_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         match key.as_str() {
-            "extended_capitalisation_policy" => config.extended_capitalisation_policy = value,
+            "extended_capitalisation_policy" => {
+                config.extended_capitalisation_policy =
+                    value.parse().map_err(|e| format!("{}", e))?
+            }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
             _ => {}
@@ -726,7 +1454,9 @@ fn apply_capitalisation_literals_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         match key.as_str() {
-            "capitalisation_policy" => config.capitalisation_policy = value,
+            "capitalisation_policy" => {
+                config.capitalisation_policy = value.parse().map_err(|e| format!("{}", e))?
+            }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
             _ => {}
@@ -741,7 +1471,7 @@ fn apply_capitalisation_types_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "extended_capitalisation_policy" {
-            config.extended_capitalisation_policy = value;
+            config.extended_capitalisation_policy = value.parse().map_err(|e| format!("{}", e))?;
         }
     }
     Ok(())
@@ -753,7 +1483,7 @@ fn apply_convention_select_trailing_comma_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "select_clause_trailing_comma" {
-            config.select_clause_trailing_comma = value;
+            config.select_clause_trailing_comma = TrailingCommaPolicy::from_str(&value)?;
         }
     }
     Ok(())
@@ -810,7 +1540,9 @@ fn apply_convention_quoted_literals_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         match key.as_str() {
-            "preferred_quoted_literal_style" => config.preferred_quoted_literal_style = value,
+            "preferred_quoted_literal_style" => {
+                config.preferred_quoted_literal_style = QuotedLiteralStyle::from_str(&value)?;
+            }
             "force_enable" => config.force_enable = parse_boolish_value(&value)?,
             _ => {}
         }
@@ -824,7 +1556,7 @@ fn apply_convention_casting_style_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "preferred_type_casting_style" {
-            config.preferred_type_casting_style = value;
+            config.preferred_type_casting_style = TypeCastingStyle::from_str(&value)?;
         }
     }
     Ok(())
@@ -836,7 +1568,7 @@ fn apply_convention_not_equal_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "preferred_not_equal_style" {
-            config.preferred_not_equal_style = value;
+            config.preferred_not_equal_style = NotEqualStyle::from_str(&value)?;
         }
     }
     Ok(())
@@ -875,7 +1607,12 @@ fn apply_references_consistent_rule_config(
     for (key, value) in values {
         match key.as_str() {
             "single_table_references" => {
-                config.single_table_references = parse_option_string_none_value(&value)
+                if value.eq_ignore_ascii_case("none") {
+                    config.single_table_references = None;
+                } else {
+                    config.single_table_references =
+                        Some(SingleTableReferences::from_str(&value)?);
+                }
             }
             "force_enable" => config.force_enable = parse_boolish_value(&value)?,
             _ => {}
@@ -890,9 +1627,16 @@ fn apply_references_keywords_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         match key.as_str() {
-            "unquoted_identifiers_policy" => config.unquoted_identifiers_policy = value,
+            "unquoted_identifiers_policy" => {
+                config.unquoted_identifiers_policy = IdentifiersPolicy::from_str(&value)?;
+            }
             "quoted_identifiers_policy" => {
-                config.quoted_identifiers_policy = parse_option_string_none_value(&value)
+                if value.eq_ignore_ascii_case("none") {
+                    config.quoted_identifiers_policy = Some(IdentifiersPolicy::None);
+                } else {
+                    config.quoted_identifiers_policy =
+                        Some(IdentifiersPolicy::from_str(&value)?);
+                }
             }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
@@ -908,8 +1652,12 @@ fn apply_references_special_chars_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         match key.as_str() {
-            "quoted_identifiers_policy" => config.quoted_identifiers_policy = value,
-            "unquoted_identifiers_policy" => config.unquoted_identifiers_policy = value,
+            "quoted_identifiers_policy" => {
+                config.quoted_identifiers_policy = IdentifiersPolicy::from_str(&value)?;
+            }
+            "unquoted_identifiers_policy" => {
+                config.unquoted_identifiers_policy = IdentifiersPolicy::from_str(&value)?;
+            }
             "allow_space_in_identifier" => {
                 config.allow_space_in_identifier = parse_boolish_value(&value)?
             }
@@ -967,7 +1715,7 @@ fn apply_layout_select_targets_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "wildcard_policy" {
-            config.wildcard_policy = value;
+            config.wildcard_policy = WildcardPolicy::from_str(&value)?;
         }
     }
     Ok(())
@@ -997,7 +1745,7 @@ fn apply_structure_subquery_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "forbid_subquery_in" {
-            config.forbid_subquery_in = value;
+            config.forbid_subquery_in = ForbidSubqueryIn::from_str(&value)?;
         }
     }
     Ok(())
@@ -1009,7 +1757,7 @@ fn apply_structure_join_condition_order_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "preferred_first_table_in_join_clause" {
-            config.preferred_first_table_in_join_clause = value;
+            config.preferred_first_table_in_join_clause = JoinConditionOrder::from_str(&value)?;
         }
     }
     Ok(())
@@ -1235,6 +1983,26 @@ fn parse_option_string_none_value(value: &str) -> Option<String> {
     }
 }
 
+fn parse_option_identifiers_policy_value(value: &str) -> Result<Option<IdentifiersPolicy>, String> {
+    if is_none_string(value) {
+        Ok(None)
+    } else {
+        IdentifiersPolicy::from_str(value)
+            .map(Some)
+            .map_err(|e| format!("{}", e))
+    }
+}
+
+fn parse_option_indent_unit_type_value(value: &str) -> Result<Option<IndentUnitType>, String> {
+    if is_none_string(value) {
+        Ok(None)
+    } else {
+        IndentUnitType::from_str(value)
+            .map(Some)
+            .map_err(|e| format!("{}", e))
+    }
+}
+
 fn parse_optional_comma_list_value(value: &str) -> Option<Vec<String>> {
     if is_none_string(value) {
         None
@@ -1366,6 +2134,90 @@ where
         JsonValue::Number(value) => Some(value.to_string()),
         JsonValue::Array(_) | JsonValue::Object(_) => None,
     })
+}
+
+fn deserialize_option_line_position<'de, D>(
+    deserializer: D,
+) -> Result<Option<LinePositionConfig>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::String(value) => {
+            if is_none_string(&value) {
+                None
+            } else {
+                Some(LinePositionConfig::from_str(&value))
+            }
+        }
+        _ => None,
+    })
+}
+
+fn deserialize_option_spacing<'de, D>(deserializer: D) -> Result<Option<Spacing>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::String(value) => {
+            if is_none_string(&value) {
+                None
+            } else {
+                Some(value.parse().unwrap())
+            }
+        }
+        _ => None,
+    })
+}
+
+fn deserialize_option_syntax_kind<'de, D>(deserializer: D) -> Result<Option<SyntaxKind>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::String(value) => {
+            if is_none_string(&value) {
+                None
+            } else {
+                Some(value.parse().unwrap())
+            }
+        }
+        _ => None,
+    })
+}
+
+fn deserialize_capitalisation_policy<'de, D>(
+    deserializer: D,
+) -> Result<CapitalisationPolicy, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    match value {
+        JsonValue::String(s) => s.parse().map_err(de::Error::custom),
+        _ => Err(de::Error::custom("expected string for capitalisation policy")),
+    }
+}
+
+fn deserialize_extended_capitalisation_policy<'de, D>(
+    deserializer: D,
+) -> Result<ExtendedCapitalisationPolicy, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    match value {
+        JsonValue::String(s) => s.parse().map_err(de::Error::custom),
+        _ => Err(de::Error::custom(
+            "expected string for extended capitalisation policy",
+        )),
+    }
 }
 
 pub(crate) fn deserialize_option_boolish<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
@@ -1580,8 +2432,8 @@ fn default_core_rule_allowlist() -> Option<Vec<String>> {
     Some(vec!["core".to_string()])
 }
 
-fn default_indent_unit() -> Option<String> {
-    Some("space".to_string())
+fn default_indent_unit() -> Option<IndentUnitType> {
+    Some(IndentUnitType::Space)
 }
 
 fn default_tab_space_size() -> Option<i32> {
@@ -1649,9 +2501,10 @@ pub struct FluffConfig {
     #[serde(default)]
     pub rules: RulesConfig,
     #[serde(skip)]
-    pub reflow: ReflowSettings,
-    #[serde(skip)]
     pub reflow_config: ReflowConfig,
+    /// Pre-computed parser indentation config (populated by reload_reflow)
+    #[serde(skip)]
+    pub parser_indentation: ParserIndentationConfig,
 }
 
 impl Default for FluffConfig {
@@ -1662,8 +2515,8 @@ impl Default for FluffConfig {
             layout: LayoutConfig::default(),
             templater: TemplaterConfig::default(),
             rules: RulesConfig::default(),
-            reflow: ReflowSettings::default(),
             reflow_config: ReflowConfig::default(),
+            parser_indentation: ParserIndentationConfig::default(),
         };
         typed.reload_reflow();
         typed
@@ -1722,7 +2575,40 @@ impl FluffConfig {
     }
 
     pub fn reload_reflow(&mut self) {
-        self.reflow = ReflowSettings::from_typed(&self.core, &self.indentation);
+        // Pre-compute IndentUnit from string config
+        let tab_space_size = self
+            .indentation
+            .tab_space_size
+            .expect("tab_space_size must be configured") as usize;
+        let indent_unit_type = self
+            .indentation
+            .indent_unit
+            .expect("indent_unit must be configured");
+        self.indentation.computed_indent_unit =
+            IndentUnit::from_type_and_size(indent_unit_type.as_str(), tab_space_size);
+
+        // Pre-compute TrailingComments from string config
+        let trailing_comments_str = self
+            .indentation
+            .trailing_comments
+            .as_deref()
+            .expect("trailing_comments must be configured");
+        self.indentation.computed_trailing_comments =
+            TrailingComments::from_str(trailing_comments_str).unwrap();
+
+        // Pre-compute ParserIndentationConfig
+        let indentation = &self.indentation;
+        self.parser_indentation = ParserIndentationConfig::from_bool_lookup(|key| match key {
+            "indented_joins" => indentation.indented_joins.unwrap_or_default(),
+            "indented_using_on" => indentation.indented_using_on.unwrap_or_default(),
+            "indented_on_contents" => indentation.indented_on_contents.unwrap_or_default(),
+            "indented_then" => indentation.indented_then.unwrap_or_default(),
+            "indented_then_contents" => indentation.indented_then_contents.unwrap_or_default(),
+            "indented_joins_on" => indentation.indented_joins_on.unwrap_or_default(),
+            "indented_ctes" => indentation.indented_ctes.unwrap_or_default(),
+            _ => false,
+        });
+
         self.reflow_config = ReflowConfig::from_typed(self);
     }
 
@@ -1862,9 +2748,9 @@ impl Default for CoreConfig {
 pub struct IndentationConfig {
     #[serde(
         default = "default_indent_unit",
-        deserialize_with = "deserialize_option_string_none"
+        deserialize_with = "deserialize_option_indent_unit_type"
     )]
-    pub indent_unit: Option<String>,
+    pub indent_unit: Option<IndentUnitType>,
     #[serde(
         default = "default_tab_space_size",
         deserialize_with = "deserialize_option_i32"
@@ -1924,12 +2810,18 @@ pub struct IndentationConfig {
         deserialize_with = "deserialize_option_string_none"
     )]
     pub trailing_comments: Option<String>,
+    /// Pre-computed IndentUnit (populated by reload_reflow)
+    #[serde(skip)]
+    pub computed_indent_unit: IndentUnit,
+    /// Pre-computed TrailingComments (populated by reload_reflow)
+    #[serde(skip)]
+    pub computed_trailing_comments: TrailingComments,
 }
 
 impl Default for IndentationConfig {
     fn default() -> Self {
         Self {
-            indent_unit: Some("space".to_string()),
+            indent_unit: Some(IndentUnitType::Space),
             tab_space_size: Some(4),
             hanging_indents: None,
             indented_joins: Some(false),
@@ -1943,6 +2835,8 @@ impl Default for IndentationConfig {
             template_blocks_indent: Some(true),
             skip_indentation_in: Some(vec!["script_content".to_string()]),
             trailing_comments: Some("before".to_string()),
+            computed_indent_unit: IndentUnit::default(),
+            computed_trailing_comments: TrailingComments::default(),
         }
     }
 }
@@ -1954,7 +2848,7 @@ pub struct LayoutConfig {
         rename = "type",
         deserialize_with = "deserialize_layout_types"
     )]
-    pub types: AHashMap<String, LayoutTypeConfig>,
+    pub types: AHashMap<SyntaxKind, LayoutTypeConfig>,
 }
 
 impl Default for LayoutConfig {
@@ -1967,92 +2861,59 @@ impl Default for LayoutConfig {
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct LayoutTypeConfig {
-    #[serde(default, deserialize_with = "deserialize_option_string_none")]
-    pub spacing_before: Option<String>,
-    #[serde(default, deserialize_with = "deserialize_option_string_none")]
-    pub spacing_after: Option<String>,
-    #[serde(default, deserialize_with = "deserialize_option_string_none")]
-    pub spacing_within: Option<String>,
-    #[serde(default, deserialize_with = "deserialize_option_string_none")]
-    pub line_position: Option<String>,
-    #[serde(default, deserialize_with = "deserialize_option_string_none")]
-    pub align_within: Option<String>,
-    #[serde(default, deserialize_with = "deserialize_option_string_none")]
-    pub align_scope: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_option_spacing")]
+    pub spacing_before: Option<Spacing>,
+    #[serde(default, deserialize_with = "deserialize_option_spacing")]
+    pub spacing_after: Option<Spacing>,
+    #[serde(default, deserialize_with = "deserialize_option_spacing")]
+    pub spacing_within: Option<Spacing>,
+    #[serde(default, deserialize_with = "deserialize_option_line_position")]
+    pub line_position: Option<LinePositionConfig>,
+    #[serde(default, deserialize_with = "deserialize_option_syntax_kind")]
+    pub align_within: Option<SyntaxKind>,
+    #[serde(default, deserialize_with = "deserialize_option_syntax_kind")]
+    pub align_scope: Option<SyntaxKind>,
 }
 
-fn default_layout_types() -> AHashMap<String, LayoutTypeConfig> {
+fn default_layout_types() -> AHashMap<SyntaxKind, LayoutTypeConfig> {
     let mut types = AHashMap::new();
     types.insert(
-        "comma".to_string(),
+        SyntaxKind::Comma,
         LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
+            spacing_before: Some(Spacing::Touch),
             spacing_after: None,
             spacing_within: None,
-            line_position: Some("trailing".to_string()),
+            line_position: Some(LinePositionConfig::new(LinePosition::Trailing)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "binary_operator".to_string(),
+        SyntaxKind::BinaryOperator,
         LayoutTypeConfig {
             spacing_before: None,
             spacing_after: None,
-            spacing_within: Some("touch".to_string()),
-            line_position: Some("leading".to_string()),
+            spacing_within: Some(Spacing::Touch),
+            line_position: Some(LinePositionConfig::new(LinePosition::Leading)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "statement_terminator".to_string(),
+        SyntaxKind::StatementTerminator,
         LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
+            spacing_before: Some(Spacing::Touch),
             spacing_after: None,
             spacing_within: None,
-            line_position: Some("trailing".to_string()),
+            line_position: Some(LinePositionConfig::new(LinePosition::Trailing)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "end_of_file".to_string(),
+        SyntaxKind::EndOfFile,
         LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
-            spacing_after: None,
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "set_operator".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: None,
-            line_position: Some("alone:strict".to_string()),
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "start_bracket".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: Some("touch".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "end_bracket".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
+            spacing_before: Some(Spacing::Touch),
             spacing_after: None,
             spacing_within: None,
             line_position: None,
@@ -2061,483 +2922,516 @@ fn default_layout_types() -> AHashMap<String, LayoutTypeConfig> {
         },
     );
     types.insert(
-        "start_square_bracket".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: Some("touch".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "end_square_bracket".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
-            spacing_after: None,
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "start_angle_bracket".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: Some("touch".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "end_angle_bracket".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
-            spacing_after: None,
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "casting_operator".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
-            spacing_after: Some("touch:inline".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "slice".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
-            spacing_after: Some("touch".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "dot".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
-            spacing_after: Some("touch".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "comparison_operator".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch".to_string()),
-            line_position: Some("leading".to_string()),
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "assignment_operator".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch".to_string()),
-            line_position: Some("leading".to_string()),
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "object_reference".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch:inline".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "numeric_literal".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch:inline".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "sign_indicator".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: Some("touch:inline".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "tilde".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: Some("touch:inline".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "function_name".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch:inline".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "function_contents".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch:inline".to_string()),
-            spacing_after: None,
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "function_parameter_list".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch:inline".to_string()),
-            spacing_after: None,
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "array_type".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch:inline".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "typed_array_literal".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "sized_array_type".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "struct_type".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch:inline".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "bracketed_arguments".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch:inline".to_string()),
-            spacing_after: None,
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "typed_struct_literal".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "semi_structured_expression".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch:inline".to_string()),
-            spacing_after: None,
-            spacing_within: Some("touch:inline".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "array_accessor".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch:inline".to_string()),
-            spacing_after: None,
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "colon".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
-            spacing_after: None,
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "colon_delimiter".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
-            spacing_after: Some("touch".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "path_segment".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "sql_conf_option".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("touch".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "sqlcmd_operator".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("touch".to_string()),
-            spacing_after: None,
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "comment".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("any".to_string()),
-            spacing_after: Some("any".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "inline_comment".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("any".to_string()),
-            spacing_after: Some("any".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "block_comment".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("any".to_string()),
-            spacing_after: Some("any".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "pattern_expression".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("any".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "placeholder".to_string(),
-        LayoutTypeConfig {
-            spacing_before: Some("any".to_string()),
-            spacing_after: Some("any".to_string()),
-            spacing_within: None,
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "common_table_expression".to_string(),
-        LayoutTypeConfig {
-            spacing_before: None,
-            spacing_after: None,
-            spacing_within: Some("single:inline".to_string()),
-            line_position: None,
-            align_within: None,
-            align_scope: None,
-        },
-    );
-    types.insert(
-        "select_clause".to_string(),
+        SyntaxKind::SetOperator,
         LayoutTypeConfig {
             spacing_before: None,
             spacing_after: None,
             spacing_within: None,
-            line_position: Some("alone".to_string()),
+            line_position: Some(LinePositionConfig::strict(LinePosition::Alone)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "where_clause".to_string(),
+        SyntaxKind::StartBracket,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::EndBracket,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::StartSquareBracket,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::EndSquareBracket,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::StartAngleBracket,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::EndAngleBracket,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::CastingOperator,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: Some(Spacing::TouchInline),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Slice,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Dot,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::ComparisonOperator,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: Some(LinePositionConfig::new(LinePosition::Leading)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::AssignmentOperator,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: Some(LinePositionConfig::new(LinePosition::Leading)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::ObjectReference,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::NumericLiteral,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SignIndicator,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: Some(Spacing::TouchInline),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Tilde,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: Some(Spacing::TouchInline),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::FunctionName,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::FunctionContents,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::TouchInline),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::FunctionParameterList,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::TouchInline),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::ArrayType,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::TypedArrayLiteral,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SizedArrayType,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::StructType,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::BracketedArguments,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::TouchInline),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::TypedStructLiteral,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SemiStructuredExpression,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::TouchInline),
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::ArrayAccessor,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::TouchInline),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Colon,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::ColonDelimiter,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::PathSegment,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SqlConfOption,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SqlcmdOperator,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Comment,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Any),
+            spacing_after: Some(Spacing::Any),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::InlineComment,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Any),
+            spacing_after: Some(Spacing::Any),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::BlockComment,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Any),
+            spacing_after: Some(Spacing::Any),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::PatternExpression,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Any),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Placeholder,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Any),
+            spacing_after: Some(Spacing::Any),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::CommonTableExpression,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::SingleInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SelectClause,
         LayoutTypeConfig {
             spacing_before: None,
             spacing_after: None,
             spacing_within: None,
-            line_position: Some("alone".to_string()),
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "from_clause".to_string(),
+        SyntaxKind::WhereClause,
         LayoutTypeConfig {
             spacing_before: None,
             spacing_after: None,
             spacing_within: None,
-            line_position: Some("alone".to_string()),
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "join_clause".to_string(),
+        SyntaxKind::FromClause,
         LayoutTypeConfig {
             spacing_before: None,
             spacing_after: None,
             spacing_within: None,
-            line_position: Some("alone".to_string()),
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "groupby_clause".to_string(),
+        SyntaxKind::JoinClause,
         LayoutTypeConfig {
             spacing_before: None,
             spacing_after: None,
             spacing_within: None,
-            line_position: Some("alone".to_string()),
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "orderby_clause".to_string(),
+        SyntaxKind::GroupbyClause,
         LayoutTypeConfig {
             spacing_before: None,
             spacing_after: None,
             spacing_within: None,
-            line_position: Some("leading".to_string()),
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "having_clause".to_string(),
+        SyntaxKind::OrderbyClause,
         LayoutTypeConfig {
             spacing_before: None,
             spacing_after: None,
             spacing_within: None,
-            line_position: Some("alone".to_string()),
+            line_position: Some(LinePositionConfig::new(LinePosition::Leading)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "limit_clause".to_string(),
+        SyntaxKind::HavingClause,
         LayoutTypeConfig {
             spacing_before: None,
             spacing_after: None,
             spacing_within: None,
-            line_position: Some("alone".to_string()),
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
             align_within: None,
             align_scope: None,
         },
     );
     types.insert(
-        "template_loop".to_string(),
+        SyntaxKind::LimitClause,
         LayoutTypeConfig {
-            spacing_before: Some("any".to_string()),
-            spacing_after: Some("any".to_string()),
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::TemplateLoop,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Any),
+            spacing_after: Some(Spacing::Any),
             spacing_within: None,
             line_position: None,
             align_within: None,
@@ -2549,14 +3443,15 @@ fn default_layout_types() -> AHashMap<String, LayoutTypeConfig> {
 
 fn deserialize_layout_types<'de, D>(
     deserializer: D,
-) -> Result<AHashMap<String, LayoutTypeConfig>, D::Error>
+) -> Result<AHashMap<SyntaxKind, LayoutTypeConfig>, D::Error>
 where
     D: Deserializer<'de>,
 {
     let overrides = AHashMap::<String, LayoutTypeConfig>::deserialize(deserializer)?;
     let mut types = default_layout_types();
     for (key, value) in overrides {
-        types.insert(key, value);
+        let syntax_kind: SyntaxKind = key.parse().map_err(de::Error::custom)?;
+        types.insert(syntax_kind, value);
     }
     Ok(types)
 }
@@ -2656,40 +3551,12 @@ fn default_rules_allow_scalar() -> bool {
     true
 }
 
-fn default_consistent() -> String {
-    "consistent".to_string()
+fn default_identifiers_policy_aliases() -> IdentifiersPolicy {
+    IdentifiersPolicy::Aliases
 }
 
-fn default_all() -> String {
-    "all".to_string()
-}
-
-fn default_aliases() -> String {
-    "aliases".to_string()
-}
-
-fn default_explicit() -> String {
-    "explicit".to_string()
-}
-
-fn default_inner() -> String {
-    "inner".to_string()
-}
-
-fn default_forbid() -> String {
-    "forbid".to_string()
-}
-
-fn default_single() -> String {
-    "single".to_string()
-}
-
-fn default_join() -> String {
-    "join".to_string()
-}
-
-fn default_earlier() -> String {
-    "earlier".to_string()
+fn default_identifiers_policy_all() -> IdentifiersPolicy {
+    IdentifiersPolicy::All
 }
 
 fn default_max_empty_lines_between_statements() -> usize {
@@ -2707,10 +3574,10 @@ pub struct RulesConfig {
         deserialize_with = "deserialize_boolish"
     )]
     pub allow_scalar: bool,
-    #[serde(default = "default_consistent")]
-    pub single_table_references: String,
-    #[serde(default = "default_all")]
-    pub unquoted_identifiers_policy: String,
+    #[serde(default, deserialize_with = "deserialize_option_single_table_references")]
+    pub single_table_references: Option<SingleTableReferences>,
+    #[serde(default = "default_identifiers_policy_all", deserialize_with = "deserialize_identifiers_policy")]
+    pub unquoted_identifiers_policy: IdentifiersPolicy,
     #[serde(default, rename = "aliasing.table")]
     pub aliasing_table: AliasingRuleConfig,
     #[serde(default, rename = "aliasing.column")]
@@ -2775,8 +3642,8 @@ impl Default for RulesConfig {
     fn default() -> Self {
         Self {
             allow_scalar: default_rules_allow_scalar(),
-            single_table_references: default_consistent(),
-            unquoted_identifiers_policy: default_all(),
+            single_table_references: None,
+            unquoted_identifiers_policy: IdentifiersPolicy::All,
             aliasing_table: AliasingRuleConfig::default(),
             aliasing_column: AliasingRuleConfig::default(),
             aliasing_length: AliasingLengthRuleConfig::default(),
@@ -2812,14 +3679,14 @@ impl Default for RulesConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct AliasingRuleConfig {
-    #[serde(default = "default_explicit")]
-    pub aliasing: String,
+    #[serde(default, deserialize_with = "deserialize_aliasing")]
+    pub aliasing: Aliasing,
 }
 
 impl Default for AliasingRuleConfig {
     fn default() -> Self {
         Self {
-            aliasing: default_explicit(),
+            aliasing: Aliasing::default(),
         }
     }
 }
@@ -2840,36 +3707,36 @@ pub struct AliasingForbidRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct AmbiguousJoinRuleConfig {
-    #[serde(default = "default_inner")]
-    pub fully_qualify_join_types: String,
+    #[serde(default, deserialize_with = "deserialize_join_type")]
+    pub fully_qualify_join_types: JoinType,
 }
 
 impl Default for AmbiguousJoinRuleConfig {
     fn default() -> Self {
         Self {
-            fully_qualify_join_types: default_inner(),
+            fully_qualify_join_types: JoinType::default(),
         }
     }
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct AmbiguousColumnReferencesRuleConfig {
-    #[serde(default = "default_consistent")]
-    pub group_by_and_order_by_style: String,
+    #[serde(default, deserialize_with = "deserialize_group_by_order_by_style")]
+    pub group_by_and_order_by_style: GroupByOrderByStyle,
 }
 
 impl Default for AmbiguousColumnReferencesRuleConfig {
     fn default() -> Self {
         Self {
-            group_by_and_order_by_style: default_consistent(),
+            group_by_and_order_by_style: GroupByOrderByStyle::default(),
         }
     }
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CapitalisationKeywordsRuleConfig {
-    #[serde(default = "default_consistent")]
-    pub capitalisation_policy: String,
+    #[serde(default, deserialize_with = "deserialize_capitalisation_policy")]
+    pub capitalisation_policy: CapitalisationPolicy,
     #[serde(default, deserialize_with = "deserialize_comma_list")]
     pub ignore_words: Vec<String>,
     #[serde(default, deserialize_with = "deserialize_regex_list")]
@@ -2879,7 +3746,7 @@ pub struct CapitalisationKeywordsRuleConfig {
 impl Default for CapitalisationKeywordsRuleConfig {
     fn default() -> Self {
         Self {
-            capitalisation_policy: default_consistent(),
+            capitalisation_policy: CapitalisationPolicy::default(),
             ignore_words: Vec::new(),
             ignore_words_regex: Vec::new(),
         }
@@ -2888,20 +3755,20 @@ impl Default for CapitalisationKeywordsRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CapitalisationIdentifiersRuleConfig {
-    #[serde(default = "default_consistent")]
-    pub extended_capitalisation_policy: String,
+    #[serde(default, deserialize_with = "deserialize_extended_capitalisation_policy")]
+    pub extended_capitalisation_policy: ExtendedCapitalisationPolicy,
     #[serde(default, deserialize_with = "deserialize_comma_list")]
     pub ignore_words: Vec<String>,
     #[serde(default, deserialize_with = "deserialize_regex_list")]
     pub ignore_words_regex: Vec<Regex>,
-    #[serde(default, deserialize_with = "deserialize_option_string_none")]
-    pub unquoted_identifiers_policy: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_option_identifiers_policy")]
+    pub unquoted_identifiers_policy: Option<IdentifiersPolicy>,
 }
 
 impl Default for CapitalisationIdentifiersRuleConfig {
     fn default() -> Self {
         Self {
-            extended_capitalisation_policy: default_consistent(),
+            extended_capitalisation_policy: ExtendedCapitalisationPolicy::default(),
             ignore_words: Vec::new(),
             ignore_words_regex: Vec::new(),
             unquoted_identifiers_policy: None,
@@ -2911,8 +3778,8 @@ impl Default for CapitalisationIdentifiersRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CapitalisationFunctionsRuleConfig {
-    #[serde(default = "default_consistent")]
-    pub extended_capitalisation_policy: String,
+    #[serde(default, deserialize_with = "deserialize_extended_capitalisation_policy")]
+    pub extended_capitalisation_policy: ExtendedCapitalisationPolicy,
     #[serde(default, deserialize_with = "deserialize_comma_list")]
     pub ignore_words: Vec<String>,
     #[serde(default, deserialize_with = "deserialize_regex_list")]
@@ -2922,7 +3789,7 @@ pub struct CapitalisationFunctionsRuleConfig {
 impl Default for CapitalisationFunctionsRuleConfig {
     fn default() -> Self {
         Self {
-            extended_capitalisation_policy: default_consistent(),
+            extended_capitalisation_policy: ExtendedCapitalisationPolicy::default(),
             ignore_words: Vec::new(),
             ignore_words_regex: Vec::new(),
         }
@@ -2931,8 +3798,8 @@ impl Default for CapitalisationFunctionsRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CapitalisationLiteralsRuleConfig {
-    #[serde(default = "default_consistent")]
-    pub capitalisation_policy: String,
+    #[serde(default, deserialize_with = "deserialize_capitalisation_policy")]
+    pub capitalisation_policy: CapitalisationPolicy,
     #[serde(default, deserialize_with = "deserialize_comma_list")]
     pub ignore_words: Vec<String>,
     #[serde(default, deserialize_with = "deserialize_regex_list")]
@@ -2942,7 +3809,7 @@ pub struct CapitalisationLiteralsRuleConfig {
 impl Default for CapitalisationLiteralsRuleConfig {
     fn default() -> Self {
         Self {
-            capitalisation_policy: default_consistent(),
+            capitalisation_policy: CapitalisationPolicy::default(),
             ignore_words: Vec::new(),
             ignore_words_regex: Vec::new(),
         }
@@ -2951,28 +3818,28 @@ impl Default for CapitalisationLiteralsRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CapitalisationTypesRuleConfig {
-    #[serde(default = "default_consistent")]
-    pub extended_capitalisation_policy: String,
+    #[serde(default, deserialize_with = "deserialize_extended_capitalisation_policy")]
+    pub extended_capitalisation_policy: ExtendedCapitalisationPolicy,
 }
 
 impl Default for CapitalisationTypesRuleConfig {
     fn default() -> Self {
         Self {
-            extended_capitalisation_policy: default_consistent(),
+            extended_capitalisation_policy: ExtendedCapitalisationPolicy::default(),
         }
     }
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ConventionSelectTrailingCommaRuleConfig {
-    #[serde(default = "default_forbid")]
-    pub select_clause_trailing_comma: String,
+    #[serde(default, deserialize_with = "deserialize_trailing_comma_policy")]
+    pub select_clause_trailing_comma: TrailingCommaPolicy,
 }
 
 impl Default for ConventionSelectTrailingCommaRuleConfig {
     fn default() -> Self {
         Self {
-            select_clause_trailing_comma: default_forbid(),
+            select_clause_trailing_comma: TrailingCommaPolicy::default(),
         }
     }
 }
@@ -3005,8 +3872,8 @@ pub struct ConventionBlockedWordsRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ConventionQuotedLiteralsRuleConfig {
-    #[serde(default = "default_consistent")]
-    pub preferred_quoted_literal_style: String,
+    #[serde(default, deserialize_with = "deserialize_quoted_literal_style")]
+    pub preferred_quoted_literal_style: QuotedLiteralStyle,
     #[serde(default, deserialize_with = "deserialize_boolish")]
     pub force_enable: bool,
 }
@@ -3014,7 +3881,7 @@ pub struct ConventionQuotedLiteralsRuleConfig {
 impl Default for ConventionQuotedLiteralsRuleConfig {
     fn default() -> Self {
         Self {
-            preferred_quoted_literal_style: default_consistent(),
+            preferred_quoted_literal_style: QuotedLiteralStyle::default(),
             force_enable: false,
         }
     }
@@ -3022,28 +3889,28 @@ impl Default for ConventionQuotedLiteralsRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ConventionCastingStyleRuleConfig {
-    #[serde(default = "default_consistent")]
-    pub preferred_type_casting_style: String,
+    #[serde(default, deserialize_with = "deserialize_type_casting_style")]
+    pub preferred_type_casting_style: TypeCastingStyle,
 }
 
 impl Default for ConventionCastingStyleRuleConfig {
     fn default() -> Self {
         Self {
-            preferred_type_casting_style: default_consistent(),
+            preferred_type_casting_style: TypeCastingStyle::default(),
         }
     }
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ConventionNotEqualRuleConfig {
-    #[serde(default = "default_consistent")]
-    pub preferred_not_equal_style: String,
+    #[serde(default, deserialize_with = "deserialize_not_equal_style")]
+    pub preferred_not_equal_style: NotEqualStyle,
 }
 
 impl Default for ConventionNotEqualRuleConfig {
     fn default() -> Self {
         Self {
-            preferred_not_equal_style: default_consistent(),
+            preferred_not_equal_style: NotEqualStyle::default(),
         }
     }
 }
@@ -3064,18 +3931,18 @@ pub struct ReferencesQualificationRuleConfig {
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct ReferencesConsistentRuleConfig {
-    #[serde(default, deserialize_with = "deserialize_option_string_none")]
-    pub single_table_references: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_option_single_table_references")]
+    pub single_table_references: Option<SingleTableReferences>,
     #[serde(default, deserialize_with = "deserialize_boolish")]
     pub force_enable: bool,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ReferencesKeywordsRuleConfig {
-    #[serde(default = "default_aliases")]
-    pub unquoted_identifiers_policy: String,
-    #[serde(default, deserialize_with = "deserialize_option_string_none")]
-    pub quoted_identifiers_policy: Option<String>,
+    #[serde(default = "default_identifiers_policy_aliases", deserialize_with = "deserialize_identifiers_policy")]
+    pub unquoted_identifiers_policy: IdentifiersPolicy,
+    #[serde(default, deserialize_with = "deserialize_option_identifiers_policy")]
+    pub quoted_identifiers_policy: Option<IdentifiersPolicy>,
     #[serde(default, deserialize_with = "deserialize_comma_list")]
     pub ignore_words: Vec<String>,
     #[serde(default, deserialize_with = "deserialize_regex_list")]
@@ -3085,8 +3952,8 @@ pub struct ReferencesKeywordsRuleConfig {
 impl Default for ReferencesKeywordsRuleConfig {
     fn default() -> Self {
         Self {
-            unquoted_identifiers_policy: default_aliases(),
-            quoted_identifiers_policy: Some("none".to_string()),
+            unquoted_identifiers_policy: IdentifiersPolicy::Aliases,
+            quoted_identifiers_policy: Some(IdentifiersPolicy::None),
             ignore_words: Vec::new(),
             ignore_words_regex: Vec::new(),
         }
@@ -3095,10 +3962,10 @@ impl Default for ReferencesKeywordsRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ReferencesSpecialCharsRuleConfig {
-    #[serde(default = "default_all")]
-    pub quoted_identifiers_policy: String,
-    #[serde(default = "default_all")]
-    pub unquoted_identifiers_policy: String,
+    #[serde(default = "default_identifiers_policy_all", deserialize_with = "deserialize_identifiers_policy")]
+    pub quoted_identifiers_policy: IdentifiersPolicy,
+    #[serde(default = "default_identifiers_policy_all", deserialize_with = "deserialize_identifiers_policy")]
+    pub unquoted_identifiers_policy: IdentifiersPolicy,
     #[serde(default, deserialize_with = "deserialize_boolish")]
     pub allow_space_in_identifier: bool,
     #[serde(default, deserialize_with = "deserialize_option_string_none")]
@@ -3112,8 +3979,8 @@ pub struct ReferencesSpecialCharsRuleConfig {
 impl Default for ReferencesSpecialCharsRuleConfig {
     fn default() -> Self {
         Self {
-            quoted_identifiers_policy: default_all(),
-            unquoted_identifiers_policy: default_all(),
+            quoted_identifiers_policy: IdentifiersPolicy::All,
+            unquoted_identifiers_policy: IdentifiersPolicy::All,
             allow_space_in_identifier: false,
             additional_allowed_characters: None,
             ignore_words: Vec::new(),
@@ -3146,14 +4013,14 @@ pub struct LayoutLongLinesRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct LayoutSelectTargetsRuleConfig {
-    #[serde(default = "default_single")]
-    pub wildcard_policy: String,
+    #[serde(default, deserialize_with = "deserialize_wildcard_policy")]
+    pub wildcard_policy: WildcardPolicy,
 }
 
 impl Default for LayoutSelectTargetsRuleConfig {
     fn default() -> Self {
         Self {
-            wildcard_policy: default_single(),
+            wildcard_policy: WildcardPolicy::default(),
         }
     }
 }
@@ -3183,51 +4050,28 @@ impl Default for LayoutNewlinesRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct StructureSubqueryRuleConfig {
-    #[serde(default = "default_join")]
-    pub forbid_subquery_in: String,
+    #[serde(default, deserialize_with = "deserialize_forbid_subquery_in")]
+    pub forbid_subquery_in: ForbidSubqueryIn,
 }
 
 impl Default for StructureSubqueryRuleConfig {
     fn default() -> Self {
         Self {
-            forbid_subquery_in: default_join(),
+            forbid_subquery_in: ForbidSubqueryIn::default(),
         }
     }
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct StructureJoinConditionOrderRuleConfig {
-    #[serde(default = "default_earlier")]
-    pub preferred_first_table_in_join_clause: String,
+    #[serde(default, deserialize_with = "deserialize_join_condition_order")]
+    pub preferred_first_table_in_join_clause: JoinConditionOrder,
 }
 
 impl Default for StructureJoinConditionOrderRuleConfig {
     fn default() -> Self {
         Self {
-            preferred_first_table_in_join_clause: default_earlier(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct ReflowSettings {
-    pub max_line_length: Option<usize>,
-    pub hanging_indents: Option<bool>,
-    pub allow_implicit_indents: Option<bool>,
-    pub trailing_comments: Option<String>,
-    pub indent_unit: Option<String>,
-    pub tab_space_size: Option<usize>,
-}
-
-impl ReflowSettings {
-    fn from_typed(core: &CoreConfig, indentation: &IndentationConfig) -> Self {
-        Self {
-            max_line_length: core.max_line_length.map(|value| value as usize),
-            hanging_indents: indentation.hanging_indents,
-            allow_implicit_indents: indentation.allow_implicit_indents,
-            trailing_comments: indentation.trailing_comments.clone(),
-            indent_unit: indentation.indent_unit.clone(),
-            tab_space_size: indentation.tab_space_size.map(|value| value as usize),
+            preferred_first_table_in_join_clause: JoinConditionOrder::default(),
         }
     }
 }
@@ -3423,9 +4267,12 @@ rules = LT01, LT02
         assert_eq!(typed.templater.unwrap_wrapped_queries, Some(true));
         assert_eq!(typed.templater.jinja.apply_dbt_builtins, Some(true));
 
-        let comma = typed.layout.types.get("comma").unwrap();
-        assert_eq!(comma.spacing_before.as_deref(), Some("touch"));
-        assert_eq!(comma.line_position.as_deref(), Some("trailing"));
+        let comma = typed.layout.types.get(&SyntaxKind::Comma).unwrap();
+        assert_eq!(comma.spacing_before, Some(Spacing::Touch));
+        assert_eq!(
+            comma.line_position,
+            Some(LinePositionConfig::new(LinePosition::Trailing))
+        );
     }
 
     #[test]
@@ -3501,8 +4348,11 @@ line_position = trailing
             expected_loader_paths
         );
 
-        let comma = typed.layout.types.get("comma").unwrap();
-        assert_eq!(comma.spacing_before.as_deref(), Some("touch"));
-        assert_eq!(comma.line_position.as_deref(), Some("trailing"));
+        let comma = typed.layout.types.get(&SyntaxKind::Comma).unwrap();
+        assert_eq!(comma.spacing_before, Some(Spacing::Touch));
+        assert_eq!(
+            comma.line_position,
+            Some(LinePositionConfig::new(LinePosition::Trailing))
+        );
     }
 }

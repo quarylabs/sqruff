@@ -3,12 +3,18 @@ use std::str::FromStr;
 use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::core::config::{FluffConfig, LayoutTypeConfig};
+use crate::core::config::FluffConfig;
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
+use crate::utils::reflow::rebreak::LinePositionConfig;
 use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
 
-type ConfigElementType = AHashMap<String, String>;
-type ConfigDictType = AHashMap<SyntaxKind, ConfigElementType>;
+/// Pre-computed spacing configuration for a segment type
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
+pub struct SpacingConfig {
+    pub spacing_before: Option<Spacing>,
+    pub spacing_after: Option<Spacing>,
+    pub spacing_within: Option<Spacing>,
+}
 
 /// Holds spacing config for a block and allows easy manipulation
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -16,7 +22,7 @@ pub struct BlockConfig {
     pub spacing_before: Spacing,
     pub spacing_after: Spacing,
     pub spacing_within: Option<Spacing>,
-    pub line_position: Option<&'static str>,
+    pub line_position: Option<LinePositionConfig>,
 }
 
 impl Default for BlockConfig {
@@ -35,52 +41,32 @@ impl BlockConfig {
         }
     }
 
-    fn convert_line_position(line_position: &str) -> &'static str {
-        match line_position {
-            "alone" => "alone",
-            "leading" => "leading",
-            "trailing" => "trailing",
-            "alone:strict" => "alone:strict",
-            _ => unreachable!("Expected 'alone', 'leading' found '{}'", line_position),
-        }
-    }
-
     /// Mutate the config based on additional information
     pub fn incorporate(
         &mut self,
         before: Option<Spacing>,
         after: Option<Spacing>,
         within: Option<Spacing>,
-        line_position: Option<&'static str>,
-        config: Option<&ConfigElementType>,
+        line_position: Option<LinePositionConfig>,
+        spacing_config: Option<&SpacingConfig>,
     ) {
+        let empty = SpacingConfig::default();
+        let spacing_config = spacing_config.unwrap_or(&empty);
+
         self.spacing_before = before
-            .or_else(|| {
-                config
-                    .and_then(|c| c.get("spacing_before"))
-                    .map(|it| it.parse().unwrap())
-            })
+            .or(spacing_config.spacing_before)
             .unwrap_or(self.spacing_before);
 
         self.spacing_after = after
-            .or_else(|| {
-                config
-                    .and_then(|c| c.get("spacing_after"))
-                    .map(|it| it.parse().unwrap())
-            })
+            .or(spacing_config.spacing_after)
             .unwrap_or(self.spacing_after);
 
-        self.spacing_within = within.or_else(|| {
-            config
-                .and_then(|c| c.get("spacing_within"))
-                .map(|it| it.parse().unwrap())
-        });
+        self.spacing_within = within.or(spacing_config.spacing_within);
 
-        self.line_position = line_position.or_else(|| {
-            config
-                .and_then(|c| c.get("line_position"))
-                .map(|value| Self::convert_line_position(value))
-        });
+        // line_position is now passed directly as a typed value
+        if line_position.is_some() {
+            self.line_position = line_position;
+        }
     }
 }
 
@@ -91,8 +77,11 @@ impl BlockConfig {
 /// usage, and the configuration used during reflow operations.
 #[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub struct ReflowConfig {
-    configs: ConfigDictType,
+    /// Pre-computed spacing configs for each segment type
+    spacings: AHashMap<SyntaxKind, SpacingConfig>,
     config_types: SyntaxSet,
+    /// Pre-computed line position configs for each segment type
+    line_positions: AHashMap<SyntaxKind, LinePositionConfig>,
     /// In production, these values are almost _always_ set because we
     /// use `.from_typed`, but the defaults are here to aid in
     /// testing.
@@ -127,10 +116,12 @@ impl FromStr for Spacing {
             "touch:inline" => Self::TouchInline,
             "single:inline" => Self::SingleInline,
             "any" => Self::Any,
+            // Bare "align" is treated as "single" and will be converted to Align
+            // later by the from_typed logic when align_within is configured
+            "align" => Self::Single,
             s => {
-                if let Some(rest) = s.strip_prefix("align") {
+                if let Some(rest) = s.strip_prefix("align:") {
                     let mut args = rest.split(':');
-                    args.next();
 
                     let seg_type = args.next().map(|it| it.parse().unwrap()).unwrap();
                     let within = args.next().map(|it| it.parse().unwrap());
@@ -192,11 +183,9 @@ impl ReflowConfig {
                 if parent_start {
                     for seg_type in configured_parent_types.clone() {
                         let before = self
-                            .configs
+                            .spacings
                             .get(&seg_type)
-                            .and_then(|conf| conf.get("spacing_before"))
-                            .map(|it| it.as_str());
-                        let before = before.map(|it| it.parse().unwrap());
+                            .and_then(|conf| conf.spacing_before);
 
                         block_config.incorporate(before, None, None, None, None);
                     }
@@ -205,12 +194,10 @@ impl ReflowConfig {
                 if parent_end {
                     for seg_type in configured_parent_types {
                         let after = self
-                            .configs
+                            .spacings
                             .get(&seg_type)
-                            .and_then(|conf| conf.get("spacing_after"))
-                            .map(|it| it.as_str());
+                            .and_then(|conf| conf.spacing_after);
 
-                        let after = after.map(|it| it.parse().unwrap());
                         block_config.incorporate(None, after, None, None, None);
                     }
                 }
@@ -218,104 +205,85 @@ impl ReflowConfig {
         }
 
         for seg_type in configured_types {
-            block_config.incorporate(None, None, None, None, self.configs.get(&seg_type));
+            // Get line_position from the pre-computed map
+            let line_position = self.line_positions.get(&seg_type).copied();
+            block_config.incorporate(
+                None,
+                None,
+                None,
+                line_position,
+                self.spacings.get(&seg_type),
+            );
         }
 
         block_config
     }
 
     pub fn from_typed(typed: &FluffConfig) -> ReflowConfig {
-        let config_types = typed
+        let config_types = typed.layout.types.keys().copied().collect::<SyntaxSet>();
+
+        // Pre-compute spacing configs for each segment type
+        let spacings: AHashMap<SyntaxKind, SpacingConfig> = typed
             .layout
             .types
-            .keys()
-            .map(|x| x.parse().unwrap_or_else(|_| unimplemented!("{x}")))
-            .collect::<SyntaxSet>();
+            .iter()
+            .map(|(&seg_type, value)| {
+                // Use typed align_within and align_scope directly
+                let align_within = value.align_within;
+                let align_scope = value.align_scope;
 
-        let trailing_comments = typed
-            .reflow
-            .trailing_comments
-            .as_deref()
-            .expect("trailing_comments must be configured");
-        let trailing_comments = TrailingComments::from_str(trailing_comments).unwrap();
-
-        let tab_space_size = typed
-            .reflow
-            .tab_space_size
-            .expect("tab_space_size must be configured");
-        let indent_unit = typed
-            .reflow
-            .indent_unit
-            .as_deref()
-            .expect("indent_unit must be configured");
-        let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
-
-        let mut configs = convert_to_config_dict(&typed.layout.types);
-        let keys: Vec<_> = configs.keys().copied().collect();
-
-        for seg_type in keys {
-            for key in ["spacing_before", "spacing_after"] {
-                if configs[&seg_type].get(key).map(String::as_str) == Some("align") {
-                    let mut new_key = format!("align:{}", seg_type.as_str());
-                    if let Some(align_within) = configs[&seg_type].get("align_within") {
-                        new_key.push_str(&format!(":{align_within}"));
-
-                        if let Some(align_scope) = configs[&seg_type].get("align_scope") {
-                            new_key.push_str(&format!(":{align_scope}"));
+                // Convert Spacing::Single to Spacing::Align if align_within is configured
+                let convert_align = |spacing: Spacing| -> Spacing {
+                    if spacing == Spacing::Single && align_within.is_some() {
+                        Spacing::Align {
+                            seg_type,
+                            within: align_within,
+                            scope: align_scope,
                         }
+                    } else {
+                        spacing
                     }
+                };
 
-                    *configs.get_mut(&seg_type).unwrap().get_mut(key).unwrap() = new_key;
-                }
-            }
-        }
+                (
+                    seg_type,
+                    SpacingConfig {
+                        spacing_before: value.spacing_before.map(convert_align),
+                        spacing_after: value.spacing_after.map(convert_align),
+                        spacing_within: value.spacing_within,
+                    },
+                )
+            })
+            .collect();
+
+        // Pre-compute line positions for each configured type
+        let line_positions: AHashMap<SyntaxKind, LinePositionConfig> = typed
+            .layout
+            .types
+            .iter()
+            .filter_map(|(&seg_type, value)| value.line_position.map(|lp| (seg_type, lp)))
+            .collect();
 
         ReflowConfig {
-            configs,
+            spacings,
             config_types,
-            indent_unit,
+            line_positions,
+            indent_unit: typed.indentation.computed_indent_unit,
             max_line_length: typed
-                .reflow
+                .core
                 .max_line_length
-                .expect("max_line_length must be configured"),
-            hanging_indents: typed.reflow.hanging_indents.unwrap_or_default(),
+                .expect("max_line_length must be configured") as usize,
+            hanging_indents: typed.indentation.hanging_indents.unwrap_or_default(),
             allow_implicit_indents: typed
-                .reflow
+                .indentation
                 .allow_implicit_indents
                 .expect("allow_implicit_indents must be configured"),
-            trailing_comments,
+            trailing_comments: typed.indentation.computed_trailing_comments,
         }
     }
-}
 
-fn convert_to_config_dict(input: &AHashMap<String, LayoutTypeConfig>) -> ConfigDictType {
-    let mut config_dict = ConfigDictType::new();
-
-    for (key, value) in input {
-        let mut element = ConfigElementType::new();
-        if let Some(value) = &value.spacing_before {
-            element.insert("spacing_before".to_string(), value.clone());
-        }
-        if let Some(value) = &value.spacing_after {
-            element.insert("spacing_after".to_string(), value.clone());
-        }
-        if let Some(value) = &value.spacing_within {
-            element.insert("spacing_within".to_string(), value.clone());
-        }
-        if let Some(value) = &value.line_position {
-            element.insert("line_position".to_string(), value.clone());
-        }
-        if let Some(value) = &value.align_within {
-            element.insert("align_within".to_string(), value.clone());
-        }
-        if let Some(value) = &value.align_scope {
-            element.insert("align_scope".to_string(), value.clone());
-        }
-        config_dict.insert(
-            key.parse().unwrap_or_else(|_| unimplemented!("{key}")),
-            element,
-        );
+    /// Get the line position config for a segment type
+    pub fn get_line_position(&self, seg_type: SyntaxKind) -> Option<LinePositionConfig> {
+        self.line_positions.get(&seg_type).copied()
     }
-
-    config_dict
 }

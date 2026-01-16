@@ -4,6 +4,7 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
+use crate::core::config::WildcardPolicy;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
@@ -88,7 +89,7 @@ FROM test_table;
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let select_targets_info = Self::get_indexes(context);
         let select_clause = FunctionalContext::new(context).segment();
-        let wildcard_policy = &context.config.rules.layout_select_targets.wildcard_policy;
+        let wildcard_policy = context.config.rules.layout_select_targets.wildcard_policy;
 
         let wildcards = select_clause
             .children_where(|sp| sp.is_type(SyntaxKind::SelectClauseElement))
@@ -97,7 +98,7 @@ FROM test_table;
         let has_wildcard = !wildcards.is_empty();
 
         if select_targets_info.select_targets.len() == 1
-            && (!has_wildcard || wildcard_policy == "single")
+            && (!has_wildcard || wildcard_policy == WildcardPolicy::Single)
         {
             return self.eval_single_select_target_element(select_targets_info, context);
         } else if !select_targets_info.select_targets.is_empty() {

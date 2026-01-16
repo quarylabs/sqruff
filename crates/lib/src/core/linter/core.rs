@@ -26,8 +26,8 @@ use sqruff_lib_core::errors::{
 };
 use sqruff_lib_core::helpers;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
+use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
-use sqruff_lib_core::parser::{IndentationConfig as ParserIndentationConfig, Parser};
 use sqruff_lib_core::templaters::TemplatedFile;
 use walkdir::WalkDir;
 
@@ -547,18 +547,7 @@ impl Linter {
         let dialect = config
             .dialect()
             .expect("Dialect is disabled. Please enable the corresponding feature.");
-        let indentation = &config.indentation;
-        let indentation_config = ParserIndentationConfig::from_bool_lookup(|key| match key {
-            "indented_joins" => indentation.indented_joins.unwrap_or_default(),
-            "indented_using_on" => indentation.indented_using_on.unwrap_or_default(),
-            "indented_on_contents" => indentation.indented_on_contents.unwrap_or_default(),
-            "indented_then" => indentation.indented_then.unwrap_or_default(),
-            "indented_then_contents" => indentation.indented_then_contents.unwrap_or_default(),
-            "indented_joins_on" => indentation.indented_joins_on.unwrap_or_default(),
-            "indented_ctes" => indentation.indented_ctes.unwrap_or_default(),
-            _ => false,
-        });
-        let parser = Parser::new(&dialect, indentation_config);
+        let parser = Parser::new(&dialect, config.parser_indentation);
         let mut violations: Vec<SQLParseError> = Vec::new();
 
         let parsed = match parser.parse(tables, tokens) {

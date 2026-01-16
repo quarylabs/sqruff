@@ -133,11 +133,7 @@ where
     }
 }
 
-pub(crate) fn linter(
-    config: FluffConfig,
-    format: Format,
-    collect_parse_errors: bool,
-) -> Linter {
+pub(crate) fn linter(config: FluffConfig, format: Format, collect_parse_errors: bool) -> Linter {
     let formatter: Arc<dyn Formatter> = match format {
         Format::Human => {
             let output_stream = std::io::stderr().into();

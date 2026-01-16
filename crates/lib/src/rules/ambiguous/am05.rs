@@ -1,25 +1,15 @@
-use std::str::FromStr;
-
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
-use strum_macros::{AsRefStr, EnumString};
 
+use crate::core::config::JoinType;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
 
 #[derive(Clone, Debug, Default)]
 pub struct RuleAM05;
-
-#[derive(Clone, Debug, Copy, PartialEq, Eq, Hash, AsRefStr, EnumString)]
-#[strum(serialize_all = "lowercase")]
-enum JoinType {
-    Inner,
-    Outer,
-    Both,
-}
 
 #[derive(Clone, Copy)]
 struct CachedJoinType(JoinType);
@@ -72,15 +62,7 @@ INNER JOIN baz;
             .try_get::<CachedJoinType>()
             .map(|cached| cached.0)
             .unwrap_or_else(|| {
-                let parsed = JoinType::from_str(
-                    context
-                        .config
-                        .rules
-                        .ambiguous_join
-                        .fully_qualify_join_types
-                        .as_str(),
-                )
-                .unwrap_or(JoinType::Inner);
+                let parsed = context.config.rules.ambiguous_join.fully_qualify_join_types;
                 context.set(CachedJoinType(parsed));
                 parsed
             });

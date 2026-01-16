@@ -3,23 +3,12 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
-use strum_macros::{AsRefStr, EnumString};
 
+use crate::core::config::TypeCastingStyle;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
-
-#[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq, Default)]
-#[strum(serialize_all = "snake_case")]
-enum TypeCastingStyle {
-    #[default]
-    Consistent,
-    Cast,
-    Convert,
-    Shorthand,
-    None,
-}
 
 #[derive(Copy, Clone)]
 struct PreviousSkipped;
@@ -126,15 +115,13 @@ FROM foo;
             .try_get::<ConfigTypeCastingStyle>()
             .map(|cached| cached.0)
             .unwrap_or_else(|| {
-                let parsed = context
+                let style = context
                     .config
                     .rules
                     .convention_casting_style
-                    .preferred_type_casting_style
-                    .parse()
-                    .expect("Invalid preferred_type_casting_style");
-                context.set(ConfigTypeCastingStyle(parsed));
-                parsed
+                    .preferred_type_casting_style;
+                context.set(ConfigTypeCastingStyle(style));
+                style
             });
 
         let current_type_casting_style = if context.segment.is_type(SyntaxKind::Function) {
@@ -149,20 +136,20 @@ FROM foo;
             } else if function_name.raw().eq_ignore_ascii_case("CONVERT") {
                 TypeCastingStyle::Convert
             } else {
-                TypeCastingStyle::None
+                TypeCastingStyle::Other
             }
         } else if context.segment.is_type(SyntaxKind::CastExpression) {
             TypeCastingStyle::Shorthand
         } else {
-            TypeCastingStyle::None
+            TypeCastingStyle::Other
         };
 
         let functional_context = FunctionalContext::new(context);
         match preferred_type_casting_style {
             TypeCastingStyle::Consistent => {
-                // If current is None, it's not a cast operation (e.g., STRING_AGG, or
+                // If current is Other, it's not a cast operation (e.g., STRING_AGG, or
                 // other non-CAST/CONVERT functions), so skip it entirely.
-                if current_type_casting_style == TypeCastingStyle::None {
+                if current_type_casting_style == TypeCastingStyle::Other {
                     return Vec::new();
                 }
 

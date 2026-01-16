@@ -82,7 +82,7 @@ from foo
         let rules = &context.config.rules.capitalisation_literals;
         self.base.eval_with_config(
             context,
-            &rules.capitalisation_policy,
+            rules.capitalisation_policy.as_str(),
             &rules.ignore_words,
             &rules.ignore_words_regex,
         )

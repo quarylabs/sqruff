@@ -2,6 +2,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::cp01::RuleCP01;
+use crate::core::config::IdentifiersPolicy;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
@@ -87,14 +88,13 @@ from foo
         }
 
         let rules = &context.config.rules.capitalisation_identifiers;
-        let policy = rules
+        let policy: IdentifiersPolicy = rules
             .unquoted_identifiers_policy
-            .as_deref()
-            .unwrap_or(context.config.rules.unquoted_identifiers_policy.as_str());
+            .unwrap_or(context.config.rules.unquoted_identifiers_policy);
         if identifiers_policy_applicable(policy, &context.parent_stack) {
             self.base.eval_with_config(
                 context,
-                &rules.extended_capitalisation_policy,
+                rules.extended_capitalisation_policy.as_str(),
                 &rules.ignore_words,
                 &rules.ignore_words_regex,
             )

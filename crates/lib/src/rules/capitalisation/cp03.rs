@@ -70,7 +70,7 @@ FROM foo
         let rules = &context.config.rules.capitalisation_functions;
         self.base.eval_with_config(
             context,
-            &rules.extended_capitalisation_policy,
+            rules.extended_capitalisation_policy.as_str(),
             &rules.ignore_words,
             &rules.ignore_words_regex,
         )

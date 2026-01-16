@@ -52,11 +52,12 @@ CREATE TABLE t (
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let extended_capitalisation_policy = &context
+        let extended_capitalisation_policy = context
             .config
             .rules
             .capitalisation_types
-            .extended_capitalisation_policy;
+            .extended_capitalisation_policy
+            .as_str();
         let mut results = Vec::new();
 
         if context.segment.is_type(SyntaxKind::PrimitiveType)

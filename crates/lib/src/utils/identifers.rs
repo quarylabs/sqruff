@@ -1,11 +1,16 @@
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
-pub fn identifiers_policy_applicable(policy: &str, parent_stack: &[ErasedSegment]) -> bool {
+use crate::core::config::IdentifiersPolicy;
+
+pub fn identifiers_policy_applicable(
+    policy: IdentifiersPolicy,
+    parent_stack: &[ErasedSegment],
+) -> bool {
     match policy {
-        "all" => true,
-        "none" => false,
-        _ => {
+        IdentifiersPolicy::All => true,
+        IdentifiersPolicy::None => false,
+        IdentifiersPolicy::Aliases | IdentifiersPolicy::ColumnAliases | IdentifiersPolicy::TableAliases => {
             let is_alias = parent_stack.iter().any(|segment| {
                 [
                     SyntaxKind::AliasExpression,
@@ -19,10 +24,14 @@ pub fn identifiers_policy_applicable(policy: &str, parent_stack: &[ErasedSegment
                 .iter()
                 .any(|segment| segment.is_type(SyntaxKind::FromClause));
 
+            if !is_alias {
+                return false;
+            }
+
             match policy {
-                "aliases" if is_alias => true,
-                "column_aliases" if is_alias => !is_inside_from,
-                "table_aliases" if is_alias => is_inside_from,
+                IdentifiersPolicy::Aliases => true,
+                IdentifiersPolicy::ColumnAliases => !is_inside_from,
+                IdentifiersPolicy::TableAliases => is_inside_from,
                 _ => false,
             }
         }

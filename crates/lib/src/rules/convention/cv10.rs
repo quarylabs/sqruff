@@ -3,30 +3,21 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
-use strum_macros::{AsRefStr, EnumString};
 
+use crate::core::config::QuotedLiteralStyle;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
 
-#[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq, Default)]
-#[strum(serialize_all = "snake_case")]
-enum PreferredQuotedLiteralStyle {
-    #[default]
-    Consistent,
-    SingleQuotes,
-    DoubleQuotes,
-}
-
-impl PreferredQuotedLiteralStyle {
+impl QuotedLiteralStyle {
     fn info(&self) -> QuoteInfo {
         match self {
-            PreferredQuotedLiteralStyle::Consistent => unimplemented!(),
-            PreferredQuotedLiteralStyle::SingleQuotes => QuoteInfo {
+            QuotedLiteralStyle::Consistent => unimplemented!(),
+            QuotedLiteralStyle::SingleQuotes => QuoteInfo {
                 preferred_quote_char: '\'',
                 alternate_quote_char: '"',
             },
-            PreferredQuotedLiteralStyle::DoubleQuotes => QuoteInfo {
+            QuotedLiteralStyle::DoubleQuotes => QuoteInfo {
                 preferred_quote_char: '"',
                 alternate_quote_char: '\'',
             },
@@ -40,7 +31,7 @@ struct QuoteInfo {
 }
 
 #[derive(Clone, Copy)]
-struct ConfigPreferredQuotedLiteralStyle(PreferredQuotedLiteralStyle);
+struct ConfigPreferredQuotedLiteralStyle(QuotedLiteralStyle);
 
 #[derive(Clone, Debug, Default)]
 pub struct RuleCV10;
@@ -102,23 +93,20 @@ from foo
             .try_get::<ConfigPreferredQuotedLiteralStyle>()
             .map(|cached| cached.0)
             .unwrap_or_else(|| {
-                let parsed = rules
-                    .preferred_quoted_literal_style
-                    .parse()
-                    .unwrap_or(PreferredQuotedLiteralStyle::Consistent);
-                context.set(ConfigPreferredQuotedLiteralStyle(parsed));
-                parsed
+                let style = rules.preferred_quoted_literal_style;
+                context.set(ConfigPreferredQuotedLiteralStyle(style));
+                style
             });
 
         let preferred_quoted_literal_style =
-            if config_style == PreferredQuotedLiteralStyle::Consistent {
+            if config_style == QuotedLiteralStyle::Consistent {
                 let preferred_quoted_literal_style = context
-                    .try_get::<PreferredQuotedLiteralStyle>()
+                    .try_get::<QuotedLiteralStyle>()
                     .unwrap_or_else(|| {
                         if context.segment.raw().ends_with('"') {
-                            PreferredQuotedLiteralStyle::DoubleQuotes
+                            QuotedLiteralStyle::DoubleQuotes
                         } else {
-                            PreferredQuotedLiteralStyle::SingleQuotes
+                            QuotedLiteralStyle::SingleQuotes
                         }
                     });
 

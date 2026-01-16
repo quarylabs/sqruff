@@ -2,6 +2,7 @@ use ahash::AHashSet;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
+use crate::core::config::IdentifiersPolicy;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
@@ -69,11 +70,11 @@ CREATE TABLE DBO.ColumnNames
             return Vec::new();
         }
 
-        let mut policy = rules.unquoted_identifiers_policy.as_str();
+        let mut policy: IdentifiersPolicy = rules.unquoted_identifiers_policy;
         let mut identifier = context.segment.raw().to_string();
 
         if context.segment.is_type(SyntaxKind::QuotedIdentifier) {
-            policy = rules.quoted_identifiers_policy.as_str();
+            policy = rules.quoted_identifiers_policy;
             identifier = identifier[1..identifier.len() - 1].to_string();
 
             if rules

@@ -2,6 +2,7 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
+use crate::core::config::TrailingCommaPolicy;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
@@ -50,7 +51,7 @@ FROM foo
     }
 
     fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
-        let select_clause_trailing_comma = &rule_cx
+        let select_clause_trailing_comma = rule_cx
             .config
             .rules
             .convention_select_trailing_comma
@@ -65,7 +66,7 @@ FROM foo
 
         let mut fixes = Vec::new();
 
-        if select_clause_trailing_comma == "forbid" {
+        if select_clause_trailing_comma == TrailingCommaPolicy::Forbid {
             if last_content.is_type(SyntaxKind::Comma) {
                 if last_content.get_position_marker().is_none() {
                     fixes = vec![LintFix::delete(last_content.clone())];
@@ -103,7 +104,7 @@ FROM foo
                     None,
                 )];
             }
-        } else if select_clause_trailing_comma == "require"
+        } else if select_clause_trailing_comma == TrailingCommaPolicy::Require
             && !last_content.is_type(SyntaxKind::Comma)
         {
             let new_comma = SegmentBuilder::comma(rule_cx.tables.next_id());

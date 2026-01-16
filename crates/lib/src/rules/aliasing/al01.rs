@@ -1,25 +1,10 @@
+use crate::core::config::Aliasing;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::{Filter, ReflowInsertPosition, ReflowSequence, TargetSide};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::SegmentBuilder;
-
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub enum Aliasing {
-    Explicit,
-    Implicit,
-}
-
-impl Aliasing {
-    pub(crate) fn from_config(value: &str) -> Self {
-        if value.eq_ignore_ascii_case("implicit") {
-            Self::Implicit
-        } else {
-            Self::Explicit
-        }
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct RuleAL01 {
@@ -84,7 +69,7 @@ FROM foo AS voo
     }
 
     fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
-        let aliasing = Aliasing::from_config(&rule_cx.config.rules.aliasing_table.aliasing);
+        let aliasing = rule_cx.config.rules.aliasing_table.aliasing;
         self.eval_with_aliasing(rule_cx, aliasing)
     }
 

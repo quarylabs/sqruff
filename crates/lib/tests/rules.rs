@@ -28,11 +28,11 @@ fn value_to_i32(value: &JsonValue) -> Option<i32> {
 
 fn apply_indent_overrides(config: &mut FluffConfig, rules: &serde_json::Map<String, JsonValue>) {
     if let Some(value) = rules.get("indent_unit").and_then(|value| value.as_str()) {
-        config.indentation.indent_unit = Some(IndentUnitType::from_str(value).unwrap());
+        config.indentation.indent_unit = IndentUnitType::from_str(value).unwrap();
     }
 
     if let Some(value) = rules.get("tab_space_size").and_then(value_to_i32) {
-        config.indentation.tab_space_size = Some(value);
+        config.indentation.tab_space_size = value;
     }
 }
 

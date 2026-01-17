@@ -57,11 +57,7 @@ FROM my_table"#
     }
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let rules = &context.config.rules.layout_long_lines;
-        let max_line_length = context
-            .config
-            .core
-            .max_line_length
-            .expect("max_line_length must be configured");
+        let max_line_length = context.config.core.max_line_length;
         let mut results = ReflowSequence::from_root(&context.segment, context.config)
             .break_long_lines(context.tables)
             .results();

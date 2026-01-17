@@ -218,7 +218,9 @@ impl GroupByOrderByStyle {
     }
 }
 
-fn deserialize_group_by_order_by_style<'de, D>(deserializer: D) -> Result<GroupByOrderByStyle, D::Error>
+fn deserialize_group_by_order_by_style<'de, D>(
+    deserializer: D,
+) -> Result<GroupByOrderByStyle, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -259,7 +261,9 @@ impl TrailingCommaPolicy {
     }
 }
 
-fn deserialize_trailing_comma_policy<'de, D>(deserializer: D) -> Result<TrailingCommaPolicy, D::Error>
+fn deserialize_trailing_comma_policy<'de, D>(
+    deserializer: D,
+) -> Result<TrailingCommaPolicy, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -677,19 +681,12 @@ impl IndentUnitType {
     }
 }
 
-fn deserialize_option_indent_unit_type<'de, D>(
-    deserializer: D,
-) -> Result<Option<IndentUnitType>, D::Error>
+fn deserialize_indent_unit_type<'de, D>(deserializer: D) -> Result<IndentUnitType, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let s: Option<String> = Option::deserialize(deserializer)?;
-    match s {
-        None => Ok(None),
-        Some(v) => IndentUnitType::from_str(&v)
-            .map(Some)
-            .map_err(de::Error::custom),
-    }
+    let s = String::deserialize(deserializer)?;
+    IndentUnitType::from_str(&s).map_err(de::Error::custom)
 }
 
 fn deserialize_join_condition_order<'de, D>(deserializer: D) -> Result<JoinConditionOrder, D::Error>
@@ -990,26 +987,26 @@ fn apply_core_config(core: &mut CoreConfig, values: Vec<(String, String)>) -> Re
         match key.as_str() {
             "dialect" => core.dialect = parse_option_string_none_value(&value),
             "templater" => core.templater = parse_option_string_none_value(&value),
-            "nocolor" => core.nocolor = parse_boolish(&value),
-            "verbose" => core.verbose = parse_option_i32_value(&value),
-            "output_line_length" => core.output_line_length = parse_option_i32_value(&value),
-            "runaway_limit" => core.runaway_limit = parse_option_i32_value(&value),
+            "nocolor" => core.nocolor = parse_bool_value(&value),
+            "verbose" => core.verbose = parse_i32_value(&value),
+            "output_line_length" => core.output_line_length = parse_i32_value(&value),
+            "runaway_limit" => core.runaway_limit = parse_i32_value(&value),
             "ignore" => core.ignore = parse_optional_comma_list_value(&value),
             "warnings" => core.warnings = parse_optional_comma_list_value(&value),
-            "warn_unused_ignores" => core.warn_unused_ignores = parse_boolish(&value),
-            "ignore_templated_areas" => core.ignore_templated_areas = parse_boolish(&value),
+            "warn_unused_ignores" => core.warn_unused_ignores = parse_bool_value(&value),
+            "ignore_templated_areas" => core.ignore_templated_areas = parse_bool_value(&value),
             "encoding" => core.encoding = parse_option_string_none_value(&value),
-            "disable_noqa" => core.disable_noqa = parse_boolish(&value),
+            "disable_noqa" => core.disable_noqa = parse_bool_value(&value),
             "sql_file_exts" => core.sql_file_exts = split_comma_list(&value),
-            "fix_even_unparsable" => core.fix_even_unparsable = parse_boolish(&value),
+            "fix_even_unparsable" => core.fix_even_unparsable = parse_bool_value(&value),
             "large_file_skip_char_limit" => {
-                core.large_file_skip_char_limit = parse_option_i32_value(&value)
+                core.large_file_skip_char_limit = parse_i32_value(&value)
             }
             "large_file_skip_byte_limit" => {
-                core.large_file_skip_byte_limit = parse_option_i32_value(&value)
+                core.large_file_skip_byte_limit = parse_i32_value(&value)
             }
-            "processes" => core.processes = parse_option_i32_value(&value),
-            "max_line_length" => core.max_line_length = parse_option_i32_value(&value),
+            "processes" => core.processes = parse_i32_value(&value),
+            "max_line_length" => core.max_line_length = parse_i32_value(&value),
             "rule_allowlist" => core.rule_allowlist = parse_optional_comma_list_value(&value),
             "rule_denylist" => core.rule_denylist = split_comma_list(&value),
             "rules" => rules_alias = Some(value),
@@ -1035,26 +1032,26 @@ fn apply_indentation_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         match key.as_str() {
-            "indent_unit" => {
-                indentation.indent_unit = parse_option_indent_unit_type_value(&value)?
-            }
-            "tab_space_size" => indentation.tab_space_size = parse_option_i32_value(&value),
+            "indent_unit" => indentation.indent_unit = parse_indent_unit_type_value(&value)?,
+            "tab_space_size" => indentation.tab_space_size = parse_i32_value(&value),
             "hanging_indents" => indentation.hanging_indents = parse_boolish(&value),
-            "indented_joins" => indentation.indented_joins = parse_boolish(&value),
-            "indented_ctes" => indentation.indented_ctes = parse_boolish(&value),
-            "indented_using_on" => indentation.indented_using_on = parse_boolish(&value),
-            "indented_on_contents" => indentation.indented_on_contents = parse_boolish(&value),
-            "indented_then" => indentation.indented_then = parse_boolish(&value),
-            "indented_then_contents" => indentation.indented_then_contents = parse_boolish(&value),
+            "indented_joins" => indentation.indented_joins = parse_bool_value(&value),
+            "indented_ctes" => indentation.indented_ctes = parse_bool_value(&value),
+            "indented_using_on" => indentation.indented_using_on = parse_bool_value(&value),
+            "indented_on_contents" => indentation.indented_on_contents = parse_bool_value(&value),
+            "indented_then" => indentation.indented_then = parse_bool_value(&value),
+            "indented_then_contents" => {
+                indentation.indented_then_contents = parse_bool_value(&value)
+            }
             "indented_joins_on" => indentation.indented_joins_on = parse_boolish(&value),
-            "allow_implicit_indents" => indentation.allow_implicit_indents = parse_boolish(&value),
-            "template_blocks_indent" => indentation.template_blocks_indent = parse_boolish(&value),
-            "skip_indentation_in" => {
-                indentation.skip_indentation_in = parse_optional_comma_list_value(&value)
+            "allow_implicit_indents" => {
+                indentation.allow_implicit_indents = parse_bool_value(&value)
             }
-            "trailing_comments" => {
-                indentation.trailing_comments = parse_option_string_none_value(&value)
+            "template_blocks_indent" => {
+                indentation.template_blocks_indent = parse_bool_value(&value)
             }
+            "skip_indentation_in" => indentation.skip_indentation_in = split_comma_list(&value),
+            "trailing_comments" => indentation.trailing_comments = value.to_string(),
             _ => {}
         }
     }
@@ -1151,7 +1148,7 @@ fn apply_templater_root_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key.as_str() == "unwrap_wrapped_queries" {
-            templater.unwrap_wrapped_queries = parse_boolish(&value);
+            templater.unwrap_wrapped_queries = parse_bool_value(&value);
         }
     }
 
@@ -1166,7 +1163,7 @@ fn apply_jinja_templater_config(
         match key.as_str() {
             "templater_paths" => config.templater_paths = split_comma_list(&value),
             "loader_search_path" => config.loader_search_path = split_comma_list(&value),
-            "apply_dbt_builtins" => config.apply_dbt_builtins = parse_boolish(&value),
+            "apply_dbt_builtins" => config.apply_dbt_builtins = parse_bool_value(&value),
             "ignore_templating" => config.ignore_templating = parse_boolish(&value),
             "library_paths" => config.library_paths = split_comma_list(&value),
             _ => {}
@@ -1421,8 +1418,7 @@ fn apply_capitalisation_identifiers_rule_config(
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
             "unquoted_identifiers_policy" => {
-                config.unquoted_identifiers_policy =
-                    parse_option_identifiers_policy_value(&value)?
+                config.unquoted_identifiers_policy = parse_option_identifiers_policy_value(&value)?
             }
             _ => {}
         }
@@ -1610,8 +1606,7 @@ fn apply_references_consistent_rule_config(
                 if value.eq_ignore_ascii_case("none") {
                     config.single_table_references = None;
                 } else {
-                    config.single_table_references =
-                        Some(SingleTableReferences::from_str(&value)?);
+                    config.single_table_references = Some(SingleTableReferences::from_str(&value)?);
                 }
             }
             "force_enable" => config.force_enable = parse_boolish_value(&value)?,
@@ -1634,8 +1629,7 @@ fn apply_references_keywords_rule_config(
                 if value.eq_ignore_ascii_case("none") {
                     config.quoted_identifiers_policy = Some(IdentifiersPolicy::None);
                 } else {
-                    config.quoted_identifiers_policy =
-                        Some(IdentifiersPolicy::from_str(&value)?);
+                    config.quoted_identifiers_policy = Some(IdentifiersPolicy::from_str(&value)?);
                 }
             }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
@@ -1975,6 +1969,16 @@ fn parse_boolish(value: &str) -> Option<bool> {
     }
 }
 
+/// Parse a string to bool, returning false for None or unparseable values
+fn parse_bool_value(value: &str) -> bool {
+    parse_boolish(value).unwrap_or(false)
+}
+
+/// Parse a string to i32, returning 0 for None or unparseable values
+fn parse_i32_value(value: &str) -> i32 {
+    parse_option_i32_value(value).unwrap_or(0)
+}
+
 fn parse_option_string_none_value(value: &str) -> Option<String> {
     if is_none_string(value) {
         None
@@ -1993,14 +1997,8 @@ fn parse_option_identifiers_policy_value(value: &str) -> Result<Option<Identifie
     }
 }
 
-fn parse_option_indent_unit_type_value(value: &str) -> Result<Option<IndentUnitType>, String> {
-    if is_none_string(value) {
-        Ok(None)
-    } else {
-        IndentUnitType::from_str(value)
-            .map(Some)
-            .map_err(|e| format!("{}", e))
-    }
+fn parse_indent_unit_type_value(value: &str) -> Result<IndentUnitType, String> {
+    IndentUnitType::from_str(value).map_err(|e| format!("{}", e))
 }
 
 fn parse_optional_comma_list_value(value: &str) -> Option<Vec<String>> {
@@ -2201,7 +2199,9 @@ where
     let value = JsonValue::deserialize(deserializer)?;
     match value {
         JsonValue::String(s) => s.parse().map_err(de::Error::custom),
-        _ => Err(de::Error::custom("expected string for capitalisation policy")),
+        _ => Err(de::Error::custom(
+            "expected string for capitalisation policy",
+        )),
     }
 }
 
@@ -2281,6 +2281,13 @@ where
 {
     deserialize_option_usize(deserializer)?
         .ok_or_else(|| de::Error::custom("Expected integer value"))
+}
+
+pub(crate) fn deserialize_i32<'de, D>(deserializer: D) -> Result<i32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    deserialize_option_i32(deserializer)?.ok_or_else(|| de::Error::custom("Expected integer value"))
 }
 
 fn scalar_to_string(value: &JsonValue) -> Option<String> {
@@ -2367,36 +2374,36 @@ fn default_core_templater() -> Option<String> {
     Some("raw".to_string())
 }
 
-fn default_core_nocolor() -> Option<bool> {
-    Some(false)
+fn default_core_nocolor() -> bool {
+    false
 }
 
-fn default_core_verbose() -> Option<i32> {
-    Some(0)
+fn default_core_verbose() -> i32 {
+    0
 }
 
-fn default_core_output_line_length() -> Option<i32> {
-    Some(80)
+fn default_core_output_line_length() -> i32 {
+    80
 }
 
-fn default_core_runaway_limit() -> Option<i32> {
-    Some(10)
+fn default_core_runaway_limit() -> i32 {
+    10
 }
 
-fn default_core_warn_unused_ignores() -> Option<bool> {
-    Some(false)
+fn default_core_warn_unused_ignores() -> bool {
+    false
 }
 
-fn default_core_ignore_templated_areas() -> Option<bool> {
-    Some(true)
+fn default_core_ignore_templated_areas() -> bool {
+    true
 }
 
 fn default_core_encoding() -> Option<String> {
     Some("autodetect".to_string())
 }
 
-fn default_core_disable_noqa() -> Option<bool> {
-    Some(false)
+fn default_core_disable_noqa() -> bool {
+    false
 }
 
 fn default_core_sql_file_exts() -> Vec<String> {
@@ -2408,84 +2415,84 @@ fn default_core_sql_file_exts() -> Vec<String> {
     ]
 }
 
-fn default_core_fix_even_unparsable() -> Option<bool> {
-    Some(false)
+fn default_core_fix_even_unparsable() -> bool {
+    false
 }
 
-fn default_core_large_file_skip_char_limit() -> Option<i32> {
-    Some(0)
+fn default_core_large_file_skip_char_limit() -> i32 {
+    0
 }
 
-fn default_core_large_file_skip_byte_limit() -> Option<i32> {
-    Some(20000)
+fn default_core_large_file_skip_byte_limit() -> i32 {
+    20000
 }
 
-fn default_core_processes() -> Option<i32> {
-    Some(1)
+fn default_core_processes() -> i32 {
+    1
 }
 
-fn default_core_max_line_length() -> Option<i32> {
-    Some(80)
+fn default_core_max_line_length() -> i32 {
+    80
 }
 
 fn default_core_rule_allowlist() -> Option<Vec<String>> {
     Some(vec!["core".to_string()])
 }
 
-fn default_indent_unit() -> Option<IndentUnitType> {
-    Some(IndentUnitType::Space)
+fn default_indent_unit() -> IndentUnitType {
+    IndentUnitType::Space
 }
 
-fn default_tab_space_size() -> Option<i32> {
-    Some(4)
+fn default_tab_space_size() -> i32 {
+    4
 }
 
-fn default_indented_joins() -> Option<bool> {
-    Some(false)
+fn default_indented_joins() -> bool {
+    false
 }
 
-fn default_indented_ctes() -> Option<bool> {
-    Some(false)
+fn default_indented_ctes() -> bool {
+    false
 }
 
-fn default_indented_using_on() -> Option<bool> {
-    Some(true)
+fn default_indented_using_on() -> bool {
+    true
 }
 
-fn default_indented_on_contents() -> Option<bool> {
-    Some(true)
+fn default_indented_on_contents() -> bool {
+    true
 }
 
-fn default_indented_then() -> Option<bool> {
-    Some(true)
+fn default_indented_then() -> bool {
+    true
 }
 
-fn default_indented_then_contents() -> Option<bool> {
-    Some(true)
+fn default_indented_then_contents() -> bool {
+    true
 }
 
-fn default_allow_implicit_indents() -> Option<bool> {
-    Some(false)
+fn default_allow_implicit_indents() -> bool {
+    false
 }
 
-fn default_template_blocks_indent() -> Option<bool> {
-    Some(true)
+fn default_template_blocks_indent() -> bool {
+    true
 }
 
-fn default_skip_indentation_in() -> Option<Vec<String>> {
-    Some(vec!["script_content".to_string()])
+fn default_skip_indentation_in() -> Vec<String> {
+    vec!["script_content".to_string()]
 }
 
-fn default_trailing_comments() -> Option<String> {
-    Some("before".to_string())
+fn default_trailing_comments() -> String {
+    "before".to_string()
 }
 
-fn default_templater_unwrap_wrapped_queries() -> Option<bool> {
-    Some(true)
+fn default_templater_unwrap_wrapped_queries() -> bool {
+    true
 }
 
-fn default_jinja_apply_dbt_builtins() -> Option<bool> {
-    Some(true)
+fn default_jinja_apply_dbt_builtins() -> bool {
+    true
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -2576,36 +2583,26 @@ impl FluffConfig {
 
     pub fn reload_reflow(&mut self) {
         // Pre-compute IndentUnit from string config
-        let tab_space_size = self
-            .indentation
-            .tab_space_size
-            .expect("tab_space_size must be configured") as usize;
-        let indent_unit_type = self
-            .indentation
-            .indent_unit
-            .expect("indent_unit must be configured");
+        let tab_space_size = self.indentation.tab_space_size as usize;
+        let indent_unit_type = self.indentation.indent_unit;
         self.indentation.computed_indent_unit =
             IndentUnit::from_type_and_size(indent_unit_type.as_str(), tab_space_size);
 
         // Pre-compute TrailingComments from string config
-        let trailing_comments_str = self
-            .indentation
-            .trailing_comments
-            .as_deref()
-            .expect("trailing_comments must be configured");
+        let trailing_comments_str = &self.indentation.trailing_comments;
         self.indentation.computed_trailing_comments =
             TrailingComments::from_str(trailing_comments_str).unwrap();
 
         // Pre-compute ParserIndentationConfig
         let indentation = &self.indentation;
         self.parser_indentation = ParserIndentationConfig::from_bool_lookup(|key| match key {
-            "indented_joins" => indentation.indented_joins.unwrap_or_default(),
-            "indented_using_on" => indentation.indented_using_on.unwrap_or_default(),
-            "indented_on_contents" => indentation.indented_on_contents.unwrap_or_default(),
-            "indented_then" => indentation.indented_then.unwrap_or_default(),
-            "indented_then_contents" => indentation.indented_then_contents.unwrap_or_default(),
+            "indented_joins" => indentation.indented_joins,
+            "indented_using_on" => indentation.indented_using_on,
+            "indented_on_contents" => indentation.indented_on_contents,
+            "indented_then" => indentation.indented_then,
+            "indented_then_contents" => indentation.indented_then_contents,
             "indented_joins_on" => indentation.indented_joins_on.unwrap_or_default(),
-            "indented_ctes" => indentation.indented_ctes.unwrap_or_default(),
+            "indented_ctes" => indentation.indented_ctes,
             _ => false,
         });
 
@@ -2631,38 +2628,35 @@ pub struct CoreConfig {
     pub templater: Option<String>,
     #[serde(
         default = "default_core_nocolor",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub nocolor: Option<bool>,
-    #[serde(
-        default = "default_core_verbose",
-        deserialize_with = "deserialize_option_i32"
-    )]
-    pub verbose: Option<i32>,
+    pub nocolor: bool,
+    #[serde(default = "default_core_verbose", deserialize_with = "deserialize_i32")]
+    pub verbose: i32,
     #[serde(
         default = "default_core_output_line_length",
-        deserialize_with = "deserialize_option_i32"
+        deserialize_with = "deserialize_i32"
     )]
-    pub output_line_length: Option<i32>,
+    pub output_line_length: i32,
     #[serde(
         default = "default_core_runaway_limit",
-        deserialize_with = "deserialize_option_i32"
+        deserialize_with = "deserialize_i32"
     )]
-    pub runaway_limit: Option<i32>,
+    pub runaway_limit: i32,
     #[serde(default, deserialize_with = "deserialize_optional_comma_list")]
     pub ignore: Option<Vec<String>>,
     #[serde(default, deserialize_with = "deserialize_optional_comma_list")]
     pub warnings: Option<Vec<String>>,
     #[serde(
         default = "default_core_warn_unused_ignores",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub warn_unused_ignores: Option<bool>,
+    pub warn_unused_ignores: bool,
     #[serde(
         default = "default_core_ignore_templated_areas",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub ignore_templated_areas: Option<bool>,
+    pub ignore_templated_areas: bool,
     #[serde(
         default = "default_core_encoding",
         deserialize_with = "deserialize_option_string_none"
@@ -2670,9 +2664,9 @@ pub struct CoreConfig {
     pub encoding: Option<String>,
     #[serde(
         default = "default_core_disable_noqa",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub disable_noqa: Option<bool>,
+    pub disable_noqa: bool,
     #[serde(
         default = "default_core_sql_file_exts",
         deserialize_with = "deserialize_comma_list"
@@ -2680,29 +2674,29 @@ pub struct CoreConfig {
     pub sql_file_exts: Vec<String>,
     #[serde(
         default = "default_core_fix_even_unparsable",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub fix_even_unparsable: Option<bool>,
+    pub fix_even_unparsable: bool,
     #[serde(
         default = "default_core_large_file_skip_char_limit",
-        deserialize_with = "deserialize_option_i32"
+        deserialize_with = "deserialize_i32"
     )]
-    pub large_file_skip_char_limit: Option<i32>,
+    pub large_file_skip_char_limit: i32,
     #[serde(
         default = "default_core_large_file_skip_byte_limit",
-        deserialize_with = "deserialize_option_i32"
+        deserialize_with = "deserialize_i32"
     )]
-    pub large_file_skip_byte_limit: Option<i32>,
+    pub large_file_skip_byte_limit: i32,
     #[serde(
         default = "default_core_processes",
-        deserialize_with = "deserialize_option_i32"
+        deserialize_with = "deserialize_i32"
     )]
-    pub processes: Option<i32>,
+    pub processes: i32,
     #[serde(
         default = "default_core_max_line_length",
-        deserialize_with = "deserialize_option_i32"
+        deserialize_with = "deserialize_i32"
     )]
-    pub max_line_length: Option<i32>,
+    pub max_line_length: i32,
     #[serde(
         default = "default_core_rule_allowlist",
         deserialize_with = "deserialize_optional_comma_list"
@@ -2717,27 +2711,27 @@ impl Default for CoreConfig {
         Self {
             dialect: None,
             templater: Some("raw".to_string()),
-            nocolor: Some(false),
-            verbose: Some(0),
-            output_line_length: Some(80),
-            runaway_limit: Some(10),
+            nocolor: false,
+            verbose: 0,
+            output_line_length: 80,
+            runaway_limit: 10,
             ignore: None,
             warnings: None,
-            warn_unused_ignores: Some(false),
-            ignore_templated_areas: Some(true),
+            warn_unused_ignores: false,
+            ignore_templated_areas: true,
             encoding: Some("autodetect".to_string()),
-            disable_noqa: Some(false),
+            disable_noqa: false,
             sql_file_exts: vec![
                 ".sql".to_string(),
                 ".sql.j2".to_string(),
                 ".dml".to_string(),
                 ".ddl".to_string(),
             ],
-            fix_even_unparsable: Some(false),
-            large_file_skip_char_limit: Some(0),
-            large_file_skip_byte_limit: Some(20000),
-            processes: Some(1),
-            max_line_length: Some(80),
+            fix_even_unparsable: false,
+            large_file_skip_char_limit: 0,
+            large_file_skip_byte_limit: 20000,
+            processes: 1,
+            max_line_length: 80,
             rule_allowlist: Some(vec!["core".to_string()]),
             rule_denylist: Vec::new(),
         }
@@ -2748,68 +2742,65 @@ impl Default for CoreConfig {
 pub struct IndentationConfig {
     #[serde(
         default = "default_indent_unit",
-        deserialize_with = "deserialize_option_indent_unit_type"
+        deserialize_with = "deserialize_indent_unit_type"
     )]
-    pub indent_unit: Option<IndentUnitType>,
+    pub indent_unit: IndentUnitType,
     #[serde(
         default = "default_tab_space_size",
-        deserialize_with = "deserialize_option_i32"
+        deserialize_with = "deserialize_i32"
     )]
-    pub tab_space_size: Option<i32>,
+    pub tab_space_size: i32,
     #[serde(default, deserialize_with = "deserialize_option_boolish")]
     pub hanging_indents: Option<bool>,
     #[serde(
         default = "default_indented_joins",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub indented_joins: Option<bool>,
+    pub indented_joins: bool,
     #[serde(
         default = "default_indented_ctes",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub indented_ctes: Option<bool>,
+    pub indented_ctes: bool,
     #[serde(
         default = "default_indented_using_on",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub indented_using_on: Option<bool>,
+    pub indented_using_on: bool,
     #[serde(
         default = "default_indented_on_contents",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub indented_on_contents: Option<bool>,
+    pub indented_on_contents: bool,
     #[serde(
         default = "default_indented_then",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub indented_then: Option<bool>,
+    pub indented_then: bool,
     #[serde(
         default = "default_indented_then_contents",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub indented_then_contents: Option<bool>,
+    pub indented_then_contents: bool,
     #[serde(default, deserialize_with = "deserialize_option_boolish")]
     pub indented_joins_on: Option<bool>,
     #[serde(
         default = "default_allow_implicit_indents",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub allow_implicit_indents: Option<bool>,
+    pub allow_implicit_indents: bool,
     #[serde(
         default = "default_template_blocks_indent",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub template_blocks_indent: Option<bool>,
+    pub template_blocks_indent: bool,
     #[serde(
         default = "default_skip_indentation_in",
-        deserialize_with = "deserialize_optional_comma_list"
+        deserialize_with = "deserialize_comma_list"
     )]
-    pub skip_indentation_in: Option<Vec<String>>,
-    #[serde(
-        default = "default_trailing_comments",
-        deserialize_with = "deserialize_option_string_none"
-    )]
-    pub trailing_comments: Option<String>,
+    pub skip_indentation_in: Vec<String>,
+    #[serde(default = "default_trailing_comments")]
+    pub trailing_comments: String,
     /// Pre-computed IndentUnit (populated by reload_reflow)
     #[serde(skip)]
     pub computed_indent_unit: IndentUnit,
@@ -2821,20 +2812,20 @@ pub struct IndentationConfig {
 impl Default for IndentationConfig {
     fn default() -> Self {
         Self {
-            indent_unit: Some(IndentUnitType::Space),
-            tab_space_size: Some(4),
+            indent_unit: IndentUnitType::Space,
+            tab_space_size: 4,
             hanging_indents: None,
-            indented_joins: Some(false),
-            indented_ctes: Some(false),
-            indented_using_on: Some(true),
-            indented_on_contents: Some(true),
-            indented_then: Some(true),
-            indented_then_contents: Some(true),
+            indented_joins: false,
+            indented_ctes: false,
+            indented_using_on: true,
+            indented_on_contents: true,
+            indented_then: true,
+            indented_then_contents: true,
             indented_joins_on: None,
-            allow_implicit_indents: Some(false),
-            template_blocks_indent: Some(true),
-            skip_indentation_in: Some(vec!["script_content".to_string()]),
-            trailing_comments: Some("before".to_string()),
+            allow_implicit_indents: false,
+            template_blocks_indent: true,
+            skip_indentation_in: vec!["script_content".to_string()],
+            trailing_comments: "before".to_string(),
             computed_indent_unit: IndentUnit::default(),
             computed_trailing_comments: TrailingComments::default(),
         }
@@ -3477,10 +3468,7 @@ where
     for (key, value) in overrides {
         let syntax_kind: SyntaxKind = key.parse().map_err(de::Error::custom)?;
         // Merge with existing defaults instead of replacing completely
-        types
-            .entry(syntax_kind)
-            .or_default()
-            .merge_with(value);
+        types.entry(syntax_kind).or_default().merge_with(value);
     }
     Ok(types)
 }
@@ -3489,9 +3477,9 @@ where
 pub struct TemplaterConfig {
     #[serde(
         default = "default_templater_unwrap_wrapped_queries",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub unwrap_wrapped_queries: Option<bool>,
+    pub unwrap_wrapped_queries: bool,
     #[serde(default)]
     pub jinja: JinjaTemplaterConfig,
     #[serde(default)]
@@ -3505,7 +3493,7 @@ pub struct TemplaterConfig {
 impl Default for TemplaterConfig {
     fn default() -> Self {
         Self {
-            unwrap_wrapped_queries: Some(true),
+            unwrap_wrapped_queries: true,
             jinja: JinjaTemplaterConfig::default(),
             dbt: DbtTemplaterConfig::default(),
             python: PythonTemplaterConfig::default(),
@@ -3522,9 +3510,9 @@ pub struct JinjaTemplaterConfig {
     pub loader_search_path: Vec<String>,
     #[serde(
         default = "default_jinja_apply_dbt_builtins",
-        deserialize_with = "deserialize_option_boolish"
+        deserialize_with = "deserialize_boolish"
     )]
-    pub apply_dbt_builtins: Option<bool>,
+    pub apply_dbt_builtins: bool,
     #[serde(default, deserialize_with = "deserialize_option_boolish")]
     pub ignore_templating: Option<bool>,
     #[serde(default, deserialize_with = "deserialize_comma_list")]
@@ -3538,7 +3526,7 @@ impl Default for JinjaTemplaterConfig {
         Self {
             templater_paths: Vec::new(),
             loader_search_path: Vec::new(),
-            apply_dbt_builtins: Some(true),
+            apply_dbt_builtins: true,
             ignore_templating: None,
             library_paths: Vec::new(),
             context: AHashMap::new(),
@@ -3603,9 +3591,15 @@ pub struct RulesConfig {
         deserialize_with = "deserialize_boolish"
     )]
     pub allow_scalar: bool,
-    #[serde(default, deserialize_with = "deserialize_option_single_table_references")]
+    #[serde(
+        default,
+        deserialize_with = "deserialize_option_single_table_references"
+    )]
     pub single_table_references: Option<SingleTableReferences>,
-    #[serde(default = "default_identifiers_policy_all", deserialize_with = "deserialize_identifiers_policy")]
+    #[serde(
+        default = "default_identifiers_policy_all",
+        deserialize_with = "deserialize_identifiers_policy"
+    )]
     pub unquoted_identifiers_policy: IdentifiersPolicy,
     #[serde(default, rename = "aliasing.table")]
     pub aliasing_table: AliasingRuleConfig,
@@ -3784,7 +3778,10 @@ impl Default for CapitalisationKeywordsRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CapitalisationIdentifiersRuleConfig {
-    #[serde(default, deserialize_with = "deserialize_extended_capitalisation_policy")]
+    #[serde(
+        default,
+        deserialize_with = "deserialize_extended_capitalisation_policy"
+    )]
     pub extended_capitalisation_policy: ExtendedCapitalisationPolicy,
     #[serde(default, deserialize_with = "deserialize_comma_list")]
     pub ignore_words: Vec<String>,
@@ -3807,7 +3804,10 @@ impl Default for CapitalisationIdentifiersRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CapitalisationFunctionsRuleConfig {
-    #[serde(default, deserialize_with = "deserialize_extended_capitalisation_policy")]
+    #[serde(
+        default,
+        deserialize_with = "deserialize_extended_capitalisation_policy"
+    )]
     pub extended_capitalisation_policy: ExtendedCapitalisationPolicy,
     #[serde(default, deserialize_with = "deserialize_comma_list")]
     pub ignore_words: Vec<String>,
@@ -3847,7 +3847,10 @@ impl Default for CapitalisationLiteralsRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct CapitalisationTypesRuleConfig {
-    #[serde(default, deserialize_with = "deserialize_extended_capitalisation_policy")]
+    #[serde(
+        default,
+        deserialize_with = "deserialize_extended_capitalisation_policy"
+    )]
     pub extended_capitalisation_policy: ExtendedCapitalisationPolicy,
 }
 
@@ -3960,7 +3963,10 @@ pub struct ReferencesQualificationRuleConfig {
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct ReferencesConsistentRuleConfig {
-    #[serde(default, deserialize_with = "deserialize_option_single_table_references")]
+    #[serde(
+        default,
+        deserialize_with = "deserialize_option_single_table_references"
+    )]
     pub single_table_references: Option<SingleTableReferences>,
     #[serde(default, deserialize_with = "deserialize_boolish")]
     pub force_enable: bool,
@@ -3968,7 +3974,10 @@ pub struct ReferencesConsistentRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ReferencesKeywordsRuleConfig {
-    #[serde(default = "default_identifiers_policy_aliases", deserialize_with = "deserialize_identifiers_policy")]
+    #[serde(
+        default = "default_identifiers_policy_aliases",
+        deserialize_with = "deserialize_identifiers_policy"
+    )]
     pub unquoted_identifiers_policy: IdentifiersPolicy,
     #[serde(default, deserialize_with = "deserialize_option_identifiers_policy")]
     pub quoted_identifiers_policy: Option<IdentifiersPolicy>,
@@ -3991,9 +4000,15 @@ impl Default for ReferencesKeywordsRuleConfig {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ReferencesSpecialCharsRuleConfig {
-    #[serde(default = "default_identifiers_policy_all", deserialize_with = "deserialize_identifiers_policy")]
+    #[serde(
+        default = "default_identifiers_policy_all",
+        deserialize_with = "deserialize_identifiers_policy"
+    )]
     pub quoted_identifiers_policy: IdentifiersPolicy,
-    #[serde(default = "default_identifiers_policy_all", deserialize_with = "deserialize_identifiers_policy")]
+    #[serde(
+        default = "default_identifiers_policy_all",
+        deserialize_with = "deserialize_identifiers_policy"
+    )]
     pub unquoted_identifiers_policy: IdentifiersPolicy,
     #[serde(default, deserialize_with = "deserialize_boolish")]
     pub allow_space_in_identifier: bool,
@@ -4180,14 +4195,14 @@ apply_dbt_builtins = TRUE
         let typed = FluffConfig::from_source(source, None).unwrap();
 
         assert_eq!(typed.core.dialect.as_deref(), Some("ansi"));
-        assert_eq!(typed.core.max_line_length, Some(120));
-        assert_eq!(typed.core.nocolor, Some(true));
-        assert_eq!(typed.core.verbose, Some(2));
+        assert_eq!(typed.core.max_line_length, 120);
+        assert_eq!(typed.core.nocolor, true);
+        assert_eq!(typed.core.verbose, 2);
         assert_eq!(
             typed.rules.capitalisation_keywords.ignore_words,
             vec!["foo".to_string(), "bar".to_string()]
         );
-        assert_eq!(typed.templater.jinja.apply_dbt_builtins, Some(true));
+        assert_eq!(typed.templater.jinja.apply_dbt_builtins, true);
     }
 
     #[test]
@@ -4259,8 +4274,8 @@ rules = LT01, LT02
 ";
         let typed = FluffConfig::from_source(source, None).unwrap();
 
-        assert_eq!(typed.core.nocolor, Some(true));
-        assert_eq!(typed.core.verbose, Some(2));
+        assert_eq!(typed.core.nocolor, true);
+        assert_eq!(typed.core.verbose, 2);
         assert_eq!(
             typed.core.rule_allowlist,
             Some(vec!["LT01".to_string(), "LT02".to_string()])
@@ -4285,16 +4300,16 @@ rules = LT01, LT02
     fn typed_defaults_match_expected_values() {
         let typed = FluffConfig::default();
 
-        assert_eq!(typed.core.verbose, Some(0));
-        assert_eq!(typed.core.nocolor, Some(false));
+        assert_eq!(typed.core.verbose, 0);
+        assert_eq!(typed.core.nocolor, false);
         assert_eq!(typed.core.dialect, None);
         assert_eq!(typed.core.templater.as_deref(), Some("raw"));
         assert_eq!(typed.core.rule_allowlist, Some(vec!["core".to_string()]));
         assert!(typed.core.sql_file_exts.iter().any(|ext| ext == ".sql"));
-        assert_eq!(typed.indentation.template_blocks_indent, Some(true));
-        assert_eq!(typed.indentation.indented_using_on, Some(true));
-        assert_eq!(typed.templater.unwrap_wrapped_queries, Some(true));
-        assert_eq!(typed.templater.jinja.apply_dbt_builtins, Some(true));
+        assert_eq!(typed.indentation.template_blocks_indent, true);
+        assert_eq!(typed.indentation.indented_using_on, true);
+        assert_eq!(typed.templater.unwrap_wrapped_queries, true);
+        assert_eq!(typed.templater.jinja.apply_dbt_builtins, true);
 
         let comma = typed.layout.types.get(&SyntaxKind::Comma).unwrap();
         assert_eq!(comma.spacing_before, Some(Spacing::Touch));
@@ -4344,10 +4359,10 @@ line_position = trailing
             config_dir_abs.join("path2").to_string_lossy().into_owned(),
         ];
 
-        assert_eq!(typed.core.nocolor, Some(true));
-        assert_eq!(typed.core.verbose, Some(2));
-        assert_eq!(typed.core.output_line_length, Some(90));
-        assert_eq!(typed.core.max_line_length, Some(120));
+        assert_eq!(typed.core.nocolor, true);
+        assert_eq!(typed.core.verbose, 2);
+        assert_eq!(typed.core.output_line_length, 90);
+        assert_eq!(typed.core.max_line_length, 120);
         assert_eq!(
             typed.core.rule_allowlist,
             Some(vec!["LT01".to_string(), "LT02".to_string()])
@@ -4365,9 +4380,9 @@ line_position = trailing
             typed.core.sql_file_exts,
             vec![".sql".to_string(), ".sql.j2".to_string()]
         );
-        assert_eq!(typed.indentation.template_blocks_indent, Some(false));
-        assert_eq!(typed.templater.unwrap_wrapped_queries, Some(false));
-        assert_eq!(typed.templater.jinja.apply_dbt_builtins, Some(false));
+        assert_eq!(typed.indentation.template_blocks_indent, false);
+        assert_eq!(typed.templater.unwrap_wrapped_queries, false);
+        assert_eq!(typed.templater.jinja.apply_dbt_builtins, false);
         assert_eq!(
             typed.templater.jinja.templater_paths,
             vec!["macro1".to_string(), "macro2".to_string()]

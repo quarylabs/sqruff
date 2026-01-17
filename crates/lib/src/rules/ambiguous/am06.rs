@@ -85,18 +85,11 @@ ORDER BY a ASC, b DESC
 
         // Initialize the map
         let mut column_reference_category_map = AHashMap::new();
-        column_reference_category_map.insert(
-            SyntaxKind::ColumnReference,
-            GroupByOrderByStyle::Explicit,
-        );
-        column_reference_category_map.insert(
-            SyntaxKind::Expression,
-            GroupByOrderByStyle::Explicit,
-        );
-        column_reference_category_map.insert(
-            SyntaxKind::NumericLiteral,
-            GroupByOrderByStyle::Implicit,
-        );
+        column_reference_category_map
+            .insert(SyntaxKind::ColumnReference, GroupByOrderByStyle::Explicit);
+        column_reference_category_map.insert(SyntaxKind::Expression, GroupByOrderByStyle::Explicit);
+        column_reference_category_map
+            .insert(SyntaxKind::NumericLiteral, GroupByOrderByStyle::Implicit);
 
         let mut column_reference_category_set: Vec<_> = context
             .segment

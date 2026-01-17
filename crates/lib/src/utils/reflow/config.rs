@@ -269,15 +269,9 @@ impl ReflowConfig {
             config_types,
             line_positions,
             indent_unit: typed.indentation.computed_indent_unit,
-            max_line_length: typed
-                .core
-                .max_line_length
-                .expect("max_line_length must be configured") as usize,
+            max_line_length: typed.core.max_line_length as usize,
             hanging_indents: typed.indentation.hanging_indents.unwrap_or_default(),
-            allow_implicit_indents: typed
-                .indentation
-                .allow_implicit_indents
-                .expect("allow_implicit_indents must be configured"),
+            allow_implicit_indents: typed.indentation.allow_implicit_indents,
             trailing_comments: typed.indentation.computed_trailing_comments,
         }
     }

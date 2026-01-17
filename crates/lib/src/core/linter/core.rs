@@ -352,7 +352,7 @@ impl Linter {
         let loop_limit = if fix { 10 } else { 1 };
         // Look for comment segments which might indicate lines to ignore.
         let (ignore_mask, violations): (Option<IgnoreMask>, Vec<SQLBaseError>) = {
-            let disable_noqa = self.config.core.disable_noqa.unwrap_or(false);
+            let disable_noqa = self.config.core.disable_noqa;
             if disable_noqa {
                 (None, Vec::new())
             } else {

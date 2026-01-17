@@ -98,23 +98,21 @@ from foo
                 style
             });
 
-        let preferred_quoted_literal_style =
-            if config_style == QuotedLiteralStyle::Consistent {
-                let preferred_quoted_literal_style = context
-                    .try_get::<QuotedLiteralStyle>()
-                    .unwrap_or_else(|| {
-                        if context.segment.raw().ends_with('"') {
-                            QuotedLiteralStyle::DoubleQuotes
-                        } else {
-                            QuotedLiteralStyle::SingleQuotes
-                        }
-                    });
+        let preferred_quoted_literal_style = if config_style == QuotedLiteralStyle::Consistent {
+            let preferred_quoted_literal_style =
+                context.try_get::<QuotedLiteralStyle>().unwrap_or_else(|| {
+                    if context.segment.raw().ends_with('"') {
+                        QuotedLiteralStyle::DoubleQuotes
+                    } else {
+                        QuotedLiteralStyle::SingleQuotes
+                    }
+                });
 
-                context.set(preferred_quoted_literal_style);
-                preferred_quoted_literal_style
-            } else {
-                config_style
-            };
+            context.set(preferred_quoted_literal_style);
+            preferred_quoted_literal_style
+        } else {
+            config_style
+        };
 
         let info = preferred_quoted_literal_style.info();
         let fixed_string = normalize_preferred_quoted_literal_style(

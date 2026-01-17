@@ -175,7 +175,7 @@ The linter then operates on this compiled SQL."#
                 }
             };
 
-            let python_fluff_config: PythonFluffConfig = config.clone().into();
+            let python_fluff_config: PythonFluffConfig = config.into();
 
             // Convert files to Python list of tuples
             let py_files: Vec<(String, String)> = files

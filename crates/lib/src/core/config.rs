@@ -1094,7 +1094,7 @@ fn apply_layout_type_config(
             }
             "line_position" => {
                 config.line_position =
-                    parse_option_string_none_value(&value).map(|s| LinePositionConfig::from_str(&s))
+                    parse_option_string_none_value(&value).map(|s| LinePositionConfig::parse_str(&s))
             }
             "align_within" => {
                 config.align_within =
@@ -1395,7 +1395,7 @@ fn apply_capitalisation_keywords_rule_config(
     for (key, value) in values {
         match key.as_str() {
             "capitalisation_policy" => {
-                config.capitalisation_policy = value.parse().map_err(|e| format!("{}", e))?
+                config.capitalisation_policy = value.parse().map_err(|e: String| e)?
             }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
@@ -1413,7 +1413,7 @@ fn apply_capitalisation_identifiers_rule_config(
         match key.as_str() {
             "extended_capitalisation_policy" => {
                 config.extended_capitalisation_policy =
-                    value.parse().map_err(|e| format!("{}", e))?
+                    value.parse().map_err(|e: String| e)?
             }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
@@ -1434,7 +1434,7 @@ fn apply_capitalisation_functions_rule_config(
         match key.as_str() {
             "extended_capitalisation_policy" => {
                 config.extended_capitalisation_policy =
-                    value.parse().map_err(|e| format!("{}", e))?
+                    value.parse().map_err(|e: String| e)?
             }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
@@ -1451,7 +1451,7 @@ fn apply_capitalisation_literals_rule_config(
     for (key, value) in values {
         match key.as_str() {
             "capitalisation_policy" => {
-                config.capitalisation_policy = value.parse().map_err(|e| format!("{}", e))?
+                config.capitalisation_policy = value.parse().map_err(|e: String| e)?
             }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
@@ -1467,7 +1467,7 @@ fn apply_capitalisation_types_rule_config(
 ) -> Result<(), String> {
     for (key, value) in values {
         if key == "extended_capitalisation_policy" {
-            config.extended_capitalisation_policy = value.parse().map_err(|e| format!("{}", e))?;
+            config.extended_capitalisation_policy = value.parse().map_err(|e: String| e)?;
         }
     }
     Ok(())
@@ -1993,12 +1993,12 @@ fn parse_option_identifiers_policy_value(value: &str) -> Result<Option<Identifie
     } else {
         IdentifiersPolicy::from_str(value)
             .map(Some)
-            .map_err(|e| format!("{}", e))
+            .map_err(|e| e.to_string())
     }
 }
 
 fn parse_indent_unit_type_value(value: &str) -> Result<IndentUnitType, String> {
-    IndentUnitType::from_str(value).map_err(|e| format!("{}", e))
+    IndentUnitType::from_str(value).map_err(|e| e.to_string())
 }
 
 fn parse_optional_comma_list_value(value: &str) -> Option<Vec<String>> {
@@ -2147,7 +2147,7 @@ where
             if is_none_string(&value) {
                 None
             } else {
-                Some(LinePositionConfig::from_str(&value))
+                Some(LinePositionConfig::parse_str(&value))
             }
         }
         _ => None,
@@ -3700,18 +3700,10 @@ impl Default for RulesConfig {
     }
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct AliasingRuleConfig {
     #[serde(default, deserialize_with = "deserialize_aliasing")]
     pub aliasing: Aliasing,
-}
-
-impl Default for AliasingRuleConfig {
-    fn default() -> Self {
-        Self {
-            aliasing: Aliasing::default(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
@@ -3728,35 +3720,19 @@ pub struct AliasingForbidRuleConfig {
     pub force_enable: bool,
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct AmbiguousJoinRuleConfig {
     #[serde(default, deserialize_with = "deserialize_join_type")]
     pub fully_qualify_join_types: JoinType,
 }
 
-impl Default for AmbiguousJoinRuleConfig {
-    fn default() -> Self {
-        Self {
-            fully_qualify_join_types: JoinType::default(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct AmbiguousColumnReferencesRuleConfig {
     #[serde(default, deserialize_with = "deserialize_group_by_order_by_style")]
     pub group_by_and_order_by_style: GroupByOrderByStyle,
 }
 
-impl Default for AmbiguousColumnReferencesRuleConfig {
-    fn default() -> Self {
-        Self {
-            group_by_and_order_by_style: GroupByOrderByStyle::default(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct CapitalisationKeywordsRuleConfig {
     #[serde(default, deserialize_with = "deserialize_capitalisation_policy")]
     pub capitalisation_policy: CapitalisationPolicy,
@@ -3766,17 +3742,7 @@ pub struct CapitalisationKeywordsRuleConfig {
     pub ignore_words_regex: Vec<Regex>,
 }
 
-impl Default for CapitalisationKeywordsRuleConfig {
-    fn default() -> Self {
-        Self {
-            capitalisation_policy: CapitalisationPolicy::default(),
-            ignore_words: Vec::new(),
-            ignore_words_regex: Vec::new(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct CapitalisationIdentifiersRuleConfig {
     #[serde(
         default,
@@ -3791,18 +3757,7 @@ pub struct CapitalisationIdentifiersRuleConfig {
     pub unquoted_identifiers_policy: Option<IdentifiersPolicy>,
 }
 
-impl Default for CapitalisationIdentifiersRuleConfig {
-    fn default() -> Self {
-        Self {
-            extended_capitalisation_policy: ExtendedCapitalisationPolicy::default(),
-            ignore_words: Vec::new(),
-            ignore_words_regex: Vec::new(),
-            unquoted_identifiers_policy: None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct CapitalisationFunctionsRuleConfig {
     #[serde(
         default,
@@ -3815,17 +3770,7 @@ pub struct CapitalisationFunctionsRuleConfig {
     pub ignore_words_regex: Vec<Regex>,
 }
 
-impl Default for CapitalisationFunctionsRuleConfig {
-    fn default() -> Self {
-        Self {
-            extended_capitalisation_policy: ExtendedCapitalisationPolicy::default(),
-            ignore_words: Vec::new(),
-            ignore_words_regex: Vec::new(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct CapitalisationLiteralsRuleConfig {
     #[serde(default, deserialize_with = "deserialize_capitalisation_policy")]
     pub capitalisation_policy: CapitalisationPolicy,
@@ -3835,17 +3780,7 @@ pub struct CapitalisationLiteralsRuleConfig {
     pub ignore_words_regex: Vec<Regex>,
 }
 
-impl Default for CapitalisationLiteralsRuleConfig {
-    fn default() -> Self {
-        Self {
-            capitalisation_policy: CapitalisationPolicy::default(),
-            ignore_words: Vec::new(),
-            ignore_words_regex: Vec::new(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct CapitalisationTypesRuleConfig {
     #[serde(
         default,
@@ -3854,26 +3789,10 @@ pub struct CapitalisationTypesRuleConfig {
     pub extended_capitalisation_policy: ExtendedCapitalisationPolicy,
 }
 
-impl Default for CapitalisationTypesRuleConfig {
-    fn default() -> Self {
-        Self {
-            extended_capitalisation_policy: ExtendedCapitalisationPolicy::default(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct ConventionSelectTrailingCommaRuleConfig {
     #[serde(default, deserialize_with = "deserialize_trailing_comma_policy")]
     pub select_clause_trailing_comma: TrailingCommaPolicy,
-}
-
-impl Default for ConventionSelectTrailingCommaRuleConfig {
-    fn default() -> Self {
-        Self {
-            select_clause_trailing_comma: TrailingCommaPolicy::default(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
@@ -3902,7 +3821,7 @@ pub struct ConventionBlockedWordsRuleConfig {
     pub match_source: bool,
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct ConventionQuotedLiteralsRuleConfig {
     #[serde(default, deserialize_with = "deserialize_quoted_literal_style")]
     pub preferred_quoted_literal_style: QuotedLiteralStyle,
@@ -3910,41 +3829,16 @@ pub struct ConventionQuotedLiteralsRuleConfig {
     pub force_enable: bool,
 }
 
-impl Default for ConventionQuotedLiteralsRuleConfig {
-    fn default() -> Self {
-        Self {
-            preferred_quoted_literal_style: QuotedLiteralStyle::default(),
-            force_enable: false,
-        }
-    }
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct ConventionCastingStyleRuleConfig {
     #[serde(default, deserialize_with = "deserialize_type_casting_style")]
     pub preferred_type_casting_style: TypeCastingStyle,
 }
 
-impl Default for ConventionCastingStyleRuleConfig {
-    fn default() -> Self {
-        Self {
-            preferred_type_casting_style: TypeCastingStyle::default(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct ConventionNotEqualRuleConfig {
     #[serde(default, deserialize_with = "deserialize_not_equal_style")]
     pub preferred_not_equal_style: NotEqualStyle,
-}
-
-impl Default for ConventionNotEqualRuleConfig {
-    fn default() -> Self {
-        Self {
-            preferred_not_equal_style: NotEqualStyle::default(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
@@ -4055,18 +3949,10 @@ pub struct LayoutLongLinesRuleConfig {
     pub ignore_comment_clauses: bool,
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct LayoutSelectTargetsRuleConfig {
     #[serde(default, deserialize_with = "deserialize_wildcard_policy")]
     pub wildcard_policy: WildcardPolicy,
-}
-
-impl Default for LayoutSelectTargetsRuleConfig {
-    fn default() -> Self {
-        Self {
-            wildcard_policy: WildcardPolicy::default(),
-        }
-    }
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -4092,32 +3978,16 @@ impl Default for LayoutNewlinesRuleConfig {
     }
 }
 
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct StructureSubqueryRuleConfig {
     #[serde(default, deserialize_with = "deserialize_forbid_subquery_in")]
     pub forbid_subquery_in: ForbidSubqueryIn,
 }
 
-impl Default for StructureSubqueryRuleConfig {
-    fn default() -> Self {
-        Self {
-            forbid_subquery_in: ForbidSubqueryIn::default(),
-        }
-    }
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
 pub struct StructureJoinConditionOrderRuleConfig {
     #[serde(default, deserialize_with = "deserialize_join_condition_order")]
     pub preferred_first_table_in_join_clause: JoinConditionOrder,
-}
-
-impl Default for StructureJoinConditionOrderRuleConfig {
-    fn default() -> Self {
-        Self {
-            preferred_first_table_in_join_clause: JoinConditionOrder::default(),
-        }
-    }
 }
 
 fn merge_layers_replace_roots(config_stack: Vec<ConfigLayer>) -> FluffConfig {

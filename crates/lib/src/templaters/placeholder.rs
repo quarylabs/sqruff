@@ -363,7 +363,8 @@ mod tests {
 [sqruff:templater:placeholder]
 param_style = colon",
             None,
-        );
+        )
+        .unwrap();
         let results = templater.process(&[(in_str, "test.sql")], &config, &None);
         let out_str = results.into_iter().next().unwrap().unwrap();
         let out = out_str.templated();

@@ -13,7 +13,7 @@ use super::config::{ReflowConfig, Spacing};
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
 use crate::core::rules::LintResult;
-use crate::utils::reflow::rebreak::LinePosition;
+use crate::utils::reflow::rebreak::LinePositionConfig;
 use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,
 };
@@ -607,10 +607,10 @@ pub struct ReflowBlockData {
     segment: ErasedSegment,
     spacing_before: Spacing,
     spacing_after: Spacing,
-    line_position: Option<Vec<LinePosition>>,
+    line_position: Option<LinePositionConfig>,
     depth_info: DepthInfo,
     stack_spacing_configs: IntMap<u64, Spacing>,
-    line_position_configs: IntMap<u64, &'static str>,
+    line_position_configs: IntMap<u64, LinePositionConfig>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -639,8 +639,8 @@ impl ReflowBlock {
         self.spacing_after
     }
 
-    pub fn line_position(&self) -> Option<&[LinePosition]> {
-        self.line_position.as_deref()
+    pub fn line_position(&self) -> Option<LinePositionConfig> {
+        self.line_position
     }
 
     pub fn depth_info(&self) -> &DepthInfo {
@@ -655,7 +655,7 @@ impl ReflowBlock {
         &self.stack_spacing_configs
     }
 
-    pub fn line_position_configs(&self) -> &IntMap<u64, &'static str> {
+    pub fn line_position_configs(&self) -> &IntMap<u64, LinePositionConfig> {
         &self.line_position_configs
     }
 }
@@ -683,19 +683,12 @@ impl ReflowBlock {
             }
         }
 
-        let line_position = block_config.line_position.map(|line_position| {
-            line_position
-                .split(':')
-                .map(|it| it.parse().unwrap())
-                .collect()
-        });
-
         Self {
             value: Rc::new(ReflowBlockData {
                 segment,
                 spacing_before: block_config.spacing_before,
                 spacing_after: block_config.spacing_after,
-                line_position,
+                line_position: block_config.line_position,
                 depth_info,
                 stack_spacing_configs,
                 line_position_configs,

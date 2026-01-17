@@ -1,20 +1,16 @@
-use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
+use crate::utils::reflow::rebreak::{LinePosition, LinePositionConfig};
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT03;
 
 impl Rule for RuleLT03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT03.erased())
-    }
     fn name(&self) -> &'static str {
         "layout.operators"
     }
@@ -63,10 +59,13 @@ FROM foo
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if context.segment.is_type(SyntaxKind::ComparisonOperator) {
-            let comparison_positioning =
-                context.config.raw["layout"]["type"]["comparison_operator"]["line_position"]
-                    .as_string()
-                    .unwrap();
+            let comparison_positioning = context
+                .config
+                .layout
+                .types
+                .get(&SyntaxKind::ComparisonOperator)
+                .and_then(|config| config.line_position)
+                .expect("layout.type.comparison_operator.line_position must be configured");
 
             if self.check_trail_lead_shortcut(
                 &context.segment,
@@ -76,10 +75,13 @@ FROM foo
                 return vec![LintResult::new(None, Vec::new(), None, None)];
             }
         } else if context.segment.is_type(SyntaxKind::BinaryOperator) {
-            let binary_positioning =
-                context.config.raw["layout"]["type"]["binary_operator"]["line_position"]
-                    .as_string()
-                    .unwrap();
+            let binary_positioning = context
+                .config
+                .layout
+                .types
+                .get(&SyntaxKind::BinaryOperator)
+                .and_then(|config| config.line_position)
+                .expect("layout.type.binary_operator.line_position must be configured");
 
             if self.check_trail_lead_shortcut(
                 &context.segment,
@@ -117,7 +119,7 @@ impl RuleLT03 {
         &self,
         segment: &ErasedSegment,
         parent: &ErasedSegment,
-        line_position: &str,
+        line_position: LinePositionConfig,
     ) -> bool {
         let idx = parent
             .segments()
@@ -126,7 +128,7 @@ impl RuleLT03 {
             .unwrap();
 
         // Shortcut #1: Leading.
-        if line_position == "leading" {
+        if line_position.position == LinePosition::Leading {
             if self.seek_newline(parent.segments(), idx, Direction::Backward) {
                 return true;
             }
@@ -137,7 +139,7 @@ impl RuleLT03 {
             }
         }
         // Shortcut #2: Trailing.
-        else if line_position == "trailing" {
+        else if line_position.position == LinePosition::Trailing {
             if self.seek_newline(parent.segments(), idx, Direction::Forward) {
                 return true;
             }

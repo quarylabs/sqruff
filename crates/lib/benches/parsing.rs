@@ -88,11 +88,13 @@ fn parse(c: &mut Criterion) {
 
     for (name, source) in passes {
         let config = FluffConfig::default();
-        let config_for_parser = config.clone();
-        let parser: Parser = (&config_for_parser).into();
+        let config_dialect = config
+            .dialect()
+            .expect("Dialect is disabled. Please enable the corresponding feature.");
+        let parser = Parser::new(&config_dialect, config.parser_indentation);
         let mut ctx: ParseContext = (&parser).into();
         let segment = dialect.r#ref("FileSegment");
-        let mut segments = lex(config.get_dialect(), source);
+        let mut segments = lex(&config_dialect, source);
 
         if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
             segments.pop();

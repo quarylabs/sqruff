@@ -1,4 +1,3 @@
-use ahash::AHashMap;
 use itertools::Itertools;
 use smol_str::ToSmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -6,10 +5,9 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 use crate::utils::reflow::reindent::{IndentUnit, construct_single_indent};
 
@@ -17,10 +15,6 @@ use crate::utils::reflow::reindent::{IndentUnit, construct_single_indent};
 pub struct RuleST04;
 
 impl Rule for RuleST04 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST04.erased())
-    }
-
     fn name(&self) -> &'static str {
         "structure.nested_case"
     }
@@ -176,13 +170,7 @@ FROM mytable
             .map(LintFix::delete)
             .collect_vec();
 
-        let tab_space_size = context.config.raw["indentation"]["tab_space_size"]
-            .as_int()
-            .unwrap() as usize;
-        let indent_unit = context.config.raw["indentation"]["indent_unit"]
-            .as_string()
-            .unwrap();
-        let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
+        let indent_unit = context.config.indentation.computed_indent_unit;
 
         let when_indent_str = indentation(&case1_children, case1_last_when, indent_unit);
         let end_indent_str = indentation(&case1_children, case1_first_case, indent_unit);

@@ -1,20 +1,14 @@
-use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT11;
 
 impl Rule for RuleLT11 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT11.erased())
-    }
-
     fn name(&self) -> &'static str {
         "layout.set_operators"
     }

@@ -1,38 +1,17 @@
-use ahash::AHashMap;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Default, Clone)]
-pub struct RuleCV04 {
-    pub prefer_count_1: bool,
-    pub prefer_count_0: bool,
-}
+pub struct RuleCV04;
 
 impl Rule for RuleCV04 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleCV04 {
-            prefer_count_1: _config
-                .get("prefer_count_1")
-                .unwrap_or(&Value::Bool(false))
-                .as_bool()
-                .unwrap(),
-            prefer_count_0: _config
-                .get("prefer_count_0")
-                .unwrap_or(&Value::Bool(false))
-                .as_bool()
-                .unwrap(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "convention.count_rows"
     }
@@ -70,6 +49,7 @@ from table_a
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let rules = &context.config.rules.convention_count_rows;
         let Some(function_name) = context
             .segment
             .child(const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) })
@@ -97,16 +77,16 @@ from table_a
                 return Vec::new();
             }
 
-            let preferred = if self.prefer_count_1 {
+            let preferred = if rules.prefer_count_1 {
                 "1"
-            } else if self.prefer_count_0 {
+            } else if rules.prefer_count_0 {
                 "0"
             } else {
                 "*"
             };
 
             if f_content[0].is_type(SyntaxKind::Star)
-                && (self.prefer_count_0 || self.prefer_count_1)
+                && (rules.prefer_count_0 || rules.prefer_count_1)
             {
                 let new_segment =
                     SegmentBuilder::token(context.tables.next_id(), preferred, SyntaxKind::Literal)

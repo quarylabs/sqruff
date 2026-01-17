@@ -148,12 +148,13 @@ fn test_dialect_ansi_specific_segment_parses() {
         ),
     ];
 
-    let dialect = fresh_ansi_dialect();
-    let config: FluffConfig = FluffConfig::new(<_>::default(), None, None);
+    let config = FluffConfig::default();
+    let dialect = config
+        .dialect()
+        .expect("Dialect is disabled. Please enable the corresponding feature.");
 
     for (segment_ref, sql_string) in cases {
-        let config = config.clone();
-        let parser: Parser = (&config).into();
+        let parser = Parser::new(&dialect, config.parser_indentation);
         let mut ctx: ParseContext = (&parser).into();
 
         let segment = dialect.r#ref(segment_ref);
@@ -190,12 +191,7 @@ fn test_dialect_ansi_specific_segment_not_parse() {
     ];
 
     for (raw, err_locations) in tests {
-        let lnt = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        );
+        let lnt = Linter::new(FluffConfig::default(), None, None, false);
         let tables = Tables::default();
         let parsed = lnt.parse_string(&tables, raw, None).unwrap();
         assert!(!parsed.violations.is_empty());
@@ -211,12 +207,7 @@ fn test_dialect_ansi_specific_segment_not_parse() {
 
 #[test]
 fn test_dialect_ansi_is_whitespace() {
-    let lnt = Linter::new(
-        FluffConfig::new(<_>::default(), None, None),
-        None,
-        None,
-        false,
-    );
+    let lnt = Linter::new(FluffConfig::default(), None, None, false);
     let file_content = std::fs::read_to_string(
         "../lib-dialects/test/fixtures/dialects/ansi/sqlfluff/select_in_multiline_comment.sql",
     )
@@ -244,12 +235,7 @@ fn test_dialect_ansi_parse_indented_joins() {
             [1, 5, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35].as_slice(),
         ),
     ];
-    let lnt = Linter::new(
-        FluffConfig::new(<_>::default(), None, None),
-        None,
-        None,
-        false,
-    );
+    let lnt = Linter::new(FluffConfig::default(), None, None, false);
 
     for (sql_string, meta_loc) in cases {
         let tables = Tables::default();

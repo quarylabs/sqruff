@@ -90,13 +90,45 @@ pub struct RebreakLocation {
     strict: bool,
 }
 
-#[derive(Debug, PartialEq, Clone, Copy, AsRefStr, EnumString)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, AsRefStr, EnumString)]
 #[strum(serialize_all = "lowercase")]
 pub enum LinePosition {
     Leading,
     Trailing,
     Alone,
     Strict,
+}
+
+/// Typed configuration for line position with optional strict modifier.
+/// This replaces the string-based "leading", "trailing:strict" format.
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub struct LinePositionConfig {
+    pub position: LinePosition,
+    pub strict: bool,
+}
+
+impl LinePositionConfig {
+    pub fn new(position: LinePosition) -> Self {
+        Self {
+            position,
+            strict: false,
+        }
+    }
+
+    pub fn strict(position: LinePosition) -> Self {
+        Self {
+            position,
+            strict: true,
+        }
+    }
+
+    /// Parse from string format like "leading" or "alone:strict"
+    pub fn parse_str(s: &str) -> Self {
+        let strict = s.ends_with(":strict");
+        let position_str = s.split(':').next().unwrap();
+        let position = LinePosition::from_str(position_str).unwrap();
+        Self { position, strict }
+    }
 }
 
 impl RebreakLocation {
@@ -143,14 +175,13 @@ pub fn identify_rebreak_spans(
             continue;
         };
 
-        if let Some(original_line_position) = block.line_position() {
-            let line_position = original_line_position.first().unwrap();
+        if let Some(line_position_config) = block.line_position() {
             spans.push(RebreakSpan {
                 target: elem.segments().first().cloned().unwrap(),
                 start_idx: idx,
                 end_idx: idx,
-                line_position: *line_position,
-                strict: original_line_position.last() == Some(&LinePosition::Strict),
+                line_position: line_position_config.position,
+                strict: line_position_config.strict,
             });
         }
 
@@ -187,18 +218,14 @@ pub fn identify_rebreak_spans(
                         .segment
                         .clone();
 
-                    let line_position_configs = block.line_position_configs()[key]
-                        .split(':')
-                        .next()
-                        .unwrap();
-                    let line_position = LinePosition::from_str(line_position_configs).unwrap();
+                    let line_position_config = block.line_position_configs()[key];
 
                     spans.push(RebreakSpan {
                         target,
                         start_idx: idx,
                         end_idx: final_idx,
-                        line_position,
-                        strict: block.line_position_configs()[key].ends_with("strict"),
+                        line_position: line_position_config.position,
+                        strict: line_position_config.strict,
                     });
 
                     break;

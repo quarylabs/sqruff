@@ -483,7 +483,7 @@ UNION DISTINCT
 SELECT a, b FROM table_2
 ```
 
-**Dialects where this rule is skipped:** `bigquery`, `postgres`, `snowflake`, `clickhouse`, `sparksql`, `duckdb`
+**Dialects where this rule is skipped:** `bigquery`, `clickhouse`, `duckdb`, `postgres`, `snowflake`, `sparksql`
 
 ### ambiguous.order_by
 
@@ -1897,7 +1897,7 @@ SELECT
 FROM foo
 ```
 
-**Dialects where this rule is skipped:** `athena`, `redshift`, `bigquery`, `databricks`, `duckdb`, `sparksql`
+**Dialects where this rule is skipped:** `athena`, `bigquery`, `databricks`, `duckdb`, `redshift`, `sparksql`
 
 ### references.qualification
 

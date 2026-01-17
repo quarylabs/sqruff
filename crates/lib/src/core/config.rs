@@ -1,270 +1,1758 @@
-use std::ops::Index;
+use crate::utils::reflow::config::{ReflowConfig, Spacing};
+use crate::utils::reflow::rebreak::{LinePosition, LinePositionConfig};
+use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
+use ahash::AHashMap;
+use itertools::Itertools;
+use regex::Regex;
+use serde::Deserialize;
+use serde::de::{self, Deserializer};
+use serde_json::Value as JsonValue;
+use sqruff_lib_core::dialects::Dialect;
+use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::errors::SQLFluffUserError;
+use sqruff_lib_core::parser::IndentationConfig as ParserIndentationConfig;
+use sqruff_lib_dialects::kind_to_dialect;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use ahash::AHashMap;
-use configparser::ini::Ini;
-use itertools::Itertools;
-use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::init::{DialectKind, dialect_readout};
-use sqruff_lib_core::errors::SQLFluffUserError;
-use sqruff_lib_core::parser::{IndentationConfig, Parser};
-use sqruff_lib_dialects::kind_to_dialect;
-
-use crate::utils::reflow::config::ReflowConfig;
-
-/// split_comma_separated_string takes a string and splits it on commas and
-/// trims and filters out empty strings.
-pub fn split_comma_separated_string(raw_str: &str) -> Value {
-    let values = raw_str
-        .split(',')
-        .filter_map(|x| {
-            let trimmed = x.trim();
-            (!trimmed.is_empty()).then(|| Value::String(trimmed.into()))
-        })
-        .collect();
-    Value::Array(values)
+/// Capitalisation policy for keywords and literals.
+/// Valid values: consistent, upper, lower, capitalise
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum CapitalisationPolicy {
+    #[default]
+    Consistent,
+    Upper,
+    Lower,
+    Capitalise,
 }
 
-/// The class that actually gets passed around as a config object.
-// TODO This is not a translation that is particularly accurate.
-#[derive(Debug, PartialEq, Clone)]
-pub struct FluffConfig {
-    pub(crate) indentation: FluffConfigIndentation,
-    pub raw: AHashMap<String, Value>,
-    extra_config_path: Option<String>,
-    _configs: AHashMap<String, AHashMap<String, String>>,
-    pub(crate) dialect: Dialect,
-    sql_file_exts: Vec<String>,
-    reflow: ReflowConfig,
-}
+impl FromStr for CapitalisationPolicy {
+    type Err = String;
 
-impl Default for FluffConfig {
-    fn default() -> Self {
-        Self::new(<_>::default(), None, None)
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "upper" => Ok(Self::Upper),
+            "lower" => Ok(Self::Lower),
+            "capitalise" | "capitalize" => Ok(Self::Capitalise),
+            _ => Err(format!(
+                "Invalid capitalisation policy: '{}'. Valid values: consistent, upper, lower, capitalise",
+                s
+            )),
+        }
     }
 }
 
-impl FluffConfig {
-    pub fn override_dialect(&mut self, dialect: DialectKind) -> Result<(), String> {
-        self.dialect =
-            kind_to_dialect(&dialect).ok_or(format!("Invalid dialect: {}", dialect.as_ref()))?;
+impl CapitalisationPolicy {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Upper => "upper",
+            Self::Lower => "lower",
+            Self::Capitalise => "capitalise",
+        }
+    }
+}
+
+/// Extended capitalisation policy with pascal case support.
+/// Valid values: consistent, upper, lower, capitalise, pascal
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ExtendedCapitalisationPolicy {
+    #[default]
+    Consistent,
+    Upper,
+    Lower,
+    Capitalise,
+    Pascal,
+}
+
+impl FromStr for ExtendedCapitalisationPolicy {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "upper" => Ok(Self::Upper),
+            "lower" => Ok(Self::Lower),
+            "capitalise" | "capitalize" => Ok(Self::Capitalise),
+            "pascal" => Ok(Self::Pascal),
+            _ => Err(format!(
+                "Invalid extended capitalisation policy: '{}'. Valid values: consistent, upper, lower, capitalise, pascal",
+                s
+            )),
+        }
+    }
+}
+
+impl ExtendedCapitalisationPolicy {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Upper => "upper",
+            Self::Lower => "lower",
+            Self::Capitalise => "capitalise",
+            Self::Pascal => "pascal",
+        }
+    }
+}
+
+/// Aliasing style for tables and columns.
+/// Valid values: explicit, implicit
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Aliasing {
+    #[default]
+    Explicit,
+    Implicit,
+}
+
+impl FromStr for Aliasing {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "explicit" => Ok(Self::Explicit),
+            "implicit" => Ok(Self::Implicit),
+            _ => Err(format!(
+                "Invalid aliasing: '{}'. Valid values: explicit, implicit",
+                s
+            )),
+        }
+    }
+}
+
+impl Aliasing {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Explicit => "explicit",
+            Self::Implicit => "implicit",
+        }
+    }
+}
+
+fn deserialize_aliasing<'de, D>(deserializer: D) -> Result<Aliasing, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    Aliasing::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Join qualification type.
+/// Valid values: inner, outer, both
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum JoinType {
+    #[default]
+    Inner,
+    Outer,
+    Both,
+}
+
+impl FromStr for JoinType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "inner" => Ok(Self::Inner),
+            "outer" => Ok(Self::Outer),
+            "both" => Ok(Self::Both),
+            _ => Err(format!(
+                "Invalid join type: '{}'. Valid values: inner, outer, both",
+                s
+            )),
+        }
+    }
+}
+
+impl JoinType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Inner => "inner",
+            Self::Outer => "outer",
+            Self::Both => "both",
+        }
+    }
+}
+
+fn deserialize_join_type<'de, D>(deserializer: D) -> Result<JoinType, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    JoinType::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Group by and order by style.
+/// Valid values: consistent, explicit, implicit
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum GroupByOrderByStyle {
+    #[default]
+    Consistent,
+    Explicit,
+    Implicit,
+}
+
+impl FromStr for GroupByOrderByStyle {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "explicit" => Ok(Self::Explicit),
+            "implicit" => Ok(Self::Implicit),
+            _ => Err(format!(
+                "Invalid group_by_and_order_by_style: '{}'. Valid values: consistent, explicit, implicit",
+                s
+            )),
+        }
+    }
+}
+
+impl GroupByOrderByStyle {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Explicit => "explicit",
+            Self::Implicit => "implicit",
+        }
+    }
+}
+
+fn deserialize_group_by_order_by_style<'de, D>(
+    deserializer: D,
+) -> Result<GroupByOrderByStyle, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    GroupByOrderByStyle::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Select clause trailing comma policy.
+/// Valid values: forbid, require
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TrailingCommaPolicy {
+    #[default]
+    Forbid,
+    Require,
+}
+
+impl FromStr for TrailingCommaPolicy {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "forbid" => Ok(Self::Forbid),
+            "require" => Ok(Self::Require),
+            _ => Err(format!(
+                "Invalid trailing comma policy: '{}'. Valid values: forbid, require",
+                s
+            )),
+        }
+    }
+}
+
+impl TrailingCommaPolicy {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Forbid => "forbid",
+            Self::Require => "require",
+        }
+    }
+}
+
+fn deserialize_trailing_comma_policy<'de, D>(
+    deserializer: D,
+) -> Result<TrailingCommaPolicy, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    TrailingCommaPolicy::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Preferred quoted literal style.
+/// Valid values: consistent, single_quotes, double_quotes
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum QuotedLiteralStyle {
+    #[default]
+    Consistent,
+    SingleQuotes,
+    DoubleQuotes,
+}
+
+impl FromStr for QuotedLiteralStyle {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "single_quotes" => Ok(Self::SingleQuotes),
+            "double_quotes" => Ok(Self::DoubleQuotes),
+            _ => Err(format!(
+                "Invalid quoted literal style: '{}'. Valid values: consistent, single_quotes, double_quotes",
+                s
+            )),
+        }
+    }
+}
+
+impl QuotedLiteralStyle {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::SingleQuotes => "single_quotes",
+            Self::DoubleQuotes => "double_quotes",
+        }
+    }
+}
+
+fn deserialize_quoted_literal_style<'de, D>(deserializer: D) -> Result<QuotedLiteralStyle, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    QuotedLiteralStyle::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Preferred type casting style.
+/// Valid values: consistent, cast, convert, shorthand
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum TypeCastingStyle {
+    #[default]
+    Consistent,
+    Cast,
+    Convert,
+    Shorthand,
+    /// Used internally for segments that don't match any known casting style
+    Other,
+}
+
+impl FromStr for TypeCastingStyle {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "cast" => Ok(Self::Cast),
+            "convert" => Ok(Self::Convert),
+            "shorthand" => Ok(Self::Shorthand),
+            _ => Err(format!(
+                "Invalid type casting style: '{}'. Valid values: consistent, cast, convert, shorthand",
+                s
+            )),
+        }
+    }
+}
+
+impl TypeCastingStyle {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Cast => "cast",
+            Self::Convert => "convert",
+            Self::Shorthand => "shorthand",
+            Self::Other => "other",
+        }
+    }
+}
+
+fn deserialize_type_casting_style<'de, D>(deserializer: D) -> Result<TypeCastingStyle, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    TypeCastingStyle::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Preferred not equal style.
+/// Valid values: consistent, c_style, ansi
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum NotEqualStyle {
+    #[default]
+    Consistent,
+    CStyle,
+    Ansi,
+}
+
+impl FromStr for NotEqualStyle {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "c_style" => Ok(Self::CStyle),
+            "ansi" => Ok(Self::Ansi),
+            _ => Err(format!(
+                "Invalid not equal style: '{}'. Valid values: consistent, c_style, ansi",
+                s
+            )),
+        }
+    }
+}
+
+impl NotEqualStyle {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::CStyle => "c_style",
+            Self::Ansi => "ansi",
+        }
+    }
+}
+
+fn deserialize_not_equal_style<'de, D>(deserializer: D) -> Result<NotEqualStyle, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    NotEqualStyle::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Single table references style.
+/// Valid values: consistent, qualified, unqualified
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum SingleTableReferences {
+    #[default]
+    Consistent,
+    Qualified,
+    Unqualified,
+}
+
+impl FromStr for SingleTableReferences {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "consistent" => Ok(Self::Consistent),
+            "qualified" => Ok(Self::Qualified),
+            "unqualified" => Ok(Self::Unqualified),
+            _ => Err(format!(
+                "Invalid single table references: '{}'. Valid values: consistent, qualified, unqualified",
+                s
+            )),
+        }
+    }
+}
+
+impl SingleTableReferences {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Consistent => "consistent",
+            Self::Qualified => "qualified",
+            Self::Unqualified => "unqualified",
+        }
+    }
+}
+
+fn deserialize_option_single_table_references<'de, D>(
+    deserializer: D,
+) -> Result<Option<SingleTableReferences>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: Option<String> = Option::deserialize(deserializer)?;
+    match s {
+        None => Ok(None),
+        Some(ref v) if v.eq_ignore_ascii_case("none") => Ok(None),
+        Some(v) => SingleTableReferences::from_str(&v)
+            .map(Some)
+            .map_err(de::Error::custom),
+    }
+}
+
+/// Identifiers policy.
+/// Valid values: all, aliases, column_aliases, none
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum IdentifiersPolicy {
+    #[default]
+    All,
+    Aliases,
+    ColumnAliases,
+    None,
+}
+
+impl FromStr for IdentifiersPolicy {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "all" => Ok(Self::All),
+            "aliases" => Ok(Self::Aliases),
+            "column_aliases" => Ok(Self::ColumnAliases),
+            "none" => Ok(Self::None),
+            _ => Err(format!(
+                "Invalid identifiers policy: '{}'. Valid values: all, aliases, column_aliases, none",
+                s
+            )),
+        }
+    }
+}
+
+impl IdentifiersPolicy {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::All => "all",
+            Self::Aliases => "aliases",
+            Self::ColumnAliases => "column_aliases",
+            Self::None => "none",
+        }
+    }
+}
+
+fn deserialize_identifiers_policy<'de, D>(deserializer: D) -> Result<IdentifiersPolicy, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    IdentifiersPolicy::from_str(&s).map_err(de::Error::custom)
+}
+
+fn deserialize_option_identifiers_policy<'de, D>(
+    deserializer: D,
+) -> Result<Option<IdentifiersPolicy>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: Option<String> = Option::deserialize(deserializer)?;
+    match s {
+        None => Ok(None),
+        Some(ref v) if v.eq_ignore_ascii_case("none") => Ok(Some(IdentifiersPolicy::None)),
+        Some(v) => IdentifiersPolicy::from_str(&v)
+            .map(Some)
+            .map_err(de::Error::custom),
+    }
+}
+
+/// Wildcard policy for select targets.
+/// Valid values: single, multiple
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum WildcardPolicy {
+    #[default]
+    Single,
+    Multiple,
+}
+
+impl FromStr for WildcardPolicy {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "single" => Ok(Self::Single),
+            "multiple" => Ok(Self::Multiple),
+            _ => Err(format!(
+                "Invalid wildcard policy: '{}'. Valid values: single, multiple",
+                s
+            )),
+        }
+    }
+}
+
+impl WildcardPolicy {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Single => "single",
+            Self::Multiple => "multiple",
+        }
+    }
+}
+
+fn deserialize_wildcard_policy<'de, D>(deserializer: D) -> Result<WildcardPolicy, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    WildcardPolicy::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Forbid subquery in clause.
+/// Valid values: join, from, both
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ForbidSubqueryIn {
+    #[default]
+    Join,
+    From,
+    Both,
+}
+
+impl FromStr for ForbidSubqueryIn {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "join" => Ok(Self::Join),
+            "from" => Ok(Self::From),
+            "both" => Ok(Self::Both),
+            _ => Err(format!(
+                "Invalid forbid_subquery_in: '{}'. Valid values: join, from, both",
+                s
+            )),
+        }
+    }
+}
+
+impl ForbidSubqueryIn {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Join => "join",
+            Self::From => "from",
+            Self::Both => "both",
+        }
+    }
+}
+
+fn deserialize_forbid_subquery_in<'de, D>(deserializer: D) -> Result<ForbidSubqueryIn, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    ForbidSubqueryIn::from_str(&s).map_err(de::Error::custom)
+}
+
+/// Preferred first table in join clause.
+/// Valid values: earlier, later
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum JoinConditionOrder {
+    #[default]
+    Earlier,
+    Later,
+}
+
+impl FromStr for JoinConditionOrder {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "earlier" => Ok(Self::Earlier),
+            "later" => Ok(Self::Later),
+            _ => Err(format!(
+                "Invalid join condition order: '{}'. Valid values: earlier, later",
+                s
+            )),
+        }
+    }
+}
+
+impl JoinConditionOrder {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Earlier => "earlier",
+            Self::Later => "later",
+        }
+    }
+}
+
+impl std::fmt::Display for JoinConditionOrder {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+/// Indent unit type for indentation config.
+/// Valid values: space, tab
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum IndentUnitType {
+    #[default]
+    Space,
+    Tab,
+}
+
+impl FromStr for IndentUnitType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "space" => Ok(Self::Space),
+            "tab" => Ok(Self::Tab),
+            _ => Err(format!(
+                "Invalid indent unit: '{}'. Valid values: space, tab",
+                s
+            )),
+        }
+    }
+}
+
+impl IndentUnitType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Space => "space",
+            Self::Tab => "tab",
+        }
+    }
+}
+
+fn deserialize_indent_unit_type<'de, D>(deserializer: D) -> Result<IndentUnitType, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    IndentUnitType::from_str(&s).map_err(de::Error::custom)
+}
+
+fn deserialize_join_condition_order<'de, D>(deserializer: D) -> Result<JoinConditionOrder, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    JoinConditionOrder::from_str(&s).map_err(de::Error::custom)
+}
+
+#[derive(Debug, Default)]
+struct ConfigLayer {
+    core: Option<CoreConfig>,
+    indentation: Option<IndentationConfig>,
+    layout: Option<LayoutConfig>,
+    templater: Option<TemplaterConfig>,
+    rules: Option<RulesConfig>,
+}
+
+impl ConfigLayer {
+    fn is_empty(&self) -> bool {
+        self.core.is_none()
+            && self.indentation.is_none()
+            && self.layout.is_none()
+            && self.templater.is_none()
+            && self.rules.is_none()
+    }
+}
+
+struct ConfigLayerBuilder {
+    layer: ConfigLayer,
+}
+
+impl ConfigLayerBuilder {
+    fn new() -> Self {
+        Self {
+            layer: ConfigLayer::default(),
+        }
+    }
+
+    fn into_layer(self) -> ConfigLayer {
+        self.layer
+    }
+
+    fn apply_section(
+        &mut self,
+        section: &str,
+        values: Vec<(String, String)>,
+        config_path: Option<&Path>,
+    ) -> Result<(), String> {
+        let section = canonical_section_name(section);
+        let Some(path) = section_path(&section) else {
+            return Ok(());
+        };
+        let normalized = normalize_values(values, config_path)?;
+
+        let (root, rest) = path.split_first().unwrap();
+        match root.as_str() {
+            "core" => {
+                let core = self.layer.core.get_or_insert_with(CoreConfig::default);
+                if rest.is_empty() {
+                    apply_core_config(core, normalized)?;
+                }
+            }
+            "indentation" => {
+                let indentation = self
+                    .layer
+                    .indentation
+                    .get_or_insert_with(IndentationConfig::default);
+                if rest.is_empty() {
+                    apply_indentation_config(indentation, normalized)?;
+                }
+            }
+            "layout" => {
+                let layout = self.layer.layout.get_or_insert_with(LayoutConfig::default);
+                apply_layout_section(layout, rest, normalized)?;
+            }
+            "templater" => {
+                let templater = self
+                    .layer
+                    .templater
+                    .get_or_insert_with(TemplaterConfig::default);
+                apply_templater_section(templater, rest, normalized)?;
+            }
+            "rules" => {
+                let rules = self.layer.rules.get_or_insert_with(RulesConfig::default);
+                apply_rules_section(rules, rest, normalized)?;
+            }
+            _ => {}
+        }
+
         Ok(())
     }
 
-    pub fn get(&self, key: &str, section: &str) -> &Value {
-        &self.raw[section][key]
-    }
-
-    pub fn reflow(&self) -> &ReflowConfig {
-        &self.reflow
-    }
-
-    pub fn reload_reflow(&mut self) {
-        self.reflow = ReflowConfig::from_fluff_config(self);
-    }
-
-    /// from_source creates a config object from a string. This is used for testing and for
-    /// loading a config from a string.
-    ///
-    /// The optional_path_specification is used to specify a path to use for relative paths in the
-    /// config. This is useful for testing.
-    pub fn from_source(source: &str, optional_path_specification: Option<&Path>) -> FluffConfig {
-        let configs = ConfigLoader::from_source(source, optional_path_specification);
-        FluffConfig::new(configs, None, None)
-    }
-
-    pub fn get_section(&self, section: &str) -> &AHashMap<String, Value> {
-        self.raw[section].as_map().unwrap()
-    }
-
-    // TODO This is not a translation that is particularly accurate.
-    pub fn new(
-        configs: AHashMap<String, Value>,
-        extra_config_path: Option<String>,
-        indentation: Option<FluffConfigIndentation>,
-    ) -> Self {
-        fn nested_combine(
-            mut a: AHashMap<String, Value>,
-            b: AHashMap<String, Value>,
-        ) -> AHashMap<String, Value> {
-            for (key, value_b) in b {
-                match (a.get(&key), value_b) {
-                    (Some(Value::Map(map_a)), Value::Map(map_b)) => {
-                        let combined = nested_combine(map_a.clone(), map_b);
-                        a.insert(key, Value::Map(combined));
-                    }
-                    (_, value) => {
-                        a.insert(key, value);
-                    }
-                }
-            }
-            a
-        }
-
-        let values = ConfigLoader::get_config_elems_from_file(
-            None,
-            include_str!("./default_config.cfg").into(),
-        );
-
-        let mut defaults = AHashMap::new();
-        ConfigLoader::incorporate_vals(&mut defaults, values);
-
-        let mut configs = nested_combine(defaults, configs);
-
-        let dialect = match configs
-            .get("core")
-            .and_then(|map| map.as_map().unwrap().get("dialect"))
-        {
-            None => DialectKind::default(),
-            Some(Value::String(std)) => DialectKind::from_str(std).unwrap(),
-            _value => DialectKind::default(),
-        };
-
-        let dialect = kind_to_dialect(&dialect);
-        for (in_key, out_key) in [
-            // Deal with potential ignore & warning parameters
-            ("ignore", "ignore"),
-            ("warnings", "warnings"),
-            ("rules", "rule_allowlist"),
-            // Allowlists and denylistsignore_words
-            ("exclude_rules", "rule_denylist"),
-        ] {
-            match configs["core"].as_map().unwrap().get(in_key) {
-                Some(value) if !value.is_none() => {
-                    let string = value.as_string().unwrap();
-                    let values = split_comma_separated_string(string);
-
-                    configs
-                        .get_mut("core")
-                        .unwrap()
-                        .as_map_mut()
-                        .unwrap()
-                        .insert(out_key.into(), values);
-                }
-                _ => {}
-            }
-        }
-
-        let sql_file_exts = configs["core"]["sql_file_exts"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .map(|it| it.as_string().unwrap().to_owned())
-            .collect();
-
-        let mut this = Self {
-            raw: configs,
-            dialect: dialect
-                .expect("Dialect is disabled. Please enable the corresponding feature."),
-            extra_config_path,
-            _configs: AHashMap::new(),
-            indentation: indentation.unwrap_or_default(),
-            sql_file_exts,
-            reflow: ReflowConfig::default(),
-        };
-        this.reflow = ReflowConfig::from_fluff_config(&this);
-        this
-    }
-
-    pub fn with_sql_file_exts(mut self, exts: Vec<String>) -> Self {
-        self.sql_file_exts = exts;
-        self
-    }
-
-    /// Loads a config object just based on the root directory.
-    // TODO This is not a translation that is particularly accurate.
-    pub fn from_root(
-        extra_config_path: Option<String>,
-        ignore_local_config: bool,
-        overrides: Option<AHashMap<String, String>>,
-    ) -> Result<FluffConfig, SQLFluffUserError> {
-        let loader = ConfigLoader {};
-        let mut config =
-            loader.load_config_up_to_path(".", extra_config_path.clone(), ignore_local_config);
-
-        if let Some(overrides) = overrides
-            && let Some(dialect) = overrides.get("dialect")
-        {
-            let core = config
-                .entry("core".into())
-                .or_insert_with(|| Value::Map(AHashMap::new()));
-
-            core.as_map_mut()
-                .unwrap()
-                .insert("dialect".into(), Value::String(dialect.clone().into()));
-        }
-
-        Ok(FluffConfig::new(config, extra_config_path, None))
-    }
-
-    pub fn from_kwargs(
-        config: Option<FluffConfig>,
-        dialect: Option<Dialect>,
-        rules: Option<Vec<String>>,
-    ) -> Self {
-        if (dialect.is_some() || rules.is_some()) && config.is_some() {
-            panic!(
-                "Cannot specify `config` with `dialect` or `rules`. Any config object specifies \
-                 its own dialect and rules."
-            )
-        } else {
-            config.unwrap()
-        }
-    }
-
-    /// Process a full raw file for inline config and update self.
-    pub fn process_raw_file_for_config(&self, raw_str: &str) {
-        // Scan the raw file for config commands
-        for raw_line in raw_str.lines() {
-            if raw_line.to_string().starts_with("-- sqlfluff") {
-                // Found an in-file config command
-                self.process_inline_config(raw_line)
-            }
-        }
-    }
-
-    /// Process an inline config command and update self.
-    pub fn process_inline_config(&self, _config_line: &str) {
-        panic!("Not implemented")
-    }
-
-    /// Check if the config specifies a dialect, raising an error if not.
-    pub fn verify_dialect_specified(&self) -> Option<SQLFluffUserError> {
-        if self._configs.get("core")?.get("dialect").is_some() {
-            return None;
-        }
-        // Get list of available dialects for the error message. We must
-        // import here rather than at file scope in order to avoid a circular
-        // import.
-        Some(SQLFluffUserError::new(format!(
-            "No dialect was specified. You must configure a dialect or
-specify one on the command line using --dialect after the
-command. Available dialects: {}",
-            dialect_readout().join(", ").as_str()
-        )))
-    }
-
-    pub fn get_dialect(&self) -> &Dialect {
-        &self.dialect
-    }
-
-    pub fn sql_file_exts(&self) -> &[String] {
-        self.sql_file_exts.as_ref()
+    fn apply_pair(
+        &mut self,
+        section: &str,
+        key: &str,
+        value: &str,
+        config_path: Option<&Path>,
+    ) -> Result<(), String> {
+        self.apply_section(
+            section,
+            vec![(key.to_string(), value.to_string())],
+            config_path,
+        )
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct FluffConfigIndentation {
-    pub template_blocks_indent: bool,
+fn normalize_values(
+    values: Vec<(String, String)>,
+    config_path: Option<&Path>,
+) -> Result<Vec<(String, String)>, String> {
+    let mut normalized = Vec::with_capacity(values.len());
+    for (key, value) in values {
+        let value = normalize_raw_value(config_path, &key, &value)?;
+        normalized.push((key, value));
+    }
+    Ok(normalized)
 }
 
-impl Default for FluffConfigIndentation {
-    fn default() -> Self {
-        Self {
-            template_blocks_indent: true,
+fn apply_string_map(target: &mut AHashMap<String, String>, values: Vec<(String, String)>) {
+    for (key, value) in values {
+        target.insert(key, value);
+    }
+}
+
+fn canonical_section_name(section: &str) -> String {
+    if section == "sqruff" {
+        "sqlfluff".to_string()
+    } else if let Some(rest) = section.strip_prefix("sqruff:") {
+        format!("sqlfluff:{rest}")
+    } else {
+        section.to_string()
+    }
+}
+
+fn section_path(section: &str) -> Option<Vec<String>> {
+    if section == "sqlfluff" || section == "sqruff" {
+        return Some(vec!["core".to_string()]);
+    }
+    let rest = section
+        .strip_prefix("sqlfluff:")
+        .or_else(|| section.strip_prefix("sqruff:"))?;
+    if rest.is_empty() {
+        return Some(vec!["core".to_string()]);
+    }
+    Some(rest.split(':').map(ToOwned::to_owned).collect())
+}
+
+fn normalize_raw_value(
+    config_path: Option<&Path>,
+    key: &str,
+    value: &str,
+) -> Result<String, String> {
+    let name_lowercase = key.to_lowercase();
+    if name_lowercase == "load_macros_from_path" {
+        return Err("load_macros_from_path is not supported".to_string());
+    }
+    if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir") {
+        return normalize_path_value(config_path, value);
+    }
+
+    Ok(value.to_string())
+}
+
+fn normalize_path_value(config_path: Option<&Path>, value: &str) -> Result<String, String> {
+    let parts: Vec<&str> = value
+        .split(',')
+        .map(|part| part.trim())
+        .filter(|part| !part.is_empty())
+        .collect();
+
+    if parts.is_empty() {
+        return Ok(value.to_string());
+    }
+
+    let mut normalized = Vec::with_capacity(parts.len());
+    for part in parts {
+        if is_non_string_scalar(part) {
+            return Err("Path values must be strings".to_string());
+        }
+        normalized.push(normalize_single_path_value(config_path, part)?);
+    }
+
+    if normalized.len() == 1 {
+        Ok(normalized.pop().unwrap_or_default())
+    } else {
+        Ok(normalized.join(","))
+    }
+}
+
+fn normalize_single_path_value(config_path: Option<&Path>, value: &str) -> Result<String, String> {
+    let path = PathBuf::from(value);
+    if path.is_absolute() {
+        return Ok(value.to_string());
+    }
+    let config_path = config_path
+        .and_then(|path| path.parent())
+        .ok_or_else(|| "Relative paths require a config file path".to_string())?;
+    let current_dir = std::env::current_dir().map_err(|err| err.to_string())?;
+    let config_path =
+        std::path::absolute(current_dir.join(config_path)).map_err(|err| err.to_string())?;
+    let path = config_path.join(path);
+    Ok(path.to_string_lossy().into_owned())
+}
+
+fn is_non_string_scalar(value: &str) -> bool {
+    let trimmed = value.trim();
+    if trimmed.eq_ignore_ascii_case("true")
+        || trimmed.eq_ignore_ascii_case("false")
+        || trimmed.eq_ignore_ascii_case("none")
+    {
+        return true;
+    }
+    trimmed.parse::<i32>().is_ok() || trimmed.parse::<f64>().is_ok()
+}
+
+trait ConfigFormat {
+    fn apply(
+        &self,
+        content: &str,
+        config_path: Option<&Path>,
+        builder: &mut ConfigLayerBuilder,
+    ) -> Result<(), String>;
+}
+
+struct IniFormat;
+
+impl ConfigFormat for IniFormat {
+    fn apply(
+        &self,
+        content: &str,
+        config_path: Option<&Path>,
+        builder: &mut ConfigLayerBuilder,
+    ) -> Result<(), String> {
+        apply_ini_content(builder, content, config_path)
+    }
+}
+
+fn normalize_ini_content(content: &str) -> String {
+    content
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+fn apply_ini_content(
+    builder: &mut ConfigLayerBuilder,
+    content: &str,
+    config_path: Option<&Path>,
+) -> Result<(), String> {
+    let normalized = normalize_ini_content(content);
+    let mut current_section: Option<String> = None;
+
+    for line in normalized.lines() {
+        let trimmed = line.trim();
+        if trimmed.is_empty() {
+            continue;
+        }
+        if trimmed.starts_with(';') || trimmed.starts_with('#') {
+            continue;
+        }
+        if trimmed.starts_with('[') {
+            let end = trimmed
+                .find(']')
+                .ok_or_else(|| "INI syntax error: section missing ']'".to_string())?;
+            let section = trimmed[1..end].trim();
+            if section.is_empty() {
+                return Err("INI syntax error: empty section name".to_string());
+            }
+            current_section = Some(section.to_string());
+            continue;
+        }
+
+        let (key, value) = trimmed
+            .split_once('=')
+            .ok_or_else(|| "INI syntax error: variable assignment missing '='".to_string())?;
+        let key = key.trim();
+        if key.is_empty() {
+            return Err("INI syntax error: missing key".to_string());
+        }
+        let value = value.trim();
+
+        let section = current_section.as_deref().unwrap_or("");
+        builder.apply_pair(section, key, value, config_path)?;
+    }
+
+    Ok(())
+}
+
+fn apply_core_config(core: &mut CoreConfig, values: Vec<(String, String)>) -> Result<(), String> {
+    let mut rules_alias = None;
+    let mut exclude_rules_alias = None;
+
+    for (key, value) in values {
+        match key.as_str() {
+            "dialect" => core.dialect = parse_option_string_none_value(&value),
+            "templater" => core.templater = parse_option_string_none_value(&value),
+            "nocolor" => core.nocolor = parse_bool_value(&value),
+            "verbose" => core.verbose = parse_i32_value(&value),
+            "output_line_length" => core.output_line_length = parse_i32_value(&value),
+            "runaway_limit" => core.runaway_limit = parse_i32_value(&value),
+            "ignore" => core.ignore = parse_optional_comma_list_value(&value),
+            "warnings" => core.warnings = parse_optional_comma_list_value(&value),
+            "warn_unused_ignores" => core.warn_unused_ignores = parse_bool_value(&value),
+            "ignore_templated_areas" => core.ignore_templated_areas = parse_bool_value(&value),
+            "encoding" => core.encoding = parse_option_string_none_value(&value),
+            "disable_noqa" => core.disable_noqa = parse_bool_value(&value),
+            "sql_file_exts" => core.sql_file_exts = split_comma_list(&value),
+            "fix_even_unparsable" => core.fix_even_unparsable = parse_bool_value(&value),
+            "large_file_skip_char_limit" => {
+                core.large_file_skip_char_limit = parse_i32_value(&value)
+            }
+            "large_file_skip_byte_limit" => {
+                core.large_file_skip_byte_limit = parse_i32_value(&value)
+            }
+            "processes" => core.processes = parse_i32_value(&value),
+            "max_line_length" => core.max_line_length = parse_i32_value(&value),
+            "rule_allowlist" => core.rule_allowlist = parse_optional_comma_list_value(&value),
+            "rule_denylist" => core.rule_denylist = split_comma_list(&value),
+            "rules" => rules_alias = Some(value),
+            "exclude_rules" => exclude_rules_alias = Some(value),
+            _ => {}
         }
     }
+
+    if let Some(value) = rules_alias {
+        core.rule_allowlist = parse_optional_comma_list_value(&value);
+    }
+
+    if let Some(value) = exclude_rules_alias {
+        core.rule_denylist = split_comma_list(&value);
+    }
+
+    Ok(())
+}
+
+fn apply_indentation_config(
+    indentation: &mut IndentationConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "indent_unit" => indentation.indent_unit = parse_indent_unit_type_value(&value)?,
+            "tab_space_size" => indentation.tab_space_size = parse_i32_value(&value),
+            "hanging_indents" => indentation.hanging_indents = parse_boolish(&value),
+            "indented_joins" => indentation.indented_joins = parse_bool_value(&value),
+            "indented_ctes" => indentation.indented_ctes = parse_bool_value(&value),
+            "indented_using_on" => indentation.indented_using_on = parse_bool_value(&value),
+            "indented_on_contents" => indentation.indented_on_contents = parse_bool_value(&value),
+            "indented_then" => indentation.indented_then = parse_bool_value(&value),
+            "indented_then_contents" => {
+                indentation.indented_then_contents = parse_bool_value(&value)
+            }
+            "indented_joins_on" => indentation.indented_joins_on = parse_boolish(&value),
+            "allow_implicit_indents" => {
+                indentation.allow_implicit_indents = parse_bool_value(&value)
+            }
+            "template_blocks_indent" => {
+                indentation.template_blocks_indent = parse_bool_value(&value)
+            }
+            "skip_indentation_in" => indentation.skip_indentation_in = split_comma_list(&value),
+            "trailing_comments" => indentation.trailing_comments = value.to_string(),
+            _ => {}
+        }
+    }
+
+    Ok(())
+}
+
+fn apply_layout_section(
+    layout: &mut LayoutConfig,
+    rest: &[String],
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    if rest.len() == 2 && rest[0] == "type" {
+        let syntax_kind: SyntaxKind = rest[1]
+            .parse()
+            .map_err(|_| format!("Invalid layout type: {}", rest[1]))?;
+        let entry = layout.types.entry(syntax_kind).or_default();
+        apply_layout_type_config(entry, values)?;
+    }
+    Ok(())
+}
+
+fn apply_layout_type_config(
+    config: &mut LayoutTypeConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "spacing_before" => {
+                config.spacing_before =
+                    parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
+            }
+            "spacing_after" => {
+                config.spacing_after =
+                    parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
+            }
+            "spacing_within" => {
+                config.spacing_within =
+                    parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
+            }
+            "line_position" => {
+                config.line_position = parse_option_string_none_value(&value)
+                    .map(|s| LinePositionConfig::parse_str(&s))
+            }
+            "align_within" => {
+                config.align_within =
+                    parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
+            }
+            "align_scope" => {
+                config.align_scope =
+                    parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
+            }
+            _ => {}
+        }
+    }
+
+    Ok(())
+}
+
+fn apply_templater_section(
+    templater: &mut TemplaterConfig,
+    rest: &[String],
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    if rest.is_empty() {
+        return apply_templater_root_config(templater, values);
+    }
+
+    if rest.len() == 1 {
+        return match rest[0].as_str() {
+            "jinja" => apply_jinja_templater_config(&mut templater.jinja, values),
+            "dbt" => apply_dbt_templater_config(&mut templater.dbt, values),
+            "python" => Ok(()),
+            "placeholder" => apply_placeholder_templater_config(&mut templater.placeholder, values),
+            _ => Ok(()),
+        };
+    }
+
+    if rest.len() == 2 && rest[1] == "context" {
+        match rest[0].as_str() {
+            "jinja" => apply_string_map(&mut templater.jinja.context, values),
+            "dbt" => apply_string_map(&mut templater.dbt.context, values),
+            "python" => apply_string_map(&mut templater.python.context, values),
+            _ => {}
+        }
+    }
+
+    Ok(())
+}
+
+fn apply_templater_root_config(
+    templater: &mut TemplaterConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key.as_str() == "unwrap_wrapped_queries" {
+            templater.unwrap_wrapped_queries = parse_bool_value(&value);
+        }
+    }
+
+    Ok(())
+}
+
+fn apply_jinja_templater_config(
+    config: &mut JinjaTemplaterConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "templater_paths" => config.templater_paths = split_comma_list(&value),
+            "loader_search_path" => config.loader_search_path = split_comma_list(&value),
+            "apply_dbt_builtins" => config.apply_dbt_builtins = parse_bool_value(&value),
+            "ignore_templating" => config.ignore_templating = parse_boolish(&value),
+            "library_paths" => config.library_paths = split_comma_list(&value),
+            _ => {}
+        }
+    }
+
+    Ok(())
+}
+
+fn apply_dbt_templater_config(
+    config: &mut DbtTemplaterConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "profiles_dir" => config.profiles_dir = parse_option_string_none_value(&value),
+            "project_dir" => config.project_dir = parse_option_string_none_value(&value),
+            _ => {}
+        }
+    }
+
+    Ok(())
+}
+
+fn apply_placeholder_templater_config(
+    config: &mut PlaceholderTemplaterConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "param_regex" => config.param_regex = parse_option_string_none_value(&value),
+            "param_style" => config.param_style = parse_option_string_none_value(&value),
+            _ => {
+                config
+                    .replacements
+                    .insert(key, PlaceholderValue::String(value));
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn apply_rules_section(
+    rules: &mut RulesConfig,
+    rest: &[String],
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    if rest.is_empty() {
+        return apply_rules_root_config(rules, values);
+    }
+    if rest.len() != 1 {
+        return Ok(());
+    }
+
+    match rest[0].as_str() {
+        "aliasing.table" => apply_aliasing_rule_config(&mut rules.aliasing_table, values),
+        "aliasing.column" => apply_aliasing_rule_config(&mut rules.aliasing_column, values),
+        "aliasing.length" => apply_aliasing_length_rule_config(&mut rules.aliasing_length, values),
+        "aliasing.forbid" => apply_aliasing_forbid_rule_config(&mut rules.aliasing_forbid, values),
+        "ambiguous.join" => apply_ambiguous_join_rule_config(&mut rules.ambiguous_join, values),
+        "ambiguous.column_references" => apply_ambiguous_column_references_rule_config(
+            &mut rules.ambiguous_column_references,
+            values,
+        ),
+        "capitalisation.keywords" => {
+            apply_capitalisation_keywords_rule_config(&mut rules.capitalisation_keywords, values)
+        }
+        "capitalisation.identifiers" => apply_capitalisation_identifiers_rule_config(
+            &mut rules.capitalisation_identifiers,
+            values,
+        ),
+        "capitalisation.functions" => {
+            apply_capitalisation_functions_rule_config(&mut rules.capitalisation_functions, values)
+        }
+        "capitalisation.literals" => {
+            apply_capitalisation_literals_rule_config(&mut rules.capitalisation_literals, values)
+        }
+        "capitalisation.types" => {
+            apply_capitalisation_types_rule_config(&mut rules.capitalisation_types, values)
+        }
+        "convention.select_trailing_comma" => apply_convention_select_trailing_comma_rule_config(
+            &mut rules.convention_select_trailing_comma,
+            values,
+        ),
+        "convention.count_rows" => {
+            apply_convention_count_rows_rule_config(&mut rules.convention_count_rows, values)
+        }
+        "convention.terminator" => {
+            apply_convention_terminator_rule_config(&mut rules.convention_terminator, values)
+        }
+        "convention.blocked_words" => {
+            apply_convention_blocked_words_rule_config(&mut rules.convention_blocked_words, values)
+        }
+        "convention.quoted_literals" => apply_convention_quoted_literals_rule_config(
+            &mut rules.convention_quoted_literals,
+            values,
+        ),
+        "convention.casting_style" => {
+            apply_convention_casting_style_rule_config(&mut rules.convention_casting_style, values)
+        }
+        "convention.not_equal" => {
+            apply_convention_not_equal_rule_config(&mut rules.convention_not_equal, values)
+        }
+        "references.from" => apply_references_from_rule_config(&mut rules.references_from, values),
+        "references.qualification" => {
+            apply_references_qualification_rule_config(&mut rules.references_qualification, values)
+        }
+        "references.consistent" => {
+            apply_references_consistent_rule_config(&mut rules.references_consistent, values)
+        }
+        "references.keywords" => {
+            apply_references_keywords_rule_config(&mut rules.references_keywords, values)
+        }
+        "references.special_chars" => {
+            apply_references_special_chars_rule_config(&mut rules.references_special_chars, values)
+        }
+        "references.quoting" => {
+            apply_references_quoting_rule_config(&mut rules.references_quoting, values)
+        }
+        "layout.long_lines" => {
+            apply_layout_long_lines_rule_config(&mut rules.layout_long_lines, values)
+        }
+        "layout.select_targets" => {
+            apply_layout_select_targets_rule_config(&mut rules.layout_select_targets, values)
+        }
+        "layout.newlines" => apply_layout_newlines_rule_config(&mut rules.layout_newlines, values),
+        "structure.subquery" => {
+            apply_structure_subquery_rule_config(&mut rules.structure_subquery, values)
+        }
+        "structure.join_condition_order" => apply_structure_join_condition_order_rule_config(
+            &mut rules.structure_join_condition_order,
+            values,
+        ),
+        _ => Ok(()),
+    }
+}
+
+fn apply_rules_root_config(
+    rules: &mut RulesConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "allow_scalar" => rules.allow_scalar = parse_boolish_value(&value)?,
+            "single_table_references" => {
+                if value.eq_ignore_ascii_case("none") {
+                    rules.single_table_references = None;
+                } else {
+                    rules.single_table_references = Some(SingleTableReferences::from_str(&value)?);
+                }
+            }
+            "unquoted_identifiers_policy" => {
+                rules.unquoted_identifiers_policy = IdentifiersPolicy::from_str(&value)?;
+            }
+            _ => {}
+        }
+    }
+
+    Ok(())
+}
+
+fn apply_aliasing_rule_config(
+    config: &mut AliasingRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "aliasing" {
+            config.aliasing = Aliasing::from_str(&value)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_aliasing_length_rule_config(
+    config: &mut AliasingLengthRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "min_alias_length" => config.min_alias_length = parse_option_usize_value(&value),
+            "max_alias_length" => config.max_alias_length = parse_option_usize_value(&value),
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_aliasing_forbid_rule_config(
+    config: &mut AliasingForbidRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "force_enable" {
+            config.force_enable = parse_boolish_value(&value)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_ambiguous_join_rule_config(
+    config: &mut AmbiguousJoinRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "fully_qualify_join_types" {
+            config.fully_qualify_join_types = JoinType::from_str(&value)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_ambiguous_column_references_rule_config(
+    config: &mut AmbiguousColumnReferencesRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "group_by_and_order_by_style" {
+            config.group_by_and_order_by_style = GroupByOrderByStyle::from_str(&value)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_capitalisation_keywords_rule_config(
+    config: &mut CapitalisationKeywordsRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "capitalisation_policy" => {
+                config.capitalisation_policy = value.parse().map_err(|e: String| e)?
+            }
+            "ignore_words" => config.ignore_words = split_comma_list(&value),
+            "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_capitalisation_identifiers_rule_config(
+    config: &mut CapitalisationIdentifiersRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "extended_capitalisation_policy" => {
+                config.extended_capitalisation_policy = value.parse().map_err(|e: String| e)?
+            }
+            "ignore_words" => config.ignore_words = split_comma_list(&value),
+            "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
+            "unquoted_identifiers_policy" => {
+                config.unquoted_identifiers_policy = parse_option_identifiers_policy_value(&value)?
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_capitalisation_functions_rule_config(
+    config: &mut CapitalisationFunctionsRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "extended_capitalisation_policy" => {
+                config.extended_capitalisation_policy = value.parse().map_err(|e: String| e)?
+            }
+            "ignore_words" => config.ignore_words = split_comma_list(&value),
+            "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_capitalisation_literals_rule_config(
+    config: &mut CapitalisationLiteralsRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "capitalisation_policy" => {
+                config.capitalisation_policy = value.parse().map_err(|e: String| e)?
+            }
+            "ignore_words" => config.ignore_words = split_comma_list(&value),
+            "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_capitalisation_types_rule_config(
+    config: &mut CapitalisationTypesRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "extended_capitalisation_policy" {
+            config.extended_capitalisation_policy = value.parse().map_err(|e: String| e)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_convention_select_trailing_comma_rule_config(
+    config: &mut ConventionSelectTrailingCommaRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "select_clause_trailing_comma" {
+            config.select_clause_trailing_comma = TrailingCommaPolicy::from_str(&value)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_convention_count_rows_rule_config(
+    config: &mut ConventionCountRowsRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "prefer_count_1" => config.prefer_count_1 = parse_boolish_value(&value)?,
+            "prefer_count_0" => config.prefer_count_0 = parse_boolish_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_convention_terminator_rule_config(
+    config: &mut ConventionTerminatorRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "multiline_newline" => config.multiline_newline = parse_boolish_value(&value)?,
+            "require_final_semicolon" => {
+                config.require_final_semicolon = parse_boolish_value(&value)?
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_convention_blocked_words_rule_config(
+    config: &mut ConventionBlockedWordsRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "blocked_words" => config.blocked_words = split_comma_list(&value),
+            "blocked_regex" => config.blocked_regex = parse_regex_list_value(&value)?,
+            "match_source" => config.match_source = parse_boolish_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_convention_quoted_literals_rule_config(
+    config: &mut ConventionQuotedLiteralsRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "preferred_quoted_literal_style" => {
+                config.preferred_quoted_literal_style = QuotedLiteralStyle::from_str(&value)?;
+            }
+            "force_enable" => config.force_enable = parse_boolish_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_convention_casting_style_rule_config(
+    config: &mut ConventionCastingStyleRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "preferred_type_casting_style" {
+            config.preferred_type_casting_style = TypeCastingStyle::from_str(&value)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_convention_not_equal_rule_config(
+    config: &mut ConventionNotEqualRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "preferred_not_equal_style" {
+            config.preferred_not_equal_style = NotEqualStyle::from_str(&value)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_references_from_rule_config(
+    config: &mut ReferencesFromRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "force_enable" {
+            config.force_enable = parse_boolish_value(&value)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_references_qualification_rule_config(
+    config: &mut ReferencesQualificationRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "ignore_words" => config.ignore_words = split_comma_list(&value),
+            "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_references_consistent_rule_config(
+    config: &mut ReferencesConsistentRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "single_table_references" => {
+                if value.eq_ignore_ascii_case("none") {
+                    config.single_table_references = None;
+                } else {
+                    config.single_table_references = Some(SingleTableReferences::from_str(&value)?);
+                }
+            }
+            "force_enable" => config.force_enable = parse_boolish_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_references_keywords_rule_config(
+    config: &mut ReferencesKeywordsRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "unquoted_identifiers_policy" => {
+                config.unquoted_identifiers_policy = IdentifiersPolicy::from_str(&value)?;
+            }
+            "quoted_identifiers_policy" => {
+                if value.eq_ignore_ascii_case("none") {
+                    config.quoted_identifiers_policy = Some(IdentifiersPolicy::None);
+                } else {
+                    config.quoted_identifiers_policy = Some(IdentifiersPolicy::from_str(&value)?);
+                }
+            }
+            "ignore_words" => config.ignore_words = split_comma_list(&value),
+            "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_references_special_chars_rule_config(
+    config: &mut ReferencesSpecialCharsRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "quoted_identifiers_policy" => {
+                config.quoted_identifiers_policy = IdentifiersPolicy::from_str(&value)?;
+            }
+            "unquoted_identifiers_policy" => {
+                config.unquoted_identifiers_policy = IdentifiersPolicy::from_str(&value)?;
+            }
+            "allow_space_in_identifier" => {
+                config.allow_space_in_identifier = parse_boolish_value(&value)?
+            }
+            "additional_allowed_characters" => {
+                config.additional_allowed_characters = parse_option_string_none_value(&value)
+            }
+            "ignore_words" => config.ignore_words = split_comma_list(&value),
+            "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_references_quoting_rule_config(
+    config: &mut ReferencesQuotingRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "prefer_quoted_identifiers" => {
+                config.prefer_quoted_identifiers = parse_boolish_value(&value)?
+            }
+            "prefer_quoted_keywords" => {
+                config.prefer_quoted_keywords = parse_boolish_value(&value)?
+            }
+            "ignore_words" => config.ignore_words = split_comma_list(&value),
+            "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
+            "force_enable" => config.force_enable = parse_boolish_value(&value)?,
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_layout_long_lines_rule_config(
+    config: &mut LayoutLongLinesRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "ignore_comment_lines" => config.ignore_comment_lines = parse_boolish_value(&value)?,
+            "ignore_comment_clauses" => {
+                config.ignore_comment_clauses = parse_boolish_value(&value)?
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_layout_select_targets_rule_config(
+    config: &mut LayoutSelectTargetsRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "wildcard_policy" {
+            config.wildcard_policy = WildcardPolicy::from_str(&value)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_layout_newlines_rule_config(
+    config: &mut LayoutNewlinesRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        match key.as_str() {
+            "maximum_empty_lines_between_statements" => {
+                config.maximum_empty_lines_between_statements = parse_usize_value(&value)?
+            }
+            "maximum_empty_lines_inside_statements" => {
+                config.maximum_empty_lines_inside_statements = parse_usize_value(&value)?
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn apply_structure_subquery_rule_config(
+    config: &mut StructureSubqueryRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "forbid_subquery_in" {
+            config.forbid_subquery_in = ForbidSubqueryIn::from_str(&value)?;
+        }
+    }
+    Ok(())
+}
+
+fn apply_structure_join_condition_order_rule_config(
+    config: &mut StructureJoinConditionOrderRuleConfig,
+    values: Vec<(String, String)>,
+) -> Result<(), String> {
+    for (key, value) in values {
+        if key == "preferred_first_table_in_join_clause" {
+            config.preferred_first_table_in_join_clause = JoinConditionOrder::from_str(&value)?;
+        }
+    }
+    Ok(())
 }
 
 pub struct ConfigLoader;
@@ -333,297 +1821,2450 @@ impl ConfigLoader {
         head.chain(tail)
     }
 
-    pub fn load_config_up_to_path(
+    fn load_config_from_source(source: &str, path: Option<&Path>) -> Result<FluffConfig, String> {
+        let mut builder = ConfigLayerBuilder::new();
+        Self::apply_source_to_builder(&mut builder, source, path)?;
+        let mut config = merge_layers_replace_roots(vec![builder.into_layer()]);
+        config.reload_reflow();
+        Ok(config)
+    }
+
+    #[cfg(test)]
+    fn load_config_at_path(&self, path: impl AsRef<Path>) -> Result<FluffConfig, String> {
+        let layer = self.load_layer_at_path(path);
+        let mut config = merge_layers_replace_roots(vec![layer]);
+        config.reload_reflow();
+        Ok(config)
+    }
+
+    fn load_config_up_to_path(
         &self,
         path: impl AsRef<Path>,
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-    ) -> AHashMap<String, Value> {
-        let path = path.as_ref();
-
-        let config_stack = if ignore_local_config {
-            extra_config_path
-                .map(|path| vec![self.load_config_at_path(path)])
-                .unwrap_or_default()
-        } else {
-            let configs = Self::iter_config_locations_up_to_path(path, None, ignore_local_config);
-            configs
-                .map(|path| self.load_config_at_path(path))
-                .collect_vec()
-        };
-
-        nested_combine(config_stack)
+        overrides: Option<AHashMap<String, String>>,
+    ) -> Result<FluffConfig, SQLFluffUserError> {
+        let layers = self.load_layers_up_to_path(path, extra_config_path, ignore_local_config);
+        let mut config = merge_layers_replace_roots(layers);
+        if let Some(overrides) = overrides {
+            apply_overrides_to_typed(&mut config, &overrides);
+        }
+        config.reload_reflow();
+        Ok(config)
     }
 
-    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> AHashMap<String, Value> {
+    fn load_layers_up_to_path(
+        &self,
+        path: impl AsRef<Path>,
+        extra_config_path: Option<String>,
+        ignore_local_config: bool,
+    ) -> Vec<ConfigLayer> {
+        let path = path.as_ref();
+
+        if ignore_local_config {
+            return extra_config_path
+                .map(|path| vec![self.load_layer_at_path(path)])
+                .unwrap_or_default();
+        }
+
+        let configs = Self::iter_config_locations_up_to_path(path, None, ignore_local_config);
+        configs
+            .map(|path| self.load_layer_at_path(path))
+            .collect_vec()
+    }
+
+    fn load_layer_at_path(&self, path: impl AsRef<Path>) -> ConfigLayer {
         let path = path.as_ref();
 
         let filename_options = [
             /* "setup.cfg", "tox.ini", "pep8.ini", */
             ".sqlfluff",
-            ".sqruff", /* "pyproject.toml" */
+            ".sqruff",
+            /* "pyproject.toml" */
         ];
 
-        let mut configs = AHashMap::new();
+        let mut builder = ConfigLayerBuilder::new();
 
         if path.is_dir() {
             for fname in filename_options {
                 let path = path.join(fname);
                 if path.exists() {
-                    ConfigLoader::load_config_file(path, &mut configs);
+                    Self::apply_file_to_builder(&mut builder, &path);
                 }
             }
         } else if path.is_file() {
-            ConfigLoader::load_config_file(path, &mut configs);
+            Self::apply_file_to_builder(&mut builder, path);
         };
 
-        configs
+        builder.into_layer()
     }
 
-    pub fn from_source(source: &str, path: Option<&Path>) -> AHashMap<String, Value> {
-        let mut configs = AHashMap::new();
-        let elems = ConfigLoader::get_config_elems_from_file(path, Some(source));
-        ConfigLoader::incorporate_vals(&mut configs, elems);
-        configs
+    fn apply_file_to_builder(builder: &mut ConfigLayerBuilder, path: &Path) {
+        let content = std::fs::read_to_string(path).unwrap();
+        Self::apply_source_to_builder(builder, &content, Some(path)).unwrap();
     }
 
-    pub fn load_config_file(path: impl AsRef<Path>, configs: &mut AHashMap<String, Value>) {
-        let elems = ConfigLoader::get_config_elems_from_file(path.as_ref().into(), None);
-        ConfigLoader::incorporate_vals(configs, elems);
-    }
-
-    fn get_config_elems_from_file(
+    fn apply_source_to_builder(
+        builder: &mut ConfigLayerBuilder,
+        content: &str,
         config_path: Option<&Path>,
-        config_string: Option<&str>,
-    ) -> Vec<(Vec<String>, Value)> {
-        let mut buff = Vec::new();
-        let mut config = Ini::new();
+    ) -> Result<(), String> {
+        match config_path.and_then(|path| path.extension().and_then(|ext| ext.to_str())) {
+            Some("toml") => Err("TOML config is no longer supported".to_string()),
+            _ => IniFormat.apply(content, config_path, builder),
+        }
+    }
+}
 
-        let content = match (config_path, config_string) {
-            (None, None) | (Some(_), Some(_)) => {
-                unimplemented!("One of fpath or config_string is required.")
-            }
-            (None, Some(text)) => text.to_owned(),
-            (Some(path), None) => std::fs::read_to_string(path).unwrap(),
-        };
+fn is_none_string(value: &str) -> bool {
+    let trimmed = value.trim();
+    trimmed.is_empty() || trimmed.eq_ignore_ascii_case("none")
+}
 
-        config.read(content).unwrap();
+fn split_comma_list(raw: &str) -> Vec<String> {
+    if is_none_string(raw) {
+        return Vec::new();
+    }
 
-        for section in config.sections() {
-            let key = if section == "sqlfluff" || section == "sqruff" {
-                vec!["core".to_owned()]
-            } else if let Some(key) = section
-                .strip_prefix("sqlfluff:")
-                .or_else(|| section.strip_prefix("sqruff:"))
-            {
-                key.split(':').map(ToOwned::to_owned).collect()
-            } else {
-                continue;
-            };
+    raw.split(',')
+        .map(|item| item.trim())
+        .filter(|item| !item.is_empty())
+        .map(|item| item.to_string())
+        .collect()
+}
 
-            let config_map = config.get_map_ref();
-            if let Some(section) = config_map.get(&section) {
-                for (name, value) in section {
-                    let mut value: Value = value.as_ref().unwrap().parse().unwrap();
-                    let name_lowercase = name.to_lowercase();
-
-                    if name_lowercase == "load_macros_from_path" {
-                        unimplemented!()
-                    } else if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir")
-                    {
-                        // if absolute_path, just keep
-                        // if relative path, make it absolute
-                        let path = PathBuf::from(value.as_string().unwrap());
-                        if !path.is_absolute() {
-                            let config_path = config_path.unwrap().parent().unwrap();
-                            // make config path absolute
-                            let current_dir = std::env::current_dir().unwrap();
-                            let config_path = current_dir.join(config_path);
-                            let config_path = std::path::absolute(config_path).unwrap();
-                            let path = config_path.join(path);
-                            let path: String = path.to_string_lossy().into();
-                            value = Value::String(path.into());
-                        }
+fn list_from_json_array(items: Vec<JsonValue>) -> Vec<String> {
+    let mut result = Vec::new();
+    for item in items {
+        match item {
+            JsonValue::Null => {}
+            JsonValue::String(value) => {
+                if !is_none_string(&value) {
+                    let value = value.trim();
+                    if !value.is_empty() {
+                        result.push(value.to_string());
                     }
-
-                    let mut key = key.clone();
-                    key.push(name.clone());
-                    buff.push((key, value));
                 }
             }
-        }
-
-        buff
-    }
-
-    fn incorporate_vals(ctx: &mut AHashMap<String, Value>, values: Vec<(Vec<String>, Value)>) {
-        for (path, value) in values {
-            let mut current_map = &mut *ctx;
-            for key in path.iter().take(path.len() - 1) {
-                match current_map
-                    .entry(key.to_string())
-                    .or_insert_with(|| Value::Map(AHashMap::new()))
-                    .as_map_mut()
-                {
-                    Some(slot) => current_map = slot,
-                    None => panic!("Overriding config value with section! [{path:?}]"),
-                }
-            }
-
-            let last_key = path.last().expect("Expected at least one element in path");
-            current_map.insert(last_key.to_string(), value);
+            JsonValue::Bool(value) => result.push(value.to_string()),
+            JsonValue::Number(value) => result.push(value.to_string()),
+            JsonValue::Array(_) | JsonValue::Object(_) => {}
         }
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Default, serde::Deserialize)]
-#[serde(untagged)]
-pub enum Value {
-    Int(i32),
-    Bool(bool),
-    Float(f64),
-    String(Box<str>),
-    Map(AHashMap<String, Value>),
-    Array(Vec<Value>),
-    #[default]
-    None,
-}
-
-impl Value {
-    pub fn is_none(&self) -> bool {
-        matches!(self, Value::None)
-    }
-
-    pub fn as_array(&self) -> Option<Vec<Value>> {
-        match self {
-            Self::Array(v) => Some(v.clone()),
-            Self::String(q) => {
-                let xs = q
-                    .split(',')
-                    .map(|it| Value::String(it.into()))
-                    .collect_vec();
-                Some(xs)
-            }
-            Self::Bool(b) => Some(vec![Value::String(b.to_string().into())]),
-            _ => None,
-        }
-    }
-}
-
-impl Index<&str> for Value {
-    type Output = Value;
-
-    fn index(&self, index: &str) -> &Self::Output {
-        match self {
-            Value::Map(map) => map.get(index).unwrap_or(&Value::None),
-            _ => unreachable!(),
-        }
-    }
-}
-
-impl Value {
-    pub fn to_bool(&self) -> bool {
-        match *self {
-            Value::Int(v) => v != 0,
-            Value::Bool(v) => v,
-            Value::Float(v) => v != 0.0,
-            Value::String(ref v) => !v.is_empty(),
-            Value::Map(ref v) => !v.is_empty(),
-            Value::None => false,
-            Value::Array(ref v) => !v.is_empty(),
-        }
-    }
-
-    pub fn map<T>(&self, f: impl Fn(&Self) -> T) -> Option<T> {
-        if self == &Value::None {
-            return None;
-        }
-
-        Some(f(self))
-    }
-    pub fn as_map(&self) -> Option<&AHashMap<String, Value>> {
-        if let Self::Map(map) = self {
-            Some(map)
-        } else {
-            None
-        }
-    }
-
-    pub fn as_map_mut(&mut self) -> Option<&mut AHashMap<String, Value>> {
-        if let Self::Map(map) = self {
-            Some(map)
-        } else {
-            None
-        }
-    }
-
-    pub fn as_int(&self) -> Option<i32> {
-        if let Self::Int(v) = self {
-            Some(*v)
-        } else {
-            None
-        }
-    }
-
-    pub fn as_string(&self) -> Option<&str> {
-        if let Self::String(v) = self {
-            Some(v)
-        } else {
-            None
-        }
-    }
-
-    pub fn as_bool(&self) -> Option<bool> {
-        if let Self::Bool(v) = self {
-            Some(*v)
-        } else {
-            None
-        }
-    }
-}
-
-impl FromStr for Value {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if let Ok(value) = s.parse() {
-            return Ok(Value::Int(value));
-        }
-
-        if let Ok(value) = s.parse() {
-            return Ok(Value::Float(value));
-        }
-
-        let value = match () {
-            _ if s.eq_ignore_ascii_case("true") => Value::Bool(true),
-            _ if s.eq_ignore_ascii_case("false") => Value::Bool(false),
-            _ if s.eq_ignore_ascii_case("none") => Value::None,
-            _ => Value::String(Box::from(s)),
-        };
-
-        Ok(value)
-    }
-}
-
-fn nested_combine(config_stack: Vec<AHashMap<String, Value>>) -> AHashMap<String, Value> {
-    let capacity = config_stack.len();
-    let mut result = AHashMap::with_capacity(capacity);
-
-    for dict in config_stack {
-        for (key, value) in dict {
-            result.insert(key, value);
-        }
-    }
-
     result
 }
 
-impl<'a> From<&'a FluffConfig> for Parser<'a> {
-    fn from(config: &'a FluffConfig) -> Self {
-        let dialect = config.get_dialect();
-        let indentation_section = &config.raw["indentation"];
-        let indentation_config =
-            IndentationConfig::from_bool_lookup(|key| indentation_section[key].to_bool());
-        Self::new(dialect, indentation_config)
+fn parse_boolish(value: &str) -> Option<bool> {
+    let trimmed = value.trim();
+    if is_none_string(trimmed) {
+        return None;
+    }
+
+    match trimmed.to_ascii_lowercase().as_str() {
+        "true" | "t" | "yes" | "y" => Some(true),
+        "false" | "f" | "no" | "n" => Some(false),
+        _ => trimmed.parse::<i64>().ok().map(|num| num != 0),
+    }
+}
+
+/// Parse a string to bool, returning false for None or unparseable values
+fn parse_bool_value(value: &str) -> bool {
+    parse_boolish(value).unwrap_or(false)
+}
+
+/// Parse a string to i32, returning 0 for None or unparseable values
+fn parse_i32_value(value: &str) -> i32 {
+    parse_option_i32_value(value).unwrap_or(0)
+}
+
+fn parse_option_string_none_value(value: &str) -> Option<String> {
+    if is_none_string(value) {
+        None
+    } else {
+        Some(value.to_string())
+    }
+}
+
+fn parse_option_identifiers_policy_value(value: &str) -> Result<Option<IdentifiersPolicy>, String> {
+    if is_none_string(value) {
+        Ok(None)
+    } else {
+        IdentifiersPolicy::from_str(value)
+            .map(Some)
+            .map_err(|e| e.to_string())
+    }
+}
+
+fn parse_indent_unit_type_value(value: &str) -> Result<IndentUnitType, String> {
+    IndentUnitType::from_str(value).map_err(|e| e.to_string())
+}
+
+fn parse_optional_comma_list_value(value: &str) -> Option<Vec<String>> {
+    if is_none_string(value) {
+        None
+    } else {
+        Some(split_comma_list(value))
+    }
+}
+
+fn parse_option_i32_value(value: &str) -> Option<i32> {
+    if is_none_string(value) {
+        None
+    } else {
+        value.trim().parse::<i32>().ok()
+    }
+}
+
+fn parse_option_usize_value(value: &str) -> Option<usize> {
+    if is_none_string(value) {
+        None
+    } else {
+        value.trim().parse::<usize>().ok()
+    }
+}
+
+fn parse_boolish_value(value: &str) -> Result<bool, String> {
+    parse_boolish(value).ok_or_else(|| "Expected boolean value".to_string())
+}
+
+fn parse_usize_value(value: &str) -> Result<usize, String> {
+    parse_option_usize_value(value).ok_or_else(|| "Expected integer value".to_string())
+}
+
+fn parse_regex_list_value(value: &str) -> Result<Vec<Regex>, String> {
+    let patterns = split_comma_list(value);
+    let mut regexes = Vec::with_capacity(patterns.len());
+    for pattern in patterns {
+        if is_none_string(&pattern) {
+            continue;
+        }
+        let regex =
+            Regex::new(&pattern).map_err(|err| format!("Invalid regex '{pattern}': {err}"))?;
+        regexes.push(regex);
+    }
+    Ok(regexes)
+}
+
+pub(crate) fn deserialize_comma_list<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => Vec::new(),
+        JsonValue::String(value) => split_comma_list(&value),
+        JsonValue::Array(items) => list_from_json_array(items),
+        JsonValue::Bool(value) => vec![value.to_string()],
+        JsonValue::Number(value) => vec![value.to_string()],
+        JsonValue::Object(_) => Vec::new(),
+    })
+}
+
+pub(crate) fn deserialize_regex_list<'de, D>(deserializer: D) -> Result<Vec<Regex>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    let patterns = match value {
+        JsonValue::Null => Vec::new(),
+        JsonValue::String(value) => split_comma_list(&value),
+        JsonValue::Array(items) => list_from_json_array(items),
+        JsonValue::Bool(value) => vec![value.to_string()],
+        JsonValue::Number(value) => vec![value.to_string()],
+        JsonValue::Object(_) => Vec::new(),
+    };
+
+    let mut regexes = Vec::with_capacity(patterns.len());
+    for pattern in patterns {
+        if is_none_string(&pattern) {
+            continue;
+        }
+        let regex = Regex::new(&pattern)
+            .map_err(|err| de::Error::custom(format!("Invalid regex '{pattern}': {err}")))?;
+        regexes.push(regex);
+    }
+
+    Ok(regexes)
+}
+
+pub(crate) fn deserialize_optional_comma_list<'de, D>(
+    deserializer: D,
+) -> Result<Option<Vec<String>>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::String(value) => {
+            if value.trim().eq_ignore_ascii_case("none") {
+                None
+            } else {
+                Some(split_comma_list(&value))
+            }
+        }
+        JsonValue::Array(items) => Some(list_from_json_array(items)),
+        JsonValue::Bool(value) => Some(vec![value.to_string()]),
+        JsonValue::Number(value) => Some(vec![value.to_string()]),
+        JsonValue::Object(_) => None,
+    })
+}
+
+pub(crate) fn deserialize_option_string_none<'de, D>(
+    deserializer: D,
+) -> Result<Option<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::String(value) => {
+            if is_none_string(&value) {
+                None
+            } else {
+                Some(value)
+            }
+        }
+        JsonValue::Bool(value) => Some(value.to_string()),
+        JsonValue::Number(value) => Some(value.to_string()),
+        JsonValue::Array(_) | JsonValue::Object(_) => None,
+    })
+}
+
+fn deserialize_option_line_position<'de, D>(
+    deserializer: D,
+) -> Result<Option<LinePositionConfig>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::String(value) => {
+            if is_none_string(&value) {
+                None
+            } else {
+                Some(LinePositionConfig::parse_str(&value))
+            }
+        }
+        _ => None,
+    })
+}
+
+fn deserialize_option_spacing<'de, D>(deserializer: D) -> Result<Option<Spacing>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::String(value) => {
+            if is_none_string(&value) {
+                None
+            } else {
+                Some(value.parse().unwrap())
+            }
+        }
+        _ => None,
+    })
+}
+
+fn deserialize_option_syntax_kind<'de, D>(deserializer: D) -> Result<Option<SyntaxKind>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::String(value) => {
+            if is_none_string(&value) {
+                None
+            } else {
+                Some(value.parse().unwrap())
+            }
+        }
+        _ => None,
+    })
+}
+
+fn deserialize_capitalisation_policy<'de, D>(
+    deserializer: D,
+) -> Result<CapitalisationPolicy, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    match value {
+        JsonValue::String(s) => s.parse().map_err(de::Error::custom),
+        _ => Err(de::Error::custom(
+            "expected string for capitalisation policy",
+        )),
+    }
+}
+
+fn deserialize_extended_capitalisation_policy<'de, D>(
+    deserializer: D,
+) -> Result<ExtendedCapitalisationPolicy, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    match value {
+        JsonValue::String(s) => s.parse().map_err(de::Error::custom),
+        _ => Err(de::Error::custom(
+            "expected string for extended capitalisation policy",
+        )),
+    }
+}
+
+pub(crate) fn deserialize_option_boolish<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::Bool(value) => Some(value),
+        JsonValue::Number(value) => value
+            .as_i64()
+            .map(|num| num != 0)
+            .or_else(|| value.as_f64().map(|num| num != 0.0)),
+        JsonValue::String(value) => parse_boolish(&value),
+        JsonValue::Array(_) | JsonValue::Object(_) => None,
+    })
+}
+
+pub(crate) fn deserialize_option_i32<'de, D>(deserializer: D) -> Result<Option<i32>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::Number(value) => value.as_i64().and_then(|num| i32::try_from(num).ok()),
+        JsonValue::String(value) => {
+            if is_none_string(&value) {
+                None
+            } else {
+                value.trim().parse::<i32>().ok()
+            }
+        }
+        JsonValue::Bool(_) | JsonValue::Array(_) | JsonValue::Object(_) => None,
+    })
+}
+
+pub(crate) fn deserialize_option_usize<'de, D>(deserializer: D) -> Result<Option<usize>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    Ok(match value {
+        JsonValue::Null => None,
+        JsonValue::Number(value) => value.as_i64().and_then(|num| usize::try_from(num).ok()),
+        JsonValue::String(value) => {
+            if is_none_string(&value) {
+                None
+            } else {
+                value.trim().parse::<usize>().ok()
+            }
+        }
+        JsonValue::Bool(_) | JsonValue::Array(_) | JsonValue::Object(_) => None,
+    })
+}
+
+pub(crate) fn deserialize_usize<'de, D>(deserializer: D) -> Result<usize, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    deserialize_option_usize(deserializer)?
+        .ok_or_else(|| de::Error::custom("Expected integer value"))
+}
+
+pub(crate) fn deserialize_i32<'de, D>(deserializer: D) -> Result<i32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    deserialize_option_i32(deserializer)?.ok_or_else(|| de::Error::custom("Expected integer value"))
+}
+
+fn scalar_to_string(value: &JsonValue) -> Option<String> {
+    match value {
+        JsonValue::String(value) => Some(value.clone()),
+        JsonValue::Bool(value) => Some(value.to_string()),
+        JsonValue::Number(value) => Some(value.to_string()),
+        JsonValue::Null | JsonValue::Array(_) | JsonValue::Object(_) => None,
+    }
+}
+
+pub(crate) fn deserialize_string_map<'de, D>(
+    deserializer: D,
+) -> Result<AHashMap<String, String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    let mut result = AHashMap::new();
+
+    if let JsonValue::Object(map) = value {
+        for (key, value) in map {
+            if let Some(value) = scalar_to_string(&value) {
+                result.insert(key, value);
+            }
+        }
+    }
+
+    Ok(result)
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum PlaceholderValue {
+    String(String),
+    Bool(bool),
+    Int(i64),
+    Float(f64),
+}
+
+fn json_to_placeholder_value(value: &JsonValue) -> Option<PlaceholderValue> {
+    match value {
+        JsonValue::String(value) => Some(PlaceholderValue::String(value.clone())),
+        JsonValue::Bool(value) => Some(PlaceholderValue::Bool(*value)),
+        JsonValue::Number(value) => value
+            .as_i64()
+            .map(PlaceholderValue::Int)
+            .or_else(|| value.as_f64().map(PlaceholderValue::Float)),
+        JsonValue::Null | JsonValue::Array(_) | JsonValue::Object(_) => None,
+    }
+}
+
+pub(crate) fn deserialize_placeholder_replacements<'de, D>(
+    deserializer: D,
+) -> Result<AHashMap<String, PlaceholderValue>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = JsonValue::deserialize(deserializer)?;
+    let mut result = AHashMap::new();
+
+    if let JsonValue::Object(map) = value {
+        for (key, value) in map {
+            if key == "param_regex" || key == "param_style" {
+                continue;
+            }
+            if let Some(value) = json_to_placeholder_value(&value) {
+                result.insert(key, value);
+            }
+        }
+    }
+
+    Ok(result)
+}
+
+pub(crate) fn deserialize_boolish<'de, D>(deserializer: D) -> Result<bool, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    deserialize_option_boolish(deserializer)?
+        .ok_or_else(|| de::Error::custom("Expected boolean value"))
+}
+
+fn default_core_templater() -> Option<String> {
+    Some("raw".to_string())
+}
+
+fn default_core_nocolor() -> bool {
+    false
+}
+
+fn default_core_verbose() -> i32 {
+    0
+}
+
+fn default_core_output_line_length() -> i32 {
+    80
+}
+
+fn default_core_runaway_limit() -> i32 {
+    10
+}
+
+fn default_core_warn_unused_ignores() -> bool {
+    false
+}
+
+fn default_core_ignore_templated_areas() -> bool {
+    true
+}
+
+fn default_core_encoding() -> Option<String> {
+    Some("autodetect".to_string())
+}
+
+fn default_core_disable_noqa() -> bool {
+    false
+}
+
+fn default_core_sql_file_exts() -> Vec<String> {
+    vec![
+        ".sql".to_string(),
+        ".sql.j2".to_string(),
+        ".dml".to_string(),
+        ".ddl".to_string(),
+    ]
+}
+
+fn default_core_fix_even_unparsable() -> bool {
+    false
+}
+
+fn default_core_large_file_skip_char_limit() -> i32 {
+    0
+}
+
+fn default_core_large_file_skip_byte_limit() -> i32 {
+    20000
+}
+
+fn default_core_processes() -> i32 {
+    1
+}
+
+fn default_core_max_line_length() -> i32 {
+    80
+}
+
+fn default_core_rule_allowlist() -> Option<Vec<String>> {
+    Some(vec!["core".to_string()])
+}
+
+fn default_indent_unit() -> IndentUnitType {
+    IndentUnitType::Space
+}
+
+fn default_tab_space_size() -> i32 {
+    4
+}
+
+fn default_indented_joins() -> bool {
+    false
+}
+
+fn default_indented_ctes() -> bool {
+    false
+}
+
+fn default_indented_using_on() -> bool {
+    true
+}
+
+fn default_indented_on_contents() -> bool {
+    true
+}
+
+fn default_indented_then() -> bool {
+    true
+}
+
+fn default_indented_then_contents() -> bool {
+    true
+}
+
+fn default_allow_implicit_indents() -> bool {
+    false
+}
+
+fn default_template_blocks_indent() -> bool {
+    true
+}
+
+fn default_skip_indentation_in() -> Vec<String> {
+    vec!["script_content".to_string()]
+}
+
+fn default_trailing_comments() -> String {
+    "before".to_string()
+}
+
+fn default_templater_unwrap_wrapped_queries() -> bool {
+    true
+}
+
+fn default_jinja_apply_dbt_builtins() -> bool {
+    true
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct FluffConfig {
+    #[serde(default)]
+    pub core: CoreConfig,
+    #[serde(default)]
+    pub indentation: IndentationConfig,
+    #[serde(default)]
+    pub layout: LayoutConfig,
+    #[serde(default)]
+    pub templater: TemplaterConfig,
+    #[serde(default)]
+    pub rules: RulesConfig,
+    #[serde(skip)]
+    pub reflow_config: ReflowConfig,
+    /// Pre-computed parser indentation config (populated by reload_reflow)
+    #[serde(skip)]
+    pub parser_indentation: ParserIndentationConfig,
+}
+
+impl Default for FluffConfig {
+    fn default() -> Self {
+        let mut typed = Self {
+            core: CoreConfig::default(),
+            indentation: IndentationConfig::default(),
+            layout: LayoutConfig::default(),
+            templater: TemplaterConfig::default(),
+            rules: RulesConfig::default(),
+            reflow_config: ReflowConfig::default(),
+            parser_indentation: ParserIndentationConfig::default(),
+        };
+        typed.reload_reflow();
+        typed
+    }
+}
+
+impl FluffConfig {
+    pub fn from_source(
+        source: &str,
+        optional_path_specification: Option<&Path>,
+    ) -> Result<Self, String> {
+        ConfigLoader::load_config_from_source(source, optional_path_specification)
+    }
+
+    pub fn from_root(
+        extra_config_path: Option<String>,
+        ignore_local_config: bool,
+        overrides: Option<AHashMap<String, String>>,
+    ) -> Result<Self, SQLFluffUserError> {
+        let loader = ConfigLoader {};
+        loader.load_config_up_to_path(".", extra_config_path, ignore_local_config, overrides)
+    }
+
+    pub fn sql_file_exts(&self) -> &[String] {
+        self.core.sql_file_exts.as_ref()
+    }
+
+    pub fn dialect(&self) -> Result<Dialect, String> {
+        let dialect = match self.core.dialect.as_deref() {
+            None => DialectKind::default(),
+            Some(value) => {
+                DialectKind::from_str(value).map_err(|_| format!("Invalid dialect: {}", value))?
+            }
+        };
+        kind_to_dialect(&dialect).ok_or_else(|| format!("Invalid dialect: {}", dialect.as_ref()))
+    }
+
+    /// Check if the config specifies a dialect, raising an error if not.
+    pub fn verify_dialect_specified(&self) -> Option<SQLFluffUserError> {
+        // Legacy defaults include a dialect key even when set to None.
+        None
+    }
+
+    /// Process a full raw file for inline config and update self.
+    pub fn process_raw_file_for_config(&self, raw_str: &str) {
+        for raw_line in raw_str.lines() {
+            if raw_line.to_string().starts_with("-- sqlfluff") {
+                self.process_inline_config(raw_line)
+            }
+        }
+    }
+
+    /// Process an inline config command and update self.
+    pub fn process_inline_config(&self, _config_line: &str) {
+        panic!("Not implemented")
+    }
+
+    pub fn reload_reflow(&mut self) {
+        // Pre-compute IndentUnit from string config
+        let tab_space_size = self.indentation.tab_space_size as usize;
+        let indent_unit_type = self.indentation.indent_unit;
+        self.indentation.computed_indent_unit =
+            IndentUnit::from_type_and_size(indent_unit_type.as_str(), tab_space_size);
+
+        // Pre-compute TrailingComments from string config
+        let trailing_comments_str = &self.indentation.trailing_comments;
+        self.indentation.computed_trailing_comments =
+            TrailingComments::from_str(trailing_comments_str).unwrap();
+
+        // Pre-compute ParserIndentationConfig
+        let indentation = &self.indentation;
+        self.parser_indentation = ParserIndentationConfig::from_bool_lookup(|key| match key {
+            "indented_joins" => indentation.indented_joins,
+            "indented_using_on" => indentation.indented_using_on,
+            "indented_on_contents" => indentation.indented_on_contents,
+            "indented_then" => indentation.indented_then,
+            "indented_then_contents" => indentation.indented_then_contents,
+            "indented_joins_on" => indentation.indented_joins_on.unwrap_or_default(),
+            "indented_ctes" => indentation.indented_ctes,
+            _ => false,
+        });
+
+        self.reflow_config = ReflowConfig::from_typed(self);
+    }
+
+    pub fn override_dialect(&mut self, dialect: DialectKind) -> Result<(), String> {
+        kind_to_dialect(&dialect)
+            .ok_or_else(|| format!("Invalid dialect: {}", dialect.as_ref()))?;
+        self.core.dialect = Some(dialect.as_ref().to_string());
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct CoreConfig {
+    #[serde(default, deserialize_with = "deserialize_option_string_none")]
+    pub dialect: Option<String>,
+    #[serde(
+        default = "default_core_templater",
+        deserialize_with = "deserialize_option_string_none"
+    )]
+    pub templater: Option<String>,
+    #[serde(
+        default = "default_core_nocolor",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub nocolor: bool,
+    #[serde(default = "default_core_verbose", deserialize_with = "deserialize_i32")]
+    pub verbose: i32,
+    #[serde(
+        default = "default_core_output_line_length",
+        deserialize_with = "deserialize_i32"
+    )]
+    pub output_line_length: i32,
+    #[serde(
+        default = "default_core_runaway_limit",
+        deserialize_with = "deserialize_i32"
+    )]
+    pub runaway_limit: i32,
+    #[serde(default, deserialize_with = "deserialize_optional_comma_list")]
+    pub ignore: Option<Vec<String>>,
+    #[serde(default, deserialize_with = "deserialize_optional_comma_list")]
+    pub warnings: Option<Vec<String>>,
+    #[serde(
+        default = "default_core_warn_unused_ignores",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub warn_unused_ignores: bool,
+    #[serde(
+        default = "default_core_ignore_templated_areas",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub ignore_templated_areas: bool,
+    #[serde(
+        default = "default_core_encoding",
+        deserialize_with = "deserialize_option_string_none"
+    )]
+    pub encoding: Option<String>,
+    #[serde(
+        default = "default_core_disable_noqa",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub disable_noqa: bool,
+    #[serde(
+        default = "default_core_sql_file_exts",
+        deserialize_with = "deserialize_comma_list"
+    )]
+    pub sql_file_exts: Vec<String>,
+    #[serde(
+        default = "default_core_fix_even_unparsable",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub fix_even_unparsable: bool,
+    #[serde(
+        default = "default_core_large_file_skip_char_limit",
+        deserialize_with = "deserialize_i32"
+    )]
+    pub large_file_skip_char_limit: i32,
+    #[serde(
+        default = "default_core_large_file_skip_byte_limit",
+        deserialize_with = "deserialize_i32"
+    )]
+    pub large_file_skip_byte_limit: i32,
+    #[serde(
+        default = "default_core_processes",
+        deserialize_with = "deserialize_i32"
+    )]
+    pub processes: i32,
+    #[serde(
+        default = "default_core_max_line_length",
+        deserialize_with = "deserialize_i32"
+    )]
+    pub max_line_length: i32,
+    #[serde(
+        default = "default_core_rule_allowlist",
+        deserialize_with = "deserialize_optional_comma_list"
+    )]
+    pub rule_allowlist: Option<Vec<String>>,
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub rule_denylist: Vec<String>,
+}
+
+impl Default for CoreConfig {
+    fn default() -> Self {
+        Self {
+            dialect: None,
+            templater: Some("raw".to_string()),
+            nocolor: false,
+            verbose: 0,
+            output_line_length: 80,
+            runaway_limit: 10,
+            ignore: None,
+            warnings: None,
+            warn_unused_ignores: false,
+            ignore_templated_areas: true,
+            encoding: Some("autodetect".to_string()),
+            disable_noqa: false,
+            sql_file_exts: vec![
+                ".sql".to_string(),
+                ".sql.j2".to_string(),
+                ".dml".to_string(),
+                ".ddl".to_string(),
+            ],
+            fix_even_unparsable: false,
+            large_file_skip_char_limit: 0,
+            large_file_skip_byte_limit: 20000,
+            processes: 1,
+            max_line_length: 80,
+            rule_allowlist: Some(vec!["core".to_string()]),
+            rule_denylist: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct IndentationConfig {
+    #[serde(
+        default = "default_indent_unit",
+        deserialize_with = "deserialize_indent_unit_type"
+    )]
+    pub indent_unit: IndentUnitType,
+    #[serde(
+        default = "default_tab_space_size",
+        deserialize_with = "deserialize_i32"
+    )]
+    pub tab_space_size: i32,
+    #[serde(default, deserialize_with = "deserialize_option_boolish")]
+    pub hanging_indents: Option<bool>,
+    #[serde(
+        default = "default_indented_joins",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub indented_joins: bool,
+    #[serde(
+        default = "default_indented_ctes",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub indented_ctes: bool,
+    #[serde(
+        default = "default_indented_using_on",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub indented_using_on: bool,
+    #[serde(
+        default = "default_indented_on_contents",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub indented_on_contents: bool,
+    #[serde(
+        default = "default_indented_then",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub indented_then: bool,
+    #[serde(
+        default = "default_indented_then_contents",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub indented_then_contents: bool,
+    #[serde(default, deserialize_with = "deserialize_option_boolish")]
+    pub indented_joins_on: Option<bool>,
+    #[serde(
+        default = "default_allow_implicit_indents",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub allow_implicit_indents: bool,
+    #[serde(
+        default = "default_template_blocks_indent",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub template_blocks_indent: bool,
+    #[serde(
+        default = "default_skip_indentation_in",
+        deserialize_with = "deserialize_comma_list"
+    )]
+    pub skip_indentation_in: Vec<String>,
+    #[serde(default = "default_trailing_comments")]
+    pub trailing_comments: String,
+    /// Pre-computed IndentUnit (populated by reload_reflow)
+    #[serde(skip)]
+    pub computed_indent_unit: IndentUnit,
+    /// Pre-computed TrailingComments (populated by reload_reflow)
+    #[serde(skip)]
+    pub computed_trailing_comments: TrailingComments,
+}
+
+impl Default for IndentationConfig {
+    fn default() -> Self {
+        Self {
+            indent_unit: IndentUnitType::Space,
+            tab_space_size: 4,
+            hanging_indents: None,
+            indented_joins: false,
+            indented_ctes: false,
+            indented_using_on: true,
+            indented_on_contents: true,
+            indented_then: true,
+            indented_then_contents: true,
+            indented_joins_on: None,
+            allow_implicit_indents: false,
+            template_blocks_indent: true,
+            skip_indentation_in: vec!["script_content".to_string()],
+            trailing_comments: "before".to_string(),
+            computed_indent_unit: IndentUnit::default(),
+            computed_trailing_comments: TrailingComments::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct LayoutConfig {
+    #[serde(
+        default = "default_layout_types",
+        rename = "type",
+        deserialize_with = "deserialize_layout_types"
+    )]
+    pub types: AHashMap<SyntaxKind, LayoutTypeConfig>,
+}
+
+impl Default for LayoutConfig {
+    fn default() -> Self {
+        Self {
+            types: default_layout_types(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct LayoutTypeConfig {
+    #[serde(default, deserialize_with = "deserialize_option_spacing")]
+    pub spacing_before: Option<Spacing>,
+    #[serde(default, deserialize_with = "deserialize_option_spacing")]
+    pub spacing_after: Option<Spacing>,
+    #[serde(default, deserialize_with = "deserialize_option_spacing")]
+    pub spacing_within: Option<Spacing>,
+    #[serde(default, deserialize_with = "deserialize_option_line_position")]
+    pub line_position: Option<LinePositionConfig>,
+    #[serde(default, deserialize_with = "deserialize_option_syntax_kind")]
+    pub align_within: Option<SyntaxKind>,
+    #[serde(default, deserialize_with = "deserialize_option_syntax_kind")]
+    pub align_scope: Option<SyntaxKind>,
+}
+
+impl LayoutTypeConfig {
+    /// Merge another config into this one.
+    /// Values from `other` override values from `self` only if they are Some.
+    pub fn merge_with(&mut self, other: LayoutTypeConfig) {
+        if other.spacing_before.is_some() {
+            self.spacing_before = other.spacing_before;
+        }
+        if other.spacing_after.is_some() {
+            self.spacing_after = other.spacing_after;
+        }
+        if other.spacing_within.is_some() {
+            self.spacing_within = other.spacing_within;
+        }
+        if other.line_position.is_some() {
+            self.line_position = other.line_position;
+        }
+        if other.align_within.is_some() {
+            self.align_within = other.align_within;
+        }
+        if other.align_scope.is_some() {
+            self.align_scope = other.align_scope;
+        }
+    }
+}
+
+fn default_layout_types() -> AHashMap<SyntaxKind, LayoutTypeConfig> {
+    let mut types = AHashMap::new();
+    types.insert(
+        SyntaxKind::Comma,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Trailing)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::BinaryOperator,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: Some(LinePositionConfig::new(LinePosition::Leading)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::StatementTerminator,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Trailing)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::EndOfFile,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SetOperator,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::strict(LinePosition::Alone)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::StartBracket,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::EndBracket,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::StartSquareBracket,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::EndSquareBracket,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::StartAngleBracket,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::EndAngleBracket,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::CastingOperator,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: Some(Spacing::TouchInline),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Slice,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Dot,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::ComparisonOperator,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: Some(LinePositionConfig::new(LinePosition::Leading)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::AssignmentOperator,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: Some(LinePositionConfig::new(LinePosition::Leading)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::ObjectReference,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::NumericLiteral,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SignIndicator,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: Some(Spacing::TouchInline),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Tilde,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: Some(Spacing::TouchInline),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::FunctionName,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::FunctionContents,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::TouchInline),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::FunctionParameterList,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::TouchInline),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::ArrayType,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::TypedArrayLiteral,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SizedArrayType,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::StructType,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::BracketedArguments,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::TouchInline),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::TypedStructLiteral,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SemiStructuredExpression,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::TouchInline),
+            spacing_after: None,
+            spacing_within: Some(Spacing::TouchInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::ArrayAccessor,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::TouchInline),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Colon,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::ColonDelimiter,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: Some(Spacing::Touch),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::PathSegment,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SqlConfOption,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Touch),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SqlcmdOperator,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Touch),
+            spacing_after: None,
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Comment,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Any),
+            spacing_after: Some(Spacing::Any),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::InlineComment,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Any),
+            spacing_after: Some(Spacing::Any),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::BlockComment,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Any),
+            spacing_after: Some(Spacing::Any),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::PatternExpression,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::Any),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::Placeholder,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Any),
+            spacing_after: Some(Spacing::Any),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::CommonTableExpression,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: Some(Spacing::SingleInline),
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::SelectClause,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::WhereClause,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::FromClause,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::JoinClause,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::GroupbyClause,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::OrderbyClause,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Leading)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::HavingClause,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::LimitClause,
+        LayoutTypeConfig {
+            spacing_before: None,
+            spacing_after: None,
+            spacing_within: None,
+            line_position: Some(LinePositionConfig::new(LinePosition::Alone)),
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types.insert(
+        SyntaxKind::TemplateLoop,
+        LayoutTypeConfig {
+            spacing_before: Some(Spacing::Any),
+            spacing_after: Some(Spacing::Any),
+            spacing_within: None,
+            line_position: None,
+            align_within: None,
+            align_scope: None,
+        },
+    );
+    types
+}
+
+fn deserialize_layout_types<'de, D>(
+    deserializer: D,
+) -> Result<AHashMap<SyntaxKind, LayoutTypeConfig>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let overrides = AHashMap::<String, LayoutTypeConfig>::deserialize(deserializer)?;
+    let mut types = default_layout_types();
+    for (key, value) in overrides {
+        let syntax_kind: SyntaxKind = key.parse().map_err(de::Error::custom)?;
+        // Merge with existing defaults instead of replacing completely
+        types.entry(syntax_kind).or_default().merge_with(value);
+    }
+    Ok(types)
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct TemplaterConfig {
+    #[serde(
+        default = "default_templater_unwrap_wrapped_queries",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub unwrap_wrapped_queries: bool,
+    #[serde(default)]
+    pub jinja: JinjaTemplaterConfig,
+    #[serde(default)]
+    pub dbt: DbtTemplaterConfig,
+    #[serde(default)]
+    pub python: PythonTemplaterConfig,
+    #[serde(default)]
+    pub placeholder: PlaceholderTemplaterConfig,
+}
+
+impl Default for TemplaterConfig {
+    fn default() -> Self {
+        Self {
+            unwrap_wrapped_queries: true,
+            jinja: JinjaTemplaterConfig::default(),
+            dbt: DbtTemplaterConfig::default(),
+            python: PythonTemplaterConfig::default(),
+            placeholder: PlaceholderTemplaterConfig::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct JinjaTemplaterConfig {
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub templater_paths: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub loader_search_path: Vec<String>,
+    #[serde(
+        default = "default_jinja_apply_dbt_builtins",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub apply_dbt_builtins: bool,
+    #[serde(default, deserialize_with = "deserialize_option_boolish")]
+    pub ignore_templating: Option<bool>,
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub library_paths: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_string_map")]
+    pub context: AHashMap<String, String>,
+}
+
+impl Default for JinjaTemplaterConfig {
+    fn default() -> Self {
+        Self {
+            templater_paths: Vec::new(),
+            loader_search_path: Vec::new(),
+            apply_dbt_builtins: true,
+            ignore_templating: None,
+            library_paths: Vec::new(),
+            context: AHashMap::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct DbtTemplaterConfig {
+    #[serde(default, deserialize_with = "deserialize_option_string_none")]
+    pub profiles_dir: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_option_string_none")]
+    pub project_dir: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_string_map")]
+    pub context: AHashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct PythonTemplaterConfig {
+    #[serde(default, deserialize_with = "deserialize_string_map")]
+    pub context: AHashMap<String, String>,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct PlaceholderTemplaterConfig {
+    #[serde(default, deserialize_with = "deserialize_option_string_none")]
+    pub param_regex: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_option_string_none")]
+    pub param_style: Option<String>,
+    #[serde(
+        default,
+        flatten,
+        deserialize_with = "deserialize_placeholder_replacements"
+    )]
+    pub replacements: AHashMap<String, PlaceholderValue>,
+}
+
+fn default_rules_allow_scalar() -> bool {
+    true
+}
+
+fn default_identifiers_policy_aliases() -> IdentifiersPolicy {
+    IdentifiersPolicy::Aliases
+}
+
+fn default_identifiers_policy_all() -> IdentifiersPolicy {
+    IdentifiersPolicy::All
+}
+
+fn default_max_empty_lines_between_statements() -> usize {
+    2
+}
+
+fn default_max_empty_lines_inside_statements() -> usize {
+    1
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct RulesConfig {
+    #[serde(
+        default = "default_rules_allow_scalar",
+        deserialize_with = "deserialize_boolish"
+    )]
+    pub allow_scalar: bool,
+    #[serde(
+        default,
+        deserialize_with = "deserialize_option_single_table_references"
+    )]
+    pub single_table_references: Option<SingleTableReferences>,
+    #[serde(
+        default = "default_identifiers_policy_all",
+        deserialize_with = "deserialize_identifiers_policy"
+    )]
+    pub unquoted_identifiers_policy: IdentifiersPolicy,
+    #[serde(default, rename = "aliasing.table")]
+    pub aliasing_table: AliasingRuleConfig,
+    #[serde(default, rename = "aliasing.column")]
+    pub aliasing_column: AliasingRuleConfig,
+    #[serde(default, rename = "aliasing.length")]
+    pub aliasing_length: AliasingLengthRuleConfig,
+    #[serde(default, rename = "aliasing.forbid")]
+    pub aliasing_forbid: AliasingForbidRuleConfig,
+    #[serde(default, rename = "ambiguous.join")]
+    pub ambiguous_join: AmbiguousJoinRuleConfig,
+    #[serde(default, rename = "ambiguous.column_references")]
+    pub ambiguous_column_references: AmbiguousColumnReferencesRuleConfig,
+    #[serde(default, rename = "capitalisation.keywords")]
+    pub capitalisation_keywords: CapitalisationKeywordsRuleConfig,
+    #[serde(default, rename = "capitalisation.identifiers")]
+    pub capitalisation_identifiers: CapitalisationIdentifiersRuleConfig,
+    #[serde(default, rename = "capitalisation.functions")]
+    pub capitalisation_functions: CapitalisationFunctionsRuleConfig,
+    #[serde(default, rename = "capitalisation.literals")]
+    pub capitalisation_literals: CapitalisationLiteralsRuleConfig,
+    #[serde(default, rename = "capitalisation.types")]
+    pub capitalisation_types: CapitalisationTypesRuleConfig,
+    #[serde(default, rename = "convention.select_trailing_comma")]
+    pub convention_select_trailing_comma: ConventionSelectTrailingCommaRuleConfig,
+    #[serde(default, rename = "convention.count_rows")]
+    pub convention_count_rows: ConventionCountRowsRuleConfig,
+    #[serde(default, rename = "convention.terminator")]
+    pub convention_terminator: ConventionTerminatorRuleConfig,
+    #[serde(default, rename = "convention.blocked_words")]
+    pub convention_blocked_words: ConventionBlockedWordsRuleConfig,
+    #[serde(default, rename = "convention.quoted_literals")]
+    pub convention_quoted_literals: ConventionQuotedLiteralsRuleConfig,
+    #[serde(default, rename = "convention.casting_style")]
+    pub convention_casting_style: ConventionCastingStyleRuleConfig,
+    #[serde(default, rename = "convention.not_equal")]
+    pub convention_not_equal: ConventionNotEqualRuleConfig,
+    #[serde(default, rename = "references.from")]
+    pub references_from: ReferencesFromRuleConfig,
+    #[serde(default, rename = "references.qualification")]
+    pub references_qualification: ReferencesQualificationRuleConfig,
+    #[serde(default, rename = "references.consistent")]
+    pub references_consistent: ReferencesConsistentRuleConfig,
+    #[serde(default, rename = "references.keywords")]
+    pub references_keywords: ReferencesKeywordsRuleConfig,
+    #[serde(default, rename = "references.special_chars")]
+    pub references_special_chars: ReferencesSpecialCharsRuleConfig,
+    #[serde(default, rename = "references.quoting")]
+    pub references_quoting: ReferencesQuotingRuleConfig,
+    #[serde(default, rename = "layout.long_lines")]
+    pub layout_long_lines: LayoutLongLinesRuleConfig,
+    #[serde(default, rename = "layout.select_targets")]
+    pub layout_select_targets: LayoutSelectTargetsRuleConfig,
+    #[serde(default, rename = "layout.newlines")]
+    pub layout_newlines: LayoutNewlinesRuleConfig,
+    #[serde(default, rename = "structure.subquery")]
+    pub structure_subquery: StructureSubqueryRuleConfig,
+    #[serde(default, rename = "structure.join_condition_order")]
+    pub structure_join_condition_order: StructureJoinConditionOrderRuleConfig,
+}
+
+impl Default for RulesConfig {
+    fn default() -> Self {
+        Self {
+            allow_scalar: default_rules_allow_scalar(),
+            single_table_references: None,
+            unquoted_identifiers_policy: IdentifiersPolicy::All,
+            aliasing_table: AliasingRuleConfig::default(),
+            aliasing_column: AliasingRuleConfig::default(),
+            aliasing_length: AliasingLengthRuleConfig::default(),
+            aliasing_forbid: AliasingForbidRuleConfig::default(),
+            ambiguous_join: AmbiguousJoinRuleConfig::default(),
+            ambiguous_column_references: AmbiguousColumnReferencesRuleConfig::default(),
+            capitalisation_keywords: CapitalisationKeywordsRuleConfig::default(),
+            capitalisation_identifiers: CapitalisationIdentifiersRuleConfig::default(),
+            capitalisation_functions: CapitalisationFunctionsRuleConfig::default(),
+            capitalisation_literals: CapitalisationLiteralsRuleConfig::default(),
+            capitalisation_types: CapitalisationTypesRuleConfig::default(),
+            convention_select_trailing_comma: ConventionSelectTrailingCommaRuleConfig::default(),
+            convention_count_rows: ConventionCountRowsRuleConfig::default(),
+            convention_terminator: ConventionTerminatorRuleConfig::default(),
+            convention_blocked_words: ConventionBlockedWordsRuleConfig::default(),
+            convention_quoted_literals: ConventionQuotedLiteralsRuleConfig::default(),
+            convention_casting_style: ConventionCastingStyleRuleConfig::default(),
+            convention_not_equal: ConventionNotEqualRuleConfig::default(),
+            references_from: ReferencesFromRuleConfig::default(),
+            references_qualification: ReferencesQualificationRuleConfig::default(),
+            references_consistent: ReferencesConsistentRuleConfig::default(),
+            references_keywords: ReferencesKeywordsRuleConfig::default(),
+            references_special_chars: ReferencesSpecialCharsRuleConfig::default(),
+            references_quoting: ReferencesQuotingRuleConfig::default(),
+            layout_long_lines: LayoutLongLinesRuleConfig::default(),
+            layout_select_targets: LayoutSelectTargetsRuleConfig::default(),
+            layout_newlines: LayoutNewlinesRuleConfig::default(),
+            structure_subquery: StructureSubqueryRuleConfig::default(),
+            structure_join_condition_order: StructureJoinConditionOrderRuleConfig::default(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct AliasingRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_aliasing")]
+    pub aliasing: Aliasing,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct AliasingLengthRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_option_usize")]
+    pub min_alias_length: Option<usize>,
+    #[serde(default, deserialize_with = "deserialize_option_usize")]
+    pub max_alias_length: Option<usize>,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct AliasingForbidRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub force_enable: bool,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct AmbiguousJoinRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_join_type")]
+    pub fully_qualify_join_types: JoinType,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct AmbiguousColumnReferencesRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_group_by_order_by_style")]
+    pub group_by_and_order_by_style: GroupByOrderByStyle,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct CapitalisationKeywordsRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_capitalisation_policy")]
+    pub capitalisation_policy: CapitalisationPolicy,
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub ignore_words: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_regex_list")]
+    pub ignore_words_regex: Vec<Regex>,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct CapitalisationIdentifiersRuleConfig {
+    #[serde(
+        default,
+        deserialize_with = "deserialize_extended_capitalisation_policy"
+    )]
+    pub extended_capitalisation_policy: ExtendedCapitalisationPolicy,
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub ignore_words: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_regex_list")]
+    pub ignore_words_regex: Vec<Regex>,
+    #[serde(default, deserialize_with = "deserialize_option_identifiers_policy")]
+    pub unquoted_identifiers_policy: Option<IdentifiersPolicy>,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct CapitalisationFunctionsRuleConfig {
+    #[serde(
+        default,
+        deserialize_with = "deserialize_extended_capitalisation_policy"
+    )]
+    pub extended_capitalisation_policy: ExtendedCapitalisationPolicy,
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub ignore_words: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_regex_list")]
+    pub ignore_words_regex: Vec<Regex>,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct CapitalisationLiteralsRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_capitalisation_policy")]
+    pub capitalisation_policy: CapitalisationPolicy,
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub ignore_words: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_regex_list")]
+    pub ignore_words_regex: Vec<Regex>,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct CapitalisationTypesRuleConfig {
+    #[serde(
+        default,
+        deserialize_with = "deserialize_extended_capitalisation_policy"
+    )]
+    pub extended_capitalisation_policy: ExtendedCapitalisationPolicy,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ConventionSelectTrailingCommaRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_trailing_comma_policy")]
+    pub select_clause_trailing_comma: TrailingCommaPolicy,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ConventionCountRowsRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub prefer_count_1: bool,
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub prefer_count_0: bool,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ConventionTerminatorRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub multiline_newline: bool,
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub require_final_semicolon: bool,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ConventionBlockedWordsRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub blocked_words: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_regex_list")]
+    pub blocked_regex: Vec<Regex>,
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub match_source: bool,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ConventionQuotedLiteralsRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_quoted_literal_style")]
+    pub preferred_quoted_literal_style: QuotedLiteralStyle,
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub force_enable: bool,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ConventionCastingStyleRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_type_casting_style")]
+    pub preferred_type_casting_style: TypeCastingStyle,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ConventionNotEqualRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_not_equal_style")]
+    pub preferred_not_equal_style: NotEqualStyle,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ReferencesFromRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub force_enable: bool,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ReferencesQualificationRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub ignore_words: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_regex_list")]
+    pub ignore_words_regex: Vec<Regex>,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ReferencesConsistentRuleConfig {
+    #[serde(
+        default,
+        deserialize_with = "deserialize_option_single_table_references"
+    )]
+    pub single_table_references: Option<SingleTableReferences>,
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub force_enable: bool,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ReferencesKeywordsRuleConfig {
+    #[serde(
+        default = "default_identifiers_policy_aliases",
+        deserialize_with = "deserialize_identifiers_policy"
+    )]
+    pub unquoted_identifiers_policy: IdentifiersPolicy,
+    #[serde(default, deserialize_with = "deserialize_option_identifiers_policy")]
+    pub quoted_identifiers_policy: Option<IdentifiersPolicy>,
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub ignore_words: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_regex_list")]
+    pub ignore_words_regex: Vec<Regex>,
+}
+
+impl Default for ReferencesKeywordsRuleConfig {
+    fn default() -> Self {
+        Self {
+            unquoted_identifiers_policy: IdentifiersPolicy::Aliases,
+            quoted_identifiers_policy: Some(IdentifiersPolicy::None),
+            ignore_words: Vec::new(),
+            ignore_words_regex: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct ReferencesSpecialCharsRuleConfig {
+    #[serde(
+        default = "default_identifiers_policy_all",
+        deserialize_with = "deserialize_identifiers_policy"
+    )]
+    pub quoted_identifiers_policy: IdentifiersPolicy,
+    #[serde(
+        default = "default_identifiers_policy_all",
+        deserialize_with = "deserialize_identifiers_policy"
+    )]
+    pub unquoted_identifiers_policy: IdentifiersPolicy,
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub allow_space_in_identifier: bool,
+    #[serde(default, deserialize_with = "deserialize_option_string_none")]
+    pub additional_allowed_characters: Option<String>,
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub ignore_words: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_regex_list")]
+    pub ignore_words_regex: Vec<Regex>,
+}
+
+impl Default for ReferencesSpecialCharsRuleConfig {
+    fn default() -> Self {
+        Self {
+            quoted_identifiers_policy: IdentifiersPolicy::All,
+            unquoted_identifiers_policy: IdentifiersPolicy::All,
+            allow_space_in_identifier: false,
+            additional_allowed_characters: None,
+            ignore_words: Vec::new(),
+            ignore_words_regex: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct ReferencesQuotingRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub prefer_quoted_identifiers: bool,
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub prefer_quoted_keywords: bool,
+    #[serde(default, deserialize_with = "deserialize_comma_list")]
+    pub ignore_words: Vec<String>,
+    #[serde(default, deserialize_with = "deserialize_regex_list")]
+    pub ignore_words_regex: Vec<Regex>,
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub force_enable: bool,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct LayoutLongLinesRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub ignore_comment_lines: bool,
+    #[serde(default, deserialize_with = "deserialize_boolish")]
+    pub ignore_comment_clauses: bool,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct LayoutSelectTargetsRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_wildcard_policy")]
+    pub wildcard_policy: WildcardPolicy,
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct LayoutNewlinesRuleConfig {
+    #[serde(
+        default = "default_max_empty_lines_between_statements",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub maximum_empty_lines_between_statements: usize,
+    #[serde(
+        default = "default_max_empty_lines_inside_statements",
+        deserialize_with = "deserialize_usize"
+    )]
+    pub maximum_empty_lines_inside_statements: usize,
+}
+
+impl Default for LayoutNewlinesRuleConfig {
+    fn default() -> Self {
+        Self {
+            maximum_empty_lines_between_statements: default_max_empty_lines_between_statements(),
+            maximum_empty_lines_inside_statements: default_max_empty_lines_inside_statements(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct StructureSubqueryRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_forbid_subquery_in")]
+    pub forbid_subquery_in: ForbidSubqueryIn,
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+pub struct StructureJoinConditionOrderRuleConfig {
+    #[serde(default, deserialize_with = "deserialize_join_condition_order")]
+    pub preferred_first_table_in_join_clause: JoinConditionOrder,
+}
+
+fn merge_layers_replace_roots(config_stack: Vec<ConfigLayer>) -> FluffConfig {
+    let mut result = FluffConfig::default();
+    for layer in config_stack {
+        if layer.is_empty() {
+            continue;
+        }
+        if let Some(core) = layer.core {
+            result.core = core;
+        }
+        if let Some(indentation) = layer.indentation {
+            result.indentation = indentation;
+        }
+        if let Some(layout) = layer.layout {
+            result.layout = layout;
+        }
+        if let Some(templater) = layer.templater {
+            result.templater = templater;
+        }
+        if let Some(rules) = layer.rules {
+            result.rules = rules;
+        }
+    }
+    result
+}
+
+fn apply_overrides_to_typed(config: &mut FluffConfig, overrides: &AHashMap<String, String>) {
+    if let Some(dialect) = overrides.get("dialect") {
+        config.core.dialect = Some(dialect.clone());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::path::{Path, PathBuf};
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn unique_test_dir(prefix: &str) -> PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let mut dir = std::env::current_dir().unwrap();
+        dir.push("target");
+        dir.push("tmp_config_tests");
+        dir.push(format!("{}_{}_{}", prefix, std::process::id(), nanos));
+        fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    fn write_file(path: &Path, content: &str) {
+        fs::write(path, content).unwrap();
+    }
+
+    #[test]
+    fn config_section_mapping_and_normalization() {
+        let source = "[sqlfluff]
+dialect = ansi
+max_line_length = 120
+nocolor = true
+
+[sqruff]
+verbose = 2
+
+[sqlfluff:rules:capitalisation.keywords]
+ignore_words = foo,bar
+
+[sqruff:templater:jinja]
+apply_dbt_builtins = TRUE
+";
+
+        let typed = FluffConfig::from_source(source, None).unwrap();
+
+        assert_eq!(typed.core.dialect.as_deref(), Some("ansi"));
+        assert_eq!(typed.core.max_line_length, 120);
+        assert_eq!(typed.core.nocolor, true);
+        assert_eq!(typed.core.verbose, 2);
+        assert_eq!(
+            typed.rules.capitalisation_keywords.ignore_words,
+            vec!["foo".to_string(), "bar".to_string()]
+        );
+        assert_eq!(typed.templater.jinja.apply_dbt_builtins, true);
+    }
+
+    #[test]
+    fn get_config_from_file_absolutizes_path_and_dir() {
+        let base_dir = unique_test_dir("paths");
+        let config_dir = base_dir.join("config");
+        fs::create_dir_all(&config_dir).unwrap();
+        let config_path = config_dir.join(".sqruff");
+        let abs_path = base_dir.join("already_absolute");
+        let config_contents = format!(
+            "[sqlfluff:templater:dbt]
+profiles_dir = relative_dir
+project_dir = {}
+",
+            abs_path.to_string_lossy()
+        );
+        write_file(&config_path, &config_contents);
+
+        let loader = ConfigLoader {};
+        let config = loader.load_config_at_path(&config_dir).unwrap();
+        let dbt = &config.templater.dbt;
+
+        let config_dir_abs = std::path::absolute(&config_dir).unwrap();
+        let expected_profiles = config_dir_abs
+            .join("relative_dir")
+            .to_string_lossy()
+            .into_owned();
+        let expected_project = abs_path.to_string_lossy().into_owned();
+
+        assert_eq!(
+            dbt.profiles_dir.as_deref(),
+            Some(expected_profiles.as_str())
+        );
+        assert_eq!(dbt.project_dir.as_deref(), Some(expected_project.as_str()));
+    }
+
+    #[test]
+    fn load_config_up_to_path_precedence_favors_parent_dir() {
+        let base_dir = unique_test_dir("stack");
+        let child_dir = base_dir.join("child");
+        fs::create_dir_all(&child_dir).unwrap();
+
+        let base_config = base_dir.join(".sqruff");
+        let child_config = child_dir.join(".sqruff");
+        write_file(&base_config, "[sqlfluff]\ndialect = base\n");
+        write_file(
+            &child_config,
+            "[sqlfluff]\ndialect = child\ntemplater = child_templater\n",
+        );
+
+        let target_file = child_dir.join("input.sql");
+        write_file(&target_file, "select 1;\n");
+
+        let loader = ConfigLoader {};
+        let config = loader
+            .load_config_up_to_path(&target_file, None, false, None)
+            .unwrap();
+
+        assert_eq!(config.core.dialect.as_deref(), Some("base"));
+        assert_eq!(config.core.templater.as_deref(), Some("raw"));
+    }
+
+    #[test]
+    fn typed_config_parses_core_fields() {
+        let source = "[sqlfluff]
+nocolor = true
+verbose = 2
+rules = LT01, LT02
+";
+        let typed = FluffConfig::from_source(source, None).unwrap();
+
+        assert_eq!(typed.core.nocolor, true);
+        assert_eq!(typed.core.verbose, 2);
+        assert_eq!(
+            typed.core.rule_allowlist,
+            Some(vec!["LT01".to_string(), "LT02".to_string()])
+        );
+    }
+
+    #[test]
+    fn typed_config_rules_none_yields_none() {
+        let typed = FluffConfig::from_source("[sqlfluff]\nrules = None\n", None).unwrap();
+
+        assert_eq!(typed.core.rule_allowlist, None);
+    }
+
+    #[test]
+    fn typed_config_sql_file_exts_from_defaults() {
+        let typed = FluffConfig::default();
+
+        assert!(typed.core.sql_file_exts.iter().any(|ext| ext == ".sql"));
+    }
+
+    #[test]
+    fn typed_defaults_match_expected_values() {
+        let typed = FluffConfig::default();
+
+        assert_eq!(typed.core.verbose, 0);
+        assert_eq!(typed.core.nocolor, false);
+        assert_eq!(typed.core.dialect, None);
+        assert_eq!(typed.core.templater.as_deref(), Some("raw"));
+        assert_eq!(typed.core.rule_allowlist, Some(vec!["core".to_string()]));
+        assert!(typed.core.sql_file_exts.iter().any(|ext| ext == ".sql"));
+        assert_eq!(typed.indentation.template_blocks_indent, true);
+        assert_eq!(typed.indentation.indented_using_on, true);
+        assert_eq!(typed.templater.unwrap_wrapped_queries, true);
+        assert_eq!(typed.templater.jinja.apply_dbt_builtins, true);
+
+        let comma = typed.layout.types.get(&SyntaxKind::Comma).unwrap();
+        assert_eq!(comma.spacing_before, Some(Spacing::Touch));
+        assert_eq!(
+            comma.line_position,
+            Some(LinePositionConfig::new(LinePosition::Trailing))
+        );
+    }
+
+    #[test]
+    fn typed_parity_ini_matches_expected_values() {
+        let source = "[sqlfluff]
+nocolor = true
+verbose = 2
+output_line_length = 90
+max_line_length = 120
+rules = LT01,LT02
+ignore = foo,bar
+warnings = TMP,PRS
+encoding = utf-8
+sql_file_exts = .sql,.sql.j2
+
+[sqlfluff:indentation]
+template_blocks_indent = false
+
+[sqlfluff:templater]
+unwrap_wrapped_queries = false
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = false
+templater_paths = macro1,macro2
+loader_search_path = path1,path2
+
+[sqlfluff:layout:type:comma]
+spacing_before = touch
+line_position = trailing
+";
+        let base_dir = unique_test_dir("typed_ini_parity");
+        let config_path = base_dir.join(".sqruff");
+        write_file(&config_path, source);
+
+        let loader = ConfigLoader {};
+        let typed = loader.load_config_at_path(&base_dir).unwrap();
+        let config_dir_abs = std::path::absolute(&base_dir).unwrap();
+        let expected_loader_paths = vec![
+            config_dir_abs.join("path1").to_string_lossy().into_owned(),
+            config_dir_abs.join("path2").to_string_lossy().into_owned(),
+        ];
+
+        assert_eq!(typed.core.nocolor, true);
+        assert_eq!(typed.core.verbose, 2);
+        assert_eq!(typed.core.output_line_length, 90);
+        assert_eq!(typed.core.max_line_length, 120);
+        assert_eq!(
+            typed.core.rule_allowlist,
+            Some(vec!["LT01".to_string(), "LT02".to_string()])
+        );
+        assert_eq!(
+            typed.core.ignore,
+            Some(vec!["foo".to_string(), "bar".to_string()])
+        );
+        assert_eq!(
+            typed.core.warnings,
+            Some(vec!["TMP".to_string(), "PRS".to_string()])
+        );
+        assert_eq!(typed.core.encoding.as_deref(), Some("utf-8"));
+        assert_eq!(
+            typed.core.sql_file_exts,
+            vec![".sql".to_string(), ".sql.j2".to_string()]
+        );
+        assert_eq!(typed.indentation.template_blocks_indent, false);
+        assert_eq!(typed.templater.unwrap_wrapped_queries, false);
+        assert_eq!(typed.templater.jinja.apply_dbt_builtins, false);
+        assert_eq!(
+            typed.templater.jinja.templater_paths,
+            vec!["macro1".to_string(), "macro2".to_string()]
+        );
+        assert_eq!(
+            typed.templater.jinja.loader_search_path,
+            expected_loader_paths
+        );
+
+        let comma = typed.layout.types.get(&SyntaxKind::Comma).unwrap();
+        assert_eq!(comma.spacing_before, Some(Spacing::Touch));
+        assert_eq!(
+            comma.line_position,
+            Some(LinePositionConfig::new(LinePosition::Trailing))
+        );
     }
 }

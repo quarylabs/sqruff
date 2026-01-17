@@ -67,7 +67,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
         config: &'a FluffConfig,
         depth_map: Option<DepthMap>,
     ) -> ReflowSequence<'a, 'b> {
-        let reflow_config = config.reflow();
+        let reflow_config = &config.reflow_config;
         let depth_map = depth_map.unwrap_or_else(|| {
             DepthMap::from_raws_and_root(segments.clone().into_iter(), root_segment)
         });

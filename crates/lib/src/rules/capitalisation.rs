@@ -14,6 +14,6 @@ pub fn rules() -> Vec<ErasedRule> {
         cp02::RuleCP02::default().erased(),
         cp03::RuleCP03::default().erased(),
         cp04::RuleCP04::default().erased(),
-        cp05::RuleCP05::default().erased(),
+        cp05::RuleCP05.erased(),
     ]
 }

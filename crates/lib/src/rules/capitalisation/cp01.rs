@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use ahash::AHashSet;
 use itertools::Itertools;
 use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -6,10 +6,9 @@ use sqruff_lib_core::helpers::capitalize;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintPhase, LintResult, Rule, RuleGroups};
 
 fn is_capitalizable(character: char) -> bool {
     character.to_lowercase().ne(character.to_uppercase())
@@ -17,10 +16,7 @@ fn is_capitalizable(character: char) -> bool {
 
 #[derive(Debug, Clone)]
 pub struct RuleCP01 {
-    pub(crate) capitalisation_policy: String,
-    pub(crate) ignore_words: Vec<String>,
-    pub(crate) ignore_words_regex: Vec<Regex>,
-    pub(crate) cap_policy_name: String,
+    pub(crate) cap_policy_name: &'static str,
     pub(crate) skip_literals: bool,
     pub(crate) exclude_parent_types: &'static [SyntaxKind],
     pub(crate) description_elem: &'static str,
@@ -29,8 +25,7 @@ pub struct RuleCP01 {
 impl Default for RuleCP01 {
     fn default() -> Self {
         Self {
-            capitalisation_policy: "consistent".into(),
-            cap_policy_name: "capitalisation_policy".into(),
+            cap_policy_name: "capitalisation_policy",
             skip_literals: true,
             exclude_parent_types: &[
                 SyntaxKind::DataType,
@@ -39,39 +34,11 @@ impl Default for RuleCP01 {
                 SyntaxKind::NakedIdentifier,
             ],
             description_elem: "Keywords",
-            ignore_words: Vec::new(),
-            ignore_words_regex: Vec::new(),
         }
     }
 }
 
 impl Rule for RuleCP01 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleCP01 {
-            capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            ..Default::default()
-        }
-        .erased())
-    }
-
     fn lint_phase(&self) -> LintPhase {
         LintPhase::Post
     }
@@ -123,19 +90,54 @@ from foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let parent = context.parent_stack.last().unwrap();
+        let rules = &context.config.rules.capitalisation_keywords;
+        self.eval_with_config(
+            context,
+            rules.capitalisation_policy.as_str(),
+            &rules.ignore_words,
+            &rules.ignore_words_regex,
+        )
+    }
 
-        if self
-            .ignore_words
-            .contains(&context.segment.raw().to_lowercase())
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
+    fn crawl_behaviour(&self) -> Crawler {
+        SegmentSeekerCrawler::new(
+            const {
+                SyntaxSet::new(&[
+                    SyntaxKind::Keyword,
+                    SyntaxKind::BinaryOperator,
+                    SyntaxKind::DatePart,
+                ])
+            },
+        )
+        .into()
+    }
+}
+
+impl RuleCP01 {
+    pub(crate) fn eval_with_config(
+        &self,
+        context: &RuleContext,
+        capitalisation_policy: &str,
+        ignore_words: &[String],
+        ignore_words_regex: &[Regex],
+    ) -> Vec<LintResult> {
+        let parent = context.parent_stack.last().unwrap();
+        let raw = context.segment.raw();
+
+        if ignore_words
+            .iter()
+            .any(|word| word.eq_ignore_ascii_case(raw.as_ref()))
         {
             return Vec::new();
         }
 
-        if self
-            .ignore_words_regex
+        if ignore_words_regex
             .iter()
-            .any(|regex| regex.is_match(context.segment.raw().as_ref()))
+            .any(|regex| regex.is_match(raw.as_ref()))
         {
             return Vec::new();
         }
@@ -156,28 +158,11 @@ from foo
 
         vec![handle_segment(
             self.description_elem,
-            &self.capitalisation_policy,
-            &self.cap_policy_name,
+            capitalisation_policy,
+            self.cap_policy_name,
             context.segment.clone(),
             context,
         )]
-    }
-
-    fn is_fix_compatible(&self) -> bool {
-        true
-    }
-
-    fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(
-            const {
-                SyntaxSet::new(&[
-                    SyntaxKind::Keyword,
-                    SyntaxKind::BinaryOperator,
-                    SyntaxKind::DatePart,
-                ])
-            },
-        )
-        .into()
     }
 }
 

@@ -10,7 +10,7 @@ pub fn identifiers_policy_applicable(
     match policy {
         IdentifiersPolicy::All => true,
         IdentifiersPolicy::None => false,
-        IdentifiersPolicy::Aliases | IdentifiersPolicy::ColumnAliases | IdentifiersPolicy::TableAliases => {
+        IdentifiersPolicy::Aliases | IdentifiersPolicy::ColumnAliases => {
             let is_alias = parent_stack.iter().any(|segment| {
                 [
                     SyntaxKind::AliasExpression,
@@ -31,7 +31,6 @@ pub fn identifiers_policy_applicable(
             match policy {
                 IdentifiersPolicy::Aliases => true,
                 IdentifiersPolicy::ColumnAliases => !is_inside_from,
-                IdentifiersPolicy::TableAliases => is_inside_from,
                 _ => false,
             }
         }

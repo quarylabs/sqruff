@@ -123,7 +123,7 @@ impl LinePositionConfig {
     }
 
     /// Parse from string format like "leading" or "alone:strict"
-    pub fn from_str(s: &str) -> Self {
+    pub fn parse_str(s: &str) -> Self {
         let strict = s.ends_with(":strict");
         let position_str = s.split(':').next().unwrap();
         let position = LinePosition::from_str(position_str).unwrap();

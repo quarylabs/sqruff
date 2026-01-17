@@ -99,6 +99,13 @@ fn main() {
                 .and_then(|it| it.as_str())
                 .unwrap_or("ansi");
 
+            let templater_name = case
+                .configs
+                .get("core")
+                .and_then(|it| it.as_object())
+                .and_then(|it| it.get("templater"))
+                .and_then(|it| it.as_str());
+
             let dialect = DialectKind::from_str(dialect_name);
 
             if dialect.is_err() || case.ignored.is_some() {
@@ -107,6 +114,12 @@ fn main() {
                     .unwrap_or_else(|| format!("ignored, dialect {dialect_name} is not supported"));
                 println!("{message}");
 
+                continue;
+            }
+
+            // Skip tests that use templaters not available in this build
+            if matches!(templater_name, Some("jinja") | Some("dbt") | Some("python")) {
+                println!("ignored, templater {templater_name:?} is not available in this build");
                 continue;
             }
 

@@ -2875,6 +2875,31 @@ pub struct LayoutTypeConfig {
     pub align_scope: Option<SyntaxKind>,
 }
 
+impl LayoutTypeConfig {
+    /// Merge another config into this one.
+    /// Values from `other` override values from `self` only if they are Some.
+    pub fn merge_with(&mut self, other: LayoutTypeConfig) {
+        if other.spacing_before.is_some() {
+            self.spacing_before = other.spacing_before;
+        }
+        if other.spacing_after.is_some() {
+            self.spacing_after = other.spacing_after;
+        }
+        if other.spacing_within.is_some() {
+            self.spacing_within = other.spacing_within;
+        }
+        if other.line_position.is_some() {
+            self.line_position = other.line_position;
+        }
+        if other.align_within.is_some() {
+            self.align_within = other.align_within;
+        }
+        if other.align_scope.is_some() {
+            self.align_scope = other.align_scope;
+        }
+    }
+}
+
 fn default_layout_types() -> AHashMap<SyntaxKind, LayoutTypeConfig> {
     let mut types = AHashMap::new();
     types.insert(
@@ -3451,7 +3476,11 @@ where
     let mut types = default_layout_types();
     for (key, value) in overrides {
         let syntax_kind: SyntaxKind = key.parse().map_err(de::Error::custom)?;
-        types.insert(syntax_kind, value);
+        // Merge with existing defaults instead of replacing completely
+        types
+            .entry(syntax_kind)
+            .or_default()
+            .merge_with(value);
     }
     Ok(types)
 }

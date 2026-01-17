@@ -34,10 +34,10 @@ impl From<&FluffConfig> for PythonFluffConfig {
     fn from(value: &FluffConfig) -> Self {
         let templater = value.templater.clone();
         Self {
-            templater_unwrap_wrapped_queries: templater.unwrap_wrapped_queries.unwrap_or(false),
+            templater_unwrap_wrapped_queries: templater.unwrap_wrapped_queries,
             jinja_templater_paths: templater.jinja.templater_paths,
             jinja_loader_search_path: templater.jinja.loader_search_path,
-            jinja_apply_dbt_builtins: templater.jinja.apply_dbt_builtins.unwrap_or(false),
+            jinja_apply_dbt_builtins: templater.jinja.apply_dbt_builtins,
             jinja_ignore_templating: templater.jinja.ignore_templating,
             jinja_library_paths: templater.jinja.library_paths,
             dbt_profile: None,

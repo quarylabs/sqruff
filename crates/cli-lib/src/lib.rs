@@ -137,11 +137,8 @@ pub(crate) fn linter(config: FluffConfig, format: Format, collect_parse_errors: 
     let formatter: Arc<dyn Formatter> = match format {
         Format::Human => {
             let output_stream = std::io::stderr().into();
-            let formatter = OutputStreamFormatter::new(
-                output_stream,
-                config.core.nocolor.unwrap_or_default(),
-                config.core.verbose.unwrap_or_default(),
-            );
+            let formatter =
+                OutputStreamFormatter::new(output_stream, config.core.nocolor, config.core.verbose);
             Arc::new(formatter)
         }
         Format::GithubAnnotationNative => {

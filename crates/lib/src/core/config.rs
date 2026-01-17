@@ -1093,8 +1093,8 @@ fn apply_layout_type_config(
                     parse_option_string_none_value(&value).map(|s| s.parse().unwrap())
             }
             "line_position" => {
-                config.line_position =
-                    parse_option_string_none_value(&value).map(|s| LinePositionConfig::parse_str(&s))
+                config.line_position = parse_option_string_none_value(&value)
+                    .map(|s| LinePositionConfig::parse_str(&s))
             }
             "align_within" => {
                 config.align_within =
@@ -1412,8 +1412,7 @@ fn apply_capitalisation_identifiers_rule_config(
     for (key, value) in values {
         match key.as_str() {
             "extended_capitalisation_policy" => {
-                config.extended_capitalisation_policy =
-                    value.parse().map_err(|e: String| e)?
+                config.extended_capitalisation_policy = value.parse().map_err(|e: String| e)?
             }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,
@@ -1433,8 +1432,7 @@ fn apply_capitalisation_functions_rule_config(
     for (key, value) in values {
         match key.as_str() {
             "extended_capitalisation_policy" => {
-                config.extended_capitalisation_policy =
-                    value.parse().map_err(|e: String| e)?
+                config.extended_capitalisation_policy = value.parse().map_err(|e: String| e)?
             }
             "ignore_words" => config.ignore_words = split_comma_list(&value),
             "ignore_words_regex" => config.ignore_words_regex = parse_regex_list_value(&value)?,

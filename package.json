@@ -9,7 +9,7 @@
     "onlyBuiltDependencies": []
   },
   "devDependencies": {
-    "prettier": "^3.7.4"
+    "prettier": "^3.8.0"
   },
   "scripts": {
     "ci": "pnpm run fmt:check && pnpm run lint && pnpm run build && pnpm run test && pnpm run package",

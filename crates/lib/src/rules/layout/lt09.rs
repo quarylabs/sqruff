@@ -1,14 +1,13 @@
-use ahash::AHashMap;
 use itertools::{Itertools, enumerate};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
+use crate::core::config::WildcardPolicy;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 struct SelectTargetsInfo {
@@ -24,18 +23,10 @@ struct SelectTargetsInfo {
     pre_from_whitespace: Segments,
 }
 
-#[derive(Debug, Clone)]
-pub struct RuleLT09 {
-    wildcard_policy: String,
-}
+#[derive(Debug, Clone, Default)]
+pub struct RuleLT09;
 
 impl Rule for RuleLT09 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT09 {
-            wildcard_policy: _config["wildcard_policy"].as_string().unwrap().to_owned(),
-        }
-        .erased())
-    }
     fn name(&self) -> &'static str {
         "layout.select_targets"
     }
@@ -98,6 +89,7 @@ FROM test_table;
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let select_targets_info = Self::get_indexes(context);
         let select_clause = FunctionalContext::new(context).segment();
+        let wildcard_policy = context.config.rules.layout_select_targets.wildcard_policy;
 
         let wildcards = select_clause
             .children_where(|sp| sp.is_type(SyntaxKind::SelectClauseElement))
@@ -106,7 +98,7 @@ FROM test_table;
         let has_wildcard = !wildcards.is_empty();
 
         if select_targets_info.select_targets.len() == 1
-            && (!has_wildcard || self.wildcard_policy == "single")
+            && (!has_wildcard || wildcard_policy == WildcardPolicy::Single)
         {
             return self.eval_single_select_target_element(select_targets_info, context);
         } else if !select_targets_info.select_targets.is_empty() {
@@ -513,13 +505,5 @@ impl RuleLT09 {
             None,
             None,
         )]
-    }
-}
-
-impl Default for RuleLT09 {
-    fn default() -> Self {
-        Self {
-            wildcard_policy: "single".into(),
-        }
     }
 }

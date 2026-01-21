@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use ahash::{AHashMap, AHashSet};
+use ahash::AHashSet;
 use itertools::Itertools;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
@@ -12,16 +12,13 @@ use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::analysis::query::Query;
 
-use crate::core::config::Value;
+use crate::core::config::{FluffConfig, SingleTableReferences};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Clone, Default)]
-pub struct RuleRF03 {
-    single_table_references: Option<String>,
-    force_enable: bool,
-}
+pub struct RuleRF03;
 
 impl RuleRF03 {
     fn visit_queries(
@@ -295,16 +292,6 @@ fn validate_one_reference(
 }
 
 impl Rule for RuleRF03 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleRF03 {
-            single_table_references: config
-                .get("single_table_references")
-                .and_then(|it| it.as_string().map(ToString::to_string)),
-            force_enable: config["force_enable"].as_bool().unwrap(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "references.consistent"
     }
@@ -350,8 +337,8 @@ FROM foo
         &[RuleGroups::All, RuleGroups::References]
     }
 
-    fn force_enable(&self) -> bool {
-        self.force_enable
+    fn force_enable(&self, config: &FluffConfig) -> bool {
+        config.rules.references_consistent.force_enable
     }
 
     fn dialect_skip(&self) -> &'static [DialectKind] {
@@ -359,12 +346,14 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let single_table_references =
-            self.single_table_references.as_deref().unwrap_or_else(|| {
-                context.config.raw["rules"]["single_table_references"]
-                    .as_string()
-                    .unwrap()
-            });
+        let single_table_references = context
+            .config
+            .rules
+            .references_consistent
+            .single_table_references
+            .or(context.config.rules.single_table_references)
+            .unwrap_or(SingleTableReferences::Consistent)
+            .as_str();
 
         let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
         let mut visited: AHashSet<ErasedSegment> = AHashSet::new();

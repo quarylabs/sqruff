@@ -1,20 +1,15 @@
-use ahash::{AHashMap, HashSet, HashSetExt};
+use ahash::{HashSet, HashSetExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source, WildcardInfo};
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Clone)]
 pub struct RuleAM07;
 
 impl Rule for RuleAM07 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAM07.erased())
-    }
-
     fn name(&self) -> &'static str {
         "ambiguous.set_columns"
     }

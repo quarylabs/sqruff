@@ -1,27 +1,14 @@
-use ahash::AHashMap;
 use itertools::chain;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
-use strum_macros::{AsRefStr, EnumString};
 
-use crate::core::config::Value;
+use crate::core::config::TypeCastingStyle;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
-
-#[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq, Default)]
-#[strum(serialize_all = "snake_case")]
-enum TypeCastingStyle {
-    #[default]
-    Consistent,
-    Cast,
-    Convert,
-    Shorthand,
-    None,
-}
 
 #[derive(Copy, Clone)]
 struct PreviousSkipped;
@@ -66,23 +53,13 @@ fn shorthand_fix_list(
     vec![LintFix::replace(root_segment, edits, None)]
 }
 
+#[derive(Clone, Copy)]
+struct ConfigTypeCastingStyle(TypeCastingStyle);
+
 #[derive(Clone, Debug, Default)]
-pub struct RuleCV11 {
-    preferred_type_casting_style: TypeCastingStyle,
-}
+pub struct RuleCV11;
 
 impl Rule for RuleCV11 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleCV11 {
-            preferred_type_casting_style: config["preferred_type_casting_style"]
-                .as_string()
-                .unwrap()
-                .parse()
-                .unwrap(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "convention.casting_style"
     }
@@ -134,6 +111,19 @@ FROM foo;
             return Vec::new();
         }
 
+        let preferred_type_casting_style = context
+            .try_get::<ConfigTypeCastingStyle>()
+            .map(|cached| cached.0)
+            .unwrap_or_else(|| {
+                let style = context
+                    .config
+                    .rules
+                    .convention_casting_style
+                    .preferred_type_casting_style;
+                context.set(ConfigTypeCastingStyle(style));
+                style
+            });
+
         let current_type_casting_style = if context.segment.is_type(SyntaxKind::Function) {
             let Some(function_name) = context
                 .segment
@@ -146,20 +136,20 @@ FROM foo;
             } else if function_name.raw().eq_ignore_ascii_case("CONVERT") {
                 TypeCastingStyle::Convert
             } else {
-                TypeCastingStyle::None
+                TypeCastingStyle::Other
             }
         } else if context.segment.is_type(SyntaxKind::CastExpression) {
             TypeCastingStyle::Shorthand
         } else {
-            TypeCastingStyle::None
+            TypeCastingStyle::Other
         };
 
         let functional_context = FunctionalContext::new(context);
-        match self.preferred_type_casting_style {
+        match preferred_type_casting_style {
             TypeCastingStyle::Consistent => {
-                // If current is None, it's not a cast operation (e.g., STRING_AGG, or
+                // If current is Other, it's not a cast operation (e.g., STRING_AGG, or
                 // other non-CAST/CONVERT functions), so skip it entirely.
-                if current_type_casting_style == TypeCastingStyle::None {
+                if current_type_casting_style == TypeCastingStyle::Other {
                     return Vec::new();
                 }
 
@@ -311,12 +301,12 @@ FROM foo;
                     )];
                 }
             }
-            _ if current_type_casting_style != self.preferred_type_casting_style => {
+            _ if current_type_casting_style != preferred_type_casting_style => {
                 let mut convert_content = None;
                 let mut cast_content = None;
                 let mut fixes = Vec::new();
 
-                match self.preferred_type_casting_style {
+                match preferred_type_casting_style {
                     TypeCastingStyle::Cast => match current_type_casting_style {
                         TypeCastingStyle::Convert => {
                             let bracketed = functional_context

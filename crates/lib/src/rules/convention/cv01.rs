@@ -1,49 +1,20 @@
-use ahash::AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
-use crate::core::config::Value;
+use crate::core::config::NotEqualStyle;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
 #[derive(Debug, Default, Clone)]
-pub struct RuleCV01 {
-    preferred_not_equal_style: PreferredNotEqualStyle,
-}
+pub struct RuleCV01;
 
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-enum PreferredNotEqualStyle {
-    #[default]
-    Consistent,
-    CStyle,
-    Ansi,
-}
+#[derive(Clone, Copy)]
+struct ConfigPreferredNotEqualStyle(NotEqualStyle);
 
 impl Rule for RuleCV01 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        if let Some(value) = config["preferred_not_equal_style"].as_string() {
-            let preferred_not_equal_style = match value {
-                "consistent" => PreferredNotEqualStyle::Consistent,
-                "c_style" => PreferredNotEqualStyle::CStyle,
-                "ansi" => PreferredNotEqualStyle::Ansi,
-                _ => {
-                    return Err(format!(
-                        "Invalid value for preferred_not_equal_style: {value}"
-                    ));
-                }
-            };
-            Ok(RuleCV01 {
-                preferred_not_equal_style,
-            }
-            .erased())
-        } else {
-            Err("Missing value for preferred_not_equal_style".to_string())
-        }
-    }
-
     fn name(&self) -> &'static str {
         "convention.not_equal"
     }
@@ -77,6 +48,19 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let preferred_not_equal_style = context
+            .try_get::<ConfigPreferredNotEqualStyle>()
+            .map(|cached| cached.0)
+            .unwrap_or_else(|| {
+                let style = context
+                    .config
+                    .rules
+                    .convention_not_equal
+                    .preferred_not_equal_style;
+                context.set(ConfigPreferredNotEqualStyle(style));
+                style
+            });
+
         // Get the comparison operator children
         let segment = FunctionalContext::new(context).segment();
         let raw_comparison_operators = segment.children_all();
@@ -91,32 +75,31 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
         }
 
         // If style is consistent, add the style of the first occurrence to memory
-        let preferred_style =
-            if self.preferred_not_equal_style == PreferredNotEqualStyle::Consistent {
-                if let Some(preferred_style) = context.try_get::<PreferredNotEqualStyle>() {
-                    preferred_style
-                } else {
-                    let style = if raw_operator_list == ["<", ">"] {
-                        PreferredNotEqualStyle::Ansi
-                    } else {
-                        PreferredNotEqualStyle::CStyle
-                    };
-                    context.set(style);
-                    style
-                }
+        let preferred_style = if preferred_not_equal_style == NotEqualStyle::Consistent {
+            if let Some(preferred_style) = context.try_get::<NotEqualStyle>() {
+                preferred_style
             } else {
-                self.preferred_not_equal_style
-            };
+                let style = if raw_operator_list == ["<", ">"] {
+                    NotEqualStyle::Ansi
+                } else {
+                    NotEqualStyle::CStyle
+                };
+                context.set(style);
+                style
+            }
+        } else {
+            preferred_not_equal_style
+        };
 
         // Define the replacement
         let replacement = match preferred_style {
-            PreferredNotEqualStyle::CStyle => {
+            NotEqualStyle::CStyle => {
                 vec!["!", "="]
             }
-            PreferredNotEqualStyle::Ansi => {
+            NotEqualStyle::Ansi => {
                 vec!["<", ">"]
             }
-            PreferredNotEqualStyle::Consistent => {
+            NotEqualStyle::Consistent => {
                 unreachable!("Consistent style should have been handled earlier")
             }
         };

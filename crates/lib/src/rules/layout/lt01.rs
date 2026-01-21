@@ -1,18 +1,12 @@
-use ahash::AHashMap;
-
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
 #[derive(Default, Debug, Clone)]
 pub struct RuleLT01;
 
 impl Rule for RuleLT01 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleLT01.erased())
-    }
     fn name(&self) -> &'static str {
         "layout.spacing"
     }

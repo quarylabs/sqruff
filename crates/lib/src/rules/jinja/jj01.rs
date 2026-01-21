@@ -1,4 +1,3 @@
-use ahash::AHashMap;
 use regex::Regex;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -6,10 +5,9 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 use sqruff_lib_core::parser::segments::fix::SourceFix;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 
 /// Represents the parsed components of a Jinja tag.
 struct JinjaTagComponents {
@@ -73,10 +71,6 @@ fn is_acceptable_whitespace(ws: &str) -> bool {
 pub struct RuleJJ01;
 
 impl Rule for RuleJJ01 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleJJ01.erased())
-    }
-
     fn name(&self) -> &'static str {
         "jinja.padding"
     }

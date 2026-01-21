@@ -1,11 +1,8 @@
-use ahash::AHashMap;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-
-use super::al01::{Aliasing, RuleAL01};
-use crate::core::config::Value;
+use super::al01::RuleAL01;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 #[derive(Debug, Clone)]
 pub struct RuleAL02 {
@@ -21,27 +18,7 @@ impl Default for RuleAL02 {
     }
 }
 
-impl RuleAL02 {
-    pub fn aliasing(mut self, aliasing: Aliasing) -> Self {
-        self.base = self.base.aliasing(aliasing);
-        self
-    }
-}
-
 impl Rule for RuleAL02 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        let aliasing = match config.get("aliasing").unwrap().as_string().unwrap() {
-            "explicit" => Aliasing::Explicit,
-            "implicit" => Aliasing::Implicit,
-            _ => unreachable!(),
-        };
-
-        let mut rule = RuleAL02::default();
-        rule.base = rule.base.aliasing(aliasing);
-
-        Ok(rule.erased())
-    }
-
     fn is_fix_compatible(&self) -> bool {
         true
     }
@@ -91,7 +68,8 @@ FROM foo
             return Vec::new();
         }
 
-        self.base.eval(context)
+        let aliasing = context.config.rules.aliasing_column.aliasing;
+        self.base.eval_with_aliasing(context, aliasing)
     }
 
     fn crawl_behaviour(&self) -> Crawler {

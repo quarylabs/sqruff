@@ -33,6 +33,7 @@ use walkdir::WalkDir;
 
 pub struct Linter {
     config: FluffConfig,
+    dialect: Dialect,
     formatter: Option<Arc<dyn Formatter>>,
     templater: &'static dyn Templater,
     rules: OnceLock<Vec<ErasedRule>>,
@@ -52,8 +53,12 @@ impl Linter {
             Some(templater) => templater,
             None => Linter::get_templater(&config),
         };
+        let dialect = config
+            .dialect()
+            .expect("Dialect is disabled. Please enable the corresponding feature.");
         Linter {
             config,
+            dialect,
             formatter,
             templater,
             rules: OnceLock::new(),
@@ -62,7 +67,7 @@ impl Linter {
     }
 
     pub fn get_templater(config: &FluffConfig) -> &'static dyn Templater {
-        let templater_name = config.get("templater", "core").as_string();
+        let templater_name = config.core.templater.as_deref();
         match templater_name {
             Some(name) => match TEMPLATERS.into_iter().find(|t| t.name() == name) {
                 Some(t) => t,
@@ -347,11 +352,7 @@ impl Linter {
         let loop_limit = if fix { 10 } else { 1 };
         // Look for comment segments which might indicate lines to ignore.
         let (ignore_mask, violations): (Option<IgnoreMask>, Vec<SQLBaseError>) = {
-            let disable_noqa = self
-                .config
-                .get("disable_noqa", "core")
-                .as_bool()
-                .unwrap_or(false);
+            let disable_noqa = self.config.core.disable_noqa;
             if disable_noqa {
                 (None, Vec::new())
             } else {
@@ -403,7 +404,7 @@ impl Linter {
                     let result = crate::core::rules::crawl(
                         rule,
                         tables,
-                        &self.config.dialect,
+                        &self.dialect,
                         templated_file,
                         tree.clone(),
                         &self.config,
@@ -508,11 +509,8 @@ impl Linter {
 
         let mut violations = Vec::new();
         let tokens = if rendered.templated_file.is_templated() {
-            let (t, lvs) = Self::lex_templated_file(
-                tables,
-                rendered.templated_file.clone(),
-                &self.config.dialect,
-            );
+            let (t, lvs) =
+                Self::lex_templated_file(tables, rendered.templated_file.clone(), &self.dialect);
             if !lvs.is_empty() {
                 unimplemented!("violations.extend(lvs);")
             }
@@ -546,7 +544,10 @@ impl Linter {
         config: &FluffConfig,
         include_parse_errors: bool,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
-        let parser: Parser = config.into();
+        let dialect = config
+            .dialect()
+            .expect("Dialect is disabled. Please enable the corresponding feature.");
+        let parser = Parser::new(&dialect, config.parser_indentation);
         let mut violations: Vec<SQLParseError> = Vec::new();
 
         let parsed = match parser.parse(tables, tokens) {
@@ -777,6 +778,15 @@ impl Linter {
         &mut self.config
     }
 
+    pub fn set_config(&mut self, config: FluffConfig) {
+        self.config = config;
+        self.dialect = self
+            .config
+            .dialect()
+            .expect("Dialect is disabled. Please enable the corresponding feature.");
+        self.rules = OnceLock::new();
+    }
+
     pub fn rules(&self) -> &[ErasedRule] {
         self.rules.get_or_init(|| self.get_rulepack().rules)
     }
@@ -807,12 +817,7 @@ mod tests {
     #[test]
     fn test_linter_path_from_paths_dir() {
         // Test extracting paths from directories.
-        let lntr = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        ); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(FluffConfig::default(), None, None, false);
         let paths =
             lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None, None);
         let expected = vec![
@@ -826,12 +831,7 @@ mod tests {
     #[test]
     fn test_linter_path_from_paths_default() {
         // Test .sql files are found by default.
-        let lntr = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        ); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(FluffConfig::default(), None, None, false);
         let paths = normalise_paths(lntr.paths_from_path(
             "test/fixtures/linter".into(),
             None,
@@ -849,8 +849,8 @@ mod tests {
     fn test_linter_path_from_paths_exts() {
         // Assuming Linter is initialized with a configuration similar to Python's
         // FluffConfig
-        let config =
-            FluffConfig::new(<_>::default(), None, None).with_sql_file_exts(vec![".txt".into()]);
+        let mut config = FluffConfig::default();
+        config.core.sql_file_exts = vec![".txt".into()];
         let lntr = Linter::new(config, None, None, false); // Assuming Linter has a new() method for initialization
 
         let paths =
@@ -869,12 +869,7 @@ mod tests {
 
     #[test]
     fn test_linter_path_from_paths_file() {
-        let lntr = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        ); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(FluffConfig::default(), None, None, false);
         let paths = lntr.paths_from_path(
             "test/fixtures/linter/indentation_errors.sql".into(),
             None,
@@ -909,12 +904,7 @@ mod tests {
     // test__linter__linting_unexpected_error_handled_gracefully
     #[test]
     fn test_linter_empty_file() {
-        let linter = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        );
+        let linter = Linter::new(FluffConfig::default(), None, None, false);
         let tables = Tables::default();
         let parsed = linter.parse_string(&tables, "", None).unwrap();
 
@@ -941,12 +931,7 @@ mod tests {
         "
         .to_string();
 
-        let linter = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        );
+        let linter = Linter::new(FluffConfig::default(), None, None, false);
         let tables = Tables::default();
         let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
     }

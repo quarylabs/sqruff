@@ -2,8 +2,8 @@ use line_index::LineIndex;
 use lineage::{Lineage, Node};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
+use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::segments::Tables;
-use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -70,8 +70,9 @@ impl Result {
 impl Linter {
     #[wasm_bindgen(constructor)]
     pub fn new(source: &str) -> Self {
+        let config = FluffConfig::from_source(source, None).unwrap_or_default();
         Self {
-            base: SqruffLinter::new(FluffConfig::from_source(source, None), None, None, true),
+            base: SqruffLinter::new(config, None, None, true),
         }
     }
 
@@ -116,10 +117,12 @@ impl Linter {
             Tool::Format => result.fix_string(),
             Tool::Cst => cst.unwrap().stringify(false),
             Tool::Lineage => {
-                let parser = Parser::new(
-                    self.base.config().get_dialect(),
-                    IndentationConfig::default(),
-                );
+                let dialect = self
+                    .base
+                    .config()
+                    .dialect()
+                    .expect("Dialect is disabled. Please enable the corresponding feature.");
+                let parser = Parser::new(&dialect, self.base.config().parser_indentation);
                 let (tables, node) = Lineage::new(parser, "", sql).build();
 
                 print_tree(&tables, node, "", "", "")

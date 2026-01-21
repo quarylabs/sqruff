@@ -12,10 +12,9 @@ use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceLevel;
 use sqruff_lib_core::utils::analysis::query::{Query, QueryInner};
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 
 #[derive(Default, Clone)]
 struct AL05QueryData {
@@ -30,10 +29,6 @@ type AL05State<'a> = AHashMap<QueryKey<'a>, AL05QueryData>;
 pub struct RuleAL05;
 
 impl Rule for RuleAL05 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL05.erased())
-    }
-
     fn name(&self) -> &'static str {
         "aliasing.unused"
     }

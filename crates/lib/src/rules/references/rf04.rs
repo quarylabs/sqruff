@@ -1,54 +1,14 @@
-use itertools::Itertools;
-use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 use crate::utils::identifers::identifiers_policy_applicable;
 
 #[derive(Debug, Clone, Default)]
-pub struct RuleRF04 {
-    unquoted_identifiers_policy: String,
-    quoted_identifiers_policy: Option<String>,
-    ignore_words: Vec<String>,
-    ignore_words_regex: Vec<Regex>,
-}
+pub struct RuleRF04;
 
 impl Rule for RuleRF04 {
-    fn load_from_config(
-        &self,
-        config: &ahash::AHashMap<String, crate::core::config::Value>,
-    ) -> Result<ErasedRule, String> {
-        Ok(RuleRF04 {
-            unquoted_identifiers_policy: config["unquoted_identifiers_policy"]
-                .as_string()
-                .unwrap()
-                .to_owned(),
-            quoted_identifiers_policy: config["quoted_identifiers_policy"]
-                .map(|it| it.as_string().unwrap().to_string()),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect_vec()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect_vec()
-                })
-                .unwrap_or_default(),
-        }
-        .erased())
-    }
-
     fn name(&self) -> &'static str {
         "references.keywords"
     }
@@ -86,11 +46,13 @@ FROM foo AS vee
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let rules = &context.config.rules.references_keywords;
         if context.segment.raw().len() == 1
-            || self
+            || rules
                 .ignore_words
-                .contains(&context.segment.raw().to_lowercase())
-            || self
+                .iter()
+                .any(|word| word.eq_ignore_ascii_case(context.segment.raw().as_ref()))
+            || rules
                 .ignore_words_regex
                 .iter()
                 .any(|regex| regex.is_match(context.segment.raw()))
@@ -110,7 +72,7 @@ FROM foo AS vee
         // FIXME: simplify the condition
         if (context.segment.is_type(SyntaxKind::NakedIdentifier)
             && identifiers_policy_applicable(
-                &self.unquoted_identifiers_policy,
+                rules.unquoted_identifiers_policy,
                 &context.parent_stack,
             )
             && context
@@ -118,14 +80,14 @@ FROM foo AS vee
                 .sets("unreserved_keywords")
                 .contains(context.segment.raw().to_uppercase().as_str()))
             || (context.segment.is_type(SyntaxKind::QuotedIdentifier)
-                && self.quoted_identifiers_policy.as_ref().is_some_and(
-                    |quoted_identifiers_policy| {
+                && rules
+                    .quoted_identifiers_policy
+                    .is_some_and(|quoted_identifiers_policy| {
                         identifiers_policy_applicable(
                             quoted_identifiers_policy,
                             &context.parent_stack,
                         )
-                    },
-                )
+                    })
                 && (context
                     .dialect
                     .sets("unreserved_keywords")

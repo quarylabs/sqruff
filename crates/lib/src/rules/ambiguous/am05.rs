@@ -1,59 +1,20 @@
-use std::str::FromStr;
-
-use ahash::AHashMap;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
-use strum_macros::{AsRefStr, EnumString};
 
-use crate::core::config::Value;
+use crate::core::config::JoinType;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 
-#[derive(Clone, Debug)]
-pub struct RuleAM05 {
-    fully_qualify_join_types: JoinType,
-}
+#[derive(Clone, Debug, Default)]
+pub struct RuleAM05;
 
-#[derive(Clone, Debug, Copy, PartialEq, Eq, Hash, AsRefStr, EnumString)]
-#[strum(serialize_all = "lowercase")]
-enum JoinType {
-    Inner,
-    Outer,
-    Both,
-}
-
-impl Default for RuleAM05 {
-    fn default() -> Self {
-        Self {
-            fully_qualify_join_types: JoinType::Inner,
-        }
-    }
-}
+#[derive(Clone, Copy)]
+struct CachedJoinType(JoinType);
 
 impl Rule for RuleAM05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
-        let fully_qualify_join_types = config["fully_qualify_join_types"].as_string();
-        // TODO We will need a more complete story for all the config parsing
-        match fully_qualify_join_types {
-            None => Err("Rule AM05 expects a `fully_qualify_join_types` array".to_string()),
-            Some(join_type) => {
-                let join_type = JoinType::from_str(join_type).map_err(|_| {
-                    format!(
-                        "Rule AM05 expects a `fully_qualify_join_types` array of valid join \
-                         types. Got: {join_type}"
-                    )
-                })?;
-                Ok(RuleAM05 {
-                    fully_qualify_join_types: join_type,
-                }
-                .erased())
-            }
-        }
-    }
-
     fn name(&self) -> &'static str {
         "ambiguous.join"
     }
@@ -97,6 +58,15 @@ INNER JOIN baz;
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let join_type = context
+            .try_get::<CachedJoinType>()
+            .map(|cached| cached.0)
+            .unwrap_or_else(|| {
+                let parsed = context.config.rules.ambiguous_join.fully_qualify_join_types;
+                context.set(CachedJoinType(parsed));
+                parsed
+            });
+
         assert!(context.segment.is_type(SyntaxKind::JoinClause));
 
         let join_clause_keywords = context
@@ -107,8 +77,7 @@ INNER JOIN baz;
             .collect::<Vec<_>>();
 
         // Identify LEFT/RIGHT/OUTER JOIN and if the next keyword is JOIN.
-        if (self.fully_qualify_join_types == JoinType::Outer
-            || self.fully_qualify_join_types == JoinType::Both)
+        if (join_type == JoinType::Outer || join_type == JoinType::Both)
             && ["RIGHT", "LEFT", "FULL"].contains(
                 &join_clause_keywords[0]
                     .raw()
@@ -138,8 +107,7 @@ INNER JOIN baz;
         };
 
         // Fully qualifying inner joins
-        if (self.fully_qualify_join_types == JoinType::Inner
-            || self.fully_qualify_join_types == JoinType::Both)
+        if (join_type == JoinType::Inner || join_type == JoinType::Both)
             && join_clause_keywords[0].raw().eq_ignore_ascii_case("JOIN")
         {
             let inner_keyword = if join_clause_keywords[0].raw() == "JOIN" {

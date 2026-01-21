@@ -1546,6 +1546,7 @@ dependencies = [
  "expect-test",
  "mimalloc",
  "pyo3",
+ "serde_json",
  "sqruff-cli-lib",
  "sqruff-lib",
  "tempfile",

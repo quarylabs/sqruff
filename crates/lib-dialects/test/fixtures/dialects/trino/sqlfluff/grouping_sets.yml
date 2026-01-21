@@ -63,7 +63,8 @@ file:
                     - naked_identifier: price
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: volume
         - comma: ','
         - select_clause_element:

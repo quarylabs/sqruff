@@ -10,23 +10,16 @@ file:
     - from_clause:
       - keyword: FROM
       - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - function:
-              - function_name:
-                - naked_identifier: ML
-                - dot: .
-                - function_name_identifier: WEIGHTS
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: MODEL
-                  - expression:
-                    - column_reference:
-                      - quoted_identifier: '`project.dataset.model`'
-                  - end_bracket: )
+        - ml_table_expression:
+          - keyword: ML
+          - dot: .
+          - naked_identifier: WEIGHTS
+          - bracketed:
+            - start_bracket: (
+            - keyword: MODEL
+            - object_reference:
+              - quoted_identifier: '`project.dataset.model`'
+            - end_bracket: )
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY

@@ -9,7 +9,8 @@ file:
           - dot: .
           - naked_identifier: order_id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -18,7 +19,8 @@ file:
           - dot: .
           - naked_identifier: email
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: email
     - from_clause:
       - keyword: from
@@ -96,7 +98,8 @@ file:
           - dot: .
           - naked_identifier: order_id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -105,7 +108,8 @@ file:
           - dot: .
           - naked_identifier: email
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: email
     - from_clause:
       - keyword: from
@@ -186,7 +190,8 @@ file:
           - dot: .
           - naked_identifier: order_id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -195,20 +200,20 @@ file:
           - dot: .
           - naked_identifier: email
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: email
     - from_clause:
       - keyword: from
       - from_expression:
         - bracketed:
           - start_bracket: (
-          - bracketed:
-            - start_bracket: (
-            - from_expression:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - naked_identifier: orders
+          - from_expression_element:
+            - bracketed:
+              - start_bracket: (
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: orders
               - join_clause:
                 - keyword: join
                 - from_expression_element:
@@ -235,7 +240,7 @@ file:
                             - naked_identifier: customer_id
                         - end_bracket: )
                     - end_bracket: )
-            - end_bracket: )
+              - end_bracket: )
           - join_clause:
             - keyword: join
             - from_expression_element:
@@ -306,7 +311,8 @@ file:
           - dot: .
           - naked_identifier: order_id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -315,7 +321,8 @@ file:
           - dot: .
           - naked_identifier: email
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: email
     - from_clause:
       - keyword: from
@@ -325,13 +332,12 @@ file:
           - bracketed:
             - start_bracket: (
             - from_expression:
-              - bracketed:
-                - start_bracket: (
-                - from_expression:
-                  - from_expression_element:
-                    - table_expression:
-                      - table_reference:
-                        - naked_identifier: orders
+              - from_expression_element:
+                - bracketed:
+                  - start_bracket: (
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: orders
                   - join_clause:
                     - keyword: join
                     - from_expression_element:
@@ -358,7 +364,7 @@ file:
                                 - naked_identifier: customer_id
                             - end_bracket: )
                         - end_bracket: )
-                - end_bracket: )
+                  - end_bracket: )
               - join_clause:
                 - keyword: join
                 - from_expression_element:

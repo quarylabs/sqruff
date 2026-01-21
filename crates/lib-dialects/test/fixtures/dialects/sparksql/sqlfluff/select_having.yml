@@ -19,7 +19,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -62,7 +63,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -113,7 +115,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -156,7 +159,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -207,7 +211,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -250,7 +255,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM

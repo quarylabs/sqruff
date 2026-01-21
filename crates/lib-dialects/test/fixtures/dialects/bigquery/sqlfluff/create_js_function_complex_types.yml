@@ -60,7 +60,7 @@ file:
                   - keyword: ARRAY
                   - start_angle_bracket: <
                   - data_type:
-                    - data_type_identifier: FLOAT
+                    - data_type_identifier: FLOAT64
                   - end_angle_bracket: '>'
               - comma: ','
               - parameter: b

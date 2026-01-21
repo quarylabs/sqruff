@@ -247,6 +247,7 @@ FROM foo
             DialectKind::Bigquery,
             DialectKind::Databricks,
             DialectKind::Duckdb,
+            DialectKind::Hive,
             DialectKind::Sparksql,
         ]
     }

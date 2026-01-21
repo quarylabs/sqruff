@@ -17,16 +17,17 @@ file:
               - expression:
                 - quoted_literal: ''','''
               - end_bracket: )
-          - keyword: WITHIN
-          - keyword: GROUP
-          - bracketed:
-            - start_bracket: (
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                - naked_identifier: value
-            - end_bracket: )
+          - withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+              - start_bracket: (
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: value
+              - end_bracket: )
         - alias_expression:
           - naked_identifier: csv_value
     - from_clause:
@@ -72,20 +73,22 @@ file:
               - comma: ','
               - expression:
                 - quoted_literal: ''','''
-              - keyword: ON
-              - keyword: OVERFLOW
-              - keyword: ERROR
+              - listagg_overflow_clause:
+                - keyword: ON
+                - keyword: OVERFLOW
+                - keyword: ERROR
               - end_bracket: )
-          - keyword: WITHIN
-          - keyword: GROUP
-          - bracketed:
-            - start_bracket: (
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                - naked_identifier: value
-            - end_bracket: )
+          - withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+              - start_bracket: (
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: value
+              - end_bracket: )
         - alias_expression:
           - naked_identifier: csv_value
     - from_clause:
@@ -131,23 +134,25 @@ file:
               - comma: ','
               - expression:
                 - quoted_literal: ''','''
-              - keyword: ON
-              - keyword: OVERFLOW
-              - keyword: TRUNCATE
-              - quoted_identifier: '''.....'''
-              - keyword: WITH
-              - keyword: COUNT
+              - listagg_overflow_clause:
+                - keyword: ON
+                - keyword: OVERFLOW
+                - keyword: TRUNCATE
+                - quoted_literal: '''.....'''
+                - keyword: WITH
+                - keyword: COUNT
               - end_bracket: )
-          - keyword: WITHIN
-          - keyword: GROUP
-          - bracketed:
-            - start_bracket: (
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                - naked_identifier: value
-            - end_bracket: )
+          - withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+              - start_bracket: (
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: value
+              - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -196,16 +201,17 @@ file:
               - expression:
                 - quoted_literal: ''','''
               - end_bracket: )
-          - keyword: WITHIN
-          - keyword: GROUP
-          - bracketed:
-            - start_bracket: (
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                - naked_identifier: o
-            - end_bracket: )
+          - withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+              - start_bracket: (
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: o
+              - end_bracket: )
         - alias_expression:
           - naked_identifier: csv_value
     - from_clause:
@@ -291,29 +297,31 @@ file:
               - expression:
                 - quoted_literal: ''','''
               - end_bracket: )
-          - keyword: WITHIN
-          - keyword: GROUP
-          - bracketed:
-            - start_bracket: (
-            - orderby_clause:
-              - keyword: ORDER
-              - keyword: BY
-              - column_reference:
-                - naked_identifier: o
-            - end_bracket: )
-          - keyword: FILTER
-          - bracketed:
-            - start_bracket: (
-            - keyword: WHERE
-            - expression:
-              - column_reference:
-                - naked_identifier: o
-              - keyword: IS
-              - keyword: NOT
-              - null_literal: 'NULL'
-            - end_bracket: )
+          - withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+              - start_bracket: (
+              - orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - naked_identifier: o
+              - end_bracket: )
+            - keyword: FILTER
+            - bracketed:
+              - start_bracket: (
+              - keyword: WHERE
+              - expression:
+                - column_reference:
+                  - naked_identifier: o
+                - keyword: IS
+                - keyword: NOT
+                - null_literal: 'NULL'
+              - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: csv_value
     - from_clause:
       - keyword: FROM

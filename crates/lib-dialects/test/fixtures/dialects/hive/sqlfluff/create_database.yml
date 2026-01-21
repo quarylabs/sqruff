@@ -1,0 +1,24 @@
+file:
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: foo
+    - keyword: LOCATION
+    - quoted_literal: '''hdfs://path'''
+    - keyword: WITH
+    - keyword: DBPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '"a"'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '"1"'
+      - comma: ','
+      - quoted_literal: '"b"'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '"2"'
+      - end_bracket: )
+- statement_terminator: ;

@@ -74,11 +74,13 @@ file:
                                               - end_bracket: )
                                       - end_bracket: )
                               - alias_expression:
-                                - keyword: AS
+                                - alias_operator:
+                                  - keyword: AS
                                 - naked_identifier: num
                       - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: bits
             - comma: ','
             - select_clause_element:
@@ -228,7 +230,8 @@ file:
                 - column_reference:
                   - naked_identifier: audience_size
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: relative_abundance
           - from_clause:
             - keyword: FROM

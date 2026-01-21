@@ -141,7 +141,8 @@ file:
           - column_reference:
             - naked_identifier: col2
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: newcol1
       - comma: ','
       - select_clause_element:
@@ -152,7 +153,8 @@ file:
           - column_reference:
             - naked_identifier: col2
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: newcol2
     - from_clause:
       - keyword: FROM

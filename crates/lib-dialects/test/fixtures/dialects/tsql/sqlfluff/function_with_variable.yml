@@ -1,0 +1,55 @@
+file:
+- batch:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - parameter: '@year'
+          - data_type:
+            - keyword: INT
+          - comma: ','
+          - parameter: '@week'
+          - data_type:
+            - keyword: INT
+          - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - keyword: BIGINT
+      - keyword: AS
+      - procedure_statement:
+        - statement:
+          - begin_end_block:
+            - keyword: BEGIN
+            - statement:
+              - declare_segment:
+                - keyword: DECLARE
+                - parameter: '@result'
+                - data_type:
+                  - keyword: BIGINT
+            - statement:
+              - set_local_variable_segment:
+                - keyword: SET
+                - parameter: '@result'
+                - assignment_operator:
+                  - raw_comparison_operator: =
+                - expression:
+                  - integer_literal: '4'
+            - statement:
+              - return_segment:
+                - keyword: RETURN
+                - expression:
+                  - parameter: '@result'
+                  - binary_operator: +
+                  - parameter: '@year'
+                  - binary_operator: +
+                  - parameter: '@week'
+            - keyword: END

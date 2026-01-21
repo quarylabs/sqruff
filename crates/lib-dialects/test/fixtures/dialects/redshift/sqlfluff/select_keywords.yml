@@ -9,7 +9,8 @@ file:
           - dot: .
           - naked_identifier: nspname
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: constraint_schema
       - comma: ','
       - select_clause_element:
@@ -18,7 +19,8 @@ file:
           - dot: .
           - naked_identifier: conname
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: constraint_name
     - from_clause:
       - keyword: FROM
@@ -39,7 +41,7 @@ file:
         - column_reference:
           - naked_identifier: pg_namespace
           - dot: .
-          - naked_identifier: oid
+          - naked_identifier_all: oid
         - comparison_operator:
           - raw_comparison_operator: =
         - column_reference:
@@ -57,10 +59,10 @@ file:
     - select_statement:
       - select_clause:
         - keyword: select
+        - select_clause_modifier:
+          - keyword: distinct
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: distinct
+          - expression:
             - bracketed:
               - start_bracket: (
               - expression:
@@ -74,12 +76,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: trim
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: datname
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: datname
+                - end_bracket: )
           - alias_expression:
             - naked_identifier: db_name
         - comma: ','
@@ -87,12 +90,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: trim
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: nspname
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: nspname
+                - end_bracket: )
           - alias_expression:
             - naked_identifier: schema_name
         - comma: ','
@@ -100,12 +104,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: trim
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: relname
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: relname
+                - end_bracket: )
           - alias_expression:
             - naked_identifier: table_name
       - from_clause:
@@ -127,7 +132,7 @@ file:
                 - column_reference:
                   - naked_identifier: pg_class
                   - dot: .
-                  - naked_identifier: oid
+                  - naked_identifier_all: oid
                 - comparison_operator:
                   - raw_comparison_operator: =
                 - column_reference:
@@ -146,7 +151,7 @@ file:
                 - column_reference:
                   - naked_identifier: pg_namespace
                   - dot: .
-                  - naked_identifier: oid
+                  - naked_identifier_all: oid
                 - comparison_operator:
                   - raw_comparison_operator: =
                 - column_reference:
@@ -163,7 +168,7 @@ file:
                 - column_reference:
                   - naked_identifier: pg_database
                   - dot: .
-                  - naked_identifier: oid
+                  - naked_identifier_all: oid
                 - comparison_operator:
                   - raw_comparison_operator: =
                 - column_reference:

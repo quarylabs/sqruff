@@ -2,60 +2,70 @@ file:
 - statement:
   - use_statement:
     - keyword: USE
-    - object_reference:
+    - database_reference:
       - naked_identifier: database_name
 - statement_terminator: ;
 - statement:
   - use_statement:
     - keyword: USE
-    - object_reference:
+    - database_reference:
       - naked_identifier: userdb
 - statement_terminator: ;
 - statement:
   - use_statement:
     - keyword: USE
-    - object_reference:
+    - database_reference:
       - naked_identifier: userdb1
 - statement_terminator: ;
 - statement:
-  - keyword: USE
-  - keyword: DATABASE
-  - object_reference:
-    - naked_identifier: database_name
+  - use_database_statement:
+    - keyword: USE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: database_name
 - statement_terminator: ;
 - statement:
-  - keyword: USE
-  - keyword: SCHEMA
-  - object_reference:
-    - naked_identifier: database_name
+  - use_database_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: database_name
 - statement_terminator: ;
 - statement:
   - use_statement:
     - keyword: USE
-    - object_reference:
-      - keyword: IDENTIFIER
-      - bracketed:
-        - start_bracket: (
-        - quoted_identifier: '''database_name'''
-        - end_bracket: )
+    - database_reference:
+      - identifier_clause_segment:
+        - keyword: IDENTIFIER
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''database_name'''
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - keyword: USE
-  - keyword: DATABASE
-  - object_reference:
-    - keyword: IDENTIFIER
-    - bracketed:
-      - start_bracket: (
-      - quoted_identifier: '''database_name'''
-      - end_bracket: )
+  - use_database_statement:
+    - keyword: USE
+    - keyword: DATABASE
+    - database_reference:
+      - identifier_clause_segment:
+        - keyword: IDENTIFIER
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''database_name'''
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - keyword: USE
-  - keyword: SCHEMA
-  - object_reference:
-    - keyword: IDENTIFIER
-    - bracketed:
-      - start_bracket: (
-      - quoted_identifier: '''database_name'''
-      - end_bracket: )
+  - use_database_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - database_reference:
+      - identifier_clause_segment:
+        - keyword: IDENTIFIER
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - quoted_literal: '''database_name'''
+          - end_bracket: )
 - statement_terminator: ;

@@ -5,7 +5,7 @@ file:
     - table_reference:
       - naked_identifier: employees
     - keyword: USING
-    - database_reference:
+    - index_reference:
       - naked_identifier: employees_ind
 - statement_terminator: ;
 - statement:
@@ -15,7 +15,7 @@ file:
     - table_reference:
       - naked_identifier: employees
     - keyword: USING
-    - database_reference:
+    - index_reference:
       - naked_identifier: employees_ind
 - statement_terminator: ;
 - statement:
@@ -36,7 +36,7 @@ file:
 - statement:
   - cluster_statement:
     - keyword: CLUSTER
-    - database_reference:
+    - index_reference:
       - naked_identifier: index_name
     - keyword: ON
     - table_reference:
@@ -50,6 +50,6 @@ file:
       - dot: .
       - naked_identifier: temp_table
     - keyword: USING
-    - database_reference:
+    - index_reference:
       - naked_identifier: idx_temp_table_ra
 - statement_terminator: ;

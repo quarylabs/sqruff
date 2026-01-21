@@ -1,0 +1,21 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: new_foo
+    - keyword: LIKE
+    - table_reference:
+      - naked_identifier: foo
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '"property_name"'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '"property_value"'
+      - end_bracket: )
+- statement_terminator: ;

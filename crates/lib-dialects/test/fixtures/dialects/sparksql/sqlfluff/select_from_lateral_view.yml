@@ -37,57 +37,57 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: person
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: EXPLODE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: ARRAY
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - numeric_literal: '30'
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '60'
-                          - end_bracket: )
-                  - end_bracket: )
-            - naked_identifier: tbl_name
-            - keyword: AS
-            - naked_identifier: c_age
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: EXPLODE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: ARRAY
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - numeric_literal: '40'
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '80'
-                          - end_bracket: )
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: d_age
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: EXPLODE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: ARRAY
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '30'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '60'
+                        - end_bracket: )
+                - end_bracket: )
+          - naked_identifier: tbl_name
+          - keyword: AS
+          - naked_identifier: c_age
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: EXPLODE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: ARRAY
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '40'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '80'
+                        - end_bracket: )
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: d_age
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -107,7 +107,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
@@ -116,56 +117,56 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: person
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: EXPLODE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: ARRAY
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - numeric_literal: '30'
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '60'
-                          - end_bracket: )
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c_age
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: EXPLODE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: ARRAY
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - numeric_literal: '40'
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '80'
-                          - end_bracket: )
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: d_age
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: EXPLODE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: ARRAY
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '30'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '60'
+                        - end_bracket: )
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: c_age
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: EXPLODE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: ARRAY
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '40'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '80'
+                        - end_bracket: )
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: d_age
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -210,27 +211,27 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: person
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: EXPLODE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: ARRAY
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - end_bracket: )
-                  - end_bracket: )
-            - naked_identifier: tbl_name
-            - keyword: AS
-            - naked_identifier: c_age
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: EXPLODE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: ARRAY
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
+                - end_bracket: )
+          - naked_identifier: tbl_name
+          - keyword: AS
+          - naked_identifier: c_age
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -270,28 +271,28 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: person
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - keyword: OUTER
-            - function:
-              - function_name:
-                - function_name_identifier: EXPLODE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: ARRAY
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - end_bracket: )
-                  - end_bracket: )
-            - naked_identifier: tbl_name
-            - keyword: AS
-            - naked_identifier: c_age
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - keyword: OUTER
+          - function:
+            - function_name:
+              - function_name_identifier: EXPLODE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: ARRAY
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
+                - end_bracket: )
+          - naked_identifier: tbl_name
+          - keyword: AS
+          - naked_identifier: c_age
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -331,27 +332,27 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: person
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - keyword: OUTER
-            - function:
-              - function_name:
-                - function_name_identifier: EXPLODE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: ARRAY
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - end_bracket: )
-                  - end_bracket: )
-            - naked_identifier: tbl_name
-            - naked_identifier: c_age
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - keyword: OUTER
+          - function:
+            - function_name:
+              - function_name_identifier: EXPLODE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: ARRAY
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
+                - end_bracket: )
+          - naked_identifier: tbl_name
+          - naked_identifier: c_age
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -391,26 +392,26 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: person
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - keyword: OUTER
-            - function:
-              - function_name:
-                - function_name_identifier: EXPLODE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: ARRAY
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - end_bracket: )
-                  - end_bracket: )
-            - naked_identifier: c_age
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - keyword: OUTER
+          - function:
+            - function_name:
+              - function_name_identifier: EXPLODE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: ARRAY
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - end_bracket: )
+                - end_bracket: )
+          - naked_identifier: c_age
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -446,26 +447,26 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: person
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: INLINE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: array_of_structs
-                  - end_bracket: )
-            - naked_identifier: exploded_people
-            - keyword: AS
-            - naked_identifier: name
-            - comma: ','
-            - naked_identifier: age
-            - comma: ','
-            - naked_identifier: state
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: INLINE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: array_of_structs
+                - end_bracket: )
+          - naked_identifier: exploded_people
+          - keyword: AS
+          - naked_identifier: name
+          - comma: ','
+          - naked_identifier: age
+          - comma: ','
+          - naked_identifier: state
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -502,28 +503,29 @@ file:
             - table_reference:
               - naked_identifier: person
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: p
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: INLINE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: array_of_structs
-                  - end_bracket: )
-            - naked_identifier: exploded_people
-            - keyword: AS
-            - naked_identifier: name
-            - comma: ','
-            - naked_identifier: age
-            - comma: ','
-            - naked_identifier: state
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: INLINE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: array_of_structs
+                - end_bracket: )
+          - naked_identifier: exploded_people
+          - keyword: AS
+          - naked_identifier: name
+          - comma: ','
+          - naked_identifier: age
+          - comma: ','
+          - naked_identifier: state
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -560,22 +562,23 @@ file:
             - table_reference:
               - naked_identifier: person
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: p
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: INLINE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: array_of_structs
-                  - end_bracket: )
-            - naked_identifier: exploded_people
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: INLINE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: array_of_structs
+                - end_bracket: )
+          - naked_identifier: exploded_people
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -612,27 +615,28 @@ file:
             - table_reference:
               - naked_identifier: person
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: p
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: INLINE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: array_of_structs
-                  - end_bracket: )
-            - naked_identifier: exploded_people
-            - naked_identifier: name
-            - comma: ','
-            - naked_identifier: age
-            - comma: ','
-            - naked_identifier: state
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: INLINE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: array_of_structs
+                - end_bracket: )
+          - naked_identifier: exploded_people
+          - naked_identifier: name
+          - comma: ','
+          - naked_identifier: age
+          - comma: ','
+          - naked_identifier: state
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -669,27 +673,28 @@ file:
             - table_reference:
               - naked_identifier: person
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: p
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: INLINE
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: array_of_structs
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: name
-            - comma: ','
-            - naked_identifier: age
-            - comma: ','
-            - naked_identifier: state
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: INLINE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: array_of_structs
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: name
+          - comma: ','
+          - naked_identifier: age
+          - comma: ','
+          - naked_identifier: state
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -735,7 +740,8 @@ file:
                       - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: ptc
     - from_clause:
       - keyword: FROM
@@ -745,7 +751,8 @@ file:
             - table_reference:
               - naked_identifier: table1
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t1
         - join_clause:
           - keyword: LEFT
@@ -755,7 +762,8 @@ file:
               - table_reference:
                 - naked_identifier: table2
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: t2
           - join_on_condition:
             - keyword: ON

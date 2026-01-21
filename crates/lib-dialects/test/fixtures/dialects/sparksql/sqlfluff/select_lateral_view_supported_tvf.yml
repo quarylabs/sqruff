@@ -73,31 +73,31 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: explode
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: array
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - numeric_literal: '3'
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '4'
-                          - end_bracket: )
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c2
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: explode
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: array
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '3'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '4'
+                        - end_bracket: )
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -121,31 +121,31 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: explode_outer
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: array
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - numeric_literal: '3'
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '4'
-                          - end_bracket: )
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c2
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: explode_outer
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: array
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '3'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '4'
+                        - end_bracket: )
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -265,55 +265,55 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: inline
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: array
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - function:
-                              - function_name:
-                                - function_name_identifier: struct
-                              - function_contents:
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - numeric_literal: '1'
-                                  - comma: ','
-                                  - expression:
-                                    - quoted_literal: '''a'''
-                                  - end_bracket: )
-                          - comma: ','
-                          - expression:
-                            - function:
-                              - function_name:
-                                - function_name_identifier: struct
-                              - function_contents:
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - numeric_literal: '2'
-                                  - comma: ','
-                                  - expression:
-                                    - quoted_literal: '''b'''
-                                  - end_bracket: )
-                          - end_bracket: )
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
-            - comma: ','
-            - naked_identifier: c2
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: inline
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: array
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: struct
+                            - function_contents:
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
+                                  - numeric_literal: '1'
+                                - comma: ','
+                                - expression:
+                                  - quoted_literal: '''a'''
+                                - end_bracket: )
+                        - comma: ','
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: struct
+                            - function_contents:
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
+                                  - numeric_literal: '2'
+                                - comma: ','
+                                - expression:
+                                  - quoted_literal: '''b'''
+                                - end_bracket: )
+                        - end_bracket: )
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: c1
+          - comma: ','
+          - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -337,55 +337,55 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: inline_outer
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: array
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - function:
-                              - function_name:
-                                - function_name_identifier: struct
-                              - function_contents:
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - numeric_literal: '1'
-                                  - comma: ','
-                                  - expression:
-                                    - quoted_literal: '''a'''
-                                  - end_bracket: )
-                          - comma: ','
-                          - expression:
-                            - function:
-                              - function_name:
-                                - function_name_identifier: struct
-                              - function_contents:
-                                - bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                    - numeric_literal: '2'
-                                  - comma: ','
-                                  - expression:
-                                    - quoted_literal: '''b'''
-                                  - end_bracket: )
-                          - end_bracket: )
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
-            - comma: ','
-            - naked_identifier: c2
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: inline_outer
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: array
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: struct
+                            - function_contents:
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
+                                  - numeric_literal: '1'
+                                - comma: ','
+                                - expression:
+                                  - quoted_literal: '''a'''
+                                - end_bracket: )
+                        - comma: ','
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: struct
+                            - function_contents:
+                              - bracketed:
+                                - start_bracket: (
+                                - expression:
+                                  - numeric_literal: '2'
+                                - comma: ','
+                                - expression:
+                                  - quoted_literal: '''b'''
+                                - end_bracket: )
+                        - end_bracket: )
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: c1
+          - comma: ','
+          - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -461,31 +461,31 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: posexplode
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: array
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - numeric_literal: '10'
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '20'
-                          - end_bracket: )
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: posexplode
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: array
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '10'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '20'
+                        - end_bracket: )
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: c1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -509,31 +509,31 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: posexplode_outer
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: array
-                      - function_contents:
-                        - bracketed:
-                          - start_bracket: (
-                          - expression:
-                            - numeric_literal: '10'
-                          - comma: ','
-                          - expression:
-                            - numeric_literal: '20'
-                          - end_bracket: )
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: posexplode_outer
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: array
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '10'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '20'
+                        - end_bracket: )
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: c1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -581,31 +581,31 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: stack
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - numeric_literal: '2'
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '1'
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '2'
-                  - comma: ','
-                  - expression:
-                    - numeric_literal: '3'
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
-            - comma: ','
-            - naked_identifier: c2
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: stack
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - numeric_literal: '2'
+                - comma: ','
+                - expression:
+                  - numeric_literal: '1'
+                - comma: ','
+                - expression:
+                  - numeric_literal: '2'
+                - comma: ','
+                - expression:
+                  - numeric_literal: '3'
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: c1
+          - comma: ','
+          - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -650,28 +650,28 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
-            - function:
-              - function_name:
-                - function_name_identifier: json_tuple
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - quoted_literal: '''{"a":1, "b":2}'''
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: '''a'''
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: '''b'''
-                  - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
-            - comma: ','
-            - naked_identifier: c2
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: json_tuple
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''{"a":1, "b":2}'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''a'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''b'''
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: c1
+          - comma: ','
+          - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -713,21 +713,83 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: test
-          - lateral_view_clause:
-            - keyword: LATERAL
-            - keyword: VIEW
+        - lateral_view_clause:
+          - keyword: LATERAL
+          - keyword: VIEW
+          - function:
+            - function_name:
+              - function_name_identifier: parse_url
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''http://spark.apache.org/path?query=1'''
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''HOST'''
+                - end_bracket: )
+          - keyword: AS
+          - naked_identifier: c1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+          - dot: .
+          - naked_identifier: col
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
             - function:
               - function_name:
-                - function_name_identifier: parse_url
+                - function_name_identifier: range
               - function_contents:
                 - bracketed:
                   - start_bracket: (
                   - expression:
-                    - quoted_literal: '''http://spark.apache.org/path?query=1'''
-                  - comma: ','
-                  - expression:
-                    - quoted_literal: '''HOST'''
+                    - numeric_literal: '10'
                   - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c1
+          - alias_expression:
+            - alias_operator:
+              - keyword: as
+            - naked_identifier: test
+        - lateral_view_clause:
+          - comma: ','
+          - keyword: LATERAL
+          - function:
+            - function_name:
+              - function_name_identifier: explode
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: array
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - quoted_literal: '''a'''
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''b'''
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''c'''
+                        - end_bracket: )
+                - end_bracket: )
+          - keyword: as
+          - naked_identifier: b
 - statement_terminator: ;

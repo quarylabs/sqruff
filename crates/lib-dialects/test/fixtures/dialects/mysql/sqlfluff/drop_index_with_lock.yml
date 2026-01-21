@@ -1,0 +1,105 @@
+file:
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: NONE
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: SHARED
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: EXCLUSIVE
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - keyword: NONE
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - keyword: SHARED
+- statement_terminator: ;
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+    - keyword: LOCK
+    - keyword: EXCLUSIVE
+- statement_terminator: ;

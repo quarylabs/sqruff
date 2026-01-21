@@ -17,7 +17,8 @@ file:
                   - naked_identifier: orderdate
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: orderdate
     - from_clause:
       - keyword: FROM
@@ -27,5 +28,6 @@ file:
             - table_reference:
               - quoted_identifier: '`gcp-project.data.year_2021`'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: log_tbl

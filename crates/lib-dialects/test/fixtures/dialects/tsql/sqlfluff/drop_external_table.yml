@@ -1,0 +1,32 @@
+file:
+- batch:
+  - statement:
+    - drop_external_table_statement:
+      - keyword: DROP
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: SalesPerson
+  - statement_terminator: ;
+  - statement:
+    - drop_external_table_statement:
+      - keyword: DROP
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SalesPerson
+  - statement_terminator: ;
+  - statement:
+    - drop_external_table_statement:
+      - keyword: DROP
+      - keyword: EXTERNAL
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: EasternDivision
+        - dot: .
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SalesPerson
+  - statement_terminator: ;

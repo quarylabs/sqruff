@@ -1,20 +1,144 @@
 file:
 - statement:
-  - keyword: ALTER
-  - keyword: CATALOG
-  - object_reference:
-    - naked_identifier: some_cat
-  - keyword: OWNER
-  - keyword: TO
-  - quoted_identifier: '`alf@melmak.et`'
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
 - statement_terminator: ;
 - statement:
-  - keyword: ALTER
-  - keyword: CATALOG
-  - object_reference:
-    - naked_identifier: some_cat
-  - keyword: SET
-  - keyword: OWNER
-  - keyword: TO
-  - quoted_identifier: '`alf@melmak.et`'
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''tag1'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value1'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''tag2'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value2'''
+      - comma: ','
+      - property_name_identifier:
+        - quoted_identifier: '''tag3'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value3'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''tag1'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''tag2'''
+      - comma: ','
+      - property_name_identifier:
+        - quoted_identifier: '''tag3'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: ENABLE
+    - keyword: PREDICTIVE
+    - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: INHERIT
+    - keyword: PREDICTIVE
+    - keyword: OPTIMIZATION
+- statement_terminator: ;
+- statement:
+  - alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: some_cat
+    - keyword: DISABLE
+    - keyword: PREDICTIVE
+    - keyword: OPTIMIZATION
 - statement_terminator: ;

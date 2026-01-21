@@ -1,0 +1,31 @@
+file:
+- statement:
+  - help_statement:
+    - keyword: HELP
+    - quoted_literal: '''contents'''
+- statement_terminator: ;
+- statement:
+  - help_statement:
+    - keyword: HELP
+    - quoted_literal: '''data types'''
+- statement_terminator: ;
+- statement:
+  - help_statement:
+    - keyword: HELP
+    - quoted_literal: '''ascii'''
+- statement_terminator: ;
+- statement:
+  - help_statement:
+    - keyword: HELP
+    - quoted_literal: '''create table'''
+- statement_terminator: ;
+- statement:
+  - help_statement:
+    - keyword: HELP
+    - quoted_literal: '''status'''
+- statement_terminator: ;
+- statement:
+  - help_statement:
+    - keyword: HELP
+    - quoted_literal: '''functions'''
+- statement_terminator: ;

@@ -33,7 +33,8 @@ file:
                 - numeric_literal: '53'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: c2
     - from_clause:
       - keyword: FROM

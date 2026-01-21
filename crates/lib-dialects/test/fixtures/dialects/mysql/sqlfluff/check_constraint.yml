@@ -1,0 +1,128 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - table_constraint:
+        - keyword: CHECK
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: c1
+            - comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
+            - column_reference:
+              - naked_identifier: c2
+          - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: c1
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: CHECK
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: c1
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '10'
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: c2
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+            - naked_identifier: c2_positive
+          - keyword: CHECK
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: c2
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '0'
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: c3
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: CHECK
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: c3
+              - comparison_operator:
+                - raw_comparison_operator: <
+              - numeric_literal: '100'
+            - end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: c1_nonzero
+        - keyword: CHECK
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: c1
+            - comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
+            - numeric_literal: '0'
+          - end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CHECK
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: c1
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - column_reference:
+              - naked_identifier: c3
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t1
+    - keyword: ALTER
+    - keyword: CHECK
+    - object_reference:
+      - naked_identifier: c2_positive
+    - keyword: NOT
+    - keyword: ENFORCED
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t1
+    - keyword: DROP
+    - keyword: CONSTRAINT
+    - object_reference:
+      - naked_identifier: c1_nonzero
+- statement_terminator: ;

@@ -417,8 +417,8 @@ file:
         - join_clause:
           - keyword: CROSS
           - keyword: JOIN
-          - keyword: LATERAL
           - from_expression_element:
+            - keyword: LATERAL
             - table_expression:
               - function:
                 - function_name:
@@ -433,7 +433,8 @@ file:
                         - naked_identifier: columnb
                     - end_bracket: )
             - alias_expression:
-              - keyword: as
+              - alias_operator:
+                - keyword: as
               - naked_identifier: t
               - bracketed:
                 - start_bracket: (
@@ -599,7 +600,7 @@ file:
         - column_reference:
           - naked_identifier: periods
           - dot: .
-          - naked_identifier: end
+          - naked_identifier_all: end
     - from_clause:
       - keyword: from
       - from_expression:
@@ -779,6 +780,9 @@ file:
       - column_reference:
         - naked_identifier: sync_time
       - keyword: ASC
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '1'
     - for_clause:
       - keyword: FOR
       - keyword: SHARE
@@ -790,9 +794,6 @@ file:
         - naked_identifier: mytable2
       - keyword: SKIP
       - keyword: LOCKED
-    - limit_clause:
-      - keyword: LIMIT
-      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -905,4 +906,87 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"""t"'
+          - dot: .
+          - naked_identifier: col1
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: tbl1
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - quoted_identifier: '"""t"'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: film_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: title
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: film
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: title
+    - fetch_clause:
+      - keyword: FETCH
+      - keyword: FIRST
+      - numeric_literal: '10'
+      - keyword: ROW
+      - keyword: ONLY
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: foo
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: bar
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '1'
+    - for_clause:
+      - keyword: FOR
+      - keyword: UPDATE
 - statement_terminator: ;

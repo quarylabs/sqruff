@@ -1,0 +1,44 @@
+file:
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: t
+- statement_terminator: ;
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: t
+    - comma: ','
+    - table_reference:
+      - naked_identifier: t2
+- statement_terminator: ;
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: t
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: t
+    - keyword: CASCADE
+- statement_terminator: ;

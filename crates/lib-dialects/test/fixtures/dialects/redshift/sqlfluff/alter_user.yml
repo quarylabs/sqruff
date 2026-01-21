@@ -242,9 +242,10 @@ file:
     - keyword: user
     - role_reference:
       - naked_identifier: admin
-    - keyword: connection
-    - keyword: limit
-    - keyword: unlimited
+    - connection_limit_segment:
+      - keyword: connection
+      - keyword: limit
+      - keyword: unlimited
 - statement_terminator: ;
 - statement:
   - alter_user_statement:
@@ -253,9 +254,10 @@ file:
     - role_reference:
       - naked_identifier: admin
     - keyword: with
-    - keyword: connection
-    - keyword: limit
-    - keyword: unlimited
+    - connection_limit_segment:
+      - keyword: connection
+      - keyword: limit
+      - keyword: unlimited
 - statement_terminator: ;
 - statement:
   - alter_user_statement:

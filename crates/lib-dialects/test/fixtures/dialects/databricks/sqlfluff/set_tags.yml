@@ -1,0 +1,198 @@
+file:
+- statement:
+  - tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: catalog
+    - quoted_identifier: '`tag1`'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_identifier: '`value1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table
+      - dot: .
+      - naked_identifier: column
+    - quoted_identifier: '`tag1`'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_identifier: '`value1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+    - naked_identifier: tag1
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_identifier: '`value1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: database
+    - quoted_identifier: '`tag1`'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - naked_identifier: value1
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table
+    - naked_identifier: tag1
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - naked_identifier: value1
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: view
+    - quoted_identifier: '`tag1`'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_identifier: '`value1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: SET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: VOLUME
+    - volume_reference:
+      - naked_identifier: volume
+    - quoted_identifier: '`tag1`'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_identifier: '`value1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: CATALOG
+    - catalog_reference:
+      - naked_identifier: catalog
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table
+      - dot: .
+      - naked_identifier: column
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: SCHEMA
+    - database_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: database
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: table
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: catalog
+      - dot: .
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: view
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;
+- statement:
+  - tag_statement:
+    - keyword: UNSET
+    - keyword: TAG
+    - keyword: ON
+    - keyword: VOLUME
+    - volume_reference:
+      - naked_identifier: volume
+    - quoted_identifier: '`tag1`'
+- statement_terminator: ;

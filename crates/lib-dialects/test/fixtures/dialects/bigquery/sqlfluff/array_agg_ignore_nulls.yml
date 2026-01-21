@@ -17,7 +17,8 @@ file:
               - keyword: NULLS
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: array_agg
     - from_clause:
       - keyword: FROM

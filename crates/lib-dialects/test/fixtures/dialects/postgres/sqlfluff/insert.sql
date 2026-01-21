@@ -64,3 +64,36 @@ INSERT INTO abc (foo, bar)
 SELECT foo, bar FROM baz
 RETURNING quux
 ;
+
+INSERT INTO tbl_a (
+   val1
+ , val2
+)
+SELECT val1
+     , val2
+FROM tbl_2
+ON CONFLICT (
+    val1
+  , COALESCE(val2, '')
+)
+DO NOTHING;
+
+INSERT INTO prompt_variants (
+    test,
+    test2
+)
+SELECT
+    test,
+    test2
+RETURNING
+  test,
+  test2;
+
+INSERT INTO
+  baz (state, state_changed_at, instance_id)
+SELECT
+  1, 2, 3
+ON CONFLICT (instance_id) DO UPDATE
+SET
+  state = foo,
+  state_changed_at = bar;

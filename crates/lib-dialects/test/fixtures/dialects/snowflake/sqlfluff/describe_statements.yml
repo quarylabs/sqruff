@@ -231,37 +231,33 @@ file:
   - describe_statement:
     - keyword: DESCRIBE
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESC
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESCRIBE
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_database
-        - dot: .
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESC
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_database
-        - dot: .
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
   - describe_statement:
@@ -487,14 +483,14 @@ file:
   - describe_statement:
     - keyword: DESCRIBE
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: my_sequence
 - statement_terminator: ;
 - statement:
   - describe_statement:
     - keyword: DESC
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: my_sequence
 - statement_terminator: ;
 - statement:
@@ -676,4 +672,38 @@ file:
       - data_type:
         - data_type_identifier: FLOAT
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+      - naked_identifier: my_volume
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESC
+    - keyword: PASSWORD
+    - keyword: POLICY
+    - password_policy_reference:
+      - naked_identifier: password_policy_prod_1
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+      - naked_identifier: mysvc
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESC
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+      - naked_identifier: mysvc
 - statement_terminator: ;

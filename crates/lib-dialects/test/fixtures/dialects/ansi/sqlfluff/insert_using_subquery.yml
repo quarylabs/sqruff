@@ -11,7 +11,8 @@ file:
         - select_clause_element:
           - numeric_literal: '0'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: bar
 - statement_terminator: ;
 - statement:
@@ -28,7 +29,8 @@ file:
           - select_clause_element:
             - numeric_literal: '1'
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: bar
       - end_bracket: )
 - statement_terminator: ;
@@ -48,7 +50,8 @@ file:
             - select_clause_element:
               - numeric_literal: '1'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: bar
         - end_bracket: )
       - end_bracket: )

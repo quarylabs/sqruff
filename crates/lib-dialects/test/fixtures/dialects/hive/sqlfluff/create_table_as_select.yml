@@ -1,0 +1,57 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: new_foo
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: SERDE
+      - quoted_literal: '"org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe"'
+    - keyword: STORED
+    - keyword: AS
+    - file_format: RCFile
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
+                - binary_operator: '%'
+                - numeric_literal: '1024'
+              - end_bracket: )
+          - alias_expression:
+            - naked_identifier: col
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: concat
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: col1
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: col2
+                - end_bracket: )
+          - alias_expression:
+            - naked_identifier: col12
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: foo
+- statement_terminator: ;

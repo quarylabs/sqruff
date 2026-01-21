@@ -37,7 +37,8 @@ file:
                 - quoted_literal: '''2014-01-01'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: dt
     - from_clause:
       - keyword: FROM

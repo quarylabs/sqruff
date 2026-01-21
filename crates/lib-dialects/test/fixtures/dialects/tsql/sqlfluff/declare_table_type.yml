@@ -1,40 +1,107 @@
 file:
-- statement:
-  - keyword: DECLARE
-  - tsql_variable: '@MyTableVar'
-  - keyword: TABLE
-  - bracketed:
-    - start_bracket: (
-    - column_definition:
-      - naked_identifier: EmpID
-      - data_type:
-        - data_type_identifier: INT
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
-    - comma: ','
-    - column_definition:
-      - naked_identifier: OldVacationHours
-      - data_type:
-        - data_type_identifier: INT
-    - comma: ','
-    - column_definition:
-      - naked_identifier: NewVacationHours
-      - data_type:
-        - data_type_identifier: INT
-    - comma: ','
-    - column_definition:
-      - naked_identifier: ModifiedDate
-      - data_type:
-        - data_type_identifier: DATETIME
-    - comma: ','
-    - table_constraint:
-      - keyword: PRIMARY
-      - keyword: KEY
+- batch:
+  - statement:
+    - declare_segment:
+      - keyword: DECLARE
+      - parameter: '@MyTableVar'
+      - keyword: TABLE
       - bracketed:
         - start_bracket: (
-        - column_reference:
+        - column_definition:
           - naked_identifier: EmpID
+          - data_type:
+            - keyword: INT
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: OldVacationHours
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: NewVacationHours
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: ModifiedDate
+          - data_type:
+            - keyword: DATETIME
+        - comma: ','
+        - table_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed_index_column_list_grammar:
+            - bracketed:
+              - start_bracket: (
+              - index_column_definition:
+                - naked_identifier: EmpID
+              - end_bracket: )
         - end_bracket: )
-    - end_bracket: )
-- statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+    - declare_segment:
+      - keyword: DECLARE
+      - parameter: '@myTable'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: ID
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: MyCol1
+          - data_type:
+            - keyword: BIT
+        - comma: ','
+        - column_definition:
+          - naked_identifier: MyCol2
+          - data_type:
+            - keyword: BIT
+        - comma: ','
+        - computed_column_definition:
+          - naked_identifier: MyComputedCol
+          - keyword: AS
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - case_expression:
+                - keyword: CASE
+                - when_clause:
+                  - keyword: WHEN
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: MyCol1
+                    - binary_operator:
+                      - ampersand: '&'
+                    - column_reference:
+                      - naked_identifier: MyCol2
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - integer_literal: '0'
+                  - keyword: THEN
+                  - expression:
+                    - integer_literal: '1'
+                - when_clause:
+                  - keyword: WHEN
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: MyCol2
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - integer_literal: '0'
+                  - keyword: THEN
+                  - expression:
+                    - integer_literal: '2'
+                - else_clause:
+                  - keyword: ELSE
+                  - expression:
+                    - integer_literal: '3'
+                - keyword: END
+            - end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;

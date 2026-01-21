@@ -51,7 +51,8 @@ file:
                 - boolean_literal: 'FALSE'
             - keyword: END
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_leap_year
     - from_clause:
       - keyword: FROM

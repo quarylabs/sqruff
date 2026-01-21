@@ -1,6 +1,3 @@
--- Test cases from sqlfluff for block comments
--- These ensure we handle nested comments correctly
-
 /* birds /* live /* in /* nests */ */  */fdsfdlsjf */
 
 /* although

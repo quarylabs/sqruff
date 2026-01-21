@@ -1,0 +1,20 @@
+file:
+- statement:
+  - alter_subscription:
+    - keyword: ALTER
+    - keyword: SUBSCRIPTION
+    - subscription_reference:
+      - naked_identifier: my_subscription
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+  - alter_subscription:
+    - keyword: ALTER
+    - keyword: SUBSCRIPTION
+    - subscription_reference:
+      - naked_identifier: mysub
+    - keyword: SET
+    - keyword: PUBLICATION
+    - publication_reference:
+      - naked_identifier: insert_only
+- statement_terminator: ;

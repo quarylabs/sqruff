@@ -49,7 +49,8 @@ file:
                               - naked_identifier: table2
                   - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: temp3
             - join_on_condition:
               - keyword: ON

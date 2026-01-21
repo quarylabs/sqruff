@@ -350,7 +350,8 @@ file:
         - select_clause_element:
           - numeric_literal: '50'
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: an_alias
         - comma: ','
         - select_clause_element:
@@ -387,7 +388,8 @@ file:
             - dot: .
             - naked_identifier: key
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: key
         - comma: ','
         - select_clause_element:
@@ -396,7 +398,8 @@ file:
             - dot: .
             - naked_identifier: a
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: a
       - from_clause:
         - keyword: from

@@ -3,14 +3,14 @@ file:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
 - statement_terminator: ;
 - statement:
   - drop_sequence_statement:
     - keyword: DROP
     - keyword: SEQUENCE
-    - column_reference:
+    - sequence_reference:
       - naked_identifier: foo
       - dot: .
       - naked_identifier: foo

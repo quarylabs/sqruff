@@ -1,0 +1,10 @@
+file:
+- statement:
+  - transaction_statement:
+    - keyword: COMMIT
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: COMMIT
+    - keyword: WORK
+- statement_terminator: ;

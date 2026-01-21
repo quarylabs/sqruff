@@ -1,1 +1,0 @@
-SELECT [value] FROM @DepartmentCodes;

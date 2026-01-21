@@ -1,0 +1,20 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: PASSWORD
+    - keyword: POLICIES
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICES
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: RESOURCE
+    - keyword: MONITORS
+- statement_terminator: ;

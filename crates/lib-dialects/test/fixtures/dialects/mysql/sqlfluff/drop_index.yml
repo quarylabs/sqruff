@@ -1,0 +1,13 @@
+file:
+- statement:
+  - drop_index_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+      - quoted_identifier: '`test`'
+    - keyword: ON
+    - table_reference:
+      - quoted_identifier: '`table1`'
+      - dot: .
+      - quoted_identifier: '`foo`'
+- statement_terminator: ;

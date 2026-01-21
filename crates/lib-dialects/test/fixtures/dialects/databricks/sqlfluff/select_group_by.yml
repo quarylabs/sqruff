@@ -19,14 +19,15 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
@@ -59,14 +60,15 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
@@ -97,7 +99,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
       - comma: ','
       - select_clause_element:
@@ -112,14 +115,15 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: max_quantity
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
@@ -153,14 +157,15 @@ file:
                   - naked_identifier: city
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: count_distinct_city
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
@@ -203,14 +208,15 @@ file:
                 - end_bracket: )
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - quoted_identifier: '`sum(quantity)`'
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
@@ -247,14 +253,15 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
@@ -326,14 +333,15 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
@@ -410,14 +418,15 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
@@ -495,14 +504,15 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
@@ -548,14 +558,15 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
@@ -597,7 +608,7 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: person
 - statement_terminator: ;
 - statement:
@@ -618,7 +629,8 @@ file:
               - keyword: NULLS
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: first_age
       - comma: ','
       - select_clause_element:
@@ -633,7 +645,8 @@ file:
                   - naked_identifier: id
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: last_id
       - comma: ','
       - select_clause_element:
@@ -648,14 +661,15 @@ file:
                   - naked_identifier: id
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_id
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: person
 - statement_terminator: ;
 - statement:
@@ -680,14 +694,15 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
@@ -723,14 +738,15 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
@@ -767,14 +783,15 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
@@ -814,14 +831,15 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
@@ -861,14 +879,15 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
+            - table_reference:
               - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP

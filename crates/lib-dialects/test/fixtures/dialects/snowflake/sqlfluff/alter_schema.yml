@@ -5,35 +5,30 @@ file:
     - keyword: schema
     - keyword: if
     - keyword: exists
-    - table_reference:
-      - object_reference:
-        - naked_identifier: schema1
+    - schema_reference:
+      - naked_identifier: schema1
     - keyword: rename
     - keyword: to
-    - table_reference:
-      - object_reference:
-        - naked_identifier: schema2
+    - schema_reference:
+      - naked_identifier: schema2
 - statement_terminator: ;
 - statement:
   - alter_schema_statement:
     - keyword: alter
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: schema1
+    - schema_reference:
+      - naked_identifier: schema1
     - keyword: swap
     - keyword: with
-    - table_reference:
-      - object_reference:
-        - naked_identifier: schema2
+    - schema_reference:
+      - naked_identifier: schema2
 - statement_terminator: ;
 - statement:
   - alter_schema_statement:
     - keyword: alter
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: schema2
+    - schema_reference:
+      - naked_identifier: schema2
     - keyword: enable
     - keyword: managed
     - keyword: access
@@ -42,9 +37,8 @@ file:
   - alter_schema_statement:
     - keyword: alter
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: schema1
+    - schema_reference:
+      - naked_identifier: schema1
     - keyword: set
     - schema_object_properties:
       - keyword: data_retention_time_in_days
@@ -56,9 +50,8 @@ file:
   - alter_schema_statement:
     - keyword: alter
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: schema1
+    - schema_reference:
+      - naked_identifier: schema1
     - keyword: set
     - tag_equals:
       - keyword: tag
@@ -78,9 +71,8 @@ file:
   - alter_schema_statement:
     - keyword: alter
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: schema1
+    - schema_reference:
+      - naked_identifier: schema1
     - keyword: unset
     - keyword: data_retention_time_in_days
 - statement_terminator: ;
@@ -88,9 +80,8 @@ file:
   - alter_schema_statement:
     - keyword: alter
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: schema1
+    - schema_reference:
+      - naked_identifier: schema1
     - keyword: unset
     - keyword: data_retention_time_in_days
     - comma: ','
@@ -100,9 +91,8 @@ file:
   - alter_schema_statement:
     - keyword: alter
     - keyword: schema
-    - table_reference:
-      - object_reference:
-        - naked_identifier: schema1
+    - schema_reference:
+      - naked_identifier: schema1
     - keyword: unset
     - keyword: tag
     - tag_reference:

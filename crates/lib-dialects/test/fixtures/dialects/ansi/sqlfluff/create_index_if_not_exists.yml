@@ -6,7 +6,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - database_reference:
+    - index_reference:
       - naked_identifier: transaction_updated
     - keyword: ON
     - table_reference:

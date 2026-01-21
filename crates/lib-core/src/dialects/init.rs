@@ -24,6 +24,7 @@ pub enum DialectKind {
     Clickhouse,
     Databricks,
     Duckdb,
+    Hive,
     Mysql,
     Postgres,
     Redshift,

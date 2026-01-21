@@ -10,9 +10,8 @@ file:
       - naked_identifier: the_user
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: the_schema
+    - schema_reference:
+      - naked_identifier: the_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:
@@ -36,9 +35,8 @@ file:
       - naked_identifier: the_user
     - keyword: IN
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: the_schema
+    - schema_reference:
+      - naked_identifier: the_schema
     - alter_default_privileges_grant:
       - keyword: GRANT
       - alter_default_privileges_object_privilege:

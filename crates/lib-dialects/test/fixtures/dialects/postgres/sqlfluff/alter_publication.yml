@@ -83,13 +83,11 @@ file:
       - keyword: TABLES
       - keyword: IN
       - keyword: SCHEMA
-      - table_reference:
-        - object_reference:
-          - naked_identifier: y
+      - schema_reference:
+        - naked_identifier: y
       - comma: ','
-      - table_reference:
-        - object_reference:
-          - naked_identifier: z
+      - schema_reference:
+        - naked_identifier: z
       - comma: ','
       - keyword: CURRENT_SCHEMA
 - statement_terminator: ;
@@ -251,13 +249,11 @@ file:
       - keyword: TABLES
       - keyword: IN
       - keyword: SCHEMA
-      - table_reference:
-        - object_reference:
-          - naked_identifier: marketing
+      - schema_reference:
+        - naked_identifier: marketing
       - comma: ','
-      - table_reference:
-        - object_reference:
-          - naked_identifier: sales
+      - schema_reference:
+        - naked_identifier: sales
 - statement_terminator: ;
 - statement:
   - alter_publication_statement:
@@ -280,7 +276,6 @@ file:
       - keyword: TABLES
       - keyword: IN
       - keyword: SCHEMA
-      - table_reference:
-        - object_reference:
-          - naked_identifier: production
+      - schema_reference:
+        - naked_identifier: production
 - statement_terminator: ;

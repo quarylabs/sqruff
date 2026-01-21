@@ -7,7 +7,7 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: c1
-          - comparison_operator:
+          - binary_operator:
             - ampersand: '&'
           - column_reference:
             - naked_identifier: c2
@@ -16,7 +16,7 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: c3
-          - comparison_operator:
+          - binary_operator:
             - pipe: '|'
           - column_reference:
             - naked_identifier: c4
@@ -33,7 +33,7 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: c7
-          - comparison_operator:
+          - binary_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: <
           - column_reference:
@@ -43,7 +43,7 @@ file:
         - expression:
           - column_reference:
             - naked_identifier: c9
-          - comparison_operator:
+          - binary_operator:
             - raw_comparison_operator: '>'
             - raw_comparison_operator: '>'
           - column_reference:

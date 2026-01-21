@@ -7,7 +7,8 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: a
     - set_operator:
       - keyword: UNION
@@ -18,7 +19,8 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: a
     - orderby_clause:
       - keyword: ORDER

@@ -1,10 +1,5 @@
-// A List of SQLite keywords.
-// https://www.sqlite.org/lang_keywords.html
-// Augmented with data types, and a couple of omitted keywords.
-
-pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const RESERVED_KEYWORDS: [&str; 144] = [
     "ABORT",
-    "ACTION",
     "ADD",
     "AFTER",
     "ALL",
@@ -82,7 +77,6 @@ pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
     "IS",
     "ISNULL",
     "JOIN",
-    "KEY",
     "LAST",
     "LEFT",
     "LIKE",
@@ -132,7 +126,6 @@ pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
     "TEMP",
     "TEMPORARY",
     "THEN",
-    "TIES",
     "TO",
     "TRANSACTION",
     "TRIGGER",
@@ -152,7 +145,8 @@ pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
     "WITHOUT",
 ];
 
-pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
+pub(crate) const UNRESERVED_KEYWORDS: [&str; 52] = [
+    "KEY",
     "INT",
     "INTEGER",
     "TINYINT",
@@ -168,6 +162,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "NCHAR",
     "NATIVE",
     "NVARCHAR",
+    "TIES",
     "TEXT",
     "CLOB",
     "BLOB",
@@ -201,4 +196,6 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "BINARY",
     "NOCASE",
     "RTRIM",
+    "STORED",
+    "ACTION",
 ];

@@ -1,0 +1,93 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: user_id
+        - data_type:
+          - data_type_identifier: INTEGER
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - conflict_clause:
+            - keyword: ON
+            - keyword: CONFLICT
+            - keyword: ROLLBACK
+      - comma: ','
+      - column_definition:
+        - naked_identifier: user_name
+        - data_type:
+          - data_type_identifier: TEXT
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          - conflict_clause:
+            - keyword: ON
+            - keyword: CONFLICT
+            - keyword: ABORT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - naked_identifier: name
+      - data_type:
+        - data_type_identifier: TEXT
+      - column_constraint_segment:
+        - keyword: UNIQUE
+        - conflict_clause:
+          - keyword: ON
+          - keyword: CONFLICT
+          - keyword: FAIL
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - naked_identifier: imap_boxes
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: account_id
+        - data_type:
+          - data_type_identifier: integer
+        - column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: box_name
+        - data_type:
+          - data_type_identifier: text
+        - column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - comma: ','
+      - table_constraint:
+        - keyword: unique
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: account_id
+          - comma: ','
+          - column_reference:
+            - naked_identifier: box_name
+          - end_bracket: )
+        - conflict_clause:
+          - keyword: on
+          - keyword: conflict
+          - keyword: replace
+      - end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,11 @@
+file:
+- statement:
+  - drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
+    - schema_reference:
+      - naked_identifier: foo
+    - keyword: CASCADE
+- statement_terminator: ;

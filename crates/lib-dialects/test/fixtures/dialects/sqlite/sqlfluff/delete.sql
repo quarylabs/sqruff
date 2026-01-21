@@ -3,12 +3,15 @@ WHERE a > 0;
 
 DELETE FROM table_name
 WHERE a > 0
-RETURNING *;
+RETURNING *
+;
 
 DELETE FROM table_name
 WHERE a > 0
-RETURNING a;
+RETURNING *, id
+;
 
 DELETE FROM table_name
 WHERE a > 0
-RETURNING a, b AS bee;
+RETURNING id foo, id_2 AS bar
+;

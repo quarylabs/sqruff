@@ -1,0 +1,19 @@
+file:
+- statement:
+  - drop_iceberg_table_statement:
+    - keyword: DROP
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+  - drop_iceberg_table_statement:
+    - keyword: DROP
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: my_table
+- statement_terminator: ;

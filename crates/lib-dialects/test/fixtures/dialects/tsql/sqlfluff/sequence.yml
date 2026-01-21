@@ -1,0 +1,60 @@
+file:
+- batch:
+  - statement:
+    - create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - sequence_reference:
+        - naked_identifier: SEQ_MELDER
+      - create_sequence_options_segment:
+        - keyword: START
+        - keyword: WITH
+        - numeric_literal: '1'
+      - create_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - numeric_literal: '1'
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - sequence_reference:
+        - naked_identifier: Test
+        - dot: .
+        - naked_identifier: DecSeq
+      - create_sequence_options_segment:
+        - keyword: AS
+        - data_type:
+          - keyword: decimal
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - integer_literal: '3'
+              - comma: ','
+              - expression:
+                - integer_literal: '0'
+              - end_bracket: )
+      - create_sequence_options_segment:
+        - keyword: START
+        - keyword: WITH
+        - numeric_literal: '125'
+      - create_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - numeric_literal: '25'
+      - create_sequence_options_segment:
+        - keyword: MINVALUE
+        - numeric_literal: '100'
+      - create_sequence_options_segment:
+        - keyword: MAXVALUE
+        - numeric_literal: '200'
+      - create_sequence_options_segment:
+        - keyword: CYCLE
+      - create_sequence_options_segment:
+        - keyword: CACHE
+        - numeric_literal: '3'
+  - statement_terminator: ;

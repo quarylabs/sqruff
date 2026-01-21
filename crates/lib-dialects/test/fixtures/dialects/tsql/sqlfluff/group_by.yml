@@ -1,0 +1,118 @@
+file:
+- batch:
+  - statement:
+    - create_table_as_select_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - hash_identifier: '#n'
+      - table_distribution_index_clause:
+        - keyword: WITH
+        - bracketed:
+          - start_bracket: (
+          - table_distribution_clause:
+            - keyword: DISTRIBUTION
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - keyword: ROUND_ROBIN
+          - end_bracket: )
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: Select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: acto
+                - dot: .
+                - naked_identifier: ActionDTS
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - naked_identifier: Orders_Action
+                - alias_expression:
+                  - naked_identifier: acto
+        - end_bracket: )
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: actiondts
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - hash_identifier: '#n'
+            - alias_expression:
+              - naked_identifier: t
+      - groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: ActionDTS
+  - statement_terminator: ;
+  - statement:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - hash_identifier: '#n'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: st
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: count
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - star: '*'
+                - end_bracket: )
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: count
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - keyword: DISTINCT
+                - expression:
+                  - column_reference:
+                    - naked_identifier: id
+                - end_bracket: )
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - hash_identifier: '#3'
+      - groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: st
+        - with_rollup_clause:
+          - keyword: WITH
+          - keyword: ROLLUP
+  - statement_terminator: ;

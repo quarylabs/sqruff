@@ -230,7 +230,7 @@ file:
     - keyword: COMMENT
     - keyword: ON
     - keyword: INDEX
-    - database_reference:
+    - index_reference:
       - naked_identifier: my_index
     - keyword: IS
     - quoted_literal: '''Enforces uniqueness on employee ID'''
@@ -362,9 +362,8 @@ file:
     - keyword: COMMENT
     - keyword: ON
     - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: my_schema
+    - schema_reference:
+      - naked_identifier: my_schema
     - keyword: IS
     - quoted_literal: '''Departmental data'''
 - statement_terminator: ;

@@ -16,7 +16,8 @@ file:
           - dot: .
           - naked_identifier: id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: paragraph_id
     - from_clause:
       - keyword: FROM
@@ -84,7 +85,7 @@ file:
           - naked_identifier: word
           - dot: .
           - naked_identifier: character_range
-        - comparison_operator:
+        - binary_operator:
           - raw_comparison_operator: <
           - raw_comparison_operator: <
         - column_reference:
@@ -96,7 +97,7 @@ file:
           - naked_identifier: word
           - dot: .
           - naked_identifier: character_range
-        - comparison_operator:
+        - binary_operator:
           - raw_comparison_operator: '>'
           - raw_comparison_operator: '>'
         - column_reference:

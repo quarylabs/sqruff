@@ -548,6 +548,7 @@ file:
       - column_reference:
         - naked_identifier: short_name
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: employee_name
 - statement_terminator: ;

@@ -30,7 +30,8 @@ file:
             - table_reference:
               - naked_identifier: my_table
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: d
         - join_clause:
           - keyword: inner
@@ -40,7 +41,8 @@ file:
               - table_reference:
                 - naked_identifier: my_other_table
             - alias_expression:
-              - keyword: as
+              - alias_operator:
+                - keyword: as
               - naked_identifier: r
           - keyword: using
           - bracketed:

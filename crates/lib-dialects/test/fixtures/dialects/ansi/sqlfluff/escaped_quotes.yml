@@ -19,7 +19,8 @@ file:
                 - quoted_literal: '''boop'''
             - keyword: end
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: field
 - statement_terminator: ;
 - statement:
@@ -29,6 +30,7 @@ file:
       - select_clause_element:
         - quoted_literal: '''This shouldn''''t fail'''
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: success
 - statement_terminator: ;

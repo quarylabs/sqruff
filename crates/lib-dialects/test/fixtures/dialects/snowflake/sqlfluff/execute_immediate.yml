@@ -76,14 +76,14 @@ file:
   - execute_immediate_clause:
     - keyword: EXECUTE
     - keyword: IMMEDIATE
-    - colon: ':'
+    - colon_prefix: ':'
     - variable: three
 - statement_terminator: ;
 - statement:
   - execute_immediate_clause:
     - keyword: EXECUTE
     - keyword: IMMEDIATE
-    - colon: ':'
+    - colon_prefix: ':'
     - variable: three
     - keyword: USING
     - bracketed:
@@ -92,4 +92,19 @@ file:
       - comma: ','
       - variable: two
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - keyword: FROM
+    - quoted_literal: '''./insert-inventory.sql'''
+- statement_terminator: ;
+- statement:
+  - execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '@my_stage/scripts/create-inventory.sql'
 - statement_terminator: ;

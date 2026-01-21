@@ -19,7 +19,8 @@ file:
                   - end_bracket: )
               - keyword: AS
               - data_type:
-                - keyword: TIMESTAMP
+                - primitive_type:
+                  - keyword: TIMESTAMP
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -42,11 +43,13 @@ file:
                   - end_bracket: )
               - keyword: AS
               - data_type:
-                - keyword: TIMESTAMP
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '0'
-                  - end_bracket: )
+                - primitive_type:
+                  - keyword: TIMESTAMP
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '0'
+                      - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -69,11 +72,13 @@ file:
                   - end_bracket: )
               - keyword: AS
               - data_type:
-                - keyword: TIMESTAMP
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '12'
-                  - end_bracket: )
+                - primitive_type:
+                  - keyword: TIMESTAMP
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '12'
+                      - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -96,10 +101,11 @@ file:
                   - end_bracket: )
               - keyword: AS
               - data_type:
-                - keyword: TIMESTAMP
-                - keyword: WITH
-                - keyword: TIME
-                - keyword: ZONE
+                - primitive_type:
+                  - keyword: TIMESTAMP
+                  - keyword: WITH
+                  - keyword: TIME
+                  - keyword: ZONE
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -122,10 +128,11 @@ file:
                   - end_bracket: )
               - keyword: AS
               - data_type:
-                - keyword: TIMESTAMP
-                - keyword: WITHOUT
-                - keyword: TIME
-                - keyword: ZONE
+                - primitive_type:
+                  - keyword: TIMESTAMP
+                  - keyword: WITHOUT
+                  - keyword: TIME
+                  - keyword: ZONE
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -148,14 +155,16 @@ file:
                   - end_bracket: )
               - keyword: AS
               - data_type:
-                - keyword: TIMESTAMP
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '6'
-                  - end_bracket: )
-                - keyword: WITH
-                - keyword: TIME
-                - keyword: ZONE
+                - primitive_type:
+                  - keyword: TIMESTAMP
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '6'
+                      - end_bracket: )
+                  - keyword: WITH
+                  - keyword: TIME
+                  - keyword: ZONE
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -178,13 +187,15 @@ file:
                   - end_bracket: )
               - keyword: AS
               - data_type:
-                - keyword: TIMESTAMP
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '6'
-                  - end_bracket: )
-                - keyword: WITHOUT
-                - keyword: TIME
-                - keyword: ZONE
+                - primitive_type:
+                  - keyword: TIMESTAMP
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '6'
+                      - end_bracket: )
+                  - keyword: WITHOUT
+                  - keyword: TIME
+                  - keyword: ZONE
               - end_bracket: )
 - statement_terminator: ;

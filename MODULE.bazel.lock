@@ -4279,8 +4279,8 @@
         "bzlTransitiveDigest": "qTu+BzWB6ISfBjR2c1BK7L4BvDgPR6v0aqDt93Qj8T0=",
         "usagesDigest": "OldazOYUGgaaawVs7Xdhw9lBVQyHQ5cmcR3eD4/qfX0=",
         "recordedFileInputs": {
-          "@@//Cargo.lock": "b5c018afd94681f8447906729cb65b73573a3813c71fb71347559dd090062490",
-          "@@//Cargo.toml": "f82054a18c93609d498f2c3ae215eabf06cd0d97d96007ed2675b399f18acf87",
+          "@@//Cargo.lock": "7e0e9136fb013ad9968e726c39d507f740408a6ed81ae222599ea73f3b25a19f",
+          "@@//Cargo.toml": "d2d115f2652bfa9825db13d0392b92d54cf8feb9e3d8d41f6e12212cb7c5a1eb",
           "@@//crates/cli-lib/Cargo.toml": "e2d0243a928ce0bd779f466ec0c5934bd67650361bc90d4f7df67b909691eea2",
           "@@//crates/cli-python/Cargo.toml": "e61a952ec3a7a7ea536a7017d809bb0f1831c30411bcb36cd685a174b902b499",
           "@@//crates/cli/Cargo.toml": "64603471dd40c59a0069613298d69b21a8db140f294e36fdc5e467f99cc48dc2",

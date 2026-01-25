@@ -249,6 +249,30 @@
   },
   "selectedYankedVersions": {},
   "moduleExtensions": {
+    "//:tools.bzl%tools": {
+      "general": {
+        "bzlTransitiveDigest": "VveJK9yxuaoXfRw2Wp506Uft9ndUkr0IQQipOliaMlA=",
+        "usagesDigest": "Im2V7yPlYEv4GHExi3pryxLYa0SN3bEhv6+M92OPojA=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "ratchet": {
+            "repoRuleId": "@@//:tools.bzl%_ratchet_repo",
+            "attributes": {}
+          },
+          "cargo_machete": {
+            "repoRuleId": "@@//:tools.bzl%_cargo_machete_repo",
+            "attributes": {}
+          },
+          "uv": {
+            "repoRuleId": "@@//:tools.bzl%_uv_repo",
+            "attributes": {}
+          }
+        },
+        "recordedRepoMappingEntries": []
+      }
+    },
     "@@aspect_rules_js+//npm:extensions.bzl%pnpm": {
       "general": {
         "bzlTransitiveDigest": "xDmfvGE2jqfrtfRD3xgqGx/a4pzAwP2ZaAitdZNOdiQ=",

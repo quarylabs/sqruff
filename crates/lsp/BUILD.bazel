@@ -1,5 +1,6 @@
-load("@crates//:defs.bzl", "all_crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library")
+load("@rules_rust_wasm_bindgen//:defs.bzl", "rust_wasm_bindgen")
 
 rust_library(
     name = "sqruff-lsp",
@@ -9,6 +10,43 @@ rust_library(
     deps = all_crate_deps(normal = True) + [
         "//crates/lib:sqruff-lib",
     ],
+)
+
+# Crate deps for WASM build - explicit list to avoid pyo3 which doesn't support WASM
+LSP_WASM_CRATE_NAMES = [
+    "ahash",
+    "console_error_panic_hook",
+    "js-sys",
+    "lsp-server",
+    "lsp-types",
+    "serde-wasm-bindgen",
+    "serde_json",
+    "wasm-bindgen",
+]
+
+# WASM shared library target for wasm-bindgen
+# This builds the crate as a cdylib for wasm32-unknown-unknown
+# Dependencies are automatically cross-compiled for WASM due to platform attribute
+rust_shared_library(
+    name = "sqruff-lsp-cdylib",
+    srcs = glob(["src/**/*.rs"]),
+    crate_name = "sqruff_lsp",
+    platform = "@rules_rust//rust/platform:wasm",
+    visibility = ["//visibility:public"],
+    deps = crate_deps(LSP_WASM_CRATE_NAMES) + [
+        "//crates/lib:sqruff-lib-for-wasm",
+    ],
+)
+
+# Generate JavaScript bindings using wasm-bindgen
+# This produces the .wasm file and JS glue code for web usage
+# out_name matches what wasm-pack produces for compatibility with VS Code extension imports
+rust_wasm_bindgen(
+    name = "sqruff-lsp-wasm-bindgen",
+    out_name = "sqruff_lsp",
+    target = "web",
+    visibility = ["//visibility:public"],
+    wasm_file = ":sqruff-lsp-cdylib",
 )
 
 filegroup(

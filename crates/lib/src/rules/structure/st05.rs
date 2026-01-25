@@ -216,6 +216,12 @@ join c using(x)
             _segment.clone()
         };
 
+        // If there's no SELECT statement (e.g., WITH ... INSERT/UPDATE/DELETE),
+        // we can't safely create fixes, so return lint results without fixes.
+        if output_select.is_empty() {
+            return lint_results;
+        }
+
         for result in &mut lint_results {
             let subquery_parent = subquery_parent.clone().unwrap();
             let output_select_clone = output_select[0].clone();

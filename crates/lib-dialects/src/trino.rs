@@ -2,7 +2,7 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
@@ -42,6 +42,24 @@ pub fn dialect() -> Dialect {
         vec![Matcher::string("right_arrow", "->", SyntaxKind::RightArrow)],
         "like_operator",
     );
+
+    // Trino supports CTEs with DML statements (INSERT, UPDATE, DELETE, MERGE)
+    // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
+    trino_dialect.add([(
+        "NonWithSelectableGrammar".into(),
+        one_of(vec![
+            Ref::new("SetExpressionSegment").to_matchable(),
+            optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
+                .to_matchable(),
+            Ref::new("NonSetSelectableGrammar").to_matchable(),
+            Ref::new("UpdateStatementSegment").to_matchable(),
+            Ref::new("InsertStatementSegment").to_matchable(),
+            Ref::new("DeleteStatementSegment").to_matchable(),
+            Ref::new("MergeStatementSegment").to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
 
     trino_dialect.add([
         (

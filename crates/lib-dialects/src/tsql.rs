@@ -232,6 +232,24 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // T-SQL supports CTEs with DML statements (INSERT, UPDATE, DELETE, MERGE)
+    // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
+    dialect.add([(
+        "NonWithSelectableGrammar".into(),
+        one_of(vec![
+            Ref::new("SetExpressionSegment").to_matchable(),
+            optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
+                .to_matchable(),
+            Ref::new("NonSetSelectableGrammar").to_matchable(),
+            Ref::new("UpdateStatementSegment").to_matchable(),
+            Ref::new("InsertStatementSegment").to_matchable(),
+            Ref::new("DeleteStatementSegment").to_matchable(),
+            Ref::new("MergeStatementSegment").to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // Add T-SQL assignment operator segment
     dialect.add([(
         "AssignmentOperatorSegment".into(),

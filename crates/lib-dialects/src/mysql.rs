@@ -3,7 +3,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
-use sqruff_lib_core::parser::grammar::anyof::one_of;
+use sqruff_lib_core::parser::grammar::anyof::{one_of, optionally_bracketed};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 
@@ -21,6 +21,23 @@ pub fn raw_dialect() -> Dialect {
         "inline_comment",
         r"(^--|-- |#)[^\n]*",
         SyntaxKind::InlineComment,
+    )]);
+
+    // MySQL 8.0+ supports CTEs with DML statements (INSERT, UPDATE, DELETE)
+    // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
+    mysql.add([(
+        "NonWithSelectableGrammar".into(),
+        one_of(vec![
+            Ref::new("SetExpressionSegment").to_matchable(),
+            optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
+                .to_matchable(),
+            Ref::new("NonSetSelectableGrammar").to_matchable(),
+            Ref::new("UpdateStatementSegment").to_matchable(),
+            Ref::new("InsertStatementSegment").to_matchable(),
+            Ref::new("DeleteStatementSegment").to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
     )]);
 
     mysql.add([

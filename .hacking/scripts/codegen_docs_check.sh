@@ -12,8 +12,8 @@ CODEGEN_BIN="$RUNFILES_DIR/$CODEGEN"
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "$WORKDIR"' EXIT
 
-# Copy the docs directory structure (codegen writes to docs/)
-mkdir -p "$WORKDIR/docs"
+# Copy the docs directory structure (codegen writes to docs/reference/)
+mkdir -p "$WORKDIR/docs/reference"
 
 # Run codegen from the workdir
 cd "$WORKDIR"
@@ -22,27 +22,27 @@ GITHUB_ACTIONS=false "$CODEGEN_BIN"
 # Compare the generated files with the originals from runfiles
 FAILED=0
 
-if ! diff -q "$RUNFILES_DIR/_main/docs/cli.md" "$WORKDIR/docs/cli.md" > /dev/null 2>&1; then
-    echo "ERROR: docs/cli.md is out of date"
+if ! diff -q "$RUNFILES_DIR/_main/docs/reference/cli.md" "$WORKDIR/docs/reference/cli.md" > /dev/null 2>&1; then
+    echo "ERROR: docs/reference/cli.md is out of date"
     echo "Run 'cargo run --bin sqruff -F codegen-docs' to update"
     echo ""
-    diff "$RUNFILES_DIR/_main/docs/cli.md" "$WORKDIR/docs/cli.md" || true
+    diff "$RUNFILES_DIR/_main/docs/reference/cli.md" "$WORKDIR/docs/reference/cli.md" || true
     FAILED=1
 fi
 
-if ! diff -q "$RUNFILES_DIR/_main/docs/rules.md" "$WORKDIR/docs/rules.md" > /dev/null 2>&1; then
-    echo "ERROR: docs/rules.md is out of date"
+if ! diff -q "$RUNFILES_DIR/_main/docs/reference/rules.md" "$WORKDIR/docs/reference/rules.md" > /dev/null 2>&1; then
+    echo "ERROR: docs/reference/rules.md is out of date"
     echo "Run 'cargo run --bin sqruff -F codegen-docs' to update"
     echo ""
-    diff "$RUNFILES_DIR/_main/docs/rules.md" "$WORKDIR/docs/rules.md" || true
+    diff "$RUNFILES_DIR/_main/docs/reference/rules.md" "$WORKDIR/docs/reference/rules.md" || true
     FAILED=1
 fi
 
-if ! diff -q "$RUNFILES_DIR/_main/docs/templaters.md" "$WORKDIR/docs/templaters.md" > /dev/null 2>&1; then
-    echo "ERROR: docs/templaters.md is out of date"
+if ! diff -q "$RUNFILES_DIR/_main/docs/reference/templaters.md" "$WORKDIR/docs/reference/templaters.md" > /dev/null 2>&1; then
+    echo "ERROR: docs/reference/templaters.md is out of date"
     echo "Run 'cargo run --bin sqruff -F codegen-docs' to update"
     echo ""
-    diff "$RUNFILES_DIR/_main/docs/templaters.md" "$WORKDIR/docs/templaters.md" || true
+    diff "$RUNFILES_DIR/_main/docs/reference/templaters.md" "$WORKDIR/docs/reference/templaters.md" || true
     FAILED=1
 fi
 

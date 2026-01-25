@@ -1,4 +1,5 @@
 use std::io::Write;
+use std::path::Path;
 
 use minijinja::{Environment, context};
 use serde::Serialize;

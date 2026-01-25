@@ -54,6 +54,6 @@ exclude_rules = AM01,AM02
 ## Auto-Generated Docs
 
 Do not edit directly - regenerate with `cargo run --bin sqruff -F codegen-docs`:
-- `docs/cli.md`
-- `docs/rules.md`
-- `docs/templaters.md`
+- `docs/reference/cli.md`
+- `docs/reference/rules.md`
+- `docs/reference/templaters.md`

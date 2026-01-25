@@ -39,6 +39,21 @@ For other platforms (pip, cargo, binary downloads), see the [installation guide]
 ### Lint a project
 
 ```bash
+sqruff lint . --dialect postgres
+```
+
+### Configure a project
+
+Create a `.sqruff` file in your project root:
+
+```ini
+[sqruff]
+dialect = postgres
+```
+
+Then run without the `--dialect` flag:
+
+```bash
 sqruff lint .
 ```
 

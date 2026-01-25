@@ -20,6 +20,9 @@ dev = [
     "jinja2-simple-tags>=0.3.1",
     "claude-code-sdk"
 ]
+docs = [
+    "zensical>=0.0.19",
+]
 jinja = [
     "regex",
     "jinja2>=3.0.0",

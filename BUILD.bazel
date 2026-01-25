@@ -1,6 +1,7 @@
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
 load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 
@@ -176,9 +177,9 @@ sh_test(
     size = "small",
     srcs = [".hacking/scripts/codegen_docs_check.sh"],
     data = [
-        "docs/cli.md",
-        "docs/rules.md",
-        "docs/templaters.md",
+        "docs/reference/cli.md",
+        "docs/reference/rules.md",
+        "docs/reference/templaters.md",
         "//crates/cli:sqruff-codegen",
         "//crates/cli-lib:codegen_templates",
     ],
@@ -213,6 +214,29 @@ sh_test(
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
         "MACHETE": "$(rlocationpath @cargo_machete//:cargo-machete)",
     },
+)
+
+# Zensical docs build - verify documentation builds successfully
+sh_test(
+    name = "zensical_build",
+    srcs = [".hacking/scripts/zensical_build.sh"],
+    data = [
+        "pyproject.toml",
+        "uv.lock",
+        "zensical.toml",
+        "@uv//:uv",
+    ] + glob(["docs/**"]),
+    env = {
+        "UV": "$(rlocationpath @uv//:uv)",
+    },
+)
+
+# Zensical docs serve - build docs and optionally serve locally
+# Usage: bazel run //:zensical_serve
+#        bazel run //:zensical_serve -- --serve
+sh_binary(
+    name = "zensical_serve",
+    srcs = [".hacking/scripts/zensical_serve.sh"],
 )
 
 # Python tests using uv - run for each Python version

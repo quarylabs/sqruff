@@ -1,4 +1,5 @@
 use std::io::Write;
+use std::path::Path;
 
 use minijinja::{Environment, context};
 use serde::Serialize;
@@ -15,9 +16,12 @@ const TEMPLATERS_TEMPLATE: &str = include_str!("docs/generate_templater_docs_tem
 
 #[cfg(feature = "codegen-docs")]
 pub(crate) fn codegen_docs() {
+    let docs_dir = Path::new("docs").join("reference");
+    std::fs::create_dir_all(&docs_dir).unwrap();
+
     // CLI Docs
     let markdown: String = clap_markdown::help_markdown::<Cli>();
-    let file_cli = std::fs::File::create("docs/cli.md").unwrap();
+    let file_cli = std::fs::File::create(docs_dir.join("cli.md")).unwrap();
     let mut writer = std::io::BufWriter::new(file_cli);
     writer.write_all(markdown.as_bytes()).unwrap();
 
@@ -28,7 +32,7 @@ pub(crate) fn codegen_docs() {
     let tmpl = env.get_template("rules").unwrap();
     let rules = rules();
     let rules = rules.into_iter().map(Rule::from).collect::<Vec<_>>();
-    let file_rules = std::fs::File::create("docs/rules.md").unwrap();
+    let file_rules = std::fs::File::create(docs_dir.join("rules.md")).unwrap();
     let mut writer = std::io::BufWriter::new(file_rules);
     writer
         .write_all(tmpl.render(context!(rules => rules)).unwrap().as_bytes())
@@ -43,7 +47,7 @@ pub(crate) fn codegen_docs() {
         .into_iter()
         .map(Templater::from)
         .collect::<Vec<_>>();
-    let file_templaters = std::fs::File::create("docs/templaters.md").unwrap();
+    let file_templaters = std::fs::File::create(docs_dir.join("templaters.md")).unwrap();
     let mut writer = std::io::BufWriter::new(file_templaters);
     writer
         .write_all(

@@ -3,8 +3,8 @@
 
 set -euo pipefail
 
-# Find the ratchet binary in runfiles (bzlmod naming)
-RATCHET="${RUNFILES_DIR:-$0.runfiles}/+_repo_rules+ratchet/ratchet"
+# Find the ratchet binary in runfiles (module extension naming)
+RATCHET="${RUNFILES_DIR:-$0.runfiles}/+tools+ratchet/ratchet"
 
 if [[ ! -x "$RATCHET" ]]; then
     echo "ERROR: ratchet binary not found at $RATCHET"

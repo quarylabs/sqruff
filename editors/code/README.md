@@ -61,6 +61,8 @@ Open the [playground](https://playground.quary.dev) to try out the linter and fo
 
 ### Installation
 
+For a complete guide to all installation options, see the [installation documentation](https://playground.quary.dev/docs/getting-started/installation/).
+
 #### Homebrew
 
 You can use [brew](https://brew.sh/) to install sqruff easily on macOS.
@@ -141,7 +143,7 @@ sqruff fix <file/paths/directory>
 
 Settings for SQL dialect, indentation, capitalization, and other linting/style options are configured in a `.sqruff` file. This file should be located in the directory where Sqruff is being run.
 
-The following example highlights a few configuration points: setting the dialect to `sqlite`, turning on all rules except AM01 and AM02, and configuring some indentation settings. For a comprehensive list of configuration options, see the [default configuration file](crates/lib/src/core/default_config.cfg). You can also refer to the [rules documentation](docs/rules.md) for more information on configuring specific rules.
+The following example highlights a few configuration points: setting the dialect to `sqlite`, turning on all rules except AM01 and AM02, and configuring some indentation settings. For a comprehensive list of configuration options, see the [default configuration file](crates/lib/src/core/default_config.cfg). You can also refer to the [rules documentation](https://playground.quary.dev/docs/reference/rules/) for more information on configuring specific rules.
 
 ```ini
 [sqruff]
@@ -208,16 +210,18 @@ To get help on the available commands and options, run the following command:
 sqruff --help
 ```
 
-For all the details on the CLI commands and options, see the [CLI documentation](./docs/cli.md).
+For all the details on the CLI commands and options, see the [CLI documentation](https://playground.quary.dev/docs/reference/cli/).
 
 ## Docs
 
-For more details, see the documents in the [docs](./docs/) folder, which contains:
+For full documentation, visit [playground.quary.dev/docs](https://playground.quary.dev/docs/).
 
-- [Details on the rules](./docs/rules.md)
-- [Details on the CLI](./docs/cli.md)
-- [Details on the templaters](./docs/templaters.md)
-- [Sample configurations](./docs/sample_configurations.md)
+For more details, see the documentation:
+
+- [Details on the rules](https://playground.quary.dev/docs/reference/rules/)
+- [Details on the CLI](https://playground.quary.dev/docs/reference/cli/)
+- [Details on the templaters](https://playground.quary.dev/docs/reference/templaters/)
+- [Sample configurations](https://playground.quary.dev/docs/reference/sample-configurations/)
 
 ## Experimental
 

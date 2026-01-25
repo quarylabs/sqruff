@@ -39,6 +39,14 @@ cargo install sqruff
 
 Releases: https://github.com/quarylabs/sqruff/releases
 
+## Docker
+
+You can use sqruff in a Docker container with our official image:
+
+```bash
+docker pull ghcr.io/quarylabs/sqruff:latest
+```
+
 ## GitHub Action
 
 Use the GitHub Action to install and run sqruff in CI.

@@ -1,3 +1,5 @@
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
 load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
@@ -237,6 +239,50 @@ sh_test(
 sh_binary(
     name = "zensical_serve",
     srcs = [".hacking/scripts/zensical_serve.sh"],
+)
+
+# Zensical docs genrule tool - builds docs to output directory
+sh_binary(
+    name = "zensical_genrule_tool",
+    srcs = [".hacking/scripts/zensical_genrule.sh"],
+    data = [
+        "pyproject.toml",
+        "uv.lock",
+        "zensical.toml",
+        "@uv//:uv",
+    ] + glob(["docs/**"]),
+    env = {
+        "UV": "$(rlocationpath @uv//:uv)",
+    },
+)
+
+# Build zensical docs as output directory
+run_binary(
+    name = "docs_build",
+    srcs = [
+        "pyproject.toml",
+        "uv.lock",
+        "zensical.toml",
+    ] + glob(["docs/**"]),
+    outs = [],
+    args = ["$(BINDIR)/docs_site"],
+    out_dirs = ["docs_site"],
+    tool = ":zensical_genrule_tool",
+)
+
+# Combined website: playground at root, docs at /docs
+# Usage: bazel build //:website
+copy_to_directory(
+    name = "website",
+    srcs = [
+        "//playground:build",
+        ":docs_build",
+    ],
+    out = "website",
+    replace_prefixes = {
+        "playground/dist": "",
+        "docs_site": "docs",
+    },
 )
 
 # Python tests using uv - run for each Python version

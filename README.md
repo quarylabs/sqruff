@@ -34,6 +34,8 @@ Try it in the browser: https://playground.quary.dev
 brew install sqruff
 ```
 
+For other platforms (pip, cargo, binary downloads), see the [installation guide](https://playground.quary.dev/docs/getting-started/installation/).
+
 ### Lint a project
 
 ```bash
@@ -42,16 +44,12 @@ sqruff lint .
 
 ## Documentation
 
-Full documentation lives in the Zensical docs.
-
-Docs index: `docs/`
-
-(Hosted docs URL goes here)
+Full documentation: [playground.quary.dev/docs](https://playground.quary.dev/docs/)
 
 Key entry points:
 
-- Installation: `docs/getting-started/installation.md`
-- Usage: `docs/usage/`
-- Configuration: `docs/usage/configuration.md`
-- Rules: `docs/reference/rules.md`
-- CLI reference: `docs/reference/cli.md`
+- [Installation](https://playground.quary.dev/docs/getting-started/installation/)
+- [Usage](https://playground.quary.dev/docs/usage/lint/)
+- [Configuration](https://playground.quary.dev/docs/usage/configuration/)
+- [Rules](https://playground.quary.dev/docs/reference/rules/)
+- [CLI reference](https://playground.quary.dev/docs/reference/cli/)

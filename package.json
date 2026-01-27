@@ -9,6 +9,9 @@
     "onlyBuiltDependencies": []
   },
   "devDependencies": {
+    "@secretlint/secretlint-formatter-sarif": "^10.2.2",
+    "@secretlint/secretlint-rule-no-dotenv": "^10.2.2",
+    "@secretlint/secretlint-rule-preset-recommend": "^10.2.2",
     "prettier": "^3.8.1"
   },
   "scripts": {

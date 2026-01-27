@@ -38,6 +38,7 @@ crates/
 ## SQLFluff Compatibility
 
 Sqruff is designed to be compatible with SQLFluff:
+
 - **Check SQLFluff first** when implementing rules or dialects
 - **Copy SQLFluff tests** - use their test cases as starting points
 - Rules are in `crates/lib/src/rules/`, dialects in `crates/lib-dialects/src/`
@@ -45,6 +46,7 @@ Sqruff is designed to be compatible with SQLFluff:
 ## Configuration
 
 `.sqruff` file (INI format):
+
 ```ini
 [sqruff]
 dialect = snowflake
@@ -54,6 +56,7 @@ exclude_rules = AM01,AM02
 ## Auto-Generated Docs
 
 Do not edit directly - regenerate with `cargo run --bin sqruff -F codegen-docs`:
+
 - `docs/reference/cli.md`
 - `docs/reference/rules.md`
 - `docs/reference/templaters.md`

@@ -48,7 +48,84 @@ impl Templater for JinjaTemplater {
     }
 
     fn description(&self) -> &'static str {
-        "Not fully implemented yet. More details to come."
+        r#"The jinja templater uses the Jinja2 templating engine to process SQL files with dynamic content. This is useful for SQL that uses variables, loops, conditionals, and macros.
+
+**Note:** This templater requires Python and the sqruff Python package. Install it with:
+
+```bash
+pip install sqruff
+```
+
+Alternatively, build sqruff from source with the `python` feature enabled.
+
+## Activation
+
+Enable the jinja templater in your `.sqruff` config file:
+
+```ini
+[sqruff]
+templater = jinja
+```
+
+## Configuration Options
+
+Configuration options are set in the `[sqruff:templater:jinja]` section:
+
+```ini
+[sqruff:templater:jinja]
+# Apply dbt builtins (ref, source, config, etc.) - enabled by default
+apply_dbt_builtins = True
+
+# Paths to load macros from (comma-separated list of directories/files)
+load_macros_from_path = ./macros
+
+# Paths for Jinja2 FileSystemLoader to search for templates
+loader_search_path = ./templates
+
+# Path to a Python library to make available in the Jinja environment
+library_path = ./my_library
+
+# Set to True to ignore templating errors (useful for partial linting)
+ignore_templating = False
+```
+
+## Template Variables (Context)
+
+Define template variables in the `[sqruff:templater:jinja:context]` section:
+
+```ini
+[sqruff:templater:jinja:context]
+my_variable = some_value
+table_name = users
+environment = production
+```
+
+These variables can then be used in your SQL files:
+
+```sql
+SELECT * FROM {{ table_name }}
+WHERE environment = '{{ environment }}'
+```
+
+## Example
+
+Given the following SQL file with Jinja templating:
+
+```sql
+{% set columns = ['id', 'name', 'email'] %}
+
+SELECT
+    {% for col in columns %}
+    {{ col }}{% if not loop.last %},{% endif %}
+    {% endfor %}
+FROM users
+```
+
+The jinja templater will expand this to valid SQL before linting.
+
+## dbt Builtins
+
+When `apply_dbt_builtins` is enabled (the default), common dbt functions like `ref()`, `source()`, and `config()` are available as dummy implementations. This allows linting dbt-style SQL without a full dbt project setup. For full dbt support, use the `dbt` templater instead."#
     }
 
     fn processing_mode(&self) -> ProcessingMode {

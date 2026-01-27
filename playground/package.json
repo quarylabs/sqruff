@@ -26,7 +26,6 @@
     "react-resizable-panels": "^3.0.6"
   },
   "devDependencies": {
-    "@eslint/js": "catalog:",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/lodash-es": "^4.17.12",
     "@types/react": "^19.2.9",

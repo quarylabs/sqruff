@@ -6,9 +6,6 @@ settings:
 
 catalogs:
   default:
-    '@eslint/js':
-      specifier: ^9.39.2
-      version: 9.39.2
     eslint:
       specifier: ^9.39.2
       version: 9.39.2
@@ -36,9 +33,6 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1
     devDependencies:
-      '@eslint/js':
-        specifier: 'catalog:'
-        version: 9.39.2
       '@rauschma/env-var':
         specifier: ^1.0.1
         version: 1.0.1
@@ -124,9 +118,6 @@ importers:
         specifier: ^3.0.6
         version: 3.0.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
     devDependencies:
-      '@eslint/js':
-        specifier: 'catalog:'
-        version: 9.39.2
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.1.18

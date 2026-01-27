@@ -57,25 +57,11 @@ prettier_bin.prettier_test(
 )
 
 # Prettier format (for fixing locally)
-prettier_bin.prettier_binary(
+# Usage: bazel run //:prettier_fix
+sh_binary(
     name = "prettier_fix",
-    args = [
-        "--write",
-        "--config",
-        ".prettierrc.json",
-        "editors",
-        "playground",
-        "*.md",
-        ".github",
-    ],
-    chdir = package_name(),
-    data = [
-        ":node_modules/prettier",
-        ":prettier_srcs",
-        ".prettierrc.json",
-        "//editors/code:prettier_srcs",
-        "//playground:prettier_srcs",
-    ],
+    srcs = [".hacking/scripts/prettier_fix.sh"],
+    tags = ["autofix"],
 )
 
 # ESLint check for all TypeScript packages
@@ -148,6 +134,14 @@ sh_test(
     },
 )
 
+# Python ruff fix - format and auto-fix lint issues
+# Usage: bazel run //:ruff_fix
+sh_binary(
+    name = "ruff_fix",
+    srcs = [".hacking/scripts/ruff_fix.sh"],
+    tags = ["autofix"],
+)
+
 # All Rust targets for linting
 RUST_TARGETS = [
     "//crates/cli:sqruff",
@@ -165,6 +159,14 @@ RUST_TARGETS = [
 rustfmt_test(
     name = "rustfmt_check",
     targets = RUST_TARGETS,
+)
+
+# Rust format fix
+# Usage: bazel run //:rustfmt_fix
+sh_binary(
+    name = "rustfmt_fix",
+    srcs = [".hacking/scripts/rustfmt_fix.sh"],
+    tags = ["autofix"],
 )
 
 # Rust clippy check
@@ -188,6 +190,14 @@ sh_test(
     env = {
         "CODEGEN": "$(rlocationpath //crates/cli:sqruff-codegen)",
     },
+)
+
+# Codegen docs fix - regenerate docs
+# Usage: bazel run //:codegen_docs_fix
+sh_binary(
+    name = "codegen_docs_fix",
+    srcs = [".hacking/scripts/codegen_docs_fix.sh"],
+    tags = ["autofix"],
 )
 
 # Cargo machete - check for unused dependencies

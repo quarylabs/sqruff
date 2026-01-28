@@ -1,5 +1,3 @@
-use std::cell::RefCell;
-
 use ahash::{AHashMap, AHashSet};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
@@ -9,7 +7,7 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceLevel;
-use sqruff_lib_core::utils::analysis::query::{Query, QueryInner};
+use sqruff_lib_core::utils::analysis::query::Query;
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 
 use crate::core::config::Value;
@@ -23,8 +21,7 @@ struct AL05QueryData {
     tbl_refs: Vec<SmolStr>,
 }
 
-type QueryKey<'a> = *const RefCell<QueryInner<'a>>;
-type AL05State<'a> = AHashMap<QueryKey<'a>, AL05QueryData>;
+type AL05State<'a> = AHashMap<usize, AL05QueryData>;
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleAL05;
@@ -155,9 +152,8 @@ impl RuleAL05 {
         payloads: &mut AL05State<'a>,
     ) {
         payloads.entry(query.id()).or_default();
-        let selectables = std::mem::take(&mut RefCell::borrow_mut(&query.inner).selectables);
 
-        for selectable in &selectables {
+        for selectable in query.selectables() {
             if let Some(select_info) = selectable.select_info() {
                 let table_aliases = select_info.table_aliases;
                 let reference_buffer = select_info.reference_buffer;
@@ -178,8 +174,6 @@ impl RuleAL05 {
             }
         }
 
-        RefCell::borrow_mut(&query.inner).selectables = selectables;
-
         for child in query.children() {
             self.analyze_table_aliases(child, dialect, payloads);
         }
@@ -197,7 +191,7 @@ impl RuleAL05 {
             return;
         }
 
-        if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
+        if let Some(parent) = query.parent().cloned() {
             Self::resolve_and_mark_reference(parent, r#ref, payloads);
         }
     }

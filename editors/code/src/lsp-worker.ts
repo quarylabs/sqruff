@@ -1,5 +1,5 @@
-import sqruffInit, * as sqruffLsp from "../dist/sqruff_lsp";
-import sqruffWasmData from "../dist/sqruff_lsp_bg.wasm";
+import sqruffInit, * as sqruffLsp from "../_wasm/sqruff_lsp";
+import sqruffWasmData from "../_wasm/sqruff_lsp_bg.wasm";
 
 import {
   createConnection,

@@ -23,6 +23,15 @@ importers:
 
   .:
     devDependencies:
+      '@secretlint/secretlint-formatter-sarif':
+        specifier: ^10.2.2
+        version: 10.2.2
+      '@secretlint/secretlint-rule-no-dotenv':
+        specifier: ^10.2.2
+        version: 10.2.2
+      '@secretlint/secretlint-rule-preset-recommend':
+        specifier: ^10.2.2
+        version: 10.2.2
       prettier:
         specifier: ^3.8.1
         version: 3.8.1

@@ -18,3 +18,7 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+# Bazel-generated files
+**/*__js_binary*/**
+**/*_node_bin/**
+_wasm/**

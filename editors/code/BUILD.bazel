@@ -4,10 +4,13 @@ exports_files([
     "package.json",
     "README.md",
     "eslint.config.mjs",
+    ".vscodeignore",
 ])
 
-load("@aspect_rules_js//js:defs.bzl", "js_library")
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
+load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_run_binary")
 load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//editors/code:@vscode/vsce/package_json.bzl", vsce_bin = "bin")
 load("@npm//editors/code:eslint/package_json.bzl", eslint_bin = "bin")
 
 # Link npm packages for the editors/code workspace
@@ -79,4 +82,95 @@ eslint_bin.eslint_binary(
         ":node_modules/typescript",
         ":node_modules/typescript-eslint",
     ],
+)
+
+# =============================================================================
+# VS Code Extension Build Targets
+# =============================================================================
+
+# Generate package.json for the WASM package (matches what wasm-pack creates)
+genrule(
+    name = "wasm_pkg_json",
+    outs = ["_wasm_pkg_json/package.json"],
+    cmd = """echo '{"name": "sqruff-lsp", "main": "sqruff_lsp.js", "types": "sqruff_lsp.d.ts"}' > $@""",
+)
+
+# Copy LSP WASM bindgen output to _wasm/ (intermediate directory)
+# This takes the output from rust_wasm_bindgen and places it where
+# the esbuild script can find it. The esbuild script outputs to dist/.
+copy_to_directory(
+    name = "wasm_pkg",
+    srcs = [
+        "//crates/lsp:sqruff-lsp-wasm-bindgen",
+        ":wasm_pkg_json",
+    ],
+    out = "_wasm",
+    root_paths = [
+        "crates/lsp/sqruff-lsp-wasm-bindgen",
+        "editors/code/_wasm_pkg_json",
+    ],
+)
+
+# Source files for the VS Code extension
+filegroup(
+    name = "vscode_srcs",
+    srcs = glob(["src/**/*.ts"]) + [
+        "esbuild.js",
+        "tsconfig.json",
+        "package.json",
+    ],
+)
+
+# js_binary that runs our custom esbuild.js script
+js_binary(
+    name = "esbuild_script",
+    entry_point = "esbuild.js",
+    data = [
+        ":node_modules/@types/vscode",
+        ":node_modules/esbuild",
+        ":node_modules/vscode-languageclient",
+        ":node_modules/vscode-languageserver",
+    ],
+)
+
+# Bundle with esbuild (runs node esbuild.js --production)
+# This produces the bundled JS files in dist/
+# Usage: bazel build //editors/code:esbuild_bundle
+js_run_binary(
+    name = "esbuild_bundle",
+    srcs = [
+        ":vscode_srcs",
+        ":wasm_pkg",
+    ],
+    args = ["--production"],
+    chdir = package_name(),
+    out_dirs = ["dist"],
+    tool = ":esbuild_script",
+)
+
+# Package the VS Code extension as .vsix
+# Usage: bazel build //editors/code:vscode_extension
+vsce_bin.vsce(
+    name = "vscode_extension",
+    srcs = [
+        ".vscodeignore",
+        "LICENSE",
+        "README.md",
+        "package.json",
+        ":esbuild_bundle",
+        ":node_modules/vscode-languageclient",
+        # Secretlint dependencies for vsce's security checks
+        "//:node_modules/@secretlint/secretlint-formatter-sarif",
+        "//:node_modules/@secretlint/secretlint-rule-preset-recommend",
+        "//:node_modules/@secretlint/secretlint-rule-no-dotenv",
+    ],
+    args = [
+        "package",
+        "--no-dependencies",
+        "--out",
+        "sqruff.vsix",
+    ],
+    chdir = package_name(),
+    include_npm_sources = True,
+    outs = ["sqruff.vsix"],
 )

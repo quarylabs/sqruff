@@ -298,7 +298,6 @@ leading_comma_with_templated_column_1:
           line_position: leading
 
 leading_comma_with_templated_column_2:
-  ignored: "jinja is not set"
   pass_str: |
     SELECT
         c1
@@ -306,13 +305,14 @@ leading_comma_with_templated_column_2:
     c2" }} AS days_since
     FROM logs
   configs:
+    core:
+      templater: jinja
     layout:
       type:
         comma:
           line_position: leading
 
 trailing_comma_with_templated_column_1:
-  ignored: "jinja is not set"
   fail_str: |
     SELECT
         {{ "c1" }}
@@ -323,14 +323,19 @@ trailing_comma_with_templated_column_1:
         {{ "c1" }},
         c2 AS days_since
     FROM logs
+  configs:
+    core:
+      templater: jinja
 
 trailing_comma_with_templated_column_2:
-  ignored: "jinja is not set"
   pass_str: |
     SELECT
         {{ "c1
     " }}, c2 AS days_since
     FROM logs
+  configs:
+    core:
+      templater: jinja
 
 leading_comma_fix_mixed_indent:
   # See: https://github.com/sqlfluff/sqlfluff/issues/4255

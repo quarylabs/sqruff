@@ -209,7 +209,6 @@ test_fail_no_copy_code_out_of_template:
   # The rule wants to replace the case statement with coalesce(), but
   # LintFix.has_template_conflicts() correctly prevents it copying code out
   # of the templated region. Hence, the query is not modified.
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT
         c1,
@@ -223,6 +222,7 @@ test_fail_no_copy_code_out_of_template:
     FROM mytable
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: false
     templater:
       jinja:

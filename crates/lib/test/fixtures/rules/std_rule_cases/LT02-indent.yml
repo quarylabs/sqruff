@@ -396,7 +396,6 @@ test_jinja_with_disbalanced_pairs:
   # The range(3) -%} results in swallowing the \n
   # N.B. The way LT02 handles this is questionable,
   # and this test seals in that behaviour.
-  ignored: "jinja is not supported"
   pass_str: |
     SELECT
         cohort_month
@@ -405,6 +404,9 @@ test_jinja_with_disbalanced_pairs:
         {% endfor -%}
         , TRUE AS overall
     FROM orders
+  configs:
+    core:
+      templater: jinja
 
 test_fail_attempted_hanger_fix:
   # Check messy hanger correction.
@@ -502,7 +504,6 @@ test_fail_clean_reindent_fix:
 
 # https://github.com/sqlfluff/sqlfluff/issues/643
 test_pass_indent_snowflake:
-  ignored: "jinja is not set"
   pass_str: |
     with source_data as (
         select * from {{ source('source_name', 'xxx_yyy_zzz') }}
@@ -513,10 +514,10 @@ test_pass_indent_snowflake:
   configs:
     core:
       dialect: snowflake
+      templater: jinja
 
 # https://github.com/sqlfluff/sqlfluff/issues/643
 test_pass_indent_indent_bigquery:
-  ignored: "jinja is not set"
   pass_str: |
     with source_data as (
         select * from {{ source('source_name', 'xxx_yyy_zzz') }}
@@ -526,9 +527,9 @@ test_pass_indent_indent_bigquery:
   configs:
     core:
       dialect: bigquery
+      templater: jinja
 
 test_jinja_indent_templated_table_name_a:
-  ignored: "jinja is not set"
   fail_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
@@ -555,11 +556,13 @@ test_jinja_indent_templated_table_name_a:
             {{ product }}
         {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
+  configs:
+    core:
+      templater: jinja
 
 # Like test_jinja_indent_1_a but "FROM" table not initially
 # indented.
 test_jinja_indent_templated_table_name_b:
-  ignored: "jinja is not supported"
   fail_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
@@ -586,9 +589,11 @@ test_jinja_indent_templated_table_name_b:
             {{ product }}
         {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
+  configs:
+    core:
+      templater: jinja
 
 test_jinja_nested_blocks:
-  ignored: "jinja is not supported"
   fail_str: |
     WITH
     raw_effect_sizes AS (
@@ -612,6 +617,9 @@ test_jinja_nested_blocks:
             {% endfor %}
     )
     SELECT 1
+  configs:
+    core:
+      templater: jinja
 
 # LIMIT, QUALIFY, and WINDOW both indent
 test_limit_and_qualify_and_window_indent:
@@ -841,7 +849,6 @@ test_tsql_function:
       dialect: tsql
 
 test_pass_ignore_templated_whitespace:
-  ignored: "jinja is not set"
   pass_str: |
     SELECT
         c1,
@@ -849,10 +856,10 @@ test_pass_ignore_templated_whitespace:
     FROM my_table
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_1:
-  ignored: "jinja is not set"
   fail_str: |
     SELECT
         c1,
@@ -866,6 +873,7 @@ test_fail_ignore_templated_whitespace_1:
 
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_2:
@@ -884,7 +892,6 @@ test_fail_ignore_templated_whitespace_2:
       ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_3:
-  ignored: "jinja is not set"
   fail_str: |
     SELECT
         c1,
@@ -897,10 +904,10 @@ test_fail_ignore_templated_whitespace_3:
     FROM my_table
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: false
 
 test_pass_ignore_templated_whitespace_4:
-  ignored: "jinja is not set"
   # Note the newline after c2. This causes "AS other_id" to be on a different
   # line in templated space, but not raw space. LT02 should ignore lines like
   # this.
@@ -909,21 +916,28 @@ test_pass_ignore_templated_whitespace_4:
         c1,
         {{ "      c2\n" }} AS other_id
     FROM my_table
+  configs:
+    core:
+      templater: jinja
 
 test_pass_ignore_templated_newline_not_last_line:
-  ignored: "jinja is not supported"
   pass_str: |
     select *
     from {{ "\n\nmy_table" }}
     inner join
         my_table2
         using (id)
+  configs:
+    core:
+      templater: jinja
 
 test_pass_ignore_templated_newline_last_line:
-  ignored: "jinja is not set"
   pass_str: |
     select *
     from {{ "\n\nmy_table" }}
+  configs:
+    core:
+      templater: jinja
 
 test_fail_fix_template_indentation_1:
   fail_str: |
@@ -936,7 +950,6 @@ test_fail_fix_template_indentation_1:
         {{ "c2" }}
 
 test_fail_fix_template_indentation_2:
-  ignored: "jinja is not supported"
   fail_str: |
     with
     first_join as (
@@ -959,6 +972,9 @@ test_fail_fix_template_indentation_2:
     )
 
     select * from first_join
+  configs:
+    core:
+      templater: jinja
 
 test_pass_tsql_update_indent:
   pass_str: |
@@ -1309,7 +1325,6 @@ test_tsql_outer_apply_indentation_fix:
       dialect: tsql
 
 test_fail_consuming_whitespace_a:
-  ignored: "jinja is not supported"
   # Test that this works even with tags which consume whitespace.
   fail_str: |
     {% for item in [1, 2] -%}
@@ -1323,9 +1338,11 @@ test_fail_consuming_whitespace_a:
         FROM some_table
         {{ 'UNION ALL\n' if not loop.last }}
     {%- endfor %}
+  configs:
+    core:
+      templater: jinja
 
 test_fail_consuming_whitespace_b:
-  ignored: "jinja is not supported"
   # Additional test to make sure that crazy things don't happen
   # with the first newline.
   fail_str: |
@@ -1340,9 +1357,11 @@ test_fail_consuming_whitespace_b:
         FROM some_table
         {{ 'UNION ALL\n' if not loop.last }}
     {%- endfor %}
+  configs:
+    core:
+      templater: jinja
 
 test_pass_consuming_whitespace_stable:
-  ignored: "jinja is not supported"
   # Test for stability in fixes with loops and consuming tags.
   # https://github.com/sqlfluff/sqlfluff/issues/3185
   pass_str: |
@@ -1351,6 +1370,9 @@ test_pass_consuming_whitespace_stable:
         FROM some_table
         {{ 'UNION ALL\n' if not loop.last }}
     {%- endfor %}
+  configs:
+    core:
+      templater: jinja
 
 test_fail_trailing_comments:
   # Additional test to make sure that crazy things don't happen
@@ -1388,7 +1410,6 @@ test_fail_case_statement:
       tab_space_size: 2
 
 test_pass_templated_case_statement:
-  ignored: "jinja is not supported"
   # Test for template block in case statement indentation
   # https://github.com/sqlfluff/sqlfluff/issues/3988
   pass_str: |
@@ -1412,9 +1433,11 @@ test_pass_templated_case_statement:
 
     select *
     from dummy
+  configs:
+    core:
+      templater: jinja
 
 test_pass_jinja_tag_multiline:
-  ignored: "jinja is not supported"
   # Test that jinja block tags which contain newlines
   # aren't linted, because we can't reliably fix them.
   # The default fixing routine would only moving the
@@ -1435,6 +1458,9 @@ test_pass_jinja_tag_multiline:
     {%       endif
     %}
         4
+  configs:
+    core:
+      templater: jinja
 
 test_pass_trailing_inline_noqa:
   pass_str: |
@@ -1475,7 +1501,6 @@ test_fail_deny_implicit_indent:
       allow_implicit_indents: false
 
 test_pass_templated_newlines:
-  ignored: "jinja is not supported"
   # NOTE: The macro has many newlines in it,
   # and the calling of it is indented. Check that
   # this doesn't panic.
@@ -1490,9 +1515,11 @@ test_pass_templated_newlines:
     SELECT
         {{ my_macro() }} as awkward_indentation
     FROM foo
+  configs:
+    core:
+      templater: jinja
 
 test_fail_fix_beside_templated:
-  ignored: "jinja is not supported"
   # Check that templated code checks aren't too aggressive.
   # https://github.com/sqlfluff/sqlfluff/issues/4215
   fail_str: |
@@ -1511,6 +1538,9 @@ test_fail_fix_beside_templated:
         FROM t
         WHERE c < 0
     {% endif %}
+  configs:
+    core:
+      templater: jinja
 
 test_pass_block_comment:
   # Check that subsequent block comment lines are ok to be indented.
@@ -1592,7 +1622,6 @@ test_fail_case_else_end_clause:
     from foo
 
 test_fail_hard_templated_indents:
-  ignored: "jinja is not supported"
   # Test for consumed initial indents and consumed line indents.
   # https://github.com/sqlfluff/sqlfluff/issues/4230
   # NOTE: We're using a block indentation indicator because the
@@ -1606,6 +1635,9 @@ test_fail_hard_templated_indents:
     {%- if true -%}
         SELECT * FROM {{ "t1" }}
     {%- endif %}
+  configs:
+    core:
+      templater: jinja
 
 test_fail_fix_consistency_around_comments:
   # Check that comments don't make fixes inconsistent.
@@ -1823,7 +1855,6 @@ test_fix_implicit_indents_4467_b:
 
 test_fix_macro_indents_4367:
   # https://github.com/sqlfluff/sqlfluff/issues/4367
-  ignored: "jinja is not supported"
   fail_str: |
     {% macro my_macro(col) %}
         {{ col }}
@@ -1842,6 +1873,9 @@ test_fix_macro_indents_4367:
         {{ my_macro("mycol") }},
         something_else
     FROM mytable
+  configs:
+    core:
+      templater: jinja
 
 test_fix_untaken_positive_4433:
   # https://github.com/sqlfluff/sqlfluff/issues/4433
@@ -1910,7 +1944,6 @@ test_jinja_nested_tracking:
   # in the lexer. If that's not functioning properly
   # the indentation of the nested jinja blocks in this
   # query will likely fail.
-  ignored: "jinja is not supported"
   pass_str: |
     SELECT *
     FROM
@@ -1924,6 +1957,9 @@ test_jinja_nested_tracking:
                 (c, d, e)
         {% endif %}
     {% endfor %}
+  configs:
+    core:
+      templater: jinja
 
 test_configure_no_indent_before_then_4589:
   # THEN can be configured to not be indented
@@ -1976,7 +2012,6 @@ test_bigquery_merge_statement_values_clause:
       dialect: bigquery
 
 test_fail_issue_4680:
-  ignored: "jinja is not supported"
   # NOTE: It doesn't reindent the second clause, but the important
   # thing is that we don't get an exception.
   fail_str: |
@@ -1997,6 +2032,9 @@ test_fail_issue_4680:
         {% else %}
         col1 > 0
       {% endif %}
+  configs:
+    core:
+      templater: jinja
 
 test_implicit_indent_when:
   fail_str: |
@@ -2044,7 +2082,6 @@ test_implicit_indent_nested_when:
       indented_then_contents: false
 
 test_fail_issue_4745:
-  ignored: "jinja is not supported"
   fail_str: |
     with
     {% for a in [1, 2, 3] %}{% for b in ['C'] %}
@@ -2067,6 +2104,9 @@ test_fail_issue_4745:
     {% endfor %}{% endfor %}
 
     select 1
+  configs:
+    core:
+      templater: jinja
 
 test_pass_trailing_comment_1:
   # NOTE: This checks that we allow the alternative placement of comments

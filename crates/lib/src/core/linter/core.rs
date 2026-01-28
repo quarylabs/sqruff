@@ -777,6 +777,10 @@ impl Linter {
         &mut self.config
     }
 
+    pub fn set_include_parse_errors(&mut self, include: bool) {
+        self.include_parse_errors = include;
+    }
+
     pub fn rules(&self) -> &[ErasedRule] {
         self.rules.get_or_init(|| self.get_rulepack().rules)
     }

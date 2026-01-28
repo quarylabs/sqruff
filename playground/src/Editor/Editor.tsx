@@ -1,5 +1,5 @@
 import { useDeferredValue, useMemo, useState } from "react";
-import { Panel, PanelGroup } from "react-resizable-panels";
+import { Group, Panel } from "react-resizable-panels";
 import { Linter, Result } from "../pkg";
 import PrimarySideBar from "./PrimarySideBar";
 import { HorizontalResizeHandle } from "./ResizeHandle";
@@ -74,9 +74,9 @@ export default function Editor({
 
   return (
     <>
-      <PanelGroup direction="horizontal" autoSaveId="main">
+      <Group orientation="horizontal">
         <PrimarySideBar onSelectTool={(tool) => setTab(tool)} selected={tab} />
-        <Panel id="main" order={0} className="my-2" minSize={10}>
+        <Panel id="main" className="my-2" minSize={10}>
           <SourceEditor
             visible={tab === "Source"}
             source={source.sqlSource}
@@ -94,7 +94,6 @@ export default function Editor({
             <HorizontalResizeHandle />
             <Panel
               id="secondary-panel"
-              order={1}
               className={"my-2"}
               minSize={10}
             >
@@ -109,7 +108,7 @@ export default function Editor({
           selected={secondaryTool}
           onSelected={handleSecondaryToolSelected}
         />
-      </PanelGroup>
+      </Group>
     </>
   );
 }

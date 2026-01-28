@@ -29,3 +29,15 @@ models:
         tests:
           - accepted_values:
               values: ['credit_card', 'coupon', 'bank_transfer', 'gift_card']
+
+  - name: stg_database_tables
+    description: Staging view of database tables from information_schema
+    columns:
+      - name: table_catalog
+        description: The catalog (database) the table belongs to
+      - name: table_schema
+        description: The schema the table belongs to
+      - name: table_name
+        description: The name of the table
+      - name: table_type
+        description: The type of table (BASE TABLE, VIEW, etc.)

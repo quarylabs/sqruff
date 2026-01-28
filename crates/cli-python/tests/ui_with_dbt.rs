@@ -36,7 +36,11 @@ fn main() {
     for (key, value) in std::env::vars() {
         cmd.env(key, value);
     }
-    cmd.arg("lint").arg("-f").arg("human").arg("models/");
+    cmd.arg("lint")
+        .arg("-f")
+        .arg("human")
+        .arg("--parsing-errors")
+        .arg("models/");
 
     // Run the command and capture the output
     let assert = cmd.assert();

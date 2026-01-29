@@ -252,6 +252,16 @@ command. Available dialects: {}",
     pub fn sql_file_exts(&self) -> &[String] {
         self.sql_file_exts.as_ref()
     }
+
+    /// Returns whether the LSP should include parse errors as warnings.
+    pub fn lsp_parse_errors(&self) -> bool {
+        self.raw
+            .get("lsp")
+            .and_then(|lsp| lsp.as_map())
+            .and_then(|map| map.get("parse_errors"))
+            .map(|v| v.to_bool())
+            .unwrap_or(true)
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]

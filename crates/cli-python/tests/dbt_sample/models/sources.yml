@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: information_schema
+    description: DuckDB system catalog tables
+    database: memory
+    schema: information_schema
+    tables:
+      - name: tables
+        description: Contains metadata about all tables in the database
+        columns:
+          - name: table_catalog
+            description: The catalog (database) the table belongs to
+          - name: table_schema
+            description: The schema the table belongs to
+          - name: table_name
+            description: The name of the table
+          - name: table_type
+            description: The type of table (BASE TABLE, VIEW, etc.)

@@ -55,5 +55,6 @@ exclude_rules = AM01,AM02
 
 Do not edit directly - regenerate with `cargo run --bin sqruff -F codegen-docs`:
 - `docs/reference/cli.md`
+- `docs/reference/dialects.md`
 - `docs/reference/rules.md`
 - `docs/reference/templaters.md`

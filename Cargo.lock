@@ -1571,6 +1571,7 @@ dependencies = [
  "sqruff-lib",
  "sqruff-lib-core",
  "sqruff-lsp",
+ "strum",
  "strum_macros",
  "tempfile",
 ]

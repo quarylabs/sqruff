@@ -23,13 +23,6 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Bazel
-        uses: bazel-contrib/setup-bazel@083175551ceeceebc757ebee2127fde78840ca77 # ratchet:bazel-contrib/setup-bazel@0.18.0
-        with:
-          bazelisk-cache: true
-          disk-cache: ${{ github.workflow }}
-          repository-cache: true
-
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # ratchet:dtolnay/rust-toolchain@stable
         with:
@@ -53,13 +46,8 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@61cb8a9741eeb8a550a1b8544337180c0fc8476b # ratchet:astral-sh/setup-uv@v7
 
-      - name: Run autofix targets
-        run: |
-          # Run all targets tagged with 'autofix'
-          for target in $(bazel query 'attr(tags, autofix, //...)'); do
-            echo "Running $target..."
-            bazel run "$target"
-          done
+      - name: Run autofix
+        run: make fix
 
       - name: Check for changes
         id: changes

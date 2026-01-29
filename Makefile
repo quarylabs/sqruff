@@ -62,3 +62,14 @@ ratchet_check: ## Checks all the Github workflow versions
 load_vscode_settings: ## Loads the sample vscode settings
 	mkdir -p .vscode
 	cp -f .hacking/vscode/* .vscode/
+
+.PHONY: prettier_fmt
+prettier_fmt: ## Format with prettier
+	pnpm prettier --write --config .prettierrc.json editors playground "*.md" .github
+
+.PHONY: codegen_docs
+codegen_docs: ## Regenerate documentation
+	cargo run --bin sqruff -F codegen-docs
+
+.PHONY: fix
+fix: rust_fmt python_fmt prettier_fmt codegen_docs ## Fix all auto-fixable issues (formatting, linting, docs)

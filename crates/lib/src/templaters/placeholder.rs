@@ -810,4 +810,76 @@ param_style = percent
 
         assert_eq!(result, "SELECT\n    a,\n    b\nFROM users WHERE a = %s\n");
     }
+
+    /// Test regression for GitHub issue: placeholder templater with dollar-quoted
+    /// strings should not duplicate content.
+    ///
+    /// When using placeholder templating with regex like `.*?\}` inside a
+    /// PostgreSQL dollar-quoted function body, the formatter should correctly
+    /// preserve the source content without duplication.
+    #[test]
+    fn test_postgres_dollar_quote_with_placeholder() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = postgres
+templater = placeholder
+
+[sqruff:templater:placeholder]
+param_regex = .*?\}
+1 = test
+"#,
+            None,
+        );
+
+        // SQL with a placeholder {test} inside a PostgreSQL dollar-quoted function
+        let sql = "CREATE FUNCTION test(input_text TEXT)\nRETURNS BOOLEAN AS  $$   \nBEGIN\n    SELECT {test};\nEND;\n$$ LANGUAGE plpgsql IMMUTABLE STRICT; ";
+
+        // Verify the templater correctly processes the placeholder
+        let templater = PlaceholderTemplater {};
+        let templated_result = templater.process(&[(sql, "test.sql")], &config, &None);
+        let templated_file = templated_result.into_iter().next().unwrap().unwrap();
+
+        // The regex .*?\} should match "    SELECT {test}" (position 70-87)
+        // and replace it with the value "test"
+        assert!(
+            templated_file.templated().contains("test;"),
+            "Templated output should contain 'test;'"
+        );
+        assert!(
+            !templated_file.templated().contains("{test}"),
+            "Templated output should not contain the original placeholder"
+        );
+
+        // Run the full linter to get the fixed output
+        let mut linter = Linter::new(config, None, None, false);
+        let result = linter.lint_string_wrapped(sql, true).fix_string();
+
+        // The fixed output should restore the original source (with {{test}})
+        // without any duplicated content
+        assert!(
+            result.contains("{test}"),
+            "Fixed output should restore the original {{test}} placeholder"
+        );
+        assert!(
+            !result.contains("IMMUTABLE STRICT;     SELECT"),
+            "Output should not have duplicated content"
+        );
+        assert!(
+            !result.contains("STRICT; ") || !result.contains("SELECT {test};\nEND;\n$$ LANGUAGE"),
+            "Output should not have content duplicated after STRICT"
+        );
+
+        // Count occurrences of key patterns - they should appear exactly once
+        assert_eq!(
+            result.matches("LANGUAGE plpgsql").count(),
+            1,
+            "LANGUAGE plpgsql should appear exactly once"
+        );
+        assert_eq!(
+            result.matches("IMMUTABLE STRICT").count(),
+            1,
+            "IMMUTABLE STRICT should appear exactly once"
+        );
+    }
 }

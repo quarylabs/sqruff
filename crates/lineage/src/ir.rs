@@ -51,21 +51,22 @@ impl Tables {
 
     #[track_caller]
     pub(crate) fn selects_mut(&mut self, expr: Expr) -> &mut Vec<Expr> {
-        use ::polonius_the_crab::prelude::*;
+        // Check variant with immutable borrow first to avoid borrow checker issues
+        let is_select = matches!(&self.exprs[expr].kind, ExprKind::Select { .. });
 
-        let mut table = self;
-        polonius!(|table| -> &'polonius mut Vec<Expr> {
-            if let ExprKind::Select { projections, .. } = &mut table.exprs[expr].kind {
-                polonius_return!(projections);
-            }
-        });
-
-        if let ExprKind::Union { left, .. } = table.exprs[expr].kind {
-            let select = table.unnest(left);
-            return table.selects_mut(select);
+        if is_select {
+            let ExprKind::Select { projections, .. } = &mut self.exprs[expr].kind else {
+                unreachable!()
+            };
+            return projections;
         }
 
-        unimplemented!("{:?}", table.stringify(expr))
+        if let ExprKind::Union { left, .. } = self.exprs[expr].kind {
+            let select = self.unnest(left);
+            return self.selects_mut(select);
+        }
+
+        unimplemented!("{:?}", self.stringify(expr))
     }
 
     pub(crate) fn is_star(&self, expr: Expr) -> bool {

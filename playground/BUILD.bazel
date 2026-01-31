@@ -17,6 +17,7 @@ load("@aspect_rules_js//js:defs.bzl", "js_library")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//playground:@playwright/test/package_json.bzl", playwright_test_bin = "bin")
 load("@npm//playground:eslint/package_json.bzl", eslint_bin = "bin")
+load("@npm//playground:typescript/package_json.bzl", tsc_bin = "bin")
 load("@npm//playground:vite/package_json.bzl", vite_bin = "bin")
 
 # Export package.json for the pnpm workspace data attribute
@@ -96,6 +97,32 @@ eslint_bin.eslint_binary(
         ":node_modules/eslint",
         ":node_modules/typescript",
         ":node_modules/typescript-eslint",
+    ],
+)
+
+# TypeScript type check test
+# Usage: bazel test //playground:typescript_check
+tsc_bin.tsc_test(
+    name = "typescript_check",
+    size = "small",
+    args = [
+        "--noEmit",
+        "--project",
+        "tsconfig.json",
+    ],
+    chdir = package_name(),
+    data = [
+        ":eslint_srcs",
+        ":node_modules/@monaco-editor/react",
+        ":node_modules/@types/lodash-es",
+        ":node_modules/@types/react",
+        ":node_modules/@types/react-dom",
+        ":node_modules/classnames",
+        ":node_modules/fflate",
+        ":node_modules/monaco-editor",
+        ":node_modules/react-resizable-panels",
+        ":node_modules/typescript",
+        ":wasm_pkg",
     ],
 )
 

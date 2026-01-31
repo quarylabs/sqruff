@@ -89,6 +89,17 @@ test_suite(
     ],
 )
 
+# TypeScript check for all TypeScript packages
+# Runs tsc --noEmit on both playground and editors/code
+# Usage: bazel test //:typescript_check
+test_suite(
+    name = "typescript_check",
+    tests = [
+        "//editors/code:typescript_check",
+        "//playground:typescript_check",
+    ],
+)
+
 # Shellcheck test for shell scripts
 shellcheck_test(
     name = "shellcheck",

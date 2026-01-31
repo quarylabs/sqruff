@@ -12,6 +12,7 @@ load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_run_binary"
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//editors/code:@vscode/vsce/package_json.bzl", vsce_bin = "bin")
 load("@npm//editors/code:eslint/package_json.bzl", eslint_bin = "bin")
+load("@npm//editors/code:typescript/package_json.bzl", tsc_bin = "bin")
 
 # Link npm packages for the editors/code workspace
 npm_link_all_packages(name = "node_modules")
@@ -81,6 +82,28 @@ eslint_bin.eslint_binary(
         ":node_modules/eslint",
         ":node_modules/typescript",
         ":node_modules/typescript-eslint",
+    ],
+)
+
+# TypeScript type check test
+# Usage: bazel test //editors/code:typescript_check
+tsc_bin.tsc_test(
+    name = "typescript_check",
+    size = "small",
+    args = [
+        "--noEmit",
+        "--project",
+        "tsconfig.json",
+    ],
+    chdir = package_name(),
+    data = [
+        ":eslint_srcs",
+        ":node_modules/@types/node",
+        ":node_modules/@types/vscode",
+        ":node_modules/typescript",
+        ":node_modules/vscode-languageclient",
+        ":node_modules/vscode-languageserver",
+        ":wasm_pkg",
     ],
 )
 

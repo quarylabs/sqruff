@@ -31,6 +31,7 @@ js_library(
         "dist/**",
         "out/**",
         ".vscode-test/**",
+        "_wasm/**",
     ]),
     visibility = ["//visibility:public"],
 )

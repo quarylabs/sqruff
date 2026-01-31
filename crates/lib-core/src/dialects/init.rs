@@ -1,6 +1,25 @@
 use strum::IntoEnumIterator;
 use strum_macros::AsRefStr;
 
+use crate::value::Value;
+
+/// Trait for dialect-specific configuration.
+/// Each dialect implements this to parse and validate its configuration from raw config values.
+pub trait DialectConfig: Default + Clone + std::fmt::Debug {
+    /// Parse configuration from a Value (typically a Map from the config file's dialect section).
+    /// Returns the default configuration if parsing fails or if the input is None.
+    fn from_value(value: &Value) -> Self {
+        let _ = value;
+        Self::default()
+    }
+}
+
+/// A null/empty configuration for dialects that don't have any configuration options.
+#[derive(Debug, Clone, Default)]
+pub struct NullDialectConfig;
+
+impl DialectConfig for NullDialectConfig {}
+
 #[derive(
     strum_macros::EnumString,
     strum_macros::EnumIter,
@@ -81,6 +100,12 @@ impl DialectKind {
         }
     }
 
+    /// Returns the configuration section header for this dialect.
+    /// Format: `[sqruff:dialect:{dialect_name}]`
+    pub fn config_section(&self) -> String {
+        format!("[sqruff:dialect:{}]", self.name())
+    }
+
     /// Returns an optional URL to the official documentation for the dialect.
     pub fn doc_url(&self) -> Option<&'static str> {
         match self {
@@ -121,6 +146,8 @@ pub fn dialect_readout() -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+    use super::DialectKind;
+
     #[test]
     fn dialect_readout_is_alphabetically_sorted() {
         let readout = super::dialect_readout();
@@ -129,5 +156,18 @@ mod tests {
         sorted.sort();
 
         assert_eq!(readout, sorted);
+    }
+
+    #[test]
+    fn config_section_format() {
+        assert_eq!(
+            DialectKind::Snowflake.config_section(),
+            "[sqruff:dialect:snowflake]"
+        );
+        assert_eq!(
+            DialectKind::Bigquery.config_section(),
+            "[sqruff:dialect:bigquery]"
+        );
+        assert_eq!(DialectKind::Ansi.config_section(), "[sqruff:dialect:ansi]");
     }
 }

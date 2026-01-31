@@ -101,6 +101,7 @@ struct Dialect {
     name: &'static str,
     description: &'static str,
     doc_url: Option<&'static str>,
+    config_section: String,
 }
 
 #[cfg(feature = "codegen-docs")]
@@ -110,6 +111,7 @@ impl From<DialectKind> for Dialect {
             name: value.name(),
             description: value.description(),
             doc_url: value.doc_url(),
+            config_section: value.config_section(),
         }
     }
 }

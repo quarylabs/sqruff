@@ -1,5 +1,6 @@
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
@@ -11,8 +12,16 @@ use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
+use sqruff_lib_core::value::Value;
 
-pub fn dialect() -> Dialect {
+/// Configuration for the Trino dialect.
+pub type TrinoDialectConfig = NullDialectConfig;
+
+pub fn dialect(config: Option<&Value>) -> Dialect {
+    // Parse and validate dialect configuration, falling back to defaults on failure
+    let _dialect_config: TrinoDialectConfig = config
+        .map(TrinoDialectConfig::from_value)
+        .unwrap_or_default();
     let ansi_dialect = super::ansi::raw_dialect();
     let mut trino_dialect = ansi_dialect;
     trino_dialect.name = DialectKind::Trino;

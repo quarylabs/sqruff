@@ -159,7 +159,7 @@ mod tests {
             ]),
         }];
 
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -228,7 +228,7 @@ mod tests {
             },
         ];
 
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -297,7 +297,7 @@ mod tests {
             ]),
         }];
 
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         for test in tests {

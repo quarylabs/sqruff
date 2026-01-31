@@ -16,5 +16,5 @@ pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
 }
 
 pub fn fresh_ansi_dialect() -> Dialect {
-    kind_to_dialect(&DialectKind::Ansi).unwrap()
+    kind_to_dialect(&DialectKind::Ansi, None).unwrap()
 }

@@ -1,5 +1,6 @@
 use crate::databricks_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
 use crate::sparksql;
+use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
 use sqruff_lib_core::helpers::Config;
 use sqruff_lib_core::parser::grammar::anyof::one_of;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
@@ -10,9 +11,17 @@ use sqruff_lib_core::{
     dialects::{Dialect, init::DialectKind},
     helpers::ToMatchable,
     parser::grammar::{Ref, sequence::Sequence},
+    value::Value,
 };
 
-pub fn dialect() -> Dialect {
+/// Configuration for the Databricks dialect.
+pub type DatabricksDialectConfig = NullDialectConfig;
+
+pub fn dialect(config: Option<&Value>) -> Dialect {
+    // Parse and validate dialect configuration, falling back to defaults on failure
+    let _dialect_config: DatabricksDialectConfig = config
+        .map(DatabricksDialectConfig::from_value)
+        .unwrap_or_default();
     let raw_sparksql = sparksql::raw_dialect();
 
     let mut databricks = sparksql::raw_dialect();
@@ -230,7 +239,7 @@ pub fn dialect() -> Dialect {
         (
             // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
             "DescribeObjectGrammar".into(),
-            sparksql::dialect()
+            sparksql::dialect(None)
                 .grammar("DescribeObjectGrammar")
                 .copy(
                     Some(vec![
@@ -610,7 +619,7 @@ pub fn dialect() -> Dialect {
     // Enhance to allow for additional clauses allowed in Spark and Delta Lake.
     databricks.replace_grammar(
         "TableExpressionSegment",
-        sparksql::dialect()
+        sparksql::dialect(None)
             .grammar("TableExpressionSegment")
             .match_grammar(&databricks)
             .unwrap()

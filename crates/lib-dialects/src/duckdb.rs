@@ -12,14 +12,24 @@ use sqruff_lib_core::parser::parsers::StringParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 
 use crate::{ansi, postgres};
+use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
+use sqruff_lib_core::value::Value;
 
-pub fn dialect() -> Dialect {
+/// Configuration for the DuckDB dialect.
+pub type DuckDBDialectConfig = NullDialectConfig;
+
+pub fn dialect(config: Option<&Value>) -> Dialect {
+    // Parse and validate dialect configuration, falling back to defaults on failure
+    let _dialect_config: DuckDBDialectConfig = config
+        .map(DuckDBDialectConfig::from_value)
+        .unwrap_or_default();
+
     raw_dialect().config(|dialect| dialect.expand())
 }
 
 pub fn raw_dialect() -> Dialect {
     let ansi_dialect = ansi::raw_dialect();
-    let postgres_dialect = postgres::dialect();
+    let postgres_dialect = postgres::dialect(None);
     let mut duckdb_dialect = postgres_dialect;
     duckdb_dialect.name = DialectKind::Duckdb;
 

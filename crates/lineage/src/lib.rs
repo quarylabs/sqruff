@@ -73,7 +73,7 @@ impl<'config> Lineage<'config> {
 
 fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let tables = sqruff_lib_core::parser::segments::Tables::default();
-    let ansi = sqruff_lib_dialects::ansi::dialect();
+    let ansi = sqruff_lib_dialects::ansi::dialect(None);
     let lexer = ansi.lexer();
 
     let (tokens, _) = lexer.lex(&tables, source);
@@ -385,7 +385,7 @@ mod tests {
 
     #[test]
     fn test_lineage() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
@@ -418,7 +418,7 @@ mod tests {
 
     #[test]
     fn test_lineage_sql_with_cte() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) =
@@ -456,7 +456,7 @@ mod tests {
 
     #[test]
     fn test_lineage_source_with_cte() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
@@ -492,7 +492,7 @@ mod tests {
 
     #[test]
     fn test_lineage_source_with_star() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) =
@@ -514,7 +514,7 @@ mod tests {
 
     #[test]
     fn test_lineage_external_col() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -530,7 +530,7 @@ mod tests {
 
     #[test]
     fn test_lineage_values() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM y")
@@ -566,7 +566,7 @@ mod tests {
 
     #[test]
     fn test_lineage_union() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -593,7 +593,7 @@ mod tests {
     #[test]
     #[ignore = "TODO"]
     fn test_lineage_lateral_flatten() {
-        let dialect = sqruff_lib_dialects::snowflake::dialect();
+        let dialect = sqruff_lib_dialects::snowflake::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -613,7 +613,7 @@ mod tests {
 
     #[test]
     fn test_subquery() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -650,7 +650,7 @@ mod tests {
 
     #[test]
     fn test_lineage_cte_union() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -692,7 +692,7 @@ mod tests {
 
     #[test]
     fn test_lineage_source_union() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(parser, "x", "SELECT x, created_at FROM dataset;")
@@ -732,7 +732,7 @@ mod tests {
 
     #[test]
     fn test_select_star() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) =
@@ -755,7 +755,7 @@ mod tests {
 
     #[test]
     fn test_unnest() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -773,7 +773,7 @@ mod tests {
     #[test]
     #[ignore = "TODO:"]
     fn test_lineage_normalize() {
-        let dialect = sqruff_lib_dialects::snowflake::dialect();
+        let dialect = sqruff_lib_dialects::snowflake::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -796,7 +796,7 @@ mod tests {
 
     #[test]
     fn test_trim() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -825,7 +825,7 @@ mod tests {
 
     #[test]
     fn test_node_name_doesnt_contain_comment() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -844,7 +844,7 @@ mod tests {
 
     #[test]
     fn test_lineage_downstream_id_in_join() {
-        let dialect = sqruff_lib_dialects::ansi::dialect();
+        let dialect = sqruff_lib_dialects::ansi::dialect(None);
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(

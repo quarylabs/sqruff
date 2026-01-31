@@ -62,7 +62,7 @@ mod tests {
 
     #[test]
     fn test_get_columns_internal() {
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         let (cols, unnamed) = get_columns_internal(
@@ -85,7 +85,7 @@ ORDER BY a DESC, b",
 
     #[test]
     fn test_sub_query() {
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         let (cols, unnamed) = get_columns_internal(

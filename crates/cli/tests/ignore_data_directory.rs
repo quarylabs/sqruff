@@ -222,11 +222,13 @@ fn test_lint_paths_traverses_ignored_directories() {
     let dummy_ignorer = |_path: &Path| false; // Don't ignore anything
 
     // Call lint_paths to test file discovery behavior
-    let lint_result = linter.lint_paths(
-        vec![project_root.to_path_buf()],
-        false, // don't fix
-        &dummy_ignorer,
-    );
+    let lint_result = linter
+        .lint_paths(
+            vec![project_root.to_path_buf()],
+            false, // don't fix
+            &dummy_ignorer,
+        )
+        .unwrap();
 
     // Convert to vector to access files
     let files: Vec<_> = lint_result.into_iter().collect();

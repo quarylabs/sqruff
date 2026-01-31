@@ -12,7 +12,13 @@ pub(crate) fn run_fix(
 ) -> i32 {
     let FixArgs { paths, format } = args;
     let mut linter = linter(config, format, collect_parse_errors);
-    let result = linter.lint_paths(paths, true, &ignorer);
+    let result = match linter.lint_paths(paths, true, &ignorer) {
+        Ok(result) => result,
+        Err(e) => {
+            eprintln!("{}", e.value);
+            return 1;
+        }
+    };
 
     if !result.has_violations() {
         println!("{} files processed, nothing to fix.", result.len());
@@ -44,7 +50,13 @@ pub(crate) fn run_fix_stdin(
     let read_in = crate::stdin::read_std_in().unwrap();
 
     let linter = linter(config, format, collect_parse_errors);
-    let result = linter.lint_string(&read_in, None, true);
+    let result = match linter.lint_string(&read_in, None, true) {
+        Ok(result) => result,
+        Err(e) => {
+            eprintln!("{}", e.value);
+            return 1;
+        }
+    };
 
     let has_unfixable_errors = result.has_unfixable_violations();
 

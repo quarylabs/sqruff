@@ -714,3 +714,24 @@ test_pass_window_function:
             order by d desc
         ) as rnk
     from foo
+
+test_fix_where_on_separate_line:
+  # https://github.com/quarylabs/sqruff/issues/1986
+  # When WHERE is on its own line, the conditions start on a new line
+  # with existing indentation. The AND operators should be identified
+  # as break points.
+  fail_str: |
+    SELECT COUNT(*)
+    FROM policies
+    WHERE
+        is_active_policy IS TRUE AND active_policy = 'Authorized' AND exclude_from_checks IS TRUE
+  fix_str: |
+    SELECT COUNT(*)
+    FROM policies
+    WHERE
+        is_active_policy IS TRUE
+        AND active_policy = 'Authorized'
+        AND exclude_from_checks IS TRUE
+  configs:
+    core:
+      max_line_length: 80

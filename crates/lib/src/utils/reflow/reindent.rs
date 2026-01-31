@@ -1363,8 +1363,21 @@ pub fn lint_line_length(
         if line_len <= line_length_limit {
             log::info!("Line #{line_no}. Length {line_len} <= {line_length_limit}. OK.")
         } else {
-            let line_elements = chain(line_buffer.clone(), Some(elem.clone())).collect_vec();
+            let mut line_elements = chain(line_buffer.clone(), Some(elem.clone())).collect_vec();
             let mut fixes: Vec<LintFix> = Vec::new();
+
+            // Normalize line_elements to always start with a Point.
+            // When WHERE/HAVING/ON is on its own line, the conditions start on
+            // a new line, causing line_elements to start with a Block instead
+            // of the expected Point. The reflow algorithm expects an alternating
+            // Point-Block-Point-Block structure. Prepending an empty Point
+            // maintains this structure.
+            if line_elements
+                .first()
+                .is_some_and(|e| matches!(e, ReflowElement::Block(_)))
+            {
+                line_elements.insert(0, ReflowPoint::new(Vec::new()).into());
+            }
 
             let mut combined_elements = line_elements.clone();
             combined_elements.push(elements[i + 1].clone());

@@ -60,7 +60,8 @@ SELECT
         as my_other_relatively_long_alias,
     my_expression_function(col6, col7 + col8, arg4)
     = col9 + col10 as another_relatively_long_alias
-FROM my_table"#
+FROM my_table
+```"#
     }
 
     fn groups(&self) -> &'static [RuleGroups] {

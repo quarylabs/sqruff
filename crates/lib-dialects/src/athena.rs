@@ -4,6 +4,7 @@
 use itertools::Itertools;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
@@ -16,9 +17,18 @@ use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
+use sqruff_lib_core::value::Value;
 
-pub fn dialect() -> Dialect {
-    let ansi_dialect = super::ansi::dialect();
+/// Configuration for the Athena dialect.
+pub type AthenaDialectConfig = NullDialectConfig;
+
+pub fn dialect(config: Option<&Value>) -> Dialect {
+    // Parse and validate dialect configuration, falling back to defaults on failure
+    let _dialect_config: AthenaDialectConfig = config
+        .map(AthenaDialectConfig::from_value)
+        .unwrap_or_default();
+
+    let ansi_dialect = super::ansi::dialect(None);
     let mut dialect = super::ansi::raw_dialect();
     dialect.name = DialectKind::Athena;
 

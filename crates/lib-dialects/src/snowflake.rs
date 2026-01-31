@@ -20,8 +20,17 @@ use sqruff_lib_core::parser::types::ParseMode;
 
 use super::ansi::{self, raw_dialect};
 use super::snowflake_keywords::{SNOWFLAKE_RESERVED_KEYWORDS, SNOWFLAKE_UNRESERVED_KEYWORDS};
+use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
+use sqruff_lib_core::value::Value;
 
-pub fn dialect() -> Dialect {
+/// Configuration for the Snowflake dialect.
+pub type SnowflakeDialectConfig = NullDialectConfig;
+
+pub fn dialect(config: Option<&Value>) -> Dialect {
+    // Parse and validate dialect configuration, falling back to defaults on failure
+    let _dialect_config: SnowflakeDialectConfig = config
+        .map(SnowflakeDialectConfig::from_value)
+        .unwrap_or_default();
     let mut snowflake_dialect = raw_dialect();
     snowflake_dialect.name = DialectKind::Snowflake;
 

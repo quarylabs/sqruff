@@ -14,8 +14,18 @@ use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 
 use crate::sqlite_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
+use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
+use sqruff_lib_core::value::Value;
 
-pub fn dialect() -> Dialect {
+/// Configuration for the SQLite dialect.
+pub type SQLiteDialectConfig = NullDialectConfig;
+
+pub fn dialect(config: Option<&Value>) -> Dialect {
+    // Parse and validate dialect configuration, falling back to defaults on failure
+    let _dialect_config: SQLiteDialectConfig = config
+        .map(SQLiteDialectConfig::from_value)
+        .unwrap_or_default();
+
     raw_dialect().config(|dialect| dialect.expand())
 }
 

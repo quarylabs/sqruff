@@ -8,3 +8,4 @@ pub mod segments;
 pub mod slice_helpers;
 pub mod templaters;
 pub mod utils;
+pub mod value;

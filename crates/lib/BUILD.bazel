@@ -82,6 +82,7 @@ filegroup(
     srcs = glob(
         [
             "src/**/*.rs",
+            "src/**/*.cfg",
             "tests/**/*.rs",
             "benches/**/*.rs",
         ],

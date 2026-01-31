@@ -1615,7 +1615,7 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                 Ref::new("JoinKeywordsGrammar").to_matchable(),
                 MetaSegment::indent().to_matchable(),
-                Ref::new("FromExpressionElementSegment").to_matchable(),
+                Ref::new("JoinTargetGrammar").to_matchable(),
                 AnyNumberOf::new(vec![Ref::new("NestedJoinGrammar").to_matchable()]).to_matchable(),
                 MetaSegment::dedent().to_matchable(),
                 Sequence::new(vec![

@@ -251,8 +251,6 @@ test_nested_join_clauses_do_not_flag:
       dialect: tsql
 
 test_parenthesized_join_clauses_do_not_flag:
-  # TODO: Fix T-SQL parenthesized JOIN parsing causing panic in join.rs
-  ignored: "T-SQL parenthesized JOIN syntax causes panic in parser"
   pass_str: |
     SELECT
         1 AS RegionCode
@@ -361,3 +359,25 @@ test_fail_trino_row_field_access_aliased_source:
   configs:
     core:
       dialect: trino
+test_pass_postgres_parenthesized_join:
+  # https://github.com/quarylabs/sqruff/issues/1573
+  pass_str: |
+    SELECT
+      c.short_name || ': ' || c.title || ', ' || ci.long_name AS label,
+      c.short_name || ', ' || ci.long_name AS short_label,
+      ci.id AS course_instance_id,
+      (e.id IS NOT NULL) AS enrolled,
+      users_is_instructor_in_course (u.user_id, c.id) AS instructor_access
+    FROM
+      users AS u
+      CROSS JOIN (
+        course_instances AS ci
+        JOIN pl_courses AS c ON (c.id = ci.course_id)
+      )
+      LEFT JOIN enrollments AS e ON (
+        e.user_id = u.user_id
+        AND e.course_instance_id = ci.id
+      )
+  configs:
+    core:
+      dialect: postgres

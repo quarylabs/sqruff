@@ -1,0 +1,2 @@
+# Dialect configuration for pg_trgm tests
+pg_trgm = true

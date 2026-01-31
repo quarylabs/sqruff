@@ -14,7 +14,7 @@ jobs:
     name: Run benchmarks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v5
       - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b
       - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5
       - name: Run benchmarks

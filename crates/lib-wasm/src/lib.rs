@@ -93,7 +93,21 @@ impl Linter {
             None
         };
 
-        let result = self.base.lint_parsed(&tables, parsed, tool == Tool::Format);
+        let result = match self.base.lint_parsed(&tables, parsed, tool == Tool::Format) {
+            Ok(result) => result,
+            Err(e) => {
+                return Result {
+                    diagnostics: vec![Diagnostic {
+                        message: e.value,
+                        start_line_number: 1,
+                        start_column: 1,
+                        end_line_number: 1,
+                        end_column: 1,
+                    }],
+                    secondary: String::new(),
+                };
+            }
+        };
         let violations = result.violations();
 
         let diagnostics = violations

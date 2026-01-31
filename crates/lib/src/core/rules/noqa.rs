@@ -641,7 +641,7 @@ rules = AL02
 FROM foo
 "#;
 
-        let result = linter.lint_string(sql, None, false);
+        let result = linter.lint_string(sql, None, false).unwrap();
         let violations = result.violations();
 
         assert_eq!(violations.len(), 1);
@@ -687,8 +687,10 @@ disable_noqa = True
     col_b b --noqa
 FROM foo
     "#;
-        let result_with_disabled = linter_with_disabled.lint_string(sql, None, false);
-        let result_without_disabled = linter_without_disabled.lint_string(sql, None, false);
+        let result_with_disabled = linter_with_disabled.lint_string(sql, None, false).unwrap();
+        let result_without_disabled = linter_without_disabled
+            .lint_string(sql, None, false)
+            .unwrap();
 
         assert_eq!(result_without_disabled.violations().len(), 1);
         assert_eq!(result_with_disabled.violations().len(), 2);
@@ -726,8 +728,12 @@ FROM foo
     col_f f
 FROM foo
 "#;
-        let result_rule = linter_without_disabled.lint_string(sql_disable_rule, None, false);
-        let result_all = linter_without_disabled.lint_string(sql_disable_all, None, false);
+        let result_rule = linter_without_disabled
+            .lint_string(sql_disable_rule, None, false)
+            .unwrap();
+        let result_all = linter_without_disabled
+            .lint_string(sql_disable_all, None, false)
+            .unwrap();
 
         assert_eq!(result_rule.violations().len(), 3);
         assert_eq!(result_all.violations().len(), 3);

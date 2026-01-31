@@ -16,7 +16,7 @@ use crate::templaters::raw::RawTemplater;
 use crate::templaters::{ProcessingMode, TEMPLATERS, Templater};
 use ahash::{AHashMap, AHashSet};
 use itertools::Itertools;
-use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator as _, ParallelIterator as _};
+use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
@@ -73,7 +73,11 @@ impl Linter {
     }
 
     /// Lint strings directly.
-    pub fn lint_string_wrapped(&mut self, sql: &str, fix: bool) -> LintedFile {
+    pub fn lint_string_wrapped(
+        &mut self,
+        sql: &str,
+        fix: bool,
+    ) -> Result<LintedFile, SQLFluffUserError> {
         let filename = "<string input>".to_owned();
         self.lint_string(sql, Some(filename), fix)
     }
@@ -95,9 +99,14 @@ impl Linter {
     }
 
     /// Lint a string.
-    pub fn lint_string(&self, sql: &str, filename: Option<String>, fix: bool) -> LintedFile {
+    pub fn lint_string(
+        &self,
+        sql: &str,
+        filename: Option<String>,
+        fix: bool,
+    ) -> Result<LintedFile, SQLFluffUserError> {
         let tables = Tables::default();
-        let parsed = self.parse_string(&tables, sql, filename).unwrap();
+        let parsed = self.parse_string(&tables, sql, filename)?;
 
         // Lint the file and return the LintedFile
         self.lint_parsed(&tables, parsed, fix)
@@ -110,7 +119,7 @@ impl Linter {
         mut paths: Vec<PathBuf>,
         fix: bool,
         ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
-    ) -> LintingResult {
+    ) -> Result<LintingResult, SQLFluffUserError> {
         if paths.is_empty() {
             paths.push(std::env::current_dir().unwrap());
         }
@@ -150,36 +159,37 @@ impl Linter {
 
         match self.templater.processing_mode() {
             ProcessingMode::Parallel => {
-                paths
+                let results: Vec<_> = paths
                     .par_iter()
                     .map(|path| {
                         let rendered = self.render_file(path.clone());
                         self.lint_rendered(rendered, fix)
                     })
-                    .collect_into_vec(&mut files);
+                    .collect();
+                for result in results {
+                    files.push(result?);
+                }
             }
             ProcessingMode::Batch => {
                 // Use batch processing for templaters that support it (e.g., dbt).
                 // This allows sharing expensive initialization (manifest loading) across files.
                 let rendered_files = self.render_files_batch(&paths);
-                files.extend(
-                    rendered_files
-                        .into_iter()
-                        .map(|rendered| self.lint_rendered(rendered, fix)),
-                );
+                for rendered in rendered_files {
+                    files.push(self.lint_rendered(rendered, fix)?);
+                }
             }
             ProcessingMode::Sequential => {
-                files.extend(paths.iter().map(|path| {
+                for path in &paths {
                     let rendered = self.render_file(path.clone());
-                    self.lint_rendered(rendered, fix)
-                }));
+                    files.push(self.lint_rendered(rendered, fix)?);
+                }
             }
         }
 
-        LintingResult::new(files)
+        Ok(LintingResult::new(files))
     }
 
-    pub fn get_rulepack(&self) -> RulePack {
+    pub fn get_rulepack(&self) -> Result<RulePack, SQLFluffUserError> {
         let rs = get_ruleset();
         rs.get_rulepack(&self.config)
     }
@@ -276,7 +286,11 @@ impl Linter {
             .collect()
     }
 
-    pub fn lint_rendered(&self, rendered: RenderedFile, fix: bool) -> LintedFile {
+    pub fn lint_rendered(
+        &self,
+        rendered: RenderedFile,
+        fix: bool,
+    ) -> Result<LintedFile, SQLFluffUserError> {
         let tables = Tables::default();
         let parsed = self.parse_rendered(&tables, rendered);
         self.lint_parsed(&tables, parsed, fix)
@@ -287,22 +301,22 @@ impl Linter {
         tables: &Tables,
         parsed_string: ParsedString,
         fix: bool,
-    ) -> LintedFile {
+    ) -> Result<LintedFile, SQLFluffUserError> {
         let mut violations = parsed_string.violations;
 
-        let (patches, ignore_mask, initial_linting_errors) =
-            parsed_string
-                .tree
-                .map_or((Vec::new(), None, Vec::new()), |erased_segment| {
-                    let (tree, ignore_mask, initial_linting_errors) = self.lint_fix_parsed(
-                        tables,
-                        erased_segment,
-                        &parsed_string.templated_file,
-                        fix,
-                    );
-                    let patches = tree.iter_patches(&parsed_string.templated_file);
-                    (patches, ignore_mask, initial_linting_errors)
-                });
+        let (patches, ignore_mask, initial_linting_errors) = match parsed_string.tree {
+            Some(erased_segment) => {
+                let (tree, ignore_mask, initial_linting_errors) = self.lint_fix_parsed(
+                    tables,
+                    erased_segment,
+                    &parsed_string.templated_file,
+                    fix,
+                )?;
+                let patches = tree.iter_patches(&parsed_string.templated_file);
+                (patches, ignore_mask, initial_linting_errors)
+            }
+            None => (Vec::new(), None, Vec::new()),
+        };
         violations.extend(initial_linting_errors.into_iter().map_into());
 
         // Filter violations with ignore mask
@@ -323,7 +337,7 @@ impl Linter {
             formatter.dispatch_file_violations(&linted_file);
         }
 
-        linted_file
+        Ok(linted_file)
     }
 
     pub fn lint_fix_parsed(
@@ -332,7 +346,7 @@ impl Linter {
         mut tree: ErasedSegment,
         templated_file: &TemplatedFile,
         fix: bool,
-    ) -> (ErasedSegment, Option<IgnoreMask>, Vec<SQLLintError>) {
+    ) -> Result<(ErasedSegment, Option<IgnoreMask>, Vec<SQLLintError>), SQLFluffUserError> {
         let mut initial_violations = Vec::new();
         let phases: &[_] = if fix {
             &[LintPhase::Main, LintPhase::Post]
@@ -370,15 +384,17 @@ impl Linter {
             } else {
                 2
             };
-            let mut rules_this_phase = if phases.len() > 1 {
-                &self
-                    .rules()
+            let rules = self.rules()?;
+            let filtered_rules;
+            let mut rules_this_phase: &[ErasedRule] = if phases.len() > 1 {
+                filtered_rules = rules
                     .iter()
                     .filter(|rule| rule.lint_phase() == *phase)
                     .cloned()
-                    .collect_vec()
+                    .collect_vec();
+                &filtered_rules
             } else {
-                self.rules()
+                rules
             };
 
             for loop_ in 0..loop_limit {
@@ -386,7 +402,7 @@ impl Linter {
                 let mut changed = false;
 
                 if is_first_linter_pass {
-                    rules_this_phase = self.rules();
+                    rules_this_phase = self.rules()?;
                 }
 
                 for rule in rules_this_phase {
@@ -460,7 +476,7 @@ impl Linter {
             }
         }
 
-        (tree, ignore_mask, initial_violations)
+        Ok((tree, ignore_mask, initial_violations))
     }
 
     /// Template the file.
@@ -777,8 +793,13 @@ impl Linter {
         &mut self.config
     }
 
-    pub fn rules(&self) -> &[ErasedRule] {
-        self.rules.get_or_init(|| self.get_rulepack().rules)
+    pub fn rules(&self) -> Result<&[ErasedRule], SQLFluffUserError> {
+        if let Some(rules) = self.rules.get() {
+            return Ok(rules);
+        }
+        let rulepack = self.get_rulepack()?;
+        let _ = self.rules.set(rulepack.rules);
+        Ok(self.rules.get().unwrap())
     }
 
     pub fn formatter(&self) -> Option<&Arc<dyn Formatter>> {

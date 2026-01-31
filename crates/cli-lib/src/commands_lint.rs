@@ -11,7 +11,13 @@ pub(crate) fn run_lint(
 ) -> i32 {
     let LintArgs { paths, format } = args;
     let mut linter = linter(config, format, collect_parse_errors);
-    let result = linter.lint_paths(paths, false, &ignorer);
+    let result = match linter.lint_paths(paths, false, &ignorer) {
+        Ok(result) => result,
+        Err(e) => {
+            eprintln!("{}", e.value);
+            return 1;
+        }
+    };
 
     linter.formatter().unwrap().completion_message(result.len());
 
@@ -26,7 +32,13 @@ pub(crate) fn run_lint_stdin(
     let read_in = crate::stdin::read_std_in().unwrap();
 
     let linter = linter(config, format, collect_parse_errors);
-    let result = linter.lint_string(&read_in, None, false);
+    let result = match linter.lint_string(&read_in, None, false) {
+        Ok(result) => result,
+        Err(e) => {
+            eprintln!("{}", e.value);
+            return 1;
+        }
+    };
 
     linter.formatter().unwrap().completion_message(1);
 

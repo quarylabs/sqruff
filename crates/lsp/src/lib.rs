@@ -130,8 +130,13 @@ impl LanguageServer {
     }
 
     fn format_source(&mut self, source: &str) -> String {
-        let tree = self.linter.lint_string(source, None, true);
-        tree.fix_string()
+        match self.linter.lint_string(source, None, true) {
+            Ok(tree) => tree.fix_string(),
+            Err(e) => {
+                eprintln!("Failed to format source: {}", e.value);
+                source.to_string()
+            }
+        }
     }
 
     fn build_edits(new_text: String) -> Vec<lsp_types::TextEdit> {
@@ -198,7 +203,13 @@ impl LanguageServer {
     }
 
     fn check_file(&self, uri: Uri, text: &str) {
-        let result = self.linter.lint_string(text, None, false);
+        let result = match self.linter.lint_string(text, None, false) {
+            Ok(result) => result,
+            Err(e) => {
+                eprintln!("Failed to check file: {}", e.value);
+                return;
+            }
+        };
 
         let diagnostics = result
             .into_violations()

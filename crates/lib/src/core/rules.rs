@@ -12,7 +12,7 @@ use ahash::{AHashMap, AHashSet};
 use itertools::chain;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::errors::{ErrorStructRule, SQLLintError};
+use sqruff_lib_core::errors::{ErrorStructRule, SQLFluffUserError, SQLLintError};
 use sqruff_lib_core::helpers::{Config, IndexMap};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
@@ -339,21 +339,32 @@ impl RuleSet {
         &self,
         glob_list: Vec<String>,
         reference_map: &AHashMap<&'static str, AHashSet<&'static str>>,
-    ) -> AHashSet<&'static str> {
+    ) -> Result<AHashSet<&'static str>, SQLFluffUserError> {
         let mut expanded_rule_set = AHashSet::new();
+        let mut unknown_rules = Vec::new();
 
         for r in glob_list {
             if reference_map.contains_key(r.as_str()) {
                 expanded_rule_set.extend(reference_map[r.as_str()].clone());
             } else {
-                panic!("Rule {r} not found in rule reference map");
+                unknown_rules.push(r);
             }
         }
 
-        expanded_rule_set
+        if !unknown_rules.is_empty() {
+            let mut available_rules: Vec<_> = reference_map.keys().copied().collect();
+            available_rules.sort();
+            return Err(SQLFluffUserError::new(format!(
+                "Unknown rule(s) in configuration: {}. Available rules are: {}",
+                unknown_rules.join(", "),
+                available_rules.join(", ")
+            )));
+        }
+
+        Ok(expanded_rule_set)
     }
 
-    pub(crate) fn get_rulepack(&self, config: &FluffConfig) -> RulePack {
+    pub(crate) fn get_rulepack(&self, config: &FluffConfig) -> Result<RulePack, SQLFluffUserError> {
         let reference_map = self.rule_reference_map();
         let rules = config.get_section("rules");
         let keylist = self.register.keys();
@@ -375,8 +386,8 @@ impl RuleSet {
             None => Vec::new(),
         };
 
-        let expanded_allowlist = self.expand_rule_refs(allowlist, &reference_map);
-        let expanded_denylist = self.expand_rule_refs(denylist, &reference_map);
+        let expanded_allowlist = self.expand_rule_refs(allowlist, &reference_map)?;
+        let expanded_denylist = self.expand_rule_refs(denylist, &reference_map)?;
 
         let keylist: Vec<_> = keylist
             .into_iter()
@@ -398,9 +409,9 @@ impl RuleSet {
             instantiated_rules.push(rule.load_from_config(specific_rule_config).unwrap());
         }
 
-        RulePack {
+        Ok(RulePack {
             rules: instantiated_rules,
             _reference_map: reference_map,
-        }
+        })
     }
 }

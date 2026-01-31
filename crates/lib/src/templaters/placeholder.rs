@@ -806,7 +806,7 @@ param_style = percent
         let sql = "SELECT a,b FROM users WHERE a = %s";
 
         let mut linter = Linter::new(config, None, None, false);
-        let result = linter.lint_string_wrapped(sql, true).fix_string();
+        let result = linter.lint_string_wrapped(sql, true).unwrap().fix_string();
 
         assert_eq!(result, "SELECT\n    a,\n    b\nFROM users WHERE a = %s\n");
     }

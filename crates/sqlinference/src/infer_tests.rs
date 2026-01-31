@@ -1450,7 +1450,7 @@ mod tests {
             },
         ];
 
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -1570,7 +1570,7 @@ mod tests {
             },
         ];
 
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -2171,7 +2171,7 @@ FROM q.stg_employees e) SELECT * FROM data",
             },
         ];
 
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -2350,7 +2350,7 @@ GROUP BY department",
             ]),
         }];
 
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -2445,7 +2445,7 @@ LEFT JOIN q.shift_last sl
             ]),
         }];
 
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -2489,7 +2489,7 @@ LEFT JOIN q.shift_last sl
             ),
         ];
 
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         for (sql, want) in tests {
@@ -2667,7 +2667,7 @@ from final",
             ),
         ];
 
-        let dialect = ansi::dialect();
+        let dialect = ansi::dialect(None);
         let parser = Parser::from(&dialect);
 
         for (sql, expected_map_entries, expected_not_parseable, expected_count) in tests {

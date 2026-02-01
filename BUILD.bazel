@@ -255,6 +255,23 @@ sh_test(
     tags = ["no-sandbox"],
 )
 
+# Cargo build release - build release binaries with all features
+# This replicates the "Compile" GitHub action job
+# Note: Runs without sandbox to allow cargo to access ~/.cargo cache
+sh_test(
+    name = "cargo_build_release",
+    size = "large",
+    srcs = [".hacking/scripts/cargo_build_release.sh"],
+    data = [
+        ":cargo_srcs",
+        "@rules_rust//rust/toolchain:current_cargo_files",
+    ],
+    env = {
+        "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+    },
+    tags = ["no-sandbox"],
+)
+
 # Cargo clippy - run clippy with all features
 # Note: Runs without sandbox to allow cargo to access ~/.cargo cache
 sh_test(

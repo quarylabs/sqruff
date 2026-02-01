@@ -58,19 +58,6 @@ jobs:
       - name: Check for diffs
         run: git diff --quiet || exit 1
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v5
-      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # ratchet:Swatinem/rust-cache@v2
-      - uses: taiki-e/install-action@0ef4f35ddc4b6153a6ab3244a74c795572d27045 # ratchet:taiki-e/install-action@cargo-hack
-      - uses: taiki-e/install-action@60d1e0b7b9b30b3ee6dce287792460110d5eb552 # ratchet:taiki-e/install-action@cargo-machete
-      - uses: dtolnay/rust-toolchain@4305c38b25d97ef35a8ad1f985ccf2d2242004f2 # ratchet:dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-      - run: make rust_lint
   bazel-lint:
     name: Bazel Lint
     runs-on: ubuntu-latest

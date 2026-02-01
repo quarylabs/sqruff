@@ -14,11 +14,13 @@ cd "$WORKDIR"
 # Use Bazel-provided uv
 UV_BIN="$RUNFILES_DIR/$UV"
 
-# Use system cargo/rustup if available (GitHub Actions has it pre-installed)
-# Only install rustup if cargo is not found
+# Isolate cargo build artifacts/registry to avoid conflicts with other parallel Bazel tests
+export CARGO_HOME="$WORKDIR/.cargo"
+export CARGO_TARGET_DIR="$WORKDIR/target"
+
+# Use system cargo if available, otherwise install rustup
 if ! command -v cargo &> /dev/null; then
     export RUSTUP_HOME="$WORKDIR/.rustup"
-    export CARGO_HOME="$WORKDIR/.cargo"
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --no-modify-path
     export PATH="$CARGO_HOME/bin:$PATH"
 fi

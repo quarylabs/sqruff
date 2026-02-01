@@ -251,7 +251,7 @@
   "moduleExtensions": {
     "//:tools.bzl%tools": {
       "general": {
-        "bzlTransitiveDigest": "VveJK9yxuaoXfRw2Wp506Uft9ndUkr0IQQipOliaMlA=",
+        "bzlTransitiveDigest": "7egann2c8H9XO2HbHf73NO04omFRlviENL9DHCclq78=",
         "usagesDigest": "Im2V7yPlYEv4GHExi3pryxLYa0SN3bEhv6+M92OPojA=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -263,6 +263,10 @@
           },
           "cargo_machete": {
             "repoRuleId": "@@//:tools.bzl%_cargo_machete_repo",
+            "attributes": {}
+          },
+          "cargo_hack": {
+            "repoRuleId": "@@//:tools.bzl%_cargo_hack_repo",
             "attributes": {}
           },
           "uv": {

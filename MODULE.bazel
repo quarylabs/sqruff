@@ -7,9 +7,9 @@ module(
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.0")
 
-# Platform-aware tool downloads (ratchet, cargo-machete, uv)
+# Platform-aware tool downloads (ratchet, cargo-machete, cargo-hack, uv)
 tools = use_extension("//:tools.bzl", "tools")
-use_repo(tools, "cargo_machete", "ratchet", "uv")
+use_repo(tools, "cargo_hack", "cargo_machete", "ratchet", "uv")
 
 bazel_dep(name = "aspect_rules_js", version = "2.3.7")
 bazel_dep(name = "rules_nodejs", version = "6.3.4")

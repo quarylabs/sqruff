@@ -45,6 +45,26 @@ _MACHETE_PLATFORMS = {
     },
 }
 
+_CARGO_HACK_VERSION = "0.6.41"
+_CARGO_HACK_PLATFORMS = {
+    "linux_amd64": {
+        "url": "https://github.com/taiki-e/cargo-hack/releases/download/v{version}/cargo-hack-x86_64-unknown-linux-gnu.tar.gz",
+        "sha256": "c69dbf348263856cdb8d8c8c835b906360fb6eccb73b56716dd0e451082b6145",
+    },
+    "linux_arm64": {
+        "url": "https://github.com/taiki-e/cargo-hack/releases/download/v{version}/cargo-hack-aarch64-unknown-linux-gnu.tar.gz",
+        "sha256": "f6a5357b3c4a1f3cd95c1ba769c71e0a0c833aa3007ddf3873863f149da84dcd",
+    },
+    "darwin_amd64": {
+        "url": "https://github.com/taiki-e/cargo-hack/releases/download/v{version}/cargo-hack-x86_64-apple-darwin.tar.gz",
+        "sha256": "4b35c8dbe6d24bd81c05ade55d19fd7fc9b142d46b07bb7da1b92dfa55877adf",
+    },
+    "darwin_arm64": {
+        "url": "https://github.com/taiki-e/cargo-hack/releases/download/v{version}/cargo-hack-aarch64-apple-darwin.tar.gz",
+        "sha256": "146bce8ed728b5dc46edb2dc4f4cfca4bf77f729bbbb4be785b5e89f5cac3aae",
+    },
+}
+
 _UV_VERSION = "0.9.22"
 _UV_PLATFORMS = {
     "linux_amd64": {
@@ -130,6 +150,25 @@ _cargo_machete_repo = repository_rule(
     attrs = {},
 )
 
+def _cargo_hack_repo_impl(repository_ctx):
+    platform = _get_platform(repository_ctx)
+    config = _CARGO_HACK_PLATFORMS.get(platform)
+    if not config:
+        fail("Unsupported platform for cargo-hack: {}".format(platform))
+
+    url = config["url"].format(version = _CARGO_HACK_VERSION)
+
+    repository_ctx.download_and_extract(
+        url = url,
+        sha256 = config["sha256"],
+    )
+    repository_ctx.file("BUILD.bazel", 'exports_files(["cargo-hack"])')
+
+_cargo_hack_repo = repository_rule(
+    implementation = _cargo_hack_repo_impl,
+    attrs = {},
+)
+
 def _uv_repo_impl(repository_ctx):
     platform = _get_platform(repository_ctx)
     config = _UV_PLATFORMS.get(platform)
@@ -154,6 +193,7 @@ _uv_repo = repository_rule(
 def _tools_impl(module_ctx):
     _ratchet_repo(name = "ratchet")
     _cargo_machete_repo(name = "cargo_machete")
+    _cargo_hack_repo(name = "cargo_hack")
     _uv_repo(name = "uv")
 
 tools = module_extension(

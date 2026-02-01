@@ -173,7 +173,7 @@ RUST_TARGETS = [
 ]
 
 # Common Cargo source files for cargo-based checks
-# Used by cargo_machete, cargo_check
+# Used by cargo_machete, cargo_check, cargo_hack_check, rust_lint
 filegroup(
     name = "cargo_srcs",
     srcs = [
@@ -251,6 +251,57 @@ sh_test(
     ],
     env = {
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+    },
+    tags = ["no-sandbox"],
+)
+
+# Cargo clippy - run clippy with all features
+# Note: Runs without sandbox to allow cargo to access ~/.cargo cache
+sh_test(
+    name = "cargo_clippy",
+    size = "large",
+    srcs = [".hacking/scripts/cargo_clippy.sh"],
+    data = [
+        ":cargo_srcs",
+        "@rules_rust//rust/toolchain:current_cargo_files",
+    ],
+    env = {
+        "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+    },
+    tags = ["no-sandbox"],
+)
+
+# Cargo fmt check - verify code formatting
+# Note: Runs without sandbox to allow cargo to access ~/.cargo cache
+sh_test(
+    name = "cargo_fmt_check",
+    size = "medium",
+    srcs = [".hacking/scripts/cargo_fmt_check.sh"],
+    data = [
+        ":cargo_srcs",
+        "@rules_rust//rust/toolchain:current_cargo_files",
+    ],
+    env = {
+        "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+    },
+    tags = ["no-sandbox"],
+)
+
+# Cargo hack check - verify each feature compiles in isolation
+# This ensures no feature combination is broken
+# Note: Runs without sandbox to allow cargo to access ~/.cargo cache
+sh_test(
+    name = "cargo_hack_check",
+    size = "large",
+    srcs = [".hacking/scripts/cargo_hack_check.sh"],
+    data = [
+        ":cargo_srcs",
+        "@cargo_hack//:cargo-hack",
+        "@rules_rust//rust/toolchain:current_cargo_files",
+    ],
+    env = {
+        "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+        "CARGO_HACK": "$(rlocationpath @cargo_hack//:cargo-hack)",
     },
     tags = ["no-sandbox"],
 )

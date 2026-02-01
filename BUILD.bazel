@@ -172,6 +172,26 @@ RUST_TARGETS = [
     "//crates/sqlinference:sqruff-sqlinference",
 ]
 
+# Common Cargo source files for cargo-based checks
+# Used by cargo_machete, cargo_check
+filegroup(
+    name = "cargo_srcs",
+    srcs = [
+        "Cargo.lock",
+        "Cargo.toml",
+        "//crates/cli:machete_srcs",
+        "//crates/cli-lib:machete_srcs",
+        "//crates/cli-python:machete_srcs",
+        "//crates/lib:machete_srcs",
+        "//crates/lib-core:machete_srcs",
+        "//crates/lib-dialects:machete_srcs",
+        "//crates/lib-wasm:machete_srcs",
+        "//crates/lineage:machete_srcs",
+        "//crates/lsp:machete_srcs",
+        "//crates/sqlinference:machete_srcs",
+    ],
+)
+
 # Rust format check
 rustfmt_test(
     name = "rustfmt_check",
@@ -208,18 +228,7 @@ sh_test(
     size = "small",
     srcs = [".hacking/scripts/cargo_machete.sh"],
     data = [
-        "Cargo.lock",
-        "Cargo.toml",
-        "//crates/cli:machete_srcs",
-        "//crates/cli-lib:machete_srcs",
-        "//crates/cli-python:machete_srcs",
-        "//crates/lib:machete_srcs",
-        "//crates/lib-core:machete_srcs",
-        "//crates/lib-dialects:machete_srcs",
-        "//crates/lib-wasm:machete_srcs",
-        "//crates/lineage:machete_srcs",
-        "//crates/lsp:machete_srcs",
-        "//crates/sqlinference:machete_srcs",
+        ":cargo_srcs",
         "@cargo_machete//:cargo-machete",
         "@rules_rust//rust/toolchain:current_cargo_files",
     ],
@@ -237,18 +246,7 @@ sh_test(
     size = "large",
     srcs = [".hacking/scripts/cargo_check.sh"],
     data = [
-        "Cargo.lock",
-        "Cargo.toml",
-        "//crates/cli:machete_srcs",
-        "//crates/cli-lib:machete_srcs",
-        "//crates/cli-python:machete_srcs",
-        "//crates/lib:machete_srcs",
-        "//crates/lib-core:machete_srcs",
-        "//crates/lib-dialects:machete_srcs",
-        "//crates/lib-wasm:machete_srcs",
-        "//crates/lineage:machete_srcs",
-        "//crates/lsp:machete_srcs",
-        "//crates/sqlinference:machete_srcs",
+        ":cargo_srcs",
         "@rules_rust//rust/toolchain:current_cargo_files",
     ],
     env = {

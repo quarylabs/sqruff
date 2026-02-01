@@ -5,16 +5,16 @@ module(
     version = "0.0.0",
 )
 
-bazel_dep(name = "aspect_bazel_lib", version = "2.22.0")
+bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 
 # Platform-aware tool downloads (ratchet, cargo-machete, cargo-hack, uv)
 tools = use_extension("//:tools.bzl", "tools")
 use_repo(tools, "cargo_hack", "cargo_machete", "ratchet", "uv")
 
-bazel_dep(name = "aspect_rules_js", version = "2.3.7")
-bazel_dep(name = "rules_nodejs", version = "6.3.4")
+bazel_dep(name = "aspect_rules_js", version = "2.9.1")
+bazel_dep(name = "rules_nodejs", version = "6.6.2")
 bazel_dep(name = "rules_playwright", version = "0.5.3")
-bazel_dep(name = "rules_python", version = "1.7.0")
+bazel_dep(name = "rules_python", version = "1.8.3")
 
 # Python toolchain for hermetic Python builds (required by pyo3)
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")

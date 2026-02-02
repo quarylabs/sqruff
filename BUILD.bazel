@@ -179,6 +179,7 @@ filegroup(
     srcs = [
         "Cargo.lock",
         "Cargo.toml",
+        "rust-toolchain.toml",
         "//crates/cli:machete_srcs",
         "//crates/cli-lib:machete_srcs",
         "//crates/cli-python:machete_srcs",
@@ -235,7 +236,9 @@ sh_test(
     env = {
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
         "MACHETE": "$(rlocationpath @cargo_machete//:cargo-machete)",
+        "RUSTUP_TOOLCHAIN": "stable",
     },
+    tags = ["exclusive"],
 )
 
 # Cargo check - type-check all crates with all features, tests, and benches
@@ -251,8 +254,12 @@ sh_test(
     ],
     env = {
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+        "RUSTUP_TOOLCHAIN": "stable",
     },
-    tags = ["no-sandbox"],
+    tags = [
+        "exclusive",
+        "no-sandbox",
+    ],
 )
 
 # Cargo build release - build release binaries with all features
@@ -268,8 +275,12 @@ sh_test(
     ],
     env = {
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+        "RUSTUP_TOOLCHAIN": "stable",
     },
-    tags = ["no-sandbox"],
+    tags = [
+        "exclusive",
+        "no-sandbox",
+    ],
 )
 
 # Cargo clippy - run clippy with all features
@@ -284,8 +295,12 @@ sh_test(
     ],
     env = {
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+        "RUSTUP_TOOLCHAIN": "stable",
     },
-    tags = ["no-sandbox"],
+    tags = [
+        "exclusive",
+        "no-sandbox",
+    ],
 )
 
 # Cargo fmt check - verify code formatting
@@ -300,8 +315,12 @@ sh_test(
     ],
     env = {
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
+        "RUSTUP_TOOLCHAIN": "stable",
     },
-    tags = ["no-sandbox"],
+    tags = [
+        "exclusive",
+        "no-sandbox",
+    ],
 )
 
 # Cargo hack check - verify each feature compiles in isolation
@@ -319,13 +338,18 @@ sh_test(
     env = {
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
         "CARGO_HACK": "$(rlocationpath @cargo_hack//:cargo-hack)",
+        "RUSTUP_TOOLCHAIN": "stable",
     },
-    tags = ["no-sandbox"],
+    tags = [
+        "exclusive",
+        "no-sandbox",
+    ],
 )
 
 # Zensical docs build - verify documentation builds successfully
 sh_test(
     name = "zensical_build",
+    size = "large",
     srcs = [".hacking/scripts/zensical_build.sh"],
     data = [
         "pyproject.toml",
@@ -336,6 +360,7 @@ sh_test(
     env = {
         "UV": "$(rlocationpath @uv//:uv)",
     },
+    tags = ["exclusive"],
 )
 
 # Zensical docs serve - build docs and optionally serve locally
@@ -394,7 +419,7 @@ copy_to_directory(
 [
     sh_test(
         name = "pytest_py{}".format(version.replace(".", "")),
-        size = "medium",
+        size = "large",
         srcs = [".hacking/scripts/pytest_uv.sh"],
         data = [
             "pyproject.toml",
@@ -407,6 +432,7 @@ copy_to_directory(
             "UV": "$(rlocationpath @uv//:uv)",
             "PYTHON_VERSION": version,
         },
+        tags = ["exclusive"],
     )
     for version in [
         "3.10",

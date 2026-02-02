@@ -37,4 +37,4 @@ strum_macros = "0.27.2"
 
 # Codegen dependencies (used by codegen-docs feature in cli-lib)
 clap-markdown = "0.1.5"
-minijinja = "2.11.0"
+minijinja = "2.15.1"

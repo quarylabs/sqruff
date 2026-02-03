@@ -44,9 +44,6 @@ filegroup(
 
 filegroup(
     name = "test_fixtures",
-    srcs = glob(
-        ["test/**"],
-        exclude_directories = 0,
-    ) + glob(["test/**/.*"]),
+    srcs = glob(["test/**"]),
     visibility = ["//visibility:public"],
 )

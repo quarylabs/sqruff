@@ -16,8 +16,7 @@ filegroup(
     srcs = glob(
         ["tests/**/*"],
         exclude = ["tests/**/*.rs"],
-        exclude_directories = 0,
-    ) + glob(["tests/**/.*"]),
+    ),
     visibility = ["//visibility:public"],
 )
 

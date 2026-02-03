@@ -968,14 +968,32 @@ fn source_char_len(elements: &[ReflowElement]) -> usize {
     char_len
 }
 
-fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
+/// Wraps an index like Python does: negative indices wrap from the end.
+fn wrap_index(idx: isize, len: usize) -> usize {
+    if idx < 0 {
+        (len as isize + idx) as usize
+    } else {
+        idx as usize
+    }
+}
+
+fn rebreak_priorities(spans: Vec<RebreakSpan>, buffer_len: usize) -> AHashMap<usize, usize> {
     let mut rebreak_priority = AHashMap::with_capacity(spans.len());
 
     for span in spans {
-        let rebreak_indices: &[usize] = match span.line_position {
-            LinePosition::Leading => &[span.start_idx - 1],
-            LinePosition::Trailing => &[span.end_idx + 1],
-            LinePosition::Alone => &[span.start_idx - 1, span.end_idx + 1],
+        // Use isize arithmetic to handle potential negative indices,
+        // then wrap like Python does (negative indices count from the end).
+        let rebreak_indices: Vec<usize> = match span.line_position {
+            LinePosition::Leading => {
+                vec![wrap_index(span.start_idx as isize - 1, buffer_len)]
+            }
+            LinePosition::Trailing => {
+                vec![wrap_index(span.end_idx as isize + 1, buffer_len)]
+            }
+            LinePosition::Alone => vec![
+                wrap_index(span.start_idx as isize - 1, buffer_len),
+                wrap_index(span.end_idx as isize + 1, buffer_len),
+            ],
             _ => {
                 unimplemented!()
             }
@@ -999,7 +1017,7 @@ fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
         }
 
         for rebreak_idx in rebreak_indices {
-            rebreak_priority.insert(*rebreak_idx, priority);
+            rebreak_priority.insert(rebreak_idx, priority);
         }
     }
 
@@ -1363,27 +1381,14 @@ pub fn lint_line_length(
         if line_len <= line_length_limit {
             log::info!("Line #{line_no}. Length {line_len} <= {line_length_limit}. OK.")
         } else {
-            let mut line_elements = chain(line_buffer.clone(), Some(elem.clone())).collect_vec();
+            let line_elements = chain(line_buffer.clone(), Some(elem.clone())).collect_vec();
             let mut fixes: Vec<LintFix> = Vec::new();
-
-            // Normalize line_elements to always start with a Point.
-            // When WHERE/HAVING/ON is on its own line, the conditions start on
-            // a new line, causing line_elements to start with a Block instead
-            // of the expected Point. The reflow algorithm expects an alternating
-            // Point-Block-Point-Block structure. Prepending an empty Point
-            // maintains this structure.
-            if line_elements
-                .first()
-                .is_some_and(|e| matches!(e, ReflowElement::Block(_)))
-            {
-                line_elements.insert(0, ReflowPoint::new(Vec::new()).into());
-            }
 
             let mut combined_elements = line_elements.clone();
             combined_elements.push(elements[i + 1].clone());
 
             let spans = identify_rebreak_spans(&combined_elements, root_segment);
-            let rebreak_priorities = rebreak_priorities(spans);
+            let rebreak_priorities = rebreak_priorities(spans, combined_elements.len());
 
             let matched_indents =
                 match_indents(line_elements, rebreak_priorities, i, allow_implicit_indents);

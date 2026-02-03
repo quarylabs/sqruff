@@ -300,7 +300,7 @@
   "moduleExtensions": {
     "//:tools.bzl%tools": {
       "general": {
-        "bzlTransitiveDigest": "/JsZGmkS/vlitsEphTcyh2Vph8JKL8B6mV11AegGbjM=",
+        "bzlTransitiveDigest": "7egann2c8H9XO2HbHf73NO04omFRlviENL9DHCclq78=",
         "usagesDigest": "Im2V7yPlYEv4GHExi3pryxLYa0SN3bEhv6+M92OPojA=",
         "recordedInputs": [],
         "generatedRepoSpecs": {
@@ -318,10 +318,6 @@
           },
           "uv": {
             "repoRuleId": "@@//:tools.bzl%_uv_repo",
-            "attributes": {}
-          },
-          "rust_standalone": {
-            "repoRuleId": "@@//:tools.bzl%_rust_toolchain_repo",
             "attributes": {}
           }
         }

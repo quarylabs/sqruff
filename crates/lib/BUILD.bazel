@@ -90,3 +90,9 @@ filegroup(
     ) + ["Cargo.toml"],
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "test_fixtures",
+    srcs = glob(["test/**"]),
+    visibility = ["//visibility:public"],
+)

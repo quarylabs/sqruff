@@ -300,7 +300,7 @@
   "moduleExtensions": {
     "//:tools.bzl%tools": {
       "general": {
-        "bzlTransitiveDigest": "7egann2c8H9XO2HbHf73NO04omFRlviENL9DHCclq78=",
+        "bzlTransitiveDigest": "/JsZGmkS/vlitsEphTcyh2Vph8JKL8B6mV11AegGbjM=",
         "usagesDigest": "Im2V7yPlYEv4GHExi3pryxLYa0SN3bEhv6+M92OPojA=",
         "recordedInputs": [],
         "generatedRepoSpecs": {
@@ -318,6 +318,10 @@
           },
           "uv": {
             "repoRuleId": "@@//:tools.bzl%_uv_repo",
+            "attributes": {}
+          },
+          "rust_standalone": {
+            "repoRuleId": "@@//:tools.bzl%_rust_toolchain_repo",
             "attributes": {}
           }
         }
@@ -975,6 +979,63 @@
     },
     "@@rules_go+//go:extensions.bzl%go_sdk": {
       "os:linux,arch:amd64": {
+        "bzlTransitiveDigest": "hCiZzD1nLHlMVWdyPMeEEpKRprZ+wW2SOqCI1ZzigIQ=",
+        "usagesDigest": "igIBXyqNg9Be63Cuu6kZxOeoDRDMqxSv8BcoWiqSh3w=",
+        "recordedInputs": [
+          "REPO_MAPPING:bazel_features+,bazel_features_globals bazel_features++version_extension+bazel_features_globals",
+          "REPO_MAPPING:bazel_features+,bazel_features_version bazel_features++version_extension+bazel_features_version",
+          "REPO_MAPPING:rules_go+,bazel_features bazel_features+",
+          "REPO_MAPPING:rules_go+,bazel_tools bazel_tools"
+        ],
+        "generatedRepoSpecs": {
+          "go_default_sdk": {
+            "repoRuleId": "@@rules_go+//go/private:sdk.bzl%go_download_sdk_rule",
+            "attributes": {
+              "goos": "",
+              "goarch": "",
+              "sdks": {},
+              "experiments": [],
+              "patches": [],
+              "patch_strip": 0,
+              "urls": [
+                "https://dl.google.com/go/{}"
+              ],
+              "version": "1.21.1",
+              "strip_prefix": "go"
+            }
+          },
+          "go_host_compatible_sdk_label": {
+            "repoRuleId": "@@rules_go+//go/private:extensions.bzl%host_compatible_toolchain",
+            "attributes": {
+              "toolchain": "@go_default_sdk//:ROOT"
+            }
+          },
+          "go_toolchains": {
+            "repoRuleId": "@@rules_go+//go/private:sdk.bzl%go_multiple_toolchains",
+            "attributes": {
+              "prefixes": [
+                "_0000_go_default_sdk_"
+              ],
+              "geese": [
+                ""
+              ],
+              "goarchs": [
+                ""
+              ],
+              "sdk_repos": [
+                "go_default_sdk"
+              ],
+              "sdk_types": [
+                "remote"
+              ],
+              "sdk_versions": [
+                "1.21.1"
+              ]
+            }
+          }
+        }
+      },
+      "os:osx,arch:aarch64": {
         "bzlTransitiveDigest": "hCiZzD1nLHlMVWdyPMeEEpKRprZ+wW2SOqCI1ZzigIQ=",
         "usagesDigest": "igIBXyqNg9Be63Cuu6kZxOeoDRDMqxSv8BcoWiqSh3w=",
         "recordedInputs": [

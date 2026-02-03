@@ -6,6 +6,7 @@ load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
+load(":cargo_build.bzl", "cargo_test", "cargo_vendor", "cargo_vendor_provider")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
@@ -193,6 +194,20 @@ filegroup(
     ],
 )
 
+# Vendor cargo dependencies (cached until Cargo.lock changes)
+# Installs Rust on-the-fly via rustup
+cargo_vendor(
+    name = "cargo_vendor",
+    manifests = [":cargo_srcs"],
+    rust_version = "1.92.0",
+)
+
+# Provider wrapper for vendored dependencies
+cargo_vendor_provider(
+    name = "cargo_deps",
+    vendor = ":cargo_vendor",
+)
+
 # Rust format check
 rustfmt_test(
     name = "rustfmt_check",
@@ -243,44 +258,26 @@ sh_test(
 
 # Cargo check - type-check all crates with all features, tests, and benches
 # This replicates the "Rust Check" GitHub action job
-# Note: Runs without sandbox to allow cargo to access ~/.cargo cache
-sh_test(
+# Uses vendored dependencies for hermetic builds
+cargo_test(
     name = "cargo_check",
-    size = "large",
-    srcs = [".hacking/scripts/cargo_check.sh"],
-    data = [
-        ":cargo_srcs",
-        "@rules_rust//rust/toolchain:current_cargo_files",
-    ],
-    env = {
-        "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
-        "RUSTUP_TOOLCHAIN": "stable",
-    },
-    tags = [
-        "exclusive",
-        "no-sandbox",
-    ],
+    srcs = [":cargo_srcs"],
+    vendor = ":cargo_deps",
+    rust_version = "1.92.0",
+    script = "cargo check --all --all-features --tests --benches --locked --offline",
+    tags = ["exclusive"],
 )
 
 # Cargo build release - build release binaries with all features
 # This replicates the "Compile" GitHub action job
-# Note: Runs without sandbox to allow cargo to access ~/.cargo cache
-sh_test(
+# Uses vendored dependencies for hermetic builds
+cargo_test(
     name = "cargo_build_release",
-    size = "large",
-    srcs = [".hacking/scripts/cargo_build_release.sh"],
-    data = [
-        ":cargo_srcs",
-        "@rules_rust//rust/toolchain:current_cargo_files",
-    ],
-    env = {
-        "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
-        "RUSTUP_TOOLCHAIN": "stable",
-    },
-    tags = [
-        "exclusive",
-        "no-sandbox",
-    ],
+    srcs = [":cargo_srcs"],
+    vendor = ":cargo_deps",
+    rust_version = "1.92.0",
+    script = "cargo build --locked --release --all-features --offline",
+    tags = ["exclusive"],
 )
 
 # Cargo clippy - run clippy with all features

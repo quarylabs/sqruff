@@ -323,6 +323,35 @@ sh_test(
     ],
 )
 
+# Cargo test - run all tests exactly like the GitHub Action
+# Uses system/rustup Rust (installed if needed) and uv for Python
+# Note: Runs without sandbox to allow network access for rustup/uv
+sh_test(
+    name = "cargo_test",
+    size = "large",
+    srcs = [".hacking/scripts/cargo_test.sh"],
+    data = [
+        ":cargo_srcs",
+        "pyproject.toml",
+        "uv.lock",
+        "//crates/cli:test_fixtures",
+        "//crates/cli-python:machete_srcs",
+        "//crates/cli-python:pyproject.toml",
+        "//crates/cli-python:python_srcs",
+        "//crates/cli-python:test_fixtures",
+        "//crates/lib:test_fixtures",
+        "//crates/lib-dialects:test_fixtures",
+        "@uv//:uv",
+    ],
+    env = {
+        "UV": "$(rlocationpath @uv//:uv)",
+    },
+    tags = [
+        "exclusive",
+        "no-sandbox",
+    ],
+)
+
 # Cargo hack check - verify each feature compiles in isolation
 # This ensures no feature combination is broken
 # Note: Runs without sandbox to allow cargo to access ~/.cargo cache

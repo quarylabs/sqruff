@@ -268,7 +268,6 @@ cargo_test(
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo check --all --all-features --tests --benches --locked --offline",
-    tags = ["exclusive"],
 )
 
 # Cargo build release - build release binaries with all features
@@ -279,7 +278,6 @@ cargo_test(
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo build --locked --release --all-features --offline",
-    tags = ["exclusive"],
 )
 
 # Cargo clippy - run clippy with all features
@@ -289,7 +287,6 @@ cargo_test(
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo clippy --all --all-features --offline -- -D warnings",
-    tags = ["exclusive"],
 )
 
 # Cargo fmt check - verify code formatting
@@ -299,7 +296,6 @@ cargo_test(
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo fmt --all -- --check",
-    tags = ["exclusive"],
 )
 
 # Cargo test - run all tests exactly like the GitHub Action

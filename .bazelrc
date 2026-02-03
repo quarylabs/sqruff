@@ -1,6 +1,3 @@
-# Common flags for all builds
-common --enable_bzlmod
-
 # Build with optimizations
 build --compilation_mode=opt
 

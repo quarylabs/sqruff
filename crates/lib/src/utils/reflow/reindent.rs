@@ -968,14 +968,32 @@ fn source_char_len(elements: &[ReflowElement]) -> usize {
     char_len
 }
 
-fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
+/// Wraps an index like Python does: negative indices wrap from the end.
+fn wrap_index(idx: isize, len: usize) -> usize {
+    if idx < 0 {
+        (len as isize + idx) as usize
+    } else {
+        idx as usize
+    }
+}
+
+fn rebreak_priorities(spans: Vec<RebreakSpan>, buffer_len: usize) -> AHashMap<usize, usize> {
     let mut rebreak_priority = AHashMap::with_capacity(spans.len());
 
     for span in spans {
-        let rebreak_indices: &[usize] = match span.line_position {
-            LinePosition::Leading => &[span.start_idx - 1],
-            LinePosition::Trailing => &[span.end_idx + 1],
-            LinePosition::Alone => &[span.start_idx - 1, span.end_idx + 1],
+        // Use isize arithmetic to handle potential negative indices,
+        // then wrap like Python does (negative indices count from the end).
+        let rebreak_indices: Vec<usize> = match span.line_position {
+            LinePosition::Leading => {
+                vec![wrap_index(span.start_idx as isize - 1, buffer_len)]
+            }
+            LinePosition::Trailing => {
+                vec![wrap_index(span.end_idx as isize + 1, buffer_len)]
+            }
+            LinePosition::Alone => vec![
+                wrap_index(span.start_idx as isize - 1, buffer_len),
+                wrap_index(span.end_idx as isize + 1, buffer_len),
+            ],
             _ => {
                 unimplemented!()
             }
@@ -999,7 +1017,7 @@ fn rebreak_priorities(spans: Vec<RebreakSpan>) -> AHashMap<usize, usize> {
         }
 
         for rebreak_idx in rebreak_indices {
-            rebreak_priority.insert(*rebreak_idx, priority);
+            rebreak_priority.insert(rebreak_idx, priority);
         }
     }
 
@@ -1370,7 +1388,7 @@ pub fn lint_line_length(
             combined_elements.push(elements[i + 1].clone());
 
             let spans = identify_rebreak_spans(&combined_elements, root_segment);
-            let rebreak_priorities = rebreak_priorities(spans);
+            let rebreak_priorities = rebreak_priorities(spans, combined_elements.len());
 
             let matched_indents =
                 match_indents(line_elements, rebreak_priorities, i, allow_implicit_indents);

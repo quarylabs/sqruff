@@ -1,6 +1,7 @@
 import SideBar, { SideBarEntry } from "./SideBar";
 import {
   FormatIcon,
+  LexerIcon,
   LineageIcon,
   StructureIcon,
   TemplaterOutputIcon,
@@ -49,6 +50,14 @@ export default function SecondarySideBar({
         onClick={() => onSelected(SecondaryTool.Templater)}
       >
         <TemplaterOutputIcon />
+      </SideBarEntry>
+      <SideBarEntry
+        title="Lexer"
+        position={"right"}
+        selected={selected === SecondaryTool.Lexer}
+        onClick={() => onSelected(SecondaryTool.Lexer)}
+      >
+        <LexerIcon />
       </SideBarEntry>
     </SideBar>
   );

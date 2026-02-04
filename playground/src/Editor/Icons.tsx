@@ -126,3 +126,22 @@ export function TemplaterOutputIcon() {
     </svg>
   );
 }
+
+export function LexerIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M1 3.5L1.5 3H5L5.5 3.5V4.5L5 5H1.5L1 4.5V3.5ZM2 4H4.5V4H2V4ZM7 3.5L7.5 3H14.5L15 3.5V4.5L14.5 5H7.5L7 4.5V3.5ZM8 4H14V4H8V4ZM1 7.5L1.5 7H8.5L9 7.5V8.5L8.5 9H1.5L1 8.5V7.5ZM2 8H8V8H2V8ZM11 7.5L11.5 7H14.5L15 7.5V8.5L14.5 9H11.5L11 8.5V7.5ZM12 8H14V8H12V8ZM1 11.5L1.5 11H3.5L4 11.5V12.5L3.5 13H1.5L1 12.5V11.5ZM2 12H3V12H2V12ZM6 11.5L6.5 11H14.5L15 11.5V12.5L14.5 13H6.5L6 12.5V11.5ZM7 12H14V12H7V12Z"
+        fill="#C5C5C5"
+      />
+    </svg>
+  );
+}

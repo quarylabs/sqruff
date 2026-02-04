@@ -2,7 +2,7 @@ use line_index::LineIndex;
 use lineage::{Lineage, Node};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
-use sqruff_lib_core::parser::segments::Tables;
+use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use wasm_bindgen::prelude::*;
 
@@ -36,6 +36,7 @@ pub enum Tool {
     Cst = "Cst",
     Lineage = "Lineage",
     Templater = "Templater",
+    Lexer = "Lexer",
 }
 
 #[wasm_bindgen]
@@ -139,6 +140,12 @@ impl Linter {
                 print_tree(&tables, node, "", "", "")
             }
             Tool::Templater => templated.templated_file.to_yaml(),
+            Tool::Lexer => {
+                let lexer = self.base.config().get_dialect().lexer();
+                let lex_tables = Tables::default();
+                let (segments, _errors) = lexer.lex(&lex_tables, sql);
+                format_lexer_output(&segments)
+            }
             Tool::__Invalid => String::from("Error: unsupported tool"),
         };
 
@@ -207,4 +214,39 @@ fn print_tree(
     }
 
     string
+}
+
+fn format_lexer_output(segments: &[ErasedSegment]) -> String {
+    use std::fmt::Write;
+
+    let mut output = String::new();
+    let _ = writeln!(output, "tokens:");
+
+    for (i, segment) in segments.iter().enumerate() {
+        let raw = segment.raw();
+        let kind = segment.get_type();
+
+        // Escape special characters for YAML display
+        let escaped_raw = raw
+            .replace('\\', "\\\\")
+            .replace('\n', "\\n")
+            .replace('\r', "\\r")
+            .replace('\t', "\\t")
+            .replace('"', "\\\"");
+
+        let _ = writeln!(output, "  - index: {}", i);
+        let _ = writeln!(output, "    type: {:?}", kind);
+        let _ = writeln!(output, "    raw: \"{}\"", escaped_raw);
+
+        if let Some(pos) = segment.get_position_marker() {
+            let _ = writeln!(
+                output,
+                "    position: {}..{}",
+                pos.source_slice.start,
+                pos.source_slice.end
+            );
+        }
+    }
+
+    output
 }

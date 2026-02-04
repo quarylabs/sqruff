@@ -1,5 +1,6 @@
 use line_index::LineIndex;
 use lineage::{Lineage, Node};
+use serde::Serialize;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
@@ -216,37 +217,39 @@ fn print_tree(
     string
 }
 
+#[derive(Serialize)]
+struct LexerOutput {
+    tokens: Vec<Token>,
+}
+
+#[derive(Serialize)]
+struct Token {
+    index: usize,
+    #[serde(rename = "type")]
+    kind: String,
+    raw: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    position: Option<String>,
+}
+
 fn format_lexer_output(segments: &[ErasedSegment]) -> String {
-    use std::fmt::Write;
+    let tokens: Vec<Token> = segments
+        .iter()
+        .enumerate()
+        .map(|(i, segment)| {
+            let position = segment
+                .get_position_marker()
+                .map(|pos| format!("{}..{}", pos.source_slice.start, pos.source_slice.end));
 
-    let mut output = String::new();
-    let _ = writeln!(output, "tokens:");
+            Token {
+                index: i,
+                kind: format!("{:?}", segment.get_type()),
+                raw: segment.raw().to_string(),
+                position,
+            }
+        })
+        .collect();
 
-    for (i, segment) in segments.iter().enumerate() {
-        let raw = segment.raw();
-        let kind = segment.get_type();
-
-        // Escape special characters for YAML display
-        let escaped_raw = raw
-            .replace('\\', "\\\\")
-            .replace('\n', "\\n")
-            .replace('\r', "\\r")
-            .replace('\t', "\\t")
-            .replace('"', "\\\"");
-
-        let _ = writeln!(output, "  - index: {}", i);
-        let _ = writeln!(output, "    type: {:?}", kind);
-        let _ = writeln!(output, "    raw: \"{}\"", escaped_raw);
-
-        if let Some(pos) = segment.get_position_marker() {
-            let _ = writeln!(
-                output,
-                "    position: {}..{}",
-                pos.source_slice.start,
-                pos.source_slice.end
-            );
-        }
-    }
-
-    output
+    let output = LexerOutput { tokens };
+    serde_yaml::to_string(&output).unwrap_or_else(|e| format!("Error serializing: {}", e))
 }

@@ -1617,6 +1617,8 @@ version = "0.34.1"
 dependencies = [
  "line-index",
  "lineage",
+ "serde",
+ "serde_yaml",
  "sqruff-lib",
  "sqruff-lib-core",
  "wasm-bindgen",

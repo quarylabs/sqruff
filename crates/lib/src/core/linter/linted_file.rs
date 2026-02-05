@@ -123,14 +123,11 @@ impl LintedFile {
         patches: Vec<FixPatch>,
         _templated_file: &TemplatedFile,
     ) -> Vec<FixPatch> {
-        let mut filtered_source_patches = Vec::new();
         let mut dedupe_buffer = FxHashSet::default();
-
-        for patch in patches {
-            if dedupe_buffer.insert(patch.dedupe_tuple()) {
-                filtered_source_patches.push(patch);
-            }
-        }
+        let mut filtered_source_patches: Vec<_> = patches
+            .into_iter()
+            .filter(|patch| dedupe_buffer.insert(patch.dedupe_tuple()))
+            .collect();
 
         filtered_source_patches.sort_by_key(|x| x.source_slice.start);
         filtered_source_patches

@@ -63,28 +63,27 @@ impl Selectable<'_> {
             return Vec::new();
         };
 
-        let mut buff = Vec::new();
-        for seg in select_info.select_targets {
-            if seg
-                .0
-                .child(const { &SyntaxSet::new(&[SyntaxKind::WildcardExpression]) })
-                .is_some()
-            {
-                if seg.0.raw().contains('.') {
-                    let table = seg
-                        .0
-                        .raw()
-                        .rsplit_once('.')
-                        .map(|x| x.0)
-                        .unwrap_or_default()
-                        .to_smolstr();
-                    buff.push(WildcardInfo {
-                        segment: seg.0.clone(),
-                        tables: vec![table],
-                    });
+        let table_aliases = &select_info.table_aliases;
+        select_info
+            .select_targets
+            .into_iter()
+            .filter(|seg| {
+                seg.0
+                    .child(const { &SyntaxSet::new(&[SyntaxKind::WildcardExpression]) })
+                    .is_some()
+            })
+            .map(|seg| {
+                let tables = if seg.0.raw().contains('.') {
+                    vec![
+                        seg.0
+                            .raw()
+                            .rsplit_once('.')
+                            .map(|x| x.0)
+                            .unwrap_or_default()
+                            .to_smolstr(),
+                    ]
                 } else {
-                    let tables = select_info
-                        .table_aliases
+                    table_aliases
                         .iter()
                         .filter(|it| !it.ref_str.is_empty())
                         .map(|it| {
@@ -94,16 +93,14 @@ impl Selectable<'_> {
                                 it.from_expression_element.raw().clone()
                             }
                         })
-                        .collect();
-                    buff.push(WildcardInfo {
-                        segment: seg.0.clone(),
-                        tables,
-                    });
+                        .collect()
+                };
+                WildcardInfo {
+                    segment: seg.0.clone(),
+                    tables,
                 }
-            }
-        }
-
-        buff
+            })
+            .collect()
     }
 }
 

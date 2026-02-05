@@ -31,56 +31,44 @@ impl RuleRF03 {
         query: Query<'_>,
         _visited: &mut AHashSet<ErasedSegment>,
     ) -> Vec<LintResult> {
-        #[allow(unused_assignments)]
-        let mut select_info = None;
-
-        let mut acc = Vec::new();
         let selectables = &RefCell::borrow(&query.inner).selectables;
 
-        if !selectables.is_empty() {
-            select_info = selectables[0].select_info();
-
-            if let Some(select_info) = select_info
-                .clone()
+        let local_results: Vec<LintResult> = if !selectables.is_empty() {
+            selectables[0]
+                .select_info()
                 .filter(|select_info| select_info.table_aliases.len() == 1)
-            {
-                let mut fixable = true;
-                let possible_ref_tables = iter_available_targets(query.clone());
+                .map(|select_info| {
+                    let fixable = iter_available_targets(query.clone()).len() <= 1;
 
-                if let Some(_parent) = &RefCell::borrow(&query.inner).parent {}
+                    check_references(
+                        tables,
+                        select_info.table_aliases,
+                        select_info.standalone_aliases,
+                        select_info.reference_buffer,
+                        select_info.col_aliases,
+                        single_table_references,
+                        is_struct_dialect,
+                        Some("qualified".into()),
+                        fixable,
+                    )
+                })
+                .unwrap_or_default()
+        } else {
+            Vec::new()
+        };
 
-                if possible_ref_tables.len() > 1 {
-                    fixable = false;
-                }
-
-                let results = check_references(
+        local_results
+            .into_iter()
+            .chain(query.children().into_iter().flat_map(|child| {
+                Self::visit_queries(
                     tables,
-                    select_info.table_aliases,
-                    select_info.standalone_aliases,
-                    select_info.reference_buffer,
-                    select_info.col_aliases,
                     single_table_references,
                     is_struct_dialect,
-                    Some("qualified".into()),
-                    fixable,
-                );
-
-                acc.extend(results);
-            }
-        }
-
-        let children = query.children();
-        for child in children {
-            acc.extend(Self::visit_queries(
-                tables,
-                single_table_references,
-                is_struct_dialect,
-                child,
-                _visited,
-            ));
-        }
-
-        acc
+                    child,
+                    _visited,
+                )
+            }))
+            .collect()
     }
 }
 

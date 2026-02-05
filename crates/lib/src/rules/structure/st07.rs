@@ -182,25 +182,28 @@ fn generate_join_conditions(
     table_b_ref: &str,
     columns: Vec<SmolStr>,
 ) -> Vec<ErasedSegment> {
-    let mut edit_segments = Vec::new();
+    let comparisons: Vec<Vec<_>> = columns
+        .iter()
+        .map(|col| {
+            vec![
+                create_col_reference(tables, dialect, table_a_ref, col),
+                SegmentBuilder::whitespace(tables.next_id(), " "),
+                SegmentBuilder::token(tables.next_id(), "=", SyntaxKind::Symbol).finish(),
+                SegmentBuilder::whitespace(tables.next_id(), " "),
+                create_col_reference(tables, dialect, table_b_ref, col),
+            ]
+        })
+        .collect();
 
-    for col in columns {
-        edit_segments.extend_from_slice(&[
-            create_col_reference(tables, dialect, table_a_ref, &col),
-            SegmentBuilder::whitespace(tables.next_id(), " "),
-            SegmentBuilder::token(tables.next_id(), "=", SyntaxKind::Symbol).finish(),
-            SegmentBuilder::whitespace(tables.next_id(), " "),
-            create_col_reference(tables, dialect, table_b_ref, &col),
+    Itertools::intersperse_with(comparisons.into_iter(), || {
+        vec![
             SegmentBuilder::whitespace(tables.next_id(), " "),
             SegmentBuilder::keyword(tables.next_id(), "AND"),
             SegmentBuilder::whitespace(tables.next_id(), " "),
-        ]);
-    }
-
-    edit_segments
-        .get(..edit_segments.len().saturating_sub(3))
-        .map_or(Vec::new(), ToOwned::to_owned)
-        .clone()
+        ]
+    })
+    .flatten()
+    .collect()
 }
 
 fn extract_deletion_sequence_and_anchor(

@@ -124,22 +124,16 @@ impl Linter {
             paths.push(std::env::current_dir().unwrap());
         }
 
-        let mut expanded_paths = Vec::new();
-
-        for path in paths {
-            if path.is_file() {
-                expanded_paths.push(path.to_string_lossy().to_string());
-            } else {
-                expanded_paths.extend(self.paths_from_path(
-                    path,
-                    None,
-                    None,
-                    None,
-                    None,
-                    Some(ignorer),
-                ));
-            };
-        }
+        let expanded_paths: Vec<String> = paths
+            .into_iter()
+            .flat_map(|path| {
+                if path.is_file() {
+                    vec![path.to_string_lossy().to_string()]
+                } else {
+                    self.paths_from_path(path, None, None, None, None, Some(ignorer))
+                }
+            })
+            .collect();
 
         let paths: Vec<String> = expanded_paths
             .into_iter()

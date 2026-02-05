@@ -82,7 +82,6 @@ left join bar
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let mut table_aliases = Vec::new();
         let children = FunctionalContext::new(context).segment().children_all();
         let join_clauses =
             children.recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) }, true);
@@ -106,11 +105,8 @@ left join bar
         .ref_str
         .clone();
 
-        table_aliases.push(from_expression_alias);
-
-        let mut join_clause_aliases = join_clauses
-            .into_iter()
-            .map(|join_clause| {
+        let table_aliases: Vec<_> = std::iter::once(from_expression_alias)
+            .chain(join_clauses.into_iter().map(|join_clause| {
                 JoinClauseSegment(join_clause)
                     .eventual_aliases()
                     .first()
@@ -118,43 +114,40 @@ left join bar
                     .1
                     .ref_str
                     .clone()
-            })
-            .collect_vec();
-
-        table_aliases.append(&mut join_clause_aliases);
-
-        let table_aliases = table_aliases
-            .iter()
+            }))
             .map(|it| it.to_uppercase_smolstr())
-            .collect_vec();
-        let mut conditions = Vec::new();
+            .collect();
 
         let join_on_condition_expressions = join_on_conditions
             .children_all()
             .recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::Expression]) }, true);
 
-        for expression in join_on_condition_expressions {
-            let mut expression_group = Vec::new();
-            for element in Segments::new(expression, None).children_all() {
-                if !matches!(
-                    element.get_type(),
-                    SyntaxKind::Whitespace | SyntaxKind::Newline
-                ) {
-                    expression_group.push(element);
-                }
-            }
-            conditions.push(expression_group);
-        }
+        let conditions: Vec<Vec<_>> = join_on_condition_expressions
+            .into_iter()
+            .map(|expression| {
+                Segments::new(expression, None)
+                    .children_all()
+                    .into_iter()
+                    .filter(|element| {
+                        !matches!(
+                            element.get_type(),
+                            SyntaxKind::Whitespace | SyntaxKind::Newline
+                        )
+                    })
+                    .collect()
+            })
+            .collect();
 
-        let mut subconditions = Vec::new();
-
-        for expression_group in conditions {
-            subconditions.append(&mut split_list_by_segment_type(
-                expression_group,
-                SyntaxKind::BinaryOperator,
-                vec!["and".into(), "or".into()],
-            ));
-        }
+        let subconditions: Vec<_> = conditions
+            .into_iter()
+            .flat_map(|expression_group| {
+                split_list_by_segment_type(
+                    expression_group,
+                    SyntaxKind::BinaryOperator,
+                    vec!["and".into(), "or".into()],
+                )
+            })
+            .collect();
 
         let column_operator_column_subconditions = subconditions
             .into_iter()

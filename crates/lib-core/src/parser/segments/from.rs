@@ -10,49 +10,35 @@ pub struct FromClauseSegment(pub ErasedSegment);
 
 impl FromClauseSegment {
     pub fn eventual_aliases(&self) -> Vec<(ErasedSegment, AliasInfo)> {
-        let mut buff = Vec::new();
-        let mut direct_table_children = Vec::new();
-        let mut join_clauses = Vec::new();
-
-        for from_expression in self
+        let from_expressions: Vec<_> = self
             .0
             .children(const { &SyntaxSet::new(&[SyntaxKind::FromExpression]) })
-        {
-            direct_table_children.extend(
-                from_expression
-                    .children(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }),
-            );
-            join_clauses.extend(
-                from_expression.children(const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) }),
-            );
-        }
+            .collect();
 
-        for &clause in &direct_table_children {
-            let tmp;
+        let direct_table_children: Vec<_> = from_expressions
+            .iter()
+            .flat_map(|fe| {
+                fe.children(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
+            })
+            .collect();
 
-            let alias = FromExpressionElementSegment(clause.clone()).eventual_alias();
+        let join_clauses: Vec<_> = from_expressions
+            .iter()
+            .flat_map(|fe| fe.children(const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) }))
+            .collect();
 
-            let table_expr = if direct_table_children.contains(&clause) {
-                clause
-            } else {
-                tmp = clause
-                    .child(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
-                    .unwrap();
-                &tmp
-            };
-
-            buff.push((table_expr.clone(), alias));
-        }
-
-        for clause in join_clauses {
-            let aliases = JoinClauseSegment(clause.clone()).eventual_aliases();
-
-            if !aliases.is_empty() {
-                buff.extend(aliases);
-            }
-        }
-
-        buff
+        direct_table_children
+            .into_iter()
+            .map(|clause| {
+                let alias = FromExpressionElementSegment(clause.clone()).eventual_alias();
+                (clause.clone(), alias)
+            })
+            .chain(
+                join_clauses
+                    .into_iter()
+                    .flat_map(|clause| JoinClauseSegment(clause.clone()).eventual_aliases()),
+            )
+            .collect()
     }
 }
 

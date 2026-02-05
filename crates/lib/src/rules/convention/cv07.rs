@@ -65,63 +65,66 @@ Don’t wrap top-level statements in brackets.
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let mut results = vec![];
+        Self::iter_bracketed_statements(context.segment.clone())
+            .into_iter()
+            .map(|(parent, bracketed_segment)| {
+                let bracket_set = [SyntaxKind::StartBracket, SyntaxKind::EndBracket];
 
-        for (parent, bracketed_segment) in Self::iter_bracketed_statements(context.segment.clone())
-        {
-            let bracket_set = [SyntaxKind::StartBracket, SyntaxKind::EndBracket];
+                let filtered_children: Vec<ErasedSegment> = bracketed_segment
+                    .segments()
+                    .iter()
+                    .filter(|&segment| {
+                        !bracket_set.contains(&segment.get_type()) && !segment.is_meta()
+                    })
+                    .cloned()
+                    .collect();
 
-            let mut filtered_children: Vec<ErasedSegment> = bracketed_segment
-                .segments()
-                .iter()
-                .filter(|&segment| !bracket_set.contains(&segment.get_type()) && !segment.is_meta())
-                .cloned()
-                .collect();
+                // Lift leading/trailing whitespace and inline comments to the
+                // segment above. This avoids introducing a parse error (ANSI and other
+                // dialects generally don't allow this at lower levels of the parse
+                // tree).
+                let to_lift_predicate = |segment: &ErasedSegment| {
+                    segment.is_type(SyntaxKind::Whitespace)
+                        || segment.is_type(SyntaxKind::InlineComment)
+                };
+                let leading: Vec<_> = filtered_children
+                    .iter()
+                    .take_while(|s| to_lift_predicate(s))
+                    .cloned()
+                    .collect();
+                let trailing: Vec<_> = filtered_children
+                    .iter()
+                    .rev()
+                    .take_while(|s| to_lift_predicate(s))
+                    .cloned()
+                    .collect();
 
-            // Lift leading/trailing whitespace and inline comments to the
-            // segment above. This avoids introducing a parse error (ANSI and other
-            // dialects generally don't allow this at lower levels of the parse
-            // tree).
-            let to_lift_predicate = |segment: &ErasedSegment| {
-                segment.is_type(SyntaxKind::Whitespace)
-                    || segment.is_type(SyntaxKind::InlineComment)
-            };
-            let leading = filtered_children
-                .clone()
-                .into_iter()
-                .take_while(to_lift_predicate)
-                .collect::<Vec<_>>();
-            let trailing = filtered_children
-                .clone()
-                .into_iter()
-                .rev()
-                .take_while(to_lift_predicate)
-                .collect::<Vec<_>>();
+                let lift_nodes: Vec<_> = leading.iter().chain(trailing.iter()).cloned().collect();
 
-            let lift_nodes = leading
-                .iter()
-                .chain(trailing.iter())
-                .cloned()
-                .collect::<Vec<_>>();
-            let mut fixes = vec![];
-            if !lift_nodes.is_empty() {
-                fixes.push(LintFix::create_before(parent.clone(), leading.clone()));
-                fixes.push(LintFix::create_after(parent, trailing.clone(), None));
-                fixes.extend(lift_nodes.into_iter().map(LintFix::delete));
-                filtered_children = filtered_children
-                    [leading.len()..filtered_children.len() - trailing.len()]
-                    .into();
-            }
+                let (fixes, final_children) = if !lift_nodes.is_empty() {
+                    let mut fixes = vec![
+                        LintFix::create_before(parent.clone(), leading.clone()),
+                        LintFix::create_after(parent, trailing.clone(), None),
+                    ];
+                    fixes.extend(lift_nodes.into_iter().map(LintFix::delete));
+                    let trimmed = filtered_children
+                        [leading.len()..filtered_children.len() - trailing.len()]
+                        .to_vec();
+                    (fixes, trimmed)
+                } else {
+                    (vec![], filtered_children)
+                };
 
-            fixes.push(LintFix::replace(
-                bracketed_segment.clone(),
-                filtered_children,
-                None,
-            ));
+                let mut all_fixes = fixes;
+                all_fixes.push(LintFix::replace(
+                    bracketed_segment.clone(),
+                    final_children,
+                    None,
+                ));
 
-            results.push(LintResult::new(Some(bracketed_segment), fixes, None, None))
-        }
-        results
+                LintResult::new(Some(bracketed_segment), all_fixes, None, None)
+            })
+            .collect()
     }
 
     fn is_fix_compatible(&self) -> bool {

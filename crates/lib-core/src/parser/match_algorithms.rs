@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use itertools::{Itertools as _, enumerate, multiunzip};
 use smol_str::StrExt;
 
@@ -201,8 +201,8 @@ fn next_match(
         return Ok((MatchResult::empty_at(idx), None));
     }
 
-    let mut raw_simple_map: AHashMap<String, Vec<usize>> = AHashMap::new();
-    let mut type_simple_map: AHashMap<SyntaxKind, Vec<usize>> = AHashMap::new();
+    let mut raw_simple_map: HashMap<String, Vec<usize>> = HashMap::new();
+    let mut type_simple_map: HashMap<SyntaxKind, Vec<usize>> = HashMap::new();
 
     for (idx, matcher) in enumerate(matchers) {
         let (raws, types) = matcher.simple(parse_context, None).unwrap();

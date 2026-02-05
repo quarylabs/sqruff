@@ -1,4 +1,4 @@
-use ahash::AHashSet;
+use hashbrown::HashSet;
 use itertools::{Itertools, chain};
 use nohash_hasher::IntMap;
 
@@ -54,8 +54,8 @@ pub fn simple(
     elements: &[Matchable],
     parse_context: &ParseContext,
     crumbs: Option<Vec<&str>>,
-) -> Option<(AHashSet<String>, SyntaxSet)> {
-    let option_simples: Vec<Option<(AHashSet<String>, SyntaxSet)>> = elements
+) -> Option<(HashSet<String>, SyntaxSet)> {
+    let option_simples: Vec<Option<(HashSet<String>, SyntaxSet)>> = elements
         .iter()
         .map(|opt| opt.simple(parse_context, crumbs.clone()))
         .collect();
@@ -64,10 +64,10 @@ pub fn simple(
         return None;
     }
 
-    let simple_buff: Vec<(AHashSet<String>, SyntaxSet)> =
+    let simple_buff: Vec<(HashSet<String>, SyntaxSet)> =
         option_simples.into_iter().flatten().collect();
 
-    let simple_raws: AHashSet<_> = simple_buff
+    let simple_raws: HashSet<_> = simple_buff
         .iter()
         .flat_map(|(raws, _)| raws)
         .cloned()
@@ -152,7 +152,7 @@ impl MatchableTrait for AnyNumberOf {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         simple(&self.elements, parse_context, crumbs)
     }
 

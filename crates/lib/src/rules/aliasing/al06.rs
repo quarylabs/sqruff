@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
@@ -87,7 +87,7 @@ impl RuleAL06 {
 }
 
 impl Rule for RuleAL06 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleAL06 {
             min_alias_length: config["min_alias_length"].as_int().map(|it| it as usize),
             max_alias_length: config["max_alias_length"].as_int().map(|it| it as usize),

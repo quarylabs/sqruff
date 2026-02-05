@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
@@ -12,7 +12,7 @@ use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 pub struct RuleLT03;
 
 impl Rule for RuleLT03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT03.erased())
     }
     fn name(&self) -> &'static str {

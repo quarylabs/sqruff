@@ -1,5 +1,5 @@
+use hashbrown::HashMap;
 use std::cell::{Cell, OnceCell, Ref, RefCell};
-use std::collections::HashMap;
 use std::rc::Rc;
 
 use indexmap::IndexMap;

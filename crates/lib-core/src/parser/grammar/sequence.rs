@@ -1,7 +1,7 @@
 use std::iter::zip;
 use std::ops::{Deref, DerefMut};
 
-use ahash::AHashSet;
+use hashbrown::HashSet;
 
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::errors::SQLParseError;
@@ -98,8 +98,8 @@ impl MatchableTrait for Sequence {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
-        let mut simple_raws = AHashSet::new();
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
+        let mut simple_raws = HashSet::new();
         let mut simple_types = SyntaxSet::EMPTY;
 
         for opt in &self.elements {
@@ -398,7 +398,7 @@ impl MatchableTrait for Bracketed {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         let (start_bracket, _, _) = self.get_bracket_from_dialect(parse_context).unwrap();
         start_bracket.simple(parse_context, crumbs)
     }

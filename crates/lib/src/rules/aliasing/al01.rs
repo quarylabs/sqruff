@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
@@ -47,7 +47,7 @@ impl Default for RuleAL01 {
 }
 
 impl Rule for RuleAL01 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         let aliasing = match _config.get("aliasing").unwrap().as_string().unwrap() {
             "explicit" => Aliasing::Explicit,
             "implicit" => Aliasing::Implicit,

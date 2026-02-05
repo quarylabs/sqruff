@@ -14,7 +14,7 @@ crate-type = ["cdylib", "rlib"]
 bench = false
 
 [dependencies]
-ahash.workspace = true
+hashbrown.workspace = true
 console_error_panic_hook = "0.1.7"
 js-sys = "0.3.74"
 lsp-server = "0.7.9"

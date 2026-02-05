@@ -1,6 +1,6 @@
 use std::iter::once;
 
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use itertools::chain;
 use smol_str::ToSmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -38,14 +38,14 @@ impl RuleAL07 {
         let mut violation_buff = Vec::new();
         let to_check = self.filter_table_expressions(base_table, from_expression_elements);
 
-        let mut table_counts = AHashMap::new();
+        let mut table_counts = HashMap::new();
         for ai in &to_check {
             *table_counts
                 .entry(ai.table_ref.raw().to_smolstr())
                 .or_insert(0) += 1;
         }
 
-        let mut table_aliases: AHashMap<_, AHashSet<_>> = AHashMap::new();
+        let mut table_aliases: HashMap<_, HashSet<_>> = HashMap::new();
         for ai in &to_check {
             if let (table_ref, Some(alias_identifier_ref)) =
                 (&ai.table_ref, &ai.alias_identifier_ref)
@@ -213,7 +213,7 @@ impl RuleAL07 {
 }
 
 impl Rule for RuleAL07 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleAL07 {
             force_enable: _config["force_enable"].as_bool().unwrap(),
         }

@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
@@ -23,7 +23,7 @@ enum PreferredNotEqualStyle {
 }
 
 impl Rule for RuleCV01 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         if let Some(value) = config["preferred_not_equal_style"].as_string() {
             let preferred_not_equal_style = match value {
                 "consistent" => PreferredNotEqualStyle::Consistent,

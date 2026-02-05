@@ -2,7 +2,7 @@ use std::any::{Any, TypeId};
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
@@ -25,7 +25,7 @@ pub struct RuleContext<'a> {
     /// raw_stack: All the raw segments so far in the file
     pub raw_stack: Vec<ErasedSegment>,
     /// memory: Arbitrary storage for the rule
-    pub memory: Rc<RefCell<AHashMap<TypeId, Box<dyn Any>>>>,
+    pub memory: Rc<RefCell<HashMap<TypeId, Box<dyn Any>>>>,
     /// segment_idx: The index of this segment in the parent
     pub segment_idx: usize,
 }
@@ -51,7 +51,7 @@ impl<'a> RuleContext<'a> {
             path: <_>::default(),
             parent_stack: <_>::default(),
             raw_stack: <_>::default(),
-            memory: Rc::new(RefCell::new(AHashMap::new())),
+            memory: Rc::new(RefCell::new(HashMap::new())),
             segment_idx: 0,
         }
     }

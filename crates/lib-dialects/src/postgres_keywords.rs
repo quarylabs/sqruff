@@ -1,4 +1,4 @@
-use ahash::AHashSet;
+use hashbrown::HashSet;
 
 fn priority_keyword_merge(
     args: &[&[(&'static str, &'static str)]],
@@ -15,7 +15,7 @@ fn priority_keyword_merge(
         base_list = keyword_lists.remove(0);
         let priority_list = keyword_lists.remove(0);
 
-        let keyword_set: AHashSet<&'static str> = base_list.iter().map(|x| x.0).collect();
+        let keyword_set: HashSet<&'static str> = base_list.iter().map(|x| x.0).collect();
 
         for item in priority_list {
             if keyword_set.contains(item.0) {

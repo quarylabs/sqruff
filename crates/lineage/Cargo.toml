@@ -11,6 +11,7 @@ workspace = true
 [dependencies]
 append-only-vec = "0.1.5"
 indexmap.workspace = true
+hashbrown.workspace = true
 sqruff-lib-core = { workspace = true }
 sqruff-lib-dialects = { workspace = true }
 

@@ -14,10 +14,9 @@ use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
 use crate::rules::get_ruleset;
 use crate::templaters::raw::RawTemplater;
 use crate::templaters::{ProcessingMode, TEMPLATERS, Templater};
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
-use rustc_hash::FxHashMap;
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -353,7 +352,7 @@ impl Linter {
         } else {
             &[LintPhase::Main]
         };
-        let mut previous_versions: AHashSet<(SmolStr, bool)> =
+        let mut previous_versions: HashSet<(SmolStr, bool)> =
             [(tree.raw().to_smolstr(), false)].into_iter().collect();
 
         // If we are fixing then we want to loop up to the runaway_limit, otherwise just
@@ -376,7 +375,7 @@ impl Linter {
 
         initial_violations.extend(violations.into_iter().map_into());
 
-        let mut anchor_info = FxHashMap::default();
+        let mut anchor_info = HashMap::default();
 
         for phase in phases {
             let loop_limit = if *phase == LintPhase::Main {
@@ -686,7 +685,7 @@ impl Linter {
             };
 
             // Group entries by directory to maintain the original data structure
-            let mut dir_files: AHashMap<String, Vec<String>> = AHashMap::new();
+            let mut dir_files: HashMap<String, Vec<String>> = HashMap::new();
 
             for entry in entries {
                 if entry.file_type().is_file() {
@@ -741,7 +740,7 @@ impl Linter {
         path_walk.extend(path_walk_ignore_file);
 
         let mut buffer = Vec::new();
-        let mut ignores = AHashMap::new();
+        let mut ignores = HashMap::new();
         let sql_file_exts = self.config.sql_file_exts();
 
         for (dirpath, _, filenames) in path_walk {
@@ -772,7 +771,7 @@ impl Linter {
             }
         }
 
-        let mut filtered_buffer = AHashSet::new();
+        let mut filtered_buffer = HashSet::new();
 
         for fpath in buffer {
             let npath = helpers::normalize(&fpath).to_str().unwrap().to_string();

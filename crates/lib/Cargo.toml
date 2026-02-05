@@ -55,12 +55,11 @@ common-path = "1.0.0"
 configparser = "3.1.0"
 log.workspace = true
 pretty_assertions = "1.4.0"
-ahash.workspace = true
+hashbrown.workspace = true
 lazy-regex = "3.2.0"
 rayon = "1.10.0"
 smol_str = "0.3.1"
 nohash-hasher = "0.2.0"
-rustc-hash = "2.1.1"
 strum_macros = "0.27.2"
 strum = "0.27.2"
 serde = { version = "1.0", features = ["derive"] }

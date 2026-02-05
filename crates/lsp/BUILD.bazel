@@ -14,8 +14,8 @@ rust_library(
 
 # Crate deps for WASM build - explicit list to avoid pyo3 which doesn't support WASM
 LSP_WASM_CRATE_NAMES = [
-    "ahash",
     "console_error_panic_hook",
+    "hashbrown",
     "js-sys",
     "lsp-server",
     "lsp-types",

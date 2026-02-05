@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use hashbrown::HashMap;
 use std::fmt::Display;
 
 use indexmap::{IndexMap, IndexSet};
@@ -376,7 +376,7 @@ fn to_node(
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use hashbrown::HashMap;
 
     use sqruff_lib_core::dialects::Dialect;
     use sqruff_lib_core::dialects::init::DialectKind;

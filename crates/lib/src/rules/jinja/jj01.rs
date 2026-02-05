@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use regex::Regex;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -73,7 +73,7 @@ fn is_acceptable_whitespace(ws: &str) -> bool {
 pub struct RuleJJ01;
 
 impl Rule for RuleJJ01 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleJJ01.erased())
     }
 

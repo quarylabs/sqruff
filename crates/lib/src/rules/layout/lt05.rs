@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use itertools::enumerate;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
@@ -15,7 +15,7 @@ pub struct RuleLT05 {
 }
 
 impl Rule for RuleLT05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT05 {
             ignore_comment_lines: config["ignore_comment_lines"].as_bool().unwrap(),
             ignore_comment_clauses: config["ignore_comment_clauses"].as_bool().unwrap(),
@@ -72,7 +72,7 @@ FROM my_table
             .break_long_lines(context.tables)
             .results();
 
-        let mut to_remove = AHashSet::new();
+        let mut to_remove = HashSet::new();
 
         if self.ignore_comment_lines {
             let raw_segments = context.segment.get_raw_segments();

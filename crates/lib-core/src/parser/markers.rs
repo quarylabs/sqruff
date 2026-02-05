@@ -1,7 +1,7 @@
 use std::ops::Range;
 use std::rc::Rc;
 
-use ahash::AHashSet;
+use hashbrown::HashSet;
 
 use crate::slice_helpers::zero_slice;
 use crate::templaters::TemplatedFile;
@@ -125,7 +125,7 @@ impl PositionMarker {
         let mut source_end = usize::MIN;
         let mut template_start = usize::MAX;
         let mut template_end = usize::MIN;
-        let mut templated_files = AHashSet::new();
+        let mut templated_files = HashSet::new();
 
         for marker in markers {
             source_start = source_start.min(marker.source_slice.start);

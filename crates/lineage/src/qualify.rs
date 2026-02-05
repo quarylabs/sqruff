@@ -1,6 +1,6 @@
+use hashbrown::hash_map::Entry;
+use hashbrown::{HashMap, HashSet};
 use std::cell::{OnceCell, RefCell};
-use std::collections::hash_map::Entry;
-use std::collections::{HashMap, HashSet};
 
 use indexmap::IndexMap;
 

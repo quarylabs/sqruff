@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use itertools::{Itertools, chain};
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -16,7 +16,7 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleST02;
 
 impl Rule for RuleST02 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleST02.erased())
     }
 
@@ -147,7 +147,7 @@ from fancy_table
                 }
             }
 
-            let condition_expression_segments_raw: AHashSet<_> = AHashSet::from_iter(
+            let condition_expression_segments_raw: HashSet<_> = HashSet::from_iter(
                 condition_expression
                     .segments()
                     .iter()
@@ -157,7 +157,7 @@ from fancy_table
             if condition_expression_segments_raw.contains("IS")
                 && condition_expression_segments_raw.contains("NULL")
                 && condition_expression_segments_raw
-                    .intersection(&AHashSet::from_iter(["AND".into(), "OR".into()]))
+                    .intersection(&HashSet::from_iter(["AND".into(), "OR".into()]))
                     .next()
                     .is_none()
             {

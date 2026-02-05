@@ -36,10 +36,10 @@ rust_library(
 # Explicit deps for WASM build - excludes pyo3 which doesn't support WASM
 # Uses crate_deps() so versions stay aligned with Cargo.lock
 WASM_CRATE_NAMES = [
-    "ahash",
     "common-path",
     "configparser",
     "fancy-regex",
+    "hashbrown",
     "indexmap",
     "itertools",
     "lazy-regex",
@@ -48,7 +48,6 @@ WASM_CRATE_NAMES = [
     "pretty_assertions",
     "rayon",
     "regex",
-    "rustc-hash",
     "serde",
     "serde_json",
     "smol_str",

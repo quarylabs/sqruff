@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -38,7 +38,7 @@ impl Default for RuleAL04 {
 }
 
 impl<T: Clone + Debug + Send + Sync + 'static> Rule for RuleAL04<T> {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleAL04::default().erased())
     }
 
@@ -138,7 +138,7 @@ impl RuleAL04 {
         _: &(),
     ) -> Vec<LintResult> {
         let mut duplicates = IndexSet::default();
-        let mut seen: AHashSet<_> = AHashSet::new();
+        let mut seen: HashSet<_> = HashSet::new();
 
         for alias in table_aliases.iter() {
             if !seen.insert(&alias.ref_str) && !alias.ref_str.is_empty() {

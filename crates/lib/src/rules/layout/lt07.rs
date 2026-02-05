@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
@@ -13,7 +13,7 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT07;
 
 impl Rule for RuleLT07 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT07.erased())
     }
     fn name(&self) -> &'static str {
@@ -59,7 +59,7 @@ SELECT * FROM zoo
             .segment()
             .children_where(|seg| seg.is_type(SyntaxKind::CommonTableExpression));
 
-        let mut cte_end_brackets = AHashSet::new();
+        let mut cte_end_brackets = HashSet::new();
         for cte in segments.iterate_segments() {
             let cte_start_bracket = cte
                 .children_all()

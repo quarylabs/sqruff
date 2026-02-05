@@ -22,8 +22,8 @@ codegen-units = 1
 
 [workspace.dependencies]
 log = "0.4"
-ahash = { version = "=0.8.11", features = ["compile-time-rng", "serde"] }
 indexmap = "2.11.4"
+hashbrown = { version = "0.16", features = ["serde"] }
 sqruff-cli-lib = { version = "0.34.1", path = "crates/cli-lib" }
 sqruff-lib = { version = "0.34.1", path = "crates/lib" }
 sqruff-lsp = { version = "0.34.1", path = "crates/lsp" }

@@ -1,6 +1,6 @@
-use std::collections::hash_map::Entry;
+use hashbrown::hash_map::Entry;
 
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
@@ -13,7 +13,7 @@ use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 pub struct RuleAL08;
 
 impl Rule for RuleAL08 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleAL08.erased())
     }
 
@@ -68,7 +68,7 @@ FROM
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let mut used_aliases = AHashMap::new();
+        let mut used_aliases = HashMap::new();
         let mut violations = Vec::new();
 
         for clause_element in context

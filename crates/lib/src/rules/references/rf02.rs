@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use itertools::Itertools;
 use regex::Regex;
 use smol_str::SmolStr;
@@ -29,7 +29,7 @@ impl Default for RuleRF02 {
 }
 
 impl Rule for RuleRF02 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         let ignore_words = config["ignore_words"]
             .map(|it| {
                 it.as_array()

@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
@@ -29,7 +29,7 @@ impl RuleRF03 {
         single_table_references: &str,
         is_struct_dialect: bool,
         query: Query<'_>,
-        _visited: &mut AHashSet<ErasedSegment>,
+        _visited: &mut HashSet<ErasedSegment>,
     ) -> Vec<LintResult> {
         #[allow(unused_assignments)]
         let mut select_info = None;
@@ -122,7 +122,7 @@ fn check_references(
 
     let table_ref_str = &table_aliases[0].ref_str;
     let table_ref_str_source = table_aliases[0].segment.clone();
-    let mut seen_ref_types = AHashSet::new();
+    let mut seen_ref_types = HashSet::new();
 
     for reference in references.clone() {
         let mut this_ref_type = reference.qualification();
@@ -192,7 +192,7 @@ fn validate_one_reference(
     table_ref_str: &str,
     _table_ref_str_source: Option<ErasedSegment>,
     col_alias_names: &[SmolStr],
-    seen_ref_types: &AHashSet<&str>,
+    seen_ref_types: &HashSet<&str>,
     fixable: bool,
 ) -> Option<LintResult> {
     if !ref_.is_qualified() && ref_.0.is_type(SyntaxKind::WildcardIdentifier) {
@@ -299,7 +299,7 @@ fn validate_one_reference(
 }
 
 impl Rule for RuleRF03 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleRF03 {
             single_table_references: config
                 .get("single_table_references")
@@ -371,7 +371,7 @@ FROM foo
             });
 
         let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
-        let mut visited: AHashSet<ErasedSegment> = AHashSet::new();
+        let mut visited: HashSet<ErasedSegment> = HashSet::new();
         let is_struct_dialect = self.dialect_skip().contains(&context.dialect.name);
 
         Self::visit_queries(

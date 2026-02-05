@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use smol_str::{SmolStr, StrExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
@@ -11,7 +11,7 @@ use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 pub struct RuleCV08;
 
 impl Rule for RuleCV08 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCV08.erased())
     }
 
@@ -65,9 +65,9 @@ LEFT JOIN foo
             .segments()
             .iter()
             .map(|segment| segment.raw().to_uppercase_smolstr())
-            .collect::<AHashSet<_>>();
+            .collect::<HashSet<_>>();
 
-        let mut set = AHashSet::new();
+        let mut set = HashSet::new();
         set.insert(SmolStr::new_static("RIGHT"));
         set.insert(SmolStr::new_static("JOIN"));
 

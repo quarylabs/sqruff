@@ -329,25 +329,13 @@ sh_test(
 
 # Cargo hack check - verify each feature compiles in isolation
 # This ensures no feature combination is broken
-# Note: Runs without sandbox to allow cargo to access ~/.cargo cache
-sh_test(
+# Uses vendored dependencies for hermetic builds
+cargo_test(
     name = "cargo_hack_check",
-    size = "large",
-    srcs = [".hacking/scripts/cargo_hack_check.sh"],
-    data = [
-        ":cargo_srcs",
-        "@cargo_hack//:cargo-hack",
-        "@rules_rust//rust/toolchain:current_cargo_files",
-    ],
-    env = {
-        "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
-        "CARGO_HACK": "$(rlocationpath @cargo_hack//:cargo-hack)",
-        "RUSTUP_TOOLCHAIN": "stable",
-    },
-    tags = [
-        "exclusive",
-        "no-sandbox",
-    ],
+    srcs = [":cargo_srcs"],
+    tools = ["@cargo_hack//:cargo-hack"],
+    vendor = ":cargo_deps",
+    script = "cargo hack check --each-feature --exclude-features=codegen-docs --offline",
 )
 
 # Zensical docs build - verify documentation builds successfully

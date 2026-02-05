@@ -49,7 +49,7 @@ use_repo(npm, "npm")
 pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm")
 pnpm.pnpm(
     name = "pnpm",
-    pnpm_version = "10.0.0",
+    pnpm_version = "10.28.2",
 )
 use_repo(pnpm, "pnpm")
 

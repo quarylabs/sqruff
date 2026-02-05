@@ -17,6 +17,8 @@ rust_library(
 # Crate deps for WASM build - explicit list to avoid pyo3 which doesn't support WASM
 WASM_CRATE_NAMES = [
     "line-index",
+    "serde",
+    "serde_yaml",
     "wasm-bindgen",
 ]
 

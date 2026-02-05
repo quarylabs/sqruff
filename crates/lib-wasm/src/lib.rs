@@ -1,8 +1,9 @@
 use line_index::LineIndex;
 use lineage::{Lineage, Node};
+use serde::Serialize;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
-use sqruff_lib_core::parser::segments::Tables;
+use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use wasm_bindgen::prelude::*;
 
@@ -36,6 +37,7 @@ pub enum Tool {
     Cst = "Cst",
     Lineage = "Lineage",
     Templater = "Templater",
+    Lexer = "Lexer",
 }
 
 #[wasm_bindgen]
@@ -139,6 +141,12 @@ impl Linter {
                 print_tree(&tables, node, "", "", "")
             }
             Tool::Templater => templated.templated_file.to_yaml(),
+            Tool::Lexer => {
+                let lexer = self.base.config().get_dialect().lexer();
+                let lex_tables = Tables::default();
+                let (segments, _errors) = lexer.lex(&lex_tables, sql);
+                format_lexer_output(&segments)
+            }
             Tool::__Invalid => String::from("Error: unsupported tool"),
         };
 
@@ -207,4 +215,41 @@ fn print_tree(
     }
 
     string
+}
+
+#[derive(Serialize)]
+struct LexerOutput {
+    tokens: Vec<Token>,
+}
+
+#[derive(Serialize)]
+struct Token {
+    index: usize,
+    #[serde(rename = "type")]
+    kind: String,
+    raw: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    position: Option<String>,
+}
+
+fn format_lexer_output(segments: &[ErasedSegment]) -> String {
+    let tokens: Vec<Token> = segments
+        .iter()
+        .enumerate()
+        .map(|(i, segment)| {
+            let position = segment
+                .get_position_marker()
+                .map(|pos| format!("{}..{}", pos.source_slice.start, pos.source_slice.end));
+
+            Token {
+                index: i,
+                kind: format!("{:?}", segment.get_type()),
+                raw: segment.raw().to_string(),
+                position,
+            }
+        })
+        .collect();
+
+    let output = LexerOutput { tokens };
+    serde_yaml::to_string(&output).unwrap_or_else(|e| format!("Error serializing: {}", e))
 }

@@ -54,5 +54,5 @@ export LD_LIBRARY_PATH="${UV_PYTHON_DIR:-}:${LD_LIBRARY_PATH:-}"
 (cd crates/cli-python && maturin develop --uv)
 
 # Run cargo tests (same as GitHub Action)
-cargo test --no-fail-fast --manifest-path ./crates/cli/Cargo.toml
-cargo test --no-fail-fast --all --all-features --exclude sqruff
+cargo test --manifest-path ./crates/cli/Cargo.toml
+cargo test --all --all-features --exclude sqruff

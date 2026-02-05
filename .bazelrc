@@ -22,5 +22,5 @@ test:ci --test_output=errors
 test:ci --test_summary=detailed
 test:ci --verbose_failures
 
-# Keep tests running even if some fail to show all failures at once
-test:ci --keep_going
+# Fail fast - stop on first test failure
+test:ci --nokeep_going

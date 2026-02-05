@@ -45,6 +45,21 @@ impl IndentPoint {
     fn closing_indent_balance(&self) -> isize {
         self.initial_indent_balance + self.indent_impulse
     }
+
+    /// Returns the count of relevant untaken indents, filtering when there's a trough.
+    /// This mirrors the logic in `IndentLine::desired_indent_units`.
+    fn relevant_untaken_count(&self) -> usize {
+        if self.indent_trough != 0 {
+            self.untaken_indents
+                .iter()
+                .filter(|&&i| {
+                    i <= self.initial_indent_balance - (self.indent_impulse - self.indent_trough)
+                })
+                .count()
+        } else {
+            self.untaken_indents.len()
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -675,7 +690,7 @@ fn lint_line_untaken_positive_indents(
         if imbalanced_indent_locs.contains(&ip.idx) {
             // Force it at the relevant position.
             let desired_indent = single_indent
-                .repeat((ip.closing_indent_balance() - ip.untaken_indents.len() as isize) as usize);
+                .repeat((ip.closing_indent_balance() - ip.relevant_untaken_count() as isize).max(0) as usize);
             let target_point = elements[ip.idx].as_point().unwrap();
 
             let (results, new_point) = target_point.indent_to(
@@ -689,7 +704,7 @@ fn lint_line_untaken_positive_indents(
 
             elements[ip.idx] = ReflowElement::Point(new_point);
             // Keep track of the indent we forced, by returning it.
-            return (results, vec![ip.closing_indent_balance() as usize]);
+            return (results, vec![ip.closing_indent_balance().max(0) as usize]);
         }
     }
 
@@ -757,7 +772,7 @@ fn lint_line_untaken_positive_indents(
         if ip.closing_indent_balance() == closing_trough {
             target_point_idx = ip.idx;
             desired_indent = single_indent
-                .repeat((ip.closing_indent_balance() - ip.untaken_indents.len() as isize) as usize);
+                .repeat((ip.closing_indent_balance() - ip.relevant_untaken_count() as isize).max(0) as usize);
             break;
         }
     }
@@ -829,7 +844,7 @@ fn lint_line_untaken_negative_indents(
         }
 
         let desired_indent = single_indent.repeat(
-            (ip.closing_indent_balance() - ip.untaken_indents.len() as isize
+            (ip.closing_indent_balance() - ip.relevant_untaken_count() as isize
                 + forced_indents.len() as isize)
                 .max(0) as usize,
         );

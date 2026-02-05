@@ -1,6 +1,6 @@
 == [models/customers.sql] FAIL
 L:  22 | P:  16 | LT02 | Expected indent of 4 spaces. [layout.indent]
-L:  42 | P:  27 | LT02 | Expected line break and indent of 4 spaces before "on".
+L:  42 | P:  27 | LT02 | Expected line break and indent of 8 spaces before "on".
                        | [layout.indent]
 L:  42 | P:  31 | LT02 | Expected indent of 12 spaces. [layout.indent]
 L:  65 | P:  41 | LT01 | Expected only single space before "customers". Found " 

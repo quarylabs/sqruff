@@ -73,8 +73,7 @@ impl<'config> Lineage<'config> {
 
 fn parse_sql(parser: &Parser, source: &str) -> ErasedSegment {
     let tables = sqruff_lib_core::parser::segments::Tables::default();
-    let ansi = sqruff_lib_dialects::ansi::dialect(None);
-    let lexer = ansi.lexer();
+    let lexer = parser.dialect().lexer();
 
     let (tokens, _) = lexer.lex(&tables, source);
 
@@ -379,41 +378,75 @@ fn to_node(
 mod tests {
     use std::collections::HashMap;
 
+    use sqruff_lib_core::dialects::init::DialectKind;
+    use sqruff_lib_core::dialects::Dialect;
     use sqruff_lib_core::parser::Parser;
+    use strum::IntoEnumIterator;
 
     use crate::Lineage;
 
+    // Helper function to get all available dialects for testing
+    fn all_dialects() -> Vec<(&'static str, Dialect)> {
+        DialectKind::iter()
+            .filter_map(|kind| {
+                let name = kind.name();
+                sqruff_lib_dialects::kind_to_dialect(&kind, None).map(|dialect| (name, dialect))
+            })
+            .collect()
+    }
+
     #[test]
     fn test_lineage() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
-            .source("y", "SELECT * FROM x")
-            .source("z", "SELECT a FROM y")
-            .schema("x", HashMap::from_iter([("a".into(), "int".into())]))
-            .build();
+            let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
+                .source("y", "SELECT * FROM x")
+                .source("z", "SELECT a FROM y")
+                .schema("x", HashMap::from_iter([("a".into(), "int".into())]))
+                .build();
 
-        let node_data = &tables.nodes[node];
-        assert_eq!(&node_data.source_name, "");
-        assert_eq!(
-            tables.stringify(node_data.source),
-            "select z.a as a from (select y.a as a from (select x.a as a from x as x) as y) as z"
-        );
+            let node_data = &tables.nodes[node];
 
-        let downstream = &tables.nodes[node_data.downstream[0]];
-        assert_eq!(
-            tables.stringify(downstream.source),
-            "select y.a as a from (select x.a as a from x as x) as y"
-        );
-        assert_eq!(&downstream.source_name, "z");
+            assert_eq!(
+                &node_data.source_name,
+                "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                tables.stringify(node_data.source),
+                "select z.a as a from (select y.a as a from (select x.a as a from x as x) as y) as z",
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let downstream = &tables.nodes[downstream.downstream[0]];
-        assert_eq!(
-            tables.stringify(downstream.source),
-            "select x.a as a from x as x"
-        );
-        assert_eq!(&downstream.source_name, "y");
+            let downstream = &tables.nodes[node_data.downstream[0]];
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "select y.a as a from (select x.a as a from x as x) as y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                &downstream.source_name, "z",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+
+            let downstream = &tables.nodes[downstream.downstream[0]];
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "select x.a as a from x as x",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                &downstream.source_name, "y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+        }
     }
 
     #[test]

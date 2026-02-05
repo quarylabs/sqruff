@@ -13,3 +13,6 @@ append-only-vec = "0.1.5"
 indexmap.workspace = true
 sqruff-lib-core = { workspace = true }
 sqruff-lib-dialects = { workspace = true }
+
+[dev-dependencies]
+strum.workspace = true

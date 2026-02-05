@@ -105,7 +105,7 @@ pub fn raw_dialect() -> Dialect {
             SyntaxKind::SingleQuote,
         ),
         Matcher::regex("double_quote", r#"(?s)".+?""#, SyntaxKind::DoubleQuote),
-        Matcher::regex("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", SyntaxKind::Word),
+        Matcher::regex("word", r"[\p{L}_][\p{L}\p{N}_$]*", SyntaxKind::Word),
     ]);
 
     let keywords = postgres_keywords();
@@ -402,7 +402,7 @@ pub fn raw_dialect() -> Dialect {
                 let anti_template = format!("^({pattern})$");
 
                 RegexParser::new(
-                    r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
+                    r"([\p{L}_]+|[\p{N}]+[\p{L}_$])[\p{L}\p{N}_$]*",
                     SyntaxKind::NakedIdentifier,
                 )
                 .anti_template(&anti_template)
@@ -412,13 +412,13 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ParameterNameSegment".into(),
-            RegexParser::new(r#"[A-Z_][A-Z0-9_$]*|\"[^\"]*\""#, SyntaxKind::Parameter)
+            RegexParser::new(r#"[\p{L}_][\p{L}\p{N}_$]*|\"[^\"]*\""#, SyntaxKind::Parameter)
                 .to_matchable()
                 .into(),
         ),
         (
             "FunctionNameIdentifierSegment".into(),
-            RegexParser::new(r"[A-Z_][A-Z0-9_$]*", SyntaxKind::FunctionNameIdentifier)
+            RegexParser::new(r"[\p{L}_][\p{L}\p{N}_$]*", SyntaxKind::FunctionNameIdentifier)
                 .to_matchable()
                 .into(),
         ),

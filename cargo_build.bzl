@@ -157,7 +157,18 @@ def _cargo_test_impl(ctx):
     """Runs cargo commands as a Bazel test using pre-installed toolchain."""
     vendor_info = ctx.attr.vendor[CargoVendorInfo]
 
-    all_inputs = ctx.files.srcs + [vendor_info.vendor_dir, vendor_info.cargo_config, vendor_info.toolchain_dir]
+    all_inputs = ctx.files.srcs + ctx.files.tools + [vendor_info.vendor_dir, vendor_info.cargo_config, vendor_info.toolchain_dir]
+
+    # Generate symlink commands for additional cargo subcommand tools
+    tool_setup = ""
+    if ctx.files.tools:
+        tool_setup = "TOOL_BINDIR=$(mktemp -d)\n"
+        for f in ctx.files.tools:
+            tool_setup += 'ln -s "$RUNFILES/_main/{path}" "$TOOL_BINDIR/{name}"\n'.format(
+                path = f.short_path,
+                name = f.basename,
+            )
+        tool_setup += 'export PATH="$TOOL_BINDIR:$PATH"'
 
     script_content = """#!/bin/bash
 set -euo pipefail
@@ -179,6 +190,8 @@ TOOLCHAIN_DIR="$RUNFILES/_main/{toolchain_dir}"
 export CARGO_HOME="$TOOLCHAIN_DIR/cargo"
 export RUSTUP_HOME="$TOOLCHAIN_DIR/rustup"
 export PATH="$CARGO_HOME/bin:$PATH"
+
+{tool_setup}
 
 WORK_DIR=$(mktemp -d)
 
@@ -207,6 +220,7 @@ export CARGO_TARGET_DIR="$WORK_DIR/target"
         cargo_config = vendor_info.cargo_config.short_path,
         toolchain_dir = vendor_info.toolchain_dir.short_path,
         srcs = " ".join([f.short_path for f in ctx.files.srcs]),
+        tool_setup = tool_setup,
         script = ctx.attr.script,
     )
 
@@ -229,6 +243,11 @@ cargo_test = rule(
             mandatory = True,
             providers = [CargoVendorInfo],
             doc = "cargo_vendor_provider target with pre-installed toolchain",
+        ),
+        "tools": attr.label_list(
+            allow_files = True,
+            default = [],
+            doc = "Additional cargo subcommand binaries (e.g. cargo-hack) to symlink into PATH",
         ),
         "script": attr.string(mandatory = True),
     },

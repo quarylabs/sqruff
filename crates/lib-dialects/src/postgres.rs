@@ -412,15 +412,21 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ParameterNameSegment".into(),
-            RegexParser::new(r#"[\p{L}_][\p{L}\p{N}_$]*|\"[^\"]*\""#, SyntaxKind::Parameter)
-                .to_matchable()
-                .into(),
+            RegexParser::new(
+                r#"[\p{L}_][\p{L}\p{N}_$]*|\"[^\"]*\""#,
+                SyntaxKind::Parameter,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "FunctionNameIdentifierSegment".into(),
-            RegexParser::new(r"[\p{L}_][\p{L}\p{N}_$]*", SyntaxKind::FunctionNameIdentifier)
-                .to_matchable()
-                .into(),
+            RegexParser::new(
+                r"[\p{L}_][\p{L}\p{N}_$]*",
+                SyntaxKind::FunctionNameIdentifier,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "FunctionContentsExpressionGrammar".into(),

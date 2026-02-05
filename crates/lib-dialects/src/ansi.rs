@@ -356,9 +356,12 @@ pub fn raw_dialect() -> Dialect {
                 let pattern = reserved_keywords.iter().join("|");
                 let anti_template = format!("^({pattern})$");
 
-                RegexParser::new("[\\p{L}\\p{N}_]*[\\p{L}][\\p{L}\\p{N}_]*", SyntaxKind::NakedIdentifier)
-                    .anti_template(&anti_template)
-                    .to_matchable()
+                RegexParser::new(
+                    "[\\p{L}\\p{N}_]*[\\p{L}][\\p{L}\\p{N}_]*",
+                    SyntaxKind::NakedIdentifier,
+                )
+                .anti_template(&anti_template)
+                .to_matchable()
             })
             .into(),
         ),

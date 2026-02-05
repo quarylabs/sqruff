@@ -378,8 +378,8 @@ fn to_node(
 mod tests {
     use std::collections::HashMap;
 
-    use sqruff_lib_core::dialects::init::DialectKind;
     use sqruff_lib_core::dialects::Dialect;
+    use sqruff_lib_core::dialects::init::DialectKind;
     use sqruff_lib_core::parser::Parser;
     use strum::IntoEnumIterator;
 
@@ -409,8 +409,7 @@ mod tests {
             let node_data = &tables.nodes[node];
 
             assert_eq!(
-                &node_data.source_name,
-                "",
+                &node_data.source_name, "",
                 "Failed for dialect: {}",
                 dialect_name
             );
@@ -451,147 +450,263 @@ mod tests {
 
     #[test]
     fn test_lineage_sql_with_cte() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) =
-            Lineage::new(parser, "a", "WITH z AS (SELECT a FROM y) SELECT a FROM z")
-                .source("y", "SELECT * FROM x")
-                .schema("x", HashMap::from_iter([("a".into(), "int".into())]))
-                .build();
+            let (tables, node) =
+                Lineage::new(parser, "a", "WITH z AS (SELECT a FROM y) SELECT a FROM z")
+                    .source("y", "SELECT * FROM x")
+                    .schema("x", HashMap::from_iter([("a".into(), "int".into())]))
+                    .build();
 
-        let node_data = &tables.nodes[node];
+            let node_data = &tables.nodes[node];
 
-        assert_eq!(
-            tables.stringify(node_data.source),
-            "with z as (select y.a as a from (select x.a as a from x as x) as y) select z.a as a \
-             from z as z"
-        );
-        assert_eq!(node_data.source_name, "");
-        assert_eq!(node_data.reference_node_name, "");
+            assert_eq!(
+                tables.stringify(node_data.source),
+                "with z as (select y.a as a from (select x.a as a from x as x) as y) select z.a as a \
+                 from z as z",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                node_data.source_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                node_data.reference_node_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let downstream = &tables.nodes[node_data.downstream[0]];
-        assert_eq!(
-            tables.stringify(downstream.source),
-            "select y.a as a from (select x.a as a from x as x) as y"
-        );
-        assert_eq!(downstream.source_name, "");
-        assert_eq!(downstream.reference_node_name, "z");
+            let downstream = &tables.nodes[node_data.downstream[0]];
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "select y.a as a from (select x.a as a from x as x) as y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.source_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.reference_node_name, "z",
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let downstream = &tables.nodes[downstream.downstream[0]];
-        assert_eq!(
-            tables.stringify(downstream.source),
-            "select x.a as a from x as x"
-        );
-        assert_eq!(downstream.source_name, "y");
-        assert_eq!(downstream.reference_node_name, "");
+            let downstream = &tables.nodes[downstream.downstream[0]];
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "select x.a as a from x as x",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.source_name, "y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.reference_node_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+        }
     }
 
     #[test]
     fn test_lineage_source_with_cte() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
-            .schema("x", HashMap::from_iter([("a".into(), "int".into())]))
-            .source("z", "WITH y AS (SELECT * FROM x) SELECT a FROM y")
-            .build();
+            let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
+                .schema("x", HashMap::from_iter([("a".into(), "int".into())]))
+                .source("z", "WITH y AS (SELECT * FROM x) SELECT a FROM y")
+                .build();
 
-        let node_data = &tables.nodes[node];
-        assert_eq!(
-            tables.stringify(node_data.source),
-            "select z.a as a from (with y as (select x.a as a from x as x) select y.a as a from y \
-             as y) as z"
-        );
-        assert_eq!(node_data.source_name, "");
-        assert_eq!(node_data.reference_node_name, "");
+            let node_data = &tables.nodes[node];
+            assert_eq!(
+                tables.stringify(node_data.source),
+                "select z.a as a from (with y as (select x.a as a from x as x) select y.a as a from y \
+                 as y) as z",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                node_data.source_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                node_data.reference_node_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let downstream = &tables.nodes[node_data.downstream[0]];
-        assert_eq!(
-            tables.stringify(downstream.source),
-            "with y as (select x.a as a from x as x) select y.a as a from y as y"
-        );
-        assert_eq!(downstream.source_name, "z");
-        assert_eq!(downstream.reference_node_name, "");
+            let downstream = &tables.nodes[node_data.downstream[0]];
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "with y as (select x.a as a from x as x) select y.a as a from y as y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.source_name, "z",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.reference_node_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let downstream = &tables.nodes[downstream.downstream[0]];
-        assert_eq!(
-            tables.stringify(downstream.source),
-            "select x.a as a from x as x"
-        );
-        assert_eq!(downstream.source_name, "z");
-        assert_eq!(downstream.reference_node_name, "y");
+            let downstream = &tables.nodes[downstream.downstream[0]];
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "select x.a as a from x as x",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.source_name, "z",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.reference_node_name, "y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+        }
     }
 
     #[test]
     fn test_lineage_source_with_star() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) =
-            Lineage::new(parser, "a", "WITH y AS (SELECT * FROM x) SELECT a FROM y").build();
+            let (tables, node) =
+                Lineage::new(parser, "a", "WITH y AS (SELECT * FROM x) SELECT a FROM y").build();
 
-        let node_data = &tables.nodes[node];
-        assert_eq!(
-            tables.stringify(node_data.source),
-            "with y as (select * from x as x) select y.a as a from y as y"
-        );
-        assert_eq!(node_data.source_name, "");
-        assert_eq!(node_data.reference_node_name, "");
+            let node_data = &tables.nodes[node];
+            assert_eq!(
+                tables.stringify(node_data.source),
+                "with y as (select * from x as x) select y.a as a from y as y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                node_data.source_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                node_data.reference_node_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let downstream = &tables.nodes[node_data.downstream[0]];
-        assert_eq!(tables.stringify(downstream.source), "select * from x as x");
-        assert_eq!(downstream.source_name, "");
-        assert_eq!(downstream.reference_node_name, "y");
+            let downstream = &tables.nodes[node_data.downstream[0]];
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "select * from x as x",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.source_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.reference_node_name, "y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+        }
     }
 
     #[test]
     fn test_lineage_external_col() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (_dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) = Lineage::new(
-            parser.clone(),
-            "a",
-            "WITH y AS (SELECT * FROM x) SELECT a FROM y JOIN z USING (uid)",
-        )
-        .build();
+            let (tables, node) = Lineage::new(
+                parser.clone(),
+                "a",
+                "WITH y AS (SELECT * FROM x) SELECT a FROM y JOIN z USING (uid)",
+            )
+            .build();
 
-        let node_data = &tables.nodes[node];
-        dbg!(tables.stringify(node_data.source));
+            let node_data = &tables.nodes[node];
+            let _ = tables.stringify(node_data.source);
+        }
     }
 
     #[test]
     fn test_lineage_values() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM y")
-            .source("y", "SELECT a FROM (VALUES (1), (2)) AS t (a)")
-            .build();
+            let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM y")
+                .source("y", "SELECT a FROM (VALUES (1), (2)) AS t (a)")
+                .build();
 
-        let node_data = &tables.nodes[node];
-        assert_eq!(
-            tables.stringify(node_data.source),
-            "select y.a as a from (select t.a as a from VALUES (1), (2) t as (a)) as y"
-        );
-        assert_eq!(node_data.source_name, "");
+            let node_data = &tables.nodes[node];
+            assert_eq!(
+                tables.stringify(node_data.source),
+                "select y.a as a from (select t.a as a from VALUES (1), (2) t as (a)) as y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                node_data.source_name, "",
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let downstream = &tables.nodes[node_data.downstream[0]];
-        assert_eq!(
-            tables.stringify(downstream.source),
-            "select t.a as a from VALUES (1), (2) t as (a)"
-        );
-        assert_eq!(tables.stringify(downstream.expression), "t.a as a");
-        assert_eq!(downstream.source_name, "y");
+            let downstream = &tables.nodes[node_data.downstream[0]];
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "select t.a as a from VALUES (1), (2) t as (a)",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                tables.stringify(downstream.expression),
+                "t.a as a",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.source_name, "y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let downstream = &tables.nodes[downstream.downstream[0]];
-        assert_eq!(
-            tables.stringify(downstream.source),
-            "VALUES (1), (2) t as (a)"
-        );
-        assert_eq!(tables.stringify(downstream.expression), "a");
-        assert_eq!(downstream.source_name, "y");
+            let downstream = &tables.nodes[downstream.downstream[0]];
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "VALUES (1), (2) t as (a)",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                tables.stringify(downstream.expression),
+                "a",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream.source_name, "y",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+        }
     }
 
     #[test]

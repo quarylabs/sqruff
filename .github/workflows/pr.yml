@@ -45,8 +45,8 @@ jobs:
       - name: Run necessary tests
         run: |
           (cd crates/cli-python && maturin develop)
-          cargo test --no-fail-fast --manifest-path ./crates/cli/Cargo.toml
-          cargo test --no-fail-fast --all --all-features --exclude sqruff
+          cargo test --manifest-path ./crates/cli/Cargo.toml
+          cargo test --all --all-features --exclude sqruff
       - name: Check for diffs
         run: git diff --quiet || exit 1
 

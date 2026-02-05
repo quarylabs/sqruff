@@ -356,7 +356,7 @@ pub fn raw_dialect() -> Dialect {
                 let pattern = reserved_keywords.iter().join("|");
                 let anti_template = format!("^({pattern})$");
 
-                RegexParser::new("[A-Z0-9_]*[A-Z][A-Z0-9_]*", SyntaxKind::NakedIdentifier)
+                RegexParser::new("[\\p{L}\\p{N}_]*[\\p{L}][\\p{L}\\p{N}_]*", SyntaxKind::NakedIdentifier)
                     .anti_template(&anti_template)
                     .to_matchable()
             })
@@ -364,7 +364,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ParameterNameSegment".into(),
-            RegexParser::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#, SyntaxKind::Parameter)
+            RegexParser::new(r#"\"?[\p{L}][\p{L}\p{N}_]*\"?"#, SyntaxKind::Parameter)
                 .to_matchable()
                 .into(),
         ),
@@ -383,7 +383,7 @@ pub fn raw_dialect() -> Dialect {
                 let anti_template = format!("^({})$", "NOT");
 
                 one_of(vec![
-                    RegexParser::new("[A-Z_][A-Z0-9_]*", SyntaxKind::DataTypeIdentifier)
+                    RegexParser::new("[\\p{L}_][\\p{L}\\p{N}_]*", SyntaxKind::DataTypeIdentifier)
                         .anti_template(&anti_template)
                         .to_matchable(),
                     Ref::new("SingleIdentifierGrammar")
@@ -5370,7 +5370,7 @@ fn lexer_matchers() -> Vec<Matcher> {
         Matcher::string("end_curly_bracket", "}", SyntaxKind::EndCurlyBracket),
         Matcher::string("colon", ":", SyntaxKind::Colon),
         Matcher::string("semicolon", ";", SyntaxKind::Semicolon),
-        Matcher::regex("word", "[0-9a-zA-Z_]+", SyntaxKind::Word),
+        Matcher::regex("word", "[\\p{L}\\p{N}_]+", SyntaxKind::Word),
     ]
 }
 

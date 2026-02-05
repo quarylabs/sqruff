@@ -19,20 +19,34 @@ env UPDATE_EXPECT=1 cargo test --no-fail-fast
 # Format code
 cargo fmt --all
 
-# Run all lint checks via Bazel (clippy, rustfmt, prettier, ruff, machete)
+# Run key lint checks via Bazel
 bazel test //:rustfmt_check //:clippy_check //:prettier_check //:ruff_check //:cargo_machete
+
+# Hermetic cargo checks (vendored deps, isolated Rust toolchain)
+bazel test //:cargo_check //:cargo_clippy //:cargo_fmt_check
+
+# Run all tests via Bazel
+bazel test //:cargo_test
+
+# Verify generated docs are up to date
+bazel test //:codegen_docs_check
 ```
 
 ## Project Structure
 
 ```
 crates/
-├── cli/          # CLI binary
-├── lib/          # Core linting rules
-├── lib-core/     # Parser and AST
-├── lib-dialects/ # SQL dialect implementations
-├── lsp/          # Language Server Protocol
-└── lib-wasm/     # WebAssembly bindings
+├── cli/           # CLI binary
+├── cli-lib/       # Shared CLI library
+├── cli-python/    # Python bindings (PyO3)
+├── lib/           # Core linting rules
+├── lib-core/      # Parser and AST
+├── lib-dialects/  # SQL dialect implementations
+├── lib-wasm/      # WebAssembly bindings
+├── lineage/       # SQL lineage tracking
+├── lsp/           # Language Server Protocol
+└── sqlinference/  # SQL inference library
+playground/        # React/TypeScript web playground (WASM-based)
 ```
 
 ## SQLFluff Compatibility
@@ -55,6 +69,5 @@ exclude_rules = AM01,AM02
 
 Do not edit directly - regenerate with `cargo run --bin sqruff -F codegen-docs`:
 - `docs/reference/cli.md`
-- `docs/reference/dialects.md`
 - `docs/reference/rules.md`
 - `docs/reference/templaters.md`

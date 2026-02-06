@@ -170,8 +170,8 @@ def _python_venv_impl(ctx):
 
     This runs as a cacheable action with network access. The output is a
     self-contained Python installation (bin/, lib/, include/) with all dev
-    dependencies installed. No venv indirection needed - packages go directly
-    into the Python installation's site-packages.
+    dependencies installed. Uses --prefix to guarantee scripts (like maturin)
+    are installed to bin/ regardless of the base Python's sysconfig scheme.
     """
     venv_dir = ctx.actions.declare_directory("python_venv")
 
@@ -217,9 +217,17 @@ for src in {srcs}; do
 done
 cd "$WORK_DIR"
 
-# Install all dev dependencies directly into the Python installation
-"$UV_BIN" pip install --python "$WORK_DIR/python/bin/python3" --break-system-packages \
+# Install all dev dependencies into the Python installation.
+# Use --prefix to force scripts (maturin, pytest, etc.) into <prefix>/bin/
+# regardless of the Python's sysconfig scheme (which may differ for
+# standalone/relocated Python builds).
+"$UV_BIN" pip install --python "$WORK_DIR/python/bin/python3" \
+    --prefix "$WORK_DIR/python" \
     -r pyproject.toml --extra dev
+
+# Verify key tools were installed to the expected location
+test -f "$WORK_DIR/python/bin/maturin" || \
+    { echo "ERROR: maturin not found in python/bin/"; ls -la "$WORK_DIR/python/bin/"; exit 1; }
 
 # Copy the complete Python installation to the Bazel output directory
 cp -r "$WORK_DIR/python/." "$VENV_OUT/"

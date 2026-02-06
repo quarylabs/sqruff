@@ -674,8 +674,9 @@ fn lint_line_untaken_positive_indents(
     for ip in &indent_line.indent_points {
         if imbalanced_indent_locs.contains(&ip.idx) {
             // Force it at the relevant position.
-            let desired_indent = single_indent
-                .repeat((ip.closing_indent_balance() - ip.untaken_indents.len() as isize) as usize);
+            let desired_indent = single_indent.repeat(
+                (ip.closing_indent_balance() - ip.untaken_indents.len() as isize).max(0) as usize,
+            );
             let target_point = elements[ip.idx].as_point().unwrap();
 
             let (results, new_point) = target_point.indent_to(
@@ -756,8 +757,9 @@ fn lint_line_untaken_positive_indents(
     for ip in &indent_line.indent_points {
         if ip.closing_indent_balance() == closing_trough {
             target_point_idx = ip.idx;
-            desired_indent = single_indent
-                .repeat((ip.closing_indent_balance() - ip.untaken_indents.len() as isize) as usize);
+            desired_indent = single_indent.repeat(
+                (ip.closing_indent_balance() - ip.untaken_indents.len() as isize).max(0) as usize,
+            );
             break;
         }
     }
@@ -1696,6 +1698,28 @@ mod tests {
             assert_eq!(
                 indent_line.desired_indent_units(forced_indents),
                 expected_units
+            );
+        }
+    }
+
+    #[test]
+    fn test_reindent_cte_with_aliased_join_no_panic() {
+        // Regression test for https://github.com/quarylabs/sqruff/issues/2289
+        // A CTE with select on the same line as `as (`, an aliased join, and
+        // the ON condition on a new line caused a capacity overflow panic in
+        // lint_line_untaken_positive_indents due to a negative repeat count.
+        use crate::core::linter::core::Linter;
+
+        let sql = "with a as (select 1\nfrom t join u v on\n1=1\n)\nselect * from a\n";
+        let linter = Linter::new(<_>::default(), None, None, false);
+        let result = linter.lint_string(sql, None, false).unwrap();
+        // The panic is caught by catch_unwind and surfaced as an
+        // "Unexpected exception" violation. Assert none are present.
+        for v in result.violations() {
+            assert!(
+                !v.desc().contains("Unexpected exception"),
+                "Rule evaluation panicked: {}",
+                v.desc()
             );
         }
     }

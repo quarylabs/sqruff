@@ -2,6 +2,10 @@
 
 These rules install Rust from scratch using rustup, then run cargo commands
 with vendored dependencies for hermetic, reproducible builds.
+
+Also provides rules for pre-caching a Python virtual environment via uv,
+so that cargo tests requiring Python (e.g. PyO3/maturin) can run fully
+sandboxed without network access at test time.
 """
 
 def _cargo_vendor_impl(ctx):
@@ -153,11 +157,184 @@ cargo_vendor_provider = rule(
     },
 )
 
+# Provider to carry a pre-built Python environment with dependencies
+PythonVenvInfo = provider(
+    doc = "Carries a self-contained Python installation with pre-installed packages",
+    fields = {
+        "venv_dir": "Directory containing the Python installation with packages",
+    },
+)
+
+def _python_venv_impl(ctx):
+    """Copies the Bazel-managed Python runtime and installs dev dependencies into it.
+
+    This runs as a cacheable action with network access. The output is a
+    self-contained Python installation (bin/, lib/, include/) with all dev
+    dependencies installed. No venv indirection needed - packages go directly
+    into the Python installation's site-packages.
+    """
+    venv_dir = ctx.actions.declare_directory("python_venv")
+
+    uv_file = ctx.files.uv[0]
+    src_files = ctx.files.srcs
+
+    src_paths = " ".join([f.path for f in src_files])
+
+    # Find the python3 binary from the runtime files
+    python_files = ctx.files.python
+    python_bin = None
+    for f in python_files:
+        if f.basename == "python3" and f.short_path.endswith("/bin/python3"):
+            python_bin = f
+            break
+    if not python_bin:
+        for f in python_files:
+            if "bin/python3" in f.short_path and f.basename.startswith("python3"):
+                python_bin = f
+                break
+    if not python_bin:
+        fail("Could not find python3 binary in python runtime files")
+
+    script_content = """#!/bin/bash
+set -euo pipefail
+
+EXEC_ROOT="$PWD"
+UV_BIN="$EXEC_ROOT/{uv_path}"
+VENV_OUT="$EXEC_ROOT/{venv_out}"
+PYTHON_BIN="$EXEC_ROOT/{python_path}"
+
+WORK_DIR=$(mktemp -d)
+export UV_CACHE_DIR="$WORK_DIR/.uv-cache"
+
+# Copy the entire Python runtime (bin, lib, include) into a writable directory
+PYTHON_ROOT="$(dirname "$(dirname "$PYTHON_BIN")")"
+cp -r "$PYTHON_ROOT/." "$WORK_DIR/python/"
+
+# Install pyproject.toml for dependency resolution
+for src in {srcs}; do
+    mkdir -p "$WORK_DIR/$(dirname "$src")"
+    cp "$src" "$WORK_DIR/$src"
+done
+cd "$WORK_DIR"
+
+# Install all dev dependencies directly into the Python installation
+"$UV_BIN" pip install --python "$WORK_DIR/python/bin/python3" --break-system-packages \
+    -r pyproject.toml --extra dev
+
+# Copy the complete Python installation to the Bazel output directory
+cp -r "$WORK_DIR/python/." "$VENV_OUT/"
+
+echo "Python environment created at $VENV_OUT"
+""".format(
+        uv_path = uv_file.path,
+        python_path = python_bin.path,
+        srcs = src_paths,
+        venv_out = venv_dir.path,
+    )
+
+    script_file = ctx.actions.declare_file(ctx.label.name + "_venv.sh")
+    ctx.actions.write(script_file, script_content, is_executable = True)
+
+    ctx.actions.run(
+        inputs = src_files + [uv_file] + python_files,
+        outputs = [venv_dir],
+        executable = script_file,
+        mnemonic = "PythonVenv",
+        progress_message = "Creating Python environment with dependencies",
+        execution_requirements = {
+            "requires-network": "1",
+        },
+    )
+
+    return [DefaultInfo(files = depset([venv_dir]))]
+
+python_venv = rule(
+    implementation = _python_venv_impl,
+    attrs = {
+        "srcs": attr.label_list(
+            allow_files = True,
+            doc = "pyproject.toml for dependency resolution",
+        ),
+        "uv": attr.label_list(
+            allow_files = True,
+            mandatory = True,
+            doc = "uv binary target",
+        ),
+        "python": attr.label_list(
+            allow_files = True,
+            mandatory = True,
+            doc = "Full Python runtime files from rules_python (e.g. @python_3_12//:files)",
+        ),
+    },
+)
+
+def _python_venv_provider_impl(ctx):
+    """Wrapper that provides PythonVenvInfo from python_venv output."""
+    venv_files = ctx.attr.venv[DefaultInfo].files.to_list()
+    venv_dir = None
+
+    for f in venv_files:
+        if f.is_directory and f.basename == "python_venv":
+            venv_dir = f
+
+    return [
+        DefaultInfo(files = depset(venv_files)),
+        PythonVenvInfo(
+            venv_dir = venv_dir,
+        ),
+    ]
+
+python_venv_provider = rule(
+    implementation = _python_venv_provider_impl,
+    attrs = {
+        "venv": attr.label(
+            mandatory = True,
+            doc = "python_venv target",
+        ),
+    },
+)
+
 def _cargo_test_impl(ctx):
-    """Runs cargo commands as a Bazel test using pre-installed toolchain."""
+    """Runs cargo commands as a Bazel test using pre-installed toolchain.
+
+    Optionally sets up a Python virtual environment (from python_venv_provider)
+    so that PyO3/maturin-based tests can run fully sandboxed.
+    """
     vendor_info = ctx.attr.vendor[CargoVendorInfo]
 
     all_inputs = ctx.files.srcs + ctx.files.tools + [vendor_info.vendor_dir, vendor_info.cargo_config, vendor_info.toolchain_dir]
+
+    # Add python venv inputs if provided
+    python_setup = ""
+    if ctx.attr.python_venv:
+        python_info = ctx.attr.python_venv[PythonVenvInfo]
+        all_inputs = all_inputs + [python_info.venv_dir]
+
+        python_setup = """
+# Set up Python environment from pre-cached installation
+PYTHON_ENV_SRC="$RUNFILES/_main/{venv_dir}"
+
+# Copy the Python installation to the writable work directory
+cp -r "$PYTHON_ENV_SRC" "$WORK_DIR/.python"
+
+# Set up environment for PyO3 and maturin
+export PYO3_PYTHON="$WORK_DIR/.python/bin/python3"
+export VIRTUAL_ENV="$WORK_DIR/.python"
+export PYTHONHOME="$WORK_DIR/.python"
+export PATH="$WORK_DIR/.python/bin:$PATH"
+
+# Set library paths for both compile-time linking and runtime linking
+export LIBRARY_PATH="$WORK_DIR/.python/lib:${{LIBRARY_PATH:-}}"
+export LD_LIBRARY_PATH="$WORK_DIR/.python/lib:${{LD_LIBRARY_PATH:-}}"
+export DYLD_LIBRARY_PATH="$WORK_DIR/.python/lib:${{DYLD_LIBRARY_PATH:-}}"
+
+# Create .venv symlink for tests that expect it at the project root
+ln -s .python "$WORK_DIR/.venv"
+
+echo "Python ready: $($PYO3_PYTHON --version)"
+""".format(
+            venv_dir = python_info.venv_dir.short_path,
+        )
 
     # Generate symlink commands for additional cargo subcommand tools
     tool_setup = ""
@@ -195,12 +372,15 @@ export PATH="$CARGO_HOME/bin:$PATH"
 
 WORK_DIR=$(mktemp -d)
 
-# Copy source files into writable tree
-for src in {srcs}; do
+# Copy source files into writable tree (heredoc handles spaces in filenames)
+while IFS= read -r src; do
+    [ -z "$src" ] && continue
     SRC_PATH="$RUNFILES/_main/$src"
     mkdir -p "$WORK_DIR/$(dirname "$src")"
     cp -r "$SRC_PATH" "$WORK_DIR/$src"
-done
+done << 'SRCS_EOF'
+{srcs}
+SRCS_EOF
 
 # Copy vendored dependencies
 cp -r "$VENDOR_DIR" "$WORK_DIR/vendor"
@@ -213,14 +393,17 @@ cd "$WORK_DIR"
 
 export CARGO_TARGET_DIR="$WORK_DIR/target"
 
+{python_setup}
+
 # Run the user script
 {script}
 """.format(
         vendor_dir = vendor_info.vendor_dir.short_path,
         cargo_config = vendor_info.cargo_config.short_path,
         toolchain_dir = vendor_info.toolchain_dir.short_path,
-        srcs = " ".join([f.short_path for f in ctx.files.srcs]),
+        srcs = "\n".join([f.short_path for f in ctx.files.srcs]),
         tool_setup = tool_setup,
+        python_setup = python_setup,
         script = ctx.attr.script,
     )
 
@@ -243,6 +426,11 @@ cargo_test = rule(
             mandatory = True,
             providers = [CargoVendorInfo],
             doc = "cargo_vendor_provider target with pre-installed toolchain",
+        ),
+        "python_venv": attr.label(
+            default = None,
+            providers = [PythonVenvInfo],
+            doc = "Optional python_venv_provider target for PyO3/maturin tests",
         ),
         "tools": attr.label_list(
             allow_files = True,

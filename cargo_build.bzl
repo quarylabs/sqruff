@@ -227,7 +227,7 @@ cd "$WORK_DIR"
 
 # Verify key tools were installed to the expected location
 test -f "$WORK_DIR/python/bin/maturin" || \
-    { echo "ERROR: maturin not found in python/bin/"; ls -la "$WORK_DIR/python/bin/"; exit 1; }
+    {{ echo "ERROR: maturin not found in python/bin/"; ls -la "$WORK_DIR/python/bin/"; exit 1; }}
 
 # Copy the complete Python installation to the Bazel output directory
 cp -r "$WORK_DIR/python/." "$VENV_OUT/"

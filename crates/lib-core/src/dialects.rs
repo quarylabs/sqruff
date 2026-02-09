@@ -19,7 +19,7 @@ use crate::parser::types::DialectElementType;
 #[derive(Debug, Clone, Default)]
 pub struct Dialect {
     pub name: DialectKind,
-    lexer_matchers: Option<Vec<Matcher>>,
+    lexer_matchers: Vec<Matcher>,
     library: AHashMap<Cow<'static, str>, DialectElementType>,
     sets: AHashMap<&'static str, AHashSet<&'static str>>,
     pub bracket_collections: AHashMap<&'static str, AHashSet<BracketPair>>,
@@ -86,21 +86,19 @@ impl Dialect {
     }
 
     pub fn lexer_matchers(&self) -> &[Matcher] {
-        match &self.lexer_matchers {
-            Some(lexer_matchers) => lexer_matchers,
-            None => panic!("Lexing struct has not been set for dialect {self:?}"),
-        }
+        &self.lexer_matchers
     }
 
     pub fn insert_lexer_matchers(&mut self, lexer_patch: Vec<Matcher>, before: &str) {
+        assert!(
+            !self.lexer_matchers.is_empty(),
+            "Lexer struct must be defined before it can be patched!"
+        );
+
         let mut buff = Vec::new();
         let mut found = false;
 
-        if self.lexer_matchers.is_none() {
-            panic!("Lexer struct must be defined before it can be patched!");
-        }
-
-        for elem in self.lexer_matchers.take().unwrap() {
+        for elem in std::mem::take(&mut self.lexer_matchers) {
             if elem.name() == before {
                 found = true;
                 for patch in lexer_patch.clone() {
@@ -112,25 +110,28 @@ impl Dialect {
             }
         }
 
-        if !found {
-            panic!("Lexer struct insert before '{before}' failed because tag never found.");
-        }
+        assert!(
+            found,
+            "Lexer struct insert before '{before}' failed because tag never found."
+        );
 
-        self.lexer_matchers = Some(buff);
+        self.lexer_matchers = buff;
     }
 
     pub fn patch_lexer_matchers(&mut self, lexer_patch: Vec<Matcher>) {
-        let mut buff = Vec::with_capacity(self.lexer_matchers.as_ref().map_or(0, Vec::len));
-        if self.lexer_matchers.is_none() {
-            panic!("Lexer struct must be defined before it can be patched!");
-        }
+        assert!(
+            !self.lexer_matchers.is_empty(),
+            "Lexer struct must be defined before it can be patched!"
+        );
+
+        let mut buff = Vec::with_capacity(self.lexer_matchers.len());
 
         let patch_dict: AHashMap<&'static str, Matcher> = lexer_patch
             .into_iter()
             .map(|elem| (elem.name(), elem))
             .collect();
 
-        for elem in self.lexer_matchers.take().unwrap() {
+        for elem in std::mem::take(&mut self.lexer_matchers) {
             if let Some(patch) = patch_dict.get(elem.name()) {
                 buff.push(patch.clone());
             } else {
@@ -138,11 +139,11 @@ impl Dialect {
             }
         }
 
-        self.lexer_matchers = Some(buff);
+        self.lexer_matchers = buff;
     }
 
     pub fn set_lexer_matchers(&mut self, lexer_matchers: Vec<Matcher>) {
-        self.lexer_matchers = lexer_matchers.into();
+        self.lexer_matchers = lexer_matchers;
     }
 
     pub fn sets(&self, label: &str) -> AHashSet<&'static str> {

@@ -2114,6 +2114,7 @@ pub fn raw_dialect() -> Dialect {
                     .config(|this| this.optional())
                     .to_matchable(),
                 ])
+                .config(|this| this.optional())
                 .to_matchable(),
             ])
             .to_matchable(),

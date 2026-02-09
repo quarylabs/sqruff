@@ -57,10 +57,10 @@ file:
     - select_statement:
       - select_clause:
         - keyword: select
+        - select_clause_modifier:
+          - keyword: distinct
         - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: distinct
+          - expression:
             - bracketed:
               - start_bracket: (
               - expression:

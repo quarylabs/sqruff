@@ -3,7 +3,7 @@ packages:
   - playground
 
 catalog:
-  '@eslint/js': ^9.39.2
+  '@eslint/js': ^10.0.1
   eslint: ^9.39.2
   typescript: ^5.9.3
   typescript-eslint: ^8.54.0

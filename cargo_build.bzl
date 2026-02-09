@@ -323,7 +323,7 @@ def _cargo_test_impl(ctx):
 PYTHON_ENV_SRC="$RUNFILES/_main/{venv_dir}"
 
 # Copy the Python installation to the writable work directory
-cp -r "$PYTHON_ENV_SRC" "$WORK_DIR/.python"
+cp -rL "$PYTHON_ENV_SRC" "$WORK_DIR/.python"
 
 # Set up environment for PyO3 and maturin
 export PYO3_PYTHON="$WORK_DIR/.python/bin/python3"
@@ -385,13 +385,13 @@ while IFS= read -r src; do
     [ -z "$src" ] && continue
     SRC_PATH="$RUNFILES/_main/$src"
     mkdir -p "$WORK_DIR/$(dirname "$src")"
-    cp -r "$SRC_PATH" "$WORK_DIR/$src"
+    cp -rL "$SRC_PATH" "$WORK_DIR/$src"
 done << 'SRCS_EOF'
 {srcs}
 SRCS_EOF
 
 # Copy vendored dependencies
-cp -r "$VENDOR_DIR" "$WORK_DIR/vendor"
+cp -rL "$VENDOR_DIR" "$WORK_DIR/vendor"
 
 # Copy cargo config
 mkdir -p "$WORK_DIR/.cargo"

@@ -25,8 +25,10 @@ export UV_PYTHON_INSTALL_DIR="$WORKDIR/.uv-python"
 export PROJECT_ROOT="$WORKDIR"
 
 # Sync dependencies without installing the project itself
+# Use --extra test (not --extra dev) to avoid downloading large tools like ruff
+# that are provided separately by Bazel
 echo "Syncing dependencies for Python $PYTHON_VERSION..."
-"$UV_BIN" sync --python "$PYTHON_VERSION" --extra dev --no-install-project
+"$UV_BIN" sync --python "$PYTHON_VERSION" --extra test --no-install-project
 
 # Run pytest using the synced venv
 echo "Running pytest..."

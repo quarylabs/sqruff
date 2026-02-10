@@ -6,7 +6,7 @@ load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
-load(":cargo_build.bzl", "cargo_test", "cargo_vendor", "cargo_vendor_provider")
+load(":cargo_build.bzl", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
@@ -212,6 +212,23 @@ cargo_vendor_provider(
     vendor = ":cargo_vendor",
 )
 
+# Pre-cache Python venv with all dev dependencies (cached until pyproject.toml changes)
+# Uses the Bazel-managed Python 3.12 interpreter and uv for fast pip installs
+python_venv(
+    name = "python_venv",
+    srcs = [
+        "pyproject.toml",
+    ],
+    python = ["@python_3_12//:files"],
+    uv = ["@uv//:uv"],
+)
+
+# Provider wrapper for Python venv
+python_venv_provider(
+    name = "python_deps",
+    venv = ":python_venv",
+)
+
 # Rust format check
 rustfmt_test(
     name = "rustfmt_check",
@@ -275,6 +292,7 @@ cargo_test(
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_build_release",
+    size = "enormous",
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo build --locked --release --all-features --offline",
@@ -299,13 +317,12 @@ cargo_test(
 )
 
 # Cargo test - run all tests exactly like the GitHub Action
-# Uses system/rustup Rust (installed if needed) and uv for Python
-# Note: Runs without sandbox to allow network access for rustup/uv
-sh_test(
+# Uses vendored Rust toolchain and pre-cached Python venv for fully sandboxed execution
+# Python venv provides maturin, pytest, jinja2, dbt, etc.
+cargo_test(
     name = "cargo_test",
-    size = "large",
-    srcs = [".hacking/scripts/cargo_test.sh"],
-    data = [
+    size = "enormous",
+    srcs = [
         ":cargo_srcs",
         "pyproject.toml",
         "uv.lock",
@@ -316,15 +333,17 @@ sh_test(
         "//crates/cli-python:test_fixtures",
         "//crates/lib:test_fixtures",
         "//crates/lib-dialects:test_fixtures",
-        "@uv//:uv",
     ],
-    env = {
-        "UV": "$(rlocationpath @uv//:uv)",
-    },
-    tags = [
-        "exclusive",
-        "no-sandbox",
-    ],
+    vendor = ":cargo_deps",
+    python_venv = ":python_deps",
+    script = """
+# Build Python extension (maturin uses the vendored cargo + pre-cached venv)
+(cd crates/cli-python && maturin develop --locked --offline)
+
+# Run cargo tests (same as GitHub Action)
+cargo test --manifest-path ./crates/cli/Cargo.toml --locked --offline
+cargo test --all --all-features --exclude sqruff --locked --offline
+""",
 )
 
 # Cargo hack check - verify each feature compiles in isolation
@@ -332,6 +351,7 @@ sh_test(
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_hack_check",
+    size = "enormous",
     srcs = [":cargo_srcs"],
     tools = ["@cargo_hack//:cargo-hack"],
     vendor = ":cargo_deps",

@@ -768,6 +768,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .into(),
     )]);
 
+    clickhouse_dialect.add([(
+        "QualifyClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("QUALIFY").to_matchable(),
+                MetaSegment::implicit_indent().to_matchable(),
+                optionally_bracketed(vec![Ref::new("ExpressionSegment").to_matchable()])
+                    .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // We need to replace the UnorderedSelectStatementSegment to include PREWHERE
     clickhouse_dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
@@ -796,6 +812,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ]),
                 None,
                 Some(Ref::new("WhereClauseSegment").optional().to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            )
+            .copy(
+                Some(vec![
+                    Ref::new("QualifyClauseSegment").optional().to_matchable(),
+                ]),
+                None,
+                Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
                 None,
                 Vec::new(),
                 false,

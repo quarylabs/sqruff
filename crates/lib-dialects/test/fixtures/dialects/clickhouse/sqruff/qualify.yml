@@ -51,3 +51,12 @@ file:
               - naked_identifier: default
               - dot: .
               - naked_identifier: financial_performance
+    - qualify_clause:
+      - keyword: qualify
+      - expression:
+        - column_reference:
+          - naked_identifier: prev_coin
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: =
+        - quoted_literal: ''''''

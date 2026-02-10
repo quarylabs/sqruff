@@ -23,7 +23,9 @@ python.toolchain(
     python_version = "3.12",
 )
 use_repo(python, "python_3_12", "python_versions")
+
 register_toolchains("@python_versions//:all")
+
 bazel_dep(name = "aspect_rules_lint", version = "1.13.0")
 bazel_dep(name = "rules_rust", version = "0.68.1")
 bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.68.1")
@@ -39,8 +41,8 @@ npm.npm_translate_lock(
     data = [
         "//:package.json",
         "//:pnpm-workspace.yaml",
-        "//playground:package.json",
         "//editors/code:package.json",
+        "//playground:package.json",
     ],
     pnpm_lock = "//:pnpm-lock.yaml",
 )
@@ -97,12 +99,11 @@ crate.from_cargo(
 
 # Annotations for pyo3 crates - use Python toolchain for build scripts
 crate.annotation(
-    crate = "pyo3-build-config",
     build_script_toolchains = ["@rules_python//python:current_py_toolchain"],
+    crate = "pyo3-build-config",
 )
 crate.annotation(
-    crate = "pyo3-ffi",
     build_script_toolchains = ["@rules_python//python:current_py_toolchain"],
+    crate = "pyo3-ffi",
 )
-
 use_repo(crate, "crates")

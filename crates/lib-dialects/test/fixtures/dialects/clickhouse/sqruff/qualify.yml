@@ -1,0 +1,53 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: coin
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: lagInFrame
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: coin
+              - comma: ','
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+          - over_clause:
+            - keyword: over
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: partition
+                  - keyword: by
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: account
+                - orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                    - naked_identifier: pnl
+                  - keyword: desc
+              - end_bracket: )
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: prev_coin
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: default
+              - dot: .
+              - naked_identifier: financial_performance

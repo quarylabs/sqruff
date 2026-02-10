@@ -292,6 +292,7 @@ cargo_test(
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_build_release",
+    size = "enormous",
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo build --locked --release --all-features --offline",
@@ -320,6 +321,7 @@ cargo_test(
 # Python venv provides maturin, pytest, jinja2, dbt, etc.
 cargo_test(
     name = "cargo_test",
+    size = "enormous",
     srcs = [
         ":cargo_srcs",
         "pyproject.toml",
@@ -349,6 +351,7 @@ cargo test --all --all-features --exclude sqruff --locked --offline
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_hack_check",
+    size = "enormous",
     srcs = [":cargo_srcs"],
     tools = ["@cargo_hack//:cargo-hack"],
     vendor = ":cargo_deps",

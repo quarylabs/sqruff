@@ -1859,31 +1859,49 @@ jinja = [
     { name = "jinja2-simple-tags" },
     { name = "regex" },
 ]
+test = [
+    { name = "dbt-core" },
+    { name = "dbt-duckdb" },
+    { name = "jinja2" },
+    { name = "jinja2-simple-tags" },
+    { name = "maturin" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "regex" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "claude-code-sdk", marker = "extra == 'dev'" },
     { name = "dbt-core", marker = "extra == 'dbt'", specifier = ">=1.4.1" },
     { name = "dbt-core", marker = "extra == 'dev'", specifier = ">=1.4.1" },
+    { name = "dbt-core", marker = "extra == 'test'", specifier = ">=1.4.1" },
     { name = "dbt-duckdb", marker = "extra == 'dev'", specifier = ">=1.4.1" },
+    { name = "dbt-duckdb", marker = "extra == 'test'", specifier = ">=1.4.1" },
     { name = "jinja2", specifier = ">=3.0.0" },
     { name = "jinja2", marker = "extra == 'dbt'", specifier = ">=3.0.0" },
     { name = "jinja2", marker = "extra == 'dev'", specifier = ">=3.0.0" },
     { name = "jinja2", marker = "extra == 'jinja'", specifier = ">=3.0.0" },
+    { name = "jinja2", marker = "extra == 'test'", specifier = ">=3.0.0" },
     { name = "jinja2-simple-tags", marker = "extra == 'dbt'", specifier = ">=0.3.1" },
     { name = "jinja2-simple-tags", marker = "extra == 'dev'", specifier = ">=0.3.1" },
     { name = "jinja2-simple-tags", marker = "extra == 'jinja'", specifier = ">=0.3.1" },
+    { name = "jinja2-simple-tags", marker = "extra == 'test'", specifier = ">=0.3.1" },
     { name = "maturin", marker = "extra == 'dev'", specifier = ">=1.8.3" },
+    { name = "maturin", marker = "extra == 'test'", specifier = ">=1.8.3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.0.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=6.0.0" },
+    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=6.0.0" },
     { name = "regex" },
     { name = "regex", marker = "extra == 'dbt'" },
     { name = "regex", marker = "extra == 'dev'" },
     { name = "regex", marker = "extra == 'jinja'" },
+    { name = "regex", marker = "extra == 'test'" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.9.4" },
     { name = "zensical", marker = "extra == 'docs'", specifier = ">=0.0.19" },
 ]
-provides-extras = ["dev", "docs", "jinja", "dbt"]
+provides-extras = ["dev", "test", "docs", "jinja", "dbt"]
 
 [[package]]
 name = "sse-starlette"

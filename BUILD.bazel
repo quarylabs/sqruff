@@ -242,20 +242,47 @@ rust_clippy(
 )
 
 # Codegen docs check - verify generated docs are up to date
-sh_test(
+# Uses vendored Rust toolchain for hermetic builds (same as cargo_test)
+cargo_test(
     name = "codegen_docs_check",
-    size = "small",
-    srcs = [".hacking/scripts/codegen_docs_check.sh"],
-    data = [
+    srcs = [
+        ":cargo_srcs",
         "docs/reference/cli.md",
         "docs/reference/rules.md",
         "docs/reference/templaters.md",
-        "//crates/cli:sqruff-codegen",
-        "//crates/cli-lib:codegen_templates",
     ],
-    env = {
-        "CODEGEN": "$(rlocationpath //crates/cli:sqruff-codegen)",
-    },
+    vendor = ":cargo_deps",
+    python_venv = ":python_deps",
+    script = """
+# Build the codegen binary
+cargo build --bin sqruff -F codegen-docs --locked --offline
+
+# Create temp directory for generated output
+GENDIR=$(mktemp -d)
+mkdir -p "$GENDIR/docs/reference"
+
+# Run codegen from the gendir
+(cd "$GENDIR" && GITHUB_ACTIONS=false "$CARGO_TARGET_DIR/debug/sqruff")
+
+# Compare the generated files with the originals
+FAILED=0
+
+for doc in cli.md rules.md templaters.md; do
+    if ! diff -q "docs/reference/$doc" "$GENDIR/docs/reference/$doc" > /dev/null 2>&1; then
+        echo "ERROR: docs/reference/$doc is out of date"
+        echo "Run 'cargo run --bin sqruff -F codegen-docs' to update"
+        echo ""
+        diff "docs/reference/$doc" "$GENDIR/docs/reference/$doc" || true
+        FAILED=1
+    fi
+done
+
+if [ $FAILED -eq 1 ]; then
+    exit 1
+fi
+
+echo "All generated docs are up to date"
+""",
 )
 
 # Cargo machete - check for unused dependencies

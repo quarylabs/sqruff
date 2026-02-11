@@ -404,7 +404,9 @@ pub(crate) fn lower_inner(
     segment: ErasedSegment,
     parent: Option<Expr>,
 ) -> Expr {
-    match segment.get_type() {
+    let syntax_kind = segment.get_type();
+
+    match syntax_kind {
         SyntaxKind::SelectStatement => {
             let projections = segment.recursive_crawl(
                 const { &SyntaxSet::single(SyntaxKind::SelectClauseElement) },
@@ -641,6 +643,10 @@ pub(crate) fn lower_inner(
             this
         }
         SyntaxKind::TableReference => tables.alloc_expr(
+            ExprKind::TableReference(segment.raw().to_string(), None),
+            parent,
+        ),
+        SyntaxKind::ObjectReference => tables.alloc_expr(
             ExprKind::TableReference(segment.raw().to_string(), None),
             parent,
         ),

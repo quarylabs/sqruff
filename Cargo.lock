@@ -893,6 +893,7 @@ dependencies = [
  "indexmap",
  "sqruff-lib-core",
  "sqruff-lib-dialects",
+ "strum",
 ]
 
 [[package]]

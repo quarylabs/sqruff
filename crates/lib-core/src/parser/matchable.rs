@@ -43,6 +43,10 @@ impl Matchable {
         }
     }
 
+    pub(crate) fn ptr(&self) -> *const MatchableTraitImpl {
+        Arc::as_ptr(&self.inner)
+    }
+
     pub fn get_mut(&mut self) -> &mut MatchableTraitImpl {
         Arc::get_mut(&mut self.inner).unwrap()
     }

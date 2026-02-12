@@ -31,6 +31,14 @@ impl LookaheadExclude {
             cache_key: next_matchable_cache_key(),
         }
     }
+
+    pub(crate) fn first_token(&self) -> &str {
+        self.first_token
+    }
+
+    pub(crate) fn lookahead_token(&self) -> &str {
+        self.lookahead_token
+    }
 }
 
 impl MatchableTrait for LookaheadExclude {

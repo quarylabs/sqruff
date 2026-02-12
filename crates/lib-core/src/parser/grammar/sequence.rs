@@ -352,6 +352,10 @@ impl Bracketed {
         self.bracket_type = bracket_type;
     }
 
+    pub(crate) fn outer_allow_gaps(&self) -> bool {
+        self.allow_gaps
+    }
+
     fn get_bracket_from_dialect(&self, parse_context: &ParseContext) -> BracketInfo {
         let bracket_pairs = parse_context.dialect().bracket_sets(self.bracket_pairs_set);
         for (bracket_type, start_ref, end_ref, persists) in bracket_pairs {

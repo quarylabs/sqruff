@@ -77,6 +77,18 @@ impl Ref {
         self
     }
 
+    pub(crate) fn reference(&self) -> &str {
+        &self.reference
+    }
+
+    pub(crate) fn terminators_slice(&self) -> &[Matchable] {
+        &self.terminators
+    }
+
+    pub(crate) fn reset_terminators_flag(&self) -> bool {
+        self.reset_terminators
+    }
+
     // Static method to create a Ref instance for a keyword
     #[track_caller]
     pub fn keyword(keyword: impl Into<Cow<'static, str>>) -> Self {
@@ -203,6 +215,10 @@ impl Anything {
     pub fn terminators(mut self, terminators: Vec<Matchable>) -> Self {
         self.terminators = terminators;
         self
+    }
+
+    pub(crate) fn terminators_slice(&self) -> &[Matchable] {
+        &self.terminators
     }
 }
 

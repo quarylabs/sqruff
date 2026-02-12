@@ -34,6 +34,14 @@ impl TypedParser {
     pub fn is_first_match(&self, segment: &ErasedSegment) -> bool {
         self.target_types.contains(segment.get_type())
     }
+
+    pub(crate) fn template(&self) -> SyntaxKind {
+        self.template
+    }
+
+    pub(crate) fn kind(&self) -> SyntaxKind {
+        self.kind
+    }
 }
 
 impl MatchableTrait for TypedParser {
@@ -153,6 +161,14 @@ impl StringParser {
             cache_key: next_matchable_cache_key(),
         }
     }
+
+    pub(crate) fn template(&self) -> &str {
+        &self.template
+    }
+
+    pub(crate) fn kind(&self) -> SyntaxKind {
+        self.kind
+    }
 }
 
 impl MatchableTrait for StringParser {
@@ -236,6 +252,10 @@ impl RegexParser {
         self.anti_template = Regex::new(&format!("(?i){anti_template}")).unwrap().into();
         self
     }
+
+    pub(crate) fn kind(&self) -> SyntaxKind {
+        self.kind
+    }
 }
 
 impl MatchableTrait for RegexParser {
@@ -244,7 +264,7 @@ impl MatchableTrait for RegexParser {
     }
 
     fn is_optional(&self) -> bool {
-        unimplemented!()
+        false
     }
 
     fn simple(
@@ -317,6 +337,14 @@ impl MultiStringParser {
             cache: next_matchable_cache_key(),
         }
     }
+
+    pub(crate) fn templates(&self) -> Vec<&str> {
+        self.templates.iter().map(|it| it.as_str()).collect()
+    }
+
+    pub(crate) fn kind(&self) -> SyntaxKind {
+        self.kind
+    }
 }
 
 impl MatchableTrait for MultiStringParser {
@@ -325,7 +353,7 @@ impl MatchableTrait for MultiStringParser {
     }
 
     fn is_optional(&self) -> bool {
-        todo!()
+        false
     }
 
     fn simple(

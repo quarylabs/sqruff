@@ -323,12 +323,12 @@ mod tests {
             Test {
                 raw: "\n".to_string(),
                 start: 2..2,
-                end: 3..1,
+                end: Range { start: 3, end: 1 },
             },
             Test {
                 raw: "boo\n".to_string(),
                 start: 2..2,
-                end: 3..1,
+                end: Range { start: 3, end: 1 },
             },
             Test {
                 raw: "boo\nfoo".to_string(),
@@ -393,11 +393,11 @@ mod tests {
         // TODO Finish these tests
         // Check less than
         assert!(a_pos < b_pos && b_pos < c_pos);
-        assert!(!(c_pos < a_pos));
+        assert!(c_pos >= a_pos);
 
         // Check greater than
         assert!(c_pos > a_pos && c_pos > b_pos);
-        assert!(!(a_pos > c_pos));
+        assert!(a_pos <= c_pos);
 
         // Check less than or equal
         assert!(all_pos.iter().all(|p| a_pos <= **p));

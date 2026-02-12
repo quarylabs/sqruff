@@ -56,6 +56,14 @@ impl Conditional {
     fn is_enabled(&self, parse_context: &ParseContext) -> bool {
         parse_context.indentation_config.contains(self.requirements)
     }
+
+    pub(crate) fn meta_kind(&self) -> crate::dialects::syntax::SyntaxKind {
+        self.meta.kind
+    }
+
+    pub(crate) fn requirements(&self) -> IndentationConfig {
+        self.requirements
+    }
 }
 
 impl MatchableTrait for Conditional {

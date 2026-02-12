@@ -40,6 +40,8 @@ struct NextMatchScratch {
     matcher_idxs: Vec<usize>,
     visited: Vec<u32>,
     visit_stamp: u32,
+    raw_keys: Vec<Option<String>>,
+    raw_key_addrs: Vec<usize>,
 }
 
 impl NextMatchScratch {
@@ -48,12 +50,21 @@ impl NextMatchScratch {
             matcher_idxs: Vec::new(),
             visited: vec![0_u32; matcher_count],
             visit_stamp: 1,
+            raw_keys: Vec::new(),
+            raw_key_addrs: Vec::new(),
         }
     }
 
     fn ensure_matcher_capacity(&mut self, matcher_count: usize) {
         if self.visited.len() < matcher_count {
             self.visited.resize(matcher_count, 0);
+        }
+    }
+
+    fn ensure_segment_capacity(&mut self, segment_count: usize) {
+        if self.raw_keys.len() < segment_count {
+            self.raw_keys.resize_with(segment_count, || None);
+            self.raw_key_addrs.resize(segment_count, 0);
         }
     }
 }
@@ -2292,9 +2303,11 @@ impl CompiledGrammar {
         }
 
         scratch.ensure_matcher_capacity(matchers.len());
+        scratch.ensure_segment_capacity(max_idx as usize);
 
         for scan_idx in idx..max_idx {
-            let seg = &segments[scan_idx as usize];
+            let seg_idx = scan_idx as usize;
+            let seg = &segments[seg_idx];
             scratch.matcher_idxs.clear();
             scratch.visit_stamp = scratch.visit_stamp.wrapping_add(1);
             if scratch.visit_stamp == 0 {
@@ -2303,7 +2316,15 @@ impl CompiledGrammar {
             }
             let visit_stamp = scratch.visit_stamp;
 
-            if let Some(raw_matchers) = prepared.raw_simple_map.get(&first_trimmed_raw(seg)) {
+            let seg_addr = seg.addr();
+            if scratch.raw_key_addrs[seg_idx] != seg_addr {
+                scratch.raw_key_addrs[seg_idx] = seg_addr;
+                scratch.raw_keys[seg_idx] = Some(first_trimmed_raw(seg));
+            }
+
+            if let Some(raw_key) = scratch.raw_keys[seg_idx].as_deref()
+                && let Some(raw_matchers) = prepared.raw_simple_map.get(raw_key)
+            {
                 for &matcher_idx in raw_matchers {
                     if scratch.visited[matcher_idx] != visit_stamp {
                         scratch.visited[matcher_idx] = visit_stamp;

@@ -2092,6 +2092,24 @@ impl CompiledGrammar {
         Ok(MatchResult::empty_at(idx))
     }
 
+    #[inline]
+    fn option_matches_first_token(
+        &self,
+        option: NodeId,
+        parse_context: &mut CompiledParseContext,
+        first_token: Option<(&str, &SyntaxSet)>,
+    ) -> bool {
+        let Some((first_raw, first_types)) = first_token else {
+            return true;
+        };
+
+        let Some(simple) = self.simple(option, parse_context, None) else {
+            return true;
+        };
+        let (simple_raws, simple_types) = simple.as_ref();
+        simple_raws.contains(first_raw) || first_types.intersects(simple_types)
+    }
+
     fn prune_options(
         &self,
         options: &[NodeId],
@@ -2104,22 +2122,10 @@ impl CompiledGrammar {
         let Some((first_raw, first_types)) = first_non_whitespace(segments, start_idx) else {
             return options.to_vec();
         };
+        let first_token = Some((first_raw.as_str(), first_types));
 
         for &opt in options {
-            let Some(simple) = self.simple(opt, parse_context, None) else {
-                available_options.push(opt);
-                continue;
-            };
-
-            let (simple_raws, simple_types) = simple.as_ref();
-            let mut matched = false;
-
-            if simple_raws.contains(&first_raw) {
-                available_options.push(opt);
-                matched = true;
-            }
-
-            if !matched && first_types.intersects(&simple_types) {
+            if self.option_matches_first_token(opt, parse_context, first_token) {
                 available_options.push(opt);
             }
         }
@@ -2140,10 +2146,19 @@ impl CompiledGrammar {
             return Ok((MatchResult::empty_at(idx), None));
         }
 
-        let available_options = self.prune_options(matchers, segments, parse_context, idx);
-        let available_options_count = available_options.len();
+        let first_token = first_non_whitespace(segments, idx);
+        let first_token = first_token
+            .as_ref()
+            .map(|(first_raw, first_types)| (first_raw.as_str(), *first_types));
+        let mut available_options_count = 0;
 
-        if available_options.is_empty() {
+        for &matcher in matchers {
+            if self.option_matches_first_token(matcher, parse_context, first_token) {
+                available_options_count += 1;
+            }
+        }
+
+        if available_options_count == 0 {
             return Ok((MatchResult::empty_at(idx), None));
         }
 
@@ -2162,8 +2177,14 @@ impl CompiledGrammar {
 
         let mut best_match = MatchResult::empty_at(idx);
         let mut best_matcher = None;
+        let mut available_options_seen = 0;
 
-        'matcher: for (matcher_idx, matcher) in enumerate(available_options) {
+        'matcher: for &matcher in matchers {
+            if !self.option_matches_first_token(matcher, parse_context, first_token) {
+                continue;
+            }
+
+            available_options_seen += 1;
             let matcher_key = self.node_cache_key(matcher);
             let res_match =
                 if let Some(res_match) = parse_context.check_parse_cache(loc_key, matcher_key) {
@@ -2181,7 +2202,7 @@ impl CompiledGrammar {
                 best_match = res_match.clone();
                 best_matcher = Some(matcher);
 
-                if matcher_idx == available_options_count - 1 {
+                if available_options_seen == available_options_count {
                     break 'matcher;
                 } else if !parse_context.terminators.is_empty() {
                     let next_code_idx = skip_start_index_forward_to_code(

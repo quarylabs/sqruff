@@ -36,6 +36,28 @@ struct NextMatchPrepared {
     type_simple_keys: SyntaxSet,
 }
 
+struct NextMatchScratch {
+    matcher_idxs: Vec<usize>,
+    visited: Vec<u32>,
+    visit_stamp: u32,
+}
+
+impl NextMatchScratch {
+    fn new(matcher_count: usize) -> Self {
+        Self {
+            matcher_idxs: Vec::new(),
+            visited: vec![0_u32; matcher_count],
+            visit_stamp: 1,
+        }
+    }
+
+    fn ensure_matcher_capacity(&mut self, matcher_count: usize) {
+        if self.visited.len() < matcher_count {
+            self.visited.resize(matcher_count, 0);
+        }
+    }
+}
+
 struct NextExBracketPrepared {
     start_brackets: Vec<NodeId>,
     end_brackets: Vec<NodeId>,
@@ -2260,6 +2282,7 @@ impl CompiledGrammar {
         idx: u32,
         matchers: &[NodeId],
         prepared: &NextMatchPrepared,
+        scratch: &mut NextMatchScratch,
         parse_context: &mut CompiledParseContext,
     ) -> Result<(MatchResult, Option<NodeId>), SQLParseError> {
         let max_idx = segments.len() as u32;
@@ -2268,24 +2291,23 @@ impl CompiledGrammar {
             return Ok((MatchResult::empty_at(idx), None));
         }
 
-        let mut matcher_idxs = Vec::new();
-        let mut visited = vec![0_u32; matchers.len()];
-        let mut visit_stamp = 1_u32;
+        scratch.ensure_matcher_capacity(matchers.len());
 
         for scan_idx in idx..max_idx {
             let seg = &segments[scan_idx as usize];
-            matcher_idxs.clear();
-            visit_stamp = visit_stamp.wrapping_add(1);
-            if visit_stamp == 0 {
-                visited.fill(0);
-                visit_stamp = 1;
+            scratch.matcher_idxs.clear();
+            scratch.visit_stamp = scratch.visit_stamp.wrapping_add(1);
+            if scratch.visit_stamp == 0 {
+                scratch.visited[..matchers.len()].fill(0);
+                scratch.visit_stamp = 1;
             }
+            let visit_stamp = scratch.visit_stamp;
 
             if let Some(raw_matchers) = prepared.raw_simple_map.get(&first_trimmed_raw(seg)) {
                 for &matcher_idx in raw_matchers {
-                    if visited[matcher_idx] != visit_stamp {
-                        visited[matcher_idx] = visit_stamp;
-                        matcher_idxs.push(matcher_idx);
+                    if scratch.visited[matcher_idx] != visit_stamp {
+                        scratch.visited[matcher_idx] = visit_stamp;
+                        scratch.matcher_idxs.push(matcher_idx);
                     }
                 }
             }
@@ -2298,19 +2320,19 @@ impl CompiledGrammar {
             for typ in type_overlap {
                 if let Some(type_matchers) = prepared.type_simple_map.get(&typ) {
                     for &matcher_idx in type_matchers {
-                        if visited[matcher_idx] != visit_stamp {
-                            visited[matcher_idx] = visit_stamp;
-                            matcher_idxs.push(matcher_idx);
+                        if scratch.visited[matcher_idx] != visit_stamp {
+                            scratch.visited[matcher_idx] = visit_stamp;
+                            scratch.matcher_idxs.push(matcher_idx);
                         }
                     }
                 }
             }
 
-            if matcher_idxs.is_empty() {
+            if scratch.matcher_idxs.is_empty() {
                 continue;
             }
 
-            for &matcher_idx in &matcher_idxs {
+            for &matcher_idx in &scratch.matcher_idxs {
                 let matcher = matchers[matcher_idx];
                 let match_result = self.match_node(matcher, segments, scan_idx, parse_context)?;
 
@@ -2346,6 +2368,7 @@ impl CompiledGrammar {
         matchers.extend_from_slice(start_brackets);
         matchers.extend_from_slice(end_brackets);
         let prepared = self.prepare_next_match(&matchers, parse_context);
+        let mut scratch = NextMatchScratch::new(matchers.len());
 
         loop {
             let (match_result, matcher) = self.next_match_with_prepared(
@@ -2353,6 +2376,7 @@ impl CompiledGrammar {
                 matched_idx,
                 &matchers,
                 &prepared,
+                &mut scratch,
                 parse_context,
             )?;
 
@@ -2426,6 +2450,7 @@ impl CompiledGrammar {
         matchers: &[NodeId],
         parse_context: &mut CompiledParseContext,
         bracket_data: &NextExBracketPrepared,
+        scratch: &mut NextMatchScratch,
     ) -> BracketMatch {
         let max_idx = segments.len() as u32;
 
@@ -2442,6 +2467,7 @@ impl CompiledGrammar {
                 matched_idx,
                 &bracket_data.all_matchers,
                 &bracket_data.next_match_prepared,
+                scratch,
                 parse_context,
             )?;
             if !match_result.has_match() {
@@ -2533,11 +2559,19 @@ impl CompiledGrammar {
         let mut matched: MatchResult;
         let bracket_data =
             self.prepare_next_ex_bracket_match(matchers, parse_context, "bracket_pairs");
+        let mut next_match_scratch = NextMatchScratch::new(bracket_data.all_matchers.len());
 
         loop {
             let (match_result, matcher, inner_matches) =
                 parse_context.deeper_match(false, &[], |ctx| {
-                    self.next_ex_bracket_match(segments, working_idx, matchers, ctx, &bracket_data)
+                    self.next_ex_bracket_match(
+                        segments,
+                        working_idx,
+                        matchers,
+                        ctx,
+                        &bracket_data,
+                        &mut next_match_scratch,
+                    )
                 })?;
 
             matched = match_result;

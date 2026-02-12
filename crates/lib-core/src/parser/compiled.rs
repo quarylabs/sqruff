@@ -1476,8 +1476,9 @@ impl CompiledGrammar {
         }
 
         let mut n_matches = 0;
-        let mut option_counter: AHashMap<NodeId, usize> =
-            elements.iter().copied().map(|elem| (elem, 0)).collect();
+        let mut option_counter: Option<AHashMap<NodeId, usize>> = payload
+            .max_times_per_element
+            .map(|_| elements.iter().copied().map(|elem| (elem, 0)).collect());
         let mut matched_idx = idx;
         let mut working_idx = idx;
         let mut matched = MatchResult::empty_at(idx);
@@ -1535,13 +1536,14 @@ impl CompiledGrammar {
 
             let matched_option = matched_option.unwrap();
 
-            if let Some(counter) = option_counter.get_mut(&matched_option) {
+            if let Some(max_times_per_element) = payload.max_times_per_element
+                && let Some(counter) = option_counter
+                    .as_mut()
+                    .and_then(|counter| counter.get_mut(&matched_option))
+            {
                 *counter += 1;
 
-                if payload
-                    .max_times_per_element
-                    .is_some_and(|max_times_per_element| *counter > max_times_per_element)
-                {
+                if *counter > max_times_per_element {
                     return Ok(parse_mode_match_result(
                         segments,
                         matched,
@@ -1669,14 +1671,19 @@ impl CompiledGrammar {
     ) -> Result<MatchResult, SQLParseError> {
         let payload = self.multi_string_payload(node_id);
         let segment = &segments[idx as usize];
-        let segment_upper = segment.raw().to_ascii_uppercase();
+
+        if !segment.is_code() {
+            return Ok(MatchResult::empty_at(idx));
+        }
+
+        let segment_raw = segment.raw();
 
         let matched = self.kids_slice(payload.templates).iter().any(|template| {
             self.string_value(template.0)
-                .eq_ignore_ascii_case(&segment_upper)
+                .eq_ignore_ascii_case(segment_raw)
         });
 
-        if segment.is_code() && matched {
+        if matched {
             return Ok(MatchResult {
                 span: Span {
                     start: idx,
@@ -1699,11 +1706,10 @@ impl CompiledGrammar {
         let payload = self.regex_payload(node_id);
         let regex = &self.regexes[payload.regex_id as usize];
         let segment = &segments[idx as usize];
-        let segment_raw_upper =
-            SmolStr::from_iter(segment.raw().chars().map(|ch| ch.to_ascii_uppercase()));
+        let segment_raw_upper = segment.raw().to_ascii_uppercase();
 
         if let Some(result) = regex.regex.find(&segment_raw_upper).ok().flatten()
-            && result.as_str() == segment_raw_upper
+            && result.as_str() == segment_raw_upper.as_str()
             && !regex.anti_regex.as_ref().is_some_and(|anti_template| {
                 anti_template
                     .is_match(&segment_raw_upper)
@@ -2127,7 +2133,7 @@ impl CompiledGrammar {
             return Ok((MatchResult::empty_at(idx), None));
         }
 
-        let terminators = parse_context.terminators.clone();
+        let mut terminators_for_early_break: Option<Vec<NodeId>> = None;
         let cache_position = segments[idx as usize].get_position_marker().unwrap();
 
         let loc_key = (
@@ -2162,7 +2168,7 @@ impl CompiledGrammar {
 
                 if matcher_idx == available_options_count - 1 {
                     break 'matcher;
-                } else if !terminators.is_empty() {
+                } else if !parse_context.terminators.is_empty() {
                     let next_code_idx = skip_start_index_forward_to_code(
                         segments,
                         best_match.span.end,
@@ -2173,9 +2179,12 @@ impl CompiledGrammar {
                         break 'matcher;
                     }
 
-                    for terminator in &terminators {
+                    let terminators = terminators_for_early_break
+                        .get_or_insert_with(|| parse_context.terminators.clone());
+
+                    for terminator in terminators.iter().copied() {
                         let terminator_match =
-                            self.match_node(*terminator, segments, next_code_idx, parse_context)?;
+                            self.match_node(terminator, segments, next_code_idx, parse_context)?;
 
                         if terminator_match.has_match() {
                             break 'matcher;
@@ -2204,7 +2213,7 @@ impl CompiledGrammar {
         let mut raw_simple_map: AHashMap<String, Vec<usize>> = AHashMap::new();
         let mut type_simple_map: AHashMap<SyntaxKind, Vec<usize>> = AHashMap::new();
 
-        for (idx, matcher) in enumerate(matchers) {
+        for (matcher_idx, matcher) in enumerate(matchers) {
             let Some((raws, types)) = self.simple(*matcher, parse_context, None) else {
                 continue;
             };
@@ -2213,30 +2222,47 @@ impl CompiledGrammar {
             type_simple_map.reserve(types.len());
 
             for raw in raws {
-                raw_simple_map.entry(raw).or_default().push(idx);
+                raw_simple_map.entry(raw).or_default().push(matcher_idx);
             }
 
             for typ in types {
-                type_simple_map.entry(typ).or_default().push(idx);
+                type_simple_map.entry(typ).or_default().push(matcher_idx);
             }
         }
 
         let type_simple_keys: SyntaxSet = type_simple_map.keys().copied().collect();
         let mut matcher_idxs = Vec::new();
+        let mut visited = vec![0_u32; matchers.len()];
+        let mut visit_stamp = 1_u32;
 
-        for idx in idx..max_idx {
-            let seg = &segments[idx as usize];
+        for scan_idx in idx..max_idx {
+            let seg = &segments[scan_idx as usize];
             matcher_idxs.clear();
+            visit_stamp = visit_stamp.wrapping_add(1);
+            if visit_stamp == 0 {
+                visited.fill(0);
+                visit_stamp = 1;
+            }
 
             if let Some(raw_matchers) = raw_simple_map.get(&first_trimmed_raw(seg)) {
-                matcher_idxs.extend_from_slice(raw_matchers);
+                for &matcher_idx in raw_matchers {
+                    if visited[matcher_idx] != visit_stamp {
+                        visited[matcher_idx] = visit_stamp;
+                        matcher_idxs.push(matcher_idx);
+                    }
+                }
             }
 
             let type_overlap = seg.class_types().clone().intersection(&type_simple_keys);
 
             for typ in type_overlap {
                 if let Some(type_matchers) = type_simple_map.get(&typ) {
-                    matcher_idxs.extend_from_slice(type_matchers);
+                    for &matcher_idx in type_matchers {
+                        if visited[matcher_idx] != visit_stamp {
+                            visited[matcher_idx] = visit_stamp;
+                            matcher_idxs.push(matcher_idx);
+                        }
+                    }
                 }
             }
 
@@ -2244,10 +2270,9 @@ impl CompiledGrammar {
                 continue;
             }
 
-            matcher_idxs.sort_unstable();
             for &matcher_idx in &matcher_idxs {
                 let matcher = matchers[matcher_idx];
-                let match_result = self.match_node(matcher, segments, idx, parse_context)?;
+                let match_result = self.match_node(matcher, segments, scan_idx, parse_context)?;
 
                 if match_result.has_match() {
                     return Ok((match_result, Some(matcher)));

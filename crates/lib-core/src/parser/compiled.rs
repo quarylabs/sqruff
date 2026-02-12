@@ -2118,29 +2118,6 @@ impl CompiledGrammar {
         simple_raws.contains(first_raw) || first_types.intersects(simple_types)
     }
 
-    fn prune_options(
-        &self,
-        options: &[NodeId],
-        segments: &[ErasedSegment],
-        parse_context: &mut CompiledParseContext,
-        start_idx: u32,
-    ) -> Vec<NodeId> {
-        let mut available_options = vec![];
-
-        let Some((first_raw, first_types)) = first_non_whitespace(segments, start_idx) else {
-            return options.to_vec();
-        };
-        let first_token = Some((first_raw.as_str(), first_types));
-
-        for &opt in options {
-            if self.option_matches_first_token(opt, parse_context, first_token) {
-                available_options.push(opt);
-            }
-        }
-
-        available_options
-    }
-
     fn longest_match(
         &self,
         segments: &[ErasedSegment],
@@ -2658,10 +2635,16 @@ impl CompiledGrammar {
             return Ok(segments.len() as u32);
         }
 
-        let early_return = parse_context.deeper_match(false, &[], |ctx| {
-            let pruned_terms = self.prune_options(terminators, segments, ctx, idx);
+        let first_token = first_non_whitespace(segments, idx);
+        let first_token = first_token
+            .as_ref()
+            .map(|(first_raw, first_types)| (first_raw.as_str(), *first_types));
 
-            for term in pruned_terms {
+        let early_return = parse_context.deeper_match(false, &[], |ctx| {
+            for &term in terminators {
+                if !self.option_matches_first_token(term, ctx, first_token) {
+                    continue;
+                }
                 if self.match_node(term, segments, idx, ctx)?.has_match() {
                     return Ok(Some(idx));
                 }

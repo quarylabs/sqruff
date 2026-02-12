@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use std::rc::Rc;
 
 use ahash::{AHashMap, AHashSet};
 use fancy_regex::Regex;
@@ -26,6 +27,7 @@ pub type SymbolId = u32;
 type LocKey = u32;
 type LocKeyData = (SmolStr, (usize, usize), SyntaxKind, u32);
 type BracketMatch = Result<(MatchResult, Option<NodeId>, Vec<MatchResult>), SQLParseError>;
+type SimpleSet = (AHashSet<String>, SyntaxSet);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct NodeId(pub u32);
@@ -263,7 +265,7 @@ struct CompiledParseContext<'a> {
     terminators: Vec<NodeId>,
     loc_keys: IndexSet<LocKeyData>,
     parse_cache: FxHashMap<CacheKey, MatchResult>,
-    simple_cache: FxHashMap<NodeId, Option<(AHashSet<String>, SyntaxSet)>>,
+    simple_cache: FxHashMap<NodeId, Option<Rc<SimpleSet>>>,
     indentation_config: IndentationConfig,
 }
 
@@ -1121,7 +1123,7 @@ impl CompiledGrammar {
         node_id: NodeId,
         parse_context: &mut CompiledParseContext,
         crumbs: Option<Vec<SymbolId>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<Rc<SimpleSet>> {
         let cacheable = crumbs.is_none();
         if cacheable && let Some(cached) = parse_context.simple_cache.get(&node_id) {
             return cached.clone();
@@ -1133,28 +1135,30 @@ impl CompiledGrammar {
                 let mut simple_types = SyntaxSet::EMPTY;
 
                 for child in self.node_children(node_id) {
-                    let (raws, types) = self.simple(*child, parse_context, crumbs.clone())?;
-                    simple_raws.extend(raws);
-                    simple_types.extend(types);
+                    let simple = self.simple(*child, parse_context, crumbs.clone())?;
+                    let (raws, types) = simple.as_ref();
+                    simple_raws.extend(raws.iter().cloned());
+                    simple_types = simple_types.union(types);
 
                     if !self.is_optional(*child) {
                         break;
                     }
                 }
 
-                Some((simple_raws, simple_types))
+                Some(Rc::new((simple_raws, simple_types)))
             }
             Kind::OneOf | Kind::AnyNumberOf | Kind::Delimited => {
                 let mut simple_raws = AHashSet::new();
                 let mut simple_types = SyntaxSet::EMPTY;
 
                 for child in self.node_children(node_id) {
-                    let (raws, types) = self.simple(*child, parse_context, crumbs.clone())?;
-                    simple_raws.extend(raws);
-                    simple_types.extend(types);
+                    let simple = self.simple(*child, parse_context, crumbs.clone())?;
+                    let (raws, types) = simple.as_ref();
+                    simple_raws.extend(raws.iter().cloned());
+                    simple_types = simple_types.union(types);
                 }
 
-                Some((simple_raws, simple_types))
+                Some(Rc::new((simple_raws, simple_types)))
             }
             Kind::Ref => {
                 let payload = self.ref_payload(node_id);
@@ -1176,10 +1180,10 @@ impl CompiledGrammar {
             }
             Kind::String => {
                 let payload = self.string_payload(node_id);
-                Some((
+                Some(Rc::new((
                     [self.string_value(payload.template).to_owned()].into(),
                     SyntaxSet::EMPTY,
-                ))
+                )))
             }
             Kind::MultiString => {
                 let payload = self.multi_string_payload(node_id);
@@ -1188,11 +1192,14 @@ impl CompiledGrammar {
                     .iter()
                     .map(|id| self.string_value(id.0).to_owned())
                     .collect();
-                Some((raws, SyntaxSet::EMPTY))
+                Some(Rc::new((raws, SyntaxSet::EMPTY)))
             }
             Kind::Typed => {
                 let payload = self.typed_payload(node_id);
-                Some((AHashSet::new(), SyntaxSet::new(&[payload.template])))
+                Some(Rc::new((
+                    AHashSet::new(),
+                    SyntaxSet::new(&[payload.template]),
+                )))
             }
             Kind::NodeMatcher => {
                 let payload = self.node_matcher_payload(node_id);
@@ -2097,7 +2104,7 @@ impl CompiledGrammar {
                 continue;
             };
 
-            let (simple_raws, simple_types) = simple;
+            let (simple_raws, simple_types) = simple.as_ref();
             let mut matched = false;
 
             if simple_raws.contains(&first_raw) {
@@ -2214,15 +2221,19 @@ impl CompiledGrammar {
         let mut type_simple_map: AHashMap<SyntaxKind, Vec<usize>> = AHashMap::new();
 
         for (matcher_idx, matcher) in enumerate(matchers) {
-            let Some((raws, types)) = self.simple(*matcher, parse_context, None) else {
+            let Some(simple) = self.simple(*matcher, parse_context, None) else {
                 continue;
             };
+            let (raws, types) = simple.as_ref();
 
             raw_simple_map.reserve(raws.len());
             type_simple_map.reserve(types.len());
 
             for raw in raws {
-                raw_simple_map.entry(raw).or_default().push(matcher_idx);
+                raw_simple_map
+                    .entry(raw.clone())
+                    .or_default()
+                    .push(matcher_idx);
             }
 
             for typ in types {
@@ -2496,28 +2507,29 @@ impl CompiledGrammar {
             let matcher = matcher.unwrap();
             let simple = self.simple(matcher, parse_context, None);
 
-            if let Some((strings, types)) = simple
-                && types.is_empty()
-                && strings.iter().all(|s| s.chars().all(|c| c.is_alphabetic()))
-            {
-                let mut allowable_match = start_idx == working_idx;
+            if let Some(simple) = simple {
+                let (strings, types) = simple.as_ref();
+                if types.is_empty() && strings.iter().all(|s| s.chars().all(|c| c.is_alphabetic()))
+                {
+                    let mut allowable_match = start_idx == working_idx;
 
-                for idx in (working_idx..=start_idx).rev() {
-                    if segments[idx as usize - 1].is_meta() {
-                        continue;
+                    for idx in (working_idx..=start_idx).rev() {
+                        if segments[idx as usize - 1].is_meta() {
+                            continue;
+                        }
+
+                        allowable_match = matches!(
+                            segments[idx as usize - 1].get_type(),
+                            SyntaxKind::Whitespace | SyntaxKind::Newline
+                        );
+
+                        break;
                     }
 
-                    allowable_match = matches!(
-                        segments[idx as usize - 1].get_type(),
-                        SyntaxKind::Whitespace | SyntaxKind::Newline
-                    );
-
-                    break;
-                }
-
-                if !allowable_match {
-                    working_idx = stop_idx;
-                    continue;
+                    if !allowable_match {
+                        working_idx = stop_idx;
+                        continue;
+                    }
                 }
             }
 

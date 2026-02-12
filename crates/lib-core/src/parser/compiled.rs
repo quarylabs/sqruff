@@ -25,7 +25,7 @@ use crate::helpers::IndexSet;
 pub type SymbolId = u32;
 
 type LocKey = u32;
-type LocKeyData = (SmolStr, (usize, usize), SyntaxKind, u32);
+type LocKeyData = (usize, usize, SyntaxKind, u32);
 type BracketMatch = Result<(MatchResult, Option<NodeId>, Vec<MatchResult>), SQLParseError>;
 type SimpleSet = (AHashSet<String>, SyntaxSet);
 
@@ -2150,9 +2150,10 @@ impl CompiledGrammar {
         let mut terminators_for_early_break: Option<Vec<NodeId>> = None;
         let cache_position = segments[idx as usize].get_position_marker().unwrap();
 
+        let (working_line_no, working_line_pos) = cache_position.working_loc();
         let loc_key = (
-            segments[idx as usize].raw().clone(),
-            cache_position.working_loc(),
+            working_line_no,
+            working_line_pos,
             segments[idx as usize].get_type(),
             max_idx,
         );

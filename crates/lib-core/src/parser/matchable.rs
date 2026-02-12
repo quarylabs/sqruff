@@ -5,7 +5,6 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use ahash::AHashSet;
 use enum_dispatch::enum_dispatch;
 
-use super::context::ParseContext;
 use super::grammar::anyof::AnyNumberOf;
 use super::grammar::conditional::Conditional;
 use super::grammar::delimited::Delimited;
@@ -13,15 +12,12 @@ use super::grammar::noncode::NonCodeMatcher;
 use super::grammar::sequence::{Bracketed, Sequence};
 use super::grammar::{Anything, Nothing, Ref};
 use super::lookahead::LookaheadExclude;
-use super::match_result::MatchResult;
 use super::node_matcher::NodeMatcher;
 use super::parsers::{CodeParser, MultiStringParser, RegexParser, StringParser, TypedParser};
-use super::segments::ErasedSegment;
 use super::segments::bracketed::BracketedSegmentMatcher;
 use super::segments::meta::MetaSegment;
 use crate::dialects::Dialect;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
-use crate::errors::SQLParseError;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Matchable {
@@ -162,21 +158,12 @@ pub trait MatchableTrait {
     // Note: the crumbs argument is used to detect recursion.
     fn simple(
         &self,
-        parse_context: &ParseContext,
+        dialect: &Dialect,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
-        let match_grammar = self.match_grammar(parse_context.dialect())?;
+        let match_grammar = self.match_grammar(dialect)?;
 
-        match_grammar.simple(parse_context, crumbs)
-    }
-
-    fn match_segments(
-        &self,
-        _segments: &[ErasedSegment],
-        _idx: u32,
-        _parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        todo!();
+        match_grammar.simple(dialect, crumbs)
     }
 
     fn cache_key(&self) -> MatchableCacheKey {

@@ -738,6 +738,48 @@ impl CompiledGrammar {
         .finish())
     }
 
+    pub fn root_parse_as(
+        &self,
+        tables: &Tables,
+        dialect: DialectKind,
+        dialect_ref: &Dialect,
+        root_name: &str,
+        segments: &[ErasedSegment],
+        indentation_config: IndentationConfig,
+    ) -> Result<Vec<ErasedSegment>, SQLParseError> {
+        if segments.is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let start_idx = segments
+            .iter()
+            .position(|segment| segment.is_code())
+            .unwrap_or(0) as u32;
+
+        let end_idx = segments
+            .iter()
+            .rposition(|segment| segment.is_code())
+            .map_or(start_idx, |idx| idx as u32 + 1);
+
+        if start_idx == end_idx {
+            return Ok(Vec::new());
+        }
+
+        let root_node = self
+            .root(root_name)
+            .ok_or_else(|| SQLParseError::new(format!("missing {root_name} root")))?;
+
+        let mut ctx = CompiledParseContext::new(self, dialect_ref, indentation_config);
+        let match_result = self.match_node(
+            root_node,
+            &segments[..end_idx as usize],
+            start_idx,
+            &mut ctx,
+        )?;
+
+        Ok(match_result.apply(tables, dialect, segments))
+    }
+
     fn node(&self, id: NodeId) -> &Node {
         &self.nodes[id.as_usize()]
     }

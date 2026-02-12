@@ -3,11 +3,7 @@ use std::sync::OnceLock;
 use super::matchable::MatchableTrait;
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
-use crate::errors::SQLParseError;
-use crate::parser::context::ParseContext;
-use crate::parser::match_result::{MatchResult, Matched};
 use crate::parser::matchable::Matchable;
-use crate::parser::segments::ErasedSegment;
 
 #[derive(Clone)]
 pub struct NodeMatcher {
@@ -64,26 +60,5 @@ impl MatchableTrait for NodeMatcher {
 
     fn elements(&self) -> &[Matchable] {
         &[]
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        if idx >= segments.len() as u32 {
-            return Ok(MatchResult::empty_at(idx));
-        }
-
-        if segments[idx as usize].get_type() == self.get_type() {
-            return Ok(MatchResult::from_span(idx, idx + 1));
-        }
-
-        let grammar = self.match_grammar(parse_context.dialect());
-        let match_result = parse_context
-            .deeper_match(false, &[], |ctx| grammar.match_segments(segments, idx, ctx))?;
-
-        Ok(match_result.wrap(Matched::SyntaxKind(self.node_kind)))
     }
 }

@@ -1,10 +1,9 @@
 pub mod compiled;
-pub mod context;
 pub mod grammar;
 pub mod lexer;
 pub mod lookahead;
 pub mod markers;
-pub mod match_algorithms;
+pub(crate) mod match_algorithms;
 pub mod match_result;
 pub mod matchable;
 pub mod node_matcher;
@@ -141,5 +140,29 @@ impl<'a> Parser<'a> {
         }
 
         Ok(root.into())
+    }
+
+    pub fn parse_as(
+        &self,
+        tables: &Tables,
+        root_name: &str,
+        segments: &[ErasedSegment],
+    ) -> Result<Vec<ErasedSegment>, SQLParseError> {
+        let compiled = self
+            .dialect
+            .compile_grammar()
+            .map_err(|err| SQLParseError {
+                description: format!("Failed to compile grammar: {err}"),
+                segment: None,
+            })?;
+
+        compiled.root_parse_as(
+            tables,
+            self.dialect.name(),
+            self.dialect,
+            root_name,
+            segments,
+            self.indentation_config,
+        )
     }
 }

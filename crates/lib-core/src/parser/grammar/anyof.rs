@@ -1,63 +1,22 @@
 use ahash::AHashSet;
-use itertools::{Itertools, chain};
-use nohash_hasher::IntMap;
 
 use super::sequence::{Bracketed, Sequence};
-use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
-use crate::errors::SQLParseError;
+use crate::dialects::Dialect;
+use crate::dialects::syntax::SyntaxSet;
 use crate::helpers::ToMatchable;
-use crate::parser::context::ParseContext;
-use crate::parser::match_algorithms::{
-    longest_match, skip_start_index_forward_to_code, trim_to_terminator,
-};
-use crate::parser::match_result::{MatchResult, Matched, Span};
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
-use crate::parser::segments::ErasedSegment;
 use crate::parser::types::ParseMode;
-
-fn parse_mode_match_result(
-    segments: &[ErasedSegment],
-    current_match: MatchResult,
-    max_idx: u32,
-    parse_mode: ParseMode,
-) -> MatchResult {
-    if parse_mode == ParseMode::Strict {
-        return current_match;
-    }
-
-    let stop_idx = current_match.span.end;
-    if stop_idx == max_idx
-        || segments[stop_idx as usize..max_idx as usize]
-            .iter()
-            .all(|it| !it.is_code())
-    {
-        return current_match;
-    }
-
-    let trim_idx = skip_start_index_forward_to_code(segments, stop_idx, segments.len() as u32);
-
-    let unmatched_match = MatchResult {
-        span: Span {
-            start: trim_idx,
-            end: max_idx,
-        },
-        matched: Matched::SyntaxKind(SyntaxKind::Unparsable).into(),
-        ..MatchResult::default()
-    };
-
-    current_match.append(unmatched_match)
-}
 
 pub fn simple(
     elements: &[Matchable],
-    parse_context: &ParseContext,
+    dialect: &Dialect,
     crumbs: Option<Vec<&str>>,
 ) -> Option<(AHashSet<String>, SyntaxSet)> {
     let option_simples: Vec<Option<(AHashSet<String>, SyntaxSet)>> = elements
         .iter()
-        .map(|opt| opt.simple(parse_context, crumbs.clone()))
+        .map(|opt| opt.simple(dialect, crumbs.clone()))
         .collect();
 
     if option_simples.iter().any(Option::is_none) {
@@ -150,114 +109,10 @@ impl MatchableTrait for AnyNumberOf {
 
     fn simple(
         &self,
-        parse_context: &ParseContext,
+        dialect: &Dialect,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
-        simple(&self.elements, parse_context, crumbs)
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        if let Some(exclude) = &self.exclude {
-            let match_result = parse_context
-                .deeper_match(false, &[], |ctx| exclude.match_segments(segments, idx, ctx))?;
-
-            if match_result.has_match() {
-                return Ok(MatchResult::empty_at(idx));
-            }
-        }
-
-        let mut n_matches = 0;
-        let mut option_counter: IntMap<_, usize> = self
-            .elements
-            .iter()
-            .map(|elem| (elem.cache_key(), 0))
-            .collect();
-        let mut matched_idx = idx;
-        let mut working_idx = idx;
-        let mut matched = MatchResult::empty_at(idx);
-        let mut max_idx = segments.len() as u32;
-
-        if self.parse_mode == ParseMode::Greedy {
-            let terminators = if self.reset_terminators {
-                self.terminators.clone()
-            } else {
-                chain(self.terminators.clone(), parse_context.terminators.clone()).collect_vec()
-            };
-            max_idx = trim_to_terminator(segments, idx, &terminators, parse_context)?;
-        }
-
-        loop {
-            if (n_matches >= self.min_times && matched_idx >= max_idx)
-                || self.max_times.is_some() && Some(n_matches) >= self.max_times
-            {
-                return Ok(parse_mode_match_result(
-                    segments,
-                    matched,
-                    max_idx,
-                    self.parse_mode,
-                ));
-            }
-
-            if matched_idx >= max_idx {
-                return Ok(MatchResult::empty_at(idx));
-            }
-
-            let (match_result, matched_option) =
-                parse_context.deeper_match(self.reset_terminators, &self.terminators, |ctx| {
-                    longest_match(
-                        &segments[..max_idx as usize],
-                        &self.elements,
-                        working_idx,
-                        ctx,
-                    )
-                })?;
-
-            if !match_result.has_match() {
-                if n_matches < self.min_times {
-                    matched = MatchResult::empty_at(idx);
-                }
-
-                return Ok(parse_mode_match_result(
-                    segments,
-                    matched,
-                    max_idx,
-                    self.parse_mode,
-                ));
-            }
-
-            let matched_option = matched_option.unwrap();
-            let matched_key = matched_option.cache_key();
-
-            if let Some(counter) = option_counter.get_mut(&matched_key) {
-                *counter += 1;
-
-                if self
-                    .max_times_per_element
-                    .is_some_and(|max_times_per_element| *counter > max_times_per_element)
-                {
-                    return Ok(parse_mode_match_result(
-                        segments,
-                        matched,
-                        max_idx,
-                        self.parse_mode,
-                    ));
-                }
-            }
-
-            matched = matched.append(match_result);
-            matched_idx = matched.span.end;
-            working_idx = matched_idx;
-            if self.allow_gaps {
-                working_idx =
-                    skip_start_index_forward_to_code(segments, matched_idx, segments.len() as u32);
-            }
-            n_matches += 1;
-        }
+        simple(&self.elements, dialect, crumbs)
     }
 
     fn cache_key(&self) -> MatchableCacheKey {

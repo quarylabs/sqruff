@@ -1,13 +1,10 @@
 use ahash::AHashSet;
 use fancy_regex::Regex;
-use smol_str::SmolStr;
 
-use super::context::ParseContext;
-use super::match_result::{MatchResult, Matched, Span};
 use super::matchable::{Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key};
 use super::segments::ErasedSegment;
+use crate::dialects::Dialect;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
-use crate::errors::SQLParseError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TypedParser {
@@ -51,33 +48,11 @@ impl MatchableTrait for TypedParser {
 
     fn simple(
         &self,
-        parse_context: &ParseContext,
+        dialect: &Dialect,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
-        let _ = (parse_context, crumbs);
+        let _ = (dialect, crumbs);
         (AHashSet::new(), self.target_types.clone()).into()
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        _parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        let segment = &segments[idx as usize];
-        if segment.is_type(self.template) {
-            return Ok(MatchResult {
-                span: Span {
-                    start: idx,
-                    end: idx + 1,
-                },
-                matched: Matched::Newtype(self.kind).into(),
-                insert_segments: Vec::new(),
-                child_matches: Vec::new(),
-            });
-        }
-
-        Ok(MatchResult::empty_at(idx))
     }
 
     fn cache_key(&self) -> MatchableCacheKey {
@@ -111,27 +86,10 @@ impl MatchableTrait for CodeParser {
 
     fn simple(
         &self,
-        _parse_context: &ParseContext,
+        _dialect: &Dialect,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
         None
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        _parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        if idx as usize >= segments.len() {
-            return Ok(MatchResult::empty_at(idx));
-        }
-
-        if segments[idx as usize].is_code() {
-            return Ok(MatchResult::from_span(idx, idx + 1));
-        }
-
-        Ok(MatchResult::empty_at(idx))
     }
 
     fn cache_key(&self) -> MatchableCacheKey {
@@ -182,33 +140,10 @@ impl MatchableTrait for StringParser {
 
     fn simple(
         &self,
-        _parse_context: &ParseContext,
+        _dialect: &Dialect,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
         (self.simple.clone(), SyntaxSet::EMPTY).into()
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        _parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        let segment = &segments[idx as usize];
-
-        if segment.is_code() && self.template.eq_ignore_ascii_case(segment.raw()) {
-            return Ok(MatchResult {
-                span: Span {
-                    start: idx,
-                    end: idx + 1,
-                },
-                matched: Matched::Newtype(self.kind).into(),
-                insert_segments: Vec::new(),
-                child_matches: Vec::new(),
-            });
-        }
-
-        Ok(MatchResult::empty_at(idx))
     }
 
     fn cache_key(&self) -> MatchableCacheKey {
@@ -269,43 +204,12 @@ impl MatchableTrait for RegexParser {
 
     fn simple(
         &self,
-        _parse_context: &ParseContext,
+        _dialect: &Dialect,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
         // Does this matcher support a uppercase hash matching route?
         // Regex segment does NOT for now. We might need to later for efficiency.
         None
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        _parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        let segment = &segments[idx as usize];
-        let segment_raw_upper =
-            SmolStr::from_iter(segment.raw().chars().map(|ch| ch.to_ascii_uppercase()));
-        if let Some(result) = self.template.find(&segment_raw_upper).ok().flatten()
-            && result.as_str() == segment_raw_upper
-            && !self.anti_template.as_ref().is_some_and(|anti_template| {
-                anti_template
-                    .is_match(&segment_raw_upper)
-                    .unwrap_or_default()
-            })
-        {
-            return Ok(MatchResult {
-                span: Span {
-                    start: idx,
-                    end: idx + 1,
-                },
-                matched: Matched::Newtype(self.kind).into(),
-                insert_segments: Vec::new(),
-                child_matches: Vec::new(),
-            });
-        }
-
-        Ok(MatchResult::empty_at(idx))
     }
 
     fn cache_key(&self) -> MatchableCacheKey {
@@ -358,32 +262,10 @@ impl MatchableTrait for MultiStringParser {
 
     fn simple(
         &self,
-        _parse_context: &ParseContext,
+        _dialect: &Dialect,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
         (self.simple.clone(), SyntaxSet::EMPTY).into()
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        _parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        let segment = &segments[idx as usize];
-
-        if segment.is_code() && self.templates.contains(&segment.raw().to_ascii_uppercase()) {
-            return Ok(MatchResult {
-                span: Span {
-                    start: idx,
-                    end: idx + 1,
-                },
-                matched: Matched::Newtype(self.kind).into(),
-                ..<_>::default()
-            });
-        }
-
-        Ok(MatchResult::empty_at(idx))
     }
 
     fn cache_key(&self) -> MatchableCacheKey {

@@ -8,7 +8,6 @@ use std::hint::black_box;
 include!("shims/global_alloc_overwrite.rs");
 
 const SIMPLE_QUERY: &str = r#"select 1 from dual"#;
-const SUPERLONG_QUERY: &str = include_str!("superlong.sql");
 
 const EXPRESSION_RECURSION: &str = r#"select
 1
@@ -80,7 +79,6 @@ fn parse(c: &mut Criterion) {
         ("parse_simple_query", SIMPLE_QUERY),
         ("parse_expression_recursion", EXPRESSION_RECURSION),
         ("parse_complex_query", COMPLEX_QUERY),
-        ("parse_superlong", SUPERLONG_QUERY),
     ];
 
     for (name, source) in passes {

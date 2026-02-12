@@ -29,6 +29,13 @@ type LocKeyData = (SmolStr, (usize, usize), SyntaxKind, u32);
 type BracketMatch = Result<(MatchResult, Option<NodeId>, Vec<MatchResult>), SQLParseError>;
 type SimpleSet = (AHashSet<String>, SyntaxSet);
 
+#[derive(Default)]
+struct NextMatchPrepared {
+    raw_simple_map: AHashMap<String, Vec<usize>>,
+    type_simple_map: AHashMap<SyntaxKind, Vec<usize>>,
+    type_simple_keys: SyntaxSet,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct NodeId(pub u32);
 
@@ -2204,19 +2211,11 @@ impl CompiledGrammar {
         Ok((best_match, best_matcher))
     }
 
-    fn next_match(
+    fn prepare_next_match(
         &self,
-        segments: &[ErasedSegment],
-        idx: u32,
         matchers: &[NodeId],
         parse_context: &mut CompiledParseContext,
-    ) -> Result<(MatchResult, Option<NodeId>), SQLParseError> {
-        let max_idx = segments.len() as u32;
-
-        if idx >= max_idx {
-            return Ok((MatchResult::empty_at(idx), None));
-        }
-
+    ) -> NextMatchPrepared {
         let mut raw_simple_map: AHashMap<String, Vec<usize>> = AHashMap::new();
         let mut type_simple_map: AHashMap<SyntaxKind, Vec<usize>> = AHashMap::new();
 
@@ -2241,7 +2240,27 @@ impl CompiledGrammar {
             }
         }
 
-        let type_simple_keys: SyntaxSet = type_simple_map.keys().copied().collect();
+        NextMatchPrepared {
+            type_simple_keys: type_simple_map.keys().copied().collect(),
+            raw_simple_map,
+            type_simple_map,
+        }
+    }
+
+    fn next_match_with_prepared(
+        &self,
+        segments: &[ErasedSegment],
+        idx: u32,
+        matchers: &[NodeId],
+        prepared: &NextMatchPrepared,
+        parse_context: &mut CompiledParseContext,
+    ) -> Result<(MatchResult, Option<NodeId>), SQLParseError> {
+        let max_idx = segments.len() as u32;
+
+        if idx >= max_idx {
+            return Ok((MatchResult::empty_at(idx), None));
+        }
+
         let mut matcher_idxs = Vec::new();
         let mut visited = vec![0_u32; matchers.len()];
         let mut visit_stamp = 1_u32;
@@ -2255,7 +2274,7 @@ impl CompiledGrammar {
                 visit_stamp = 1;
             }
 
-            if let Some(raw_matchers) = raw_simple_map.get(&first_trimmed_raw(seg)) {
+            if let Some(raw_matchers) = prepared.raw_simple_map.get(&first_trimmed_raw(seg)) {
                 for &matcher_idx in raw_matchers {
                     if visited[matcher_idx] != visit_stamp {
                         visited[matcher_idx] = visit_stamp;
@@ -2264,10 +2283,13 @@ impl CompiledGrammar {
                 }
             }
 
-            let type_overlap = seg.class_types().clone().intersection(&type_simple_keys);
+            let type_overlap = seg
+                .class_types()
+                .clone()
+                .intersection(&prepared.type_simple_keys);
 
             for typ in type_overlap {
-                if let Some(type_matchers) = type_simple_map.get(&typ) {
+                if let Some(type_matchers) = prepared.type_simple_map.get(&typ) {
                     for &matcher_idx in type_matchers {
                         if visited[matcher_idx] != visit_stamp {
                             visited[matcher_idx] = visit_stamp;
@@ -2316,10 +2338,16 @@ impl CompiledGrammar {
         let mut matchers = Vec::with_capacity(start_brackets.len() + end_brackets.len());
         matchers.extend_from_slice(start_brackets);
         matchers.extend_from_slice(end_brackets);
+        let prepared = self.prepare_next_match(&matchers, parse_context);
 
         loop {
-            let (match_result, matcher) =
-                self.next_match(segments, matched_idx, &matchers, parse_context)?;
+            let (match_result, matcher) = self.next_match_with_prepared(
+                segments,
+                matched_idx,
+                &matchers,
+                &prepared,
+                parse_context,
+            )?;
 
             if !match_result.has_match() {
                 return Err(SQLParseError {
@@ -2416,13 +2444,19 @@ impl CompiledGrammar {
             .collect_vec();
 
         let all_matchers = [matchers, &start_brackets, &end_brackets].concat();
+        let prepared = self.prepare_next_match(&all_matchers, parse_context);
 
         let mut matched_idx = idx;
         let mut child_matches: Vec<MatchResult> = Vec::new();
 
         loop {
-            let (match_result, matcher) =
-                self.next_match(segments, matched_idx, &all_matchers, parse_context)?;
+            let (match_result, matcher) = self.next_match_with_prepared(
+                segments,
+                matched_idx,
+                &all_matchers,
+                &prepared,
+                parse_context,
+            )?;
             if !match_result.has_match() {
                 return Ok((match_result, matcher, child_matches));
             }

@@ -36,6 +36,14 @@ struct NextMatchPrepared {
     type_simple_keys: SyntaxSet,
 }
 
+struct NextExBracketPrepared {
+    start_brackets: Vec<NodeId>,
+    end_brackets: Vec<NodeId>,
+    bracket_persists: Vec<bool>,
+    all_matchers: Vec<NodeId>,
+    next_match_prepared: NextMatchPrepared,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct NodeId(pub u32);
 
@@ -2440,7 +2448,7 @@ impl CompiledGrammar {
         idx: u32,
         matchers: &[NodeId],
         parse_context: &mut CompiledParseContext,
-        bracket_pairs_set: &str,
+        bracket_data: &NextExBracketPrepared,
     ) -> BracketMatch {
         let max_idx = segments.len() as u32;
 
@@ -2448,6 +2456,57 @@ impl CompiledGrammar {
             return Ok((MatchResult::empty_at(idx), None, Vec::new()));
         }
 
+        let mut matched_idx = idx;
+        let mut child_matches: Vec<MatchResult> = Vec::new();
+
+        loop {
+            let (match_result, matcher) = self.next_match_with_prepared(
+                segments,
+                matched_idx,
+                &bracket_data.all_matchers,
+                &bracket_data.next_match_prepared,
+                parse_context,
+            )?;
+            if !match_result.has_match() {
+                return Ok((match_result, matcher, child_matches));
+            }
+
+            if let Some(matcher) = matcher
+                .as_ref()
+                .filter(|matcher| matchers.contains(matcher))
+            {
+                return Ok((match_result, Some(*matcher), child_matches));
+            }
+
+            if matcher
+                .as_ref()
+                .is_some_and(|matcher| bracket_data.end_brackets.contains(matcher))
+            {
+                return Ok((MatchResult::empty_at(idx), None, Vec::new()));
+            }
+
+            let bracket_match = self.resolve_bracket(
+                segments,
+                match_result,
+                matcher.unwrap(),
+                &bracket_data.start_brackets,
+                &bracket_data.end_brackets,
+                &bracket_data.bracket_persists,
+                parse_context,
+                true,
+            )?;
+
+            matched_idx = bracket_match.span.end;
+            child_matches.push(bracket_match);
+        }
+    }
+
+    fn prepare_next_ex_bracket_match(
+        &self,
+        matchers: &[NodeId],
+        parse_context: &mut CompiledParseContext,
+        bracket_pairs_set: &str,
+    ) -> NextExBracketPrepared {
         let (_, start_bracket_refs, end_bracket_refs, bracket_persists): (
             Vec<_>,
             Vec<_>,
@@ -2465,51 +2524,20 @@ impl CompiledGrammar {
             .filter_map(|seg_ref| self.get_definition_by_name(seg_ref))
             .collect_vec();
 
-        let all_matchers = [matchers, &start_brackets, &end_brackets].concat();
-        let prepared = self.prepare_next_match(&all_matchers, parse_context);
+        let mut all_matchers =
+            Vec::with_capacity(matchers.len() + start_brackets.len() + end_brackets.len());
+        all_matchers.extend_from_slice(matchers);
+        all_matchers.extend_from_slice(&start_brackets);
+        all_matchers.extend_from_slice(&end_brackets);
 
-        let mut matched_idx = idx;
-        let mut child_matches: Vec<MatchResult> = Vec::new();
+        let next_match_prepared = self.prepare_next_match(&all_matchers, parse_context);
 
-        loop {
-            let (match_result, matcher) = self.next_match_with_prepared(
-                segments,
-                matched_idx,
-                &all_matchers,
-                &prepared,
-                parse_context,
-            )?;
-            if !match_result.has_match() {
-                return Ok((match_result, matcher, child_matches));
-            }
-
-            if let Some(matcher) = matcher
-                .as_ref()
-                .filter(|matcher| matchers.contains(matcher))
-            {
-                return Ok((match_result, Some(*matcher), child_matches));
-            }
-
-            if matcher
-                .as_ref()
-                .is_some_and(|matcher| end_brackets.contains(matcher))
-            {
-                return Ok((MatchResult::empty_at(idx), None, Vec::new()));
-            }
-
-            let bracket_match = self.resolve_bracket(
-                segments,
-                match_result,
-                matcher.unwrap(),
-                &start_brackets,
-                &end_brackets,
-                &bracket_persists,
-                parse_context,
-                true,
-            )?;
-
-            matched_idx = bracket_match.span.end;
-            child_matches.push(bracket_match);
+        NextExBracketPrepared {
+            start_brackets,
+            end_brackets,
+            bracket_persists,
+            all_matchers,
+            next_match_prepared,
         }
     }
 
@@ -2526,17 +2554,13 @@ impl CompiledGrammar {
         let mut stop_idx: u32;
         let mut child_matches = Vec::new();
         let mut matched: MatchResult;
+        let bracket_data =
+            self.prepare_next_ex_bracket_match(matchers, parse_context, "bracket_pairs");
 
         loop {
             let (match_result, matcher, inner_matches) =
                 parse_context.deeper_match(false, &[], |ctx| {
-                    self.next_ex_bracket_match(
-                        segments,
-                        working_idx,
-                        matchers,
-                        ctx,
-                        "bracket_pairs",
-                    )
+                    self.next_ex_bracket_match(segments, working_idx, matchers, ctx, &bracket_data)
                 })?;
 
             matched = match_result;

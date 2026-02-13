@@ -1,0 +1,258 @@
+file:
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - naked_identifier: years
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_modifier:
+              - keyword: DISTINCT
+            - select_clause_element:
+              - function:
+                - function_name:
+                  - function_name_identifier: EXTRACT
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - date_part: YEAR
+                    - keyword: FROM
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: valid_date
+                    - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: calendar_year
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - naked_identifier: q
+                    - dot: .
+                    - naked_identifier: stg_currency_exchange_rates
+        - end_bracket: )
+    - comma: ','
+    - common_table_expression:
+      - naked_identifier: currency_codes
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_modifier:
+              - keyword: DISTINCT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: currency
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - naked_identifier: q
+                    - dot: .
+                    - naked_identifier: stg_currency_exchange_rates
+        - end_bracket: )
+    - comma: ','
+    - common_table_expression:
+      - naked_identifier: exchange_rates
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: y
+                - dot: .
+                - naked_identifier: calendar_year
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: c
+                - dot: .
+                - naked_identifier: currency
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: er
+                - dot: .
+                - naked_identifier: one_usd_in_currency
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - naked_identifier: years
+                - alias_expression:
+                  - keyword: AS
+                  - naked_identifier: y
+              - join_clause:
+                - keyword: CROSS
+                - keyword: JOIN
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: currency_codes
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: c
+              - join_clause:
+                - keyword: LEFT
+                - keyword: JOIN
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: q
+                      - dot: .
+                      - naked_identifier: stg_currency_exchange_rates
+                  - alias_expression:
+                    - keyword: AS
+                    - naked_identifier: er
+                - join_on_condition:
+                  - keyword: ON
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: EXTRACT
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - date_part: YEAR
+                          - keyword: FROM
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: er
+                              - dot: .
+                              - naked_identifier: valid_date
+                          - end_bracket: )
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: y
+                      - dot: .
+                      - naked_identifier: calendar_year
+                    - binary_operator: AND
+                    - column_reference:
+                      - naked_identifier: c
+                      - dot: .
+                      - naked_identifier: currency
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - column_reference:
+                      - naked_identifier: er
+                      - dot: .
+                      - naked_identifier: currency
+                    - binary_operator: AND
+                    - function:
+                      - function_name:
+                        - function_name_identifier: EXTRACT
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - date_part: MONTH
+                          - keyword: FROM
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: er
+                              - dot: .
+                              - naked_identifier: valid_date
+                          - end_bracket: )
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - numeric_literal: '12'
+                    - binary_operator: AND
+                    - function:
+                      - function_name:
+                        - function_name_identifier: EXTRACT
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - date_part: DAY
+                          - keyword: FROM
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: er
+                              - dot: .
+                              - naked_identifier: valid_date
+                          - end_bracket: )
+                    - comparison_operator:
+                      - raw_comparison_operator: =
+                    - numeric_literal: '31'
+        - end_bracket: )
+    - comma: ','
+    - common_table_expression:
+      - naked_identifier: us_exchange_rate
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: calendar_year
+            - comma: ','
+            - select_clause_element:
+              - quoted_literal: '''USD'''
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: currency
+            - comma: ','
+            - select_clause_element:
+              - numeric_literal: '1'
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: one_usd_in_currency
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - naked_identifier: years
+        - end_bracket: )
+    - set_expression:
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: exchange_rates
+      - set_operator:
+        - keyword: UNION
+        - keyword: ALL
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: us_exchange_rate
+- statement_terminator: ;

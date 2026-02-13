@@ -714,28 +714,39 @@ mod tests {
 
     #[test]
     fn test_lineage_union() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) = Lineage::new(
-            parser.clone(),
-            "x",
-            "SELECT ax AS x FROM a UNION SELECT bx FROM b UNION SELECT cx FROM c",
-        )
-        .build();
+            let (tables, node) = Lineage::new(
+                parser.clone(),
+                "x",
+                "SELECT ax AS x FROM a UNION ALL SELECT bx FROM b UNION ALL SELECT cx FROM c",
+            )
+            .build();
 
-        let node_data = &tables.nodes[node];
-        assert_eq!(node_data.downstream.len(), 3);
+            let node_data = &tables.nodes[node];
+            assert_eq!(
+                node_data.downstream.len(),
+                3,
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let (tables, node) = Lineage::new(
-            parser,
-            "x",
-            "SELECT x FROM (SELECT ax AS x FROM a UNION SELECT bx FROM b UNION SELECT cx FROM c)",
-        )
-        .build();
+            let (tables, node) = Lineage::new(
+                parser,
+                "x",
+                "SELECT x FROM (SELECT ax AS x FROM a UNION ALL SELECT bx FROM b UNION ALL SELECT cx FROM c)",
+            )
+            .build();
 
-        let node_data = &tables.nodes[node];
-        assert_eq!(node_data.downstream.len(), 3);
+            let node_data = &tables.nodes[node];
+            assert_eq!(
+                node_data.downstream.len(),
+                3,
+                "Failed for dialect: {}",
+                dialect_name
+            );
+        }
     }
 
     #[test]

@@ -809,44 +809,65 @@ mod tests {
 
     #[test]
     fn test_lineage_cte_union() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) = Lineage::new(
-            parser,
-            "x",
-            "WITH dataset AS (
+            let (tables, node) = Lineage::new(
+                parser,
+                "x",
+                "WITH dataset AS (
             SELECT *
             FROM catalog.db.table_a
 
-            UNION
+            UNION ALL
 
             SELECT *
             FROM catalog.db.table_b
         )
 
         SELECT x, created_at FROM dataset;",
-        )
-        .build();
+            )
+            .build();
 
-        let node_data = &tables.nodes[node];
-        assert_eq!(node_data.name, "x");
+            let node_data = &tables.nodes[node];
+            assert_eq!(node_data.name, "x", "Failed for dialect: {}", dialect_name);
 
-        let downstream_a = &tables.nodes[node_data.downstream[0]];
-        assert_eq!(downstream_a.name, "0");
-        assert_eq!(
-            tables.stringify(downstream_a.source),
-            "select * from catalog.db.table_a as catalog.db.table_a"
-        );
-        assert_eq!(downstream_a.reference_node_name, "dataset");
+            let downstream_a = &tables.nodes[node_data.downstream[0]];
+            assert_eq!(
+                downstream_a.name, "0",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                tables.stringify(downstream_a.source),
+                "select * from catalog.db.table_a as catalog.db.table_a",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream_a.reference_node_name, "dataset",
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let downstream_a = &tables.nodes[node_data.downstream[1]];
-        assert_eq!(downstream_a.name, "0");
-        assert_eq!(
-            tables.stringify(downstream_a.source),
-            "select * from catalog.db.table_b as catalog.db.table_b"
-        );
-        assert_eq!(downstream_a.reference_node_name, "dataset");
+            let downstream_a = &tables.nodes[node_data.downstream[1]];
+            assert_eq!(
+                downstream_a.name, "0",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                tables.stringify(downstream_a.source),
+                "select * from catalog.db.table_b as catalog.db.table_b",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                downstream_a.reference_node_name, "dataset",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+        }
     }
 
     #[test]

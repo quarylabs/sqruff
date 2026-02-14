@@ -102,7 +102,7 @@ cargo_vendor = rule(
             doc = "Cargo.toml and Cargo.lock files",
         ),
         "rust_version": attr.string(
-            default = "1.92.0",
+            default = "1.93.1",
             doc = "Rust toolchain version to install",
         ),
         "components": attr.string_list(

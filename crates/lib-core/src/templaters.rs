@@ -703,6 +703,132 @@ mod tests {
     }
 
     #[test]
+    fn test_templated_file_multibyte_consistency_check() {
+        // Regression test: TemplatedFile::new should not panic when source
+        // contains multi-byte UTF-8 characters, as long as indices are
+        // byte-based. This simulates the scenario after Python char indices
+        // have been converted to Rust byte indices.
+        //
+        // Source: "-- 日本語\nSELECT 1"
+        //   "-- 日本語" = 12 bytes (2+1+3+3+3 = '--'+' '+'日'+'本'+'語')
+        //   "\n" = 1 byte
+        //   "SELECT 1" = 8 bytes
+        //   Total: 21 bytes
+        let source = "-- 日本語\nSELECT 1".to_string();
+        assert_eq!(source.len(), 21);
+
+        let raw_sliced = vec![RawFileSlice::new(
+            source.clone(),
+            "literal".to_string(),
+            0,
+            None,
+            None,
+        )];
+        let sliced_file = vec![TemplatedFileSlice::new(
+            "literal",
+            0..source.len(),
+            0..source.len(),
+        )];
+
+        // This must not panic
+        let tf = TemplatedFile::new(
+            source.clone(),
+            "test.sql".to_string(),
+            Some(source.clone()),
+            Some(sliced_file),
+            Some(raw_sliced),
+        )
+        .unwrap();
+        assert_eq!(tf.source_str, source);
+    }
+
+    #[test]
+    fn test_templated_file_multibyte_multiple_raw_slices() {
+        // Simulates a templated file with multi-byte characters split across
+        // multiple raw slices, using byte-based indices (post-conversion).
+        //
+        // Source: "SELECT 'café'" = 14 bytes ('é' is 2 bytes)
+        // Split into: "SELECT '" (8 bytes) + "café" (5 bytes) + "'" (1 byte)
+        let source = "SELECT 'café'".to_string();
+        assert_eq!(source.len(), 14);
+
+        let raw_sliced = vec![
+            RawFileSlice::new("SELECT '".to_string(), "literal".to_string(), 0, None, None),
+            RawFileSlice::new(
+                "café".to_string(),
+                "templated".to_string(),
+                8, // byte offset
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "'".to_string(),
+                "literal".to_string(),
+                13, // byte offset (8 + 5)
+                None,
+                None,
+            ),
+        ];
+        let sliced_file = vec![
+            TemplatedFileSlice::new("literal", 0..8, 0..8),
+            TemplatedFileSlice::new("templated", 8..13, 8..13),
+            TemplatedFileSlice::new("literal", 13..14, 13..14),
+        ];
+
+        let tf = TemplatedFile::new(
+            source.clone(),
+            "test.sql".to_string(),
+            Some(source.clone()),
+            Some(sliced_file),
+            Some(raw_sliced),
+        )
+        .unwrap();
+        assert_eq!(tf.source_str, source);
+    }
+
+    #[test]
+    #[should_panic(expected = "Consistency fail on running source length")]
+    fn test_templated_file_char_indices_cause_panic() {
+        // Demonstrates that using Python's character-based indices (without
+        // conversion) causes a panic. This is the bug scenario.
+        //
+        // Source: "aあb" = 3 chars in Python, 5 bytes in Rust
+        // If we use char indices (0, 2) instead of byte indices (0, 4) for
+        // the second slice, the consistency check fails.
+        let source = "aあb".to_string();
+
+        let raw_sliced = vec![
+            RawFileSlice::new(
+                "aあ".to_string(), // 4 bytes
+                "literal".to_string(),
+                0,
+                None,
+                None,
+            ),
+            RawFileSlice::new(
+                "b".to_string(),
+                "literal".to_string(),
+                2, // WRONG: char index from Python (should be 4 for bytes)
+                None,
+                None,
+            ),
+        ];
+        let sliced_file = vec![
+            TemplatedFileSlice::new("literal", 0..2, 0..2),
+            TemplatedFileSlice::new("literal", 2..3, 2..3),
+        ];
+
+        // This SHOULD panic because source_idx=2 != pos=4
+        let _ = TemplatedFile::new(
+            source,
+            "test.sql".to_string(),
+            Some("aあb".to_string()),
+            Some(sliced_file),
+            Some(raw_sliced),
+        );
+    }
+
+    #[test]
     fn test_indices_of_newlines() {
         vec![
             ("", vec![]),

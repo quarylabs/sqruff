@@ -1084,20 +1084,25 @@ mod tests {
 
     #[test]
     fn test_lineage_downstream_id_in_join() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) = Lineage::new(
-            parser,
-            "id",
-            "SELECT u.name, t.id FROM users AS u INNER JOIN tests AS t ON u.id = t.id",
-        )
-        .build();
+            let (tables, node) = Lineage::new(
+                parser,
+                "id",
+                "SELECT u.name, t.id FROM users AS u INNER JOIN tests AS t ON u.id = t.id",
+            )
+            .build();
 
-        let node_data = &tables.nodes[node];
-        assert_eq!(node_data.name, "id");
+            let node_data = &tables.nodes[node];
+            assert_eq!(node_data.name, "id", "Failed for dialect: {}", dialect_name);
 
-        let downstream = &tables.nodes[node_data.downstream[0]];
-        assert_eq!(downstream.name, "t.id");
+            let downstream = &tables.nodes[node_data.downstream[0]];
+            assert_eq!(
+                downstream.name, "t.id",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+        }
     }
 }

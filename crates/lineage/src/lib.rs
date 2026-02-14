@@ -941,25 +941,41 @@ mod tests {
 
     #[test]
     fn test_select_star() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) =
-            Lineage::new(parser, "x", "SELECT x from (SELECT * from table_a)").build();
+            let (tables, node) =
+                Lineage::new(parser, "x", "SELECT x from (SELECT * from table_a)").build();
 
-        let node_data = &tables.nodes[node];
-        assert_eq!(node_data.name, "x");
+            let node_data = &tables.nodes[node];
+            assert_eq!(node_data.name, "x", "Failed for dialect: {}", dialect_name);
 
-        let downstream = &tables.nodes[node_data.downstream[0]];
-        assert_eq!(downstream.name, "_q_0.x");
-        assert_eq!(
-            tables.stringify(downstream.source),
-            "select * from table_a as table_a"
-        );
+            let downstream = &tables.nodes[node_data.downstream[0]];
+            assert_eq!(
+                downstream.name, "_q_0.x",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "select * from table_a as table_a",
+                "Failed for dialect: {}",
+                dialect_name
+            );
 
-        let downstream = &tables.nodes[downstream.downstream[0]];
-        assert_eq!(&downstream.name, "*");
-        assert_eq!(tables.stringify(downstream.source), "table_a as table_a");
+            let downstream = &tables.nodes[downstream.downstream[0]];
+            assert_eq!(
+                &downstream.name, "*",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                tables.stringify(downstream.source),
+                "table_a as table_a",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+        }
     }
 
     #[test]

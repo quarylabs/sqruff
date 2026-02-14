@@ -1,0 +1,122 @@
+rule: LT14
+
+# All clauses already on separate lines - no violation.
+test_pass_clauses_on_separate_lines:
+  pass_str: |
+      SELECT
+          a,
+          b
+      FROM foo
+      WHERE a = 1
+
+test_pass_simple_select:
+  pass_str: |
+      SELECT a
+
+# All clauses with join on separate lines - no violation.
+test_pass_clauses_with_join:
+  pass_str: |
+      SELECT
+          a,
+          b
+      FROM foo
+      JOIN bar ON foo.id = bar.id
+      WHERE a = 1
+      GROUP BY a
+      HAVING COUNT(*) > 1
+      ORDER BY a
+      LIMIT 10
+
+# All on one line with non-strict "alone" - no violation
+# (reflow skips when there are no newlines anywhere).
+test_pass_all_on_one_line_non_strict:
+  pass_str: "SELECT a FROM foo WHERE a = 1"
+
+# Partial newlines: FROM has newline before it but WHERE does not.
+test_fail_where_on_same_line:
+  fail_str: |
+      SELECT a
+      FROM foo WHERE a = 1
+  fix_str: |
+      SELECT a
+      FROM foo
+      WHERE a = 1
+
+# Partial newlines: FROM missing newline.
+test_fail_from_on_same_line:
+  fail_str: |
+      SELECT
+          a
+      FROM foo JOIN bar ON foo.id = bar.id
+  fix_str: |
+      SELECT
+          a
+      FROM foo
+      JOIN bar ON foo.id = bar.id
+
+# Partial newlines: GROUP BY on same line as WHERE.
+test_fail_group_by_on_same_line:
+  fail_str: |
+      SELECT a
+      FROM foo
+      WHERE a = 1 GROUP BY a
+  fix_str: |
+      SELECT a
+      FROM foo
+      WHERE a = 1
+      GROUP BY a
+
+# Partial newlines: HAVING on same line as GROUP BY.
+test_fail_having_on_same_line:
+  fail_str: |
+      SELECT a
+      FROM foo
+      GROUP BY a HAVING COUNT(*) > 1
+  fix_str: |
+      SELECT a
+      FROM foo
+      GROUP BY a
+      HAVING COUNT(*) > 1
+
+# Partial newlines: LIMIT on same line as FROM.
+test_fail_limit_on_same_line:
+  fail_str: |
+      SELECT a
+      FROM foo LIMIT 10
+  fix_str: |
+      SELECT a
+      FROM foo
+      LIMIT 10
+
+# Subquery clauses on separate lines - no violation.
+test_pass_subquery_clauses_on_separate_lines:
+  pass_str: |
+      SELECT *
+      FROM (
+          SELECT a
+          FROM foo
+          WHERE a = 1
+      )
+
+# Multiple blank lines between clauses - no violation.
+test_pass_multiple_newlines_are_allowed:
+  pass_str: |
+      SELECT a
+
+      FROM foo
+
+      WHERE a = 1
+
+# alone:strict forces newlines even when all on one line.
+test_fail_all_on_one_line_strict:
+  configs:
+    layout:
+      type:
+        select_clause:
+          line_position: "alone:strict"
+        from_clause:
+          line_position: "alone:strict"
+        where_clause:
+          line_position: "alone:strict"
+  fail_str: "SELECT a FROM foo WHERE a = 1"
+  fix_str: "SELECT a\nFROM foo\nWHERE a = 1\n"

@@ -1050,21 +1050,36 @@ mod tests {
 
     #[test]
     fn test_node_name_doesnt_contain_comment() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
-        let parser = Parser::new(&dialect, Default::default());
+        for (dialect_name, dialect) in all_dialects() {
+            let parser = Parser::new(&dialect, Default::default());
 
-        let (tables, node) = Lineage::new(
-            parser,
-            "x",
-            "SELECT * FROM (SELECT x /* c */ FROM t1) AS t2",
-        )
-        .build();
+            let (tables, node) = Lineage::new(
+                parser,
+                "x",
+                "SELECT * FROM (SELECT x /* c */ FROM t1) AS t2",
+            )
+            .build();
 
-        let node_data = &tables.nodes[node];
-        assert_eq!(node_data.downstream.len(), 1);
-        let downstream = &tables.nodes[node_data.downstream[0]];
-        assert_eq!(downstream.downstream.len(), 1);
-        assert_eq!(tables.nodes[downstream.downstream[0]].name, "t1.x");
+            let node_data = &tables.nodes[node];
+            assert_eq!(
+                node_data.downstream.len(),
+                1,
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            let downstream = &tables.nodes[node_data.downstream[0]];
+            assert_eq!(
+                downstream.downstream.len(),
+                1,
+                "Failed for dialect: {}",
+                dialect_name
+            );
+            assert_eq!(
+                tables.nodes[downstream.downstream[0]].name, "t1.x",
+                "Failed for dialect: {}",
+                dialect_name
+            );
+        }
     }
 
     #[test]

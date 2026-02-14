@@ -328,3 +328,17 @@ fail_but_dont_fix_templated_table_name_qualified:
     rules:
       references.consistent:
         single_table_references: qualified
+
+test_pass_pyformat_placeholder:
+  pass_str: |
+    SELECT
+        usr.name,
+        %(key)s AS key_val
+    FROM auth_user AS usr
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: pyformat
+        key: key

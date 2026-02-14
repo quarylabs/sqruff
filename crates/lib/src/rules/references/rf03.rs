@@ -199,6 +199,10 @@ fn validate_one_reference(
         return None;
     }
 
+    if ref_.0.is_templated() {
+        return None;
+    }
+
     if standalone_aliases.contains(ref_.0.raw()) {
         return None;
     }

@@ -44,10 +44,18 @@ impl RebreakIndices {
         while (dir == 1 && newline_point_idx < limit as isize)
             || (dir == -1 && newline_point_idx >= 0)
         {
+            // Check bounds for the adjacent element access. When traversing
+            // backward (dir=-1) and reaching index 0, (idx + dir) would be -1
+            // which wraps to usize::MAX causing a panic. Break here as we've
+            // reached the boundary - there's nothing further in this direction.
+            let adjacent_idx = newline_point_idx + dir as isize;
+            if adjacent_idx < 0 || adjacent_idx >= elements.len() as isize {
+                break;
+            }
             if elements[newline_point_idx as usize]
                 .class_types()
                 .contains(SyntaxKind::Newline)
-                || elements[(newline_point_idx + dir as isize) as usize]
+                || elements[adjacent_idx as usize]
                     .segments()
                     .iter()
                     .any(|seg| seg.is_code())
@@ -61,7 +69,12 @@ impl RebreakIndices {
         while (dir == 1 && pre_code_point_idx < limit as isize)
             || (dir == -1 && pre_code_point_idx >= 0)
         {
-            if elements[(pre_code_point_idx + dir as isize) as usize]
+            // Same bounds check as above for the adjacent element access.
+            let adjacent_idx = pre_code_point_idx + dir as isize;
+            if adjacent_idx < 0 || adjacent_idx >= elements.len() as isize {
+                break;
+            }
+            if elements[adjacent_idx as usize]
                 .segments()
                 .iter()
                 .any(|seg| seg.is_code())

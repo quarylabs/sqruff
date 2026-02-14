@@ -310,21 +310,24 @@ passes_tql_table_variable:
         single_table_references: qualified
 
 fail_but_dont_fix_templated_table_name_consistent:
-  ignored: "jinja is not supported"
-  fail_str: |
-    SELECT
-        a,
-        {{ "foo" }}.b
-    FROM {{ "foo" }}
-
-fail_but_dont_fix_templated_table_name_qualified:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT
         a,
         {{ "foo" }}.b
     FROM {{ "foo" }}
   configs:
+    core:
+      templater: jinja
+
+fail_but_dont_fix_templated_table_name_qualified:
+  fail_str: |
+    SELECT
+        a,
+        {{ "foo" }}.b
+    FROM {{ "foo" }}
+  configs:
+    core:
+      templater: jinja
     rules:
       references.consistent:
         single_table_references: qualified

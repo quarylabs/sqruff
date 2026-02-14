@@ -294,12 +294,12 @@ test_pass_partially_templated_quoted_literals_simple:
         preferred_quoted_literal_style: double_quotes
 
 test_fail_partially_templated_quoted_literals_simple:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT '{{ "a string" }}'
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
@@ -310,17 +310,18 @@ test_pass_partially_templated_quoted_literals_complex:
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_fail_partially_templated_quoted_literals_complex:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT 'this_is_a_lintable_{{ "string" }}'
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
@@ -331,23 +332,23 @@ test_pass_partially_templated_quoted_literals_with_multiple_templates:
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_fail_partially_templated_quoted_literals_with_multiple_templates:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT 'this_{{ "is" }}_{{ "a_lintable" }}_{{ "string" }}'
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_fail_partially_templated_quoted_literals_inside_blocks:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT
         {% if true %}
@@ -356,45 +357,45 @@ test_fail_partially_templated_quoted_literals_inside_blocks:
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_pass_fully_templated_quoted_literals_are_ignored:
-  ignored: "jinja is not set"
   pass_str: |
     SELECT {{ "'a_non_lintable_string'" }}
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_pass_partially_templated_literals_are_ignored_when_some_quotes_are_inside_the_template_1:
-  ignored: "jinja is not set"
   pass_str: |
     SELECT '{{ "string' FROM table1" }}
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_pass_partially_templated_literals_are_ignored_when_some_quotes_are_inside_the_template_2:
-  ignored: "jinja is not set"
   pass_str: |
     {{ "SELECT 'stri" -}}ng' FROM table1
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_pass_prefix_chars_are_correctly_detected_as_unlintable:
-  ignored: "jinja is not set"
   pass_str: |
     SELECT
       r{{ "''" }},
@@ -402,6 +403,7 @@ test_pass_prefix_chars_are_correctly_detected_as_unlintable:
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes

@@ -65,7 +65,6 @@ test_fail_parent_child_positioning:
     join (select * from c3 join c4 ON c3.ID = c4.ID) as c5 on c1.ID = c5.ID
 
 fail_but_dont_fix_templated_table_names:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT
         {{ "table_a" }}.field_1,
@@ -73,6 +72,9 @@ fail_but_dont_fix_templated_table_names:
     FROM
         {{ "table_a" }}
     INNER JOIN table_b USING (id)
+  configs:
+    core:
+      templater: jinja
 
 test_pass_clickhouse:
   pass_str: SELECT * FROM test1 as t1 LEFT SEMI JOIN test2 USING ty1,ty2;

@@ -2,7 +2,9 @@ use pyo3::prelude::*;
 use pyo3::types::PySlice;
 use pyo3::{Borrowed, Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
-use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
+use sqruff_lib_core::templaters::{
+    RawFileSlice, TemplatedFile, TemplatedFileSlice, char_idx_to_byte_idx, char_to_byte_indices,
+};
 
 use super::Templater;
 use crate::Formatter;
@@ -144,34 +146,12 @@ impl<'a, 'py> FromPyObject<'a, 'py> for PythonTemplatedFileSlice {
     }
 }
 
-impl PythonTemplatedFileSlice {
-    fn to_templated_file_slice(&self) -> TemplatedFileSlice {
-        TemplatedFileSlice::new(
-            &self.slice_type,
-            self.source_slice.clone(),
-            self.templated_slice.clone(),
-        )
-    }
-}
-
 #[derive(Debug)]
 struct PythonRawFileSlice {
     raw: String,
     slice_tpe: String,
     source_idx: usize,
     block_idx: usize,
-}
-
-impl PythonRawFileSlice {
-    fn to_raw_file_slice(&self) -> RawFileSlice {
-        RawFileSlice::new(
-            self.raw.to_string(),
-            self.slice_tpe.to_string(),
-            self.source_idx,
-            None,
-            Some(self.block_idx),
-        )
-    }
 }
 
 impl<'a, 'py> FromPyObject<'a, 'py> for PythonRawFileSlice {
@@ -203,16 +183,54 @@ pub struct PythonTemplatedFile {
 
 impl PythonTemplatedFile {
     pub fn to_templated_file(&self) -> TemplatedFile {
+        // Python uses character-based indices, but Rust uses byte-based indices.
+        // Convert all indices from character offsets to byte offsets.
+        let source_char_to_byte = char_to_byte_indices(&self.source_str);
+        let templated_char_to_byte = self.templated_str.as_ref().map(|s| char_to_byte_indices(s));
+
         TemplatedFile::new(
             self.source_str.to_string(),
             self.fname.to_string(),
             self.templated_str.clone(),
-            self.sliced_file
-                .as_ref()
-                .map(|s| s.iter().map(|s| s.to_templated_file_slice()).collect()),
-            self.raw_sliced
-                .as_ref()
-                .map(|s| s.iter().map(|s| s.to_raw_file_slice()).collect()),
+            self.sliced_file.as_ref().map(|slices| {
+                slices
+                    .iter()
+                    .map(|s| {
+                        let source_start =
+                            char_idx_to_byte_idx(&source_char_to_byte, s.source_slice.start);
+                        let source_end =
+                            char_idx_to_byte_idx(&source_char_to_byte, s.source_slice.end);
+                        let (templated_start, templated_end) =
+                            if let Some(ref t_map) = templated_char_to_byte {
+                                (
+                                    char_idx_to_byte_idx(t_map, s.templated_slice.start),
+                                    char_idx_to_byte_idx(t_map, s.templated_slice.end),
+                                )
+                            } else {
+                                (s.templated_slice.start, s.templated_slice.end)
+                            };
+                        TemplatedFileSlice::new(
+                            &s.slice_type,
+                            source_start..source_end,
+                            templated_start..templated_end,
+                        )
+                    })
+                    .collect()
+            }),
+            self.raw_sliced.as_ref().map(|slices| {
+                slices
+                    .iter()
+                    .map(|s| {
+                        RawFileSlice::new(
+                            s.raw.to_string(),
+                            s.slice_tpe.to_string(),
+                            char_idx_to_byte_idx(&source_char_to_byte, s.source_idx),
+                            None,
+                            Some(s.block_idx),
+                        )
+                    })
+                    .collect()
+            }),
         )
         .unwrap()
     }
@@ -243,6 +261,84 @@ blah = foo
         let templated_file = results.into_iter().next().unwrap().unwrap();
 
         assert_eq!(templated_file.templated(), "SELECT * FROM foo");
+    }
+
+    #[test]
+    fn test_to_templated_file_multibyte_source() {
+        // Simulate what Python would return for a multi-byte source string.
+        // Source: "SELECT 'あ'" (11 chars in Python, 13 bytes in Rust)
+        // Templated: same as source (no templating, but with slices)
+        let source = "SELECT 'あ'".to_string();
+        let source_char_len = source.chars().count(); // 11
+        let source_byte_len = source.len(); // 13
+
+        let ptf = PythonTemplatedFile {
+            source_str: source.clone(),
+            fname: "test.sql".to_string(),
+            templated_str: Some(source.clone()),
+            sliced_file: Some(vec![PythonTemplatedFileSlice {
+                slice_type: "literal".to_string(),
+                // Python char-based indices: 0..11
+                source_slice: 0..source_char_len,
+                templated_slice: 0..source_char_len,
+            }]),
+            raw_sliced: Some(vec![PythonRawFileSlice {
+                raw: source.clone(),
+                slice_tpe: "literal".to_string(),
+                source_idx: 0,
+                block_idx: 0,
+            }]),
+        };
+
+        // This should not panic - the conversion should handle multi-byte correctly
+        let tf = ptf.to_templated_file();
+        assert_eq!(tf.source_str, source);
+        assert_eq!(tf.templated().len(), source_byte_len);
+    }
+
+    #[test]
+    fn test_to_templated_file_multibyte_multiple_slices() {
+        // Source: "aあb" (3 chars, 5 bytes)
+        // Simulate two raw slices: "aあ" (chars 0..2) and "b" (chars 2..3)
+        let source = "aあb".to_string();
+
+        let ptf = PythonTemplatedFile {
+            source_str: source.clone(),
+            fname: "test.sql".to_string(),
+            templated_str: Some(source.clone()),
+            sliced_file: Some(vec![
+                PythonTemplatedFileSlice {
+                    slice_type: "literal".to_string(),
+                    source_slice: 0..2, // Python: chars 0..2 ("aあ")
+                    templated_slice: 0..2,
+                },
+                PythonTemplatedFileSlice {
+                    slice_type: "literal".to_string(),
+                    source_slice: 2..3, // Python: chars 2..3 ("b")
+                    templated_slice: 2..3,
+                },
+            ]),
+            raw_sliced: Some(vec![
+                PythonRawFileSlice {
+                    raw: "aあ".to_string(),
+                    slice_tpe: "literal".to_string(),
+                    source_idx: 0, // Python char index 0
+                    block_idx: 0,
+                },
+                PythonRawFileSlice {
+                    raw: "b".to_string(),
+                    slice_tpe: "literal".to_string(),
+                    source_idx: 2, // Python char index 2 (should become byte index 4)
+                    block_idx: 0,
+                },
+            ]),
+        };
+
+        // Without the fix, this would panic with:
+        // "TemplatedFile. Consistency fail on running source length. 4 != 2"
+        // because pos (0 + "aあ".len() = 4 bytes) != source_idx (2 chars from Python)
+        let tf = ptf.to_templated_file();
+        assert_eq!(tf.source_str, source);
     }
 
     #[test]

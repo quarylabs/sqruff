@@ -2,11 +2,8 @@ use std::fmt::Debug;
 
 use ahash::AHashSet;
 
-use super::ErasedSegment;
+use crate::dialects::Dialect;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
-use crate::errors::SQLParseError;
-use crate::parser::context::ParseContext;
-use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{Matchable, MatchableTrait};
 
 pub type Indent = MetaSegment;
@@ -42,21 +39,9 @@ impl MatchableTrait for MetaSegment {
 
     fn simple(
         &self,
-        _parse_context: &ParseContext,
+        _dialect: &Dialect,
         _crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
         None
-    }
-
-    fn match_segments(
-        &self,
-        _segments: &[ErasedSegment],
-        _idx: u32,
-        _parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        panic!(
-            "{} has no match method, it should only be used in a Sequence!",
-            std::any::type_name::<Self>()
-        );
     }
 }

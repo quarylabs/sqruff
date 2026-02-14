@@ -8,16 +8,12 @@ use ahash::AHashSet;
 use std::borrow::Cow;
 use std::sync::OnceLock;
 
+use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxSet;
-use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
-use crate::parser::context::ParseContext;
-use crate::parser::match_algorithms::greedy_match;
-use crate::parser::match_result::MatchResult;
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
-use crate::parser::segments::ErasedSegment;
 
 #[derive(Clone)]
 pub struct Ref {
@@ -77,6 +73,18 @@ impl Ref {
         self
     }
 
+    pub(crate) fn reference(&self) -> &str {
+        &self.reference
+    }
+
+    pub(crate) fn terminators_slice(&self) -> &[Matchable] {
+        &self.terminators
+    }
+
+    pub(crate) fn reset_terminators_flag(&self) -> bool {
+        self.reset_terminators
+    }
+
     // Static method to create a Ref instance for a keyword
     #[track_caller]
     pub fn keyword(keyword: impl Into<Cow<'static, str>>) -> Self {
@@ -113,7 +121,7 @@ impl MatchableTrait for Ref {
 
     fn simple(
         &self,
-        parse_context: &ParseContext,
+        dialect: &Dialect,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(AHashSet<String>, SyntaxSet)> {
         self.simple_cache
@@ -128,44 +136,11 @@ impl MatchableTrait for Ref {
                 let mut new_crumbs = crumbs.unwrap_or_default();
                 new_crumbs.push(&self.reference);
 
-                parse_context
-                    .dialect()
+                dialect
                     .r#ref(&self.reference)
-                    .simple(parse_context, Some(new_crumbs))
+                    .simple(dialect, Some(new_crumbs))
             })
             .clone()
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        let elem = parse_context.dialect().r#ref(&self.reference);
-
-        if let Some(exclude) = &self.exclude {
-            let ctx =
-                parse_context.deeper_match(self.reset_terminators, &self.terminators, |this| {
-                    if exclude
-                        .match_segments(segments, idx, this)
-                        .inspect_err(|e| log::error!("Parser error: {e:?}"))
-                        .is_ok_and(|match_result| match_result.has_match())
-                    {
-                        return Some(MatchResult::empty_at(idx));
-                    }
-
-                    None
-                });
-
-            if let Some(ctx) = ctx {
-                return Ok(ctx);
-            }
-        }
-
-        parse_context.deeper_match(self.reset_terminators, &self.terminators, |this| {
-            elem.match_segments(segments, idx, this)
-        })
     }
 
     fn cache_key(&self) -> MatchableCacheKey {
@@ -204,27 +179,15 @@ impl Anything {
         self.terminators = terminators;
         self
     }
+
+    pub(crate) fn terminators_slice(&self) -> &[Matchable] {
+        &self.terminators
+    }
 }
 
 impl MatchableTrait for Anything {
     fn elements(&self) -> &[Matchable] {
         &[]
-    }
-
-    fn match_segments(
-        &self,
-        segments: &[ErasedSegment],
-        idx: u32,
-        parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        if self.terminators.is_empty() && parse_context.terminators.is_empty() {
-            return Ok(MatchResult::from_span(idx, segments.len() as u32));
-        }
-
-        let mut terminators = self.terminators.clone();
-        terminators.extend_from_slice(&parse_context.terminators);
-
-        greedy_match(segments, idx, parse_context, &terminators, false, true)
     }
 
     fn cache_key(&self) -> MatchableCacheKey {
@@ -250,14 +213,5 @@ impl Nothing {
 impl MatchableTrait for Nothing {
     fn elements(&self) -> &[Matchable] {
         &[]
-    }
-
-    fn match_segments(
-        &self,
-        _segments: &[ErasedSegment],
-        idx: u32,
-        _parse_context: &mut ParseContext,
-    ) -> Result<MatchResult, SQLParseError> {
-        Ok(MatchResult::empty_at(idx))
     }
 }

@@ -5,12 +5,14 @@ pub mod syntax;
 use std::borrow::Cow;
 use std::collections::hash_map::Entry;
 use std::fmt::Debug;
+use std::sync::{Arc, OnceLock};
 
 use ahash::{AHashMap, AHashSet};
 
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::ToMatchable;
+use crate::parser::compiled::{CompileError, CompiledGrammar};
 use crate::parser::lexer::{Lexer, Matcher};
 use crate::parser::matchable::Matchable;
 use crate::parser::parsers::StringParser;
@@ -24,6 +26,7 @@ pub struct Dialect {
     sets: AHashMap<&'static str, AHashSet<&'static str>>,
     pub bracket_collections: AHashMap<&'static str, AHashSet<BracketPair>>,
     lexer: Option<Lexer>,
+    compiled_grammar: Arc<OnceLock<Result<CompiledGrammar, CompileError>>>,
 }
 
 impl PartialEq for Dialect {
@@ -33,6 +36,10 @@ impl PartialEq for Dialect {
 }
 
 impl Dialect {
+    fn invalidate_compiled_grammar(&mut self) {
+        self.compiled_grammar = Arc::new(OnceLock::new());
+    }
+
     pub fn new() -> Self {
         Dialect {
             name: DialectKind::Ansi,
@@ -45,6 +52,7 @@ impl Dialect {
     }
 
     pub fn add(&mut self, iter: impl IntoIterator<Item = (Cow<'static, str>, DialectElementType)>) {
+        self.invalidate_compiled_grammar();
         self.library.extend(iter);
     }
 
@@ -63,6 +71,7 @@ impl Dialect {
 
     #[track_caller]
     pub fn replace_grammar(&mut self, name: &'static str, match_grammar: Matchable) {
+        self.invalidate_compiled_grammar();
         match self.library.entry(Cow::Borrowed(name)) {
             Entry::Occupied(entry) => {
                 let target = entry.into_mut();
@@ -90,6 +99,7 @@ impl Dialect {
     }
 
     pub fn insert_lexer_matchers(&mut self, lexer_patch: Vec<Matcher>, before: &str) {
+        self.invalidate_compiled_grammar();
         assert!(
             !self.lexer_matchers.is_empty(),
             "Lexer struct must be defined before it can be patched!"
@@ -119,6 +129,7 @@ impl Dialect {
     }
 
     pub fn patch_lexer_matchers(&mut self, lexer_patch: Vec<Matcher>) {
+        self.invalidate_compiled_grammar();
         assert!(
             !self.lexer_matchers.is_empty(),
             "Lexer struct must be defined before it can be patched!"
@@ -143,6 +154,7 @@ impl Dialect {
     }
 
     pub fn set_lexer_matchers(&mut self, lexer_matchers: Vec<Matcher>) {
+        self.invalidate_compiled_grammar();
         self.lexer_matchers = lexer_matchers;
     }
 
@@ -158,6 +170,7 @@ impl Dialect {
     }
 
     pub fn sets_mut(&mut self, label: &'static str) -> &mut AHashSet<&'static str> {
+        self.invalidate_compiled_grammar();
         assert!(
             label != "bracket_pairs" && label != "angle_bracket_pairs",
             "Use `bracket_sets` to retrieve {label} set."
@@ -174,11 +187,13 @@ impl Dialect {
         set_label: &'static str,
         values: &'static str,
     ) {
+        self.invalidate_compiled_grammar();
         let keywords = values.lines().map(str::trim);
         self.sets_mut(set_label).extend(keywords);
     }
 
     pub fn add_keyword_to_set(&mut self, set_label: &'static str, value: &'static str) {
+        self.invalidate_compiled_grammar();
         self.sets_mut(set_label).insert(value);
     }
 
@@ -195,6 +210,7 @@ impl Dialect {
     }
 
     pub fn bracket_sets_mut(&mut self, label: &'static str) -> &mut AHashSet<BracketPair> {
+        self.invalidate_compiled_grammar();
         assert!(
             label == "bracket_pairs" || label == "angle_bracket_pairs",
             "Invalid bracket set. Consider using another identifier instead."
@@ -204,6 +220,7 @@ impl Dialect {
     }
 
     pub fn update_bracket_sets(&mut self, label: &'static str, pairs: Vec<BracketPair>) {
+        self.invalidate_compiled_grammar();
         let set = self.bracket_sets_mut(label);
         for pair in pairs {
             set.insert(pair);
@@ -223,7 +240,28 @@ impl Dialect {
         }
     }
 
+    pub(crate) fn segment_generator_names(&self) -> Vec<Cow<'static, str>> {
+        self.library
+            .iter()
+            .filter_map(|(name, elem)| match elem {
+                DialectElementType::Matchable(_) => None,
+                DialectElementType::SegmentGenerator(_) => Some(name.clone()),
+            })
+            .collect()
+    }
+
+    pub(crate) fn matchable_entries(&self) -> Vec<(Cow<'static, str>, Matchable)> {
+        self.library
+            .iter()
+            .filter_map(|(name, elem)| match elem {
+                DialectElementType::Matchable(matchable) => Some((name.clone(), matchable.clone())),
+                DialectElementType::SegmentGenerator(_) => None,
+            })
+            .collect()
+    }
+
     pub fn expand(&mut self) {
+        self.invalidate_compiled_grammar();
         // Temporarily take ownership of 'library' from 'self' to avoid borrow checker
         // errors during mutation.
         let mut library = std::mem::take(&mut self.library);
@@ -258,6 +296,16 @@ impl Dialect {
 
     pub fn lexer(&self) -> &Lexer {
         self.lexer.as_ref().unwrap()
+    }
+
+    pub fn compile_grammar(&self) -> Result<&CompiledGrammar, CompileError> {
+        match self
+            .compiled_grammar
+            .get_or_init(|| CompiledGrammar::from_dialect(self))
+        {
+            Ok(grammar) => Ok(grammar),
+            Err(err) => Err(err.clone()),
+        }
     }
 }
 

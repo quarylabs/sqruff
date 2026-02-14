@@ -1,9 +1,9 @@
-pub mod context;
+pub mod compiled;
 pub mod grammar;
 pub mod lexer;
 pub mod lookahead;
 pub mod markers;
-pub mod match_algorithms;
+pub(crate) mod match_algorithms;
 pub mod match_result;
 pub mod matchable;
 pub mod node_matcher;
@@ -13,8 +13,6 @@ pub mod types;
 
 use crate::dialects::Dialect;
 use crate::errors::SQLParseError;
-use crate::parser::segments::file::FileSegment;
-use context::ParseContext;
 use segments::{ErasedSegment, Tables};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -117,20 +115,23 @@ impl<'a> Parser<'a> {
             return Ok(None);
         }
 
-        // NOTE: This is the only time we use the parse context not in the
-        // context of a context manager. That's because it's the initial
-        // instantiation.
-        let mut parse_cx: ParseContext = self.into();
-
-        // Kick off parsing with the root segment. The BaseFileSegment has
-        // a unique entry point to facilitate exaclty this. All other segments
-        // will use the standard .match()/.parse() route.
-        let root =
-            FileSegment.root_parse(tables, parse_cx.dialect().name, segments, &mut parse_cx)?;
+        let compiled = self
+            .dialect
+            .compile_grammar()
+            .map_err(|err| SQLParseError {
+                description: format!("Failed to compile grammar: {err}"),
+                segment: None,
+            })?;
+        let root = compiled.root_parse_file(
+            tables,
+            self.dialect.name(),
+            self.dialect,
+            segments,
+            self.indentation_config,
+        )?;
 
         #[cfg(debug_assertions)]
         {
-            // Basic Validation, that we haven't dropped anything.
             let join_segments_raw = |segments: &[ErasedSegment]| {
                 smol_str::SmolStr::from_iter(segments.iter().map(|s| s.raw().as_str()))
             };
@@ -139,5 +140,29 @@ impl<'a> Parser<'a> {
         }
 
         Ok(root.into())
+    }
+
+    pub fn parse_as(
+        &self,
+        tables: &Tables,
+        root_name: &str,
+        segments: &[ErasedSegment],
+    ) -> Result<Vec<ErasedSegment>, SQLParseError> {
+        let compiled = self
+            .dialect
+            .compile_grammar()
+            .map_err(|err| SQLParseError {
+                description: format!("Failed to compile grammar: {err}"),
+                segment: None,
+            })?;
+
+        compiled.root_parse_as(
+            tables,
+            self.dialect.name(),
+            self.dialect,
+            root_name,
+            segments,
+            self.indentation_config,
+        )
     }
 }

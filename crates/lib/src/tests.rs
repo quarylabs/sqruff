@@ -2,11 +2,8 @@ use itertools::Itertools;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
-use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::context::ParseContext;
-use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::segments::Tables;
 use sqruff_lib_core::parser::segments::test_functions::lex;
 
@@ -148,24 +145,15 @@ fn test_dialect_ansi_specific_segment_parses() {
         ),
     ];
 
-    let dialect = fresh_ansi_dialect();
     let config: FluffConfig = FluffConfig::new(<_>::default(), None, None);
 
     for (segment_ref, sql_string) in cases {
         let config = config.clone();
         let parser: Parser = (&config).into();
-        let mut ctx: ParseContext = (&parser).into();
-
-        let segment = dialect.r#ref(segment_ref);
-        let mut segments = lex(&dialect, sql_string);
-
-        if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
-            segments.pop();
-        }
+        let segments = lex(config.get_dialect(), sql_string);
 
         let tables = Tables::default();
-        let match_result = segment.match_segments(&segments, 0, &mut ctx).unwrap();
-        let mut parsed = match_result.apply(&tables, DialectKind::Ansi, &segments);
+        let mut parsed = parser.parse_as(&tables, segment_ref, &segments).unwrap();
 
         assert_eq!(parsed.len(), 1, "failed {segment_ref}, {sql_string}");
 

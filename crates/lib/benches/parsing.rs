@@ -1,11 +1,8 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::test_functions::fresh_ansi_dialect;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::context::ParseContext;
-use sqruff_lib_core::parser::matchable::MatchableTrait as _;
-use sqruff_lib_core::parser::segments::test_functions::lex;
+use sqruff_lib_core::parser::lexer::Lexer;
+use sqruff_lib_core::parser::segments::Tables;
 use std::hint::black_box;
 
 include!("shims/global_alloc_overwrite.rs");
@@ -78,8 +75,6 @@ and (
 order by t1.id desc"#;
 
 fn parse(c: &mut Criterion) {
-    let dialect = fresh_ansi_dialect();
-
     let passes = [
         ("parse_simple_query", SIMPLE_QUERY),
         ("parse_expression_recursion", EXPRESSION_RECURSION),
@@ -88,20 +83,16 @@ fn parse(c: &mut Criterion) {
 
     for (name, source) in passes {
         let config = FluffConfig::default();
-        let config_for_parser = config.clone();
-        let parser: Parser = (&config_for_parser).into();
-        let mut ctx: ParseContext = (&parser).into();
-        let segment = dialect.r#ref("FileSegment");
-        let mut segments = lex(config.get_dialect(), source);
-
-        if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
-            segments.pop();
-        }
+        let parser: Parser = (&config).into();
+        let tables = Tables::default();
+        let lexer = Lexer::from(config.get_dialect());
+        let (segments, errors) = lexer.lex(&tables, source);
+        assert!(errors.is_empty());
 
         c.bench_function(name, |b| {
             b.iter(|| {
-                let match_result = segment.match_segments(&segments, 0, &mut ctx).unwrap();
-                black_box(match_result);
+                let parsed = parser.parse(&tables, &segments).unwrap();
+                black_box(parsed);
             });
         });
     }

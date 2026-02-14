@@ -622,9 +622,85 @@ impl RawFileSlice {
     }
 }
 
+/// Build a mapping from character (Unicode code point) indices to byte indices.
+///
+/// Python uses character-based indices, while Rust's `String::len()` returns
+/// byte length (UTF-8). This function creates a lookup table to convert between
+/// the two coordinate systems.
+///
+/// The returned vector has length `num_chars + 1`, where entry `i` gives the
+/// byte offset of the `i`-th character, and the last entry is the total byte
+/// length (for end-of-string conversions).
+pub fn char_to_byte_indices(s: &str) -> Vec<usize> {
+    let mut indices: Vec<usize> = s.char_indices().map(|(byte_idx, _)| byte_idx).collect();
+    indices.push(s.len());
+    indices
+}
+
+/// Convert a character-based index to a byte-based index using a precomputed
+/// mapping table from [`char_to_byte_indices`].
+///
+/// Returns the index unchanged if it's out of bounds (defensive fallback for
+/// ASCII-only strings where char index == byte index).
+pub fn char_idx_to_byte_idx(char_to_byte: &[usize], char_idx: usize) -> usize {
+    if char_idx < char_to_byte.len() {
+        char_to_byte[char_idx]
+    } else {
+        char_idx
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_char_to_byte_indices_ascii() {
+        let indices = char_to_byte_indices("hello");
+        assert_eq!(indices, vec![0, 1, 2, 3, 4, 5]);
+    }
+
+    #[test]
+    fn test_char_to_byte_indices_multibyte() {
+        // "あいう" = 3 chars, 9 bytes (each Japanese char is 3 bytes in UTF-8)
+        let indices = char_to_byte_indices("あいう");
+        assert_eq!(indices, vec![0, 3, 6, 9]);
+    }
+
+    #[test]
+    fn test_char_to_byte_indices_mixed() {
+        // "aあb" = 3 chars; 'a'=1byte, 'あ'=3bytes, 'b'=1byte => total 5 bytes
+        let indices = char_to_byte_indices("aあb");
+        assert_eq!(indices, vec![0, 1, 4, 5]);
+    }
+
+    #[test]
+    fn test_char_to_byte_indices_accented() {
+        // "café" = 4 chars; 'c'=1, 'a'=1, 'f'=1, 'é'=2 => total 5 bytes
+        let indices = char_to_byte_indices("café");
+        assert_eq!(indices, vec![0, 1, 2, 3, 5]);
+    }
+
+    #[test]
+    fn test_char_to_byte_indices_empty() {
+        let indices = char_to_byte_indices("");
+        assert_eq!(indices, vec![0]);
+    }
+
+    #[test]
+    fn test_char_idx_to_byte_idx_conversion() {
+        let indices = char_to_byte_indices("aあb");
+        assert_eq!(char_idx_to_byte_idx(&indices, 0), 0);
+        assert_eq!(char_idx_to_byte_idx(&indices, 1), 1);
+        assert_eq!(char_idx_to_byte_idx(&indices, 2), 4);
+        assert_eq!(char_idx_to_byte_idx(&indices, 3), 5);
+    }
+
+    #[test]
+    fn test_char_idx_to_byte_idx_out_of_bounds() {
+        let indices = char_to_byte_indices("ab");
+        assert_eq!(char_idx_to_byte_idx(&indices, 10), 10);
+    }
 
     #[test]
     fn test_indices_of_newlines() {

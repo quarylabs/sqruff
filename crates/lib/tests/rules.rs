@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
-use ahash::AHashMap;
 use glob::glob;
+use hashbrown::HashMap;
 use serde::Deserialize;
 use serde_with::{KeyValueMap, serde_as};
 use sqruff_lib::core::config::{FluffConfig, Value};
@@ -38,7 +38,7 @@ struct TestCase {
     #[serde(flatten)]
     kind: TestCaseKind,
     #[serde(default)]
-    configs: AHashMap<String, Value>,
+    configs: HashMap<String, Value>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -55,7 +55,7 @@ fn main() {
     args.parse_args(std::env::args().skip(1));
 
     let mut linter = Linter::new(FluffConfig::default(), None, None, true);
-    let mut core = AHashMap::new();
+    let mut core = HashMap::new();
     core.insert(
         "core".to_string(),
         linter.config_mut().raw.get("core").unwrap().clone(),

@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use itertools::Itertools;
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -18,7 +18,7 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleST07;
 
 impl Rule for RuleST07 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleST07.erased())
     }
 

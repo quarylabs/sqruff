@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -10,7 +10,7 @@ use crate::utils::reflow::sequence::ReflowSequence;
 pub struct RuleLT02;
 
 impl Rule for RuleLT02 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT02.erased())
     }
     fn name(&self) -> &'static str {

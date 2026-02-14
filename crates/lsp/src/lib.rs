@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use lsp_server::{Connection, Message, Request, RequestId, Response};
 use lsp_types::notification::{
     DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
@@ -41,7 +41,7 @@ fn server_initialize_result() -> InitializeResult {
 pub struct LanguageServer {
     linter: Linter,
     send_diagnostics_callback: Box<dyn Fn(PublishDiagnosticsParams)>,
-    documents: AHashMap<Uri, String>,
+    documents: HashMap<Uri, String>,
 }
 
 #[wasm_bindgen]
@@ -103,7 +103,7 @@ impl LanguageServer {
         Self {
             linter: Linter::new(load_config(), None, None, false),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
-            documents: AHashMap::new(),
+            documents: HashMap::new(),
         }
     }
 

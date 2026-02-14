@@ -1,7 +1,7 @@
 use std::ops::Index;
 use std::str::FromStr;
 
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use itertools::Itertools;
 
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -12,7 +12,7 @@ pub enum Value {
     Bool(bool),
     Float(f64),
     String(Box<str>),
-    Map(AHashMap<String, Value>),
+    Map(HashMap<String, Value>),
     Array(Vec<Value>),
     #[default]
     None,
@@ -71,7 +71,7 @@ impl Value {
         Some(f(self))
     }
 
-    pub fn as_map(&self) -> Option<&AHashMap<String, Value>> {
+    pub fn as_map(&self) -> Option<&HashMap<String, Value>> {
         if let Self::Map(map) = self {
             Some(map)
         } else {
@@ -79,7 +79,7 @@ impl Value {
         }
     }
 
-    pub fn as_map_mut(&mut self) -> Option<&mut AHashMap<String, Value>> {
+    pub fn as_map_mut(&mut self) -> Option<&mut HashMap<String, Value>> {
         if let Self::Map(map) = self {
             Some(map)
         } else {

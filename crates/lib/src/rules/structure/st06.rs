@@ -1,6 +1,6 @@
 use std::iter::zip;
 
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use itertools::{Itertools, enumerate};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
@@ -15,7 +15,7 @@ use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
 pub struct RuleST06;
 
 impl Rule for RuleST06 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleST06.erased())
     }
 

@@ -18,7 +18,7 @@ pub struct RuleRF04 {
 impl Rule for RuleRF04 {
     fn load_from_config(
         &self,
-        config: &ahash::AHashMap<String, crate::core::config::Value>,
+        config: &hashbrown::HashMap<String, crate::core::config::Value>,
     ) -> Result<ErasedRule, String> {
         Ok(RuleRF04 {
             unquoted_identifiers_policy: config["unquoted_identifiers_policy"]

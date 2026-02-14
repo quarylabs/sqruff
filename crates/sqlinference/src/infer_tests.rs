@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use hashbrown::{HashMap, HashSet};
 use std::fmt::Display;
 
 use sqruff_lib_core::dialects::Dialect;

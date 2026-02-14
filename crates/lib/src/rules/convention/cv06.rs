@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
@@ -17,7 +17,7 @@ pub struct RuleCV06 {
 }
 
 impl Rule for RuleCV06 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         let multiline_newline = config["multiline_newline"].as_bool().unwrap();
         let require_final_semicolon = config["require_final_semicolon"].as_bool().unwrap();
         Ok(Self {
@@ -334,7 +334,9 @@ impl RuleCV06 {
             Vec<ErasedSegment>,
             Option<Vec<ErasedSegment>>,
         ) -> LintFix = LintFix::create_after;
-        if AHashSet::from_iter(whitespace_deletions.base.clone()).contains(&anchor_segment) {
+        if HashSet::<ErasedSegment>::from_iter(whitespace_deletions.base.clone())
+            .contains(&anchor_segment)
+        {
             lintfix_fn = LintFix::replace;
             whitespace_deletions =
                 whitespace_deletions.filter(|it: &ErasedSegment| it.id() != anchor_segment.id());

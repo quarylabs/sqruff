@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use ahash::AHashSet;
+use hashbrown::HashSet;
 
 use crate::parser::segments::ErasedSegment;
 use crate::templaters::{RawFileSlice, TemplatedFile};
@@ -124,7 +124,7 @@ impl LintFix {
         &self,
         templated_file: &TemplatedFile,
         within_only: bool,
-    ) -> AHashSet<RawFileSlice> {
+    ) -> HashSet<RawFileSlice> {
         let anchor = match self {
             LintFix::CreateBefore { anchor, .. } => anchor,
             LintFix::CreateAfter { anchor, .. } => anchor,
@@ -148,7 +148,7 @@ impl LintFix {
             LintFix::Replace { anchor, edit, .. } => {
                 let pos = anchor.get_position_marker().unwrap();
                 if pos.source_slice.start == pos.source_slice.end {
-                    return AHashSet::new();
+                    return HashSet::new();
                 } else if edit
                     .iter()
                     .all(|it| it.segments().is_empty() && !it.get_source_fixes().is_empty())
@@ -161,7 +161,7 @@ impl LintFix {
 
                     let slice =
                         templated_file.raw_slices_spanning_source_slice(&source_edit_slices[0]);
-                    return AHashSet::from_iter(slice);
+                    return HashSet::from_iter(slice);
                 }
 
                 anchor_slice
@@ -181,8 +181,8 @@ impl LintFix {
         templated_file: &TemplatedFile,
         templated_slices: impl Iterator<Item = Range<usize>>,
         file_end_slice: Option<RawFileSlice>,
-    ) -> AHashSet<RawFileSlice> {
-        let mut raw_slices = AHashSet::new();
+    ) -> HashSet<RawFileSlice> {
+        let mut raw_slices = HashSet::new();
 
         for templated_slice in templated_slices {
             let templated_slice =

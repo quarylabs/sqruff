@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -20,7 +20,7 @@ pub struct RuleRF05 {
 }
 
 impl Rule for RuleRF05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleRF05 {
             unquoted_identifiers_policy: config["unquoted_identifiers_policy"]
                 .as_string()
@@ -212,8 +212,8 @@ CREATE TABLE DBO.ColumnNames
 }
 
 impl RuleRF05 {
-    fn get_additional_allowed_characters(&self, dialect_name: DialectKind) -> AHashSet<char> {
-        let mut result = AHashSet::new();
+    fn get_additional_allowed_characters(&self, dialect_name: DialectKind) -> HashSet<char> {
+        let mut result = HashSet::new();
         result.extend(self.additional_allowed_characters.chars());
         if dialect_name == DialectKind::Bigquery {
             result.insert('-');

@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::cp01::handle_segment;
@@ -13,7 +13,7 @@ pub struct RuleCP05 {
 }
 
 impl Rule for RuleCP05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCP05 {
             extended_capitalisation_policy: config["extended_capitalisation_policy"]
                 .as_string()

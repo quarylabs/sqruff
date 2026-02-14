@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use itertools::chain;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
@@ -72,7 +72,7 @@ pub struct RuleCV11 {
 }
 
 impl Rule for RuleCV11 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCV11 {
             preferred_type_casting_style: config["preferred_type_casting_style"]
                 .as_string()

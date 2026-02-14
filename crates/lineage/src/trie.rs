@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use hashbrown::HashMap;
 
 pub(crate) fn new(keywords: impl Iterator<Item = Vec<String>>) -> HashMap<String, TrieNode> {
     let mut trie = HashMap::default();

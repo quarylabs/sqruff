@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
@@ -34,7 +34,7 @@ impl Default for RuleAM05 {
 }
 
 impl Rule for RuleAM05 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         let fully_qualify_join_types = config["fully_qualify_join_types"].as_string();
         // TODO We will need a more complete story for all the config parsing
         match fully_qualify_join_types {

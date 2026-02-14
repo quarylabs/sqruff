@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
-use ahash::HashSet;
 use expect_test::expect_file;
+use hashbrown::HashSet;
 use itertools::Itertools;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;

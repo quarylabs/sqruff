@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
@@ -23,7 +23,7 @@ impl Default for RuleCV03 {
 }
 
 impl Rule for RuleCV03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCV03 {
             select_clause_trailing_comma: _config
                 .get("select_clause_trailing_comma")

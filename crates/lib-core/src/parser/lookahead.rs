@@ -1,4 +1,4 @@
-use ahash::AHashSet;
+use hashbrown::HashSet;
 
 use super::context::ParseContext;
 use super::match_algorithms::skip_start_index_forward_to_code;
@@ -47,7 +47,7 @@ impl MatchableTrait for LookaheadExclude {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         // LookaheadExclude doesn't have simple matching
         None
     }

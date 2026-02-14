@@ -2,8 +2,8 @@ use std::ops::Deref;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 
-use ahash::AHashSet;
 use enum_dispatch::enum_dispatch;
+use hashbrown::HashSet;
 
 use super::context::ParseContext;
 use super::grammar::anyof::AnyNumberOf;
@@ -160,7 +160,7 @@ pub trait MatchableTrait {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         let match_grammar = self.match_grammar(parse_context.dialect())?;
 
         match_grammar.simple(parse_context, crumbs)

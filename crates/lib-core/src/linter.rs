@@ -1,10 +1,10 @@
-use rustc_hash::FxHashMap;
+use hashbrown::HashMap;
 
 use crate::lint_fix::LintFix;
 use crate::segments::AnchorEditInfo;
 
 pub fn compute_anchor_edit_info(
-    anchor_info: &mut FxHashMap<u32, AnchorEditInfo>,
+    anchor_info: &mut HashMap<u32, AnchorEditInfo>,
     fixes: Vec<LintFix>,
 ) {
     for fix in fixes {

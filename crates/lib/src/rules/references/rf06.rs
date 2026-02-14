@@ -22,7 +22,7 @@ pub struct RuleRF06 {
 impl Rule for RuleRF06 {
     fn load_from_config(
         &self,
-        config: &ahash::AHashMap<String, Value>,
+        config: &hashbrown::HashMap<String, Value>,
     ) -> Result<ErasedRule, String> {
         Ok(Self {
             prefer_quoted_identifiers: config["prefer_quoted_identifiers"].as_bool().unwrap(),

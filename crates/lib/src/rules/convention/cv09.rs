@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
@@ -9,19 +9,19 @@ use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Default, Clone, Debug)]
 pub struct RuleCV09 {
-    blocked_words: AHashSet<String>,
+    blocked_words: HashSet<String>,
     blocked_regex: Vec<regex::Regex>,
     match_source: bool,
 }
 
 impl Rule for RuleCV09 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         let blocked_words = config["blocked_words"]
             .as_string()
             .map_or(Default::default(), |it| {
                 it.split(',')
                     .map(|s| s.to_string().to_uppercase())
-                    .collect::<AHashSet<_>>()
+                    .collect::<HashSet<_>>()
             });
         let blocked_regex = config["blocked_regex"]
             .as_array()

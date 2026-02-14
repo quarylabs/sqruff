@@ -2,7 +2,7 @@ use std::ops::Range;
 
 use crate::core::rules::noqa::IgnoreMask;
 
-use rustc_hash::FxHashSet;
+use hashbrown::HashSet;
 use sqruff_lib_core::errors::SQLBaseError;
 use sqruff_lib_core::parser::segments::fix::FixPatch;
 use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile};
@@ -124,7 +124,7 @@ impl LintedFile {
         _templated_file: &TemplatedFile,
     ) -> Vec<FixPatch> {
         let mut filtered_source_patches = Vec::new();
-        let mut dedupe_buffer = FxHashSet::default();
+        let mut dedupe_buffer: HashSet<Range<usize>> = HashSet::new();
 
         for patch in patches {
             if dedupe_buffer.insert(patch.dedupe_tuple()) {

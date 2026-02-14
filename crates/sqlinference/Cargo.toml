@@ -11,6 +11,7 @@ workspace = true
 
 [dependencies]
 sqruff-lib-core = { workspace = true }
+hashbrown.workspace = true
 
 [dev-dependencies]
 sqruff-lib-dialects = { workspace = true }

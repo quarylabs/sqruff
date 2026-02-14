@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use smol_str::{SmolStr, StrExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
@@ -13,7 +13,7 @@ use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
 pub struct RuleAM03;
 
 impl Rule for RuleAM03 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleAM03.erased())
     }
 
@@ -61,7 +61,7 @@ ORDER BY a ASC, b DESC
         let order_types = order_by_spec
             .iter()
             .map(|spec| spec.order.clone())
-            .collect::<AHashSet<Option<_>>>();
+            .collect::<HashSet<Option<_>>>();
 
         // If all or no columns are explicitly ordered, then it's not ambiguous
         if !order_types.contains(&None) || (order_types.len() == 1 && order_types.contains(&None)) {

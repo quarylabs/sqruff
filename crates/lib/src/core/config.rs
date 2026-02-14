@@ -1,8 +1,8 @@
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use ahash::AHashMap;
 use configparser::ini::Ini;
+use hashbrown::HashMap;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::{DialectKind, dialect_readout};
@@ -31,9 +31,9 @@ pub fn split_comma_separated_string(raw_str: &str) -> Value {
 #[derive(Debug, PartialEq, Clone)]
 pub struct FluffConfig {
     pub(crate) indentation: FluffConfigIndentation,
-    pub raw: AHashMap<String, Value>,
+    pub raw: HashMap<String, Value>,
     extra_config_path: Option<String>,
-    _configs: AHashMap<String, AHashMap<String, String>>,
+    _configs: HashMap<String, HashMap<String, String>>,
     pub(crate) dialect: Dialect,
     sql_file_exts: Vec<String>,
     reflow: ReflowConfig,
@@ -74,20 +74,20 @@ impl FluffConfig {
         FluffConfig::new(configs, None, None)
     }
 
-    pub fn get_section(&self, section: &str) -> &AHashMap<String, Value> {
+    pub fn get_section(&self, section: &str) -> &HashMap<String, Value> {
         self.raw[section].as_map().unwrap()
     }
 
     // TODO This is not a translation that is particularly accurate.
     pub fn new(
-        configs: AHashMap<String, Value>,
+        configs: HashMap<String, Value>,
         extra_config_path: Option<String>,
         indentation: Option<FluffConfigIndentation>,
     ) -> Self {
         fn nested_combine(
-            mut a: AHashMap<String, Value>,
-            b: AHashMap<String, Value>,
-        ) -> AHashMap<String, Value> {
+            mut a: HashMap<String, Value>,
+            b: HashMap<String, Value>,
+        ) -> HashMap<String, Value> {
             for (key, value_b) in b {
                 match (a.get(&key), value_b) {
                     (Some(Value::Map(map_a)), Value::Map(map_b)) => {
@@ -107,7 +107,7 @@ impl FluffConfig {
             include_str!("./default_config.cfg").into(),
         );
 
-        let mut defaults = AHashMap::new();
+        let mut defaults = HashMap::new();
         ConfigLoader::incorporate_vals(&mut defaults, values);
 
         let mut configs = nested_combine(defaults, configs);
@@ -164,7 +164,7 @@ impl FluffConfig {
             dialect: dialect
                 .expect("Dialect is disabled. Please enable the corresponding feature."),
             extra_config_path,
-            _configs: AHashMap::new(),
+            _configs: HashMap::new(),
             indentation: indentation.unwrap_or_default(),
             sql_file_exts,
             reflow: ReflowConfig::default(),
@@ -183,7 +183,7 @@ impl FluffConfig {
     pub fn from_root(
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-        overrides: Option<AHashMap<String, String>>,
+        overrides: Option<HashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
         let loader = ConfigLoader {};
         let mut config =
@@ -194,7 +194,7 @@ impl FluffConfig {
         {
             let core = config
                 .entry("core".into())
-                .or_insert_with(|| Value::Map(AHashMap::new()));
+                .or_insert_with(|| Value::Map(HashMap::new()));
 
             core.as_map_mut()
                 .unwrap()
@@ -344,7 +344,7 @@ impl ConfigLoader {
         path: impl AsRef<Path>,
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-    ) -> AHashMap<String, Value> {
+    ) -> HashMap<String, Value> {
         let path = path.as_ref();
 
         let config_stack = if ignore_local_config {
@@ -361,7 +361,7 @@ impl ConfigLoader {
         nested_combine(config_stack)
     }
 
-    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> AHashMap<String, Value> {
+    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> HashMap<String, Value> {
         let path = path.as_ref();
 
         let filename_options = [
@@ -370,7 +370,7 @@ impl ConfigLoader {
             ".sqruff", /* "pyproject.toml" */
         ];
 
-        let mut configs = AHashMap::new();
+        let mut configs = HashMap::new();
 
         if path.is_dir() {
             for fname in filename_options {
@@ -386,14 +386,14 @@ impl ConfigLoader {
         configs
     }
 
-    pub fn from_source(source: &str, path: Option<&Path>) -> AHashMap<String, Value> {
-        let mut configs = AHashMap::new();
+    pub fn from_source(source: &str, path: Option<&Path>) -> HashMap<String, Value> {
+        let mut configs = HashMap::new();
         let elems = ConfigLoader::get_config_elems_from_file(path, Some(source));
         ConfigLoader::incorporate_vals(&mut configs, elems);
         configs
     }
 
-    pub fn load_config_file(path: impl AsRef<Path>, configs: &mut AHashMap<String, Value>) {
+    pub fn load_config_file(path: impl AsRef<Path>, configs: &mut HashMap<String, Value>) {
         let elems = ConfigLoader::get_config_elems_from_file(path.as_ref().into(), None);
         ConfigLoader::incorporate_vals(configs, elems);
     }
@@ -462,13 +462,13 @@ impl ConfigLoader {
         buff
     }
 
-    fn incorporate_vals(ctx: &mut AHashMap<String, Value>, values: Vec<(Vec<String>, Value)>) {
+    fn incorporate_vals(ctx: &mut HashMap<String, Value>, values: Vec<(Vec<String>, Value)>) {
         for (path, value) in values {
             let mut current_map = &mut *ctx;
             for key in path.iter().take(path.len() - 1) {
                 match current_map
                     .entry(key.to_string())
-                    .or_insert_with(|| Value::Map(AHashMap::new()))
+                    .or_insert_with(|| Value::Map(HashMap::new()))
                     .as_map_mut()
                 {
                     Some(slot) => current_map = slot,
@@ -482,9 +482,9 @@ impl ConfigLoader {
     }
 }
 
-fn nested_combine(config_stack: Vec<AHashMap<String, Value>>) -> AHashMap<String, Value> {
+fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, Value> {
     let capacity = config_stack.len();
-    let mut result = AHashMap::with_capacity(capacity);
+    let mut result = HashMap::with_capacity(capacity);
 
     for dict in config_stack {
         for (key, value) in dict {

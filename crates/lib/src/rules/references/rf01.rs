@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use itertools::Itertools;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::Dialect;
@@ -25,7 +25,7 @@ struct RF01QueryData {
 }
 
 type QueryKey<'a> = *const RefCell<QueryInner<'a>>;
-type RF01State<'a> = AHashMap<QueryKey<'a>, RF01QueryData>;
+type RF01State<'a> = HashMap<QueryKey<'a>, RF01QueryData>;
 
 #[derive(Debug, Clone, Default)]
 pub struct RuleRF01 {
@@ -192,7 +192,7 @@ impl RuleRF01 {
 }
 
 impl Rule for RuleRF01 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleRF01 {
             force_enable: config["force_enable"].as_bool().unwrap(),
         }

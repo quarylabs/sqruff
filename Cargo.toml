@@ -22,14 +22,14 @@ codegen-units = 1
 
 [workspace.dependencies]
 log = "0.4"
-ahash = { version = "=0.8.11", features = ["compile-time-rng", "serde"] }
 indexmap = "2.11.4"
+hashbrown = { version = "0.16", features = ["serde"] }
 sqruff-cli-lib = { version = "0.34.1", path = "crates/cli-lib" }
 sqruff-lib = { version = "0.34.1", path = "crates/lib" }
 sqruff-lsp = { version = "0.34.1", path = "crates/lsp" }
 sqruff-lib-core = { version = "0.34.1", path = "crates/lib-core" }
 sqruff-lib-dialects = { version = "0.34.1", path = "crates/lib-dialects" }
-wasm-bindgen = "0.2"
+wasm-bindgen = "=0.2.105"
 wasm-pack = "0.13.1"
 
 strum = "0.27.2"

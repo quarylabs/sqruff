@@ -4,7 +4,7 @@ pub mod delimited;
 pub mod noncode;
 pub mod sequence;
 
-use ahash::AHashSet;
+use hashbrown::HashSet;
 use std::borrow::Cow;
 use std::sync::OnceLock;
 
@@ -28,7 +28,7 @@ pub struct Ref {
     pub(crate) allow_gaps: bool,
     pub(crate) optional: bool,
     cache_key: MatchableCacheKey,
-    simple_cache: OnceLock<Option<(AHashSet<String>, SyntaxSet)>>,
+    simple_cache: OnceLock<Option<(HashSet<String>, SyntaxSet)>>,
 }
 
 impl std::fmt::Debug for Ref {
@@ -115,7 +115,7 @@ impl MatchableTrait for Ref {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         self.simple_cache
             .get_or_init(|| {
                 if let Some(ref c) = crumbs

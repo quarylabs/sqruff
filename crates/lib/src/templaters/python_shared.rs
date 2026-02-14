@@ -1,5 +1,5 @@
 use crate::core::config::FluffConfig;
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use pyo3::{Bound, Python};
@@ -113,7 +113,7 @@ impl<'py> FluffConfig {
         py: Python<'py>,
         templater_name: &str,
     ) -> Result<Bound<'py, PyDict>, SQLFluffUserError> {
-        let empty = AHashMap::default();
+        let empty = HashMap::default();
         let context = self
             .get_section("templater")
             .get(templater_name)
@@ -129,7 +129,7 @@ impl<'py> FluffConfig {
                 ))?;
                 Ok((k.to_string(), value.to_string()))
             })
-            .collect::<Result<AHashMap<String, String>, SQLFluffUserError>>()?;
+            .collect::<Result<HashMap<String, String>, SQLFluffUserError>>()?;
         // pass object with Rust tuple of positional arguments
         let py_dict = PyDict::new(py);
         for (k, v) in hashmap {

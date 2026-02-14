@@ -1,4 +1,4 @@
-use ahash::AHashSet;
+use hashbrown::HashSet;
 
 use crate::dialects::syntax::SyntaxSet;
 use crate::errors::SQLParseError;
@@ -24,7 +24,7 @@ impl MatchableTrait for NonCodeMatcher {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         None
     }
 

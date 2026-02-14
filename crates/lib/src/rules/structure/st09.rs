@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use itertools::Itertools;
 use smol_str::{SmolStr, StrExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -20,7 +20,7 @@ pub struct RuleST09 {
 }
 
 impl Rule for RuleST09 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleST09 {
             preferred_first_table_in_join_clause: config["preferred_first_table_in_join_clause"]
                 .as_string()

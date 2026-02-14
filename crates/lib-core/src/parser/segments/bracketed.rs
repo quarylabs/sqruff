@@ -1,4 +1,4 @@
-use ahash::AHashSet;
+use hashbrown::HashSet;
 
 use super::ErasedSegment;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -37,7 +37,7 @@ impl MatchableTrait for BracketedSegmentMatcher {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         None
     }
 

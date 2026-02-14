@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use hashbrown::HashSet;
 
 use expect_test::expect_file;
 use glob::glob;

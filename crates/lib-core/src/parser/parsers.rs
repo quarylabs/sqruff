@@ -1,5 +1,5 @@
-use ahash::AHashSet;
 use fancy_regex::Regex;
+use hashbrown::HashSet;
 use smol_str::SmolStr;
 
 use super::context::ParseContext;
@@ -45,9 +45,9 @@ impl MatchableTrait for TypedParser {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         let _ = (parse_context, crumbs);
-        (AHashSet::new(), self.target_types.clone()).into()
+        (HashSet::new(), self.target_types.clone()).into()
     }
 
     fn match_segments(
@@ -105,7 +105,7 @@ impl MatchableTrait for CodeParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         None
     }
 
@@ -134,7 +134,7 @@ impl MatchableTrait for CodeParser {
 #[derive(Clone, Debug, PartialEq)]
 pub struct StringParser {
     template: String,
-    simple: AHashSet<String>,
+    simple: HashSet<String>,
     kind: SyntaxKind,
     optional: bool,
     cache_key: MatchableCacheKey,
@@ -168,7 +168,7 @@ impl MatchableTrait for StringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         (self.simple.clone(), SyntaxSet::EMPTY).into()
     }
 
@@ -251,7 +251,7 @@ impl MatchableTrait for RegexParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         // Does this matcher support a uppercase hash matching route?
         // Regex segment does NOT for now. We might need to later for efficiency.
         None
@@ -295,8 +295,8 @@ impl MatchableTrait for RegexParser {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct MultiStringParser {
-    templates: AHashSet<String>,
-    simple: AHashSet<String>,
+    templates: HashSet<String>,
+    simple: HashSet<String>,
     kind: SyntaxKind,
     cache: MatchableCacheKey,
 }
@@ -306,7 +306,7 @@ impl MultiStringParser {
         let templates = templates
             .iter()
             .map(|template| template.to_ascii_uppercase())
-            .collect::<AHashSet<String>>();
+            .collect::<HashSet<String>>();
 
         let _simple = templates.clone();
 
@@ -332,7 +332,7 @@ impl MatchableTrait for MultiStringParser {
         &self,
         _parse_context: &ParseContext,
         _crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         (self.simple.clone(), SyntaxSet::EMPTY).into()
     }
 

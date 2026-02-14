@@ -11,11 +11,11 @@ pub mod test_functions;
 
 use std::cell::{Cell, OnceCell};
 use std::fmt::Debug;
-use std::hash::{Hash, Hasher};
+use std::hash::{BuildHasher, Hash, Hasher};
 use std::rc::Rc;
 
+use hashbrown::{DefaultHashBuilder, HashMap};
 use itertools::enumerate;
-use rustc_hash::FxHashMap;
 use smol_str::SmolStr;
 
 use crate::dialects::init::DialectKind;
@@ -623,7 +623,7 @@ impl ErasedSegment {
 
     pub fn hash_value(&self) -> u64 {
         *self.value.hash.get_or_init(|| {
-            let mut hasher = ahash::AHasher::default();
+            let mut hasher = DefaultHashBuilder::default().build_hasher();
             self.get_type().hash(&mut hasher);
             self.raw().hash(&mut hasher);
 
@@ -752,7 +752,7 @@ impl ErasedSegment {
 
     pub fn apply_fixes(
         &self,
-        fixes: &mut FxHashMap<u32, AnchorEditInfo>,
+        fixes: &mut HashMap<u32, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>) {
         if fixes.is_empty() || self.segments().is_empty() {
             return (self.clone(), Vec::new(), Vec::new());

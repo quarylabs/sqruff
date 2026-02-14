@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::common::AliasInfo;
@@ -24,13 +24,13 @@ struct AL05QueryData {
 }
 
 type QueryKey<'a> = *const RefCell<QueryInner<'a>>;
-type AL05State<'a> = AHashMap<QueryKey<'a>, AL05QueryData>;
+type AL05State<'a> = HashMap<QueryKey<'a>, AL05QueryData>;
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleAL05;
 
 impl Rule for RuleAL05 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleAL05.erased())
     }
 
@@ -95,8 +95,8 @@ FROM foo
         let payload = payloads.get(&query.id()).cloned().unwrap_or_default();
 
         if context.dialect.name == DialectKind::Redshift {
-            let mut references = AHashSet::default();
-            let mut aliases = AHashSet::default();
+            let mut references: HashSet<SmolStr> = HashSet::new();
+            let mut aliases: HashSet<SmolStr> = HashSet::new();
 
             for alias in &payload.aliases {
                 aliases.insert(alias.ref_str.clone());

@@ -1,5 +1,5 @@
+use hashbrown::HashMap;
 use itertools::{Itertools, enumerate};
-use rustc_hash::FxHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::markers::PositionMarker;
@@ -241,7 +241,7 @@ fn determine_aligned_inline_spacing(
     }
 
     // Purge any siblings which are either self, or on the same line but after it.
-    let mut earliest_siblings: FxHashMap<usize, usize> = FxHashMap::default();
+    let mut earliest_siblings: HashMap<usize, usize> = HashMap::default();
     siblings.retain(|sibling| {
         let pos_marker = sibling.get_position_marker().unwrap();
         let best_seen = earliest_siblings.get(&pos_marker.working_line_no).copied();

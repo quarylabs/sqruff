@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::lt03::RuleLT03;
@@ -16,7 +16,7 @@ pub struct RuleLT04 {
 }
 
 impl Rule for RuleLT04 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT04::default().erased())
     }
     fn name(&self) -> &'static str {

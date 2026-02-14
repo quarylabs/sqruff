@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
@@ -46,7 +46,7 @@ fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
 pub struct RuleLT12;
 
 impl Rule for RuleLT12 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT12.erased())
     }
     fn lint_phase(&self) -> LintPhase {

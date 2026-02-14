@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -30,7 +30,7 @@ impl Default for RuleCP02 {
 }
 
 impl Rule for RuleCP02 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCP02 {
             base: RuleCP01 {
                 capitalisation_policy: config["extended_capitalisation_policy"]

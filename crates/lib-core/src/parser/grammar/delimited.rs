@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use ahash::AHashSet;
+use hashbrown::HashSet;
 
 use super::anyof::{AnyNumberOf, one_of};
 use crate::dialects::syntax::SyntaxSet;
@@ -79,7 +79,7 @@ impl MatchableTrait for Delimited {
         &self,
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
-    ) -> Option<(AHashSet<String>, SyntaxSet)> {
+    ) -> Option<(HashSet<String>, SyntaxSet)> {
         super::anyof::simple(&self.elements, parse_context, crumbs)
     }
 

@@ -1,4 +1,4 @@
-use rustc_hash::FxHashMap;
+use hashbrown::HashMap;
 use smol_str::SmolStr;
 
 use super::match_result::MatchResult;
@@ -29,7 +29,7 @@ pub struct ParseContext<'a> {
     dialect: &'a Dialect,
     pub(crate) terminators: Vec<Matchable>,
     loc_keys: IndexSet<LocKeyData>,
-    parse_cache: FxHashMap<CacheKey, MatchResult>,
+    parse_cache: HashMap<CacheKey, MatchResult>,
     pub(crate) indentation_config: IndentationConfig,
 }
 
@@ -47,7 +47,7 @@ impl<'a> ParseContext<'a> {
             dialect,
             terminators: Vec::new(),
             loc_keys: IndexSet::default(),
-            parse_cache: FxHashMap::default(),
+            parse_cache: HashMap::default(),
             indentation_config,
         }
     }

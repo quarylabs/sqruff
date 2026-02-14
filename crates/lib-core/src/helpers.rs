@@ -1,13 +1,14 @@
 use std::cell::RefCell;
-use std::hash::BuildHasherDefault;
 use std::panic;
 use std::path::{Component, Path, PathBuf};
 use std::sync::Once;
 
+use hashbrown::DefaultHashBuilder;
+
 use crate::parser::matchable::{Matchable, MatchableTraitImpl};
 
-pub type IndexMap<K, V> = indexmap::IndexMap<K, V, BuildHasherDefault<ahash::AHasher>>;
-pub type IndexSet<V> = indexmap::IndexSet<V, BuildHasherDefault<ahash::AHasher>>;
+pub type IndexMap<K, V> = indexmap::IndexMap<K, V, DefaultHashBuilder>;
+pub type IndexSet<V> = indexmap::IndexSet<V, DefaultHashBuilder>;
 
 pub trait ToMatchable: Sized {
     fn to_matchable(self) -> Matchable;

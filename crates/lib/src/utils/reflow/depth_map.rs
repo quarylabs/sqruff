@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use nohash_hasher::{IntMap, IntSet};
 use sqruff_lib_core::dialects::syntax::SyntaxSet;
 use sqruff_lib_core::parser::segments::{ErasedSegment, PathStep};
@@ -45,7 +45,7 @@ impl StackPosition {
 }
 
 pub struct DepthMap {
-    depth_info: AHashMap<u32, DepthInfo>,
+    depth_info: HashMap<u32, DepthInfo>,
 }
 
 impl DepthMap {
@@ -169,10 +169,10 @@ impl DepthInfo {
 
     pub fn common_with(&self, other: &DepthInfo) -> Vec<u64> {
         // Get the common depth and hashes with the other.
-        // We use AHashSet intersection because it's efficient and hashes should be
+        // We use HashSet intersection because it's efficient and hashes should be
         // unique.
 
-        let common_hashes: AHashSet<_> = self
+        let common_hashes: HashSet<_> = self
             .stack_hash_set
             .intersection(&other.stack_hash_set)
             .copied()

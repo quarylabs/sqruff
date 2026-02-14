@@ -1,4 +1,4 @@
-use ahash::{AHashMap, AHashSet};
+use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -46,7 +46,7 @@ impl Default for RuleCP01 {
 }
 
 impl Rule for RuleCP01 {
-    fn load_from_config(&self, config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCP01 {
             capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),
             ignore_words: config["ignore_words"]
@@ -182,7 +182,7 @@ from foo
 }
 
 #[derive(Clone, Default)]
-struct RefutedCases(AHashSet<&'static str>);
+struct RefutedCases(HashSet<&'static str>);
 
 #[derive(Clone)]
 struct LatestPossibleCase(String);

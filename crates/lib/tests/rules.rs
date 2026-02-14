@@ -211,6 +211,11 @@ dialect = {dialect}
                 *linter.config_mut() = FluffConfig::default();
                 linter.config_mut().raw.extend(core.clone());
                 linter.config_mut().reload_reflow();
+
+                // Recreate linter with default templater to avoid leaking
+                // the custom templater (e.g. placeholder) into subsequent tests.
+                let templater = Linter::get_templater(linter.config());
+                linter = Linter::new(linter.config().clone(), None, Some(templater), true);
             }
         }
     }

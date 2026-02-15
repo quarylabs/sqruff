@@ -18,7 +18,7 @@ make python_install
 
 ### Running Tests
 
-Once you have that the following runs the test suite. 
+Once you have that the following runs the test suite.
 
 #### Rust Tests
 

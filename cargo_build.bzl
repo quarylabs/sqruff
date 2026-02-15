@@ -427,26 +427,34 @@ export CARGO_TARGET_DIR="$WORK_DIR/target"
         runfiles = runfiles,
     )]
 
+_cargo_attrs = {
+    "srcs": attr.label_list(allow_files = True),
+    "vendor": attr.label(
+        mandatory = True,
+        providers = [CargoVendorInfo],
+        doc = "cargo_vendor_provider target with pre-installed toolchain",
+    ),
+    "python_venv": attr.label(
+        default = None,
+        providers = [PythonVenvInfo],
+        doc = "Optional python_venv_provider target for PyO3/maturin tests",
+    ),
+    "tools": attr.label_list(
+        allow_files = True,
+        default = [],
+        doc = "Additional cargo subcommand binaries (e.g. cargo-hack) to symlink into PATH",
+    ),
+    "script": attr.string(mandatory = True),
+}
+
 cargo_test = rule(
     implementation = _cargo_test_impl,
     test = True,
-    attrs = {
-        "srcs": attr.label_list(allow_files = True),
-        "vendor": attr.label(
-            mandatory = True,
-            providers = [CargoVendorInfo],
-            doc = "cargo_vendor_provider target with pre-installed toolchain",
-        ),
-        "python_venv": attr.label(
-            default = None,
-            providers = [PythonVenvInfo],
-            doc = "Optional python_venv_provider target for PyO3/maturin tests",
-        ),
-        "tools": attr.label_list(
-            allow_files = True,
-            default = [],
-            doc = "Additional cargo subcommand binaries (e.g. cargo-hack) to symlink into PATH",
-        ),
-        "script": attr.string(mandatory = True),
-    },
+    attrs = _cargo_attrs,
+)
+
+cargo_run = rule(
+    implementation = _cargo_test_impl,
+    executable = True,
+    attrs = _cargo_attrs,
 )

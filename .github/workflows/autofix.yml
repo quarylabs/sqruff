@@ -37,6 +37,9 @@ jobs:
       - name: Run ruff
         run: bazelisk run //:ruff_fix
 
+      - name: Regenerate docs
+        run: bazelisk run //:codegen_docs_fix
+
       - name: Check for changes
         id: changes
         run: |

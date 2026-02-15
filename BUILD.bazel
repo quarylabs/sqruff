@@ -6,7 +6,7 @@ load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
-load(":cargo_build.bzl", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider")
+load(":cargo_build.bzl", "cargo_run", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
@@ -297,6 +297,30 @@ if [ $FAILED -eq 1 ]; then
 fi
 
 echo "All generated docs are up to date"
+""",
+)
+
+# Codegen docs fix - regenerate docs and copy them back to the workspace
+# Uses BUILD_WORKSPACE_DIRECTORY to write to the real workspace, mirroring
+# how @rules_rust//:rustfmt operates.
+cargo_run(
+    name = "codegen_docs_fix",
+    srcs = [
+        ":cargo_srcs",
+        "docs/reference/cli.md",
+        "docs/reference/rules.md",
+        "docs/reference/templaters.md",
+    ],
+    vendor = ":cargo_deps",
+    python_venv = ":python_deps",
+    script = """
+# Build the codegen binary
+cargo build --bin sqruff -F codegen-docs --locked --offline
+
+# Run codegen into the real workspace
+(cd "$BUILD_WORKSPACE_DIRECTORY" && GITHUB_ACTIONS=false "$CARGO_TARGET_DIR/debug/sqruff")
+
+echo "Docs regenerated!"
 """,
 )
 

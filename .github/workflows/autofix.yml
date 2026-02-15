@@ -34,6 +34,9 @@ jobs:
       - name: Run Prettier
         run: bazelisk run //:prettier_fix
 
+      - name: Run ruff
+        run: bazelisk run //:ruff_fix
+
       - name: Check for changes
         id: changes
         run: |

@@ -23,7 +23,7 @@ pub fn split_comma_separated_string(raw_str: &str) -> Value {
             (!trimmed.is_empty()).then(|| Value::String(trimmed.into()))
         })
         .collect();
-        Value::Array(values)
+    Value::Array(values)
 }
 
 /// The class that actually gets passed around as a config object.

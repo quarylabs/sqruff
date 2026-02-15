@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   autofix:
-    name: Auto-fix Rust formatting
+    name: Auto-fix formatting
     runs-on: ubuntu-latest
     # Don't run on forks (they can't push back) or dependabot PRs
     if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
@@ -31,6 +31,9 @@ jobs:
       - name: Run rustfmt
         run: bazelisk run @rules_rust//:rustfmt
 
+      - name: Run Prettier
+        run: bazelisk run //:prettier_fix
+
       - name: Check for changes
         id: changes
         run: |
@@ -46,5 +49,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "chore: auto-fix Rust formatting"
+          git commit -m "chore: auto-fix formatting"
           git push

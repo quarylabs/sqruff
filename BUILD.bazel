@@ -77,6 +77,7 @@ prettier_bin.prettier_binary(
         "//editors/code:prettier_srcs",
         "//playground:prettier_srcs",
     ],
+    env = {"JS_BINARY__CHDIR": "$$BUILD_WORKSPACE_DIRECTORY"},
 )
 
 # ESLint check for all TypeScript packages

@@ -161,6 +161,20 @@ sh_test(
     },
 )
 
+# Python ruff fix - format and lint fix (for fixing locally and in CI)
+sh_binary(
+    name = "ruff_fix",
+    srcs = [".hacking/scripts/ruff_fix.sh"],
+    data = [
+        "pyproject.toml",
+        "//crates/cli-python:python_srcs",
+        "@aspect_rules_lint//lint:ruff_bin",
+    ] + glob([".hacking/**/*.py"]),
+    env = {
+        "RUFF": "$(rlocationpath @aspect_rules_lint//lint:ruff_bin)",
+    },
+)
+
 # All Rust targets for linting
 RUST_TARGETS = [
     "//crates/cli:sqruff",

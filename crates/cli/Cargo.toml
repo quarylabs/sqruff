@@ -81,5 +81,5 @@ mimalloc = { version = "0.1", optional = true }
 [dev-dependencies]
 assert_cmd = "2.0.16"
 expect-test = "1.5.0"
-tempfile = "3.23.0"
+tempfile = "3.25.0"
 sqruff-lib.workspace = true

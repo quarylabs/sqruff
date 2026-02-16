@@ -59,7 +59,7 @@ sqruff-cli-lib.features = ["python"]
 [dev-dependencies]
 assert_cmd = "2.0.16"
 expect-test = "1.5.0"
-tempfile = "3.23.0"
+tempfile = "3.25.0"
 
 [dependencies.pyo3]
 version = "0.28.0"

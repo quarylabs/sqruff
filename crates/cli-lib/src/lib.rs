@@ -55,8 +55,7 @@ where
 
             std::process::exit(1);
         };
-        let read_file = std::fs::read_to_string(config).unwrap();
-        FluffConfig::from_source(&read_file, None)
+        FluffConfig::from_file(Path::new(config))
     } else {
         FluffConfig::from_root(None, false, None).unwrap()
     };

@@ -64,6 +64,14 @@ impl FluffConfig {
         self.reflow = ReflowConfig::from_fluff_config(self);
     }
 
+    /// from_file creates a config object from a file path. The path is used both
+    /// to read the file content and to resolve relative `_path`/`_dir` values.
+    pub fn from_file(path: &Path) -> FluffConfig {
+        let mut configs = HashMap::new();
+        ConfigLoader::load_config_file(path, &mut configs);
+        FluffConfig::new(configs, None, None)
+    }
+
     /// from_source creates a config object from a string. This is used for testing and for
     /// loading a config from a string.
     ///

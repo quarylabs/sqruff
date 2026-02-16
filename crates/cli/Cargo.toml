@@ -72,7 +72,7 @@ ignored = ["pyo3"]
 
 [dependencies]
 sqruff-cli-lib.workspace = true
-pyo3 = { version = "0.28.0", features = ["auto-initialize"], optional = true }
+pyo3 = { version = "0.28.1", features = ["auto-initialize"], optional = true }
 dhat = { version = "0.3.3", optional = true }
 
 [target.'cfg(all(target_os = "windows", not(feature = "dhat-heap")))'.dependencies]

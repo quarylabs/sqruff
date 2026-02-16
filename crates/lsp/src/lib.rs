@@ -100,8 +100,10 @@ impl Wasm {
 
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
+        let config = load_config();
+        let templater = Linter::get_templater(&config).ok();
         Self {
-            linter: Linter::new(load_config(), None, None, false),
+            linter: Linter::new(config, None, templater, false),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: HashMap::new(),
         }
@@ -187,9 +189,13 @@ impl LanguageServer {
                 let uri = params.text_document.uri.as_str();
 
                 if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
-                    *self.linter.config_mut() = load_config();
-
-                    self.recheck_files();
+                    let new_config = load_config();
+                    if Linter::get_templater(&new_config).is_ok() {
+                        *self.linter.config_mut() = new_config;
+                        self.recheck_files();
+                    } else {
+                        eprintln!("Invalid templater in config, keeping previous configuration");
+                    }
                 }
             }
             _ => {}

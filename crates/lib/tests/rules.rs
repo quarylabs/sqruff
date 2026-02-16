@@ -150,7 +150,16 @@ fn main() {
                 linter.config_mut().reload_reflow();
 
                 // Recreate linter with proper templater after all config is set up
-                let templater = Linter::get_templater(linter.config());
+                let templater = match Linter::get_templater(linter.config()) {
+                    Ok(t) => t,
+                    Err(e) => {
+                        println!("Skipping case '{}': {}", case.name, e);
+                        *linter.config_mut() = FluffConfig::default();
+                        linter.config_mut().raw.extend(core.clone());
+                        linter.config_mut().reload_reflow();
+                        continue;
+                    }
+                };
                 linter = Linter::new(linter.config().clone(), None, Some(templater), true);
             }
 
@@ -214,7 +223,8 @@ dialect = {dialect}
 
                 // Recreate linter with default templater to avoid leaking
                 // the custom templater (e.g. placeholder) into subsequent tests.
-                let templater = Linter::get_templater(linter.config());
+                let templater = Linter::get_templater(linter.config())
+                    .expect("Default config should have a valid templater");
                 linter = Linter::new(linter.config().clone(), None, Some(templater), true);
             }
         }

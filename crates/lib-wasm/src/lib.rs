@@ -72,8 +72,10 @@ impl Result {
 impl Linter {
     #[wasm_bindgen(constructor)]
     pub fn new(source: &str) -> Self {
+        let config = FluffConfig::from_source(source, None);
+        let templater = SqruffLinter::get_templater(&config).ok();
         Self {
-            base: SqruffLinter::new(FluffConfig::from_source(source, None), None, None, true),
+            base: SqruffLinter::new(config, None, templater, true),
         }
     }
 

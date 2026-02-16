@@ -49,7 +49,8 @@ impl Linter {
     ) -> Linter {
         let templater: &'static dyn Templater = match templater {
             Some(templater) => templater,
-            None => Linter::get_templater(&config),
+            None => Linter::get_templater(&config)
+                .expect("Templater should be validated before Linter::new()"),
         };
         Linter {
             config,
@@ -60,14 +61,21 @@ impl Linter {
         }
     }
 
-    pub fn get_templater(config: &FluffConfig) -> &'static dyn Templater {
+    pub fn get_templater(config: &FluffConfig) -> Result<&'static dyn Templater, String> {
         let templater_name = config.get("templater", "core").as_string();
         match templater_name {
             Some(name) => match TEMPLATERS.into_iter().find(|t| t.name() == name) {
-                Some(t) => t,
-                None => panic!("Unknown templater: {name}"),
+                Some(t) => Ok(t),
+                None => {
+                    let available: Vec<&str> = TEMPLATERS.iter().map(|t| t.name()).collect();
+                    Err(format!(
+                        "Unknown templater '{}'. Available templaters: {}",
+                        name,
+                        available.join(", ")
+                    ))
+                }
             },
-            None => &RawTemplater,
+            None => Ok(&RawTemplater),
         }
     }
 

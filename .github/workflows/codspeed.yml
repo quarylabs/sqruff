@@ -34,7 +34,7 @@ jobs:
         run: cargo codspeed build --package sqruff-lib
 
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@9a74b6ba663684052277e8f342b5eb99c7442a03 # ratchet:CodSpeedHQ/action@v4
+        uses: CodSpeedHQ/action@4deb3275dd364fb96fb074c953133d29ec96f80f # ratchet:CodSpeedHQ/action@v4
         with:
           run: cargo codspeed run --package sqruff-lib
           mode: walltime

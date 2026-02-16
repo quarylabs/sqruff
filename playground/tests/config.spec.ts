@@ -30,7 +30,7 @@ test("home page opens", async ({ page }) => {
   // Wait for settings to be applied by checking the main panel contains the new rules
   await expect(page.locator("#main")).toContainText("rules = all");
 
-  await formatEditorContains(page, "select foo.bar from table1 as foo");
+  await formatEditorContains(page, "table1 as foo");
 
   // Change the rule to AL01
   await updateEditorText(

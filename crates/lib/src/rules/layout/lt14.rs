@@ -1,4 +1,4 @@
-use ahash::AHashMap;
+use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::Value;
@@ -22,7 +22,7 @@ const CLAUSE_TYPES: SyntaxSet = SyntaxSet::new(&[
 pub struct RuleLT14;
 
 impl Rule for RuleLT14 {
-    fn load_from_config(&self, _config: &AHashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT14.erased())
     }
 
@@ -36,6 +36,17 @@ impl Rule for RuleLT14 {
 
     fn long_description(&self) -> &'static str {
         r#"
+This rule checks the following clause types:
+
+- `SELECT`
+- `FROM`
+- `WHERE`
+- `JOIN`
+- `GROUP BY`
+- `ORDER BY`
+- `HAVING`
+- `LIMIT`
+
 **Anti-pattern**
 
 In this example, some clauses share a line while others don't,

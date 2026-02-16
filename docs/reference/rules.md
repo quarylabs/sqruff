@@ -52,6 +52,7 @@ The following rules are available in this create. This list is generated from th
 | LT11 | [layout.set_operators](#layoutset_operators) | Set operators should be surrounded by newlines. | 
 | LT12 | [layout.end_of_file](#layoutend_of_file) | Files must end with a single trailing newline. | 
 | LT13 | [layout.start_of_file](#layoutstart_of_file) | Files must not begin with newlines or whitespace. | 
+| LT14 | [layout.keyword_newline](#layoutkeyword_newline) | Keyword clause newline enforcement. | 
 | LT15 | [layout.newlines](#layoutnewlines) | Too many consecutive blank lines. | 
 | RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | 
 | RF02 | [references.qualification](#referencesqualification) | References should be qualified if select has more than one referenced table/view. | 
@@ -1828,6 +1829,48 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
      a
  FROM
      foo
+```
+
+
+### layout.keyword_newline
+
+Keyword clause newline enforcement.
+
+**Code:** `LT14`
+
+**Groups:** `all`, `layout`
+
+**Fixable:** Yes
+
+This rule checks the following clause types:
+
+- `SELECT`
+- `FROM`
+- `WHERE`
+- `JOIN`
+- `GROUP BY`
+- `ORDER BY`
+- `HAVING`
+- `LIMIT`
+
+**Anti-pattern**
+
+In this example, some clauses share a line while others don't,
+creating inconsistent formatting.
+
+```sql
+SELECT a
+FROM foo WHERE a = 1
+```
+
+**Best practice**
+
+Each clause should start on a new line.
+
+```sql
+SELECT a
+FROM foo
+WHERE a = 1
 ```
 
 

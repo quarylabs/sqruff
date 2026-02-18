@@ -107,6 +107,29 @@ test_pass_multiple_newlines_are_allowed:
 
       WHERE a = 1
 
+# Statement terminator should stay on the same line as the last clause.
+test_pass_clauses_with_semicolon:
+  pass_str: |
+      SELECT
+          id,
+          name
+      FROM foo
+      WHERE name = 'bar';
+
+# All on one line with semicolon - no violation (non-strict).
+test_pass_all_on_one_line_with_semicolon:
+  pass_str: "SELECT a FROM foo WHERE a = 1;"
+
+# Partial newlines with semicolon: fix should not move it to a new line.
+test_fail_where_on_same_line_with_semicolon:
+  fail_str: |
+      SELECT a
+      FROM foo WHERE name = 'bar';
+  fix_str: |
+      SELECT a
+      FROM foo
+      WHERE name = 'bar';
+
 # alone:strict forces newlines even when all on one line.
 test_fail_all_on_one_line_strict:
   configs:

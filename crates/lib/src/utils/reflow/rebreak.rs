@@ -445,7 +445,27 @@ pub fn rebreak_sequence(
         } else if loc.line_position == LinePosition::Alone {
             let mut new_results = Vec::new();
 
-            if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() == 0 {
+            let needs_next_newline =
+                elem_buff[loc.next.newline_pt_idx as usize].num_newlines() == 0;
+            let needs_prev_newline = elem_buff[loc.prev.adj_pt_idx as usize].num_newlines() == 0;
+
+            // Don't add a newline before a statement terminator (semicolon).
+            // The terminator should stay on the same line as the preceding
+            // clause content (e.g. `WHERE a = 1;` not `WHERE a = 1\n;`).
+            let next_code_idx = (loc.next.pre_code_pt_idx + 1) as usize;
+            let next_is_statement_terminator = next_code_idx < elem_buff.len()
+                && elem_buff[next_code_idx]
+                    .segments()
+                    .iter()
+                    .any(|seg| seg.get_type() == SyntaxKind::StatementTerminator);
+
+            let skip_next_newline = needs_next_newline && next_is_statement_terminator;
+
+            if (!needs_next_newline || skip_next_newline) && !needs_prev_newline {
+                continue;
+            }
+
+            if needs_next_newline && !skip_next_newline {
                 let (results, next_point) = next_point.indent_to(
                     tables,
                     &deduce_line_indent(
@@ -462,7 +482,7 @@ pub fn rebreak_sequence(
                 elem_buff[loc.next.adj_pt_idx as usize] = next_point.into();
             }
 
-            if elem_buff[loc.prev.adj_pt_idx as usize].num_newlines() == 0 {
+            if needs_prev_newline {
                 let (results, prev_point) = prev_point.indent_to(
                     tables,
                     &deduce_line_indent(

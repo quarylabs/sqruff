@@ -66,7 +66,7 @@ fn parse_and_output_tree(
     format: ParseFormat,
 ) -> i32 {
     // Create a linter and parse the SQL
-    let linter = Linter::new(config.clone(), None, None, true, None);
+    let linter = Linter::new(config.clone(), None, None, true);
     let tables = Tables::default();
 
     match linter.parse_string(&tables, sql, Some(filename.to_string())) {

@@ -71,7 +71,7 @@ SELECT construct_depth_info('uuid-2');
 SELECT construct_depth_info('uuid-3');"#;
 
 fn depth_map(c: &mut Criterion) {
-    let linter = Linter::new(FluffConfig::default(), None, None, false, None);
+    let linter = Linter::new(FluffConfig::default(), None, None, false);
     let tables = Tables::default();
     let tree = linter
         .parse_string(&tables, COMPLEX_QUERY, None)

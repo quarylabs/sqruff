@@ -201,7 +201,7 @@ SELECT
     ) AS result
 FROM t
 ";
-        let linter = Linter::new(FluffConfig::default(), None, None, true, None);
+        let linter = Linter::new(FluffConfig::default(), None, None, true);
         let result = linter.lint_string(sql, None, true).unwrap();
         let fixed = result.fix_string();
 

@@ -2,7 +2,7 @@ use crate::commands::FixArgs;
 use crate::commands::Format;
 use crate::linter;
 use sqruff_lib::core::config::FluffConfig;
-use std::collections::HashMap;
+use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
 
 pub(crate) fn run_fix(
@@ -10,11 +10,20 @@ pub(crate) fn run_fix(
     config: FluffConfig,
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
     collect_parse_errors: bool,
-    cli_overrides: Option<HashMap<String, String>>,
+    dialect_override: Option<DialectKind>,
 ) -> i32 {
     let FixArgs { paths, format } = args;
-    let mut linter = linter(config, format, collect_parse_errors, cli_overrides);
-    let result = match linter.lint_paths(paths, true, &ignorer) {
+    let mut linter = linter(config.clone(), format, collect_parse_errors);
+
+    let result = crate::commands_lint::lint_paths_with_per_file_config(
+        &mut linter,
+        paths,
+        true,
+        &ignorer,
+        &config,
+        dialect_override,
+    );
+    let result = match result {
         Ok(result) => result,
         Err(e) => {
             eprintln!("{}", e.value);
@@ -48,11 +57,10 @@ pub(crate) fn run_fix_stdin(
     config: FluffConfig,
     format: Format,
     collect_parse_errors: bool,
-    cli_overrides: Option<HashMap<String, String>>,
 ) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
-    let linter = linter(config, format, collect_parse_errors, cli_overrides);
+    let linter = linter(config, format, collect_parse_errors);
     let result = match linter.lint_string(&read_in, None, true) {
         Ok(result) => result,
         Err(e) => {

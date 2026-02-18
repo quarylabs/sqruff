@@ -46,7 +46,15 @@ where
     let cli = Cli::parse_from(args);
     let collect_parse_errors = cli.parsing_errors;
 
-    let config: FluffConfig = if let Some(config) = cli.config.as_ref() {
+    let dialect_override: Option<DialectKind> = cli.dialect.map(|dialect| {
+        DialectKind::try_from(dialect.as_str()).unwrap_or_else(|e| {
+            eprintln!("{}", e);
+            std::process::exit(1);
+        })
+    });
+
+    let explicit_config = cli.config.is_some();
+    let mut config: FluffConfig = if let Some(config) = cli.config.as_ref() {
         if !Path::new(config).is_file() {
             eprintln!(
                 "The specified config file '{}' does not exist.",
@@ -57,21 +65,15 @@ where
         };
         FluffConfig::from_file(Path::new(config))
     } else {
-        // Load a base config from cwd ancestors. Per-file config resolution
-        // happens inside the Linter during lint_paths.
         FluffConfig::from_root(None, false, None).unwrap()
     };
 
-    // Build CLI overrides (e.g. --dialect) to apply on top of per-file configs.
-    let cli_overrides: Option<std::collections::HashMap<String, String>> =
-        cli.dialect.map(|dialect| {
-            // Validate the dialect name early.
-            DialectKind::try_from(dialect.as_str()).unwrap_or_else(|e| {
-                eprintln!("{}", e);
-                std::process::exit(1);
-            });
-            [("dialect".to_owned(), dialect)].into_iter().collect()
+    if let Some(dialect) = dialect_override {
+        config.override_dialect(dialect).unwrap_or_else(|e| {
+            eprintln!("{}", e);
+            std::process::exit(1);
         });
+    }
 
     let current_path = std::env::current_dir().unwrap();
     let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();
@@ -79,6 +81,15 @@ where
     let ignorer = {
         let ignore_file = Arc::clone(&ignore_file);
         move |path: &Path| ignore_file.is_ignored(path)
+    };
+
+    // Per-file config resolution is only used when no explicit --config was
+    // given. When it is used, dialect_override is re-applied on top of each
+    // per-file config.
+    let per_file_dialect = if explicit_config {
+        None
+    } else {
+        dialect_override
     };
 
     match cli.command {
@@ -92,14 +103,9 @@ where
                 config,
                 ignorer,
                 collect_parse_errors,
-                cli_overrides,
+                per_file_dialect,
             ),
-            Ok(true) => commands_lint::run_lint_stdin(
-                config,
-                args.format,
-                collect_parse_errors,
-                cli_overrides,
-            ),
+            Ok(true) => commands_lint::run_lint_stdin(config, args.format, collect_parse_errors),
         },
         Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
             Err(e) => {
@@ -111,14 +117,9 @@ where
                 config,
                 ignorer,
                 collect_parse_errors,
-                cli_overrides,
+                per_file_dialect,
             ),
-            Ok(true) => commands_fix::run_fix_stdin(
-                config,
-                args.format,
-                collect_parse_errors,
-                cli_overrides,
-            ),
+            Ok(true) => commands_fix::run_fix_stdin(config, args.format, collect_parse_errors),
         },
         Commands::Lsp => {
             sqruff_lsp::run();
@@ -145,12 +146,7 @@ where
     }
 }
 
-pub(crate) fn linter(
-    config: FluffConfig,
-    format: Format,
-    collect_parse_errors: bool,
-    cli_overrides: Option<std::collections::HashMap<String, String>>,
-) -> Linter {
+pub(crate) fn linter(config: FluffConfig, format: Format, collect_parse_errors: bool) -> Linter {
     let formatter: Arc<dyn Formatter> = match format {
         Format::Human => {
             let output_stream = std::io::stderr().into();
@@ -172,11 +168,5 @@ pub(crate) fn linter(
         }
     };
 
-    Linter::new(
-        config,
-        Some(formatter),
-        None,
-        collect_parse_errors,
-        cli_overrides,
-    )
+    Linter::new(config, Some(formatter), None, collect_parse_errors)
 }

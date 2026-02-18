@@ -71,7 +71,6 @@ fn fix(c: &mut Criterion) {
         None,
         None,
         false,
-        None,
     );
     for (name, source) in passes {
         let tables = Tables::default();

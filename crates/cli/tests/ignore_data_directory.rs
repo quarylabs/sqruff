@@ -215,7 +215,6 @@ fn test_lint_paths_traverses_ignored_directories() {
         None,
         None,
         false,
-        None,
     );
 
     // Create a dummy ignorer that doesn't ignore anything (to test the current broken behavior)

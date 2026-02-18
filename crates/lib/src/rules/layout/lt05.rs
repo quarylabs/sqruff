@@ -182,3 +182,46 @@ FROM my_table
         RootOnlyCrawler.into()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::core::config::FluffConfig;
+    use crate::core::linter::core::Linter;
+
+    /// Verifies that moving a trailing comment before its code line doesn't
+    /// merge it with the code, which would produce broken SQL since
+    /// everything after `--` becomes part of the comment.
+    #[test]
+    fn test_comment_not_merged_with_next_line() {
+        let sql = "\
+SELECT
+    COALESCE(
+        REGEXP_EXTRACT(project_id, '^foo-bar-(.+)$'),                -- foo-bar-baz -> baz
+        REGEXP_EXTRACT(project_id, '^qux-(.+)$')                     -- qux-corge -> corge
+    ) AS result
+FROM t
+";
+        let linter = Linter::new(FluffConfig::default(), None, None, true);
+        let result = linter.lint_string(sql, None, true).unwrap();
+        let fixed = result.fix_string();
+
+        for line in fixed.lines() {
+            if let Some(comment_pos) = line.find("--") {
+                let before_comment = line[..comment_pos].trim();
+                if before_comment.is_empty() {
+                    assert!(
+                        !after_double_dash_has_code(line, comment_pos),
+                        "Comment merged with code on line: {line}"
+                    );
+                }
+            }
+        }
+    }
+
+    fn after_double_dash_has_code(line: &str, comment_pos: usize) -> bool {
+        let after_comment = &line[comment_pos..];
+        after_comment.contains("REGEXP_EXTRACT")
+            || after_comment.contains("SELECT")
+            || after_comment.contains("FROM")
+    }
+}

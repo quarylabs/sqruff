@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, OnceLock};
 
 use crate::Formatter;
-use crate::core::config::FluffConfig;
+use crate::core::config::{ConfigLoader, FluffConfig};
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
@@ -19,6 +19,7 @@ use itertools::Itertools;
 use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
+use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError,
@@ -38,6 +39,9 @@ pub struct Linter {
 
     /// include_parse_errors is a flag to indicate whether to include parse errors in the output
     include_parse_errors: bool,
+
+    /// CLI dialect override, applied on top of any per-file config.
+    dialect_override: Option<DialectKind>,
 }
 
 impl Linter {
@@ -57,6 +61,7 @@ impl Linter {
             templater,
             rules: OnceLock::new(),
             include_parse_errors,
+            dialect_override: None,
         }
     }
 
@@ -69,6 +74,22 @@ impl Linter {
             },
             None => &RawTemplater,
         }
+    }
+
+    pub fn set_dialect_override(&mut self, dialect: DialectKind) {
+        self.dialect_override = Some(dialect);
+    }
+
+    /// Update the linter's config, resetting cached templater and rules.
+    fn set_config(&mut self, mut config: FluffConfig) {
+        if let Some(dialect) = self.dialect_override {
+            config
+                .override_dialect(dialect)
+                .expect("invalid dialect override");
+        }
+        self.templater = Self::get_templater(&config);
+        self.rules = OnceLock::new();
+        self.config = config;
     }
 
     /// Lint strings directly.
@@ -154,33 +175,48 @@ impl Linter {
             })
             .collect_vec();
 
+        // Group files by their nearest config directory so each group uses the
+        // right .sqruff/.sqlfluff config.
+        let mut groups: HashMap<Option<PathBuf>, Vec<String>> = HashMap::new();
+        for path in &paths {
+            let config_dir = ConfigLoader::find_nearest_config_dir(Path::new(path));
+            groups.entry(config_dir).or_default().push(path.clone());
+        }
+
         let mut files = Vec::with_capacity(paths.len());
 
-        match self.templater.processing_mode() {
-            ProcessingMode::Parallel => {
-                let results: Vec<_> = paths
-                    .par_iter()
-                    .map(|path| {
+        for (config_dir, group_paths) in groups {
+            // Load config for this group.
+            if let Some(dir) = &config_dir {
+                let config = FluffConfig::from_path(dir, None, false, None)
+                    .unwrap_or_else(|_| FluffConfig::default());
+                self.set_config(config);
+            }
+
+            match self.templater.processing_mode() {
+                ProcessingMode::Parallel => {
+                    let results: Vec<_> = group_paths
+                        .par_iter()
+                        .map(|path| {
+                            let rendered = self.render_file(path.clone());
+                            self.lint_rendered(rendered, fix)
+                        })
+                        .collect();
+                    for result in results {
+                        files.push(result?);
+                    }
+                }
+                ProcessingMode::Batch => {
+                    let rendered_files = self.render_files_batch(&group_paths);
+                    for rendered in rendered_files {
+                        files.push(self.lint_rendered(rendered, fix)?);
+                    }
+                }
+                ProcessingMode::Sequential => {
+                    for path in &group_paths {
                         let rendered = self.render_file(path.clone());
-                        self.lint_rendered(rendered, fix)
-                    })
-                    .collect();
-                for result in results {
-                    files.push(result?);
-                }
-            }
-            ProcessingMode::Batch => {
-                // Use batch processing for templaters that support it (e.g., dbt).
-                // This allows sharing expensive initialization (manifest loading) across files.
-                let rendered_files = self.render_files_batch(&paths);
-                for rendered in rendered_files {
-                    files.push(self.lint_rendered(rendered, fix)?);
-                }
-            }
-            ProcessingMode::Sequential => {
-                for path in &paths {
-                    let rendered = self.render_file(path.clone());
-                    files.push(self.lint_rendered(rendered, fix)?);
+                        files.push(self.lint_rendered(rendered, fix)?);
+                    }
                 }
             }
         }
@@ -969,6 +1005,49 @@ mod tests {
         );
         let tables = Tables::default();
         let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
+    }
+
+    #[test]
+    fn test_lint_paths_per_file_config() {
+        let base = std::env::temp_dir().join("sqruff_test_per_file_config");
+        let _ = std::fs::remove_dir_all(&base);
+
+        // Create bq/ with bigquery config and a file using backtick-quoted identifiers
+        let bq_dir = base.join("bq").join("sub");
+        std::fs::create_dir_all(&bq_dir).unwrap();
+        std::fs::write(
+            base.join("bq").join(".sqruff"),
+            "[sqruff]\ndialect = bigquery\n",
+        )
+        .unwrap();
+        std::fs::write(
+            bq_dir.join("test.sql"),
+            "SELECT a FROM `p.d.t` WHERE a >= 1\n",
+        )
+        .unwrap();
+
+        // Create ansi/ with no config (defaults to ansi)
+        let ansi_dir = base.join("ansi");
+        std::fs::create_dir_all(&ansi_dir).unwrap();
+        std::fs::write(ansi_dir.join("test.sql"), "SELECT a FROM t WHERE a >= 1\n").unwrap();
+
+        let config = FluffConfig::default();
+        let mut linter = Linter::new(config, None, None, false);
+
+        let result = linter
+            .lint_paths(
+                vec![bq_dir.join("test.sql"), ansi_dir.join("test.sql")],
+                false,
+                &|_| false,
+            )
+            .unwrap();
+
+        // Both files should lint without panicking (the bigquery file would
+        // fail to parse under the ansi dialect due to backtick-quoted project
+        // identifiers).
+        assert_eq!(result.len(), 2);
+
+        let _ = std::fs::remove_dir_all(&base);
     }
 
     #[test]

@@ -46,7 +46,7 @@ where
     let cli = Cli::parse_from(args);
     let collect_parse_errors = cli.parsing_errors;
 
-    let mut config: FluffConfig = if let Some(config) = cli.config.as_ref() {
+    let config: FluffConfig = if let Some(config) = cli.config.as_ref() {
         if !Path::new(config).is_file() {
             eprintln!(
                 "The specified config file '{}' does not exist.",
@@ -57,24 +57,19 @@ where
         };
         FluffConfig::from_file(Path::new(config))
     } else {
+        // Load a base config from cwd ancestors. Per-file config resolution
+        // happens inside the Linter during lint_paths.
         FluffConfig::from_root(None, false, None).unwrap()
     };
 
-    if let Some(dialect) = cli.dialect {
-        let dialect_kind = DialectKind::try_from(dialect.as_str());
-        match dialect_kind {
-            Ok(dialect_kind) => {
-                config.override_dialect(dialect_kind).unwrap_or_else(|e| {
-                    eprintln!("{}", e);
-                    std::process::exit(1);
-                });
-            }
-            Err(e) => {
-                eprintln!("{}", e);
-                std::process::exit(1);
-            }
-        }
-    }
+    // Parse dialect override from CLI; it will be applied per-file in the
+    // linter, taking priority over any .sqruff config.
+    let dialect_override: Option<DialectKind> = cli.dialect.map(|dialect| {
+        DialectKind::try_from(dialect.as_str()).unwrap_or_else(|e| {
+            eprintln!("{}", e);
+            std::process::exit(1);
+        })
+    });
 
     let current_path = std::env::current_dir().unwrap();
     let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();
@@ -90,16 +85,38 @@ where
                 eprintln!("{e}");
                 1
             }
-            Ok(false) => commands_lint::run_lint(args, config, ignorer, collect_parse_errors),
-            Ok(true) => commands_lint::run_lint_stdin(config, args.format, collect_parse_errors),
+            Ok(false) => commands_lint::run_lint(
+                args,
+                config,
+                ignorer,
+                collect_parse_errors,
+                dialect_override,
+            ),
+            Ok(true) => commands_lint::run_lint_stdin(
+                config,
+                args.format,
+                collect_parse_errors,
+                dialect_override,
+            ),
         },
         Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
             Err(e) => {
                 eprintln!("{e}");
                 1
             }
-            Ok(false) => commands_fix::run_fix(args, config, ignorer, collect_parse_errors),
-            Ok(true) => commands_fix::run_fix_stdin(config, args.format, collect_parse_errors),
+            Ok(false) => commands_fix::run_fix(
+                args,
+                config,
+                ignorer,
+                collect_parse_errors,
+                dialect_override,
+            ),
+            Ok(true) => commands_fix::run_fix_stdin(
+                config,
+                args.format,
+                collect_parse_errors,
+                dialect_override,
+            ),
         },
         Commands::Lsp => {
             sqruff_lsp::run();
@@ -126,7 +143,12 @@ where
     }
 }
 
-pub(crate) fn linter(config: FluffConfig, format: Format, collect_parse_errors: bool) -> Linter {
+pub(crate) fn linter(
+    config: FluffConfig,
+    format: Format,
+    collect_parse_errors: bool,
+    dialect_override: Option<DialectKind>,
+) -> Linter {
     let formatter: Arc<dyn Formatter> = match format {
         Format::Human => {
             let output_stream = std::io::stderr().into();
@@ -148,5 +170,15 @@ pub(crate) fn linter(config: FluffConfig, format: Format, collect_parse_errors: 
         }
     };
 
-    Linter::new(config, Some(formatter), None, collect_parse_errors)
+    let mut config = config;
+    if let Some(dialect) = dialect_override {
+        config
+            .override_dialect(dialect)
+            .expect("invalid dialect override");
+    }
+    let mut linter = Linter::new(config, Some(formatter), None, collect_parse_errors);
+    if let Some(dialect) = dialect_override {
+        linter.set_dialect_override(dialect);
+    }
+    linter
 }

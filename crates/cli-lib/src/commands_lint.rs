@@ -1,6 +1,7 @@
 use crate::commands::{Format, LintArgs};
 use crate::linter;
 use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
 
 pub(crate) fn run_lint(
@@ -8,9 +9,10 @@ pub(crate) fn run_lint(
     config: FluffConfig,
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
     collect_parse_errors: bool,
+    dialect_override: Option<DialectKind>,
 ) -> i32 {
     let LintArgs { paths, format } = args;
-    let mut linter = linter(config, format, collect_parse_errors);
+    let mut linter = linter(config, format, collect_parse_errors, dialect_override);
     let result = match linter.lint_paths(paths, false, &ignorer) {
         Ok(result) => result,
         Err(e) => {
@@ -28,10 +30,11 @@ pub(crate) fn run_lint_stdin(
     config: FluffConfig,
     format: Format,
     collect_parse_errors: bool,
+    dialect_override: Option<DialectKind>,
 ) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
-    let linter = linter(config, format, collect_parse_errors);
+    let linter = linter(config, format, collect_parse_errors, dialect_override);
     let result = match linter.lint_string(&read_in, None, false) {
         Ok(result) => result,
         Err(e) => {

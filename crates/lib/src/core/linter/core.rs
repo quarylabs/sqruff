@@ -19,7 +19,6 @@ use itertools::Itertools;
 use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
-use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError,
@@ -40,8 +39,8 @@ pub struct Linter {
     /// include_parse_errors is a flag to indicate whether to include parse errors in the output
     include_parse_errors: bool,
 
-    /// CLI dialect override, applied on top of any per-file config.
-    dialect_override: Option<DialectKind>,
+    /// CLI overrides (e.g. --dialect), applied on top of any per-file config.
+    cli_overrides: Option<std::collections::HashMap<String, String>>,
 }
 
 impl Linter {
@@ -50,6 +49,7 @@ impl Linter {
         formatter: Option<Arc<dyn Formatter>>,
         templater: Option<&'static dyn Templater>,
         include_parse_errors: bool,
+        cli_overrides: Option<std::collections::HashMap<String, String>>,
     ) -> Linter {
         let templater: &'static dyn Templater = match templater {
             Some(templater) => templater,
@@ -61,7 +61,7 @@ impl Linter {
             templater,
             rules: OnceLock::new(),
             include_parse_errors,
-            dialect_override: None,
+            cli_overrides,
         }
     }
 
@@ -76,17 +76,8 @@ impl Linter {
         }
     }
 
-    pub fn set_dialect_override(&mut self, dialect: DialectKind) {
-        self.dialect_override = Some(dialect);
-    }
-
     /// Update the linter's config, resetting cached templater and rules.
-    fn set_config(&mut self, mut config: FluffConfig) {
-        if let Some(dialect) = self.dialect_override {
-            config
-                .override_dialect(dialect)
-                .expect("invalid dialect override");
-        }
+    fn set_config(&mut self, config: FluffConfig) {
         self.templater = Self::get_templater(&config);
         self.rules = OnceLock::new();
         self.config = config;
@@ -188,7 +179,11 @@ impl Linter {
         for (config_dir, group_paths) in groups {
             // Load config for this group.
             if let Some(dir) = &config_dir {
-                let config = FluffConfig::from_path(dir, None, false, None)
+                let overrides = self
+                    .cli_overrides
+                    .as_ref()
+                    .map(|o| o.iter().map(|(k, v)| (k.clone(), v.clone())).collect());
+                let config = FluffConfig::from_path(dir, None, false, overrides)
                     .unwrap_or_else(|_| FluffConfig::default());
                 self.set_config(config);
             }
@@ -868,6 +863,7 @@ mod tests {
             None,
             None,
             false,
+            None,
         ); // Assuming Linter has a new() method for initialization
         let paths =
             lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None, None);
@@ -887,6 +883,7 @@ mod tests {
             None,
             None,
             false,
+            None,
         ); // Assuming Linter has a new() method for initialization
         let paths = normalise_paths(lntr.paths_from_path(
             "test/fixtures/linter".into(),
@@ -907,7 +904,7 @@ mod tests {
         // FluffConfig
         let config =
             FluffConfig::new(<_>::default(), None, None).with_sql_file_exts(vec![".txt".into()]);
-        let lntr = Linter::new(config, None, None, false); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(config, None, None, false, None); // Assuming Linter has a new() method for initialization
 
         let paths =
             lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None, None);
@@ -930,6 +927,7 @@ mod tests {
             None,
             None,
             false,
+            None,
         ); // Assuming Linter has a new() method for initialization
         let paths = lntr.paths_from_path(
             "test/fixtures/linter/indentation_errors.sql".into(),
@@ -970,6 +968,7 @@ mod tests {
             None,
             None,
             false,
+            None,
         );
         let tables = Tables::default();
         let parsed = linter.parse_string(&tables, "", None).unwrap();
@@ -1002,6 +1001,7 @@ mod tests {
             None,
             None,
             false,
+            None,
         );
         let tables = Tables::default();
         let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
@@ -1032,7 +1032,7 @@ mod tests {
         std::fs::write(ansi_dir.join("test.sql"), "SELECT a FROM t WHERE a >= 1\n").unwrap();
 
         let config = FluffConfig::default();
-        let mut linter = Linter::new(config, None, None, false);
+        let mut linter = Linter::new(config, None, None, false, None);
 
         let result = linter
             .lint_paths(

@@ -66,7 +66,7 @@ fn parse_and_output_tree(
     format: ParseFormat,
 ) -> i32 {
     // Create a linter and parse the SQL
-    let linter = Linter::new(config.clone(), None, None, true);
+    let linter = Linter::new(config.clone(), None, None, true, None);
     let tables = Tables::default();
 
     match linter.parse_string(&tables, sql, Some(filename.to_string())) {
@@ -74,7 +74,7 @@ fn parse_and_output_tree(
             if let Some(tree) = &parsed.tree {
                 match format {
                     ParseFormat::Json => {
-                        let serialized = tree.to_serialised(false, true);
+                        let serialized = tree.to_serialised(false, true, None);
                         match serde_json::to_string_pretty(&serialized) {
                             Ok(json) => println!("{}", json),
                             Err(e) => {

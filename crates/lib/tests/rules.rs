@@ -54,7 +54,7 @@ fn main() {
     let mut args = Args::default();
     args.parse_args(std::env::args().skip(1));
 
-    let mut linter = Linter::new(FluffConfig::default(), None, None, true);
+    let mut linter = Linter::new(FluffConfig::default(), None, None, true, None);
     let mut core = HashMap::new();
     core.insert(
         "core".to_string(),
@@ -151,7 +151,7 @@ fn main() {
 
                 // Recreate linter with proper templater after all config is set up
                 let templater = Linter::get_templater(linter.config());
-                linter = Linter::new(linter.config().clone(), None, Some(templater), true);
+                linter = Linter::new(linter.config().clone(), None, Some(templater), true, None);
             }
 
             match case.kind {
@@ -174,7 +174,7 @@ dialect = {dialect}
 ",
  None);
 
-        let mut linter = Linter::new(config, None, None, true);
+        let mut linter = Linter::new(config, None, None, true, None);
 
         let pass_str = r"{pass_str}";
 
@@ -215,7 +215,7 @@ dialect = {dialect}
                 // Recreate linter with default templater to avoid leaking
                 // the custom templater (e.g. placeholder) into subsequent tests.
                 let templater = Linter::get_templater(linter.config());
-                linter = Linter::new(linter.config().clone(), None, Some(templater), true);
+                linter = Linter::new(linter.config().clone(), None, Some(templater), true, None);
             }
         }
     }

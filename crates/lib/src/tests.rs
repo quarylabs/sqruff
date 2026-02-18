@@ -195,6 +195,7 @@ fn test_dialect_ansi_specific_segment_not_parse() {
             None,
             None,
             false,
+        None,
         );
         let tables = Tables::default();
         let parsed = lnt.parse_string(&tables, raw, None).unwrap();
@@ -216,6 +217,7 @@ fn test_dialect_ansi_is_whitespace() {
         None,
         None,
         false,
+        None,
     );
     let file_content = std::fs::read_to_string(
         "../lib-dialects/test/fixtures/dialects/ansi/sqlfluff/select_in_multiline_comment.sql",
@@ -249,6 +251,7 @@ fn test_dialect_ansi_parse_indented_joins() {
         None,
         None,
         false,
+        None,
     );
 
     for (sql_string, meta_loc) in cases {

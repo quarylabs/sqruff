@@ -62,14 +62,16 @@ where
         FluffConfig::from_root(None, false, None).unwrap()
     };
 
-    // Parse dialect override from CLI; it will be applied per-file in the
-    // linter, taking priority over any .sqruff config.
-    let dialect_override: Option<DialectKind> = cli.dialect.map(|dialect| {
-        DialectKind::try_from(dialect.as_str()).unwrap_or_else(|e| {
-            eprintln!("{}", e);
-            std::process::exit(1);
-        })
-    });
+    // Build CLI overrides (e.g. --dialect) to apply on top of per-file configs.
+    let cli_overrides: Option<std::collections::HashMap<String, String>> =
+        cli.dialect.map(|dialect| {
+            // Validate the dialect name early.
+            DialectKind::try_from(dialect.as_str()).unwrap_or_else(|e| {
+                eprintln!("{}", e);
+                std::process::exit(1);
+            });
+            [("dialect".to_owned(), dialect)].into_iter().collect()
+        });
 
     let current_path = std::env::current_dir().unwrap();
     let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();
@@ -90,13 +92,13 @@ where
                 config,
                 ignorer,
                 collect_parse_errors,
-                dialect_override,
+                cli_overrides,
             ),
             Ok(true) => commands_lint::run_lint_stdin(
                 config,
                 args.format,
                 collect_parse_errors,
-                dialect_override,
+                cli_overrides,
             ),
         },
         Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
@@ -109,13 +111,13 @@ where
                 config,
                 ignorer,
                 collect_parse_errors,
-                dialect_override,
+                cli_overrides,
             ),
             Ok(true) => commands_fix::run_fix_stdin(
                 config,
                 args.format,
                 collect_parse_errors,
-                dialect_override,
+                cli_overrides,
             ),
         },
         Commands::Lsp => {
@@ -147,7 +149,7 @@ pub(crate) fn linter(
     config: FluffConfig,
     format: Format,
     collect_parse_errors: bool,
-    dialect_override: Option<DialectKind>,
+    cli_overrides: Option<std::collections::HashMap<String, String>>,
 ) -> Linter {
     let formatter: Arc<dyn Formatter> = match format {
         Format::Human => {
@@ -170,15 +172,11 @@ pub(crate) fn linter(
         }
     };
 
-    let mut config = config;
-    if let Some(dialect) = dialect_override {
-        config
-            .override_dialect(dialect)
-            .expect("invalid dialect override");
-    }
-    let mut linter = Linter::new(config, Some(formatter), None, collect_parse_errors);
-    if let Some(dialect) = dialect_override {
-        linter.set_dialect_override(dialect);
-    }
-    linter
+    Linter::new(
+        config,
+        Some(formatter),
+        None,
+        collect_parse_errors,
+        cli_overrides,
+    )
 }

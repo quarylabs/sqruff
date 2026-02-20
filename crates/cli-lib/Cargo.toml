@@ -34,7 +34,7 @@ log.workspace = true
 anstyle = "1.0"
 clap = { version = "4", features = ["derive"] }
 ignore = "0.4.23"
-pyo3 = { version = "0.28.0", optional = true }
+pyo3 = { version = "0.28.2", optional = true }
 # Codegen dependencies
 clap-markdown = { workspace = true, optional = true }
 minijinja = { workspace = true, optional = true }

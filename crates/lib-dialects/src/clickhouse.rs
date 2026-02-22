@@ -861,11 +861,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("STEP").to_matchable(),
-                one_of(vec![
-                    Ref::new("NumericLiteralSegment").to_matchable(),
-                    Ref::new("IntervalExpressionSegment").to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
             ])
             .config(|this| this.optional())
             .to_matchable(),

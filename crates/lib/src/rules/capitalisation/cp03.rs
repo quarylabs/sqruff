@@ -4,7 +4,9 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 
-use super::clickhouse_function_casing::canonical_clickhouse_function_name;
+use super::clickhouse_function_casing::{
+    canonical_clickhouse_function_name, is_clickhouse_case_insensitive_function,
+};
 use super::cp01::RuleCP01;
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -134,8 +136,13 @@ impl RuleCP03 {
 
         let segment_raw = context.segment.raw();
         let Some(canonical_name) = canonical_clickhouse_function_name(&segment_raw) else {
+            if is_clickhouse_case_insensitive_function(&segment_raw) {
+                // Case-insensitive functions are safe to rewrite using configured policy.
+                return self.base.eval(context);
+            }
+
             // ClickHouse function names can be case-sensitive, so avoid unsafe case rewrites
-            // for functions that are not explicitly mapped.
+            // for functions that are not explicitly classified.
             return Vec::new();
         };
 

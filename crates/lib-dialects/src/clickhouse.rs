@@ -454,16 +454,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     // e.g. addInterval((INTERVAL 1 DAY, INTERVAL 1 YEAR), INTERVAL 1 MONTH).
     clickhouse_dialect.replace_grammar(
         "BaseExpressionElementGrammar",
-        ansi_dialect
-            .grammar("BaseExpressionElementGrammar")
-            .copy(
-                Some(vec![Ref::new("TupleSegment").to_matchable()]),
-                None,
-                Some(Ref::new("ExpressionSegment").to_matchable()),
-                None,
-                Vec::new(),
-                false,
-            ),
+        ansi_dialect.grammar("BaseExpressionElementGrammar").copy(
+            Some(vec![Ref::new("TupleSegment").to_matchable()]),
+            None,
+            Some(Ref::new("ExpressionSegment").to_matchable()),
+            None,
+            Vec::new(),
+            false,
+        ),
     );
 
     // Function arguments in ClickHouse may include tuple literals, e.g.
@@ -502,6 +500,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Vec::new(),
             false,
         ),
+    );
+
+    // ClickHouse supports aggregate modifiers after the function call, e.g.
+    // any(x) RESPECT NULLS.
+    clickhouse_dialect.replace_grammar(
+        "PostFunctionGrammar",
+        one_of(vec![
+            Ref::new("OverClauseSegment").to_matchable(),
+            Ref::new("FilterClauseGrammar").to_matchable(),
+            Ref::new("IgnoreRespectNullsGrammar").to_matchable(),
+        ])
+        .to_matchable(),
     );
 
     clickhouse_dialect.replace_grammar(

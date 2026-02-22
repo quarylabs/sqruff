@@ -114,3 +114,43 @@ test_pass_ignore_words_regex_bigquery_complex:
     rules:
       capitalisation.functions:
         ignore_words_regex: (^_f_|\._f_)
+
+test_fail_clickhouse_canonical_function_default_policy:
+  fail_str: SELECT tointervalminute(1) FROM t
+  fix_str: SELECT toIntervalMinute(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_canonical_function_lower_policy:
+  fail_str: SELECT tointervalminute(1) FROM t
+  fix_str: SELECT toIntervalMinute(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_fail_clickhouse_canonical_function_upper_policy:
+  fail_str: SELECT tointervalminute(1) FROM t
+  fix_str: SELECT toIntervalMinute(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_pass_clickhouse_unknown_function_not_rewritten:
+  pass_str: SELECT mycustomfunc(1), myCustomFunc(2) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_mixed_mapped_and_unknown_functions:
+  fail_str: SELECT tointervalminute(1), mycustomfunc(2), myCustomFunc(3) FROM t
+  fix_str: SELECT toIntervalMinute(1), mycustomfunc(2), myCustomFunc(3) FROM t
+  configs:
+    core:
+      dialect: clickhouse

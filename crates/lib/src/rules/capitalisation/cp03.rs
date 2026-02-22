@@ -1,7 +1,10 @@
 use hashbrown::HashMap;
 use regex::Regex;
+use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
 
+use super::clickhouse_function_casing::canonical_clickhouse_function_name;
 use super::cp01::RuleCP01;
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -103,6 +106,10 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        if context.dialect.name == DialectKind::Clickhouse {
+            return self.eval_clickhouse(context);
+        }
+
         self.base.eval(context)
     }
 
@@ -116,5 +123,43 @@ FROM foo
             SyntaxKind::BareFunction,
         ]) })
         .into()
+    }
+}
+
+impl RuleCP03 {
+    fn eval_clickhouse(&self, context: &RuleContext) -> Vec<LintResult> {
+        if context.segment.raw().is_empty() || context.segment.is_templated() {
+            return Vec::new();
+        }
+
+        let segment_raw = context.segment.raw();
+        let Some(canonical_name) = canonical_clickhouse_function_name(&segment_raw) else {
+            // ClickHouse function names can be case-sensitive, so avoid unsafe case rewrites
+            // for functions that are not explicitly mapped.
+            return Vec::new();
+        };
+
+        if segment_raw.as_str() == canonical_name {
+            return Vec::new();
+        }
+
+        let fix = LintFix::replace(
+            context.segment.clone(),
+            vec![context.segment.edit(
+                context.tables.next_id(),
+                canonical_name.to_string().into(),
+                None,
+            )],
+            None,
+        );
+
+        vec![LintResult::new(
+            Some(context.segment.clone()),
+            vec![fix],
+            Some(format!(
+                "Function names must use ClickHouse canonical case ('{canonical_name}')."
+            )),
+            None,
+        )]
     }
 }

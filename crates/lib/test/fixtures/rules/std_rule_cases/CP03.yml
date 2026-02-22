@@ -3400,3 +3400,392 @@ test_clickhouse_case_insensitive_function_scalarproduct_upper_policy:
     rules:
       capitalisation.functions:
         extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_enabledroles:
+  fail_str: SELECT enabledroles(1) FROM t
+  fix_str: SELECT enabledRoles(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_encodeurlcomponent:
+  fail_str: SELECT encodeurlcomponent(1) FROM t
+  fix_str: SELECT encodeURLComponent(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_encodeurlformcomponent:
+  fail_str: SELECT encodeurlformcomponent(1) FROM t
+  fix_str: SELECT encodeURLFormComponent(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_encodexmlcomponent:
+  fail_str: SELECT encodexmlcomponent(1) FROM t
+  fix_str: SELECT encodeXMLComponent(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_encrypt:
+  fail_str: SELECT ENCRYPT(1) FROM t
+  fix_str: SELECT encrypt(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_endswith:
+  fail_str: SELECT endswith(1) FROM t
+  fix_str: SELECT endsWith(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_endswithutf8:
+  fail_str: SELECT endswithutf8(1) FROM t
+  fix_str: SELECT endsWithUTF8(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_entropy:
+  fail_str: SELECT ENTROPY(1) FROM t
+  fix_str: SELECT entropy(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_equals:
+  fail_str: SELECT EQUALS(1) FROM t
+  fix_str: SELECT equals(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_erf:
+  fail_str: SELECT ERF(1) FROM t
+  fix_str: SELECT erf(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_erfc:
+  fail_str: SELECT ERFC(1) FROM t
+  fix_str: SELECT erfc(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_errorcodetoname:
+  fail_str: SELECT errorcodetoname(1) FROM t
+  fix_str: SELECT errorCodeToName(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_estimatecompressionratio:
+  fail_str: SELECT estimatecompressionratio(1) FROM t
+  fix_str: SELECT estimateCompressionRatio(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_evalmlmethod:
+  fail_str: SELECT evalmlmethod(1) FROM t
+  fix_str: SELECT evalMLMethod(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_exp10:
+  fail_str: SELECT EXP10(1) FROM t
+  fix_str: SELECT exp10(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_exp2:
+  fail_str: SELECT EXP2(1) FROM t
+  fix_str: SELECT exp2(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_exponentialmovingaverage:
+  fail_str: SELECT exponentialmovingaverage(1) FROM t
+  fix_str: SELECT exponentialMovingAverage(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_exponentialtimedecayedavg:
+  fail_str: SELECT exponentialtimedecayedavg(1) FROM t
+  fix_str: SELECT exponentialTimeDecayedAvg(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_exponentialtimedecayedcount:
+  fail_str: SELECT exponentialtimedecayedcount(1) FROM t
+  fix_str: SELECT exponentialTimeDecayedCount(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_exponentialtimedecayedmax:
+  fail_str: SELECT exponentialtimedecayedmax(1) FROM t
+  fix_str: SELECT exponentialTimeDecayedMax(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_exponentialtimedecayedsum:
+  fail_str: SELECT exponentialtimedecayedsum(1) FROM t
+  fix_str: SELECT exponentialTimeDecayedSum(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extract:
+  fail_str: SELECT EXTRACT(1) FROM t
+  fix_str: SELECT extract(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extractall:
+  fail_str: SELECT extractall(1) FROM t
+  fix_str: SELECT extractAll(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extractallgroupshorizontal:
+  fail_str: SELECT extractallgroupshorizontal(1) FROM t
+  fix_str: SELECT extractAllGroupsHorizontal(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extractallgroups:
+  fail_str: SELECT extractallgroups(1) FROM t
+  fix_str: SELECT extractAllGroups(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extractallgroupsvertical:
+  fail_str: SELECT extractallgroupsvertical(1) FROM t
+  fix_str: SELECT extractAllGroupsVertical(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extractgroups:
+  fail_str: SELECT extractgroups(1) FROM t
+  fix_str: SELECT extractGroups(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extractkeyvaluepairs:
+  fail_str: SELECT extractkeyvaluepairs(1) FROM t
+  fix_str: SELECT extractKeyValuePairs(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_mapfromstring:
+  fail_str: SELECT mapfromstring(1) FROM t
+  fix_str: SELECT mapFromString(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extractkeyvaluepairswithescaping:
+  fail_str: SELECT extractkeyvaluepairswithescaping(1) FROM t
+  fix_str: SELECT extractKeyValuePairsWithEscaping(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extracttextfromhtml:
+  fail_str: SELECT extracttextfromhtml(1) FROM t
+  fix_str: SELECT extractTextFromHTML(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extracturlparameter:
+  fail_str: SELECT extracturlparameter(1) FROM t
+  fix_str: SELECT extractURLParameter(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extracturlparameternames:
+  fail_str: SELECT extracturlparameternames(1) FROM t
+  fix_str: SELECT extractURLParameterNames(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_extracturlparameters:
+  fail_str: SELECT extracturlparameters(1) FROM t
+  fix_str: SELECT extractURLParameters(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_farmfingerprint64:
+  fail_str: SELECT farmfingerprint64(1) FROM t
+  fix_str: SELECT farmFingerprint64(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_farmhash64:
+  fail_str: SELECT farmhash64(1) FROM t
+  fix_str: SELECT farmHash64(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_file:
+  fail_str: SELECT FILE(1) FROM t
+  fix_str: SELECT file(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_filesystemavailable:
+  fail_str: SELECT filesystemavailable(1) FROM t
+  fix_str: SELECT filesystemAvailable(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_filesystemcapacity:
+  fail_str: SELECT filesystemcapacity(1) FROM t
+  fix_str: SELECT filesystemCapacity(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_filesystemunreserved:
+  fail_str: SELECT filesystemunreserved(1) FROM t
+  fix_str: SELECT filesystemUnreserved(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_finalizeaggregation:
+  fail_str: SELECT finalizeaggregation(1) FROM t
+  fix_str: SELECT finalizeAggregation(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_firstline:
+  fail_str: SELECT firstline(1) FROM t
+  fix_str: SELECT firstLine(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_firstsignificantsubdomain:
+  fail_str: SELECT firstsignificantsubdomain(1) FROM t
+  fix_str: SELECT firstSignificantSubdomain(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_firstsignificantsubdomaincustom:
+  fail_str: SELECT firstsignificantsubdomaincustom(1) FROM t
+  fix_str: SELECT firstSignificantSubdomainCustom(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_firstsignificantsubdomaincustomrfc:
+  fail_str: SELECT firstsignificantsubdomaincustomrfc(1) FROM t
+  fix_str: SELECT firstSignificantSubdomainCustomRFC(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_firstsignificantsubdomainrfc:
+  fail_str: SELECT firstsignificantsubdomainrfc(1) FROM t
+  fix_str: SELECT firstSignificantSubdomainRFC(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_flamegraph:
+  fail_str: SELECT flamegraph(1) FROM t
+  fix_str: SELECT flameGraph(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_exp_lower_policy:
+  fail_str: SELECT EXP(1) FROM t
+  fix_str: SELECT exp(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_exp_upper_policy:
+  fail_str: SELECT exp(1) FROM t
+  fix_str: SELECT EXP(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_factorial_lower_policy:
+  fail_str: SELECT FACTORIAL(10) FROM t
+  fix_str: SELECT factorial(10) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_factorial_upper_policy:
+  fail_str: SELECT factorial(10) FROM t
+  fix_str: SELECT FACTORIAL(10) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_str_to_map_lower_policy:
+  fail_str: SELECT STR_TO_MAP('a=1,b=2') FROM t
+  fix_str: SELECT str_to_map('a=1,b=2') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_str_to_map_upper_policy:
+  fail_str: SELECT str_to_map('a=1,b=2') FROM t
+  fix_str: SELECT STR_TO_MAP('a=1,b=2') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper

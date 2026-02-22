@@ -328,8 +328,55 @@ pub(crate) const CLICKHOUSE_FUNCTION_CASING: &[(&str, &str)] = &[
     ("emptyarrayuint64", "emptyArrayUInt64"),
     ("emptyarrayuint8", "emptyArrayUInt8"),
     ("enabledprofiles", "enabledProfiles"),
+    ("enabledroles", "enabledRoles"),
+    ("encodeurlcomponent", "encodeURLComponent"),
+    ("encodeurlformcomponent", "encodeURLFormComponent"),
+    ("encodexmlcomponent", "encodeXMLComponent"),
+    ("encrypt", "encrypt"),
+    ("endswith", "endsWith"),
+    ("endswithutf8", "endsWithUTF8"),
+    ("entropy", "entropy"),
+    ("equals", "equals"),
+    ("erf", "erf"),
+    ("erfc", "erfc"),
+    ("errorcodetoname", "errorCodeToName"),
+    ("estimatecompressionratio", "estimateCompressionRatio"),
+    ("evalmlmethod", "evalMLMethod"),
+    ("exp10", "exp10"),
+    ("exp2", "exp2"),
+    ("exponentialmovingaverage", "exponentialMovingAverage"),
+    ("exponentialtimedecayedavg", "exponentialTimeDecayedAvg"),
+    ("exponentialtimedecayedcount", "exponentialTimeDecayedCount"),
+    ("exponentialtimedecayedmax", "exponentialTimeDecayedMax"),
+    ("exponentialtimedecayedsum", "exponentialTimeDecayedSum"),
+    ("extract", "extract"),
+    ("extractall", "extractAll"),
+    ("extractallgroups", "extractAllGroups"),
+    ("extractallgroupshorizontal", "extractAllGroupsHorizontal"),
+    ("extractallgroupsvertical", "extractAllGroupsVertical"),
+    ("extractgroups", "extractGroups"),
+    ("extractkeyvaluepairs", "extractKeyValuePairs"),
+    ("extractkeyvaluepairswithescaping", "extractKeyValuePairsWithEscaping"),
+    ("extracttextfromhtml", "extractTextFromHTML"),
+    ("extracturlparameter", "extractURLParameter"),
+    ("extracturlparameternames", "extractURLParameterNames"),
+    ("extracturlparameters", "extractURLParameters"),
+    ("farmfingerprint64", "farmFingerprint64"),
+    ("farmhash64", "farmHash64"),
+    ("file", "file"),
+    ("filesystemavailable", "filesystemAvailable"),
+    ("filesystemcapacity", "filesystemCapacity"),
+    ("filesystemunreserved", "filesystemUnreserved"),
+    ("finalizeaggregation", "finalizeAggregation"),
+    ("firstline", "firstLine"),
+    ("firstsignificantsubdomain", "firstSignificantSubdomain"),
+    ("firstsignificantsubdomaincustom", "firstSignificantSubdomainCustom"),
+    ("firstsignificantsubdomaincustomrfc", "firstSignificantSubdomainCustomRFC"),
+    ("firstsignificantsubdomainrfc", "firstSignificantSubdomainRFC"),
+    ("flamegraph", "flameGraph"),
     ("levenshteindistance", "levenshteinDistance"),
     ("levenshteindistanceutf8", "levenshteinDistanceUTF8"),
+    ("mapfromstring", "mapFromString"),
     ("mismatches", "mismatches"),
     ("timestampdiff", "timestampDiff"),
     ("tointervalday", "toIntervalDay"),
@@ -405,6 +452,8 @@ pub(crate) const CLICKHOUSE_CASE_INSENSITIVE_FUNCTIONS: &[&str] = &[
     "datename",
     "degrees",
     "dense_rank",
+    "exp",
+    "factorial",
     "first_value",
     "first_value_respect_nulls",
     "flatten",
@@ -413,6 +462,7 @@ pub(crate) const CLICKHOUSE_CASE_INSENSITIVE_FUNCTIONS: &[&str] = &[
     "last_value_respect_nulls",
     "scalarproduct",
     "schema",
+    "str_to_map",
     "to_base64",
     "user",
     // END CLICKHOUSE_CASE_INSENSITIVE_FUNCTIONS
@@ -480,6 +530,8 @@ mod tests {
         assert!(is_clickhouse_case_insensitive_function("DATE_TRUNC"));
         assert!(is_clickhouse_case_insensitive_function("DEGREES"));
         assert!(is_clickhouse_case_insensitive_function("DENSE_RANK"));
+        assert!(is_clickhouse_case_insensitive_function("EXP"));
+        assert!(is_clickhouse_case_insensitive_function("FACTORIAL"));
         assert!(is_clickhouse_case_insensitive_function("USER"));
         assert!(is_clickhouse_case_insensitive_function(
             "first_value_respect_nulls"
@@ -489,6 +541,7 @@ mod tests {
         assert!(is_clickhouse_case_insensitive_function("BIN"));
         assert!(is_clickhouse_case_insensitive_function("AVG"));
         assert!(is_clickhouse_case_insensitive_function("SCALARPRODUCT"));
+        assert!(is_clickhouse_case_insensitive_function("STR_TO_MAP"));
         assert!(!is_clickhouse_case_insensitive_function("anyRespectNulls"));
     }
 

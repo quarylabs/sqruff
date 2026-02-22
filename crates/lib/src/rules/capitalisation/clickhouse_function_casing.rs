@@ -15,6 +15,7 @@ pub(crate) const CLICKHOUSE_FUNCTION_CASING: &[(&str, &str)] = &[
     ("tointervalsecond", "toIntervalSecond"),
     ("tointervalweek", "toIntervalWeek"),
     ("tointervalyear", "toIntervalYear"),
+    ("toyyyymmdd", "toYYYYMMDD"),
     // END CLICKHOUSE_FUNCTION_CASING_MAP
 ];
 

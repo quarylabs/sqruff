@@ -154,3 +154,20 @@ test_fail_clickhouse_mixed_mapped_and_unknown_functions:
   configs:
     core:
       dialect: clickhouse
+
+test_fail_clickhouse_canonical_toyyyymmdd_with_timezone:
+  fail_str: SELECT toyyyymmdd(now(), 'US/Eastern') FROM t
+  fix_str: SELECT toYYYYMMDD(now(), 'US/Eastern') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_clickhouse_canonical_toyyyymmdd_with_timezone_lower_policy:
+  fail_str: SELECT toyyyymmdd(now(), 'US/Eastern') FROM t
+  fix_str: SELECT toYYYYMMDD(now(), 'US/Eastern') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower

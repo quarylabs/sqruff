@@ -3037,3 +3037,366 @@ test_clickhouse_case_insensitive_function_dense_rank_upper_policy:
     rules:
       capitalisation.functions:
         extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_dictgetstring:
+  fail_str: SELECT dictgetstring(1) FROM t
+  fix_str: SELECT dictGetString(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetstringordefault:
+  fail_str: SELECT dictgetstringordefault(1) FROM t
+  fix_str: SELECT dictGetStringOrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetuint16:
+  fail_str: SELECT dictgetuint16(1) FROM t
+  fix_str: SELECT dictGetUInt16(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetuint16ordefault:
+  fail_str: SELECT dictgetuint16ordefault(1) FROM t
+  fix_str: SELECT dictGetUInt16OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetuint32:
+  fail_str: SELECT dictgetuint32(1) FROM t
+  fix_str: SELECT dictGetUInt32(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetuint32ordefault:
+  fail_str: SELECT dictgetuint32ordefault(1) FROM t
+  fix_str: SELECT dictGetUInt32OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetuint64:
+  fail_str: SELECT dictgetuint64(1) FROM t
+  fix_str: SELECT dictGetUInt64(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetuint64ordefault:
+  fail_str: SELECT dictgetuint64ordefault(1) FROM t
+  fix_str: SELECT dictGetUInt64OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetuint8:
+  fail_str: SELECT dictgetuint8(1) FROM t
+  fix_str: SELECT dictGetUInt8(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetuint8ordefault:
+  fail_str: SELECT dictgetuint8ordefault(1) FROM t
+  fix_str: SELECT dictGetUInt8OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetuuid:
+  fail_str: SELECT dictgetuuid(1) FROM t
+  fix_str: SELECT dictGetUUID(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetuuidordefault:
+  fail_str: SELECT dictgetuuidordefault(1) FROM t
+  fix_str: SELECT dictGetUUIDOrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dicthas:
+  fail_str: SELECT dicthas(1) FROM t
+  fix_str: SELECT dictHas(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictisin:
+  fail_str: SELECT dictisin(1) FROM t
+  fix_str: SELECT dictIsIn(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_displayname:
+  fail_str: SELECT displayname(1) FROM t
+  fix_str: SELECT displayName(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_distinctdynamictypes:
+  fail_str: SELECT distinctdynamictypes(1) FROM t
+  fix_str: SELECT distinctDynamicTypes(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_distinctjsonpaths:
+  fail_str: SELECT distinctjsonpaths(1) FROM t
+  fix_str: SELECT distinctJSONPaths(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_distinctjsonpathsandtypes:
+  fail_str: SELECT distinctjsonpathsandtypes(1) FROM t
+  fix_str: SELECT distinctJSONPathsAndTypes(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_divide:
+  fail_str: SELECT DIVIDE(1) FROM t
+  fix_str: SELECT divide(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dividedecimal:
+  fail_str: SELECT dividedecimal(1) FROM t
+  fix_str: SELECT divideDecimal(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_domain:
+  fail_str: SELECT DOMAIN(1) FROM t
+  fix_str: SELECT domain(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_domainrfc:
+  fail_str: SELECT domainrfc(1) FROM t
+  fix_str: SELECT domainRFC(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_domainwithoutwww:
+  fail_str: SELECT domainwithoutwww(1) FROM t
+  fix_str: SELECT domainWithoutWWW(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_domainwithoutwwwrfc:
+  fail_str: SELECT domainwithoutwwwrfc(1) FROM t
+  fix_str: SELECT domainWithoutWWWRFC(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dotproduct:
+  fail_str: SELECT dotproduct(1) FROM t
+  fix_str: SELECT dotProduct(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dumpcolumnstructure:
+  fail_str: SELECT dumpcolumnstructure(1) FROM t
+  fix_str: SELECT dumpColumnStructure(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dynamicelement:
+  fail_str: SELECT dynamicelement(1) FROM t
+  fix_str: SELECT dynamicElement(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dynamictype:
+  fail_str: SELECT dynamictype(1) FROM t
+  fix_str: SELECT dynamicType(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_e:
+  fail_str: SELECT E(1) FROM t
+  fix_str: SELECT e(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_editdistance:
+  fail_str: SELECT editdistance(1) FROM t
+  fix_str: SELECT editDistance(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_levenshteindistance:
+  fail_str: SELECT levenshteindistance(1) FROM t
+  fix_str: SELECT levenshteinDistance(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_editdistanceutf8:
+  fail_str: SELECT editdistanceutf8(1) FROM t
+  fix_str: SELECT editDistanceUTF8(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_levenshteindistanceutf8:
+  fail_str: SELECT levenshteindistanceutf8(1) FROM t
+  fix_str: SELECT levenshteinDistanceUTF8(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_empty:
+  fail_str: SELECT EMPTY(1) FROM t
+  fix_str: SELECT empty(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarraydate:
+  fail_str: SELECT emptyarraydate(1) FROM t
+  fix_str: SELECT emptyArrayDate(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarraydatetime:
+  fail_str: SELECT emptyarraydatetime(1) FROM t
+  fix_str: SELECT emptyArrayDateTime(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarrayfloat32:
+  fail_str: SELECT emptyarrayfloat32(1) FROM t
+  fix_str: SELECT emptyArrayFloat32(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarrayfloat64:
+  fail_str: SELECT emptyarrayfloat64(1) FROM t
+  fix_str: SELECT emptyArrayFloat64(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarrayint16:
+  fail_str: SELECT emptyarrayint16(1) FROM t
+  fix_str: SELECT emptyArrayInt16(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarrayint32:
+  fail_str: SELECT emptyarrayint32(1) FROM t
+  fix_str: SELECT emptyArrayInt32(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarrayint64:
+  fail_str: SELECT emptyarrayint64(1) FROM t
+  fix_str: SELECT emptyArrayInt64(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarrayint8:
+  fail_str: SELECT emptyarrayint8(1) FROM t
+  fix_str: SELECT emptyArrayInt8(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarraystring:
+  fail_str: SELECT emptyarraystring(1) FROM t
+  fix_str: SELECT emptyArrayString(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarraytosingle:
+  fail_str: SELECT emptyarraytosingle(1) FROM t
+  fix_str: SELECT emptyArrayToSingle(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarrayuint16:
+  fail_str: SELECT emptyarrayuint16(1) FROM t
+  fix_str: SELECT emptyArrayUInt16(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarrayuint32:
+  fail_str: SELECT emptyarrayuint32(1) FROM t
+  fix_str: SELECT emptyArrayUInt32(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarrayuint64:
+  fail_str: SELECT emptyarrayuint64(1) FROM t
+  fix_str: SELECT emptyArrayUInt64(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_emptyarrayuint8:
+  fail_str: SELECT emptyarrayuint8(1) FROM t
+  fix_str: SELECT emptyArrayUInt8(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_enabledprofiles:
+  fail_str: SELECT enabledprofiles(1) FROM t
+  fix_str: SELECT enabledProfiles(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_scalarproduct_lower_policy:
+  fail_str: SELECT SCALARPRODUCT([1], [1]) FROM t
+  fix_str: SELECT scalarproduct([1], [1]) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_scalarproduct_upper_policy:
+  fail_str: SELECT scalarproduct([1], [1]) FROM t
+  fix_str: SELECT SCALARPRODUCT([1], [1]) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper

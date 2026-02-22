@@ -450,6 +450,60 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
+    // ClickHouse allows tuple literals as expression arguments in function calls,
+    // e.g. addInterval((INTERVAL 1 DAY, INTERVAL 1 YEAR), INTERVAL 1 MONTH).
+    clickhouse_dialect.replace_grammar(
+        "BaseExpressionElementGrammar",
+        ansi_dialect
+            .grammar("BaseExpressionElementGrammar")
+            .copy(
+                Some(vec![Ref::new("TupleSegment").to_matchable()]),
+                None,
+                Some(Ref::new("ExpressionSegment").to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            ),
+    );
+
+    // Function arguments in ClickHouse may include tuple literals, e.g.
+    // addInterval((INTERVAL 1 DAY, INTERVAL 1 YEAR), INTERVAL 1 MONTH).
+    clickhouse_dialect.replace_grammar(
+        "FunctionContentsExpressionGrammar",
+        one_of(vec![
+            Ref::new("TupleSegment").to_matchable(),
+            Ref::new("ExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // Prioritize delimited argument parsing so single tuple arguments are parsed as
+    // function arguments instead of generic bracketed expressions.
+    clickhouse_dialect.replace_grammar(
+        "FunctionContentsGrammar",
+        ansi_dialect.grammar("FunctionContentsGrammar").copy(
+            Some(vec![
+                Sequence::new(vec![
+                    Ref::keyword("DISTINCT").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::new("StarSegment").to_matchable(),
+                        Delimited::new(vec![
+                            Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ]),
+            Some(0),
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
     clickhouse_dialect.replace_grammar(
         "WildcardExpressionSegment",
         ansi::wildcard_expression_segment().copy(

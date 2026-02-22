@@ -171,3 +171,248 @@ test_fail_clickhouse_canonical_toyyyymmdd_with_timezone_lower_policy:
     rules:
       capitalisation.functions:
         extended_capitalisation_policy: lower
+
+test_clickhouse_canonical_function_actionname:
+  fail_str: SELECT __actionname(1) FROM t
+  fix_str: SELECT __actionName(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitboolmaskand:
+  fail_str: SELECT __bitboolmaskand(1) FROM t
+  fix_str: SELECT __bitBoolMaskAnd(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitboolmaskor:
+  fail_str: SELECT __bitboolmaskor(1) FROM t
+  fix_str: SELECT __bitBoolMaskOr(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitswaplasttwo:
+  fail_str: SELECT __bitswaplasttwo(1) FROM t
+  fix_str: SELECT __bitSwapLastTwo(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitwrapperfunc:
+  fail_str: SELECT __bitwrapperfunc(1) FROM t
+  fix_str: SELECT __bitWrapperFunc(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_getscalar:
+  fail_str: SELECT __getscalar(1) FROM t
+  fix_str: SELECT __getScalar(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_scalarsubqueryresult:
+  fail_str: SELECT __scalarsubqueryresult(1) FROM t
+  fix_str: SELECT __scalarSubqueryResult(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_accuratecast:
+  fail_str: SELECT accuratecast(1) FROM t
+  fix_str: SELECT accurateCast(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_accuratecastordefault:
+  fail_str: SELECT accuratecastordefault(1) FROM t
+  fix_str: SELECT accurateCastOrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_accuratecastornull:
+  fail_str: SELECT accuratecastornull(1) FROM t
+  fix_str: SELECT accurateCastOrNull(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_acosh:
+  fail_str: SELECT ACOSH(1) FROM t
+  fix_str: SELECT acosh(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_adddays:
+  fail_str: SELECT adddays(1) FROM t
+  fix_str: SELECT addDays(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addhours:
+  fail_str: SELECT addhours(1) FROM t
+  fix_str: SELECT addHours(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addinterval:
+  fail_str: SELECT addinterval(1) FROM t
+  fix_str: SELECT addInterval(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addmicroseconds:
+  fail_str: SELECT addmicroseconds(1) FROM t
+  fix_str: SELECT addMicroseconds(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addmilliseconds:
+  fail_str: SELECT addmilliseconds(1) FROM t
+  fix_str: SELECT addMilliseconds(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addminutes:
+  fail_str: SELECT addminutes(1) FROM t
+  fix_str: SELECT addMinutes(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addmonths:
+  fail_str: SELECT addmonths(1) FROM t
+  fix_str: SELECT addMonths(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addnanoseconds:
+  fail_str: SELECT addnanoseconds(1) FROM t
+  fix_str: SELECT addNanoseconds(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addquarters:
+  fail_str: SELECT addquarters(1) FROM t
+  fix_str: SELECT addQuarters(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addresstoline:
+  fail_str: SELECT addresstoline(1) FROM t
+  fix_str: SELECT addressToLine(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addresstolinewithinlines:
+  fail_str: SELECT addresstolinewithinlines(1) FROM t
+  fix_str: SELECT addressToLineWithInlines(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addresstosymbol:
+  fail_str: SELECT addresstosymbol(1) FROM t
+  fix_str: SELECT addressToSymbol(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addseconds:
+  fail_str: SELECT addseconds(1) FROM t
+  fix_str: SELECT addSeconds(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addtupleofintervals:
+  fail_str: SELECT addtupleofintervals(1) FROM t
+  fix_str: SELECT addTupleOfIntervals(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addweeks:
+  fail_str: SELECT addweeks(1) FROM t
+  fix_str: SELECT addWeeks(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_addyears:
+  fail_str: SELECT addyears(1) FROM t
+  fix_str: SELECT addYears(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_aes_decrypt_mysql:
+  fail_str: SELECT AES_DECRYPT_MYSQL(1) FROM t
+  fix_str: SELECT aes_decrypt_mysql(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_aes_encrypt_mysql:
+  fail_str: SELECT AES_ENCRYPT_MYSQL(1) FROM t
+  fix_str: SELECT aes_encrypt_mysql(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_aggthrow:
+  fail_str: SELECT aggthrow(1) FROM t
+  fix_str: SELECT aggThrow(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_alphatokens:
+  fail_str: SELECT alphatokens(1) FROM t
+  fix_str: SELECT alphaTokens(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_and:
+  fail_str: SELECT AND(1) FROM t
+  fix_str: SELECT and(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_any:
+  fail_str: SELECT ANY(1) FROM t
+  fix_str: SELECT any(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_any_respect_nulls:
+  fail_str: SELECT ANY_RESPECT_NULLS(1) FROM t
+  fix_str: SELECT any_respect_nulls(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_anyheavy:
+  fail_str: SELECT anyheavy(1) FROM t
+  fix_str: SELECT anyHeavy(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse

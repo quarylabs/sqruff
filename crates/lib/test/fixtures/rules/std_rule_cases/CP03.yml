@@ -2116,3 +2116,535 @@ test_clickhouse_case_insensitive_function_covar_pop_upper_policy:
     rules:
       capitalisation.functions:
         extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_covarpopstable:
+  fail_str: SELECT covarpopstable(1) FROM t
+  fix_str: SELECT covarPopStable(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_covarsamp:
+  fail_str: SELECT covarsamp(1) FROM t
+  fix_str: SELECT covarSamp(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_covarsampmatrix:
+  fail_str: SELECT covarsampmatrix(1) FROM t
+  fix_str: SELECT covarSampMatrix(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_covarsampstable:
+  fail_str: SELECT covarsampstable(1) FROM t
+  fix_str: SELECT covarSampStable(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cramersv:
+  fail_str: SELECT cramersv(1) FROM t
+  fix_str: SELECT cramersV(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cramersvbiascorrected:
+  fail_str: SELECT cramersvbiascorrected(1) FROM t
+  fix_str: SELECT cramersVBiasCorrected(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_currentdatabase:
+  fail_str: SELECT currentdatabase(1) FROM t
+  fix_str: SELECT currentDatabase(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_currentprofiles:
+  fail_str: SELECT currentprofiles(1) FROM t
+  fix_str: SELECT currentProfiles(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_currentqueryid:
+  fail_str: SELECT currentqueryid(1) FROM t
+  fix_str: SELECT currentQueryID(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_currentroles:
+  fail_str: SELECT currentroles(1) FROM t
+  fix_str: SELECT currentRoles(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_currentuser:
+  fail_str: SELECT currentuser(1) FROM t
+  fix_str: SELECT currentUser(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cutfragment:
+  fail_str: SELECT cutfragment(1) FROM t
+  fix_str: SELECT cutFragment(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cutipv6:
+  fail_str: SELECT cutipv6(1) FROM t
+  fix_str: SELECT cutIPv6(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cutquerystring:
+  fail_str: SELECT cutquerystring(1) FROM t
+  fix_str: SELECT cutQueryString(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cutquerystringandfragment:
+  fail_str: SELECT cutquerystringandfragment(1) FROM t
+  fix_str: SELECT cutQueryStringAndFragment(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cuttofirstsignificantsubdomain:
+  fail_str: SELECT cuttofirstsignificantsubdomain(1) FROM t
+  fix_str: SELECT cutToFirstSignificantSubdomain(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cuttofirstsignificantsubdomaincustom:
+  fail_str: SELECT cuttofirstsignificantsubdomaincustom(1) FROM t
+  fix_str: SELECT cutToFirstSignificantSubdomainCustom(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cuttofirstsignificantsubdomaincustomrfc:
+  fail_str: SELECT cuttofirstsignificantsubdomaincustomrfc(1) FROM t
+  fix_str: SELECT cutToFirstSignificantSubdomainCustomRFC(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cuttofirstsignificantsubdomaincustomwithwww:
+  fail_str: SELECT cuttofirstsignificantsubdomaincustomwithwww(1) FROM t
+  fix_str: SELECT cutToFirstSignificantSubdomainCustomWithWWW(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cuttofirstsignificantsubdomaincustomwithwwwrfc:
+  fail_str: SELECT cuttofirstsignificantsubdomaincustomwithwwwrfc(1) FROM t
+  fix_str: SELECT cutToFirstSignificantSubdomainCustomWithWWWRFC(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cuttofirstsignificantsubdomainrfc:
+  fail_str: SELECT cuttofirstsignificantsubdomainrfc(1) FROM t
+  fix_str: SELECT cutToFirstSignificantSubdomainRFC(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cuttofirstsignificantsubdomainwithwww:
+  fail_str: SELECT cuttofirstsignificantsubdomainwithwww(1) FROM t
+  fix_str: SELECT cutToFirstSignificantSubdomainWithWWW(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cuttofirstsignificantsubdomainwithwwwrfc:
+  fail_str: SELECT cuttofirstsignificantsubdomainwithwwwrfc(1) FROM t
+  fix_str: SELECT cutToFirstSignificantSubdomainWithWWWRFC(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cuturlparameter:
+  fail_str: SELECT cuturlparameter(1) FROM t
+  fix_str: SELECT cutURLParameter(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cutwww:
+  fail_str: SELECT cutwww(1) FROM t
+  fix_str: SELECT cutWWW(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dameraulevenshteindistance:
+  fail_str: SELECT dameraulevenshteindistance(1) FROM t
+  fix_str: SELECT damerauLevenshteinDistance(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_timestampdiff:
+  fail_str: SELECT timestampdiff(1) FROM t
+  fix_str: SELECT timestampDiff(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_datetime64tosnowflake:
+  fail_str: SELECT datetime64tosnowflake(1) FROM t
+  fix_str: SELECT dateTime64ToSnowflake(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_datetime64tosnowflakeid:
+  fail_str: SELECT datetime64tosnowflakeid(1) FROM t
+  fix_str: SELECT dateTime64ToSnowflakeID(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_datetimetosnowflake:
+  fail_str: SELECT datetimetosnowflake(1) FROM t
+  fix_str: SELECT dateTimeToSnowflake(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_datetimetosnowflakeid:
+  fail_str: SELECT datetimetosnowflakeid(1) FROM t
+  fix_str: SELECT dateTimeToSnowflakeID(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_covar_samp_lower_policy:
+  fail_str: SELECT COVAR_SAMP(1, 2) FROM t
+  fix_str: SELECT covar_samp(1, 2) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_covar_samp_upper_policy:
+  fail_str: SELECT covar_samp(1, 2) FROM t
+  fix_str: SELECT COVAR_SAMP(1, 2) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_crc32_lower_policy:
+  fail_str: SELECT CRC32('abc') FROM t
+  fix_str: SELECT crc32('abc') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_crc32_upper_policy:
+  fail_str: SELECT crc32('abc') FROM t
+  fix_str: SELECT CRC32('abc') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_crc32ieee_lower_policy:
+  fail_str: SELECT CRC32IEEE('abc') FROM t
+  fix_str: SELECT crc32ieee('abc') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_crc32ieee_upper_policy:
+  fail_str: SELECT crc32ieee('abc') FROM t
+  fix_str: SELECT CRC32IEEE('abc') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_crc64_lower_policy:
+  fail_str: SELECT CRC64('abc') FROM t
+  fix_str: SELECT crc64('abc') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_crc64_upper_policy:
+  fail_str: SELECT crc64('abc') FROM t
+  fix_str: SELECT CRC64('abc') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_current_database_lower_policy:
+  fail_str: SELECT CURRENT_DATABASE() FROM t
+  fix_str: SELECT current_database() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_current_database_upper_policy:
+  fail_str: SELECT current_database() FROM t
+  fix_str: SELECT CURRENT_DATABASE() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_database_lower_policy:
+  fail_str: SELECT DATABASE() FROM t
+  fix_str: SELECT database() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_database_upper_policy:
+  fail_str: SELECT database() FROM t
+  fix_str: SELECT DATABASE() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_schema_lower_policy:
+  fail_str: SELECT SCHEMA() FROM t
+  fix_str: SELECT schema() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_schema_upper_policy:
+  fail_str: SELECT schema() FROM t
+  fix_str: SELECT SCHEMA() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_current_query_id_lower_policy:
+  fail_str: SELECT CURRENT_QUERY_ID() FROM t
+  fix_str: SELECT current_query_id() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_current_query_id_upper_policy:
+  fail_str: SELECT current_query_id() FROM t
+  fix_str: SELECT CURRENT_QUERY_ID() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_current_schemas_lower_policy:
+  fail_str: SELECT CURRENT_SCHEMAS(true) FROM t
+  fix_str: SELECT current_schemas(true) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_current_schemas_upper_policy:
+  fail_str: SELECT current_schemas(true) FROM t
+  fix_str: SELECT CURRENT_SCHEMAS(true) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_currentschemas_lower_policy:
+  fail_str: SELECT CURRENTSCHEMAS(true) FROM t
+  fix_str: SELECT currentschemas(true) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_currentschemas_upper_policy:
+  fail_str: SELECT currentschemas(true) FROM t
+  fix_str: SELECT CURRENTSCHEMAS(true) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_current_user_lower_policy:
+  fail_str: SELECT CURRENT_USER() FROM t
+  fix_str: SELECT current_user() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_current_user_upper_policy:
+  fail_str: SELECT current_user() FROM t
+  fix_str: SELECT CURRENT_USER() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_user_lower_policy:
+  fail_str: SELECT USER() FROM t
+  fix_str: SELECT user() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_user_upper_policy:
+  fail_str: SELECT user() FROM t
+  fix_str: SELECT USER() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_date_lower_policy:
+  fail_str: SELECT DATE('2024-01-01') FROM t
+  fix_str: SELECT date('2024-01-01') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_date_upper_policy:
+  fail_str: SELECT date('2024-01-01') FROM t
+  fix_str: SELECT DATE('2024-01-01') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_datediff_lower_policy:
+  fail_str: SELECT DATEDIFF('day', toDate('2024-01-02'), toDate('2024-01-01')) FROM t
+  fix_str: SELECT datediff('day', toDate('2024-01-02'), toDate('2024-01-01')) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_datediff_upper_policy:
+  fail_str: SELECT datediff('day', toDate('2024-01-02'), toDate('2024-01-01')) FROM t
+  fix_str: SELECT DATEDIFF('day', toDate('2024-01-02'), toDate('2024-01-01')) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_datename_lower_policy:
+  fail_str: SELECT DATENAME('month', toDate('2024-01-01')) FROM t
+  fix_str: SELECT datename('month', toDate('2024-01-01')) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_datename_upper_policy:
+  fail_str: SELECT datename('month', toDate('2024-01-01')) FROM t
+  fix_str: SELECT DATENAME('month', toDate('2024-01-01')) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_pass_clickhouse_ambiguous_date_diff_aliases_not_rewritten_default:
+  pass_str: SELECT DATE_DIFF('day', toDate('2024-01-02'), toDate('2024-01-01')), date_diff('day', toDate('2024-01-02'), toDate('2024-01-01')), TIMESTAMP_DIFF('day', toDate('2024-01-02'), toDate('2024-01-01')), timestamp_diff('day', toDate('2024-01-02'), toDate('2024-01-01')) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_pass_clickhouse_ambiguous_date_diff_aliases_not_rewritten_with_policy:
+  pass_str: SELECT Date_Diff('day', toDate('2024-01-02'), toDate('2024-01-01')), Timestamp_Diff('day', toDate('2024-01-02'), toDate('2024-01-01')) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper

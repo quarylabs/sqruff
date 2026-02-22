@@ -204,7 +204,38 @@ pub(crate) const CLICKHOUSE_FUNCTION_CASING: &[(&str, &str)] = &[
     ("countsubstringscaseinsensitiveutf8", "countSubstringsCaseInsensitiveUTF8"),
     ("covarpop", "covarPop"),
     ("covarpopmatrix", "covarPopMatrix"),
+    ("covarpopstable", "covarPopStable"),
+    ("covarsamp", "covarSamp"),
+    ("covarsampmatrix", "covarSampMatrix"),
+    ("covarsampstable", "covarSampStable"),
+    ("cramersv", "cramersV"),
+    ("cramersvbiascorrected", "cramersVBiasCorrected"),
+    ("currentdatabase", "currentDatabase"),
+    ("currentprofiles", "currentProfiles"),
+    ("currentqueryid", "currentQueryID"),
+    ("currentroles", "currentRoles"),
+    ("currentuser", "currentUser"),
+    ("cutfragment", "cutFragment"),
+    ("cutipv6", "cutIPv6"),
+    ("cutquerystring", "cutQueryString"),
+    ("cutquerystringandfragment", "cutQueryStringAndFragment"),
+    ("cuttofirstsignificantsubdomain", "cutToFirstSignificantSubdomain"),
+    ("cuttofirstsignificantsubdomaincustom", "cutToFirstSignificantSubdomainCustom"),
+    ("cuttofirstsignificantsubdomaincustomrfc", "cutToFirstSignificantSubdomainCustomRFC"),
+    ("cuttofirstsignificantsubdomaincustomwithwww", "cutToFirstSignificantSubdomainCustomWithWWW"),
+    ("cuttofirstsignificantsubdomaincustomwithwwwrfc", "cutToFirstSignificantSubdomainCustomWithWWWRFC"),
+    ("cuttofirstsignificantsubdomainrfc", "cutToFirstSignificantSubdomainRFC"),
+    ("cuttofirstsignificantsubdomainwithwww", "cutToFirstSignificantSubdomainWithWWW"),
+    ("cuttofirstsignificantsubdomainwithwwwrfc", "cutToFirstSignificantSubdomainWithWWWRFC"),
+    ("cuturlparameter", "cutURLParameter"),
+    ("cutwww", "cutWWW"),
+    ("dameraulevenshteindistance", "damerauLevenshteinDistance"),
+    ("datetime64tosnowflake", "dateTime64ToSnowflake"),
+    ("datetime64tosnowflakeid", "dateTime64ToSnowflakeID"),
+    ("datetimetosnowflake", "dateTimeToSnowflake"),
+    ("datetimetosnowflakeid", "dateTimeToSnowflakeID"),
     ("mismatches", "mismatches"),
+    ("timestampdiff", "timestampDiff"),
     ("tointervalday", "toIntervalDay"),
     ("tointervalhour", "toIntervalHour"),
     ("tointervalmicrosecond", "toIntervalMicrosecond"),
@@ -262,13 +293,28 @@ pub(crate) const CLICKHOUSE_CASE_INSENSITIVE_FUNCTIONS: &[&str] = &[
     "count",
     "countsubstrings",
     "covar_pop",
+    "covar_samp",
+    "crc32",
+    "crc32ieee",
+    "crc64",
+    "current_database",
+    "current_query_id",
+    "current_schemas",
+    "current_user",
+    "currentschemas",
+    "database",
+    "date",
+    "datediff",
+    "datename",
     "first_value",
     "first_value_respect_nulls",
     "flatten",
     "from_base64",
     "last_value",
     "last_value_respect_nulls",
+    "schema",
     "to_base64",
+    "user",
     // END CLICKHOUSE_CASE_INSENSITIVE_FUNCTIONS
 ];
 
@@ -326,6 +372,12 @@ mod tests {
         assert!(is_clickhouse_case_insensitive_function("concat_ws"));
         assert!(is_clickhouse_case_insensitive_function("CONNECTION_ID"));
         assert!(is_clickhouse_case_insensitive_function("covar_pop"));
+        assert!(is_clickhouse_case_insensitive_function("COVAR_SAMP"));
+        assert!(is_clickhouse_case_insensitive_function("CRC32IEEE"));
+        assert!(is_clickhouse_case_insensitive_function("current_schemas"));
+        assert!(is_clickhouse_case_insensitive_function("DATABASE"));
+        assert!(is_clickhouse_case_insensitive_function("DATE"));
+        assert!(is_clickhouse_case_insensitive_function("USER"));
         assert!(is_clickhouse_case_insensitive_function(
             "first_value_respect_nulls"
         ));

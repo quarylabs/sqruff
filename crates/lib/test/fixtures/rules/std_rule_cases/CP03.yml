@@ -3789,3 +3789,454 @@ test_clickhouse_case_insensitive_function_str_to_map_upper_policy:
     rules:
       capitalisation.functions:
         extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_flattentuple:
+  fail_str: SELECT flattentuple(1) FROM t
+  fix_str: SELECT flattenTuple(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_format:
+  fail_str: |
+    SELECT *
+    FROM FORMAT(
+        JSONEachRow,
+        '\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n{"a": "Hello", "b": 112}\n{"a": "World", "b": 124}\n'
+    )
+  fix_str: |
+    SELECT *
+    FROM format(
+        JSONEachRow,
+        '\n{"a": "Hello", "b": 111}\n{"a": "World", "b": 123}\n{"a": "Hello", "b": 112}\n{"a": "World", "b": 124}\n'
+    )
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatdatetime:
+  fail_str: SELECT formatdatetime(1) FROM t
+  fix_str: SELECT formatDateTime(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatdatetimeinjodasyntax:
+  fail_str: SELECT formatdatetimeinjodasyntax(1) FROM t
+  fix_str: SELECT formatDateTimeInJodaSyntax(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatquery:
+  fail_str: SELECT formatquery(1) FROM t
+  fix_str: SELECT formatQuery(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatqueryornull:
+  fail_str: SELECT formatqueryornull(1) FROM t
+  fix_str: SELECT formatQueryOrNull(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatquerysingleline:
+  fail_str: SELECT formatquerysingleline(1) FROM t
+  fix_str: SELECT formatQuerySingleLine(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatquerysinglelineornull:
+  fail_str: SELECT formatquerysinglelineornull(1) FROM t
+  fix_str: SELECT formatQuerySingleLineOrNull(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatreadabledecimalsize:
+  fail_str: SELECT formatreadabledecimalsize(1) FROM t
+  fix_str: SELECT formatReadableDecimalSize(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatreadablequantity:
+  fail_str: SELECT formatreadablequantity(1) FROM t
+  fix_str: SELECT formatReadableQuantity(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatreadablesize:
+  fail_str: SELECT formatreadablesize(1) FROM t
+  fix_str: SELECT formatReadableSize(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatreadabletimedelta:
+  fail_str: SELECT formatreadabletimedelta(1) FROM t
+  fix_str: SELECT formatReadableTimeDelta(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatrow:
+  fail_str: SELECT formatrow(1) FROM t
+  fix_str: SELECT formatRow(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_formatrownonewline:
+  fail_str: SELECT formatrownonewline(1) FROM t
+  fix_str: SELECT formatRowNoNewline(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fullhostname:
+  fail_str: SELECT fullhostname(1) FROM t
+  fix_str: SELECT fullHostName(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fragment:
+  fail_str: SELECT FRAGMENT(1) FROM t
+  fix_str: SELECT fragment(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fromdayssinceyearzero:
+  fail_str: SELECT fromdayssinceyearzero(1) FROM t
+  fix_str: SELECT fromDaysSinceYearZero(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fromdayssinceyearzero32:
+  fail_str: SELECT fromdayssinceyearzero32(1) FROM t
+  fix_str: SELECT fromDaysSinceYearZero32(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_frommodifiedjulianday:
+  fail_str: SELECT frommodifiedjulianday(1) FROM t
+  fix_str: SELECT fromModifiedJulianDay(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_frommodifiedjuliandayornull:
+  fail_str: SELECT frommodifiedjuliandayornull(1) FROM t
+  fix_str: SELECT fromModifiedJulianDayOrNull(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fromunixtimestamp:
+  fail_str: SELECT fromunixtimestamp(1) FROM t
+  fix_str: SELECT fromUnixTimestamp(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fromunixtimestamp64micro:
+  fail_str: SELECT fromunixtimestamp64micro(1) FROM t
+  fix_str: SELECT fromUnixTimestamp64Micro(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fromunixtimestamp64milli:
+  fail_str: SELECT fromunixtimestamp64milli(1) FROM t
+  fix_str: SELECT fromUnixTimestamp64Milli(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fromunixtimestamp64nano:
+  fail_str: SELECT fromunixtimestamp64nano(1) FROM t
+  fix_str: SELECT fromUnixTimestamp64Nano(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fromunixtimestamp64second:
+  fail_str: SELECT fromunixtimestamp64second(1) FROM t
+  fix_str: SELECT fromUnixTimestamp64Second(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fromunixtimestampinjodasyntax:
+  fail_str: SELECT fromunixtimestampinjodasyntax(1) FROM t
+  fix_str: SELECT fromUnixTimestampInJodaSyntax(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fromutctimestamp:
+  fail_str: SELECT fromutctimestamp(1) FROM t
+  fix_str: SELECT fromUTCTimestamp(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_fuzzbits:
+  fail_str: SELECT fuzzbits(1) FROM t
+  fix_str: SELECT fuzzBits(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_gccmurmurhash:
+  fail_str: SELECT gccmurmurhash(1) FROM t
+  fix_str: SELECT gccMurmurHash(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_gcd:
+  fail_str: SELECT GCD(1) FROM t
+  fix_str: SELECT gcd(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_generaterandomstructure:
+  fail_str: SELECT generaterandomstructure(1) FROM t
+  fix_str: SELECT generateRandomStructure(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_generateserialid:
+  fail_str: SELECT generateserialid(1) FROM t
+  fix_str: SELECT generateSerialID(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_generatesnowflakeid:
+  fail_str: SELECT generatesnowflakeid(1) FROM t
+  fix_str: SELECT generateSnowflakeID(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_generateulid:
+  fail_str: SELECT generateulid(1) FROM t
+  fix_str: SELECT generateULID(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_generateuuidv4:
+  fail_str: SELECT generateuuidv4(1) FROM t
+  fix_str: SELECT generateUUIDv4(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_generateuuidv7:
+  fail_str: SELECT generateuuidv7(1) FROM t
+  fix_str: SELECT generateUUIDv7(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_geodistance:
+  fail_str: SELECT geodistance(1) FROM t
+  fix_str: SELECT geoDistance(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_geohashdecode:
+  fail_str: SELECT geohashdecode(1) FROM t
+  fix_str: SELECT geohashDecode(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_geohashencode:
+  fail_str: SELECT geohashencode(1) FROM t
+  fix_str: SELECT geohashEncode(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_geohashesinbox:
+  fail_str: SELECT geohashesinbox(1) FROM t
+  fix_str: SELECT geohashesInBox(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_geotoh3:
+  fail_str: SELECT geotoh3(1) FROM t
+  fix_str: SELECT geoToH3(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_geotos2:
+  fail_str: SELECT geotos2(1) FROM t
+  fix_str: SELECT geoToS2(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_getclienthttpheader:
+  fail_str: SELECT getclienthttpheader(1) FROM t
+  fix_str: SELECT getClientHTTPHeader(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_floor_lower_policy:
+  fail_str: SELECT FLOOR(1) FROM t
+  fix_str: SELECT floor(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_floor_upper_policy:
+  fail_str: SELECT floor(1) FROM t
+  fix_str: SELECT FLOOR(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_date_format_lower_policy:
+  fail_str: SELECT DATE_FORMAT(1) FROM t
+  fix_str: SELECT date_format(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_date_format_upper_policy:
+  fail_str: SELECT date_format(1) FROM t
+  fix_str: SELECT DATE_FORMAT(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_format_bytes_lower_policy:
+  fail_str: SELECT FORMAT_BYTES(1) FROM t
+  fix_str: SELECT format_bytes(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_format_bytes_upper_policy:
+  fail_str: SELECT format_bytes(1) FROM t
+  fix_str: SELECT FORMAT_BYTES(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_fqdn_lower_policy:
+  fail_str: SELECT FQDN(1) FROM t
+  fix_str: SELECT fqdn(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_fqdn_upper_policy:
+  fail_str: SELECT fqdn(1) FROM t
+  fix_str: SELECT FQDN(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_from_days_lower_policy:
+  fail_str: SELECT FROM_DAYS(1) FROM t
+  fix_str: SELECT from_days(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_from_days_upper_policy:
+  fail_str: SELECT from_days(1) FROM t
+  fix_str: SELECT FROM_DAYS(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_from_unixtime_lower_policy:
+  fail_str: SELECT FROM_UNIXTIME(1) FROM t
+  fix_str: SELECT from_unixtime(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_from_unixtime_upper_policy:
+  fail_str: SELECT from_unixtime(1) FROM t
+  fix_str: SELECT FROM_UNIXTIME(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_from_utc_timestamp_lower_policy:
+  fail_str: SELECT FROM_UTC_TIMESTAMP(1) FROM t
+  fix_str: SELECT from_utc_timestamp(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_from_utc_timestamp_upper_policy:
+  fail_str: SELECT from_utc_timestamp(1) FROM t
+  fix_str: SELECT FROM_UTC_TIMESTAMP(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper

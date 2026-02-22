@@ -374,6 +374,49 @@ pub(crate) const CLICKHOUSE_FUNCTION_CASING: &[(&str, &str)] = &[
     ("firstsignificantsubdomaincustomrfc", "firstSignificantSubdomainCustomRFC"),
     ("firstsignificantsubdomainrfc", "firstSignificantSubdomainRFC"),
     ("flamegraph", "flameGraph"),
+    ("flattentuple", "flattenTuple"),
+    ("format", "format"),
+    ("formatdatetime", "formatDateTime"),
+    ("formatdatetimeinjodasyntax", "formatDateTimeInJodaSyntax"),
+    ("formatquery", "formatQuery"),
+    ("formatqueryornull", "formatQueryOrNull"),
+    ("formatquerysingleline", "formatQuerySingleLine"),
+    ("formatquerysinglelineornull", "formatQuerySingleLineOrNull"),
+    ("formatreadabledecimalsize", "formatReadableDecimalSize"),
+    ("formatreadablequantity", "formatReadableQuantity"),
+    ("formatreadablesize", "formatReadableSize"),
+    ("formatreadabletimedelta", "formatReadableTimeDelta"),
+    ("formatrow", "formatRow"),
+    ("formatrownonewline", "formatRowNoNewline"),
+    ("fragment", "fragment"),
+    ("fromdayssinceyearzero", "fromDaysSinceYearZero"),
+    ("fromdayssinceyearzero32", "fromDaysSinceYearZero32"),
+    ("frommodifiedjulianday", "fromModifiedJulianDay"),
+    ("frommodifiedjuliandayornull", "fromModifiedJulianDayOrNull"),
+    ("fromunixtimestamp", "fromUnixTimestamp"),
+    ("fromunixtimestamp64micro", "fromUnixTimestamp64Micro"),
+    ("fromunixtimestamp64milli", "fromUnixTimestamp64Milli"),
+    ("fromunixtimestamp64nano", "fromUnixTimestamp64Nano"),
+    ("fromunixtimestamp64second", "fromUnixTimestamp64Second"),
+    ("fromunixtimestampinjodasyntax", "fromUnixTimestampInJodaSyntax"),
+    ("fromutctimestamp", "fromUTCTimestamp"),
+    ("fullhostname", "fullHostName"),
+    ("fuzzbits", "fuzzBits"),
+    ("gccmurmurhash", "gccMurmurHash"),
+    ("gcd", "gcd"),
+    ("generaterandomstructure", "generateRandomStructure"),
+    ("generateserialid", "generateSerialID"),
+    ("generatesnowflakeid", "generateSnowflakeID"),
+    ("generateulid", "generateULID"),
+    ("generateuuidv4", "generateUUIDv4"),
+    ("generateuuidv7", "generateUUIDv7"),
+    ("geodistance", "geoDistance"),
+    ("geohashdecode", "geohashDecode"),
+    ("geohashencode", "geohashEncode"),
+    ("geohashesinbox", "geohashesInBox"),
+    ("geotoh3", "geoToH3"),
+    ("geotos2", "geoToS2"),
+    ("getclienthttpheader", "getClientHTTPHeader"),
     ("levenshteindistance", "levenshteinDistance"),
     ("levenshteindistanceutf8", "levenshteinDistanceUTF8"),
     ("mapfromstring", "mapFromString"),
@@ -447,6 +490,7 @@ pub(crate) const CLICKHOUSE_CASE_INSENSITIVE_FUNCTIONS: &[&str] = &[
     "currentschemas",
     "database",
     "date",
+    "date_format",
     "date_trunc",
     "datediff",
     "datename",
@@ -457,7 +501,13 @@ pub(crate) const CLICKHOUSE_CASE_INSENSITIVE_FUNCTIONS: &[&str] = &[
     "first_value",
     "first_value_respect_nulls",
     "flatten",
+    "floor",
+    "format_bytes",
+    "fqdn",
     "from_base64",
+    "from_days",
+    "from_unixtime",
+    "from_utc_timestamp",
     "last_value",
     "last_value_respect_nulls",
     "scalarproduct",
@@ -527,6 +577,7 @@ mod tests {
         assert!(is_clickhouse_case_insensitive_function("current_schemas"));
         assert!(is_clickhouse_case_insensitive_function("DATABASE"));
         assert!(is_clickhouse_case_insensitive_function("DATE"));
+        assert!(is_clickhouse_case_insensitive_function("DATE_FORMAT"));
         assert!(is_clickhouse_case_insensitive_function("DATE_TRUNC"));
         assert!(is_clickhouse_case_insensitive_function("DEGREES"));
         assert!(is_clickhouse_case_insensitive_function("DENSE_RANK"));
@@ -536,7 +587,13 @@ mod tests {
         assert!(is_clickhouse_case_insensitive_function(
             "first_value_respect_nulls"
         ));
+        assert!(is_clickhouse_case_insensitive_function("FLOOR"));
+        assert!(is_clickhouse_case_insensitive_function("FORMAT_BYTES"));
+        assert!(is_clickhouse_case_insensitive_function("FQDN"));
         assert!(is_clickhouse_case_insensitive_function("FROM_BASE64"));
+        assert!(is_clickhouse_case_insensitive_function("FROM_DAYS"));
+        assert!(is_clickhouse_case_insensitive_function("FROM_UNIXTIME"));
+        assert!(is_clickhouse_case_insensitive_function("FROM_UTC_TIMESTAMP"));
         assert!(is_clickhouse_case_insensitive_function("to_base64"));
         assert!(is_clickhouse_case_insensitive_function("BIN"));
         assert!(is_clickhouse_case_insensitive_function("AVG"));

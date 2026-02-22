@@ -46,6 +46,7 @@ pub(crate) const CLICKHOUSE_FUNCTION_CASING: &[(&str, &str)] = &[
     ("argmin", "argMin"),
     ("array", "array"),
     ("arrayall", "arrayAll"),
+    ("arrayauc", "arrayAUC"),
     ("arrayaucpr", "arrayAUCPR"),
     ("arrayavg", "arrayAvg"),
     ("arraycompact", "arrayCompact"),
@@ -83,6 +84,48 @@ pub(crate) const CLICKHOUSE_FUNCTION_CASING: &[(&str, &str)] = &[
         "arrayLevenshteinDistanceWeighted",
     ),
     ("arraymap", "arrayMap"),
+    ("arraymax", "arrayMax"),
+    ("arraymin", "arrayMin"),
+    ("arraynormalizedgini", "arrayNormalizedGini"),
+    ("arraypartialreversesort", "arrayPartialReverseSort"),
+    ("arraypartialsort", "arrayPartialSort"),
+    ("arraypopback", "arrayPopBack"),
+    ("arraypopfront", "arrayPopFront"),
+    ("arrayproduct", "arrayProduct"),
+    ("arraypushback", "arrayPushBack"),
+    ("arraypushfront", "arrayPushFront"),
+    ("arrayrandomsample", "arrayRandomSample"),
+    ("arrayreduce", "arrayReduce"),
+    ("arrayreduceinranges", "arrayReduceInRanges"),
+    ("arrayresize", "arrayResize"),
+    ("arrayreverse", "arrayReverse"),
+    ("arrayreversefill", "arrayReverseFill"),
+    ("arrayreversesort", "arrayReverseSort"),
+    ("arrayreversesplit", "arrayReverseSplit"),
+    ("arrayrocauc", "arrayROCAUC"),
+    ("arrayrotateleft", "arrayRotateLeft"),
+    ("arrayrotateright", "arrayRotateRight"),
+    ("arrayshiftleft", "arrayShiftLeft"),
+    ("arrayshiftright", "arrayShiftRight"),
+    ("arrayshingles", "arrayShingles"),
+    ("arraysimilarity", "arraySimilarity"),
+    ("arrayslice", "arraySlice"),
+    ("arraysort", "arraySort"),
+    ("arraysplit", "arraySplit"),
+    ("arraystringconcat", "arrayStringConcat"),
+    ("arraysum", "arraySum"),
+    ("arraysymmetricdifference", "arraySymmetricDifference"),
+    ("arrayunion", "arrayUnion"),
+    ("arrayuniq", "arrayUniq"),
+    ("arraywithconstant", "arrayWithConstant"),
+    ("arrayzip", "arrayZip"),
+    ("arrayzipunaligned", "arrayZipUnaligned"),
+    ("asinh", "asinh"),
+    ("assumenotnull", "assumeNotNull"),
+    ("atanh", "atanh"),
+    ("avgweighted", "avgWeighted"),
+    ("bar", "bar"),
+    ("base58decode", "base58Decode"),
     ("tointervalday", "toIntervalDay"),
     ("tointervalhour", "toIntervalHour"),
     ("tointervalmicrosecond", "toIntervalMicrosecond"),
@@ -116,6 +159,13 @@ pub(crate) const CLICKHOUSE_CASE_INSENSITIVE_FUNCTIONS: &[&str] = &[
     "approx_top_count",
     "approx_top_k",
     "approx_top_sum",
+    "arraypartialshuffle",
+    "arrayshuffle",
+    "ascii",
+    "asin",
+    "atan",
+    "atan2",
+    "avg",
     "first_value",
     "first_value_respect_nulls",
     "flatten",
@@ -156,6 +206,10 @@ mod tests {
             canonical_clickhouse_function_name("TOINTERVALMONTH"),
             Some("toIntervalMonth")
         );
+        assert_eq!(
+            canonical_clickhouse_function_name("arrayauc"),
+            Some("arrayAUC")
+        );
         assert_eq!(canonical_clickhouse_function_name("sum"), None);
     }
 
@@ -172,6 +226,7 @@ mod tests {
         assert!(is_clickhouse_case_insensitive_function(
             "first_value_respect_nulls"
         ));
+        assert!(is_clickhouse_case_insensitive_function("AVG"));
         assert!(!is_clickhouse_case_insensitive_function("anyRespectNulls"));
     }
 

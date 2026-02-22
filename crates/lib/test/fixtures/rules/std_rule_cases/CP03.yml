@@ -740,3 +740,445 @@ test_clickhouse_canonical_function_arraymap:
   configs:
     core:
       dialect: clickhouse
+
+test_clickhouse_canonical_function_arraymax:
+  fail_str: SELECT arraymax(1) FROM t
+  fix_str: SELECT arrayMax(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraymin:
+  fail_str: SELECT arraymin(1) FROM t
+  fix_str: SELECT arrayMin(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraynormalizedgini:
+  fail_str: SELECT arraynormalizedgini(1) FROM t
+  fix_str: SELECT arrayNormalizedGini(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraypartialreversesort:
+  fail_str: SELECT arraypartialreversesort(1) FROM t
+  fix_str: SELECT arrayPartialReverseSort(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_arraypartialshuffle_lower_policy:
+  fail_str: SELECT ARRAYPARTIALSHUFFLE(1) FROM t
+  fix_str: SELECT arraypartialshuffle(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_arraypartialshuffle_upper_policy:
+  fail_str: SELECT arraypartialshuffle(1) FROM t
+  fix_str: SELECT ARRAYPARTIALSHUFFLE(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_arraypartialsort:
+  fail_str: SELECT arraypartialsort(1) FROM t
+  fix_str: SELECT arrayPartialSort(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraypopback:
+  fail_str: SELECT arraypopback(1) FROM t
+  fix_str: SELECT arrayPopBack(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraypopfront:
+  fail_str: SELECT arraypopfront(1) FROM t
+  fix_str: SELECT arrayPopFront(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayproduct:
+  fail_str: SELECT arrayproduct(1) FROM t
+  fix_str: SELECT arrayProduct(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraypushback:
+  fail_str: SELECT arraypushback(1) FROM t
+  fix_str: SELECT arrayPushBack(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraypushfront:
+  fail_str: SELECT arraypushfront(1) FROM t
+  fix_str: SELECT arrayPushFront(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayrandomsample:
+  fail_str: SELECT arrayrandomsample(1) FROM t
+  fix_str: SELECT arrayRandomSample(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayreduce:
+  fail_str: SELECT arrayreduce(1) FROM t
+  fix_str: SELECT arrayReduce(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayreduceinranges:
+  fail_str: SELECT arrayreduceinranges(1) FROM t
+  fix_str: SELECT arrayReduceInRanges(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayresize:
+  fail_str: SELECT arrayresize(1) FROM t
+  fix_str: SELECT arrayResize(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayreverse:
+  fail_str: SELECT arrayreverse(1) FROM t
+  fix_str: SELECT arrayReverse(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayreversefill:
+  fail_str: SELECT arrayreversefill(1) FROM t
+  fix_str: SELECT arrayReverseFill(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayreversesort:
+  fail_str: SELECT arrayreversesort(1) FROM t
+  fix_str: SELECT arrayReverseSort(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayreversesplit:
+  fail_str: SELECT arrayreversesplit(1) FROM t
+  fix_str: SELECT arrayReverseSplit(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayauc:
+  fail_str: SELECT arrayauc(1) FROM t
+  fix_str: SELECT arrayAUC(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayrocauc:
+  fail_str: SELECT arrayrocauc(1) FROM t
+  fix_str: SELECT arrayROCAUC(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayrotateleft:
+  fail_str: SELECT arrayrotateleft(1) FROM t
+  fix_str: SELECT arrayRotateLeft(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayrotateright:
+  fail_str: SELECT arrayrotateright(1) FROM t
+  fix_str: SELECT arrayRotateRight(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayshiftleft:
+  fail_str: SELECT arrayshiftleft(1) FROM t
+  fix_str: SELECT arrayShiftLeft(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayshiftright:
+  fail_str: SELECT arrayshiftright(1) FROM t
+  fix_str: SELECT arrayShiftRight(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayshingles:
+  fail_str: SELECT arrayshingles(1) FROM t
+  fix_str: SELECT arrayShingles(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_arrayshuffle_lower_policy:
+  fail_str: SELECT ARRAYSHUFFLE(1) FROM t
+  fix_str: SELECT arrayshuffle(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_arrayshuffle_upper_policy:
+  fail_str: SELECT arrayshuffle(1) FROM t
+  fix_str: SELECT ARRAYSHUFFLE(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_arraysimilarity:
+  fail_str: SELECT arraysimilarity(1) FROM t
+  fix_str: SELECT arraySimilarity(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayslice:
+  fail_str: SELECT arrayslice(1) FROM t
+  fix_str: SELECT arraySlice(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraysort:
+  fail_str: SELECT arraysort(1) FROM t
+  fix_str: SELECT arraySort(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraysplit:
+  fail_str: SELECT arraysplit(1) FROM t
+  fix_str: SELECT arraySplit(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraystringconcat:
+  fail_str: SELECT arraystringconcat(1) FROM t
+  fix_str: SELECT arrayStringConcat(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraysum:
+  fail_str: SELECT arraysum(1) FROM t
+  fix_str: SELECT arraySum(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraysymmetricdifference:
+  fail_str: SELECT arraysymmetricdifference(1) FROM t
+  fix_str: SELECT arraySymmetricDifference(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayunion:
+  fail_str: SELECT arrayunion(1) FROM t
+  fix_str: SELECT arrayUnion(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayuniq:
+  fail_str: SELECT arrayuniq(1) FROM t
+  fix_str: SELECT arrayUniq(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arraywithconstant:
+  fail_str: SELECT arraywithconstant(1) FROM t
+  fix_str: SELECT arrayWithConstant(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayzip:
+  fail_str: SELECT arrayzip(1) FROM t
+  fix_str: SELECT arrayZip(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_arrayzipunaligned:
+  fail_str: SELECT arrayzipunaligned(1) FROM t
+  fix_str: SELECT arrayZipUnaligned(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_ascii_lower_policy:
+  fail_str: SELECT ASCII(1) FROM t
+  fix_str: SELECT ascii(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_ascii_upper_policy:
+  fail_str: SELECT ascii(1) FROM t
+  fix_str: SELECT ASCII(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_asin_lower_policy:
+  fail_str: SELECT ASIN(1) FROM t
+  fix_str: SELECT asin(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_asin_upper_policy:
+  fail_str: SELECT asin(1) FROM t
+  fix_str: SELECT ASIN(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_asinh:
+  fail_str: SELECT ASINH(1) FROM t
+  fix_str: SELECT asinh(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_assumenotnull:
+  fail_str: SELECT assumenotnull(1) FROM t
+  fix_str: SELECT assumeNotNull(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_atan_lower_policy:
+  fail_str: SELECT ATAN(1) FROM t
+  fix_str: SELECT atan(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_atan_upper_policy:
+  fail_str: SELECT atan(1) FROM t
+  fix_str: SELECT ATAN(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_atan2_lower_policy:
+  fail_str: SELECT ATAN2(1) FROM t
+  fix_str: SELECT atan2(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_atan2_upper_policy:
+  fail_str: SELECT atan2(1) FROM t
+  fix_str: SELECT ATAN2(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_atanh:
+  fail_str: SELECT ATANH(1) FROM t
+  fix_str: SELECT atanh(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_avg_lower_policy:
+  fail_str: SELECT AVG(1) FROM t
+  fix_str: SELECT avg(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_avg_upper_policy:
+  fail_str: SELECT avg(1) FROM t
+  fix_str: SELECT AVG(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_avgweighted:
+  fail_str: SELECT avgweighted(1) FROM t
+  fix_str: SELECT avgWeighted(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bar:
+  fail_str: SELECT BAR(1) FROM t
+  fix_str: SELECT bar(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_base58decode:
+  fail_str: SELECT base58decode(1) FROM t
+  fix_str: SELECT base58Decode(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+

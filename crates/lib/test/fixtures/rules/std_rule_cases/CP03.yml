@@ -1182,3 +1182,392 @@ test_clickhouse_canonical_function_base58decode:
     core:
       dialect: clickhouse
 
+
+test_clickhouse_canonical_function_base58encode:
+  fail_str: SELECT base58encode(1) FROM t
+  fix_str: SELECT base58Encode(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_base64decode:
+  fail_str: SELECT base64decode(1) FROM t
+  fix_str: SELECT base64Decode(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_base64encode:
+  fail_str: SELECT base64encode(1) FROM t
+  fix_str: SELECT base64Encode(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_base64urldecode:
+  fail_str: SELECT base64urldecode(1) FROM t
+  fix_str: SELECT base64URLDecode(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_base64urlencode:
+  fail_str: SELECT base64urlencode(1) FROM t
+  fix_str: SELECT base64URLEncode(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_basename:
+  fail_str: SELECT BASENAME(1) FROM t
+  fix_str: SELECT basename(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitand:
+  fail_str: SELECT bitand(1) FROM t
+  fix_str: SELECT bitAnd(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitcount:
+  fail_str: SELECT bitcount(1) FROM t
+  fix_str: SELECT bitCount(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bithammingdistance:
+  fail_str: SELECT bithammingdistance(1) FROM t
+  fix_str: SELECT bitHammingDistance(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapand:
+  fail_str: SELECT bitmapand(1) FROM t
+  fix_str: SELECT bitmapAnd(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapandcardinality:
+  fail_str: SELECT bitmapandcardinality(1) FROM t
+  fix_str: SELECT bitmapAndCardinality(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapandnot:
+  fail_str: SELECT bitmapandnot(1) FROM t
+  fix_str: SELECT bitmapAndnot(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapandnotcardinality:
+  fail_str: SELECT bitmapandnotcardinality(1) FROM t
+  fix_str: SELECT bitmapAndnotCardinality(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapbuild:
+  fail_str: SELECT bitmapbuild(1) FROM t
+  fix_str: SELECT bitmapBuild(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapcardinality:
+  fail_str: SELECT bitmapcardinality(1) FROM t
+  fix_str: SELECT bitmapCardinality(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapcontains:
+  fail_str: SELECT bitmapcontains(1) FROM t
+  fix_str: SELECT bitmapContains(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmaphasall:
+  fail_str: SELECT bitmaphasall(1) FROM t
+  fix_str: SELECT bitmapHasAll(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmaphasany:
+  fail_str: SELECT bitmaphasany(1) FROM t
+  fix_str: SELECT bitmapHasAny(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapmax:
+  fail_str: SELECT bitmapmax(1) FROM t
+  fix_str: SELECT bitmapMax(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapmin:
+  fail_str: SELECT bitmapmin(1) FROM t
+  fix_str: SELECT bitmapMin(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapor:
+  fail_str: SELECT bitmapor(1) FROM t
+  fix_str: SELECT bitmapOr(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmaporcardinality:
+  fail_str: SELECT bitmaporcardinality(1) FROM t
+  fix_str: SELECT bitmapOrCardinality(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapsubsetinrange:
+  fail_str: SELECT bitmapsubsetinrange(1) FROM t
+  fix_str: SELECT bitmapSubsetInRange(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapsubsetlimit:
+  fail_str: SELECT bitmapsubsetlimit(1) FROM t
+  fix_str: SELECT bitmapSubsetLimit(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmaptoarray:
+  fail_str: SELECT bitmaptoarray(1) FROM t
+  fix_str: SELECT bitmapToArray(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmaptransform:
+  fail_str: SELECT bitmaptransform(1) FROM t
+  fix_str: SELECT bitmapTransform(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapxor:
+  fail_str: SELECT bitmapxor(1) FROM t
+  fix_str: SELECT bitmapXor(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmapxorcardinality:
+  fail_str: SELECT bitmapxorcardinality(1) FROM t
+  fix_str: SELECT bitmapXorCardinality(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmasktoarray:
+  fail_str: SELECT bitmasktoarray(1) FROM t
+  fix_str: SELECT bitmaskToArray(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitmasktolist:
+  fail_str: SELECT bitmasktolist(1) FROM t
+  fix_str: SELECT bitmaskToList(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitnot:
+  fail_str: SELECT bitnot(1) FROM t
+  fix_str: SELECT bitNot(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitor:
+  fail_str: SELECT bitor(1) FROM t
+  fix_str: SELECT bitOr(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitpositionstoarray:
+  fail_str: SELECT bitpositionstoarray(1) FROM t
+  fix_str: SELECT bitPositionsToArray(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitrotateleft:
+  fail_str: SELECT bitrotateleft(1) FROM t
+  fix_str: SELECT bitRotateLeft(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitrotateright:
+  fail_str: SELECT bitrotateright(1) FROM t
+  fix_str: SELECT bitRotateRight(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitshiftleft:
+  fail_str: SELECT bitshiftleft(1) FROM t
+  fix_str: SELECT bitShiftLeft(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitshiftright:
+  fail_str: SELECT bitshiftright(1) FROM t
+  fix_str: SELECT bitShiftRight(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitslice:
+  fail_str: SELECT bitslice(1) FROM t
+  fix_str: SELECT bitSlice(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bittest:
+  fail_str: SELECT bittest(1) FROM t
+  fix_str: SELECT bitTest(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bittestall:
+  fail_str: SELECT bittestall(1) FROM t
+  fix_str: SELECT bitTestAll(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bittestany:
+  fail_str: SELECT bittestany(1) FROM t
+  fix_str: SELECT bitTestAny(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bitxor:
+  fail_str: SELECT bitxor(1) FROM t
+  fix_str: SELECT bitXor(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_blake3:
+  fail_str: SELECT blake3(1) FROM t
+  fix_str: SELECT BLAKE3(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_blocknumber:
+  fail_str: SELECT blocknumber(1) FROM t
+  fix_str: SELECT blockNumber(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_blockserializedsize:
+  fail_str: SELECT blockserializedsize(1) FROM t
+  fix_str: SELECT blockSerializedSize(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_blocksize:
+  fail_str: SELECT blocksize(1) FROM t
+  fix_str: SELECT blockSize(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_boundingratio:
+  fail_str: SELECT boundingratio(1) FROM t
+  fix_str: SELECT boundingRatio(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_bin_lower_policy:
+  fail_str: SELECT BIN(1) FROM t
+  fix_str: SELECT bin(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_bin_upper_policy:
+  fail_str: SELECT bin(1) FROM t
+  fix_str: SELECT BIN(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_from_base64_lower_policy:
+  fail_str: SELECT FROM_BASE64('QQ==') FROM t
+  fix_str: SELECT from_base64('QQ==') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_from_base64_upper_policy:
+  fail_str: SELECT from_base64('QQ==') FROM t
+  fix_str: SELECT FROM_BASE64('QQ==') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_to_base64_lower_policy:
+  fail_str: SELECT TO_BASE64('A') FROM t
+  fix_str: SELECT to_base64('A') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_to_base64_upper_policy:
+  fail_str: SELECT to_base64('A') FROM t
+  fix_str: SELECT TO_BASE64('A') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper

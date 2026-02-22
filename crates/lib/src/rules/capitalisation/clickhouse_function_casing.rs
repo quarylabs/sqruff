@@ -79,10 +79,7 @@ pub(crate) const CLICKHOUSE_FUNCTION_CASING: &[(&str, &str)] = &[
     ("arraylastindex", "arrayLastIndex"),
     ("arraylastornull", "arrayLastOrNull"),
     ("arraylevenshteindistance", "arrayLevenshteinDistance"),
-    (
-        "arraylevenshteindistanceweighted",
-        "arrayLevenshteinDistanceWeighted",
-    ),
+    ("arraylevenshteindistanceweighted", "arrayLevenshteinDistanceWeighted"),
     ("arraymap", "arrayMap"),
     ("arraymax", "arrayMax"),
     ("arraymin", "arrayMin"),
@@ -126,6 +123,53 @@ pub(crate) const CLICKHOUSE_FUNCTION_CASING: &[(&str, &str)] = &[
     ("avgweighted", "avgWeighted"),
     ("bar", "bar"),
     ("base58decode", "base58Decode"),
+    ("base58encode", "base58Encode"),
+    ("base64decode", "base64Decode"),
+    ("base64encode", "base64Encode"),
+    ("base64urldecode", "base64URLDecode"),
+    ("base64urlencode", "base64URLEncode"),
+    ("basename", "basename"),
+    ("bitand", "bitAnd"),
+    ("bitcount", "bitCount"),
+    ("bithammingdistance", "bitHammingDistance"),
+    ("bitmapand", "bitmapAnd"),
+    ("bitmapandcardinality", "bitmapAndCardinality"),
+    ("bitmapandnot", "bitmapAndnot"),
+    ("bitmapandnotcardinality", "bitmapAndnotCardinality"),
+    ("bitmapbuild", "bitmapBuild"),
+    ("bitmapcardinality", "bitmapCardinality"),
+    ("bitmapcontains", "bitmapContains"),
+    ("bitmaphasall", "bitmapHasAll"),
+    ("bitmaphasany", "bitmapHasAny"),
+    ("bitmapmax", "bitmapMax"),
+    ("bitmapmin", "bitmapMin"),
+    ("bitmapor", "bitmapOr"),
+    ("bitmaporcardinality", "bitmapOrCardinality"),
+    ("bitmapsubsetinrange", "bitmapSubsetInRange"),
+    ("bitmapsubsetlimit", "bitmapSubsetLimit"),
+    ("bitmaptoarray", "bitmapToArray"),
+    ("bitmaptransform", "bitmapTransform"),
+    ("bitmapxor", "bitmapXor"),
+    ("bitmapxorcardinality", "bitmapXorCardinality"),
+    ("bitmasktoarray", "bitmaskToArray"),
+    ("bitmasktolist", "bitmaskToList"),
+    ("bitnot", "bitNot"),
+    ("bitor", "bitOr"),
+    ("bitpositionstoarray", "bitPositionsToArray"),
+    ("bitrotateleft", "bitRotateLeft"),
+    ("bitrotateright", "bitRotateRight"),
+    ("bitshiftleft", "bitShiftLeft"),
+    ("bitshiftright", "bitShiftRight"),
+    ("bitslice", "bitSlice"),
+    ("bittest", "bitTest"),
+    ("bittestall", "bitTestAll"),
+    ("bittestany", "bitTestAny"),
+    ("bitxor", "bitXor"),
+    ("blake3", "BLAKE3"),
+    ("blocknumber", "blockNumber"),
+    ("blockserializedsize", "blockSerializedSize"),
+    ("blocksize", "blockSize"),
+    ("boundingratio", "boundingRatio"),
     ("tointervalday", "toIntervalDay"),
     ("tointervalhour", "toIntervalHour"),
     ("tointervalmicrosecond", "toIntervalMicrosecond"),
@@ -138,6 +182,7 @@ pub(crate) const CLICKHOUSE_FUNCTION_CASING: &[(&str, &str)] = &[
     ("tointervalweek", "toIntervalWeek"),
     ("tointervalyear", "toIntervalYear"),
     ("toyyyymmdd", "toYYYYMMDD"),
+
     // END CLICKHOUSE_FUNCTION_CASING_MAP
 ];
 
@@ -166,11 +211,14 @@ pub(crate) const CLICKHOUSE_CASE_INSENSITIVE_FUNCTIONS: &[&str] = &[
     "atan",
     "atan2",
     "avg",
+    "bin",
     "first_value",
     "first_value_respect_nulls",
     "flatten",
+    "from_base64",
     "last_value",
     "last_value_respect_nulls",
+    "to_base64",
     // END CLICKHOUSE_CASE_INSENSITIVE_FUNCTIONS
 ];
 
@@ -226,6 +274,9 @@ mod tests {
         assert!(is_clickhouse_case_insensitive_function(
             "first_value_respect_nulls"
         ));
+        assert!(is_clickhouse_case_insensitive_function("FROM_BASE64"));
+        assert!(is_clickhouse_case_insensitive_function("to_base64"));
+        assert!(is_clickhouse_case_insensitive_function("BIN"));
         assert!(is_clickhouse_case_insensitive_function("AVG"));
         assert!(!is_clickhouse_case_insensitive_function("anyRespectNulls"));
     }

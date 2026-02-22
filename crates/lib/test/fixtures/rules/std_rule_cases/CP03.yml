@@ -1571,3 +1571,548 @@ test_clickhouse_case_insensitive_function_to_base64_upper_policy:
     rules:
       capitalisation.functions:
         extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_buildid:
+  fail_str: SELECT buildid(1) FROM t
+  fix_str: SELECT buildId(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bytehammingdistance:
+  fail_str: SELECT bytehammingdistance(1) FROM t
+  fix_str: SELECT byteHammingDistance(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_mismatches:
+  fail_str: SELECT MISMATCHES(1) FROM t
+  fix_str: SELECT mismatches(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_bytesize:
+  fail_str: SELECT bytesize(1) FROM t
+  fix_str: SELECT byteSize(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_casewithexpr:
+  fail_str: SELECT casewithexpr(1) FROM t
+  fix_str: SELECT caseWithExpr(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_casewithexpression:
+  fail_str: SELECT casewithexpression(1) FROM t
+  fix_str: SELECT caseWithExpression(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_catboostevaluate:
+  fail_str: SELECT catboostevaluate(1) FROM t
+  fix_str: SELECT catboostEvaluate(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_categoricalinformationvalue:
+  fail_str: SELECT categoricalinformationvalue(1) FROM t
+  fix_str: SELECT categoricalInformationValue(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cbrt:
+  fail_str: SELECT CBRT(1) FROM t
+  fix_str: SELECT cbrt(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_changeday:
+  fail_str: SELECT changeday(1) FROM t
+  fix_str: SELECT changeDay(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_changehour:
+  fail_str: SELECT changehour(1) FROM t
+  fix_str: SELECT changeHour(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_changeminute:
+  fail_str: SELECT changeminute(1) FROM t
+  fix_str: SELECT changeMinute(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_changemonth:
+  fail_str: SELECT changemonth(1) FROM t
+  fix_str: SELECT changeMonth(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_changesecond:
+  fail_str: SELECT changesecond(1) FROM t
+  fix_str: SELECT changeSecond(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_changeyear:
+  fail_str: SELECT changeyear(1) FROM t
+  fix_str: SELECT changeYear(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cityhash64:
+  fail_str: SELECT cityhash64(1) FROM t
+  fix_str: SELECT cityHash64(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_clamp:
+  fail_str: SELECT CLAMP(1) FROM t
+  fix_str: SELECT clamp(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_comparesubstrings:
+  fail_str: SELECT comparesubstrings(1) FROM t
+  fix_str: SELECT compareSubstrings(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_concatassumeinjective:
+  fail_str: SELECT concatassumeinjective(1) FROM t
+  fix_str: SELECT concatAssumeInjective(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_concatwithseparator:
+  fail_str: SELECT concatwithseparator(1) FROM t
+  fix_str: SELECT concatWithSeparator(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_concatwithseparatorassumeinjective:
+  fail_str: SELECT concatwithseparatorassumeinjective(1) FROM t
+  fix_str: SELECT concatWithSeparatorAssumeInjective(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_contingency:
+  fail_str: SELECT CONTINGENCY(1) FROM t
+  fix_str: SELECT contingency(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_convertcharset:
+  fail_str: SELECT convertcharset(1) FROM t
+  fix_str: SELECT convertCharset(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_corrmatrix:
+  fail_str: SELECT corrmatrix(1) FROM t
+  fix_str: SELECT corrMatrix(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_corrstable:
+  fail_str: SELECT corrstable(1) FROM t
+  fix_str: SELECT corrStable(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cosh:
+  fail_str: SELECT COSH(1) FROM t
+  fix_str: SELECT cosh(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_cosinedistance:
+  fail_str: SELECT cosinedistance(1) FROM t
+  fix_str: SELECT cosineDistance(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_countdigits:
+  fail_str: SELECT countdigits(1) FROM t
+  fix_str: SELECT countDigits(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_countequal:
+  fail_str: SELECT countequal(1) FROM t
+  fix_str: SELECT countEqual(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_countmatches:
+  fail_str: SELECT countmatches(1) FROM t
+  fix_str: SELECT countMatches(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_countmatchescaseinsensitive:
+  fail_str: SELECT countmatchescaseinsensitive(1) FROM t
+  fix_str: SELECT countMatchesCaseInsensitive(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_countsubstringscaseinsensitive:
+  fail_str: SELECT countsubstringscaseinsensitive(1) FROM t
+  fix_str: SELECT countSubstringsCaseInsensitive(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_countsubstringscaseinsensitiveutf8:
+  fail_str: SELECT countsubstringscaseinsensitiveutf8(1) FROM t
+  fix_str: SELECT countSubstringsCaseInsensitiveUTF8(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_covarpop:
+  fail_str: SELECT covarpop(1) FROM t
+  fix_str: SELECT covarPop(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_covarpopmatrix:
+  fail_str: SELECT covarpopmatrix(1) FROM t
+  fix_str: SELECT covarPopMatrix(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_byteswap_lower_policy:
+  fail_str: SELECT BYTESWAP(54) FROM t
+  fix_str: SELECT byteswap(54) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_byteswap_upper_policy:
+  fail_str: SELECT byteswap(54) FROM t
+  fix_str: SELECT BYTESWAP(54) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_cast_lower_policy:
+  fail_str: SELECT CAST(1, 'UInt8') FROM t
+  fix_str: SELECT cast(1, 'UInt8') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_cast_upper_policy:
+  fail_str: SELECT cast(1, 'UInt8') FROM t
+  fix_str: SELECT CAST(1, 'UInt8') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_ceil_lower_policy:
+  fail_str: SELECT CEIL(1.5) FROM t
+  fix_str: SELECT ceil(1.5) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_ceil_upper_policy:
+  fail_str: SELECT ceil(1.5) FROM t
+  fix_str: SELECT CEIL(1.5) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_ceiling_lower_policy:
+  fail_str: SELECT CEILING(1.5) FROM t
+  fix_str: SELECT ceiling(1.5) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_ceiling_upper_policy:
+  fail_str: SELECT ceiling(1.5) FROM t
+  fix_str: SELECT CEILING(1.5) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_char_lower_policy:
+  fail_str: SELECT CHAR(65) FROM t
+  fix_str: SELECT char(65) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_char_upper_policy:
+  fail_str: SELECT char(65) FROM t
+  fix_str: SELECT CHAR(65) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_coalesce_lower_policy:
+  fail_str: SELECT COALESCE(NULL, 1) FROM t
+  fix_str: SELECT coalesce(NULL, 1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_coalesce_upper_policy:
+  fail_str: SELECT coalesce(NULL, 1) FROM t
+  fix_str: SELECT COALESCE(NULL, 1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_concat_lower_policy:
+  fail_str: SELECT CONCAT('a', 'b') FROM t
+  fix_str: SELECT concat('a', 'b') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_concat_upper_policy:
+  fail_str: SELECT concat('a', 'b') FROM t
+  fix_str: SELECT CONCAT('a', 'b') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_concat_ws_lower_policy:
+  fail_str: SELECT CONCAT_WS('-', 'a', 'b') FROM t
+  fix_str: SELECT concat_ws('-', 'a', 'b') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_concat_ws_upper_policy:
+  fail_str: SELECT concat_ws('-', 'a', 'b') FROM t
+  fix_str: SELECT CONCAT_WS('-', 'a', 'b') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_connection_id_lower_policy:
+  fail_str: SELECT CONNECTION_ID() FROM t
+  fix_str: SELECT connection_id() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_connection_id_upper_policy:
+  fail_str: SELECT connection_id() FROM t
+  fix_str: SELECT CONNECTION_ID() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_connectionid_lower_policy:
+  fail_str: SELECT CONNECTIONID() FROM t
+  fix_str: SELECT connectionid() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_connectionid_upper_policy:
+  fail_str: SELECT connectionid() FROM t
+  fix_str: SELECT CONNECTIONID() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_corr_lower_policy:
+  fail_str: SELECT CORR(1, 2) FROM t
+  fix_str: SELECT corr(1, 2) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_corr_upper_policy:
+  fail_str: SELECT corr(1, 2) FROM t
+  fix_str: SELECT CORR(1, 2) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_cos_lower_policy:
+  fail_str: SELECT COS(1) FROM t
+  fix_str: SELECT cos(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_cos_upper_policy:
+  fail_str: SELECT cos(1) FROM t
+  fix_str: SELECT COS(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_count_lower_policy:
+  fail_str: SELECT COUNT() FROM t
+  fix_str: SELECT count() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_count_upper_policy:
+  fail_str: SELECT count() FROM t
+  fix_str: SELECT COUNT() FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_countsubstrings_lower_policy:
+  fail_str: SELECT COUNTSUBSTRINGS('abab', 'ab') FROM t
+  fix_str: SELECT countsubstrings('abab', 'ab') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_countsubstrings_upper_policy:
+  fail_str: SELECT countsubstrings('abab', 'ab') FROM t
+  fix_str: SELECT COUNTSUBSTRINGS('abab', 'ab') FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_covar_pop_lower_policy:
+  fail_str: SELECT COVAR_POP(1, 2) FROM t
+  fix_str: SELECT covar_pop(1, 2) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_covar_pop_upper_policy:
+  fail_str: SELECT covar_pop(1, 2) FROM t
+  fix_str: SELECT COVAR_POP(1, 2) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper

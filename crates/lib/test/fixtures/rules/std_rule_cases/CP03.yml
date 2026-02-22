@@ -2648,3 +2648,392 @@ test_pass_clickhouse_ambiguous_date_diff_aliases_not_rewritten_with_policy:
     rules:
       capitalisation.functions:
         extended_capitalisation_policy: upper
+
+test_clickhouse_canonical_function_datetrunc:
+  fail_str: SELECT datetrunc(1) FROM t
+  fix_str: SELECT dateTrunc(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_decodehtmlcomponent:
+  fail_str: SELECT decodehtmlcomponent(1) FROM t
+  fix_str: SELECT decodeHTMLComponent(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_decodeurlcomponent:
+  fail_str: SELECT decodeurlcomponent(1) FROM t
+  fix_str: SELECT decodeURLComponent(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_decodeurlformcomponent:
+  fail_str: SELECT decodeurlformcomponent(1) FROM t
+  fix_str: SELECT decodeURLFormComponent(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_decodexmlcomponent:
+  fail_str: SELECT decodexmlcomponent(1) FROM t
+  fix_str: SELECT decodeXMLComponent(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_decrypt:
+  fail_str: SELECT DECRYPT(1) FROM t
+  fix_str: SELECT decrypt(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_defaultprofiles:
+  fail_str: SELECT defaultprofiles(1) FROM t
+  fix_str: SELECT defaultProfiles(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_defaultroles:
+  fail_str: SELECT defaultroles(1) FROM t
+  fix_str: SELECT defaultRoles(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_defaultvalueofargumenttype:
+  fail_str: SELECT defaultvalueofargumenttype(1) FROM t
+  fix_str: SELECT defaultValueOfArgumentType(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_defaultvalueoftypename:
+  fail_str: SELECT defaultvalueoftypename(1) FROM t
+  fix_str: SELECT defaultValueOfTypeName(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_deltasum:
+  fail_str: SELECT deltasum(1) FROM t
+  fix_str: SELECT deltaSum(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_deltasumtimestamp:
+  fail_str: SELECT deltasumtimestamp(1) FROM t
+  fix_str: SELECT deltaSumTimestamp(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_demangle:
+  fail_str: SELECT DEMANGLE(1) FROM t
+  fix_str: SELECT demangle(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_denserank:
+  fail_str: SELECT denserank(1) FROM t
+  fix_str: SELECT denseRank(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_detectcharset:
+  fail_str: SELECT detectcharset(1) FROM t
+  fix_str: SELECT detectCharset(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_detectlanguage:
+  fail_str: SELECT detectlanguage(1) FROM t
+  fix_str: SELECT detectLanguage(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_detectlanguagemixed:
+  fail_str: SELECT detectlanguagemixed(1) FROM t
+  fix_str: SELECT detectLanguageMixed(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_detectlanguageunknown:
+  fail_str: SELECT detectlanguageunknown(1) FROM t
+  fix_str: SELECT detectLanguageUnknown(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_detectprogramminglanguage:
+  fail_str: SELECT detectprogramminglanguage(1) FROM t
+  fix_str: SELECT detectProgrammingLanguage(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_detecttonality:
+  fail_str: SELECT detecttonality(1) FROM t
+  fix_str: SELECT detectTonality(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictget:
+  fail_str: SELECT dictget(1) FROM t
+  fix_str: SELECT dictGet(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetall:
+  fail_str: SELECT dictgetall(1) FROM t
+  fix_str: SELECT dictGetAll(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetchildren:
+  fail_str: SELECT dictgetchildren(1) FROM t
+  fix_str: SELECT dictGetChildren(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetdate:
+  fail_str: SELECT dictgetdate(1) FROM t
+  fix_str: SELECT dictGetDate(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetdateordefault:
+  fail_str: SELECT dictgetdateordefault(1) FROM t
+  fix_str: SELECT dictGetDateOrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetdatetime:
+  fail_str: SELECT dictgetdatetime(1) FROM t
+  fix_str: SELECT dictGetDateTime(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetdatetimeordefault:
+  fail_str: SELECT dictgetdatetimeordefault(1) FROM t
+  fix_str: SELECT dictGetDateTimeOrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetdescendants:
+  fail_str: SELECT dictgetdescendants(1) FROM t
+  fix_str: SELECT dictGetDescendants(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetfloat32:
+  fail_str: SELECT dictgetfloat32(1) FROM t
+  fix_str: SELECT dictGetFloat32(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetfloat32ordefault:
+  fail_str: SELECT dictgetfloat32ordefault(1) FROM t
+  fix_str: SELECT dictGetFloat32OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetfloat64:
+  fail_str: SELECT dictgetfloat64(1) FROM t
+  fix_str: SELECT dictGetFloat64(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetfloat64ordefault:
+  fail_str: SELECT dictgetfloat64ordefault(1) FROM t
+  fix_str: SELECT dictGetFloat64OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgethierarchy:
+  fail_str: SELECT dictgethierarchy(1) FROM t
+  fix_str: SELECT dictGetHierarchy(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetint16:
+  fail_str: SELECT dictgetint16(1) FROM t
+  fix_str: SELECT dictGetInt16(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetint16ordefault:
+  fail_str: SELECT dictgetint16ordefault(1) FROM t
+  fix_str: SELECT dictGetInt16OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetint32:
+  fail_str: SELECT dictgetint32(1) FROM t
+  fix_str: SELECT dictGetInt32(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetint32ordefault:
+  fail_str: SELECT dictgetint32ordefault(1) FROM t
+  fix_str: SELECT dictGetInt32OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetint64:
+  fail_str: SELECT dictgetint64(1) FROM t
+  fix_str: SELECT dictGetInt64(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetint64ordefault:
+  fail_str: SELECT dictgetint64ordefault(1) FROM t
+  fix_str: SELECT dictGetInt64OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetint8:
+  fail_str: SELECT dictgetint8(1) FROM t
+  fix_str: SELECT dictGetInt8(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetint8ordefault:
+  fail_str: SELECT dictgetint8ordefault(1) FROM t
+  fix_str: SELECT dictGetInt8OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetipv4:
+  fail_str: SELECT dictgetipv4(1) FROM t
+  fix_str: SELECT dictGetIPv4(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetipv4ordefault:
+  fail_str: SELECT dictgetipv4ordefault(1) FROM t
+  fix_str: SELECT dictGetIPv4OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetipv6:
+  fail_str: SELECT dictgetipv6(1) FROM t
+  fix_str: SELECT dictGetIPv6(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetipv6ordefault:
+  fail_str: SELECT dictgetipv6ordefault(1) FROM t
+  fix_str: SELECT dictGetIPv6OrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetordefault:
+  fail_str: SELECT dictgetordefault(1) FROM t
+  fix_str: SELECT dictGetOrDefault(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_canonical_function_dictgetornull:
+  fail_str: SELECT dictgetornull(1) FROM t
+  fix_str: SELECT dictGetOrNull(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+
+test_clickhouse_case_insensitive_function_date_trunc_lower_policy:
+  fail_str: SELECT DATE_TRUNC('day', now()) FROM t
+  fix_str: SELECT date_trunc('day', now()) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_date_trunc_upper_policy:
+  fail_str: SELECT date_trunc('day', now()) FROM t
+  fix_str: SELECT DATE_TRUNC('day', now()) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_degrees_lower_policy:
+  fail_str: SELECT DEGREES(1) FROM t
+  fix_str: SELECT degrees(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_degrees_upper_policy:
+  fail_str: SELECT degrees(1) FROM t
+  fix_str: SELECT DEGREES(1) FROM t
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_clickhouse_case_insensitive_function_dense_rank_lower_policy:
+  fail_str: SELECT DENSE_RANK() OVER (ORDER BY number) FROM numbers(1)
+  fix_str: SELECT dense_rank() OVER (ORDER BY number) FROM numbers(1)
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_clickhouse_case_insensitive_function_dense_rank_upper_policy:
+  fail_str: SELECT dense_rank() OVER (ORDER BY number) FROM numbers(1)
+  fix_str: SELECT DENSE_RANK() OVER (ORDER BY number) FROM numbers(1)
+  configs:
+    core:
+      dialect: clickhouse
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper

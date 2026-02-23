@@ -908,7 +908,7 @@ dependencies = [
  "indexmap",
  "sqruff-lib-core",
  "sqruff-lib-dialects",
- "strum 0.28.0",
+ "strum",
 ]
 
 [[package]]
@@ -1526,7 +1526,7 @@ dependencies = [
  "sqruff-lib",
  "sqruff-lib-core",
  "sqruff-lsp",
- "strum 0.28.0",
+ "strum",
  "strum_macros 0.28.0",
  "tempfile",
 ]
@@ -1572,7 +1572,7 @@ dependencies = [
  "sqruff-lib",
  "sqruff-lib-core",
  "sqruff-lib-dialects",
- "strum 0.27.2",
+ "strum",
  "strum_macros 0.27.2",
  "walkdir",
 ]
@@ -1593,7 +1593,7 @@ dependencies = [
  "serde",
  "serde_yaml",
  "smol_str",
- "strum 0.28.0",
+ "strum",
  "strum_macros 0.28.0",
  "thiserror",
 ]
@@ -1609,7 +1609,7 @@ dependencies = [
  "rayon",
  "serde_yaml",
  "sqruff-lib-core",
- "strum 0.28.0",
+ "strum",
 ]
 
 [[package]]
@@ -1664,12 +1664,6 @@ name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
-
-[[package]]
-name = "strum"
-version = "0.27.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af23d6f6c1a224baef9d3f61e287d2761385a5b88fdab4eb4c6f11aeb54c4bcf"
 
 [[package]]
 name = "strum"

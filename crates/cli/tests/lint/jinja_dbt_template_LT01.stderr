@@ -1,0 +1,9 @@
+== [tests/lint/jinja_dbt_template_LT01.sql] FAIL
+L:   2 | P:   7 | LT01 | Expected single whitespace between "{" and "{".
+                       | [layout.spacing]
+L:   2 | P:  12 | LT01 | Expected single whitespace between "ref" and "(".
+                       | [layout.spacing]
+L:   2 | P:  27 | LT01 | Expected single whitespace between "}" and "}".
+                       | [layout.spacing]
+The linter processed 1 file(s).
+All Finished

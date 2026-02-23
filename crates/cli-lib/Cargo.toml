@@ -32,7 +32,7 @@ strum_macros.workspace = true
 fern = "0.7"
 log.workspace = true
 anstyle = "1.0"
-clap = { version = "4", features = ["derive"] }
+clap = { version = "4.5.60", features = ["derive"] }
 ignore = "0.4.23"
 pyo3 = { version = "0.28.2", optional = true }
 # Codegen dependencies

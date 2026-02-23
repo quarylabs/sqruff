@@ -32,9 +32,9 @@ sqruff-lib-dialects = { version = "0.35.0", path = "crates/lib-dialects" }
 wasm-bindgen = "=0.2.105"
 wasm-pack = "0.13.1"
 
-strum = "0.27.2"
-strum_macros = "0.27.2"
+strum = "0.28.0"
+strum_macros = "0.28.0"
 
 # Codegen dependencies (used by codegen-docs feature in cli-lib)
 clap-markdown = "0.1.5"
-minijinja = "2.11.0"
+minijinja = "2.16.0"

@@ -4,6 +4,7 @@ use expect_test::expect_file;
 use glob::glob;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
+use sqruff_lib::templaters::TEMPLATERS;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::Tables;
@@ -25,6 +26,15 @@ fn main() {
         println!("{:?}", templater_setup);
         let config = std::fs::read_to_string(templater_setup.join(".sqruff")).unwrap();
         let config = FluffConfig::from_source(&config, None);
+
+        // Skip if the required templater is not available (e.g. jinja without python feature)
+        let templater_name = config.get("templater", "core").as_string();
+        if let Some(name) = templater_name {
+            if !TEMPLATERS.iter().any(|t| t.name() == name) {
+                println!("Skipping {templater_setup:?}: templater {name} is not supported");
+                continue;
+            }
+        }
 
         // for every sql file in that folder
         for sql_file in glob(&format!("{}/*.sql", templater_setup.to_str().unwrap())).unwrap() {

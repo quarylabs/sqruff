@@ -6,6 +6,7 @@ use serde::Deserialize;
 use serde_with::{KeyValueMap, serde_as};
 use sqruff_lib::core::config::{FluffConfig, Value};
 use sqruff_lib::core::linter::core::Linter;
+use sqruff_lib::templaters::TEMPLATERS;
 use sqruff_lib_core::dialects::init::DialectKind;
 
 #[derive(Default)]
@@ -100,10 +101,28 @@ fn main() {
 
             let dialect = DialectKind::from_str(dialect_name);
 
-            if dialect.is_err() || case.ignored.is_some() {
-                let message = case
-                    .ignored
-                    .unwrap_or_else(|| format!("ignored, dialect {dialect_name} is not supported"));
+            let templater_name = case
+                .configs
+                .get("core")
+                .and_then(|it| it.as_map())
+                .and_then(|it| it.get("templater"))
+                .and_then(|it| it.as_string());
+
+            let templater_available = templater_name
+                .map(|name| TEMPLATERS.iter().any(|t| t.name() == name))
+                .unwrap_or(true);
+
+            if dialect.is_err() || case.ignored.is_some() || !templater_available {
+                let message = case.ignored.unwrap_or_else(|| {
+                    if !templater_available {
+                        format!(
+                            "ignored, templater {} is not supported",
+                            templater_name.unwrap()
+                        )
+                    } else {
+                        format!("ignored, dialect {dialect_name} is not supported")
+                    }
+                });
                 println!("{message}");
 
                 continue;

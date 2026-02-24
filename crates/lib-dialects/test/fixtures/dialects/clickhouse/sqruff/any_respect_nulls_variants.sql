@@ -1,0 +1,15 @@
+SELECT any_respect_nulls(x) FROM t;
+SELECT any(x) RESPECT NULLS FROM t;
+SELECT anyRespectNulls(x) FROM t;
+SELECT any_value_respect_nulls(x) FROM t;
+SELECT anyValueRespectNulls(x) FROM t;
+SELECT any_value(x) RESPECT NULLS FROM t;
+SELECT first_value_respect_nulls(x) FROM t;
+SELECT firstValueRespectNulls(x) FROM t;
+SELECT first_value(x) RESPECT NULLS FROM t;
+SELECT anyLast_respect_nulls(x) FROM t;
+SELECT anyLastRespectNulls(x) FROM t;
+SELECT anyLast(x) RESPECT NULLS FROM t;
+SELECT last_value_respect_nulls(x) FROM t;
+SELECT lastValueRespectNulls(x) FROM t;
+SELECT last_value(x) RESPECT NULLS FROM t;

@@ -1,5 +1,6 @@
 use crate::core::rules::ErasedRule;
 
+pub mod clickhouse_function_casing;
 pub mod cp01;
 pub mod cp02;
 pub mod cp03;

@@ -54,7 +54,7 @@ fn main() {
     let mut args = Args::default();
     args.parse_args(std::env::args().skip(1));
 
-    let mut linter = Linter::new(FluffConfig::default(), None, None, true);
+    let mut linter = Linter::new(FluffConfig::default(), None, None, true).unwrap();
     let mut core = HashMap::new();
     core.insert(
         "core".to_string(),
@@ -153,14 +153,22 @@ fn main() {
                 let templater = match Linter::get_templater(linter.config()) {
                     Ok(t) => t,
                     Err(e) => {
-                        println!("Skipping case '{}': {}", case.name, e);
-                        *linter.config_mut() = FluffConfig::default();
-                        linter.config_mut().raw.extend(core.clone());
-                        linter.config_mut().reload_reflow();
-                        continue;
+                        if std::env::var("SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS").is_ok() {
+                            println!("Skipping case '{}': {}", case.name, e);
+                            *linter.config_mut() = FluffConfig::default();
+                            linter.config_mut().raw.extend(core.clone());
+                            linter.config_mut().reload_reflow();
+                            continue;
+                        } else {
+                            panic!(
+                                "Unsupported templater in case '{}': {}. \
+                                 Set SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS=1 to skip these tests.",
+                                case.name, e
+                            );
+                        }
                     }
                 };
-                linter = Linter::new(linter.config().clone(), None, Some(templater), true);
+                linter = Linter::new(linter.config().clone(), None, Some(templater), true).unwrap();
             }
 
             match case.kind {
@@ -225,7 +233,7 @@ dialect = {dialect}
                 // the custom templater (e.g. placeholder) into subsequent tests.
                 let templater = Linter::get_templater(linter.config())
                     .expect("Default config should have a valid templater");
-                linter = Linter::new(linter.config().clone(), None, Some(templater), true);
+                linter = Linter::new(linter.config().clone(), None, Some(templater), true).unwrap();
             }
         }
     }

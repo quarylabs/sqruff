@@ -71,7 +71,8 @@ fn fix(c: &mut Criterion) {
         None,
         None,
         false,
-    );
+    )
+    .unwrap();
     for (name, source) in passes {
         let tables = Tables::default();
         let parsed = linter.parse_string(&tables, &source, None).unwrap();

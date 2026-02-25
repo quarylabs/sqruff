@@ -11,7 +11,13 @@ pub(crate) fn run_fix(
     collect_parse_errors: bool,
 ) -> i32 {
     let FixArgs { paths, format } = args;
-    let mut linter = linter(config, format, collect_parse_errors);
+    let mut linter = match linter(config, format, collect_parse_errors) {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("{}", e);
+            return 1;
+        }
+    };
     let result = match linter.lint_paths(paths, true, &ignorer) {
         Ok(result) => result,
         Err(e) => {
@@ -49,7 +55,13 @@ pub(crate) fn run_fix_stdin(
 ) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
-    let linter = linter(config, format, collect_parse_errors);
+    let linter = match linter(config, format, collect_parse_errors) {
+        Ok(l) => l,
+        Err(e) => {
+            eprintln!("{}", e);
+            return 1;
+        }
+    };
     let result = match linter.lint_string(&read_in, None, true) {
         Ok(result) => result,
         Err(e) => {

@@ -46,19 +46,18 @@ impl Linter {
         formatter: Option<Arc<dyn Formatter>>,
         templater: Option<&'static dyn Templater>,
         include_parse_errors: bool,
-    ) -> Linter {
+    ) -> Result<Linter, String> {
         let templater: &'static dyn Templater = match templater {
             Some(templater) => templater,
-            None => Linter::get_templater(&config)
-                .expect("Templater should be validated before Linter::new()"),
+            None => Linter::get_templater(&config)?,
         };
-        Linter {
+        Ok(Linter {
             config,
             formatter,
             templater,
             rules: OnceLock::new(),
             include_parse_errors,
-        }
+        })
     }
 
     pub fn get_templater(config: &FluffConfig) -> Result<&'static dyn Templater, String> {
@@ -840,7 +839,8 @@ mod tests {
             None,
             None,
             false,
-        ); // Assuming Linter has a new() method for initialization
+        )
+        .unwrap();
         let paths =
             lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None, None);
         let expected = vec![
@@ -859,7 +859,8 @@ mod tests {
             None,
             None,
             false,
-        ); // Assuming Linter has a new() method for initialization
+        )
+        .unwrap();
         let paths = normalise_paths(lntr.paths_from_path(
             "test/fixtures/linter".into(),
             None,
@@ -879,7 +880,7 @@ mod tests {
         // FluffConfig
         let config =
             FluffConfig::new(<_>::default(), None, None).with_sql_file_exts(vec![".txt".into()]);
-        let lntr = Linter::new(config, None, None, false); // Assuming Linter has a new() method for initialization
+        let lntr = Linter::new(config, None, None, false).unwrap();
 
         let paths =
             lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None, None);
@@ -902,7 +903,8 @@ mod tests {
             None,
             None,
             false,
-        ); // Assuming Linter has a new() method for initialization
+        )
+        .unwrap();
         let paths = lntr.paths_from_path(
             "test/fixtures/linter/indentation_errors.sql".into(),
             None,
@@ -942,7 +944,8 @@ mod tests {
             None,
             None,
             false,
-        );
+        )
+        .unwrap();
         let tables = Tables::default();
         let parsed = linter.parse_string(&tables, "", None).unwrap();
 
@@ -974,7 +977,8 @@ mod tests {
             None,
             None,
             false,
-        );
+        )
+        .unwrap();
         let tables = Tables::default();
         let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
     }

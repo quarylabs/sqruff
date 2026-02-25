@@ -76,11 +76,6 @@ where
         }
     }
 
-    if let Err(e) = Linter::get_templater(&config) {
-        eprintln!("{}", e);
-        std::process::exit(1);
-    }
-
     let current_path = std::env::current_dir().unwrap();
     let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();
     let ignore_file = Arc::new(ignore_file);
@@ -131,7 +126,11 @@ where
     }
 }
 
-pub(crate) fn linter(config: FluffConfig, format: Format, collect_parse_errors: bool) -> Linter {
+pub(crate) fn linter(
+    config: FluffConfig,
+    format: Format,
+    collect_parse_errors: bool,
+) -> Result<Linter, String> {
     let formatter: Arc<dyn Formatter> = match format {
         Format::Human => {
             let output_stream = std::io::stderr().into();

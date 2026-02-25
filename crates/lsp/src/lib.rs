@@ -15,6 +15,7 @@ use lsp_types::{
 use serde_json::Value;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
+use sqruff_lib::templaters::RAW_TEMPLATER;
 use wasm_bindgen::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -101,9 +102,9 @@ impl Wasm {
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
         let config = load_config();
-        let templater = Linter::get_templater(&config).ok();
+        let templater = Linter::get_templater(&config).unwrap_or(&RAW_TEMPLATER);
         Self {
-            linter: Linter::new(config, None, templater, false),
+            linter: Linter::new(config, None, Some(templater), false).unwrap(),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: HashMap::new(),
         }

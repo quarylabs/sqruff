@@ -200,15 +200,19 @@ impl PythonTemplatedFile {
                             char_idx_to_byte_idx(&source_char_to_byte, s.source_slice.start);
                         let source_end =
                             char_idx_to_byte_idx(&source_char_to_byte, s.source_slice.end);
-                        let (templated_start, templated_end) =
-                            if let Some(ref t_map) = templated_char_to_byte {
-                                (
-                                    char_idx_to_byte_idx(t_map, s.templated_slice.start),
-                                    char_idx_to_byte_idx(t_map, s.templated_slice.end),
-                                )
-                            } else {
-                                (s.templated_slice.start, s.templated_slice.end)
-                            };
+                        let (templated_start, templated_end) = if let Some(ref t_map) =
+                            templated_char_to_byte
+                        {
+                            (
+                                char_idx_to_byte_idx(t_map, s.templated_slice.start),
+                                char_idx_to_byte_idx(t_map, s.templated_slice.end),
+                            )
+                        } else {
+                            (
+                                char_idx_to_byte_idx(&source_char_to_byte, s.templated_slice.start),
+                                char_idx_to_byte_idx(&source_char_to_byte, s.templated_slice.end),
+                            )
+                        };
                         TemplatedFileSlice::new(
                             &s.slice_type,
                             source_start..source_end,

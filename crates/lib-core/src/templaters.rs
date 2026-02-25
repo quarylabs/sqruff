@@ -640,14 +640,18 @@ pub fn char_to_byte_indices(s: &str) -> Vec<usize> {
 /// Convert a character-based index to a byte-based index using a precomputed
 /// mapping table from [`char_to_byte_indices`].
 ///
-/// Returns the index unchanged if it's out of bounds (defensive fallback for
-/// ASCII-only strings where char index == byte index).
+/// # Panics
+///
+/// Panics if `char_idx` is greater than or equal to `char_to_byte.len()`.
+/// This indicates a bug in the caller (e.g. using an index that is not
+/// derived from the same string used to build `char_to_byte`).
 pub fn char_idx_to_byte_idx(char_to_byte: &[usize], char_idx: usize) -> usize {
-    if char_idx < char_to_byte.len() {
-        char_to_byte[char_idx]
-    } else {
-        char_idx
-    }
+    assert!(
+        char_idx < char_to_byte.len(),
+        "char_idx_to_byte_idx: char_idx {char_idx} out of bounds for mapping of length {}",
+        char_to_byte.len()
+    );
+    char_to_byte[char_idx]
 }
 
 #[cfg(test)]
@@ -694,12 +698,6 @@ mod tests {
         assert_eq!(char_idx_to_byte_idx(&indices, 1), 1);
         assert_eq!(char_idx_to_byte_idx(&indices, 2), 4);
         assert_eq!(char_idx_to_byte_idx(&indices, 3), 5);
-    }
-
-    #[test]
-    fn test_char_idx_to_byte_idx_out_of_bounds() {
-        let indices = char_to_byte_indices("ab");
-        assert_eq!(char_idx_to_byte_idx(&indices, 10), 10);
     }
 
     #[test]

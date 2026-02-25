@@ -633,7 +633,8 @@ rules = AL02
             None,
             None,
             false,
-        );
+        )
+        .unwrap();
 
         let sql = r#"SELECT
     col_a a,
@@ -666,7 +667,8 @@ rules = AL02
             None,
             None,
             false,
-        );
+        )
+        .unwrap();
         let linter_with_disabled = Linter::new(
             FluffConfig::from_source(
                 r#"
@@ -680,7 +682,8 @@ disable_noqa = True
             None,
             None,
             false,
-        );
+        )
+        .unwrap();
 
         let sql = r#"SELECT
     col_a a,
@@ -710,7 +713,8 @@ rules = AL02
             None,
             None,
             false,
-        );
+        )
+        .unwrap();
         let sql_disable_rule = r#"SELECT
     col_a a,
     col_c c, --noqa: disable=AL02

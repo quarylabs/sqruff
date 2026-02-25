@@ -215,7 +215,8 @@ fn test_lint_paths_traverses_ignored_directories() {
         None,
         None,
         false,
-    );
+    )
+    .unwrap();
 
     // Create a dummy ignorer that doesn't ignore anything (to test the current broken behavior)
     // In the current implementation, the ignorer is applied AFTER file discovery

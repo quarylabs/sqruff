@@ -71,6 +71,13 @@ impl Linter {
         }
     }
 
+    /// Update the linter's config, resetting cached templater and rules.
+    pub fn set_config(&mut self, config: FluffConfig) {
+        self.templater = Self::get_templater(&config);
+        self.rules = OnceLock::new();
+        self.config = config;
+    }
+
     /// Lint strings directly.
     pub fn lint_string_wrapped(
         &mut self,
@@ -170,8 +177,6 @@ impl Linter {
                 }
             }
             ProcessingMode::Batch => {
-                // Use batch processing for templaters that support it (e.g., dbt).
-                // This allows sharing expensive initialization (manifest loading) across files.
                 let rendered_files = self.render_files_batch(&paths);
                 for rendered in rendered_files {
                     files.push(self.lint_rendered(rendered, fix)?);
@@ -623,7 +628,7 @@ impl Linter {
     // up to the current directory.
     // If the current directory is not a parent of the file we only
     // look for an ignore file in the direct parent of the file.
-    fn paths_from_path(
+    pub fn paths_from_path(
         &self,
         path: PathBuf,
         ignore_file_name: Option<String>,
@@ -969,6 +974,55 @@ mod tests {
         );
         let tables = Tables::default();
         let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
+    }
+
+    #[test]
+    fn test_lint_paths_per_file_config() {
+        let base = std::env::temp_dir().join("sqruff_test_per_file_config");
+        let _ = std::fs::remove_dir_all(&base);
+
+        // Create bq/ with bigquery config and a file using backtick-quoted identifiers
+        let bq_dir = base.join("bq").join("sub");
+        std::fs::create_dir_all(&bq_dir).unwrap();
+        std::fs::write(
+            base.join("bq").join(".sqruff"),
+            "[sqruff]\ndialect = bigquery\n",
+        )
+        .unwrap();
+        std::fs::write(
+            bq_dir.join("test.sql"),
+            "SELECT a FROM `p.d.t` WHERE a >= 1\n",
+        )
+        .unwrap();
+
+        // Create ansi/ with no config (defaults to ansi)
+        let ansi_dir = base.join("ansi");
+        std::fs::create_dir_all(&ansi_dir).unwrap();
+        std::fs::write(ansi_dir.join("test.sql"), "SELECT a FROM t WHERE a >= 1\n").unwrap();
+
+        let mut linter = Linter::new(FluffConfig::default(), None, None, false);
+
+        // Lint the bigquery file with bigquery config.
+        let bq_config = FluffConfig::from_path(base.join("bq").as_path(), None, false, None)
+            .unwrap();
+        assert_eq!(
+            bq_config.get_dialect().name,
+            sqruff_lib_core::dialects::init::DialectKind::Bigquery
+        );
+        linter.set_config(bq_config);
+        let bq_result = linter
+            .lint_paths(vec![bq_dir.join("test.sql")], false, &|_| false)
+            .unwrap();
+        assert_eq!(bq_result.len(), 1);
+
+        // Lint the ansi file with default config.
+        linter.set_config(FluffConfig::default());
+        let ansi_result = linter
+            .lint_paths(vec![ansi_dir.join("test.sql")], false, &|_| false)
+            .unwrap();
+        assert_eq!(ansi_result.len(), 1);
+
+        let _ = std::fs::remove_dir_all(&base);
     }
 
     #[test]

@@ -46,6 +46,14 @@ where
     let cli = Cli::parse_from(args);
     let collect_parse_errors = cli.parsing_errors;
 
+    let dialect_override: Option<DialectKind> = cli.dialect.map(|dialect| {
+        DialectKind::try_from(dialect.as_str()).unwrap_or_else(|e| {
+            eprintln!("{}", e);
+            std::process::exit(1);
+        })
+    });
+
+    let explicit_config = cli.config.is_some();
     let mut config: FluffConfig = if let Some(config) = cli.config.as_ref() {
         if !Path::new(config).is_file() {
             eprintln!(
@@ -60,20 +68,11 @@ where
         FluffConfig::from_root(None, false, None).unwrap()
     };
 
-    if let Some(dialect) = cli.dialect {
-        let dialect_kind = DialectKind::try_from(dialect.as_str());
-        match dialect_kind {
-            Ok(dialect_kind) => {
-                config.override_dialect(dialect_kind).unwrap_or_else(|e| {
-                    eprintln!("{}", e);
-                    std::process::exit(1);
-                });
-            }
-            Err(e) => {
-                eprintln!("{}", e);
-                std::process::exit(1);
-            }
-        }
+    if let Some(dialect) = dialect_override {
+        config.override_dialect(dialect).unwrap_or_else(|e| {
+            eprintln!("{}", e);
+            std::process::exit(1);
+        });
     }
 
     let current_path = std::env::current_dir().unwrap();
@@ -84,13 +83,28 @@ where
         move |path: &Path| ignore_file.is_ignored(path)
     };
 
+    // Per-file config resolution is only used when no explicit --config was
+    // given. When it is used, dialect_override is re-applied on top of each
+    // per-file config.
+    let per_file_dialect = if explicit_config {
+        None
+    } else {
+        dialect_override
+    };
+
     match cli.command {
         Commands::Lint(args) => match is_std_in_flag_input(&args.paths) {
             Err(e) => {
                 eprintln!("{e}");
                 1
             }
-            Ok(false) => commands_lint::run_lint(args, config, ignorer, collect_parse_errors),
+            Ok(false) => commands_lint::run_lint(
+                args,
+                config,
+                ignorer,
+                collect_parse_errors,
+                per_file_dialect,
+            ),
             Ok(true) => commands_lint::run_lint_stdin(config, args.format, collect_parse_errors),
         },
         Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
@@ -98,7 +112,13 @@ where
                 eprintln!("{e}");
                 1
             }
-            Ok(false) => commands_fix::run_fix(args, config, ignorer, collect_parse_errors),
+            Ok(false) => commands_fix::run_fix(
+                args,
+                config,
+                ignorer,
+                collect_parse_errors,
+                per_file_dialect,
+            ),
             Ok(true) => commands_fix::run_fix_stdin(config, args.format, collect_parse_errors),
         },
         Commands::Lsp => {

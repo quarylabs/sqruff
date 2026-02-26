@@ -2,6 +2,7 @@ use crate::commands::FixArgs;
 use crate::commands::Format;
 use crate::linter;
 use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
 
 pub(crate) fn run_fix(
@@ -9,10 +10,20 @@ pub(crate) fn run_fix(
     config: FluffConfig,
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
     collect_parse_errors: bool,
+    dialect_override: Option<DialectKind>,
 ) -> i32 {
     let FixArgs { paths, format } = args;
-    let mut linter = linter(config, format, collect_parse_errors);
-    let result = match linter.lint_paths(paths, true, &ignorer) {
+    let mut linter = linter(config.clone(), format, collect_parse_errors);
+
+    let result = crate::commands_lint::lint_paths_with_per_file_config(
+        &mut linter,
+        paths,
+        true,
+        &ignorer,
+        &config,
+        dialect_override,
+    );
+    let result = match result {
         Ok(result) => result,
         Err(e) => {
             eprintln!("{}", e.value);
@@ -95,7 +106,7 @@ mod tests {
             format: Format::Human,
         };
         let config = FluffConfig::default();
-        run_fix(args, config, ignore_none, true);
+        run_fix(args, config, ignore_none, true, None);
 
         let after = std::fs::metadata(&path).unwrap().modified().unwrap();
         assert_eq!(before, after);

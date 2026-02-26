@@ -193,9 +193,20 @@ impl FluffConfig {
         ignore_local_config: bool,
         overrides: Option<HashMap<String, String>>,
     ) -> Result<FluffConfig, SQLFluffUserError> {
+        Self::from_path(Path::new("."), extra_config_path, ignore_local_config, overrides)
+    }
+
+    /// Loads config by searching for .sqruff/.sqlfluff files in ancestor
+    /// directories of `path`, with closer configs taking precedence.
+    pub fn from_path(
+        path: &Path,
+        extra_config_path: Option<String>,
+        ignore_local_config: bool,
+        overrides: Option<HashMap<String, String>>,
+    ) -> Result<FluffConfig, SQLFluffUserError> {
         let loader = ConfigLoader {};
         let mut config =
-            loader.load_config_up_to_path(".", extra_config_path.clone(), ignore_local_config);
+            loader.load_config_up_to_path(path, extra_config_path.clone(), ignore_local_config);
 
         if let Some(overrides) = overrides
             && let Some(dialect) = overrides.get("dialect")
@@ -284,6 +295,29 @@ impl Default for FluffConfigIndentation {
 pub struct ConfigLoader;
 
 impl ConfigLoader {
+    /// Search ancestor directories of `path` for the nearest directory
+    /// containing a `.sqruff` or `.sqlfluff` config file. Returns the
+    /// directory path if found.
+    pub fn find_nearest_config_dir(path: &Path) -> Option<PathBuf> {
+        let mut dir = if path.is_file() {
+            path.parent()?.to_path_buf()
+        } else {
+            path.to_path_buf()
+        };
+        dir = std::path::absolute(&dir).ok()?;
+
+        loop {
+            for fname in [".sqruff", ".sqlfluff"] {
+                if dir.join(fname).exists() {
+                    return Some(dir);
+                }
+            }
+            if !dir.pop() {
+                return None;
+            }
+        }
+    }
+
     #[allow(unused_variables)]
     fn iter_config_locations_up_to_path(
         path: &Path,
@@ -291,60 +325,16 @@ impl ConfigLoader {
         ignore_local_config: bool,
     ) -> impl Iterator<Item = PathBuf> {
         let mut given_path = std::path::absolute(path).unwrap();
-        let working_path = std::env::current_dir().unwrap();
 
         if !given_path.is_dir() {
             given_path = given_path.parent().unwrap().into();
         }
 
-        let common_path = common_path::common_path(&given_path, working_path).unwrap();
-        let mut path_to_visit = common_path;
-
-        let head = Some(given_path.canonicalize().unwrap()).into_iter();
-        let tail = std::iter::from_fn(move || {
-            if path_to_visit != given_path {
-                let path = path_to_visit.canonicalize().unwrap();
-
-                let next_path_to_visit = {
-                    // Convert `path_to_visit` & `given_path` to `Path`
-                    let path_to_visit_as_path = path_to_visit.as_path();
-                    let given_path_as_path = given_path.as_path();
-
-                    // Attempt to create a relative path from `given_path` to `path_to_visit`
-                    match given_path_as_path.strip_prefix(path_to_visit_as_path) {
-                        Ok(relative_path) => {
-                            // Get the first component of the relative path
-                            if let Some(first_part) = relative_path.components().next() {
-                                // Combine `path_to_visit` with the first part of the relative path
-                                path_to_visit.join(first_part.as_os_str())
-                            } else {
-                                // If there are no components in the relative path, return
-                                // `path_to_visit`
-                                path_to_visit.clone()
-                            }
-                        }
-                        Err(_) => {
-                            // If `given_path` is not relative to `path_to_visit`, handle the error
-                            // (e.g., return `path_to_visit`)
-                            // This part depends on how you want to handle the error.
-                            path_to_visit.clone()
-                        }
-                    }
-                };
-
-                if next_path_to_visit == path_to_visit {
-                    return None;
-                }
-
-                path_to_visit = next_path_to_visit;
-
-                Some(path)
-            } else {
-                None
-            }
-        });
-
-        head.chain(tail)
+        // Collect ancestors from root to given_path (inclusive).
+        // nested_combine uses last-wins, so closest config takes precedence.
+        let mut ancestors: Vec<PathBuf> = given_path.ancestors().map(|p| p.to_path_buf()).collect();
+        ancestors.reverse();
+        ancestors.into_iter()
     }
 
     pub fn load_config_up_to_path(
@@ -561,6 +551,41 @@ dialect = bigquery
 
         // The config should still be valid
         assert_eq!(config.get_dialect().name, DialectKind::Bigquery);
+    }
+
+    #[test]
+    fn test_find_nearest_config_dir() {
+        let base = std::env::temp_dir().join("sqruff_test_find_config");
+        let _ = std::fs::remove_dir_all(&base);
+        std::fs::create_dir_all(&base).unwrap();
+
+        // Create base/.sqruff
+        std::fs::write(base.join(".sqruff"), "[sqruff]\ndialect = bigquery\n").unwrap();
+
+        // Create base/child/grandchild/
+        let grandchild = base.join("child").join("grandchild");
+        std::fs::create_dir_all(&grandchild).unwrap();
+
+        // From grandchild, should find base
+        let found = ConfigLoader::find_nearest_config_dir(&grandchild);
+        assert_eq!(found.unwrap(), std::path::absolute(&base).unwrap());
+
+        // Create base/child/.sqruff
+        std::fs::write(
+            base.join("child").join(".sqruff"),
+            "[sqruff]\ndialect = ansi\n",
+        )
+        .unwrap();
+
+        // Now from grandchild, should find child
+        let found = ConfigLoader::find_nearest_config_dir(&grandchild);
+        assert_eq!(
+            found.unwrap(),
+            std::path::absolute(base.join("child")).unwrap()
+        );
+
+        // Cleanup
+        let _ = std::fs::remove_dir_all(&base);
     }
 
     #[test]

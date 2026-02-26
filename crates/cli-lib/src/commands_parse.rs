@@ -74,7 +74,7 @@ fn parse_and_output_tree(
             if let Some(tree) = &parsed.tree {
                 match format {
                     ParseFormat::Json => {
-                        let serialized = tree.to_serialised(false, true);
+                        let serialized = tree.to_serialised(false, true, None);
                         match serde_json::to_string_pretty(&serialized) {
                             Ok(json) => println!("{}", json),
                             Err(e) => {

@@ -1,10 +1,10 @@
 # Sample Configurations
 
-The following document outlines sample configurations that may be used to achieve certain formatting/linting outcomes. 
+The following document outlines sample configurations that may be used to achieve certain formatting/linting outcomes.
 
 ## Aligning AS statements
 
-Suppose you want to align as statements in a `select` to return the following outcome. 
+Suppose you want to align as statements in a `select` to return the following outcome.
 
 ```sql
 --before
@@ -30,4 +30,3 @@ spacing_before = align
 align_within = select_clause
 align_scope = bracketed
 ```
-

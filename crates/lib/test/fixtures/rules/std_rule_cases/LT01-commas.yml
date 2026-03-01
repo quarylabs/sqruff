@@ -12,32 +12,32 @@ test_fail_whitespace_before_comma_template:
       ignore_templated_areas: false
 
 test_pass_errors_only_in_templated_and_ignore:
-  ignored: "jinja is not supported"
   pass_str: |
     {{ 'SELECT 1 ,4' }}, 5, 6
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: true
 
 test_fail_errors_only_in_non_templated_and_ignore:
-  ignored: "jinja is not supported"
   fail_str: |
     {{ 'SELECT 1, 4' }}, 5 , 6
   fix_str: |
     {{ 'SELECT 1, 4' }}, 5, 6
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: true
 
 test_pass_single_whitespace_after_comma:
   pass_str: SELECT 1, 4
 
 test_pass_single_whitespace_after_comma_template:
-  ignored: "jinja is not supported"
   pass_str: |
     {{ 'SELECT 1, 4' }}
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: false
 
 test_fail_multiple_whitespace_after_comma:

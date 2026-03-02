@@ -54,7 +54,7 @@ jobs:
       - name: Copy VSIX to expected location
         run: cp bazel-bin/editors/code/*.vsix editors/code/
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@96278af6caaf10aea03fd8d33a09a777ca52d62f # ratchet:actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # ratchet:actions/attest-build-provenance@v3
         with:
           subject-path: "editors/code/*.vsix"
       - name: Publish GitHub release

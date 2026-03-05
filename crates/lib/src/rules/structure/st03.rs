@@ -73,8 +73,23 @@ FROM cte1
 
         let mut remaining_ctes: IndexMap<_, _> = RefCell::borrow(&query.inner)
             .ctes
-            .keys()
-            .map(|it| (it.to_uppercase_smolstr(), it.clone()))
+            .iter()
+            .filter(|(_, q)| {
+                // Skip ClickHouse scalar CTEs like `(SELECT ...) AS name`.
+                // These are expression aliases used as identifiers, not table
+                // references, so we can't reliably detect their usage here.
+                let inner = RefCell::borrow(&q.inner);
+                if let Some(cte_def) = &inner.cte_definition_segment {
+                    let first = &cte_def.segments()[0];
+                    // Standard CTEs start with an identifier; scalar CTEs
+                    // start with an expression/bracketed subquery.
+                    first.is_type(SyntaxKind::NakedIdentifier)
+                        || first.is_type(SyntaxKind::QuotedIdentifier)
+                } else {
+                    true
+                }
+            })
+            .map(|(k, _)| (k.to_uppercase_smolstr(), k.clone()))
             .collect();
 
         for reference in context.segment.recursive_crawl(

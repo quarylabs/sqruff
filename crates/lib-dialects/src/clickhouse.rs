@@ -1083,10 +1083,7 @@ pub fn dialect() -> Dialect {
             "TableEngineFunctionSegment".into(),
             NodeMatcher::new(SyntaxKind::TableEngineFunction, |_| {
                 Sequence::new(vec_of_erased![
-                    Ref::new("FunctionNameSegment").exclude(one_of(vec_of_erased![
-                        Ref::new("DatePartFunctionNameSegment"),
-                        Ref::new("ValuesClauseSegment"),
-                    ])),
+                    Ref::new("SingleIdentifierGrammar"),
                     Bracketed::new(vec_of_erased![
                         Ref::new("FunctionContentsGrammar").optional()
                     ])

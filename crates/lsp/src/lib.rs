@@ -15,6 +15,7 @@ use lsp_types::{
 use serde_json::Value;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
+use sqruff_lib::templaters::RAW_TEMPLATER;
 use wasm_bindgen::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -100,8 +101,10 @@ impl Wasm {
 
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
+        let config = load_config();
+        let templater = Linter::get_templater(&config).unwrap_or(&RAW_TEMPLATER);
         Self {
-            linter: Linter::new(load_config(), None, None, false),
+            linter: Linter::new(config, None, Some(templater), false).unwrap(),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: HashMap::new(),
         }
@@ -187,9 +190,13 @@ impl LanguageServer {
                 let uri = params.text_document.uri.as_str();
 
                 if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
-                    *self.linter.config_mut() = load_config();
-
-                    self.recheck_files();
+                    let new_config = load_config();
+                    if Linter::get_templater(&new_config).is_ok() {
+                        *self.linter.config_mut() = new_config;
+                        self.recheck_files();
+                    } else {
+                        eprintln!("Invalid templater in config, keeping previous configuration");
+                    }
                 }
             }
             _ => {}

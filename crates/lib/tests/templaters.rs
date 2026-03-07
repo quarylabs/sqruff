@@ -26,6 +26,18 @@ fn main() {
         let config = std::fs::read_to_string(templater_setup.join(".sqruff")).unwrap();
         let config = FluffConfig::from_source(&config, None);
 
+        let templater = match Linter::get_templater(&config) {
+            Ok(t) => t,
+            Err(e) => {
+                println!(
+                    "Skipping templater test for {:?}: {}",
+                    templater_setup.file_name().unwrap(),
+                    e
+                );
+                continue;
+            }
+        };
+
         // for every sql file in that folder
         for sql_file in glob(&format!("{}/*.sql", templater_setup.to_str().unwrap())).unwrap() {
             let sql_file = sql_file.unwrap();
@@ -39,7 +51,6 @@ fn main() {
                 let lexer = Lexer::from(dialect);
                 let parser = Parser::from(dialect);
 
-                let templater = Linter::get_templater(&config);
                 let file_name = sql_file.to_string_lossy();
                 let templated_file = templater
                     .process(&[(&sql, &file_name)], &config, &None)

@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
-    "@playwright/test": "^1.57.0",
+    "@playwright/test": "1.57.0",
     "classnames": "^2.5.1",
     "cross-env": "^10.1.0",
     "eslint": "catalog:",
@@ -27,14 +27,14 @@
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
-    "@tailwindcss/postcss": "^4.1.18",
+    "@tailwindcss/postcss": "^4.2.1",
     "@types/lodash-es": "^4.17.12",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react-swc": "^4.2.3",
     "autoprefixer": "^10.4.27",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.2.0",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.1",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",
     "vite": "^7.3.1"

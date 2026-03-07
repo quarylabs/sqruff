@@ -1571,7 +1571,7 @@
         "usagesDigest": "ivM/eR/uCKYws4RekgNnQGBqDI4prqG3Boxz9Pd60ks=",
         "recordedInputs": [
           "REPO_MAPPING:rules_playwright+,bazel_tools bazel_tools",
-          "FILE:@@rules_playwright+//tools/release/artifacts/cli-x86_64-unknown-linux-musl c478e5f07bc0a2b513ff7e7d9f33e9420e8f3bac4ec058c3e3bf332bff8362a1"
+          "FILE:@@rules_playwright+//tools/release/artifacts/cli-arm64-apple-darwin 67731b424ce41adff3be0b4f612c60be0bddb53454eab0a5c415815d9c97f9cc"
         ],
         "generatedRepoSpecs": {
           "playwright-android-debian11-arm64": {

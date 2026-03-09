@@ -133,6 +133,15 @@ sh_test(
     ] + glob([".github/workflows/*.yml"]),
 )
 
+# Verify all pinned GitHub Actions SHAs actually exist
+sh_test(
+    name = "verify_action_shas",
+    size = "small",
+    srcs = [".hacking/scripts/verify_action_shas.sh"],
+    data = glob([".github/workflows/*.yml"]),
+    tags = ["requires-network"],
+)
+
 # Check that versions match across Cargo.toml, package.json, pyproject.toml
 sh_test(
     name = "check_versions_match",

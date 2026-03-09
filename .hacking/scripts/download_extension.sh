@@ -6,7 +6,7 @@ echo "VERSION: $VERSION"
 
 repo="quarylabs/sqruff"
 
-URL="https://github.com/${repo}/releases/download/v${VERSION}/sqruff-${VERSION}.vsix"
+URL="https://github.com/${repo}/releases/download/v${VERSION}/sqruff.vsix"
 echo "URL: $URL"
 
 curl -fL -o extension.vsix "$URL"

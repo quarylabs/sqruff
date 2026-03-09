@@ -10,7 +10,9 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceLevel;
 use sqruff_lib_core::utils::analysis::query::{Query, QueryInner};
-use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
+use sqruff_lib_core::utils::analysis::select::{
+    SelectStatementColumnsAndTables, get_select_statement_info,
+};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -129,6 +131,9 @@ FROM foo
             }
 
             if alias.aliased && !payload.tbl_refs.contains(&alias.ref_str) {
+                if Self::has_used_column_aliases(alias, &select_info, context.dialect.name) {
+                    continue;
+                }
                 let violation = self.report_unused_alias(alias);
                 violations.push(violation);
             }
@@ -232,6 +237,72 @@ impl RuleAL05 {
                 };
             }
         }
+        false
+    }
+
+    fn has_used_column_aliases(
+        alias: &AliasInfo,
+        select_info: &SelectStatementColumnsAndTables,
+        dialect_name: DialectKind,
+    ) -> bool {
+        let Some(alias_expression) = &alias.alias_expression else {
+            return false;
+        };
+
+        // Look for a Bracketed child in the alias expression (the column alias
+        // list, e.g. `(value)` or `(c1, c2)`).
+        let Some(bracketed) =
+            alias_expression.child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
+        else {
+            return false;
+        };
+
+        // Collect all identifier names from the bracketed column alias list.
+        let col_alias_names: Vec<SmolStr> = bracketed
+            .recursive_crawl(
+                const {
+                    &SyntaxSet::new(&[
+                        SyntaxKind::NakedIdentifier,
+                        SyntaxKind::Identifier,
+                        SyntaxKind::QuotedIdentifier,
+                    ])
+                },
+                true,
+                &SyntaxSet::EMPTY,
+                true,
+            )
+            .into_iter()
+            .map(|seg| seg.raw().to_uppercase().into())
+            .collect();
+
+        if col_alias_names.is_empty() {
+            return false;
+        }
+
+        // Check if any *unqualified* reference (or one qualified with this
+        // alias) has an Object-level part matching a column alias name.
+        // Qualified references like `o.value` belong to table `o`, not to our
+        // alias, so they must not count as usage of the column alias list.
+        for reference in &select_info.reference_buffer {
+            let table_refs =
+                reference.extract_possible_references(ObjectReferenceLevel::Table, dialect_name);
+            if let Some(tbl) = table_refs.first() {
+                // Qualified reference — only count it if the qualifier is our
+                // own table alias.
+                if tbl.part.to_uppercase() != alias.ref_str.to_uppercase() {
+                    continue;
+                }
+            }
+            // Unqualified reference (no table part) or qualified with our alias.
+            for obj_ref in
+                reference.extract_possible_references(ObjectReferenceLevel::Object, dialect_name)
+            {
+                if col_alias_names.contains(&SmolStr::from(obj_ref.part.to_uppercase())) {
+                    return true;
+                }
+            }
+        }
+
         false
     }
 

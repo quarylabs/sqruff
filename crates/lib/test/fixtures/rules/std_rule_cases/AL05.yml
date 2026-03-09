@@ -339,6 +339,65 @@ test_pass_derived_query_requires_alias_3:
         SELECT * FROM foo
     ) AS a
 
+test_pass_values_clause_column_alias_used:
+  # Column alias from VALUES clause is used in SELECT - don't remove the alias.
+  pass_str: |
+    INSERT INTO some_table (other_id, field_value)
+    SELECT other_table.id, value
+    FROM other_table, (VALUES (1), (2)) AS field_values (value)
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_values_clause_multiple_column_aliases_used:
+  # Multiple column aliases from VALUES clause used in SELECT.
+  pass_str: |
+    SELECT c1, c2
+    FROM (VALUES (1, 'a'), (2, 'b')) AS t(c1, c2)
+
+test_pass_values_clause_column_alias_used_in_where:
+  # Column alias from VALUES clause used in WHERE.
+  pass_str: |
+    SELECT *
+    FROM (VALUES (1), (2)) AS t(val)
+    WHERE val > 1
+
+test_pass_values_clause_column_alias_postgres:
+  # PostgreSQL VALUES clause with column alias.
+  pass_str: |
+    SELECT value
+    FROM (VALUES (1), (2)) AS field_values (value)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_values_clause_column_aliases_not_referenced:
+  # Column aliases exist but none are referenced - alias should still be removed.
+  fail_str: |
+    SELECT *
+    FROM (VALUES (1, 2), (3, 4)) AS t(c1, c2)
+  fix_str: |
+    SELECT *
+    FROM (VALUES (1, 2), (3, 4))
+
+test_pass_values_clause_quoted_column_alias_used:
+  # Quoted column alias from VALUES clause is used in SELECT.
+  pass_str: |
+    SELECT "val"
+    FROM (VALUES (1), (2)) AS t("val")
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_values_clause_column_alias_shadowed_by_qualified_ref:
+  # o.value is qualified to table o, not to t — t is still unused.
+  fail_str: |
+    SELECT o.value
+    FROM other_table AS o, (VALUES (1)) AS t(value)
+  fix_str: |
+    SELECT o.value
+    FROM other_table AS o, (VALUES (1))
+
 test_pass_redshift_semi_structured_op:
   # Redshift _requires_ aliasing when doing semi-structured operations.
   # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html#unnest

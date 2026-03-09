@@ -10,7 +10,9 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceLevel;
 use sqruff_lib_core::utils::analysis::query::{Query, QueryInner};
-use sqruff_lib_core::utils::analysis::select::{SelectStatementColumnsAndTables, get_select_statement_info};
+use sqruff_lib_core::utils::analysis::select::{
+    SelectStatementColumnsAndTables, get_select_statement_info,
+};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -258,9 +260,7 @@ impl RuleAL05 {
         // Collect all identifier names from the bracketed column alias list.
         let col_alias_names: Vec<SmolStr> = bracketed
             .recursive_crawl(
-                const {
-                    &SyntaxSet::new(&[SyntaxKind::NakedIdentifier, SyntaxKind::Identifier])
-                },
+                const { &SyntaxSet::new(&[SyntaxKind::NakedIdentifier, SyntaxKind::Identifier]) },
                 true,
                 &SyntaxSet::EMPTY,
                 true,

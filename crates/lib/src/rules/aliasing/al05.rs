@@ -260,7 +260,13 @@ impl RuleAL05 {
         // Collect all identifier names from the bracketed column alias list.
         let col_alias_names: Vec<SmolStr> = bracketed
             .recursive_crawl(
-                const { &SyntaxSet::new(&[SyntaxKind::NakedIdentifier, SyntaxKind::Identifier]) },
+                const {
+                    &SyntaxSet::new(&[
+                        SyntaxKind::NakedIdentifier,
+                        SyntaxKind::Identifier,
+                        SyntaxKind::QuotedIdentifier,
+                    ])
+                },
                 true,
                 &SyntaxSet::EMPTY,
                 true,

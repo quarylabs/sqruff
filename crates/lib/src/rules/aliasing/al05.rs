@@ -273,9 +273,21 @@ impl RuleAL05 {
             return false;
         }
 
-        // Check if any reference in the select statement has an Object-level
-        // part that matches one of the column alias names.
+        // Check if any *unqualified* reference (or one qualified with this
+        // alias) has an Object-level part matching a column alias name.
+        // Qualified references like `o.value` belong to table `o`, not to our
+        // alias, so they must not count as usage of the column alias list.
         for reference in &select_info.reference_buffer {
+            let table_refs =
+                reference.extract_possible_references(ObjectReferenceLevel::Table, dialect_name);
+            if let Some(tbl) = table_refs.first() {
+                // Qualified reference — only count it if the qualifier is our
+                // own table alias.
+                if tbl.part.to_uppercase() != alias.ref_str.to_uppercase() {
+                    continue;
+                }
+            }
+            // Unqualified reference (no table part) or qualified with our alias.
             for obj_ref in
                 reference.extract_possible_references(ObjectReferenceLevel::Object, dialect_name)
             {

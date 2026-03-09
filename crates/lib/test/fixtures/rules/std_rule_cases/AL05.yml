@@ -380,6 +380,15 @@ test_fail_values_clause_column_aliases_not_referenced:
     SELECT *
     FROM (VALUES (1, 2), (3, 4))
 
+test_fail_values_clause_column_alias_shadowed_by_qualified_ref:
+  # o.value is qualified to table o, not to t — t is still unused.
+  fail_str: |
+    SELECT o.value
+    FROM other_table AS o, (VALUES (1)) AS t(value)
+  fix_str: |
+    SELECT o.value
+    FROM other_table AS o, (VALUES (1))
+
 test_pass_redshift_semi_structured_op:
   # Redshift _requires_ aliasing when doing semi-structured operations.
   # https://docs.aws.amazon.com/redshift/latest/dg/query-super.html#unnest

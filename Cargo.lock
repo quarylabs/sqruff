@@ -901,7 +901,7 @@ dependencies = [
 
 [[package]]
 name = "lineage"
-version = "0.35.2"
+version = "0.35.3"
 dependencies = [
  "append-only-vec",
  "hashbrown 0.16.1",
@@ -1494,7 +1494,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff"
-version = "0.35.2"
+version = "0.35.3"
 dependencies = [
  "assert_cmd",
  "dhat",
@@ -1508,7 +1508,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-cli-lib"
-version = "0.35.2"
+version = "0.35.3"
 dependencies = [
  "anstyle",
  "assert_cmd",
@@ -1533,7 +1533,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-cli-python"
-version = "0.35.2"
+version = "0.35.3"
 dependencies = [
  "assert_cmd",
  "expect-test",
@@ -1544,7 +1544,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib"
-version = "0.35.2"
+version = "0.35.3"
 dependencies = [
  "codspeed-criterion-compat",
  "common-path",
@@ -1579,7 +1579,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib-core"
-version = "0.35.2"
+version = "0.35.3"
 dependencies = [
  "enum_dispatch",
  "fancy-regex",
@@ -1600,7 +1600,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib-dialects"
-version = "0.35.2"
+version = "0.35.3"
 dependencies = [
  "expect-test",
  "glob",
@@ -1614,7 +1614,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lsp"
-version = "0.35.2"
+version = "0.35.3"
 dependencies = [
  "console_error_panic_hook",
  "hashbrown 0.16.1",
@@ -1629,7 +1629,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-sqlinference"
-version = "0.35.2"
+version = "0.35.3"
 dependencies = [
  "hashbrown 0.16.1",
  "sqruff-lib-core",
@@ -1638,7 +1638,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-wasm"
-version = "0.35.2"
+version = "0.35.3"
 dependencies = [
  "line-index",
  "lineage",
@@ -2129,18 +2129,18 @@ checksum = "cfe53a6657fd280eaa890a3bc59152892ffa3e30101319d168b781ed6529b049"
 
 [[package]]
 name = "zerocopy"
-version = "0.8.41"
+version = "0.8.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96e13bc581734df6250836c59a5f44f3c57db9f9acb9dc8e3eaabdaf6170254d"
+checksum = "f2578b716f8a7a858b7f02d5bd870c14bf4ddbbcf3a4c05414ba6503640505e3"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.41"
+version = "0.8.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3545ea9e86d12ab9bba9fcd99b54c1556fd3199007def5a03c375623d05fac1c"
+checksum = "7e6cc098ea4d3bd6246687de65af3f920c430e236bee1e3bf2e441463f08a02f"
 dependencies = [
  "proc-macro2",
  "quote",

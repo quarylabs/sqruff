@@ -62,9 +62,9 @@ chmod +x /tmp/sqruff
 # Move the extracted binary to the installation directory
 # use sudo if available
 if command -v sudo >/dev/null 2>&1; then
-    sudo mv /tmp/sqruff $INSTALL_DIR
+    sudo mv -- /tmp/sqruff "$INSTALL_DIR"
 else
-    mv /tmp/sqruff $INSTALL_DIR
+    mv -- /tmp/sqruff "$INSTALL_DIR"
 fi
 
 # Clean up temporary files

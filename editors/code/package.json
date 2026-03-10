@@ -22,6 +22,7 @@
         "sqruff.executablePath": {
           "type": "string",
           "default": "",
+          "scope": "machine",
           "description": "Path to the sqruff executable. If empty, the extension tries the bundled binary and then PATH."
         }
       }

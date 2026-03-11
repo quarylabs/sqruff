@@ -76,3 +76,15 @@ fn postgres_pgvector() {
         &config,
     );
 }
+
+#[test]
+fn postgres_pgvector_operators() {
+    let mut config_map = HashMap::new();
+    config_map.insert("pgvector".to_string(), Value::Bool(true));
+    let config = Value::Map(config_map);
+
+    parse_with_config(
+        "test/fixtures/dialect_configs/postgres_pgvector/pgvector_operators.sql",
+        &config,
+    );
+}

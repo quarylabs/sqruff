@@ -51,9 +51,69 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     if dialect_config.pgvector {
         postgres.replace_grammar("DatatypeSegment", build_datatype_segment_grammar(true));
+
+        // Add pgvector distance operators: <-> (L2), <=> (cosine), <+> (L1), <#> (inner product)
+        postgres.insert_lexer_matchers(
+            vec![Matcher::regex(
+                "pgvector_operator",
+                r#"(<->|<=>|<\+>|<#>)"#,
+                SyntaxKind::PgvectorOperator,
+            )],
+            "greater_than",
+        );
+
+        // Register PgvectorOperatorSegment as a comparison operator
+        postgres.add([(
+            "PgvectorOperatorSegment".into(),
+            TypedParser::new(SyntaxKind::PgvectorOperator, SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
+        )]);
+
+        // Extend ComparisonOperatorGrammar to include pgvector operators
+        postgres.replace_grammar(
+            "ComparisonOperatorGrammar",
+            build_comparison_operator_grammar(true),
+        );
     }
 
     postgres.config(|dialect| dialect.expand())
+}
+
+/// Build the ComparisonOperatorGrammar, optionally including pgvector operators.
+fn build_comparison_operator_grammar(pgvector: bool) -> Matchable {
+    let mut operators = vec![
+        Ref::new("EqualsSegment").to_matchable(),
+        Ref::new("GreaterThanSegment").to_matchable(),
+        Ref::new("LessThanSegment").to_matchable(),
+        Ref::new("GreaterThanOrEqualToSegment").to_matchable(),
+        Ref::new("LessThanOrEqualToSegment").to_matchable(),
+        Ref::new("NotEqualToSegment").to_matchable(),
+        Ref::new("LikeOperatorSegment").to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("IS").to_matchable(),
+            Ref::keyword("DISTINCT").to_matchable(),
+            Ref::keyword("FROM").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("IS").to_matchable(),
+            Ref::keyword("NOT").to_matchable(),
+            Ref::keyword("DISTINCT").to_matchable(),
+            Ref::keyword("FROM").to_matchable(),
+        ])
+        .to_matchable(),
+        Ref::new("OverlapSegment").to_matchable(),
+        Ref::new("NotExtendRightSegment").to_matchable(),
+        Ref::new("NotExtendLeftSegment").to_matchable(),
+        Ref::new("AdjacentSegment").to_matchable(),
+    ];
+
+    if pgvector {
+        operators.push(Ref::new("PgvectorOperatorSegment").to_matchable());
+    }
+
+    one_of(operators).to_matchable()
 }
 
 /// Build the DatatypeSegment grammar, optionally including pgvector types.
@@ -567,34 +627,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ComparisonOperatorGrammar".into(),
-            one_of(vec![
-                Ref::new("EqualsSegment").to_matchable(),
-                Ref::new("GreaterThanSegment").to_matchable(),
-                Ref::new("LessThanSegment").to_matchable(),
-                Ref::new("GreaterThanOrEqualToSegment").to_matchable(),
-                Ref::new("LessThanOrEqualToSegment").to_matchable(),
-                Ref::new("NotEqualToSegment").to_matchable(),
-                Ref::new("LikeOperatorSegment").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("IS").to_matchable(),
-                    Ref::keyword("DISTINCT").to_matchable(),
-                    Ref::keyword("FROM").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("IS").to_matchable(),
-                    Ref::keyword("NOT").to_matchable(),
-                    Ref::keyword("DISTINCT").to_matchable(),
-                    Ref::keyword("FROM").to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::new("OverlapSegment").to_matchable(),
-                Ref::new("NotExtendRightSegment").to_matchable(),
-                Ref::new("NotExtendLeftSegment").to_matchable(),
-                Ref::new("AdjacentSegment").to_matchable(),
-            ])
-            .to_matchable()
-            .into(),
+            build_comparison_operator_grammar(false).into(),
         ),
         (
             "NakedIdentifierSegment".into(),

@@ -21,7 +21,7 @@ use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{
-    SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError,
+    SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SQLTemplaterError,
 };
 use sqruff_lib_core::helpers;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
@@ -202,7 +202,28 @@ impl Linter {
 
     pub fn render_file(&self, fname: String) -> RenderedFile {
         let in_str = std::fs::read_to_string(&fname).unwrap();
-        self.render_string(&in_str, fname, &self.config).unwrap()
+        match self.render_string(&in_str, fname.clone(), &self.config) {
+            Ok(rendered) => rendered,
+            Err(err) => {
+                log::error!("Failed to template file {}: {:?}", fname, err);
+                let source_str = Self::normalise_newlines(&in_str).to_string();
+                RenderedFile {
+                    templated_file: TemplatedFile::new(
+                        source_str.clone(),
+                        fname.clone(),
+                        None,
+                        None,
+                        None,
+                    )
+                    .expect("Creating raw TemplatedFile should not fail"),
+                    templater_violations: vec![SQLTemplaterError::new(format!(
+                        "Failed to template file {fname}: {err}"
+                    ))],
+                    filename: fname,
+                    source_str,
+                }
+            }
+        }
     }
 
     /// Render multiple files in a batch using the templater's batch processing.
@@ -272,8 +293,10 @@ impl Linter {
                 },
                 Err(err) => {
                     log::error!("Failed to template file {}: {:?}", fname, err);
-                    // Return a minimal RenderedFile with the error
-                    // The file will fail during linting with a parse error
+                    // Return a minimal RenderedFile with the templater error as a
+                    // violation. This prevents linting the raw source (which contains
+                    // template syntax like {{ }}) and producing false positive LT01
+                    // spacing errors.
                     RenderedFile {
                         templated_file: TemplatedFile::new(
                             source_str.clone(),
@@ -283,7 +306,9 @@ impl Linter {
                             None,
                         )
                         .expect("Creating raw TemplatedFile should not fail"),
-                        templater_violations: vec![],
+                        templater_violations: vec![SQLTemplaterError::new(format!(
+                            "Failed to template file {fname}: {err}"
+                        ))],
                         filename: fname.clone(),
                         source_str: source_str.clone(),
                     }
@@ -523,9 +548,23 @@ impl Linter {
 
     /// Parse a rendered file.
     pub fn parse_rendered(&self, tables: &Tables, rendered: RenderedFile) -> ParsedString {
-        let violations = rendered.templater_violations.clone();
-        if !violations.is_empty() {
-            unimplemented!()
+        let templater_violations = rendered.templater_violations.clone();
+        if !templater_violations.is_empty() {
+            // If the templater reported violations (e.g., dbt/jinja templater
+            // failed), skip parsing. This prevents false positive lint errors
+            // (like LT01 spacing violations on `{{ }}` template syntax) that
+            // would occur if we tried to parse the raw source as SQL.
+            let violations: Vec<SQLBaseError> = templater_violations
+                .into_iter()
+                .map(SQLBaseError::from)
+                .collect();
+            return ParsedString {
+                tree: None,
+                violations,
+                templated_file: rendered.templated_file,
+                filename: rendered.filename,
+                source_str: rendered.source_str,
+            };
         }
 
         let mut violations = Vec::new();
@@ -989,5 +1028,57 @@ mod tests {
         let out_str = "SELECT\n foo\n FROM \n \n\n bar;";
 
         assert_eq!(Linter::normalise_newlines(in_str), out_str);
+    }
+
+    /// Regression test for https://github.com/quarylabs/sqruff/issues/2354
+    /// When a templater fails (e.g., dbt/jinja can't find a project), the
+    /// fallback should not produce false positive LT01 violations on template
+    /// syntax like `{{ ref('stg_users') }}`.
+    #[test]
+    fn test_templater_error_skips_linting() {
+        use crate::core::linter::common::RenderedFile;
+        use sqruff_lib_core::errors::SQLTemplaterError;
+        use sqruff_lib_core::templaters::TemplatedFile;
+
+        let source =
+            "SELECT *\nFROM {{ ref('stg_users') }}\nWHERE created_at > '{{ var(\"start_date\") }}'";
+        let linter = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            None,
+            false,
+        )
+        .unwrap();
+
+        // Simulate a failed templater by creating a RenderedFile with
+        // templater_violations (this is what render_files_batch does when
+        // the dbt/jinja templater fails).
+        let rendered = RenderedFile {
+            templated_file: TemplatedFile::new(
+                source.to_string(),
+                "test.sql".to_string(),
+                None,
+                None,
+                None,
+            )
+            .unwrap(),
+            templater_violations: vec![SQLTemplaterError::new(
+                "Failed to template file: dbt project not found".to_string(),
+            )],
+            filename: "test.sql".to_string(),
+            source_str: source.to_string(),
+        };
+
+        let result = linter.lint_rendered(rendered, false).unwrap();
+        let violations = result.violations();
+
+        // Should have exactly 1 violation: the templater error.
+        // Should NOT have any LT01 spacing violations.
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].desc().contains("Failed to template file"));
+        assert!(
+            !violations.iter().any(|v| v.rule_code() == "LT01"),
+            "Should not have LT01 false positives on template syntax"
+        );
     }
 }

@@ -88,8 +88,29 @@ impl From<SQLBaseError> for SQLLintError {
 }
 
 #[derive(Debug, PartialEq, Clone, Error)]
-#[error("SQLTemplaterError")]
-pub struct SQLTemplaterError;
+#[error("{message}")]
+pub struct SQLTemplaterError {
+    pub message: String,
+}
+
+impl SQLTemplaterError {
+    pub fn new(message: String) -> Self {
+        Self { message }
+    }
+}
+
+impl From<SQLTemplaterError> for SQLBaseError {
+    fn from(value: SQLTemplaterError) -> Self {
+        Self {
+            description: value.message,
+            rule: Some(ErrorStructRule {
+                name: "templater",
+                code: "TMP",
+            }),
+            ..Default::default()
+        }
+    }
+}
 
 /// An error which should be fed back to the user.
 #[derive(Debug, Error)]

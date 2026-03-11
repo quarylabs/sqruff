@@ -8,11 +8,10 @@ use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 
 use super::ansi;
-use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
+use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
 
-/// Configuration for the MySQL dialect.
-pub type MySQLDialectConfig = NullDialectConfig;
+sqruff_lib_core::dialect_config!(MySQLDialectConfig {});
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure

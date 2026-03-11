@@ -12,11 +12,10 @@ use sqruff_lib_core::parser::parsers::StringParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 
 use crate::{ansi, postgres};
-use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
+use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
 
-/// Configuration for the DuckDB dialect.
-pub type DuckDBDialectConfig = NullDialectConfig;
+sqruff_lib_core::dialect_config!(DuckDBDialectConfig {});
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure

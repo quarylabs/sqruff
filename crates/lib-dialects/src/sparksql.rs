@@ -4458,11 +4458,10 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect
 }
 
-use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
+use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
 
-/// Configuration for the SparkSQL dialect.
-pub type SparkSQLDialectConfig = NullDialectConfig;
+sqruff_lib_core::dialect_config!(SparkSQLDialectConfig {});
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure

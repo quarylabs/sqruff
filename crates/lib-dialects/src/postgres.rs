@@ -23,20 +23,10 @@ use crate::postgres_keywords::{get_keywords, postgres_keywords};
 use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
 
-/// Configuration for the PostgreSQL dialect.
-#[derive(Debug, Clone, Default)]
-pub struct PostgresDialectConfig {
-    /// Enable parsing of pg_trgm trigram operators (%, <%, %>, <->, etc.).
-    /// Set to true if your database uses the pg_trgm extension.
-    pub pg_trgm: bool,
-}
-
-impl DialectConfig for PostgresDialectConfig {
-    fn from_value(value: &Value) -> Self {
-        let pg_trgm = value["pg_trgm"].to_bool();
-        Self { pg_trgm }
-    }
-}
+sqruff_lib_core::dialect_config!(PostgresDialectConfig {
+    /// Enable parsing of pg_trgm trigram operators
+    pg_trgm: "Enable parsing of pg_trgm trigram operators (%, <%, %>, <->, etc.)"
+});
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure

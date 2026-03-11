@@ -55,6 +55,44 @@ pub mod tsql;
 #[cfg(feature = "tsql")]
 mod tsql_keywords;
 
+/// Returns dialect-specific configuration options for the given dialect kind.
+/// Each entry is (option_name, description, default_value).
+pub fn dialect_config_options(
+    kind: &DialectKind,
+) -> Vec<(&'static str, &'static str, &'static str)> {
+    #[allow(unreachable_patterns)]
+    match kind {
+        DialectKind::Ansi => ansi::AnsiDialectConfig::config_options(),
+        #[cfg(feature = "athena")]
+        DialectKind::Athena => athena::AthenaDialectConfig::config_options(),
+        #[cfg(feature = "bigquery")]
+        DialectKind::Bigquery => bigquery::BigQueryDialectConfig::config_options(),
+        #[cfg(feature = "clickhouse")]
+        DialectKind::Clickhouse => clickhouse::ClickHouseDialectConfig::config_options(),
+        #[cfg(feature = "databricks")]
+        DialectKind::Databricks => databricks::DatabricksDialectConfig::config_options(),
+        #[cfg(feature = "duckdb")]
+        DialectKind::Duckdb => duckdb::DuckDBDialectConfig::config_options(),
+        #[cfg(feature = "mysql")]
+        DialectKind::Mysql => mysql::MySQLDialectConfig::config_options(),
+        #[cfg(feature = "postgres")]
+        DialectKind::Postgres => postgres::PostgresDialectConfig::config_options(),
+        #[cfg(feature = "redshift")]
+        DialectKind::Redshift => redshift::RedshiftDialectConfig::config_options(),
+        #[cfg(feature = "snowflake")]
+        DialectKind::Snowflake => snowflake::SnowflakeDialectConfig::config_options(),
+        #[cfg(feature = "sparksql")]
+        DialectKind::Sparksql => sparksql::SparkSQLDialectConfig::config_options(),
+        #[cfg(feature = "sqlite")]
+        DialectKind::Sqlite => sqlite::SQLiteDialectConfig::config_options(),
+        #[cfg(feature = "trino")]
+        DialectKind::Trino => trino::TrinoDialectConfig::config_options(),
+        #[cfg(feature = "tsql")]
+        DialectKind::Tsql => tsql::TSQLDialectConfig::config_options(),
+        _ => vec![],
+    }
+}
+
 pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dialect> {
     #[allow(unreachable_patterns)]
     Some(match kind {

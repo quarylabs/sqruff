@@ -1,0 +1,102 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: search
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: embedding
+      - data_type:
+        - keyword: VECTOR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1536'
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: msgs
+      - dot: .
+      - naked_identifier: _all
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: bar
+      - data_type:
+        - keyword: VARCHAR
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+        - naked_identifier: embd
+      - data_type:
+        - keyword: VECTOR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '3072'
+            - end_bracket: )
+      - column_constraint_segment:
+        - keyword: DEFAULT
+        - null_literal: 'NULL'
+      - comma: ','
+      - column_reference:
+        - naked_identifier: baz
+      - data_type:
+        - keyword: VARCHAR
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: items
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: id
+      - data_type:
+        - keyword: SERIAL
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - comma: ','
+      - column_reference:
+        - naked_identifier: half_embedding
+      - data_type:
+        - keyword: HALFVEC
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '512'
+            - end_bracket: )
+      - comma: ','
+      - column_reference:
+        - naked_identifier: sparse_embedding
+      - data_type:
+        - keyword: SPARSEVEC
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1024'
+            - end_bracket: )
+      - comma: ','
+      - column_reference:
+        - naked_identifier: plain_vector
+      - data_type:
+        - keyword: VECTOR
+      - end_bracket: )
+- statement_terminator: ;

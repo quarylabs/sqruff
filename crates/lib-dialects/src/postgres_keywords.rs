@@ -1017,12 +1017,19 @@ const POSTGRES_POSTGIS_OTHER_KEYWORDS: &[(&str, &str)] = &[
     ("EMPTY", "non-reserved"),
 ];
 
+pub(crate) const POSTGRES_PGVECTOR_KEYWORDS: &[(&str, &str)] = &[
+    ("VECTOR", "non-reserved"),
+    ("HALFVEC", "non-reserved"),
+    ("SPARSEVEC", "non-reserved"),
+];
+
 pub(crate) fn postgres_keywords() -> Vec<(&'static str, &'static str)> {
     priority_keyword_merge(&[
         POSTGRES_DOCS_KEYWORDS,
         POSTGRES_NONDOCS_KEYWORDS,
         POSTGRES_POSTGIS_DATATYPE_KEYWORDS,
         POSTGRES_POSTGIS_OTHER_KEYWORDS,
+        POSTGRES_PGVECTOR_KEYWORDS,
     ])
 }
 

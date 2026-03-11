@@ -715,6 +715,28 @@ test_pass_window_function:
         ) as rnk
     from foo
 
+test_fix_comment_not_merged_with_next_line:
+  # https://github.com/quarylabs/sqruff/issues/2352
+  # Verifies that moving a trailing comment before its code line doesn't
+  # merge it with the code, which would produce broken SQL since
+  # everything after `--` becomes part of the comment.
+  fail_str: |
+    SELECT
+        COALESCE(
+            REGEXP_EXTRACT(project_id, '^foo-bar-(.+)$'),                -- foo-bar-baz -> baz
+            REGEXP_EXTRACT(project_id, '^qux-(.+)$')                     -- qux-corge -> corge
+        ) AS result
+    FROM t
+  fix_str: |
+    SELECT
+        COALESCE(
+            -- foo-bar-baz -> baz
+            REGEXP_EXTRACT(project_id, '^foo-bar-(.+)$'),
+            -- qux-corge -> corge
+            REGEXP_EXTRACT(project_id, '^qux-(.+)$')
+        ) AS result
+    FROM t
+
 test_fix_where_on_separate_line:
   # https://github.com/quarylabs/sqruff/issues/1986
   # When WHERE is on its own line, the conditions start on a new line

@@ -1,0 +1,24 @@
+rule: LT01,LT05
+
+test_fix_comment_not_merged_with_next_line:
+  # https://github.com/quarylabs/sqruff/issues/2352
+  # Tests multi-rule interaction: LT05 moves a trailing comment above
+  # the code line, and LT01 must not then remove the newline between
+  # the comment and the code (which would merge everything after --
+  # into the comment, producing broken SQL).
+  fail_str: |
+    SELECT
+        COALESCE(
+            REGEXP_EXTRACT(project_id, '^foo-bar-(.+)$'),                -- foo-bar-baz -> baz
+            REGEXP_EXTRACT(project_id, '^qux-(.+)$')                     -- qux-corge -> corge
+        ) AS result
+    FROM t
+  fix_str: |
+    SELECT
+        COALESCE(
+            -- foo-bar-baz -> baz
+            REGEXP_EXTRACT(project_id, '^foo-bar-(.+)$'),
+            -- qux-corge -> corge
+            REGEXP_EXTRACT(project_id, '^qux-(.+)$')
+        ) AS result
+    FROM t

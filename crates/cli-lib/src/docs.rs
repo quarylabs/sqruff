@@ -97,21 +97,43 @@ struct Templater {
 
 #[cfg(feature = "codegen-docs")]
 #[derive(Debug, Clone, Serialize)]
+struct DialectConfigOption {
+    name: &'static str,
+    description: &'static str,
+    default: &'static str,
+}
+
+#[cfg(feature = "codegen-docs")]
+#[derive(Debug, Clone, Serialize)]
 struct Dialect {
     name: &'static str,
     description: &'static str,
     doc_url: Option<&'static str>,
     config_section: String,
+    config_options: Vec<DialectConfigOption>,
+    has_config_options: bool,
 }
 
 #[cfg(feature = "codegen-docs")]
 impl From<DialectKind> for Dialect {
     fn from(value: DialectKind) -> Self {
+        let config_options: Vec<DialectConfigOption> = value
+            .config_options()
+            .into_iter()
+            .map(|(name, description, default)| DialectConfigOption {
+                name,
+                description,
+                default,
+            })
+            .collect();
+        let has_config_options = !config_options.is_empty();
         Dialect {
             name: value.name(),
             description: value.description(),
             doc_url: value.doc_url(),
             config_section: value.config_section(),
+            config_options,
+            has_config_options,
         }
     }
 }

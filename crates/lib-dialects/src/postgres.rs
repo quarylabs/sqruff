@@ -20,19 +20,44 @@ use sqruff_lib_core::parser::types::ParseMode;
 use super::ansi;
 use super::postgres_keywords::POSTGRES_POSTGIS_DATATYPE_KEYWORDS;
 use crate::postgres_keywords::{get_keywords, postgres_keywords};
-use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
+use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
 
 /// Configuration for the PostgreSQL dialect.
-pub type PostgresDialectConfig = NullDialectConfig;
+#[derive(Debug, Clone, Default)]
+pub struct PostgresDialectConfig {
+    /// Enable parsing of pg_trgm trigram operators (%, <%, %>, <->, etc.).
+    /// Set to true if your database uses the pg_trgm extension.
+    pub pg_trgm: bool,
+}
+
+impl DialectConfig for PostgresDialectConfig {
+    fn from_value(value: &Value) -> Self {
+        let pg_trgm = value["pg_trgm"].to_bool();
+        Self { pg_trgm }
+    }
+}
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure
-    let _dialect_config: PostgresDialectConfig = config
+    let dialect_config: PostgresDialectConfig = config
         .map(PostgresDialectConfig::from_value)
         .unwrap_or_default();
 
-    raw_dialect().config(|dialect| dialect.expand())
+    let mut postgres = raw_dialect();
+
+    if dialect_config.pg_trgm {
+        postgres.insert_lexer_matchers(
+            vec![Matcher::regex(
+                "trgm_operator",
+                r#"(<<<->|<->>>|<<->|<->>|<->|<<%|%>>|%>|<%|%)"#,
+                SyntaxKind::LikeOperator,
+            )],
+            "like_operator",
+        );
+    }
+
+    postgres.config(|dialect| dialect.expand())
 }
 
 pub fn raw_dialect() -> Dialect {

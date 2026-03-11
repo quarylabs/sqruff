@@ -30,6 +30,7 @@ Standard SQL syntax. The default dialect and base for all others.
 [sqruff:dialect:ansi]
 ```
 
+
 ### athena
 
 Amazon Athena SQL dialect for querying data in S3.
@@ -40,6 +41,7 @@ Amazon Athena SQL dialect for querying data in S3.
 ```ini
 [sqruff:dialect:athena]
 ```
+
 
 ### bigquery
 
@@ -52,6 +54,7 @@ Google BigQuery SQL dialect for analytics and data warehousing.
 [sqruff:dialect:bigquery]
 ```
 
+
 ### clickhouse
 
 ClickHouse SQL dialect for real-time analytics.
@@ -62,6 +65,7 @@ ClickHouse SQL dialect for real-time analytics.
 ```ini
 [sqruff:dialect:clickhouse]
 ```
+
 
 ### databricks
 
@@ -74,6 +78,7 @@ Databricks SQL dialect for lakehouse analytics.
 [sqruff:dialect:databricks]
 ```
 
+
 ### duckdb
 
 DuckDB SQL dialect for in-process analytical database.
@@ -84,6 +89,7 @@ DuckDB SQL dialect for in-process analytical database.
 ```ini
 [sqruff:dialect:duckdb]
 ```
+
 
 ### mysql
 
@@ -96,6 +102,7 @@ MySQL SQL dialect for the popular open-source database.
 [sqruff:dialect:mysql]
 ```
 
+
 ### postgres
 
 PostgreSQL SQL dialect for the advanced open-source database.
@@ -106,6 +113,19 @@ PostgreSQL SQL dialect for the advanced open-source database.
 ```ini
 [sqruff:dialect:postgres]
 ```
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `pg_trgm` | Enable parsing of pg_trgm trigram operators (%, <%, %>, <->, etc.) | `false` |
+
+**Example:**
+```ini
+[sqruff:dialect:postgres]
+pg_trgm = true
+```
+
 
 ### redshift
 
@@ -118,6 +138,7 @@ Amazon Redshift SQL dialect for cloud data warehousing.
 [sqruff:dialect:redshift]
 ```
 
+
 ### snowflake
 
 Snowflake SQL dialect for cloud data platform.
@@ -128,6 +149,7 @@ Snowflake SQL dialect for cloud data platform.
 ```ini
 [sqruff:dialect:snowflake]
 ```
+
 
 ### sparksql
 
@@ -140,6 +162,7 @@ Apache Spark SQL dialect for big data processing.
 [sqruff:dialect:sparksql]
 ```
 
+
 ### sqlite
 
 SQLite SQL dialect for embedded database.
@@ -150,6 +173,7 @@ SQLite SQL dialect for embedded database.
 ```ini
 [sqruff:dialect:sqlite]
 ```
+
 
 ### trino
 
@@ -162,6 +186,7 @@ Trino (formerly PrestoSQL) dialect for distributed SQL queries.
 [sqruff:dialect:trino]
 ```
 
+
 ### tsql
 
 T-SQL dialect for Microsoft SQL Server and Azure SQL.
@@ -172,5 +197,6 @@ T-SQL dialect for Microsoft SQL Server and Azure SQL.
 ```ini
 [sqruff:dialect:tsql]
 ```
+
 
 We are working on adding support for more dialects in the future.

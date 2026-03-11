@@ -106,6 +106,19 @@ impl DialectKind {
         format!("[sqruff:dialect:{}]", self.name())
     }
 
+    /// Returns a list of (option_name, description, default_value) tuples
+    /// for dialect-specific configuration options.
+    pub fn config_options(&self) -> Vec<(&'static str, &'static str, &'static str)> {
+        match self {
+            DialectKind::Postgres => vec![(
+                "pg_trgm",
+                "Enable parsing of pg_trgm trigram operators (%, <%, %>, <->, etc.)",
+                "false",
+            )],
+            _ => vec![],
+        }
+    }
+
     /// Returns an optional URL to the official documentation for the dialect.
     pub fn doc_url(&self) -> Option<&'static str> {
         match self {

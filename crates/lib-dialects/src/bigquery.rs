@@ -17,11 +17,10 @@ use sqruff_lib_core::parser::types::ParseMode;
 
 use super::ansi::{self, raw_dialect};
 use super::bigquery_keywords::{BIGQUERY_RESERVED_KEYWORDS, BIGQUERY_UNRESERVED_KEYWORDS};
-use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
+use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
 
-/// Configuration for the BigQuery dialect.
-pub type BigQueryDialectConfig = NullDialectConfig;
+sqruff_lib_core::dialect_config!(BigQueryDialectConfig {});
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure

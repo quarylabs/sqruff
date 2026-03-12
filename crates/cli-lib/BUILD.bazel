@@ -29,6 +29,7 @@ rust_library(
     deps = all_crate_deps(normal = True) + [
         "//crates/lib:sqruff-lib-python",
         "//crates/lib-core:sqruff-lib-core",
+        "//crates/lib-dialects:sqruff-lib-dialects",
         "//crates/lsp:sqruff-lsp",
         "@crates//:clap-markdown",
         "@crates//:minijinja",

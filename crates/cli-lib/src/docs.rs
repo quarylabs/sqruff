@@ -117,15 +117,15 @@ struct Dialect {
 #[cfg(feature = "codegen-docs")]
 impl From<DialectKind> for Dialect {
     fn from(value: DialectKind) -> Self {
-        let config_options: Vec<DialectConfigOption> = value
-            .config_options()
-            .into_iter()
-            .map(|(name, description, default)| DialectConfigOption {
-                name,
-                description,
-                default,
-            })
-            .collect();
+        let config_options: Vec<DialectConfigOption> =
+            sqruff_lib_dialects::dialect_config_options(&value)
+                .into_iter()
+                .map(|(name, description, default)| DialectConfigOption {
+                    name,
+                    description,
+                    default,
+                })
+                .collect();
         let has_config_options = !config_options.is_empty();
         Dialect {
             name: value.name(),

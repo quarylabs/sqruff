@@ -1,6 +1,6 @@
 use crate::databricks_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
 use crate::sparksql;
-use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
+use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::helpers::Config;
 use sqruff_lib_core::parser::grammar::anyof::one_of;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
@@ -14,8 +14,7 @@ use sqruff_lib_core::{
     value::Value,
 };
 
-/// Configuration for the Databricks dialect.
-pub type DatabricksDialectConfig = NullDialectConfig;
+sqruff_lib_core::dialect_config!(DatabricksDialectConfig {});
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure

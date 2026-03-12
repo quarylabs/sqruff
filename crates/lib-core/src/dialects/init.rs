@@ -14,11 +14,68 @@ pub trait DialectConfig: Default + Clone + std::fmt::Debug {
     }
 }
 
-/// A null/empty configuration for dialects that don't have any configuration options.
-#[derive(Debug, Clone, Default)]
-pub struct NullDialectConfig;
+/// Macro to generate a dialect config struct with `DialectConfig` impl and `config_options()`.
+///
+/// # Usage
+///
+/// ```ignore
+/// // Dialect with config options (all bool fields):
+/// sqruff_lib_core::dialect_config!(PostgresDialectConfig {
+///     /// Enable pg_trgm operators
+///     pg_trgm: "Enable parsing of pg_trgm trigram operators"
+/// });
+///
+/// // Dialect with no config options:
+/// sqruff_lib_core::dialect_config!(AnsiDialectConfig {});
+/// ```
+#[macro_export]
+macro_rules! dialect_config {
+    // With fields (all bool)
+    ($name:ident { $(
+        $(#[doc = $doc:expr])*
+        $field:ident : $desc:expr
+    ),* $(,)? }) => {
+        #[derive(Debug, Clone)]
+        pub struct $name {
+            $($(#[doc = $doc])* pub $field: bool,)*
+        }
 
-impl DialectConfig for NullDialectConfig {}
+        impl Default for $name {
+            fn default() -> Self {
+                Self { $($field: false,)* }
+            }
+        }
+
+        impl $crate::dialects::init::DialectConfig for $name {
+            fn from_value(value: &$crate::value::Value) -> Self {
+                Self {
+                    $($field: value[stringify!($field)].to_bool(),)*
+                }
+            }
+        }
+
+        impl $name {
+            pub fn config_options() -> Vec<(&'static str, &'static str, &'static str)> {
+                vec![
+                    $((stringify!($field), $desc, "false"),)*
+                ]
+            }
+        }
+    };
+    // No fields
+    ($name:ident {}) => {
+        #[derive(Debug, Clone, Default)]
+        pub struct $name;
+
+        impl $crate::dialects::init::DialectConfig for $name {}
+
+        impl $name {
+            pub fn config_options() -> Vec<(&'static str, &'static str, &'static str)> {
+                vec![]
+            }
+        }
+    };
+}
 
 #[derive(
     strum_macros::EnumString,
@@ -104,19 +161,6 @@ impl DialectKind {
     /// Format: `[sqruff:dialect:{dialect_name}]`
     pub fn config_section(&self) -> String {
         format!("[sqruff:dialect:{}]", self.name())
-    }
-
-    /// Returns a list of (option_name, description, default_value) tuples
-    /// for dialect-specific configuration options.
-    pub fn config_options(&self) -> Vec<(&'static str, &'static str, &'static str)> {
-        match self {
-            DialectKind::Postgres => vec![(
-                "pg_trgm",
-                "Enable parsing of pg_trgm trigram operators (%, <%, %>, <->, etc.)",
-                "false",
-            )],
-            _ => vec![],
-        }
     }
 
     /// Returns an optional URL to the official documentation for the dialect.

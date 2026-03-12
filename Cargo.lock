@@ -1525,6 +1525,7 @@ dependencies = [
  "serde_json",
  "sqruff-lib",
  "sqruff-lib-core",
+ "sqruff-lib-dialects",
  "sqruff-lsp",
  "strum",
  "strum_macros",

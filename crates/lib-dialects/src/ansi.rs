@@ -18,12 +18,10 @@ use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 
 use super::ansi_keywords::{ANSI_RESERVED_KEYWORDS, ANSI_UNRESERVED_KEYWORDS};
-use sqruff_lib_core::dialects::init::{DialectConfig, NullDialectConfig};
+use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
 
-/// Configuration for the ANSI dialect.
-/// Currently empty but can be extended with dialect-specific options.
-pub type AnsiDialectConfig = NullDialectConfig;
+sqruff_lib_core::dialect_config!(AnsiDialectConfig {});
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure

@@ -119,11 +119,13 @@ PostgreSQL SQL dialect for the advanced open-source database.
 | Option | Description | Default |
 |--------|-------------|---------|
 | `pg_trgm` | Enable parsing of pg_trgm trigram operators (%, <%, %>, <->, etc.) | `false` |
+| `pgvector` | Enable parsing of pgvector data types (VECTOR, HALFVEC, SPARSEVEC). | `false` |
 
 **Example:**
 ```ini
 [sqruff:dialect:postgres]
 pg_trgm = true
+pgvector = true
 ```
 
 

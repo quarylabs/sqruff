@@ -25,7 +25,9 @@ use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(PostgresDialectConfig {
     /// Enable parsing of pg_trgm trigram operators
-    pg_trgm: "Enable parsing of pg_trgm trigram operators (%, <%, %>, <->, etc.)"
+    pg_trgm: "Enable parsing of pg_trgm trigram operators (%, <%, %>, <->, etc.)",
+    /// Enable parsing of pgvector data types
+    pgvector: "Enable parsing of pgvector data types (VECTOR, HALFVEC, SPARSEVEC)."
 });
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
@@ -47,7 +49,253 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         );
     }
 
+    if dialect_config.pgvector {
+        postgres.replace_grammar("DatatypeSegment", build_datatype_segment_grammar(true));
+
+        // Add pgvector distance operators: <-> (L2), <=> (cosine), <+> (L1), <#> (inner product)
+        postgres.insert_lexer_matchers(
+            vec![Matcher::regex(
+                "pgvector_operator",
+                r#"(<->|<=>|<\+>|<#>)"#,
+                SyntaxKind::PgvectorOperator,
+            )],
+            "greater_than",
+        );
+
+        // Register PgvectorOperatorSegment as a comparison operator
+        postgres.add([(
+            "PgvectorOperatorSegment".into(),
+            TypedParser::new(SyntaxKind::PgvectorOperator, SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
+        )]);
+
+        // Extend ComparisonOperatorGrammar to include pgvector operators
+        postgres.replace_grammar(
+            "ComparisonOperatorGrammar",
+            build_comparison_operator_grammar(true),
+        );
+    }
+
     postgres.config(|dialect| dialect.expand())
+}
+
+/// Build the ComparisonOperatorGrammar, optionally including pgvector operators.
+fn build_comparison_operator_grammar(pgvector: bool) -> Matchable {
+    let mut operators = vec![
+        Ref::new("EqualsSegment").to_matchable(),
+        Ref::new("GreaterThanSegment").to_matchable(),
+        Ref::new("LessThanSegment").to_matchable(),
+        Ref::new("GreaterThanOrEqualToSegment").to_matchable(),
+        Ref::new("LessThanOrEqualToSegment").to_matchable(),
+        Ref::new("NotEqualToSegment").to_matchable(),
+        Ref::new("LikeOperatorSegment").to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("IS").to_matchable(),
+            Ref::keyword("DISTINCT").to_matchable(),
+            Ref::keyword("FROM").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("IS").to_matchable(),
+            Ref::keyword("NOT").to_matchable(),
+            Ref::keyword("DISTINCT").to_matchable(),
+            Ref::keyword("FROM").to_matchable(),
+        ])
+        .to_matchable(),
+        Ref::new("OverlapSegment").to_matchable(),
+        Ref::new("NotExtendRightSegment").to_matchable(),
+        Ref::new("NotExtendLeftSegment").to_matchable(),
+        Ref::new("AdjacentSegment").to_matchable(),
+    ];
+
+    if pgvector {
+        operators.push(Ref::new("PgvectorOperatorSegment").to_matchable());
+    }
+
+    one_of(operators).to_matchable()
+}
+
+/// Build the DatatypeSegment grammar, optionally including pgvector types.
+fn build_datatype_segment_grammar(pgvector: bool) -> Matchable {
+    let mut known_types: Vec<Matchable> = vec![
+        Ref::keyword("SMALLINT").to_matchable(),
+        Ref::keyword("INTEGER").to_matchable(),
+        Ref::keyword("INT").to_matchable(),
+        Ref::keyword("INT2").to_matchable(),
+        Ref::keyword("INT4").to_matchable(),
+        Ref::keyword("INT8").to_matchable(),
+        Ref::keyword("BIGINT").to_matchable(),
+        Ref::keyword("FLOAT4").to_matchable(),
+        Ref::keyword("FLOAT8").to_matchable(),
+        Ref::keyword("REAL").to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("DOUBLE").to_matchable(),
+            Ref::keyword("PRECISION").to_matchable(),
+        ])
+        .to_matchable(),
+        Ref::keyword("SMALLSERIAL").to_matchable(),
+        Ref::keyword("SERIAL").to_matchable(),
+        Ref::keyword("SERIAL2").to_matchable(),
+        Ref::keyword("SERIAL4").to_matchable(),
+        Ref::keyword("SERIAL8").to_matchable(),
+        Ref::keyword("BIGSERIAL").to_matchable(),
+        // Numeric types [(precision)]
+        Sequence::new(vec![
+            one_of(vec![Ref::keyword("FLOAT").to_matchable()]).to_matchable(),
+            Ref::new("BracketedArguments").optional().to_matchable(),
+        ])
+        .to_matchable(),
+        // Numeric types [precision ["," scale])]
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::keyword("DECIMAL").to_matchable(),
+                Ref::keyword("NUMERIC").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("BracketedArguments").optional().to_matchable(),
+        ])
+        .to_matchable(),
+        // Monetary type
+        Ref::keyword("MONEY").to_matchable(),
+        // Character types
+        one_of(vec![
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("BPCHAR").to_matchable(),
+                    Ref::keyword("CHAR").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CHAR").to_matchable(),
+                        Ref::keyword("VARYING").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("CHARACTER").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CHARACTER").to_matchable(),
+                        Ref::keyword("VARYING").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("VARCHAR").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("BracketedArguments").optional().to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("TEXT").to_matchable(),
+        ])
+        .to_matchable(),
+        // Binary type
+        Ref::keyword("BYTEA").to_matchable(),
+        // Boolean types
+        one_of(vec![
+            Ref::keyword("BOOLEAN").to_matchable(),
+            Ref::keyword("BOOL").to_matchable(),
+        ])
+        .to_matchable(),
+        // Geometric types
+        one_of(vec![
+            Ref::keyword("POINT").to_matchable(),
+            Ref::keyword("LINE").to_matchable(),
+            Ref::keyword("LSEG").to_matchable(),
+            Ref::keyword("BOX").to_matchable(),
+            Ref::keyword("PATH").to_matchable(),
+            Ref::keyword("POLYGON").to_matchable(),
+            Ref::keyword("CIRCLE").to_matchable(),
+        ])
+        .to_matchable(),
+        // Network address types
+        one_of(vec![
+            Ref::keyword("CIDR").to_matchable(),
+            Ref::keyword("INET").to_matchable(),
+            Ref::keyword("MACADDR").to_matchable(),
+            Ref::keyword("MACADDR8").to_matchable(),
+        ])
+        .to_matchable(),
+        // Text search types
+        one_of(vec![
+            Ref::keyword("TSVECTOR").to_matchable(),
+            Ref::keyword("TSQUERY").to_matchable(),
+        ])
+        .to_matchable(),
+        // Bit string types
+        Sequence::new(vec![
+            Ref::keyword("BIT").to_matchable(),
+            one_of(vec![Ref::keyword("VARYING").to_matchable()])
+                .config(|this| this.optional())
+                .to_matchable(),
+            Ref::new("BracketedArguments").optional().to_matchable(),
+        ])
+        .to_matchable(),
+        // UUID type
+        Ref::keyword("UUID").to_matchable(),
+        // XML type
+        Ref::keyword("XML").to_matchable(),
+        // JSON types
+        one_of(vec![
+            Ref::keyword("JSON").to_matchable(),
+            Ref::keyword("JSONB").to_matchable(),
+        ])
+        .to_matchable(),
+        // Range types
+        Ref::keyword("INT4RANGE").to_matchable(),
+        Ref::keyword("INT8RANGE").to_matchable(),
+        Ref::keyword("NUMRANGE").to_matchable(),
+        Ref::keyword("TSRANGE").to_matchable(),
+        Ref::keyword("TSTZRANGE").to_matchable(),
+        Ref::keyword("DATERANGE").to_matchable(),
+        // pg_lsn type
+        Ref::keyword("PG_LSN").to_matchable(),
+    ];
+
+    // pgvector extension types (VECTOR, HALFVEC, SPARSEVEC with optional dimensions)
+    if pgvector {
+        known_types.push(
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("VECTOR").to_matchable(),
+                    Ref::keyword("HALFVEC").to_matchable(),
+                    Ref::keyword("SPARSEVEC").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("BracketedArguments").optional().to_matchable(),
+            ])
+            .to_matchable(),
+        );
+    }
+
+    Sequence::new(vec![
+        Sequence::new(vec![
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("DotSegment").to_matchable(),
+        ])
+        .config(|this| {
+            this.allow_gaps = false;
+            this.optional();
+        })
+        .to_matchable(),
+        one_of(vec![
+            Ref::new("WellKnownTextGeometrySegment").to_matchable(),
+            Ref::new("DateTimeTypeIdentifier").to_matchable(),
+            Sequence::new(vec![one_of(known_types).to_matchable()]).to_matchable(),
+            Ref::new("DatatypeIdentifierSegment").to_matchable(),
+        ])
+        .to_matchable(),
+        one_of(vec![
+            AnyNumberOf::new(vec![
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").optional().to_matchable(),
+                ])
+                .config(|this| this.bracket_type("square"))
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("ArrayTypeSegment").to_matchable(),
+            Ref::new("SizedArrayTypeSegment").to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+    ])
+    .to_matchable()
 }
 
 pub fn raw_dialect() -> Dialect {
@@ -379,34 +627,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ComparisonOperatorGrammar".into(),
-            one_of(vec![
-                Ref::new("EqualsSegment").to_matchable(),
-                Ref::new("GreaterThanSegment").to_matchable(),
-                Ref::new("LessThanSegment").to_matchable(),
-                Ref::new("GreaterThanOrEqualToSegment").to_matchable(),
-                Ref::new("LessThanOrEqualToSegment").to_matchable(),
-                Ref::new("NotEqualToSegment").to_matchable(),
-                Ref::new("LikeOperatorSegment").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("IS").to_matchable(),
-                    Ref::keyword("DISTINCT").to_matchable(),
-                    Ref::keyword("FROM").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("IS").to_matchable(),
-                    Ref::keyword("NOT").to_matchable(),
-                    Ref::keyword("DISTINCT").to_matchable(),
-                    Ref::keyword("FROM").to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::new("OverlapSegment").to_matchable(),
-                Ref::new("NotExtendRightSegment").to_matchable(),
-                Ref::new("NotExtendLeftSegment").to_matchable(),
-                Ref::new("AdjacentSegment").to_matchable(),
-            ])
-            .to_matchable()
-            .into(),
+            build_comparison_operator_grammar(false).into(),
         ),
         (
             "NakedIdentifierSegment".into(),
@@ -902,173 +1123,7 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    postgres.replace_grammar(
-        "DatatypeSegment",
-        Sequence::new(vec![
-            Sequence::new(vec![
-                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                Ref::new("DotSegment").to_matchable(),
-            ])
-            .config(|this| {
-                this.allow_gaps = false;
-                this.optional();
-            })
-            .to_matchable(),
-            one_of(vec![
-                Ref::new("WellKnownTextGeometrySegment").to_matchable(),
-                Ref::new("DateTimeTypeIdentifier").to_matchable(),
-                Sequence::new(vec![
-                    one_of(vec![
-                        Ref::keyword("SMALLINT").to_matchable(),
-                        Ref::keyword("INTEGER").to_matchable(),
-                        Ref::keyword("INT").to_matchable(),
-                        Ref::keyword("INT2").to_matchable(),
-                        Ref::keyword("INT4").to_matchable(),
-                        Ref::keyword("INT8").to_matchable(),
-                        Ref::keyword("BIGINT").to_matchable(),
-                        Ref::keyword("FLOAT4").to_matchable(),
-                        Ref::keyword("FLOAT8").to_matchable(),
-                        Ref::keyword("REAL").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("DOUBLE").to_matchable(),
-                            Ref::keyword("PRECISION").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::keyword("SMALLSERIAL").to_matchable(),
-                        Ref::keyword("SERIAL").to_matchable(),
-                        Ref::keyword("SERIAL2").to_matchable(),
-                        Ref::keyword("SERIAL4").to_matchable(),
-                        Ref::keyword("SERIAL8").to_matchable(),
-                        Ref::keyword("BIGSERIAL").to_matchable(),
-                        // Numeric types [(precision)]
-                        Sequence::new(vec![
-                            one_of(vec![Ref::keyword("FLOAT").to_matchable()]).to_matchable(),
-                            Ref::new("BracketedArguments").optional().to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // Numeric types [precision ["," scale])]
-                        Sequence::new(vec![
-                            one_of(vec![
-                                Ref::keyword("DECIMAL").to_matchable(),
-                                Ref::keyword("NUMERIC").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::new("BracketedArguments").optional().to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // Monetary type
-                        Ref::keyword("MONEY").to_matchable(),
-                        // Character types
-                        one_of(vec![
-                            Sequence::new(vec![
-                                one_of(vec![
-                                    Ref::keyword("BPCHAR").to_matchable(),
-                                    Ref::keyword("CHAR").to_matchable(),
-                                    Sequence::new(vec![
-                                        Ref::keyword("CHAR").to_matchable(),
-                                        Ref::keyword("VARYING").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                    Ref::keyword("CHARACTER").to_matchable(),
-                                    Sequence::new(vec![
-                                        Ref::keyword("CHARACTER").to_matchable(),
-                                        Ref::keyword("VARYING").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                    Ref::keyword("VARCHAR").to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::new("BracketedArguments").optional().to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("TEXT").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // Binary type
-                        Ref::keyword("BYTEA").to_matchable(),
-                        // Boolean types
-                        one_of(vec![
-                            Ref::keyword("BOOLEAN").to_matchable(),
-                            Ref::keyword("BOOL").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // Geometric types
-                        one_of(vec![
-                            Ref::keyword("POINT").to_matchable(),
-                            Ref::keyword("LINE").to_matchable(),
-                            Ref::keyword("LSEG").to_matchable(),
-                            Ref::keyword("BOX").to_matchable(),
-                            Ref::keyword("PATH").to_matchable(),
-                            Ref::keyword("POLYGON").to_matchable(),
-                            Ref::keyword("CIRCLE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // Network address types
-                        one_of(vec![
-                            Ref::keyword("CIDR").to_matchable(),
-                            Ref::keyword("INET").to_matchable(),
-                            Ref::keyword("MACADDR").to_matchable(),
-                            Ref::keyword("MACADDR8").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // Text search types
-                        one_of(vec![
-                            Ref::keyword("TSVECTOR").to_matchable(),
-                            Ref::keyword("TSQUERY").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // Bit string types
-                        Sequence::new(vec![
-                            Ref::keyword("BIT").to_matchable(),
-                            one_of(vec![Ref::keyword("VARYING").to_matchable()])
-                                .config(|this| this.optional())
-                                .to_matchable(),
-                            Ref::new("BracketedArguments").optional().to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // UUID type
-                        Ref::keyword("UUID").to_matchable(),
-                        // XML type
-                        Ref::keyword("XML").to_matchable(),
-                        // JSON types
-                        one_of(vec![
-                            Ref::keyword("JSON").to_matchable(),
-                            Ref::keyword("JSONB").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        // Range types
-                        Ref::keyword("INT4RANGE").to_matchable(),
-                        Ref::keyword("INT8RANGE").to_matchable(),
-                        Ref::keyword("NUMRANGE").to_matchable(),
-                        Ref::keyword("TSRANGE").to_matchable(),
-                        Ref::keyword("TSTZRANGE").to_matchable(),
-                        Ref::keyword("DATERANGE").to_matchable(),
-                        // pg_lsn type
-                        Ref::keyword("PG_LSN").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::new("DatatypeIdentifierSegment").to_matchable(),
-            ])
-            .to_matchable(),
-            one_of(vec![
-                AnyNumberOf::new(vec![
-                    Bracketed::new(vec![
-                        Ref::new("ExpressionSegment").optional().to_matchable(),
-                    ])
-                    .config(|this| this.bracket_type("square"))
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::new("ArrayTypeSegment").to_matchable(),
-                Ref::new("SizedArrayTypeSegment").to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
-        ])
-        .to_matchable(),
-    );
+    postgres.replace_grammar("DatatypeSegment", build_datatype_segment_grammar(false));
 
     postgres.replace_grammar("ArrayTypeSegment", Ref::keyword("ARRAY").to_matchable());
 

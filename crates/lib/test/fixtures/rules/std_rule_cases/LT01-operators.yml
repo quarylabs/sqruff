@@ -93,7 +93,6 @@ pass_concat_string:
 test_pass_placeholder_spacing:
   # Test for spacing issues around placeholders
   # https://github.com/sqlfluff/sqlfluff/issues/4253
-  ignored: "jinja is not supported"
   pass_str: |
     {% set is_dev_environment = true %}
 
@@ -108,6 +107,9 @@ test_pass_placeholder_spacing:
         {% endif %}
         AND TRUE
     ;
+  configs:
+    core:
+      templater: jinja
 
 fail_bigquery_whitespaces_in_function_reference:
   fail_str: SELECT dataset    .    AddFourAndDivide(5, 10)

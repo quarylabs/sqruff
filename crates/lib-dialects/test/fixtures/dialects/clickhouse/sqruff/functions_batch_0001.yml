@@ -1,0 +1,804 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: __actionName
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: __bitBoolMaskAnd
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: __bitBoolMaskOr
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: __bitSwapLastTwo
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: __bitWrapperFunc
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: __getScalar
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: __scalarSubqueryResult
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: _CAST
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - quoted_literal: '''UInt8'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: abs
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: accurateCast
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: accurateCastOrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: accurateCastOrNull
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: acos
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: acosh
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addDate
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addDays
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addHours
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addInterval
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - tuple:
+                - bracketed:
+                  - start_bracket: (
+                  - interval_expression:
+                    - keyword: INTERVAL
+                    - numeric_literal: '1'
+                    - date_part: DAY
+                  - comma: ','
+                  - interval_expression:
+                    - keyword: INTERVAL
+                    - numeric_literal: '1'
+                    - date_part: YEAR
+                  - end_bracket: )
+              - comma: ','
+              - expression:
+                - interval_expression:
+                  - keyword: INTERVAL
+                  - numeric_literal: '1'
+                  - date_part: MONTH
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addMicroseconds
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addMilliseconds
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addMinutes
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addMonths
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addNanoseconds
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addQuarters
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addressToLine
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addressToLineWithInlines
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addressToSymbol
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addSeconds
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: toDate
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''2018-01-01'''
+              - end_bracket: )
+      - keyword: AS
+      - naked_identifier: date
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: addTupleOfIntervals
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: date
+                - comma: ','
+                - tuple:
+                  - bracketed:
+                    - start_bracket: (
+                    - interval_expression:
+                      - keyword: INTERVAL
+                      - numeric_literal: '1'
+                      - date_part: DAY
+                    - comma: ','
+                    - interval_expression:
+                      - keyword: INTERVAL
+                      - numeric_literal: '1'
+                      - date_part: YEAR
+                    - end_bracket: )
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addWeeks
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: addYears
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: aes_decrypt_mysql
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: aes_encrypt_mysql
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: age
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: aggThrow
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: alphaTokens
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: splitByAlpha
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: analysisOfVariance
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: anova
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: and
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: any
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: any_value
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: first_value
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: any_respect_nulls
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: any_value_respect_nulls
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: anyRespectNulls
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: anyValueRespectNulls
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: first_value_respect_nulls
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: firstValueRespectNulls
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: anyHeavy
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;

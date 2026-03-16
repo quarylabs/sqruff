@@ -207,6 +207,11 @@ vite_bin.vite(
     srcs = VITE_DATA,
     args = ["build"],
     chdir = package_name(),
+    # Vite 8 uses Rolldown which rejects emitted file paths starting with "../".
+    # In Bazel's darwin-sandbox, symlinks resolve to the execroot while output
+    # paths are in the sandbox, causing path.relative() to produce "../" chains.
+    # Running locally avoids this sandbox/execroot path mismatch.
+    execution_requirements = {"no-sandbox": "1"},
     out_dirs = ["dist"],
     visibility = ["//visibility:public"],
 )

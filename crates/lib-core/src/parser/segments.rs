@@ -1203,4 +1203,46 @@ mod tests {
             )
         );
     }
+
+    /// Regression test for issue #1884: raw_segments_with_ancestors must not
+    /// create Rc reference cycles that prevent the segment tree from being
+    /// deallocated.
+    ///
+    /// Previously, `raw_segments_with_ancestors` cached its result in a
+    /// OnceCell inside NodeData. Each cached PathStep stored an Rc clone of
+    /// its ancestor segment, creating a cycle (node → cache → PathStep →
+    /// node) that kept the entire tree alive forever.
+    #[test]
+    fn test_raw_segments_with_ancestors_no_rc_cycle() {
+        use crate::dialects::init::DialectKind;
+
+        // Build a small tree: parent node with two token children.
+        let child1 = SegmentBuilder::token(1, "SELECT", SyntaxKind::Word).finish();
+        let child2 = SegmentBuilder::token(2, "1", SyntaxKind::NumericLiteral).finish();
+        let parent = SegmentBuilder::node(
+            0,
+            SyntaxKind::SelectClause,
+            DialectKind::Ansi,
+            vec![child1, child2],
+        )
+        .finish();
+
+        // Call raw_segments_with_ancestors — this previously cached PathSteps
+        // containing Rc clones back to `parent`, creating a cycle.
+        let result = parent.raw_segments_with_ancestors();
+        assert_eq!(result.len(), 2);
+        drop(result);
+
+        // The parent's Rc strong count should be exactly 1 (our `parent`
+        // binding). If there were a cycle from cached PathSteps referencing
+        // back to parent, the count would be > 1 and the tree would leak.
+        assert_eq!(
+            Rc::strong_count(&parent.value),
+            1,
+            "Rc cycle detected: raw_segments_with_ancestors is keeping \
+             references back to ancestor segments, preventing deallocation. \
+             strong_count = {} (expected 1)",
+            Rc::strong_count(&parent.value),
+        );
+    }
 }

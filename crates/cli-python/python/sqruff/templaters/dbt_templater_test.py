@@ -139,6 +139,14 @@ def test_batch_processing():
 
     assert len(files) > 0, "Should have found SQL files"
 
+    # Verify we have the ephemeral model in the batch - this is critical
+    # because sequence_files() only exercises the insert() code path when
+    # ephemeral models are present (regression test for swapped args bug).
+    ephemeral_files = [f for _, f in files if "stg_customer_tags" in f]
+    assert len(ephemeral_files) == 1, (
+        "Expected ephemeral model stg_customer_tags.sql in test files"
+    )
+
     # Process all files in a batch
     results = process_batch_from_rust(files, config_string, live_context)
 
@@ -151,7 +159,12 @@ def test_batch_processing():
             assert templated_file is not None
             success_count += 1
         else:
-            # Some files might fail if they have dependencies we can't resolve
+            # Sequencing errors would show up here - the bug we're guarding
+            # against would produce: "Failed to sequence files: 'str' object
+            # cannot be interpreted as an integer"
+            assert "Failed to sequence files" not in error, (
+                f"sequence_files() failed: {error}"
+            )
             print(f"File failed with error: {error}")
 
     # At least some files should succeed

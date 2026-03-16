@@ -166,8 +166,7 @@ left join bar
         // Only reorder subconditions with well-known comparison operators.
         // Operators like && (overlap), &> etc. are skipped, matching SQLFluff's
         // _REORDERABLE_OPERATORS whitelist.
-        const REORDERABLE_OPERATORS: &[&str] =
-            &["=", "!=", "<>", "<=>", "<", ">", "<=", ">="];
+        const REORDERABLE_OPERATORS: &[&str] = &["=", "!=", "<>", "<=>", "<", ">", "<=", ">="];
 
         for subcondition in column_operator_column_subconditions {
             let comparison_operator = subcondition[1].clone();

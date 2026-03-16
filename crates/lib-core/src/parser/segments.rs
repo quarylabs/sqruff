@@ -706,14 +706,11 @@ impl ErasedSegment {
                         buffer.push((seg.clone(), new_step));
                     } else {
                         let child_ancestors = seg.raw_segments_with_ancestors();
-                        let extended =
-                            child_ancestors
-                                .iter()
-                                .map(|(raw_seg, stack)| {
-                                    let mut new_step = new_step.clone();
-                                    new_step.extend_from_slice(stack);
-                                    (raw_seg.clone(), new_step)
-                                });
+                        let extended = child_ancestors.iter().map(|(raw_seg, stack)| {
+                            let mut new_step = new_step.clone();
+                            new_step.extend_from_slice(stack);
+                            (raw_seg.clone(), new_step)
+                        });
 
                         buffer.extend(extended);
                     }

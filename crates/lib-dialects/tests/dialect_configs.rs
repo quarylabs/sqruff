@@ -4,7 +4,7 @@ use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::value::Value;
-use sqruff_lib_dialects::postgres;
+use sqruff_lib_dialects::{postgres, snowflake};
 
 use hashbrown::HashMap;
 
@@ -23,7 +23,7 @@ fn check_no_unparsable_segments(tree: &ErasedSegment) -> Vec<String> {
 }
 
 fn parse_with_config(sql_path: &str, config: &Value) {
-    let dialect = postgres::dialect(Some(config));
+    let dialect = postgres::dialect(Some(config)).unwrap();
 
     let yaml_path = std::path::PathBuf::from(sql_path).with_extension("yml");
     let yaml_path = std::path::absolute(&yaml_path).unwrap();
@@ -87,4 +87,70 @@ fn postgres_pgvector_operators() {
         "test/fixtures/dialect_configs/postgres_pgvector/pgvector_operators.sql",
         &config,
     );
+}
+
+#[test]
+fn postgres_invalid_config_value_errors() {
+    // A non-boolean value for a known config key should produce an error
+    let mut config_map = HashMap::new();
+    config_map.insert("pg_trgm".to_string(), Value::String("not_a_bool".into()));
+    let config = Value::Map(config_map);
+
+    let result = postgres::dialect(Some(&config));
+    assert!(result.is_err());
+    let err = result.unwrap_err();
+    assert!(
+        err.contains("pg_trgm"),
+        "Error should mention the invalid key: {err}"
+    );
+    assert!(
+        err.contains("must be a boolean"),
+        "Error should explain the type requirement: {err}"
+    );
+}
+
+#[test]
+fn postgres_superfluous_config_warns_but_succeeds() {
+    // Unknown config keys should produce a warning but not an error
+    let mut config_map = HashMap::new();
+    config_map.insert("pg_trgm".to_string(), Value::Bool(true));
+    config_map.insert(
+        "nonexistent_option".to_string(),
+        Value::Bool(true),
+    );
+    let config = Value::Map(config_map);
+
+    // Should succeed despite the unknown key (warning is logged)
+    let result = postgres::dialect(Some(&config));
+    assert!(result.is_ok());
+}
+
+#[test]
+fn dialect_with_no_options_superfluous_config_warns() {
+    // Dialects with no config options should warn about any keys
+    let mut config_map = HashMap::new();
+    config_map.insert("unknown_key".to_string(), Value::Bool(true));
+    let config = Value::Map(config_map);
+
+    // Should succeed (warning logged, not error)
+    let result = snowflake::dialect(Some(&config));
+    assert!(result.is_ok());
+}
+
+#[test]
+fn postgres_no_config_uses_defaults() {
+    // None config should use defaults without error
+    let result = postgres::dialect(None);
+    assert!(result.is_ok());
+}
+
+#[test]
+fn dialect_integer_value_for_bool_errors() {
+    // An integer value for a bool config key should produce an error
+    let mut config_map = HashMap::new();
+    config_map.insert("pg_trgm".to_string(), Value::Int(42));
+    let config = Value::Map(config_map);
+
+    let result = postgres::dialect(Some(&config));
+    assert!(result.is_err());
 }

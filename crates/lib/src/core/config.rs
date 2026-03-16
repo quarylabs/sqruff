@@ -47,8 +47,7 @@ impl Default for FluffConfig {
 
 impl FluffConfig {
     pub fn override_dialect(&mut self, dialect: DialectKind) -> Result<(), String> {
-        self.dialect = kind_to_dialect(&dialect, None)
-            .ok_or(format!("Invalid dialect: {}", dialect.as_ref()))?;
+        self.dialect = kind_to_dialect(&dialect, None)?;
         Ok(())
     }
 
@@ -135,7 +134,8 @@ impl FluffConfig {
             .and_then(|v| v.as_map())
             .and_then(|m| m.get(dialect_kind.as_ref()));
 
-        let dialect = kind_to_dialect(&dialect_kind, dialect_config);
+        let dialect = kind_to_dialect(&dialect_kind, dialect_config)
+            .expect("Failed to load dialect configuration");
         for (in_key, out_key) in [
             // Deal with potential ignore & warning parameters
             ("ignore", "ignore"),
@@ -169,8 +169,7 @@ impl FluffConfig {
 
         let mut this = Self {
             raw: configs,
-            dialect: dialect
-                .expect("Dialect is disabled. Please enable the corresponding feature."),
+            dialect,
             extra_config_path,
             _configs: HashMap::new(),
             indentation: indentation.unwrap_or_default(),

@@ -16,10 +16,10 @@ use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(TrinoDialectConfig {});
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    // Parse and validate dialect configuration, falling back to defaults on failure
+pub fn dialect(config: Option<&Value>) -> Result<Dialect, String> {
     let _dialect_config: TrinoDialectConfig = config
         .map(TrinoDialectConfig::from_value)
+        .transpose()?
         .unwrap_or_default();
     let ansi_dialect = super::ansi::raw_dialect();
     let mut trino_dialect = ansi_dialect;
@@ -943,5 +943,5 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
-    trino_dialect.config(|dialect| dialect.expand())
+    Ok(trino_dialect.config(|dialect| dialect.expand()))
 }

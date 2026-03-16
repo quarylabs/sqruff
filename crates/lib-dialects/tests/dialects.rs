@@ -71,7 +71,7 @@ fn main() {
     // Go through each of the dialects and check if the files are present
     for dialect_name in &dialects {
         let dialect_kind = DialectKind::from_str(dialect_name).unwrap();
-        let Some(dialect) = kind_to_dialect(&dialect_kind, None) else {
+        let Ok(dialect) = kind_to_dialect(&dialect_kind, None) else {
             println!("{dialect_name} disabled");
             continue;
         };

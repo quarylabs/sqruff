@@ -16,10 +16,10 @@ use sqruff_lib_core::{
 
 sqruff_lib_core::dialect_config!(DatabricksDialectConfig {});
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    // Parse and validate dialect configuration, falling back to defaults on failure
+pub fn dialect(config: Option<&Value>) -> Result<Dialect, String> {
     let _dialect_config: DatabricksDialectConfig = config
         .map(DatabricksDialectConfig::from_value)
+        .transpose()?
         .unwrap_or_default();
     let raw_sparksql = sparksql::raw_dialect();
 
@@ -238,7 +238,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
             "DescribeObjectGrammar".into(),
-            sparksql::dialect(None)
+            sparksql::dialect(None)?
                 .grammar("DescribeObjectGrammar")
                 .copy(
                     Some(vec![
@@ -618,7 +618,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     // Enhance to allow for additional clauses allowed in Spark and Delta Lake.
     databricks.replace_grammar(
         "TableExpressionSegment",
-        sparksql::dialect(None)
+        sparksql::dialect(None)?
             .grammar("TableExpressionSegment")
             .match_grammar(&databricks)
             .unwrap()
@@ -703,5 +703,5 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     databricks.expand();
-    databricks
+    Ok(databricks)
 }

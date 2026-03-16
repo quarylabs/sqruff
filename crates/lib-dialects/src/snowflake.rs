@@ -25,10 +25,10 @@ use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(SnowflakeDialectConfig {});
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    // Parse and validate dialect configuration, falling back to defaults on failure
+pub fn dialect(config: Option<&Value>) -> Result<Dialect, String> {
     let _dialect_config: SnowflakeDialectConfig = config
         .map(SnowflakeDialectConfig::from_value)
+        .transpose()?
         .unwrap_or_default();
     let mut snowflake_dialect = raw_dialect();
     snowflake_dialect.name = DialectKind::Snowflake;
@@ -10031,5 +10031,5 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     ]);
 
     snowflake_dialect.expand();
-    snowflake_dialect
+    Ok(snowflake_dialect)
 }

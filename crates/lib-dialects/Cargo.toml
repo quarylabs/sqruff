@@ -54,6 +54,7 @@ strum.workspace = true
 itertools = "0.14.0"
 hashbrown.workspace = true
 serde_yaml = "0.9.34+deprecated"
+log.workspace = true
 
 [dev-dependencies]
 sqruff-lib-core.workspace = true

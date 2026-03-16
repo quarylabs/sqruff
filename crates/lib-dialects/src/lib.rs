@@ -93,36 +93,41 @@ pub fn dialect_config_options(
     }
 }
 
-pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dialect> {
+pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Result<Dialect, String> {
     #[allow(unreachable_patterns)]
-    Some(match kind {
-        DialectKind::Ansi => ansi::dialect(config),
+    Ok(match kind {
+        DialectKind::Ansi => ansi::dialect(config)?,
         #[cfg(feature = "athena")]
-        DialectKind::Athena => athena::dialect(config),
+        DialectKind::Athena => athena::dialect(config)?,
         #[cfg(feature = "bigquery")]
-        DialectKind::Bigquery => bigquery::dialect(config),
+        DialectKind::Bigquery => bigquery::dialect(config)?,
         #[cfg(feature = "clickhouse")]
-        DialectKind::Clickhouse => clickhouse::dialect(config),
+        DialectKind::Clickhouse => clickhouse::dialect(config)?,
         #[cfg(feature = "databricks")]
-        DialectKind::Databricks => databricks::dialect(config),
+        DialectKind::Databricks => databricks::dialect(config)?,
         #[cfg(feature = "duckdb")]
-        DialectKind::Duckdb => duckdb::dialect(config),
+        DialectKind::Duckdb => duckdb::dialect(config)?,
         #[cfg(feature = "mysql")]
-        DialectKind::Mysql => mysql::dialect(config),
+        DialectKind::Mysql => mysql::dialect(config)?,
         #[cfg(feature = "postgres")]
-        DialectKind::Postgres => postgres::dialect(config),
+        DialectKind::Postgres => postgres::dialect(config)?,
         #[cfg(feature = "redshift")]
-        DialectKind::Redshift => redshift::dialect(config),
+        DialectKind::Redshift => redshift::dialect(config)?,
         #[cfg(feature = "snowflake")]
-        DialectKind::Snowflake => snowflake::dialect(config),
+        DialectKind::Snowflake => snowflake::dialect(config)?,
         #[cfg(feature = "sparksql")]
-        DialectKind::Sparksql => sparksql::dialect(config),
+        DialectKind::Sparksql => sparksql::dialect(config)?,
         #[cfg(feature = "sqlite")]
-        DialectKind::Sqlite => sqlite::dialect(config),
+        DialectKind::Sqlite => sqlite::dialect(config)?,
         #[cfg(feature = "trino")]
-        DialectKind::Trino => trino::dialect(config),
+        DialectKind::Trino => trino::dialect(config)?,
         #[cfg(feature = "tsql")]
-        DialectKind::Tsql => tsql::dialect(config),
-        _ => return None,
+        DialectKind::Tsql => tsql::dialect(config)?,
+        _ => {
+            return Err(format!(
+                "Dialect '{}' is disabled. Please enable the corresponding feature.",
+                kind.as_ref()
+            ))
+        }
     })
 }

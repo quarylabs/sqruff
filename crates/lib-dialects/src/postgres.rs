@@ -30,10 +30,10 @@ sqruff_lib_core::dialect_config!(PostgresDialectConfig {
     pgvector: "Enable parsing of pgvector data types (VECTOR, HALFVEC, SPARSEVEC)."
 });
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    // Parse and validate dialect configuration, falling back to defaults on failure
+pub fn dialect(config: Option<&Value>) -> Result<Dialect, String> {
     let dialect_config: PostgresDialectConfig = config
         .map(PostgresDialectConfig::from_value)
+        .transpose()?
         .unwrap_or_default();
 
     let mut postgres = raw_dialect();
@@ -77,7 +77,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         );
     }
 
-    postgres.config(|dialect| dialect.expand())
+    Ok(postgres.config(|dialect| dialect.expand()))
 }
 
 /// Build the ComparisonOperatorGrammar, optionally including pgvector operators.

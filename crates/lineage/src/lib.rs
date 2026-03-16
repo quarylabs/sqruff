@@ -390,7 +390,9 @@ mod tests {
         DialectKind::iter()
             .filter_map(|kind| {
                 let name = kind.name();
-                sqruff_lib_dialects::kind_to_dialect(&kind, None).map(|dialect| (name, dialect))
+                sqruff_lib_dialects::kind_to_dialect(&kind, None)
+                    .ok()
+                    .map(|dialect| (name, dialect))
             })
             .collect()
     }
@@ -752,7 +754,7 @@ mod tests {
     #[test]
     #[ignore = "TODO"]
     fn test_lineage_lateral_flatten() {
-        let dialect = sqruff_lib_dialects::snowflake::dialect(None);
+        let dialect = sqruff_lib_dialects::snowflake::dialect(None).unwrap();
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -772,7 +774,7 @@ mod tests {
 
     #[test]
     fn test_subquery() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
+        let dialect = sqruff_lib_dialects::ansi::dialect(None).unwrap();
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -980,7 +982,7 @@ mod tests {
 
     #[test]
     fn test_unnest() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
+        let dialect = sqruff_lib_dialects::ansi::dialect(None).unwrap();
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -998,7 +1000,7 @@ mod tests {
     #[test]
     #[ignore = "TODO:"]
     fn test_lineage_normalize() {
-        let dialect = sqruff_lib_dialects::snowflake::dialect(None);
+        let dialect = sqruff_lib_dialects::snowflake::dialect(None).unwrap();
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(
@@ -1021,7 +1023,7 @@ mod tests {
 
     #[test]
     fn test_trim() {
-        let dialect = sqruff_lib_dialects::ansi::dialect(None);
+        let dialect = sqruff_lib_dialects::ansi::dialect(None).unwrap();
         let parser = Parser::new(&dialect, Default::default());
 
         let (tables, node) = Lineage::new(

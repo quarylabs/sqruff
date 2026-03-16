@@ -8,7 +8,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 
 pub fn raw_dialect() -> Dialect {
-    let mut hive_dialect = super::ansi::dialect(None);
+    let mut hive_dialect = super::ansi::dialect(None).unwrap();
 
     hive_dialect.add([
         (

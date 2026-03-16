@@ -19,13 +19,13 @@ use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(SQLiteDialectConfig {});
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    // Parse and validate dialect configuration, falling back to defaults on failure
+pub fn dialect(config: Option<&Value>) -> Result<Dialect, String> {
     let _dialect_config: SQLiteDialectConfig = config
         .map(SQLiteDialectConfig::from_value)
+        .transpose()?
         .unwrap_or_default();
 
-    raw_dialect().config(|dialect| dialect.expand())
+    Ok(raw_dialect().config(|dialect| dialect.expand()))
 }
 
 pub fn raw_dialect() -> Dialect {

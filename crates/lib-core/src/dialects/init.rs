@@ -7,10 +7,11 @@ use crate::value::Value;
 /// Each dialect implements this to parse and validate its configuration from raw config values.
 pub trait DialectConfig: Default + Clone + std::fmt::Debug {
     /// Parse configuration from a Value (typically a Map from the config file's dialect section).
-    /// Returns the default configuration if parsing fails or if the input is None.
-    fn from_value(value: &Value) -> Self {
+    /// Returns an error if a known config key has a value that cannot be parsed as a boolean.
+    /// Logs a warning for any unrecognized config keys.
+    fn from_value(value: &Value) -> Result<Self, String> {
         let _ = value;
-        Self::default()
+        Ok(Self::default())
     }
 }
 
@@ -47,10 +48,39 @@ macro_rules! dialect_config {
         }
 
         impl $crate::dialects::init::DialectConfig for $name {
-            fn from_value(value: &$crate::value::Value) -> Self {
-                Self {
-                    $($field: value[stringify!($field)].to_bool(),)*
+            fn from_value(value: &$crate::value::Value) -> Result<Self, String> {
+                let known_keys: &[&str] = &[$(stringify!($field),)*];
+
+                // Check for superfluous keys and warn
+                if let Some(map) = value.as_map() {
+                    for key in map.keys() {
+                        if !known_keys.contains(&key.as_str()) {
+                            log::warn!(
+                                "Unknown dialect config option '{}'. Known options: {:?}",
+                                key,
+                                known_keys
+                            );
+                        }
+                    }
                 }
+
+                // Validate that known keys have bool-parseable values
+                $(
+                    {
+                        let val = &value[stringify!($field)];
+                        if !val.is_none() && val.as_bool().is_none() {
+                            return Err(format!(
+                                "Dialect config option '{}' must be a boolean (true/false), got: {:?}",
+                                stringify!($field),
+                                val
+                            ));
+                        }
+                    }
+                )*
+
+                Ok(Self {
+                    $($field: value[stringify!($field)].to_bool(),)*
+                })
             }
         }
 
@@ -67,7 +97,20 @@ macro_rules! dialect_config {
         #[derive(Debug, Clone, Default)]
         pub struct $name;
 
-        impl $crate::dialects::init::DialectConfig for $name {}
+        impl $crate::dialects::init::DialectConfig for $name {
+            fn from_value(value: &$crate::value::Value) -> Result<Self, String> {
+                // Warn about any config keys since this dialect has no options
+                if let Some(map) = value.as_map() {
+                    for key in map.keys() {
+                        log::warn!(
+                            "Unknown dialect config option '{}'. This dialect has no configuration options.",
+                            key,
+                        );
+                    }
+                }
+                Ok(Self)
+            }
+        }
 
         impl $name {
             pub fn config_options() -> Vec<(&'static str, &'static str, &'static str)> {

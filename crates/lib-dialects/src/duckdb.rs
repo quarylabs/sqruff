@@ -17,18 +17,18 @@ use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(DuckDBDialectConfig {});
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    // Parse and validate dialect configuration, falling back to defaults on failure
+pub fn dialect(config: Option<&Value>) -> Result<Dialect, String> {
     let _dialect_config: DuckDBDialectConfig = config
         .map(DuckDBDialectConfig::from_value)
+        .transpose()?
         .unwrap_or_default();
 
-    raw_dialect().config(|dialect| dialect.expand())
+    Ok(raw_dialect().config(|dialect| dialect.expand()))
 }
 
 pub fn raw_dialect() -> Dialect {
     let ansi_dialect = ansi::raw_dialect();
-    let postgres_dialect = postgres::dialect(None);
+    let postgres_dialect = postgres::dialect(None).unwrap();
     let mut duckdb_dialect = postgres_dialect;
     duckdb_dialect.name = DialectKind::Duckdb;
 

@@ -1,0 +1,12 @@
+file:
+- statement:
+  - get_diagnostics_segment:
+    - keyword: GET
+    - keyword: DIAGNOSTICS
+    - at_sign_literal: '@a'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: NUMBER
+    - keyword: CONDITION
+    - numeric_literal: '1'
+- statement_terminator: ;

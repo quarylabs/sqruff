@@ -1,0 +1,17 @@
+file:
+- statement:
+  - get_diagnostics_segment:
+    - keyword: GET
+    - keyword: DIAGNOSTICS
+    - keyword: CONDITION
+    - numeric_literal: '1'
+    - naked_identifier: _test
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: CLASS_ORIGIN
+    - comma: ','
+    - at_sign_literal: '@test'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: TABLE_NAME
+- statement_terminator: ;

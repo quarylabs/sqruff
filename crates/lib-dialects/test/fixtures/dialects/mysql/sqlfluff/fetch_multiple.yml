@@ -1,0 +1,10 @@
+file:
+- statement:
+  - cursor_fetch_segment:
+    - keyword: fetch
+    - naked_identifier: curcursor
+    - keyword: into
+    - naked_identifier: test
+    - comma: ','
+    - naked_identifier: test2
+- statement_terminator: ;

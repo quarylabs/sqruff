@@ -1,0 +1,10 @@
+file:
+- statement:
+  - execute_segment:
+    - keyword: execute
+    - naked_identifier: test
+    - keyword: using
+    - at_sign_literal: '@test'
+    - comma: ','
+    - at_sign_literal: '@test1'
+- statement_terminator: ;

@@ -491,7 +491,7 @@ class DbtTemplater(JinjaTemplater):
             # Otherwise yield it.
             else:
                 templater_logger.debug("- Yielding Ephemeral: %r", fpath)
-                outs.insert(full_paths[fpath], 0)
+                outs.insert(0, full_paths[fpath])
 
                 already_yielded.add(full_paths[fpath])
 

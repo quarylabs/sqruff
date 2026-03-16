@@ -127,7 +127,7 @@ pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Result<Dia
             return Err(format!(
                 "Dialect '{}' is disabled. Please enable the corresponding feature.",
                 kind.as_ref()
-            ))
+            ));
         }
     })
 }

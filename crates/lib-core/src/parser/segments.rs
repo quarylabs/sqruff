@@ -71,7 +71,6 @@ impl SegmentBuilder {
                     raw: Default::default(),
                     source_fixes: vec![],
                     descendant_type_set: Default::default(),
-                    raw_segments_with_ancestors: Default::default(),
                 }),
                 hash: OnceCell::new(),
             },
@@ -279,7 +278,6 @@ impl ErasedSegment {
                     raw: node.raw.clone(),
                     source_fixes: node.source_fixes.clone(),
                     descendant_type_set: node.descendant_type_set.clone(),
-                    raw_segments_with_ancestors: node.raw_segments_with_ancestors.clone(),
                 }),
                 hash: OnceCell::new(),
             }),
@@ -682,9 +680,16 @@ impl ErasedSegment {
         result
     }
 
-    pub fn raw_segments_with_ancestors(&self) -> &[(ErasedSegment, Vec<PathStep>)] {
+    /// Compute the raw segments with their ancestor path steps.
+    ///
+    /// This is intentionally NOT cached to avoid Rc reference cycles.
+    /// Each PathStep stores an Rc clone of its ancestor segment, so caching
+    /// these inside the node (which is itself behind Rc) would create cycles
+    /// that prevent deallocation, causing unbounded memory growth in
+    /// long-running processes like the LSP server. See issue #1884.
+    pub fn raw_segments_with_ancestors(&self) -> Vec<(ErasedSegment, Vec<PathStep>)> {
         match &self.value.kind {
-            NodeOrTokenKind::Node(node) => node.raw_segments_with_ancestors.get_or_init(|| {
+            NodeOrTokenKind::Node(_node) => {
                 let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> =
                     Vec::with_capacity(self.segments().len());
                 let code_idxs = self.code_indices();
@@ -697,16 +702,12 @@ impl ErasedSegment {
                         code_idxs: code_idxs.clone(),
                     }];
 
-                    // Use seg.get_segments().is_empty() as a workaround to check if the segment is
-                    // a SyntaxKind::Raw type. In the original Python code, this was achieved
-                    // using seg.is_type(SyntaxKind::Raw). Here, we assume that a SyntaxKind::Raw
-                    // segment is characterized by having no sub-segments.
-
                     if seg.segments().is_empty() {
                         buffer.push((seg.clone(), new_step));
                     } else {
+                        let child_ancestors = seg.raw_segments_with_ancestors();
                         let extended =
-                            seg.raw_segments_with_ancestors()
+                            child_ancestors
                                 .iter()
                                 .map(|(raw_seg, stack)| {
                                     let mut new_step = new_step.clone();
@@ -719,8 +720,8 @@ impl ErasedSegment {
                 }
 
                 buffer
-            }),
-            NodeOrTokenKind::Token(_) => &[],
+            }
+            NodeOrTokenKind::Token(_) => Vec::new(),
         }
     }
 
@@ -1055,7 +1056,11 @@ pub struct NodeData {
     raw: OnceCell<SmolStr>,
     source_fixes: Vec<SourceFix>,
     descendant_type_set: OnceCell<SyntaxSet>,
-    raw_segments_with_ancestors: OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>>,
+    // NOTE: raw_segments_with_ancestors is intentionally NOT cached here.
+    // Caching it in a OnceCell created Rc reference cycles (PathStep stores
+    // an Rc<NodeOrToken> back to ancestor nodes) that prevented the entire
+    // syntax tree from being deallocated, causing unbounded memory growth
+    // in long-running processes like the LSP server. See issue #1884.
 }
 
 #[derive(Debug, Clone, PartialEq)]

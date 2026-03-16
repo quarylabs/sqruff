@@ -390,6 +390,37 @@ test_fail_later_table_first_brackets_after_from:
                 on foo.a = bar.a
         )
 
+test_pass_postgres_overlap_operator:
+  pass_str: |
+    SELECT
+        *
+    FROM foo AS f
+    INNER JOIN bar AS b
+        ON f.period && b.period
+
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_overlap_operator:
+  fail_str: |
+    SELECT
+        *
+    FROM foo AS f
+    INNER JOIN bar AS b
+        ON b.period && f.period
+
+  fix_str: |
+    SELECT
+        *
+    FROM foo AS f
+    INNER JOIN bar AS b
+        ON f.period && b.period
+
+  configs:
+    core:
+      dialect: postgres
+
 test_fail_later_table_first_quoted_table_and_column:
   fail_str: |
     select

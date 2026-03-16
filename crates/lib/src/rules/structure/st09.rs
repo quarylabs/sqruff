@@ -234,7 +234,8 @@ left join bar
                     None,
                 ));
 
-                if matches!(raw_comparison_operators[0].raw().as_ref(), "<" | ">")
+                if !raw_comparison_operators.is_empty()
+                    && matches!(raw_comparison_operators[0].raw().as_ref(), "<" | ">")
                     && raw_comparison_operators
                         .iter()
                         .map(|it| it.raw())

@@ -2,10 +2,10 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{one_of, optionally_bracketed, AnyNumberOf};
+use sqruff_lib_core::parser::grammar::Ref;
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
-use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
@@ -40,10 +40,7 @@ pub fn raw_dialect() -> Dialect {
         MYSQL_UNRESERVED_KEYWORDS,
     );
     mysql.sets_mut("reserved_keywords").clear();
-    mysql.update_keywords_set_from_multiline_string(
-        "reserved_keywords",
-        MYSQL_RESERVED_KEYWORDS,
-    );
+    mysql.update_keywords_set_from_multiline_string("reserved_keywords", MYSQL_RESERVED_KEYWORDS);
 
     // MySQL uses # for inline comments in addition to --
     mysql.patch_lexer_matchers(vec![Matcher::regex(
@@ -124,11 +121,13 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("SessionVariableSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    AnyNumberOf::new(vec![Sequence::new(vec![
-                        Ref::new("DotSegment").to_matchable(),
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("DotSegment").to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
-                    .to_matchable()])
                     .to_matchable(),
                 ])
                 .terminators(vec![
@@ -176,10 +175,8 @@ pub fn raw_dialect() -> Dialect {
                 // DECLARE variable datatype [DEFAULT value]
                 Sequence::new(vec![
                     Ref::keyword("DECLARE").to_matchable(),
-                    Delimited::new(vec![
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                        .to_matchable(),
                     Ref::new("DatatypeSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("DEFAULT").to_matchable(),
@@ -227,24 +224,26 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                     Ref::keyword("HANDLER").to_matchable(),
                     Ref::keyword("FOR").to_matchable(),
-                    Delimited::new(vec![one_of(vec![
-                        Ref::keyword("SQLEXCEPTION").to_matchable(),
-                        Ref::keyword("SQLWARNING").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NOT").to_matchable(),
-                            Ref::keyword("FOUND").to_matchable(),
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::keyword("SQLEXCEPTION").to_matchable(),
+                            Ref::keyword("SQLWARNING").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("NOT").to_matchable(),
+                                Ref::keyword("FOUND").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("SQLSTATE").to_matchable(),
+                                Ref::keyword("VALUE").optional().to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("NumericLiteralSegment").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("SQLSTATE").to_matchable(),
-                            Ref::keyword("VALUE").optional().to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
                     ])
-                    .to_matchable()])
                     .to_matchable(),
                     // Handler body - can be a simple statement or BEGIN...END block
                     one_of(vec![
@@ -267,15 +266,17 @@ pub fn raw_dialect() -> Dialect {
     mysql.add([(
         "IfStatementsSegment".into(),
         NodeMatcher::new(SyntaxKind::IfStatements, |_| {
-            AnyNumberOf::new(vec![Sequence::new(vec![
-                one_of(vec![
-                    Ref::new("StatementSegment").to_matchable(),
-                    Ref::new("MultiStatementSegment").to_matchable(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("StatementSegment").to_matchable(),
+                        Ref::new("MultiStatementSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DelimiterGrammar").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::new("DelimiterGrammar").to_matchable(),
             ])
-            .to_matchable()])
             .config(|this| {
                 this.terminators = vec![
                     Ref::keyword("ELSE").to_matchable(),
@@ -305,15 +306,17 @@ pub fn raw_dialect() -> Dialect {
                 MetaSegment::indent().to_matchable(),
                 Ref::new("IfStatementsSegment").to_matchable(),
                 MetaSegment::dedent().to_matchable(),
-                AnyNumberOf::new(vec![Sequence::new(vec![
-                    Ref::keyword("ELSEIF").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
-                    Ref::keyword("THEN").to_matchable(),
-                    MetaSegment::indent().to_matchable(),
-                    Ref::new("IfStatementsSegment").to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("ELSEIF").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Ref::keyword("THEN").to_matchable(),
+                        MetaSegment::indent().to_matchable(),
+                        Ref::new("IfStatementsSegment").to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
-                .to_matchable()])
                 .to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("ELSE").to_matchable(),
@@ -336,21 +339,25 @@ pub fn raw_dialect() -> Dialect {
     mysql.add([(
         "WhileStatementsSegment".into(),
         NodeMatcher::new(SyntaxKind::WhileStatements, |_| {
-            AnyNumberOf::new(vec![Sequence::new(vec![
-                one_of(vec![
-                    Ref::new("StatementSegment").to_matchable(),
-                    Ref::new("MultiStatementSegment").to_matchable(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("StatementSegment").to_matchable(),
+                        Ref::new("MultiStatementSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DelimiterGrammar").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::new("DelimiterGrammar").to_matchable(),
             ])
-            .to_matchable()])
             .config(|this| {
-                this.terminators = vec![Sequence::new(vec![
-                    Ref::keyword("END").to_matchable(),
-                    Ref::keyword("WHILE").to_matchable(),
-                ])
-                .to_matchable()];
+                this.terminators = vec![
+                    Sequence::new(vec![
+                        Ref::keyword("END").to_matchable(),
+                        Ref::keyword("WHILE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ];
                 this.parse_mode = ParseMode::Greedy;
             })
             .to_matchable()
@@ -392,21 +399,25 @@ pub fn raw_dialect() -> Dialect {
     mysql.add([(
         "LoopStatementsSegment".into(),
         NodeMatcher::new(SyntaxKind::LoopStatements, |_| {
-            AnyNumberOf::new(vec![Sequence::new(vec![
-                one_of(vec![
-                    Ref::new("StatementSegment").to_matchable(),
-                    Ref::new("MultiStatementSegment").to_matchable(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("StatementSegment").to_matchable(),
+                        Ref::new("MultiStatementSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DelimiterGrammar").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::new("DelimiterGrammar").to_matchable(),
             ])
-            .to_matchable()])
             .config(|this| {
-                this.terminators = vec![Sequence::new(vec![
-                    Ref::keyword("END").to_matchable(),
-                    Ref::keyword("LOOP").to_matchable(),
-                ])
-                .to_matchable()];
+                this.terminators = vec![
+                    Sequence::new(vec![
+                        Ref::keyword("END").to_matchable(),
+                        Ref::keyword("LOOP").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ];
                 this.parse_mode = ParseMode::Greedy;
             })
             .to_matchable()
@@ -446,15 +457,17 @@ pub fn raw_dialect() -> Dialect {
     mysql.add([(
         "RepeatStatementsSegment".into(),
         NodeMatcher::new(SyntaxKind::RepeatStatements, |_| {
-            AnyNumberOf::new(vec![Sequence::new(vec![
-                one_of(vec![
-                    Ref::new("StatementSegment").to_matchable(),
-                    Ref::new("MultiStatementSegment").to_matchable(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("StatementSegment").to_matchable(),
+                        Ref::new("MultiStatementSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DelimiterGrammar").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::new("DelimiterGrammar").to_matchable(),
             ])
-            .to_matchable()])
             .config(|this| {
                 this.terminators = vec![Ref::keyword("UNTIL").to_matchable()];
                 this.parse_mode = ParseMode::Greedy;
@@ -499,15 +512,17 @@ pub fn raw_dialect() -> Dialect {
     mysql.add([(
         "ProcedureStatements".into(),
         NodeMatcher::new(SyntaxKind::ProcedureStatements, |_| {
-            AnyNumberOf::new(vec![Sequence::new(vec![
-                one_of(vec![
-                    Ref::new("StatementSegment").to_matchable(),
-                    Ref::new("MultiStatementSegment").to_matchable(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("StatementSegment").to_matchable(),
+                        Ref::new("MultiStatementSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DelimiterGrammar").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::new("DelimiterGrammar").to_matchable(),
             ])
-            .to_matchable()])
             .config(|this| {
                 this.terminators = vec![Ref::keyword("END").to_matchable()];
                 this.parse_mode = ParseMode::Greedy;
@@ -576,9 +591,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("STRAIGHT_JOIN").optional().to_matchable(),
             Ref::keyword("SQL_SMALL_RESULT").optional().to_matchable(),
             Ref::keyword("SQL_BIG_RESULT").optional().to_matchable(),
-            Ref::keyword("SQL_BUFFER_RESULT")
-                .optional()
-                .to_matchable(),
+            Ref::keyword("SQL_BUFFER_RESULT").optional().to_matchable(),
             Ref::keyword("SQL_CACHE").optional().to_matchable(),
             Ref::keyword("SQL_NO_CACHE").optional().to_matchable(),
             Ref::keyword("SQL_CALC_FOUND_ROWS")
@@ -602,10 +615,8 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("OF").to_matchable(),
-                        Delimited::new(vec![
-                            Ref::new("ObjectReferenceSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                            .to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -638,17 +649,14 @@ pub fn raw_dialect() -> Dialect {
     // Override SelectStatementSegment to include FOR UPDATE / LOCK IN SHARE MODE
     mysql.replace_grammar(
         "SelectStatementSegment",
-        ansi::select_statement()
-            .copy(
-                Some(vec![Ref::new("ForClauseSegment")
-                    .optional()
-                    .to_matchable()]),
-                None,
-                None,
-                None,
-                Vec::new(),
-                false,
-            ),
+        ansi::select_statement().copy(
+            Some(vec![Ref::new("ForClauseSegment").optional().to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
     );
 
     // ---- SELECT INTO clause ----
@@ -756,11 +764,13 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     // INTO @var, @var2, ...
-                    Delimited::new(vec![one_of(vec![
-                        Ref::new("SessionVariableSegment").to_matchable(),
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("SessionVariableSegment").to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
-                    .to_matchable()])
                     .to_matchable(),
                 ])
                 .to_matchable(),
@@ -778,10 +788,8 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("PARTITION").to_matchable(),
                 Bracketed::new(vec![
-                    Delimited::new(vec![
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                        .to_matchable(),
                 ])
                 .to_matchable(),
             ])
@@ -827,11 +835,9 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.optional())
                 .to_matchable(),
                 Bracketed::new(vec![
-                    Delimited::new(vec![
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                 ])
                 .to_matchable(),
             ])
@@ -845,13 +851,9 @@ pub fn raw_dialect() -> Dialect {
     mysql.add([(
         "PostTableExpressionGrammar".into(),
         Sequence::new(vec![
-            Ref::new("PartitionClauseSegment")
-                .optional()
+            Ref::new("PartitionClauseSegment").optional().to_matchable(),
+            AnyNumberOf::new(vec![Ref::new("IndexHintClauseSegment").to_matchable()])
                 .to_matchable(),
-            AnyNumberOf::new(vec![
-                Ref::new("IndexHintClauseSegment").to_matchable(),
-            ])
-            .to_matchable(),
         ])
         .to_matchable()
         .into(),
@@ -886,11 +888,13 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("SingleIdentifierGrammar").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("USING").to_matchable(),
-                        Delimited::new(vec![one_of(vec![
-                            Ref::new("SessionVariableSegment").to_matchable(),
-                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::new("SessionVariableSegment").to_matchable(),
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
-                        .to_matchable()])
                         .to_matchable(),
                     ])
                     .config(|this| this.optional())
@@ -921,30 +925,30 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // ---- SIGNAL / RESIGNAL ----
-    mysql.add([
-        (
-            "SignalStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::ResignalSegment, |_| {
-                Sequence::new(vec![
-                    one_of(vec![
-                        Ref::keyword("SIGNAL").to_matchable(),
-                        Ref::keyword("RESIGNAL").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("SQLSTATE").to_matchable(),
-                            Ref::keyword("VALUE").optional().to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+    mysql.add([(
+        "SignalStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::ResignalSegment, |_| {
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("SIGNAL").to_matchable(),
+                    Ref::keyword("RESIGNAL").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
                     Sequence::new(vec![
-                        Ref::keyword("SET").to_matchable(),
-                        Delimited::new(vec![Sequence::new(vec![
+                        Ref::keyword("SQLSTATE").to_matchable(),
+                        Ref::keyword("VALUE").optional().to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
                             one_of(vec![
                                 Ref::keyword("CLASS_ORIGIN").to_matchable(),
                                 Ref::keyword("SUBCLASS_ORIGIN").to_matchable(),
@@ -964,18 +968,18 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("EqualsSegment").to_matchable(),
                             Ref::new("ExpressionSegment").to_matchable(),
                         ])
-                        .to_matchable()])
                         .to_matchable(),
                     ])
-                    .config(|this| this.optional())
                     .to_matchable(),
                 ])
-                .to_matchable()
-            })
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
             .to_matchable()
-            .into(),
-        ),
-    ]);
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // ---- GET DIAGNOSTICS ----
     mysql.add([(
@@ -994,20 +998,22 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec![
                     // Statement diagnostics: GET DIAGNOSTICS @var = ROW_COUNT
                     Sequence::new(vec![
-                        Delimited::new(vec![Sequence::new(vec![
-                            one_of(vec![
-                                Ref::new("SessionVariableSegment").to_matchable(),
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            one_of(vec![
-                                Ref::keyword("NUMBER").to_matchable(),
-                                Ref::keyword("ROW_COUNT").to_matchable(),
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::new("SessionVariableSegment").to_matchable(),
+                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("NUMBER").to_matchable(),
+                                    Ref::keyword("ROW_COUNT").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])
-                        .to_matchable()])
                         .to_matchable(),
                         // Optional CONDITION clause after statement info
                         Sequence::new(vec![
@@ -1033,31 +1039,33 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         // Condition info items (optional)
-                        Delimited::new(vec![Sequence::new(vec![
-                            one_of(vec![
-                                Ref::new("SessionVariableSegment").to_matchable(),
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            one_of(vec![
-                                Ref::keyword("CLASS_ORIGIN").to_matchable(),
-                                Ref::keyword("SUBCLASS_ORIGIN").to_matchable(),
-                                Ref::keyword("RETURNED_SQLSTATE").to_matchable(),
-                                Ref::keyword("MESSAGE_TEXT").to_matchable(),
-                                Ref::keyword("MYSQL_ERRNO").to_matchable(),
-                                Ref::keyword("CONSTRAINT_CATALOG").to_matchable(),
-                                Ref::keyword("CONSTRAINT_SCHEMA").to_matchable(),
-                                Ref::keyword("CONSTRAINT_NAME").to_matchable(),
-                                Ref::keyword("CATALOG_NAME").to_matchable(),
-                                Ref::keyword("SCHEMA_NAME").to_matchable(),
-                                Ref::keyword("TABLE_NAME").to_matchable(),
-                                Ref::keyword("COLUMN_NAME").to_matchable(),
-                                Ref::keyword("CURSOR_NAME").to_matchable(),
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::new("SessionVariableSegment").to_matchable(),
+                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("CLASS_ORIGIN").to_matchable(),
+                                    Ref::keyword("SUBCLASS_ORIGIN").to_matchable(),
+                                    Ref::keyword("RETURNED_SQLSTATE").to_matchable(),
+                                    Ref::keyword("MESSAGE_TEXT").to_matchable(),
+                                    Ref::keyword("MYSQL_ERRNO").to_matchable(),
+                                    Ref::keyword("CONSTRAINT_CATALOG").to_matchable(),
+                                    Ref::keyword("CONSTRAINT_SCHEMA").to_matchable(),
+                                    Ref::keyword("CONSTRAINT_NAME").to_matchable(),
+                                    Ref::keyword("CATALOG_NAME").to_matchable(),
+                                    Ref::keyword("SCHEMA_NAME").to_matchable(),
+                                    Ref::keyword("TABLE_NAME").to_matchable(),
+                                    Ref::keyword("COLUMN_NAME").to_matchable(),
+                                    Ref::keyword("CURSOR_NAME").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])
-                        .to_matchable()])
                         .config(|this| this.optional())
                         .to_matchable(),
                     ])
@@ -1103,11 +1111,13 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
                 Ref::new("SingleIdentifierGrammar").to_matchable(),
                 Ref::keyword("INTO").to_matchable(),
-                Delimited::new(vec![one_of(vec![
-                    Ref::new("SessionVariableSegment").to_matchable(),
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Delimited::new(vec![
+                    one_of(vec![
+                        Ref::new("SessionVariableSegment").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
-                .to_matchable()])
                 .to_matchable(),
             ])
             .to_matchable()
@@ -1122,23 +1132,25 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::SetStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("SET").to_matchable(),
-                Delimited::new(vec![Sequence::new(vec![
-                    one_of(vec![
-                        Ref::keyword("GLOBAL").to_matchable(),
-                        Ref::keyword("SESSION").to_matchable(),
-                        Ref::keyword("LOCAL").to_matchable(),
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("GLOBAL").to_matchable(),
+                            Ref::keyword("SESSION").to_matchable(),
+                            Ref::keyword("LOCAL").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::new("SessionVariableSegment").to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
                     ])
-                    .config(|this| this.optional())
                     .to_matchable(),
-                    one_of(vec![
-                        Ref::new("SessionVariableSegment").to_matchable(),
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::new("EqualsSegment").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
                 ])
-                .to_matchable()])
                 .to_matchable(),
             ])
             .to_matchable()
@@ -1148,22 +1160,20 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // ---- DROP PROCEDURE / DROP FUNCTION ----
-    mysql.add([
-        (
-            "DropProcedureStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::DropProcedureStatement, |_| {
-                Sequence::new(vec![
-                    Ref::keyword("DROP").to_matchable(),
-                    Ref::keyword("PROCEDURE").to_matchable(),
-                    Ref::new("IfExistsGrammar").optional().to_matchable(),
-                    Ref::new("FunctionNameSegment").to_matchable(),
-                ])
-                .to_matchable()
-            })
+    mysql.add([(
+        "DropProcedureStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropProcedureStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("PROCEDURE").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Ref::new("FunctionNameSegment").to_matchable(),
+            ])
             .to_matchable()
-            .into(),
-        ),
-    ]);
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // Override DropFunctionStatementSegment to support backtick-quoted names
     mysql.replace_grammar(
@@ -1181,11 +1191,13 @@ pub fn raw_dialect() -> Dialect {
     mysql.replace_grammar(
         "FileSegment",
         Sequence::new(vec![
-            Sequence::new(vec![one_of(vec![
-                Ref::new("MultiStatementSegment").to_matchable(),
-                Ref::new("StatementSegment").to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("MultiStatementSegment").to_matchable(),
+                    Ref::new("StatementSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
-            .to_matchable()])
             .to_matchable(),
             AnyNumberOf::new(vec![
                 Ref::new("DelimiterGrammar").to_matchable(),

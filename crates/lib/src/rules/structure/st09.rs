@@ -163,6 +163,12 @@ left join bar
 
         let mut fixes = Vec::new();
 
+        // Only reorder subconditions with well-known comparison operators.
+        // Operators like && (overlap), &> etc. are skipped, matching SQLFluff's
+        // _REORDERABLE_OPERATORS whitelist.
+        const REORDERABLE_OPERATORS: &[&str] =
+            &["=", "!=", "<>", "<=>", "<", ">", "<=", ">="];
+
         for subcondition in column_operator_column_subconditions {
             let comparison_operator = subcondition[1].clone();
             let first_column_reference = subcondition[0].clone();
@@ -170,6 +176,23 @@ left join bar
             let raw_comparison_operators: Vec<_> = comparison_operator
                 .children(const { &SyntaxSet::new(&[SyntaxKind::RawComparisonOperator]) })
                 .collect();
+
+            // Extract the operator string: join RawComparisonOperator children
+            // if present, otherwise fall back to the raw text of the
+            // ComparisonOperator node itself.
+            let operator_str: String = if !raw_comparison_operators.is_empty() {
+                raw_comparison_operators
+                    .iter()
+                    .map(|r| r.raw().to_string())
+                    .collect()
+            } else {
+                comparison_operator.raw().trim().to_string()
+            };
+
+            if !REORDERABLE_OPERATORS.contains(&operator_str.as_str()) {
+                continue;
+            }
+
             let first_table_seg = first_column_reference
                 .child(
                     const {

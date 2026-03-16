@@ -338,7 +338,7 @@ fn crawl_indent_points(
                         initial_indent_balance: indent_balance,
                         last_line_break_idx: cached_point.last_line_break_idx,
                         is_line_break: true,
-                        untaken_indents: take(&mut untaken_indents),
+                        untaken_indents: untaken_indents.clone(),
                     });
                     // Before zeroing, crystallise any effect on overall
                     // balances.

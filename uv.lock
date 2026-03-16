@@ -1820,7 +1820,7 @@ wheels = [
 
 [[package]]
 name = "sqruff"
-version = "0.36.0"
+version = "0.36.1"
 source = { editable = "." }
 dependencies = [
     { name = "jinja2" },

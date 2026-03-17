@@ -73,6 +73,7 @@ The following rules are available in this create. This list is generated from th
 | ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
 | ST09 | [structure.join_condition_order](#structurejoin_condition_order) | Joins should list the table referenced earlier/later first. | 
 | ST10 | [structure.constant_expression](#structureconstant_expression) | Redundant constant expression. | 
+| ST11 | [structure.unused_join](#structureunused_join) | Joined table not referenced in query. | 
 | ST12 | [structure.consecutive_semicolons](#structureconsecutive_semicolons) | Remove consecutive semicolons. | 
 
 ## Rule Details
@@ -2634,6 +2635,43 @@ FROM my_table
 -- Replace with a condition that includes meaningful logic,
 -- or remove the condition entirely.
 WHERE my_table.col > 3
+```
+
+
+### structure.unused_join
+
+Joined table not referenced in query.
+
+**Code:** `ST11`
+
+**Groups:** `all`, `structure`
+
+**Fixable:** No
+
+**Anti-pattern**
+
+In this example, the table ``bar`` is included in the ``JOIN`` clause
+but no columns from it are referenced elsewhere in the query.
+
+```sql
+SELECT
+    foo.a,
+    foo.b
+FROM foo
+LEFT JOIN bar ON foo.a = bar.a
+```
+
+**Best practice**
+
+Remove the join, or use the table.
+
+```sql
+SELECT
+    foo.a,
+    foo.b,
+    bar.c
+FROM foo
+LEFT JOIN bar ON foo.a = bar.a
 ```
 
 

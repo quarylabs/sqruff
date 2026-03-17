@@ -3,6 +3,7 @@ use regex::Regex;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_lib_core::parser::markers::PositionMarker;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 use sqruff_lib_core::parser::segments::fix::SourceFix;
 
@@ -122,7 +123,7 @@ SELECT {{ a }} from {{ ref('foo') }};
         }
 
         let mut results = Vec::new();
-        let mut source_fixes = Vec::new();
+        let mut all_source_fixes = Vec::new();
 
         // Get the source-only slices (these are the template tags that don't render to output)
         // and also check the raw sliced file for templated sections
@@ -188,15 +189,32 @@ SELECT {{ a }} from {{ ref('foo') }};
                 // don't have a direct mapping to the templated output
                 let templated_slice = 0..0;
 
-                source_fixes.push(SourceFix::new(
+                all_source_fixes.push(SourceFix::new(
                     SmolStr::new(&fixed_tag),
-                    source_slice,
+                    source_slice.clone(),
                     templated_slice,
                 ));
 
-                // Report violation
+                // Create an anchor segment with the correct source position for
+                // this violation. We use the source index as the templated_slice
+                // start so that source_position() looks up the right location in
+                // source_newlines.
+                let position_marker = PositionMarker::new(
+                    source_slice.clone(),
+                    source_slice,
+                    templated_file.clone(),
+                    None,
+                    None,
+                );
+
+                let anchor =
+                    SegmentBuilder::token(context.tables.next_id(), raw, SyntaxKind::TemplateLoop)
+                        .with_position(position_marker)
+                        .finish();
+
+                // Report violation with the correctly-positioned anchor
                 results.push(LintResult::new(
-                    Some(context.segment.clone()),
+                    Some(anchor),
                     vec![], // Fixes will be added below after collecting all
                     Some(description),
                     None,
@@ -205,14 +223,10 @@ SELECT {{ a }} from {{ ref('foo') }};
         }
 
         // If we have source fixes, create a single fix that contains all of them
-        if !source_fixes.is_empty() && !results.is_empty() {
-            // Find the first raw segment to use as an anchor
-            // We can't use the root segment because apply_fixes only looks at children
+        if !all_source_fixes.is_empty() && !results.is_empty() {
+            // Find the first raw segment to use as an anchor for the fix
             let raw_segments = context.segment.get_raw_segments();
             if let Some(anchor_seg) = raw_segments.first() {
-                // Create a segment that carries the source fixes
-                // The segment must have the same raw text as the anchor for is_just_source_edit
-                // We wrap the anchor's content in a node that has source_fixes
                 let inner_token = SegmentBuilder::token(
                     context.tables.next_id(),
                     anchor_seg.raw().as_ref(),
@@ -227,11 +241,10 @@ SELECT {{ a }} from {{ ref('foo') }};
                     context.dialect.name,
                     vec![inner_token],
                 )
-                .with_source_fixes(source_fixes)
+                .with_source_fixes(all_source_fixes)
                 .with_position(anchor_seg.get_position_marker().cloned().unwrap())
                 .finish();
 
-                // Create a LintFix::Replace with the first raw segment as anchor
                 let fix = LintFix::replace(anchor_seg.clone(), vec![fix_segment], None);
 
                 // Add the fix to all results

@@ -72,6 +72,7 @@ The following rules are available in this create. This list is generated from th
 | ST07 | [structure.using](#structureusing) | Prefer specifying join keys instead of using ``USING``. | 
 | ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
 | ST09 | [structure.join_condition_order](#structurejoin_condition_order) | Joins should list the table referenced earlier/later first. | 
+| ST12 | [structure.consecutive_semicolons](#structureconsecutive_semicolons) | Remove consecutive semicolons. | 
 
 ## Rule Details
 
@@ -2598,5 +2599,32 @@ from foo
 left join bar
     on foo.a = bar.a
     and foo.b = bar.b
+```
+
+
+### structure.consecutive_semicolons
+
+Remove consecutive semicolons.
+
+**Code:** `ST12`
+
+**Groups:** `all`, `structure`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+Multiple semicolons in a row, with only whitespace between them.
+
+```sql
+SELECT 1;;
+```
+
+**Best practice**
+
+Use only a single semicolon.
+
+```sql
+SELECT 1;
 ```
 

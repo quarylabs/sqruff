@@ -26,7 +26,7 @@ use_repo(python, "python_3_12", "python_versions")
 
 register_toolchains("@python_versions//:all")
 
-bazel_dep(name = "aspect_rules_lint", version = "1.13.0")
+bazel_dep(name = "aspect_rules_lint", version = "2.3.0")
 bazel_dep(name = "rules_rust", version = "0.68.1")
 bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.68.1")
 bazel_dep(name = "rules_shell", version = "0.6.1")

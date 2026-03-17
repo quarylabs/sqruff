@@ -1,0 +1,93 @@
+rule: CV12
+
+# Join without ON but with WHERE clause — condition likely belongs in ON
+test_fail_join_condition_in_where:
+  fail_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz
+    WHERE bar.id = baz.id;
+
+# Multiple joins, one missing ON with WHERE present
+test_fail_multiple_joins_one_missing_on:
+  fail_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz ON bar.id = baz.id
+    JOIN qux
+    WHERE bar.x = qux.x;
+
+# Simple inline form
+test_fail_simple_inline:
+  fail_str: "SELECT foo FROM bar JOIN baz WHERE bar.id = baz.id;\n"
+
+# JOIN with ON condition is fine
+test_pass_join_with_on:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz ON bar.id = baz.id;
+
+# JOIN with USING clause is fine
+test_pass_join_with_using:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz USING (id);
+
+# CROSS JOIN with WHERE is fine — CROSS JOIN intentionally has no ON
+test_pass_cross_join_with_where:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    CROSS JOIN baz
+    WHERE bar.x > 10;
+
+# JOIN without ON and without WHERE is not flagged by CV12 (AM08 handles this)
+test_pass_join_without_on_no_where:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz;
+
+# No JOIN at all
+test_pass_no_join:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    WHERE bar.x > 10;
+
+# All joins have ON conditions with WHERE for filtering
+test_pass_all_joins_have_on:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz ON bar.id = baz.id
+    JOIN qux ON bar.id = qux.id
+    WHERE bar.x > 10;
+
+# LEFT JOIN without ON with WHERE
+test_fail_left_join_condition_in_where:
+  fail_str: |
+    SELECT
+        foo
+    FROM bar
+    LEFT JOIN baz
+    WHERE bar.id = baz.id;
+
+# NATURAL JOIN with WHERE is fine
+test_pass_natural_join_with_where:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    NATURAL JOIN baz
+    WHERE bar.x > 10;

@@ -40,6 +40,7 @@ The following rules are available in this create. This list is generated from th
 | CV09 | [convention.blocked_words](#conventionblocked_words) | Block a list of configurable words from being used. | 
 | CV10 | [convention.quoted_literals](#conventionquoted_literals) | Consistent usage of preferred quotes for quoted literals. | 
 | CV11 | [convention.casting_style](#conventioncasting_style) | Enforce consistent type casting style. | 
+| CV12 | [convention.join_condition](#conventionjoin_condition) | Join conditions should use the JOIN ... ON syntax. | 
 | JJ01 | [jinja.padding](#jinjapadding) | Jinja tags should have a single whitespace on either side. | 
 | LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. | 
 | LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. | 
@@ -1321,6 +1322,40 @@ SELECT
     CAST(CAST(100 AS int) AS text),
     CAST(10 AS text) AS coo
 FROM foo;
+```
+
+
+### convention.join_condition
+
+Join conditions should use the JOIN ... ON syntax.
+
+**Code:** `CV12`
+
+**Groups:** `all`, `convention`
+
+**Fixable:** No
+
+**Anti-pattern**
+
+Placing join conditions in the `WHERE` clause instead of using `JOIN ... ON` mixes join logic with filtering logic, making queries harder to read.
+
+```sql
+SELECT
+    foo
+FROM bar
+JOIN baz
+WHERE bar.id = baz.id;
+```
+
+**Best practice**
+
+Use `JOIN ... ON` to specify join conditions.
+
+```sql
+SELECT
+    foo
+FROM bar
+JOIN baz ON bar.id = baz.id;
 ```
 
 

@@ -11,6 +11,7 @@ pub mod cv08;
 pub mod cv09;
 pub mod cv10;
 pub mod cv11;
+pub mod cv12;
 
 pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::Erased as _;
@@ -27,5 +28,6 @@ pub fn rules() -> Vec<ErasedRule> {
         cv09::RuleCV09::default().erased(),
         cv10::RuleCV10::default().erased(),
         cv11::RuleCV11::default().erased(),
+        cv12::RuleCV12.erased(),
     ]
 }

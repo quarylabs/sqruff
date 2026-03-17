@@ -72,7 +72,8 @@ The following rules are available in this create. This list is generated from th
 | ST07 | [structure.using](#structureusing) | Prefer specifying join keys instead of using ``USING``. | 
 | ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
 | ST09 | [structure.join_condition_order](#structurejoin_condition_order) | Joins should list the table referenced earlier/later first. | 
-| ST12 | [structure.consecutive_semicolons](#structureconsecutive_semicolons) | Remove consecutive semicolons. | 
+| ST10 | [structure.constant_expression](#structureconstant_expression) | Redundant constant expression. |
+| ST12 | [structure.consecutive_semicolons](#structureconsecutive_semicolons) | Remove consecutive semicolons. |
 
 ## Rule Details
 
@@ -2602,29 +2603,36 @@ left join bar
 ```
 
 
-### structure.consecutive_semicolons
+### structure.constant_expression
 
-Remove consecutive semicolons.
+Redundant constant expression.
 
-**Code:** `ST12`
+**Code:** `ST10`
 
 **Groups:** `all`, `structure`
 
-**Fixable:** Yes
+**Fixable:** No
+
+Including an expression that always evaluates to either `TRUE` or `FALSE`
+regardless of the input columns is unnecessary and makes statements harder
+to read and understand.
 
 **Anti-pattern**
 
-Multiple semicolons in a row, with only whitespace between them.
-
 ```sql
-SELECT 1;;
+SELECT *
+FROM my_table
+-- This following WHERE clause is redundant.
+WHERE my_table.col = my_table.col
 ```
 
 **Best practice**
 
-Use only a single semicolon.
-
 ```sql
-SELECT 1;
+SELECT *
+FROM my_table
+-- Replace with a condition that includes meaningful logic,
+-- or remove the condition entirely.
+WHERE my_table.col > 3
 ```
 

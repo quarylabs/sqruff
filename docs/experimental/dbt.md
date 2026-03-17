@@ -1,6 +1,6 @@
 # dbt project support
 
-Sqruff has experimental support for linting and formatting dbt projects. This feature requires the Python version of sqruff to be installed.
+Sqruff supports linting and formatting dbt projects. This feature requires the Python version of sqruff to be installed.
 
 ## Installation
 

@@ -72,6 +72,7 @@ The following rules are available in this create. This list is generated from th
 | ST07 | [structure.using](#structureusing) | Prefer specifying join keys instead of using ``USING``. | 
 | ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
 | ST09 | [structure.join_condition_order](#structurejoin_condition_order) | Joins should list the table referenced earlier/later first. | 
+| ST10 | [structure.constant_expression](#structureconstant_expression) | Redundant constant expression. | 
 | ST12 | [structure.consecutive_semicolons](#structureconsecutive_semicolons) | Remove consecutive semicolons. | 
 
 ## Rule Details
@@ -2599,6 +2600,40 @@ from foo
 left join bar
     on foo.a = bar.a
     and foo.b = bar.b
+```
+
+
+### structure.constant_expression
+
+Redundant constant expression.
+
+**Code:** `ST10`
+
+**Groups:** `all`, `structure`
+
+**Fixable:** No
+
+Including an expression that always evaluates to either `TRUE` or `FALSE`
+regardless of the input columns is unnecessary and makes statements harder
+to read and understand.
+
+**Anti-pattern**
+
+```sql
+SELECT *
+FROM my_table
+-- This following WHERE clause is redundant.
+WHERE my_table.col = my_table.col
+```
+
+**Best practice**
+
+```sql
+SELECT *
+FROM my_table
+-- Replace with a condition that includes meaningful logic,
+-- or remove the condition entirely.
+WHERE my_table.col > 3
 ```
 
 

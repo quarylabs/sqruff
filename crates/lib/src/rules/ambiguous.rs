@@ -8,6 +8,7 @@ pub mod am05;
 pub mod am06;
 pub mod am07;
 pub mod am08;
+pub mod am09;
 
 pub fn rules() -> Vec<ErasedRule> {
     use crate::core::rules::Erased as _;
@@ -21,5 +22,6 @@ pub fn rules() -> Vec<ErasedRule> {
         am06::RuleAM06::default().erased(),
         am07::RuleAM07.erased(),
         am08::RuleAM08.erased(),
+        am09::RuleAM09.erased(),
     ]
 }

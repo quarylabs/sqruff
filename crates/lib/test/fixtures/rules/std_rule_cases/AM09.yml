@@ -1,0 +1,56 @@
+rule: AM09
+
+# LIMIT without ORDER BY
+test_fail_limit_without_order_by:
+  fail_str: |
+    SELECT *
+    FROM foo
+    LIMIT 10;
+
+# LIMIT and OFFSET without ORDER BY
+test_fail_limit_offset_without_order_by:
+  fail_str: |
+    SELECT *
+    FROM foo
+    LIMIT 10
+    OFFSET 5;
+
+# LIMIT without ORDER BY in subquery
+test_fail_subquery_limit_without_order_by:
+  fail_str: |
+    SELECT *
+    FROM (
+        SELECT *
+        FROM foo
+        LIMIT 10
+    ) AS subquery;
+
+# LIMIT with ORDER BY is fine
+test_pass_limit_with_order_by:
+  pass_str: |
+    SELECT *
+    FROM foo
+    ORDER BY id
+    LIMIT 10;
+
+# LIMIT and OFFSET with ORDER BY is fine
+test_pass_limit_offset_with_order_by:
+  pass_str: |
+    SELECT *
+    FROM foo
+    ORDER BY id
+    LIMIT 10
+    OFFSET 5;
+
+# No LIMIT or OFFSET at all is fine
+test_pass_no_limit_or_offset:
+  pass_str: |
+    SELECT *
+    FROM foo;
+
+# Only ORDER BY without LIMIT is fine
+test_pass_order_by_without_limit:
+  pass_str: |
+    SELECT *
+    FROM foo
+    ORDER BY id;

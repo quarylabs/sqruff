@@ -23,6 +23,7 @@ The following rules are available in this create. This list is generated from th
 | AM06 | [ambiguous.column_references](#ambiguouscolumn_references) | Inconsistent column references in 'GROUP BY/ORDER BY' clauses. | 
 | AM07 | [ambiguous.set_columns](#ambiguousset_columns) | All queries in set expression should return the same number of columns. | 
 | AM08 | [ambiguous.join_condition](#ambiguousjoin_condition) | Implicit cross join detected. | 
+| AM09 | [ambiguous.order_by_limit](#ambiguousorder_by_limit) | LIMIT/OFFSET without ORDER BY. | 
 | CP01 | [capitalisation.keywords](#capitalisationkeywords) | Inconsistent capitalisation of keywords. | 
 | CP02 | [capitalisation.identifiers](#capitalisationidentifiers) | Inconsistent capitalisation of unquoted identifiers. | 
 | CP03 | [capitalisation.functions](#capitalisationfunctions) | Inconsistent capitalisation of function names. | 
@@ -713,6 +714,38 @@ SELECT
     foo
 FROM bar
 CROSS JOIN baz;
+```
+
+
+### ambiguous.order_by_limit
+
+LIMIT/OFFSET without ORDER BY.
+
+**Code:** `AM09`
+
+**Groups:** `all`, `ambiguous`
+
+**Fixable:** No
+
+**Anti-pattern**
+
+Using `LIMIT` or `OFFSET` without `ORDER BY` leads to non-deterministic results, as the database may return different rows on successive executions.
+
+```sql
+SELECT *
+FROM foo
+LIMIT 10;
+```
+
+**Best practice**
+
+Always use `ORDER BY` when using `LIMIT` or `OFFSET`.
+
+```sql
+SELECT *
+FROM foo
+ORDER BY id
+LIMIT 10;
 ```
 
 

@@ -207,13 +207,10 @@ SELECT {{ a }} from {{ ref('foo') }};
                     None,
                 );
 
-                let anchor = SegmentBuilder::token(
-                    context.tables.next_id(),
-                    raw,
-                    SyntaxKind::TemplateLoop,
-                )
-                .with_position(position_marker)
-                .finish();
+                let anchor =
+                    SegmentBuilder::token(context.tables.next_id(), raw, SyntaxKind::TemplateLoop)
+                        .with_position(position_marker)
+                        .finish();
 
                 // Report violation with the correctly-positioned anchor
                 results.push(LintResult::new(

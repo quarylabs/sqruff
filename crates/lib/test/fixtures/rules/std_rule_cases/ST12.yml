@@ -1,0 +1,31 @@
+rule: ST12
+
+test_pass_single_semicolon:
+  pass_str: "SELECT 1;"
+
+test_pass_multiple_statements:
+  pass_str: |
+    SELECT 1;
+    SELECT 2;
+
+test_fail_double_semicolon:
+  fail_str: "SELECT 1;;"
+  fix_str: "SELECT 1;"
+
+test_fail_leading_semicolons:
+  fail_str: ";;SELECT 2;"
+  fix_str: ";SELECT 2;"
+
+test_fail_semicolons_with_whitespace:
+  fail_str: |
+    SELECT 1;
+    ;
+  fix_str: |
+    SELECT 1;
+
+test_fail_triple_semicolon:
+  fail_str: "SELECT 1;;;"
+  fix_str: "SELECT 1;"
+
+test_pass_no_semicolons:
+  pass_str: "SELECT 1"

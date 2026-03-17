@@ -1,0 +1,95 @@
+rule: AM08
+
+# Implicit cross join - bare JOIN with no condition
+test_fail_implicit_cross_join:
+  fail_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz;
+  fix_str: |
+    SELECT
+        foo
+    FROM bar
+    CROSS JOIN baz;
+
+# Lowercase implicit cross join
+test_fail_implicit_cross_join_lowercase:
+  fail_str: |
+    SELECT
+        foo
+    FROM bar
+    join baz;
+  fix_str: |
+    SELECT
+        foo
+    FROM bar
+    cross join baz;
+
+# Explicit CROSS JOIN is fine
+test_pass_explicit_cross_join:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    CROSS JOIN baz;
+
+# INNER JOIN with ON condition is fine
+test_pass_inner_join_with_on:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    INNER JOIN baz ON bar.id = baz.id;
+
+# JOIN with ON condition is fine
+test_pass_join_with_on:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz ON bar.id = baz.id;
+
+# LEFT JOIN with ON condition is fine
+test_pass_left_join_with_on:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    LEFT JOIN baz ON bar.id = baz.id;
+
+# JOIN with USING clause is fine
+test_pass_join_with_using:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz USING (id);
+
+# Multiple joins where only one is implicit cross join
+test_fail_multiple_joins_one_implicit:
+  fail_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz ON bar.id = baz.id
+    JOIN qux;
+  fix_str: |
+    SELECT
+        foo
+    FROM bar
+    JOIN baz ON bar.id = baz.id
+    CROSS JOIN qux;
+
+# Simple inline form
+test_fail_simple_inline:
+  fail_str: "SELECT foo FROM bar JOIN baz;\n"
+  fix_str: "SELECT foo FROM bar CROSS JOIN baz;\n"
+
+# Explicit cross join lowercase
+test_pass_explicit_cross_join_lowercase:
+  pass_str: |
+    SELECT
+        foo
+    FROM bar
+    cross join baz;

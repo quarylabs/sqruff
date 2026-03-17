@@ -22,6 +22,7 @@ The following rules are available in this create. This list is generated from th
 | AM05 | [ambiguous.join](#ambiguousjoin) | Join clauses should be fully qualified. | 
 | AM06 | [ambiguous.column_references](#ambiguouscolumn_references) | Inconsistent column references in 'GROUP BY/ORDER BY' clauses. | 
 | AM07 | [ambiguous.set_columns](#ambiguousset_columns) | All queries in set expression should return the same number of columns. | 
+| AM08 | [ambiguous.join_condition](#ambiguousjoin_condition) | Implicit cross join detected. | 
 | CP01 | [capitalisation.keywords](#capitalisationkeywords) | Inconsistent capitalisation of keywords. | 
 | CP02 | [capitalisation.identifiers](#capitalisationidentifiers) | Inconsistent capitalisation of unquoted identifiers. | 
 | CP03 | [capitalisation.functions](#capitalisationfunctions) | Inconsistent capitalisation of function names. | 
@@ -679,6 +680,39 @@ SELECT
     c,
     d
 FROM t
+```
+
+
+### ambiguous.join_condition
+
+Implicit cross join detected.
+
+**Code:** `AM08`
+
+**Groups:** `all`, `ambiguous`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+Cross joins are valid, but rare in the wild - and more often created by mistake than on purpose. This rule catches situations where a cross join has been specified, but not explicitly and so the risk of a mistaken cross join is highly likely.
+
+```sql
+SELECT
+    foo
+FROM bar
+JOIN baz;
+```
+
+**Best practice**
+
+Use `CROSS JOIN`.
+
+```sql
+SELECT
+    foo
+FROM bar
+CROSS JOIN baz;
 ```
 
 

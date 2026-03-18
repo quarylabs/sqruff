@@ -44,6 +44,17 @@ npm.npm_translate_lock(
         "//editors/code:package.json",
         "//playground:package.json",
     ],
+    custom_postinstalls = {
+        # code-server's postinstall creates dangling symlinks in lib/vscode that
+        # Bazel rejects in tree artifacts. Remove them after install.
+        "code-server": "find . -type l ! -exec test -e {} \\; -delete 2>/dev/null || true",
+    },
+    lifecycle_hooks_envs = {
+        "code-server": ["npm_config_user_agent=npm/10.0.0 node/v22.0.0"],
+    },
+    lifecycle_hooks_execution_requirements = {
+        "code-server": ["no-sandbox"],
+    },
     pnpm_lock = "//:pnpm-lock.yaml",
 )
 use_repo(npm, "npm")

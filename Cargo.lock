@@ -180,10 +180,11 @@ checksum = "843867be96c8daad0d758b57df9392b6d8d271134fce549de6ce169ff98a92af"
 
 [[package]]
 name = "borsh"
-version = "1.6.0"
+version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1da5ab77c1437701eeff7c88d968729e7766172279eab0676857b3d63af7a6f"
+checksum = "cfd1e3f8955a5d7de9fab72fc8373fade9fb8a703968cb200ae3dc6cf08e185a"
 dependencies = [
+ "bytes",
  "cfg_aliases",
 ]
 
@@ -203,6 +204,12 @@ name = "bumpalo"
 version = "3.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5d20789868f4b01b2f2caec9f5c4e0213b41e3e5702a50157d699ae31ced2fcb"
+
+[[package]]
+name = "bytes"
+version = "1.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33"
 
 [[package]]
 name = "cast"
@@ -894,7 +901,7 @@ dependencies = [
 
 [[package]]
 name = "lineage"
-version = "0.37.0"
+version = "0.37.1"
 dependencies = [
  "append-only-vec",
  "hashbrown 0.16.1",
@@ -1494,7 +1501,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff"
-version = "0.37.0"
+version = "0.37.1"
 dependencies = [
  "assert_cmd",
  "dhat",
@@ -1508,7 +1515,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-cli-lib"
-version = "0.37.0"
+version = "0.37.1"
 dependencies = [
  "anstyle",
  "assert_cmd",
@@ -1534,7 +1541,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-cli-python"
-version = "0.37.0"
+version = "0.37.1"
 dependencies = [
  "assert_cmd",
  "expect-test",
@@ -1545,7 +1552,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib"
-version = "0.37.0"
+version = "0.37.1"
 dependencies = [
  "codspeed-criterion-compat",
  "common-path",
@@ -1580,7 +1587,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib-core"
-version = "0.37.0"
+version = "0.37.1"
 dependencies = [
  "enum_dispatch",
  "fancy-regex",
@@ -1601,7 +1608,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib-dialects"
-version = "0.37.0"
+version = "0.37.1"
 dependencies = [
  "expect-test",
  "glob",
@@ -1615,7 +1622,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lsp"
-version = "0.37.0"
+version = "0.37.1"
 dependencies = [
  "console_error_panic_hook",
  "hashbrown 0.16.1",
@@ -1630,7 +1637,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-sqlinference"
-version = "0.37.0"
+version = "0.37.1"
 dependencies = [
  "hashbrown 0.16.1",
  "sqruff-lib-core",
@@ -1639,7 +1646,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-wasm"
-version = "0.37.0"
+version = "0.37.1"
 dependencies = [
  "line-index",
  "lineage",

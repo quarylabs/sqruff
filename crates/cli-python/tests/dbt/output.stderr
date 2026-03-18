@@ -5,9 +5,6 @@ L:  42 | P:  27 | LT02 | Expected line break and indent of 4 spaces before "on".
 L:  42 | P:  31 | LT02 | Expected indent of 12 spaces. [layout.indent]
 L:  65 | P:  41 | LT01 | Expected only single space before "customers". Found " 
                        | ". [layout.spacing]
-== [models/disabled_model.sql] FAIL
-L:   0 | P:   0 |  TMP | Failed to template file models/disabled_model.sql:
-                       | Skipped file models/disabled_model.sql because it is
-                       | disabled [templater]
-The linter processed 8 file(s).
+== [models/disabled_model.sql] SKIP: dbt model disabled
+The linter processed 7 file(s).
 All Finished

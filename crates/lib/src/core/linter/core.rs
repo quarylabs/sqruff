@@ -6,7 +6,7 @@ use std::sync::{Arc, OnceLock};
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;
-use crate::core::linter::common::{ParsedString, RenderedFile};
+use crate::core::linter::common::{BatchRenderedResult, ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::noqa::IgnoreMask;
@@ -179,9 +179,18 @@ impl Linter {
             ProcessingMode::Batch => {
                 // Use batch processing for templaters that support it (e.g., dbt).
                 // This allows sharing expensive initialization (manifest loading) across files.
-                let rendered_files = self.render_files_batch(&paths);
-                for rendered in rendered_files {
-                    files.push(self.lint_rendered(rendered, fix)?);
+                let batch_results = self.render_files_batch(&paths);
+                for result in batch_results {
+                    match result {
+                        BatchRenderedResult::Rendered(rendered) => {
+                            files.push(self.lint_rendered(rendered, fix)?);
+                        }
+                        BatchRenderedResult::Skipped { filename, reason } => {
+                            if let Some(formatter) = &self.formatter {
+                                formatter.dispatch_file_skip(&filename, &reason);
+                            }
+                        }
+                    }
                 }
             }
             ProcessingMode::Sequential => {
@@ -230,7 +239,7 @@ impl Linter {
     ///
     /// This is more efficient for templaters like dbt that have expensive
     /// initialization (manifest loading) that can be shared across files.
-    pub fn render_files_batch(&self, fnames: &[String]) -> Vec<RenderedFile> {
+    pub fn render_files_batch(&self, fnames: &[String]) -> Vec<BatchRenderedResult> {
         if fnames.is_empty() {
             return Vec::new();
         }
@@ -242,7 +251,7 @@ impl Linter {
                 .iter()
                 .map(|fname| {
                     let source_str = std::fs::read_to_string(fname).unwrap_or_default();
-                    RenderedFile {
+                    BatchRenderedResult::Rendered(RenderedFile {
                         templated_file: TemplatedFile::new(
                             source_str.clone(),
                             fname.clone(),
@@ -254,7 +263,7 @@ impl Linter {
                         templater_violations: vec![],
                         filename: fname.clone(),
                         source_str,
-                    }
+                    })
                 })
                 .collect();
         }
@@ -280,24 +289,31 @@ impl Linter {
             .templater
             .process(&file_refs, &self.config, &self.formatter);
 
-        // Convert results to RenderedFiles
+        // Convert results to BatchRenderedResults, preserving order
         results
             .into_iter()
             .zip(files.iter())
             .map(|(result, (source_str, fname))| match result {
-                Ok(templated_file) => RenderedFile {
+                Ok(templated_file) => BatchRenderedResult::Rendered(RenderedFile {
                     templated_file,
                     templater_violations: vec![],
                     filename: fname.clone(),
                     source_str: source_str.clone(),
-                },
+                }),
                 Err(err) => {
+                    let err_str = err.to_string();
+                    if let Some(reason) = err_str.strip_prefix("SKIP:") {
+                        return BatchRenderedResult::Skipped {
+                            filename: fname.clone(),
+                            reason: reason.to_string(),
+                        };
+                    }
                     log::error!("Failed to template file {}: {:?}", fname, err);
                     // Return a minimal RenderedFile with the templater error as a
                     // violation. This prevents linting the raw source (which contains
                     // template syntax like {{ }}) and producing false positive LT01
                     // spacing errors.
-                    RenderedFile {
+                    BatchRenderedResult::Rendered(RenderedFile {
                         templated_file: TemplatedFile::new(
                             source_str.clone(),
                             fname.clone(),
@@ -311,7 +327,7 @@ impl Linter {
                         ))],
                         filename: fname.clone(),
                         source_str: source_str.clone(),
-                    }
+                    })
                 }
             })
             .collect()

@@ -21,6 +21,10 @@ impl Formatter for JsonFormatter {
         );
     }
 
+    fn dispatch_file_skip(&self, _fname: &str, _reason: &str) {
+        // No-op for JSON output
+    }
+
     fn completion_message(&self, _count: usize) {
         let lock = self.violations.lock().unwrap();
         let json = serde_json::to_string(&*lock).unwrap();

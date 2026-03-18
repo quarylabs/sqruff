@@ -44,6 +44,10 @@ impl Formatter for GithubAnnotationNativeFormatter {
         }
     }
 
+    fn dispatch_file_skip(&self, _fname: &str, _reason: &str) {
+        // No-op for GitHub annotations
+    }
+
     fn completion_message(&self, _count: usize) {
         // No-op
     }

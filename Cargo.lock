@@ -901,7 +901,7 @@ dependencies = [
 
 [[package]]
 name = "lineage"
-version = "0.37.1"
+version = "0.37.2"
 dependencies = [
  "append-only-vec",
  "hashbrown 0.16.1",
@@ -1501,7 +1501,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff"
-version = "0.37.1"
+version = "0.37.2"
 dependencies = [
  "assert_cmd",
  "dhat",
@@ -1515,7 +1515,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-cli-lib"
-version = "0.37.1"
+version = "0.37.2"
 dependencies = [
  "anstyle",
  "assert_cmd",
@@ -1541,7 +1541,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-cli-python"
-version = "0.37.1"
+version = "0.37.2"
 dependencies = [
  "assert_cmd",
  "expect-test",
@@ -1552,7 +1552,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib"
-version = "0.37.1"
+version = "0.37.2"
 dependencies = [
  "codspeed-criterion-compat",
  "common-path",
@@ -1587,7 +1587,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib-core"
-version = "0.37.1"
+version = "0.37.2"
 dependencies = [
  "enum_dispatch",
  "fancy-regex",
@@ -1608,7 +1608,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lib-dialects"
-version = "0.37.1"
+version = "0.37.2"
 dependencies = [
  "expect-test",
  "glob",
@@ -1622,7 +1622,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-lsp"
-version = "0.37.1"
+version = "0.37.2"
 dependencies = [
  "console_error_panic_hook",
  "hashbrown 0.16.1",
@@ -1637,7 +1637,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-sqlinference"
-version = "0.37.1"
+version = "0.37.2"
 dependencies = [
  "hashbrown 0.16.1",
  "sqruff-lib-core",
@@ -1646,7 +1646,7 @@ dependencies = [
 
 [[package]]
 name = "sqruff-wasm"
-version = "0.37.1"
+version = "0.37.2"
 dependencies = [
  "line-index",
  "lineage",

@@ -557,13 +557,11 @@ class DbtTemplater(JinjaTemplater):
         if not results:
             skip_reason = self._find_skip_reason(fname)
             if skip_reason:
-                raise Exception(
-                    f"Skipped file {relative_fname} because it is {skip_reason}"
-                )
+                return None, skip_reason
             raise Exception(
                 "File %s was not found in dbt project" % fname
             )  # pragma: no cover
-        return results[0]
+        return results[0], None
 
     def _find_skip_reason(self, fname) -> Optional[str]:
         """Return string reason if model okay to skip, otherwise None."""
@@ -571,14 +569,14 @@ class DbtTemplater(JinjaTemplater):
         abspath = os.path.abspath(fname)
         for macro in self.dbt_manifest.macros.values():
             if os.path.abspath(macro.original_file_path) == abspath:
-                return "a macro"
+                return "dbt macro"
 
         # Scan disabled nodes.
         for nodes in self.dbt_manifest.disabled.values():
             for node in nodes:
                 if os.path.abspath(node.original_file_path) == abspath:
-                    return "disabled"
-        return None  # pragma: no cover
+                    return "dbt model disabled"
+        return None
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         original_file_path = os.path.relpath(fname, start=os.getcwd())
@@ -646,7 +644,9 @@ class DbtTemplater(JinjaTemplater):
 
         # NOTE: _find_node will raise a compilation exception if the project
         # fails to compile, and we catch that in the outer `.process()` method.
-        node = self._find_node(fname, config)
+        node, skip_reason = self._find_node(fname, config)
+        if node is None:
+            return None, skip_reason
 
         templater_logger.debug(
             "_find_node for path %r returned object of type %s.", fname, type(node)
@@ -976,12 +976,18 @@ def process_batch_from_rust(
 
         content = file_contents[fname]
         try:
-            (output, errors) = templater.process(
+            result = templater.process(
                 in_str=content,
                 fname=fname,
                 context=live_context,
                 config=config,
             )
+            # Check for skipped file (e.g., disabled model or macro)
+            if result[0] is None:
+                skip_reason = result[1] or "unknown reason"
+                results_by_fname[fname] = (None, "SKIP:" + skip_reason)
+                continue
+            (output, errors) = result
             if errors:
                 # Combine error messages
                 error_msgs = [str(e) for e in errors]

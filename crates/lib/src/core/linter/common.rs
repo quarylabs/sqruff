@@ -14,6 +14,12 @@ pub struct RenderedFile {
     pub source_str: String,
 }
 
+/// Result of batch rendering: either a rendered file or a skipped file.
+pub enum BatchRenderedResult {
+    Rendered(RenderedFile),
+    Skipped { filename: String, reason: String },
+}
+
 /// An object to store the result of parsing a string.
 #[derive(Debug, Clone)]
 pub struct ParsedString {

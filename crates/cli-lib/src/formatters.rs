@@ -37,6 +37,15 @@ impl Formatter for OutputStreamFormatter {
         self.dispatch(&s);
     }
 
+    fn dispatch_file_skip(&self, fname: &str, reason: &str) {
+        if self.verbosity < 0 {
+            return;
+        }
+        let filename = self.colorize(fname, LIGHT_GREY);
+        let skip = self.colorize("SKIP", AnsiColor::Yellow.on_default());
+        self.dispatch(&format!("== [{filename}] {skip}: {reason}\n"));
+    }
+
     fn completion_message(&self, count: usize) {
         self.dispatch(&format!("The linter processed {count} file(s).\n"));
         self.dispatch(if self.plain_output {
@@ -155,7 +164,6 @@ impl OutputStreamFormatter {
 #[derive(Clone, Copy)]
 pub(crate) enum Status {
     Pass,
-
     Fail,
 }
 

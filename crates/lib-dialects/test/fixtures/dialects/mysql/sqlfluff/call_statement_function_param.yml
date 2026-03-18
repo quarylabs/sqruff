@@ -1,0 +1,20 @@
+file:
+- statement:
+  - call_statement:
+    - keyword: CALL
+    - function_name:
+      - function_name_identifier: somefunction
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: test
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''something'''
+              - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

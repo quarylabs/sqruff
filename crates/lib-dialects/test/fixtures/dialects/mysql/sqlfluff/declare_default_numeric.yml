@@ -1,0 +1,11 @@
+file:
+- statement:
+  - declare_segment:
+    - keyword: DECLARE
+    - naked_identifier: abc
+    - data_type:
+      - data_type_identifier: int
+    - keyword: default
+    - expression:
+      - numeric_literal: '1'
+- statement_terminator: ;

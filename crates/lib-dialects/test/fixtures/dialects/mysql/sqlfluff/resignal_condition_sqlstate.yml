@@ -1,0 +1,7 @@
+file:
+- statement:
+  - resignal_segment:
+    - keyword: resignal
+    - keyword: sqlstate
+    - quoted_literal: '''42S02'''
+- statement_terminator: ;

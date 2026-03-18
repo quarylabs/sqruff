@@ -1,0 +1,12 @@
+file:
+- statement:
+  - set_statement:
+    - keyword: set
+    - at_sign_literal: '@abc'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '1'
+      - binary_operator: +
+      - numeric_literal: '2'
+- statement_terminator: ;

@@ -1,0 +1,13 @@
+file:
+- statement:
+  - declare_segment:
+    - keyword: DECLARE
+    - naked_identifier: test
+    - keyword: CURSOR
+    - keyword: FOR
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+- statement_terminator: ;

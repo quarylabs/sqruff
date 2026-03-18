@@ -1,0 +1,30 @@
+file:
+- multi_statement_segment:
+  - repeat_statement:
+    - naked_identifier: iteration
+    - colon: ':'
+    - keyword: repeat
+    - repeat_statements:
+      - statement:
+        - set_statement:
+          - keyword: set
+          - at_sign_literal: '@a'
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - column_reference:
+              - at_sign_literal: '@a'
+            - binary_operator: +
+            - numeric_literal: '1'
+      - statement_terminator: ;
+    - keyword: until
+    - expression:
+      - column_reference:
+        - at_sign_literal: '@a'
+      - comparison_operator:
+        - raw_comparison_operator: '>'
+      - numeric_literal: '5'
+    - keyword: end
+    - keyword: repeat
+    - naked_identifier: iteration
+- statement_terminator: ;

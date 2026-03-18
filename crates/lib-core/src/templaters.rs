@@ -508,7 +508,7 @@ impl TemplatedFileInner {
     }
 
     /// Return a list of the raw slices spanning a set of indices.
-    pub(crate) fn raw_slices_spanning_source_slice(
+    pub fn raw_slices_spanning_source_slice(
         &self,
         source_slice: &Range<usize>,
     ) -> Vec<RawFileSlice> {
@@ -561,7 +561,7 @@ pub enum RawFileSliceType {
 pub struct RawFileSlice {
     /// Source string
     raw: String,
-    pub(crate) slice_type: String,
+    pub slice_type: String,
     /// Offset from beginning of source string
     pub source_idx: usize,
     slice_subtype: Option<RawFileSliceType>,

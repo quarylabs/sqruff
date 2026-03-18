@@ -18,6 +18,11 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+tests/**
+.test_setup/**
+test-results/**
+playwright-report/**
+playwright.config.ts
 # Bazel-generated files
 **/*__js_binary*/**
 **/*_node_bin/**

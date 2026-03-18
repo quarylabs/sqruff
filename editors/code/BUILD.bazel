@@ -10,6 +10,7 @@ exports_files([
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_library", "js_run_binary")
 load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//editors/code:@playwright/test/package_json.bzl", playwright_test_bin = "bin")
 load("@npm//editors/code:@vscode/vsce/package_json.bzl", vsce_bin = "bin")
 load("@npm//editors/code:eslint/package_json.bzl", eslint_bin = "bin")
 load("@npm//editors/code:typescript/package_json.bzl", tsc_bin = "bin")
@@ -197,4 +198,35 @@ vsce_bin.vsce(
     chdir = package_name(),
     include_npm_sources = True,
     outs = ["sqruff.vsix"],
+)
+
+# Playwright end-to-end tests for the VS Code extension
+# Runs against code-server with the extension installed
+# Usage: bazel test //editors/code:playwright_test
+playwright_test_bin.playwright_test(
+    name = "playwright_test",
+    size = "large",
+    args = [
+        "test",
+        "--config=playwright.bazel.config.ts",
+    ],
+    chdir = package_name(),
+    data = [
+        ":node_modules/@playwright/test",
+        ":node_modules/code-server",
+        ":vscode_extension",
+        "//crates/cli:sqruff",
+        "package.json",
+        "playwright.bazel.config.ts",
+        "@playwright//:chromium-headless-shell",
+        "@playwright//:ffmpeg",
+    ] + glob(["tests/**/*"]),
+    env = {
+        "CODE_SERVER_BIN": "node_modules/code-server/out/node/entry.js",
+        "SQRUFF_PATH": "../../$(rootpath //crates/cli:sqruff)",
+        # Path needs to go up from _main/editors/code/ to runfiles root, then into the external repo
+        # The rootpath expands relative to _main workspace, so we need two extra ".." since we chdir to editors/code
+        "PLAYWRIGHT_BROWSERS_PATH": "../../$(rootpath @playwright//:chromium-headless-shell)/..",
+        "VSIX_PATH": "sqruff.vsix",
+    },
 )

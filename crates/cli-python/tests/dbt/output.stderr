@@ -6,5 +6,13 @@ L:  42 | P:  31 | LT02 | Expected indent of 12 spaces. [layout.indent]
 L:  65 | P:  41 | LT01 | Expected only single space before "customers". Found " 
                        | ". [layout.spacing]
 == [models/disabled_model.sql] SKIP: dbt model disabled
-The linter processed 7 file(s).
+== [models/staging/stg_incremental.sql] FAIL
+L:  10 | P:  23 | LT12 | Files must end with a single trailing newline.
+                       | [layout.end_of_file]
+L:  14 | P:   6 | JJ01 | Jinja tags should have a single whitespace on either
+                       | side: `{{ref('raw_orders')}}` -> `{{ ref('raw_orders')
+                       | }}` [jinja.padding]
+L:  17 | P:  49 | JJ01 | Jinja tags should have a single whitespace on either
+                       | side: `{{this}}` -> `{{ this }}` [jinja.padding]
+The linter processed 8 file(s).
 All Finished

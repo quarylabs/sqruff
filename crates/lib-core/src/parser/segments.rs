@@ -390,11 +390,17 @@ impl ErasedSegment {
             .iter()
             .any(|s| !s.get_source_fixes().is_empty());
 
-        if self.raw() == templated_raw && !has_descendant_source_fixes {
-            // Already collected source_fix_patches above, just return
+        if self.raw() == templated_raw {
+            if has_descendant_source_fixes {
+                // Tree raw hasn't changed - only source fix patches are needed.
+                // Avoid generating gap patches that could span template boundaries.
+                // This matches SQLFluff's behavior in _iter_templated_patches.
+                for descendant in self.recursive_crawl_all(false).into_iter().skip(1) {
+                    acc.extend(descendant.iter_source_fix_patches(templated_file));
+                }
+            }
             return acc;
         }
-        // If there are descendant source_fixes, continue to iterate over children
 
         if self.get_position_marker().is_none() {
             return Vec::new();

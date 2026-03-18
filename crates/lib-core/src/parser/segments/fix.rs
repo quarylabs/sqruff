@@ -61,4 +61,14 @@ impl FixPatch {
     pub fn dedupe_tuple(&self) -> Range<usize> {
         self.source_slice.clone()
     }
+
+    /// Whether this patch is a source-only fix (e.g. jinja tag spacing).
+    pub fn is_source_fix(&self) -> bool {
+        !self.source_str.is_empty() && self.templated_str != self.source_str
+    }
+
+    /// Whether this is a zero-length insertion at a point.
+    pub fn is_zero_length_source(&self) -> bool {
+        self.source_slice.start == self.source_slice.end
+    }
 }

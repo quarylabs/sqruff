@@ -121,15 +121,35 @@ impl LintedFile {
 
     fn generate_source_patches(
         patches: Vec<FixPatch>,
-        _templated_file: &TemplatedFile,
+        templated_file: &TemplatedFile,
     ) -> Vec<FixPatch> {
         let mut filtered_source_patches = Vec::new();
         let mut dedupe_buffer: HashSet<Range<usize>> = HashSet::new();
 
         for patch in patches {
-            if dedupe_buffer.insert(patch.dedupe_tuple()) {
+            if !dedupe_buffer.insert(patch.dedupe_tuple()) {
+                continue;
+            }
+
+            // Check which raw slices this patch spans.
+            let local_raw_slices =
+                templated_file.raw_slices_spanning_source_slice(&patch.source_slice);
+            let all_literal = local_raw_slices.is_empty()
+                || local_raw_slices.iter().all(|s| s.slice_type == "literal");
+
+            if all_literal {
+                // Patch only touches literal source — safe to apply.
+                filtered_source_patches.push(patch);
+            } else if patch.is_source_fix() {
+                // Explicit source fix (e.g. jinja tag spacing) — always keep.
+                filtered_source_patches.push(patch);
+            } else if patch.is_zero_length_source()
+                && patch.source_slice.start == local_raw_slices[0].source_idx
+            {
+                // Zero-length insertion exactly at a raw slice boundary — safe.
                 filtered_source_patches.push(patch);
             }
+            // Otherwise: patch spans template boundaries — skip it.
         }
 
         filtered_source_patches.sort_by_key(|x| x.source_slice.start);

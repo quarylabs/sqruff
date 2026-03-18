@@ -29,6 +29,11 @@ models:
       - name: total_order_amount
         description: Total value (AUD) of a customer's orders
 
+  - name: disabled_model
+    description: A model that is disabled and should be skipped by the linter
+    config:
+      enabled: false
+
   - name: orders
     description: This table has basic information about orders, as well as some derived facts based on payments
 

@@ -546,17 +546,20 @@ class DbtTemplater(JinjaTemplater):
             raise Exception(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
+        relative_fname = os.path.relpath(fname, start=os.getcwd())
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
             # Selector needs to be a relative path
-            selector=os.path.relpath(fname, start=os.getcwd()),
+            selector=relative_fname,
         )
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
             skip_reason = self._find_skip_reason(fname)
             if skip_reason:
-                raise Exception(f"Skipped file {fname} because it is {skip_reason}")
+                raise Exception(
+                    f"Skipped file {relative_fname} because it is {skip_reason}"
+                )
             raise Exception(
                 "File %s was not found in dbt project" % fname
             )  # pragma: no cover

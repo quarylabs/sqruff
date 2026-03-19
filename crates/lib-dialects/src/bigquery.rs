@@ -578,6 +578,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .config(|this| {
                     this.bracket_type = "angle";
                     this.bracket_pairs_set = "angle_bracket_pairs";
+                    this.optional();
                 })
                 .to_matchable(),
         ])

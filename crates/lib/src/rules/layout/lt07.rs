@@ -1,4 +1,4 @@
-use ahash::AHashSet as HashSet;
+use hashbrown::HashSet;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};

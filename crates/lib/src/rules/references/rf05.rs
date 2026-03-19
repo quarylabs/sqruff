@@ -1,4 +1,4 @@
-use ahash::AHashSet;
+use hashbrown::HashSet as AHashSet;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 

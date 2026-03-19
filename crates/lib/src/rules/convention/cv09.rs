@@ -1,4 +1,4 @@
-use ahash::AHashSet;
+use hashbrown::HashSet as AHashSet;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 

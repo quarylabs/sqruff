@@ -44,65 +44,7 @@ sqruff lint . --dialect postgres
 
 ### Configure a project
 
-You can also install sqruff using [pip](https://pypi.org/project/sqruff/).
-
-```bash
-pip install sqruff
-```
-
-#### For other platforms
-
-Either download the binary from the [releases page](https://github.com/quarylabs/sqruff/releases) with `cargo binstall` or compile it yourself with cargo:
-
-```bash
-cargo binstall sqruff
-cargo install sqruff
-```
-
-#### GitHub Action
-
-You can also use the GitHub Action to install and run sqruff in your CI/CD pipeline. Inside a GitHub Action, `sqruff` automatically outputs linting results in the GitHub format so they can be easily viewed in the PR tab.
-
-```yaml
-jobs:
-  sqruff-lint:
-    name: Lint with sqruff
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: quarylabs/install-sqruff-cli-action@main
-      - run: sqruff lint .
-```
-
-#### Visual Studio Code Extension
-
-In addition to the CLI installation mechanism listed above, sqruff is also released as a [Visual Studio Code extension](https://marketplace.visualstudio.com/items?itemName=Quary.sqruff).
-
-### Usage
-
-#### Linting
-
-To lint a SQL file or set of files, run the following command:
-
-```bash
-sqruff lint <file>
-sqruff lint <file1> <file2> <file3>
-sqruff lint <directory>
-```
-
-#### Fixing
-
-To fix a single file or a set of files, run the following command:
-
-```bash
-sqruff fix <file/paths/directory>
-```
-
-#### Configuration
-
-Settings for SQL dialect, indentation, capitalization, and other linting/style options are configured in a `.sqruff` file. This file should be located in the directory where Sqruff is being run.
-
-The following example highlights a few configuration points: setting the dialect to `sqlite`, turning on all rules except AM01 and AM02, and configuring some indentation settings. For a comprehensive list of configuration options, see the defaults in `crates/lib/src/core/config.rs`. You can also refer to the [rules documentation](docs/rules.md) for more information on configuring specific rules.
+Create a `.sqruff` file in your project root:
 
 ```ini
 [sqruff]

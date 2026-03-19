@@ -1,4 +1,4 @@
-use ahash::AHashSet as HashSet;
+use hashbrown::HashSet;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source, WildcardInfo};
 

@@ -71,7 +71,6 @@ impl SegmentBuilder {
                     raw: Default::default(),
                     source_fixes: vec![],
                     descendant_type_set: Default::default(),
-                    raw_segments_with_ancestors: Default::default(),
                 }),
                 hash: OnceCell::new(),
             },
@@ -279,7 +278,6 @@ impl ErasedSegment {
                     raw: node.raw.clone(),
                     source_fixes: node.source_fixes.clone(),
                     descendant_type_set: node.descendant_type_set.clone(),
-                    raw_segments_with_ancestors: node.raw_segments_with_ancestors.clone(),
                 }),
                 hash: OnceCell::new(),
             }),
@@ -688,9 +686,16 @@ impl ErasedSegment {
         result
     }
 
-    pub fn raw_segments_with_ancestors(&self) -> &[(ErasedSegment, Vec<PathStep>)] {
+    /// Compute the raw segments with their ancestor path steps.
+    ///
+    /// This is intentionally NOT cached to avoid Rc reference cycles.
+    /// Each PathStep stores an Rc clone of its ancestor segment, so caching
+    /// these inside the node (which is itself behind Rc) would create cycles
+    /// that prevent deallocation, causing unbounded memory growth in
+    /// long-running processes like the LSP server. See issue #1884.
+    pub fn raw_segments_with_ancestors(&self) -> Vec<(ErasedSegment, Vec<PathStep>)> {
         match &self.value.kind {
-            NodeOrTokenKind::Node(node) => node.raw_segments_with_ancestors.get_or_init(|| {
+            NodeOrTokenKind::Node(_node) => {
                 let mut buffer: Vec<(ErasedSegment, Vec<PathStep>)> =
                     Vec::with_capacity(self.segments().len());
                 let code_idxs = self.code_indices();
@@ -703,30 +708,23 @@ impl ErasedSegment {
                         code_idxs: code_idxs.clone(),
                     }];
 
-                    // Use seg.get_segments().is_empty() as a workaround to check if the segment is
-                    // a SyntaxKind::Raw type. In the original Python code, this was achieved
-                    // using seg.is_type(SyntaxKind::Raw). Here, we assume that a SyntaxKind::Raw
-                    // segment is characterized by having no sub-segments.
-
                     if seg.segments().is_empty() {
                         buffer.push((seg.clone(), new_step));
                     } else {
-                        let extended =
-                            seg.raw_segments_with_ancestors()
-                                .iter()
-                                .map(|(raw_seg, stack)| {
-                                    let mut new_step = new_step.clone();
-                                    new_step.extend_from_slice(stack);
-                                    (raw_seg.clone(), new_step)
-                                });
+                        let child_ancestors = seg.raw_segments_with_ancestors();
+                        let extended = child_ancestors.iter().map(|(raw_seg, stack)| {
+                            let mut new_step = new_step.clone();
+                            new_step.extend_from_slice(stack);
+                            (raw_seg.clone(), new_step)
+                        });
 
                         buffer.extend(extended);
                     }
                 }
 
                 buffer
-            }),
-            NodeOrTokenKind::Token(_) => &[],
+            }
+            NodeOrTokenKind::Token(_) => Vec::new(),
         }
     }
 
@@ -1061,7 +1059,11 @@ pub struct NodeData {
     raw: OnceCell<SmolStr>,
     source_fixes: Vec<SourceFix>,
     descendant_type_set: OnceCell<SyntaxSet>,
-    raw_segments_with_ancestors: OnceCell<Vec<(ErasedSegment, Vec<PathStep>)>>,
+    // NOTE: raw_segments_with_ancestors is intentionally NOT cached here.
+    // Caching it in a OnceCell created Rc reference cycles (PathStep stores
+    // an Rc<NodeOrToken> back to ancestor nodes) that prevented the entire
+    // syntax tree from being deallocated, causing unbounded memory growth
+    // in long-running processes like the LSP server. See issue #1884.
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -1205,6 +1207,48 @@ mod tests {
                 vec![raw_segs[0].edit(tables.next_id(), Some("a".to_string()), None)],
                 None,
             )
+        );
+    }
+
+    /// Regression test for issue #1884: raw_segments_with_ancestors must not
+    /// create Rc reference cycles that prevent the segment tree from being
+    /// deallocated.
+    ///
+    /// Previously, `raw_segments_with_ancestors` cached its result in a
+    /// OnceCell inside NodeData. Each cached PathStep stored an Rc clone of
+    /// its ancestor segment, creating a cycle (node → cache → PathStep →
+    /// node) that kept the entire tree alive forever.
+    #[test]
+    fn test_raw_segments_with_ancestors_no_rc_cycle() {
+        use crate::dialects::init::DialectKind;
+
+        // Build a small tree: parent node with two token children.
+        let child1 = SegmentBuilder::token(1, "SELECT", SyntaxKind::Word).finish();
+        let child2 = SegmentBuilder::token(2, "1", SyntaxKind::NumericLiteral).finish();
+        let parent = SegmentBuilder::node(
+            0,
+            SyntaxKind::SelectClause,
+            DialectKind::Ansi,
+            vec![child1, child2],
+        )
+        .finish();
+
+        // Call raw_segments_with_ancestors — this previously cached PathSteps
+        // containing Rc clones back to `parent`, creating a cycle.
+        let result = parent.raw_segments_with_ancestors();
+        assert_eq!(result.len(), 2);
+        drop(result);
+
+        // The parent's Rc strong count should be exactly 1 (our `parent`
+        // binding). If there were a cycle from cached PathSteps referencing
+        // back to parent, the count would be > 1 and the tree would leak.
+        assert_eq!(
+            Rc::strong_count(&parent.value),
+            1,
+            "Rc cycle detected: raw_segments_with_ancestors is keeping \
+             references back to ancestor segments, preventing deallocation. \
+             strong_count = {} (expected 1)",
+            Rc::strong_count(&parent.value),
         );
     }
 }

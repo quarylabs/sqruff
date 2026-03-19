@@ -2,7 +2,7 @@ use super::Templater;
 use super::python::PythonTemplatedFile;
 use crate::core::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
-use crate::templaters::{Formatter, ProcessingMode};
+use crate::templaters::{Formatter, ProcessingMode, TemplaterKind};
 use pyo3::prelude::*;
 use pyo3::types::PyList;
 use pyo3::{Py, PyAny, Python};
@@ -161,7 +161,7 @@ The linter then operates on this compiled SQL."#
                 }
             };
 
-            let py_dict = match config.to_python_context(py, "dbt") {
+            let py_dict = match config.to_python_context(py, TemplaterKind::Dbt) {
                 Ok(d) => d,
                 Err(e) => {
                     return files
@@ -175,7 +175,7 @@ The linter then operates on this compiled SQL."#
                 }
             };
 
-            let python_fluff_config: PythonFluffConfig = config.clone().into();
+            let python_fluff_config = PythonFluffConfig::from(config);
 
             // Convert files to Python list of tuples
             let py_files: Vec<(String, String)> = files
@@ -211,7 +211,11 @@ The linter then operates on this compiled SQL."#
                             if let Some(err_msg) = error {
                                 Err(SQLFluffUserError::new(err_msg))
                             } else if let Some(tf) = templated_file {
-                                Ok(tf.to_templated_file())
+                                tf.to_templated_file().map_err(|e| {
+                                    SQLFluffUserError::new(format!(
+                                        "Failed to convert dbt templated file: {e:?}"
+                                    ))
+                                })
                             } else {
                                 Err(SQLFluffUserError::new(
                                     "No templated file or error returned".to_string(),

@@ -11,6 +11,7 @@ use sqruff_lib_core::parser::{IndentationConfig, Parser};
 pub use sqruff_lib_core::value::Value;
 use sqruff_lib_dialects::kind_to_dialect;
 
+use crate::templaters::TemplaterKind;
 use crate::utils::reflow::config::ReflowConfig;
 
 /// split_comma_separated_string takes a string and splits it on commas and
@@ -46,6 +47,27 @@ impl Default for FluffConfig {
 }
 
 impl FluffConfig {
+    fn configured_dialect_kind_from_raw(configs: &HashMap<String, Value>) -> DialectKind {
+        match configs
+            .get("core")
+            .and_then(|map| map.as_map().unwrap().get("dialect"))
+        {
+            None => DialectKind::default(),
+            Some(Value::String(std)) => DialectKind::from_str(std).unwrap(),
+            _value => DialectKind::default(),
+        }
+    }
+
+    fn dialect_section_from_raw(
+        configs: &HashMap<String, Value>,
+        dialect_kind: DialectKind,
+    ) -> Option<&Value> {
+        configs
+            .get("dialect")
+            .and_then(|v| v.as_map())
+            .and_then(|m| m.get(dialect_kind.as_ref()))
+    }
+
     pub fn override_dialect(&mut self, dialect: DialectKind) -> Result<(), String> {
         self.dialect = kind_to_dialect(&dialect, None)
             .ok_or(format!("Invalid dialect: {}", dialect.as_ref()))?;
@@ -58,6 +80,29 @@ impl FluffConfig {
 
     pub fn reflow(&self) -> &ReflowConfig {
         &self.reflow
+    }
+
+    fn templater_root_section(&self) -> Option<&HashMap<String, Value>> {
+        self.raw.get("templater").and_then(Value::as_map)
+    }
+
+    pub fn templater_root_value(&self, key: &str) -> Option<&Value> {
+        self.templater_root_section()?.get(key)
+    }
+
+    pub fn templater_section(&self, templater: TemplaterKind) -> Option<&HashMap<String, Value>> {
+        self.templater_root_section()?
+            .get(templater.as_str())
+            .and_then(Value::as_map)
+    }
+
+    pub fn templater_value(&self, templater: TemplaterKind, key: &str) -> Option<&Value> {
+        self.templater_section(templater)?.get(key)
+    }
+
+    pub fn templater_context(&self, templater: TemplaterKind) -> Option<&HashMap<String, Value>> {
+        self.templater_value(templater, "context")
+            .and_then(Value::as_map)
     }
 
     pub fn reload_reflow(&mut self) {
@@ -84,6 +129,22 @@ impl FluffConfig {
 
     pub fn get_section(&self, section: &str) -> &HashMap<String, Value> {
         self.raw[section].as_map().unwrap()
+    }
+
+    pub fn dialect_kind(&self) -> DialectKind {
+        self.dialect.name()
+    }
+
+    pub fn templater_kind(&self) -> Result<TemplaterKind, String> {
+        self.get("templater", "core")
+            .as_string()
+            .map(TemplaterKind::from_name)
+            .transpose()
+            .map(|templater| templater.unwrap_or(TemplaterKind::Raw))
+    }
+
+    pub fn dialect_section(&self, dialect_kind: DialectKind) -> Option<&Value> {
+        Self::dialect_section_from_raw(&self.raw, dialect_kind)
     }
 
     // TODO This is not a translation that is particularly accurate.
@@ -120,20 +181,10 @@ impl FluffConfig {
 
         let mut configs = nested_combine(defaults, configs);
 
-        let dialect_kind = match configs
-            .get("core")
-            .and_then(|map| map.as_map().unwrap().get("dialect"))
-        {
-            None => DialectKind::default(),
-            Some(Value::String(std)) => DialectKind::from_str(std).unwrap(),
-            _value => DialectKind::default(),
-        };
+        let dialect_kind = Self::configured_dialect_kind_from_raw(&configs);
 
         // Extract dialect-specific configuration section (e.g., [sqruff:dialect:snowflake])
-        let dialect_config = configs
-            .get("dialect")
-            .and_then(|v| v.as_map())
-            .and_then(|m| m.get(dialect_kind.as_ref()));
+        let dialect_config = Self::dialect_section_from_raw(&configs, dialect_kind);
 
         let dialect = kind_to_dialect(&dialect_kind, dialect_config);
         for (in_key, out_key) in [
@@ -576,5 +627,64 @@ dialect = postgres
 
         // The config should still be valid
         assert_eq!(config.get_dialect().name, DialectKind::Postgres);
+    }
+
+    #[test]
+    fn test_templater_kind_defaults_to_raw() {
+        let config = FluffConfig::from_source("", None);
+        assert_eq!(config.templater_kind().unwrap(), TemplaterKind::Raw);
+    }
+
+    #[test]
+    fn test_templater_kind_parses_placeholder() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+templater = placeholder
+"#,
+            None,
+        );
+
+        assert_eq!(config.templater_kind().unwrap(), TemplaterKind::Placeholder);
+    }
+
+    #[test]
+    fn test_templater_section_uses_typed_kind() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+templater = placeholder
+
+[sqruff:templater:placeholder]
+param_style = colon
+"#,
+            None,
+        );
+
+        let section = config
+            .templater_section(TemplaterKind::Placeholder)
+            .unwrap();
+        assert_eq!(
+            section.get("param_style").unwrap().as_string(),
+            Some("colon")
+        );
+    }
+
+    #[cfg(feature = "python")]
+    #[test]
+    fn test_templater_context_uses_typed_kind() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+templater = python
+
+[sqruff:templater:python:context]
+blah = foo
+"#,
+            None,
+        );
+
+        let context = config.templater_context(TemplaterKind::Python).unwrap();
+        assert_eq!(context.get("blah").unwrap().as_string(), Some("foo"));
     }
 }

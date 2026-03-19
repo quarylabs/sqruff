@@ -6,6 +6,7 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::markers::PositionMarker;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 use sqruff_lib_core::parser::segments::fix::SourceFix;
+use sqruff_lib_core::templaters::TemplateSliceKind;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -137,7 +138,11 @@ SELECT {{ a }} from {{ ref('foo') }};
             // "block_mid" = {% else %}, "comment" = {# comment #}
             if !matches!(
                 slice_type,
-                "templated" | "block_start" | "block_end" | "block_mid" | "comment"
+                TemplateSliceKind::Templated
+                    | TemplateSliceKind::BlockStart
+                    | TemplateSliceKind::BlockEnd
+                    | TemplateSliceKind::BlockMid
+                    | TemplateSliceKind::Comment
             ) {
                 continue;
             }

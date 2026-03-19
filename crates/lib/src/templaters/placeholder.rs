@@ -3,86 +3,22 @@ use std::sync::Arc;
 
 use fancy_regex::Regex;
 use sqruff_lib_core::errors::SQLFluffUserError;
-use sqruff_lib_core::templaters::{RawFileSlice, TemplatedFile, TemplatedFileSlice};
+use sqruff_lib_core::templaters::{
+    RawFileSlice, TemplateSliceKind, TemplatedFile, TemplatedFileSlice,
+};
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;
-use crate::templaters::{ProcessingMode, Templater};
+use crate::templaters::{PlaceholderStyle, ProcessingMode, Templater};
 
 #[derive(Default)]
 pub struct PlaceholderTemplater;
 
 pub fn get_known_styles() -> HashMap<&'static str, Regex> {
-    let mut m = HashMap::new();
-
-    // e.g. WHERE bla = :name
-    m.insert(
-        "colon",
-        Regex::new(r"(?<![:\w\\]):(?P<param_name>\w+)(?!:)").unwrap(),
-    );
-
-    // e.g. WHERE bla = table:name - use with caution as more prone to false
-    // positives
-    m.insert(
-        "colon_nospaces",
-        Regex::new(r"(?<!:):(?P<param_name>\w+)").unwrap(),
-    );
-
-    // e.g. WHERE bla = :2
-    m.insert(
-        "numeric_colon",
-        Regex::new(r"(?<![:\w\\]):(?P<param_name>\d+)").unwrap(),
-    );
-
-    // e.g. WHERE bla = @name
-    m.insert(
-        "at",
-        Regex::new(r"(?<![:\w\\])@(?P<param_name>\w+)").unwrap(),
-    );
-
-    // e.g. WHERE bla = %(name)s
-    m.insert(
-        "pyformat",
-        Regex::new(r"(?<![:\w\\])%\((?P<param_name>[\w_]+)\)s").unwrap(),
-    );
-
-    // e.g. WHERE bla = $name or WHERE bla = ${name}
-    m.insert(
-        "dollar",
-        Regex::new(r"(?<![:\w\\])\${?(?P<param_name>[\w_]+)}?").unwrap(),
-    );
-
-    // e.g. USE ${flyway:database}.schema_name;
-    m.insert(
-        "flyway_var",
-        Regex::new(r#"\${(?P<param_name>\w+[:\w_]+)}"#).unwrap(),
-    );
-
-    // e.g. WHERE bla = ?
-    m.insert("question_mark", Regex::new(r"(?<![:\w\\])\?").unwrap());
-
-    // e.g. WHERE bla = $3 or WHERE bla = ${3}
-    m.insert(
-        "numeric_dollar",
-        Regex::new(r"(?<![:\w\\])\${?(?P<param_name>[\d]+)}?").unwrap(),
-    );
-
-    // e.g. WHERE bla = %s
-    m.insert("percent", Regex::new(r"(?<![:\w\\])%s").unwrap());
-
-    // e.g. WHERE bla = &s or WHERE bla = &{s} or USE DATABASE {ENV}_MARKETING
-    m.insert(
-        "ampersand",
-        Regex::new(r"(?<!&)&{?(?P<param_name>[\w]+)}?").unwrap(),
-    );
-
-    // e.g. WHERE bla = :#${qwe}
-    m.insert(
-        "apache_camel",
-        Regex::new(r":#\$\{(?P<param_name>.+)}").unwrap(),
-    );
-
-    m
+    PlaceholderStyle::all()
+        .iter()
+        .map(|style| (style.as_str(), style.regex()))
+        .collect()
 }
 
 const NO_PARAM_OR_STYLE: &str =
@@ -113,13 +49,12 @@ impl PlaceholderTemplater {
                 let param_style = param_style.as_string().ok_or(SQLFluffUserError::new(
                     "Invalid param_style for templater 'placeholder'".to_string(),
                 ))?;
-                let known_styles = get_known_styles();
-                let regex = known_styles.get(param_style).ok_or_else(|| {
+                let style = PlaceholderStyle::from_name(param_style).map_err(|_| {
                     SQLFluffUserError::new(format!(
                         "Unknown param_style '{param_style}' for templater 'placeholder'"
                     ))
                 })?;
-                Ok(regex.clone())
+                Ok(style.regex())
             }
         }
     }
@@ -173,15 +108,15 @@ impl PlaceholderTemplater {
                 })?;
 
             // Add the literal to the slices
-            template_slices.push(TemplatedFileSlice {
-                slice_type: "literal".to_string(),
-                source_slice: last_pos_raw..span.start,
-                templated_slice: last_pos_templated..last_pos_templated + last_literal_length,
-            });
+            template_slices.push(TemplatedFileSlice::new(
+                TemplateSliceKind::Literal,
+                last_pos_raw..span.start,
+                last_pos_templated..last_pos_templated + last_literal_length,
+            ));
 
             raw_slices.push(RawFileSlice::new(
                 in_str[last_pos_raw..span.start].to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 last_pos_raw,
                 None,
                 None,
@@ -191,15 +126,15 @@ impl PlaceholderTemplater {
 
             // Add the current replaced element
             let start_template_pos = last_pos_templated + last_literal_length;
-            template_slices.push(TemplatedFileSlice {
-                slice_type: "templated".to_string(),
-                source_slice: span.clone(),
-                templated_slice: start_template_pos..start_template_pos + replacement.len(),
-            });
+            template_slices.push(TemplatedFileSlice::new(
+                TemplateSliceKind::Templated,
+                span.clone(),
+                start_template_pos..start_template_pos + replacement.len(),
+            ));
 
             let raw_file_slice = RawFileSlice::new(
                 in_str[span.clone()].to_string(),
-                "templated".to_string(),
+                TemplateSliceKind::Templated,
                 span.start,
                 None,
                 None,
@@ -215,16 +150,15 @@ impl PlaceholderTemplater {
 
         // Add the last literal, if any
         if in_str.len() > last_pos_raw {
-            template_slices.push(TemplatedFileSlice {
-                slice_type: "literal".to_string(),
-                source_slice: last_pos_raw..in_str.len(),
-                templated_slice: last_pos_templated
-                    ..last_pos_templated + (in_str.len() - last_pos_raw),
-            });
+            template_slices.push(TemplatedFileSlice::new(
+                TemplateSliceKind::Literal,
+                last_pos_raw..in_str.len(),
+                last_pos_templated..last_pos_templated + (in_str.len() - last_pos_raw),
+            ));
 
             let raw_file_slice = RawFileSlice::new(
                 in_str[last_pos_raw..].to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 last_pos_raw,
                 None,
                 None,
@@ -369,6 +303,8 @@ mod tests {
     use super::*;
     use crate::core::linter::core::Linter;
 
+    type PlaceholderCase<'a> = (&'a str, &'a str, &'a str, Vec<(&'a str, &'a str)>);
+
     #[test]
     /// Test the templaters when nothing has to be replaced.
     fn test_templater_no_replacement() {
@@ -389,7 +325,7 @@ param_style = colon",
     #[test]
     fn test_all_the_known_styles() {
         // in, param_style, expected_out, values
-        let cases: [(&str, &str, &str, Vec<(&str, &str)>); 19] = [
+        let cases: [PlaceholderCase<'_>; 19] = [
             (
                 "SELECT * FROM f, o, o WHERE a < 10\n\n",
                 "colon",

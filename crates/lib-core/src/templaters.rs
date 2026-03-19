@@ -10,26 +10,85 @@ use smol_str::SmolStr;
 use crate::errors::SQLFluffSkipFile;
 use crate::slice_helpers::zero_slice;
 
+#[cfg_attr(feature = "stringify", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TemplateSliceKind {
+    Literal,
+    Templated,
+    Comment,
+    BlockStart,
+    BlockMid,
+    BlockEnd,
+}
+
+impl TemplateSliceKind {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Literal => "literal",
+            Self::Templated => "templated",
+            Self::Comment => "comment",
+            Self::BlockStart => "block_start",
+            Self::BlockMid => "block_mid",
+            Self::BlockEnd => "block_end",
+        }
+    }
+
+    pub const fn is_source_only(self) -> bool {
+        matches!(
+            self,
+            Self::Comment | Self::BlockEnd | Self::BlockStart | Self::BlockMid
+        )
+    }
+
+    pub fn from_slice_type(value: &str) -> Result<Self, String> {
+        match value {
+            "literal" => Ok(Self::Literal),
+            "templated" => Ok(Self::Templated),
+            "comment" => Ok(Self::Comment),
+            "block_start" => Ok(Self::BlockStart),
+            "block_mid" => Ok(Self::BlockMid),
+            "block_end" => Ok(Self::BlockEnd),
+            _ => Err(format!("Unknown template slice kind '{value}'")),
+        }
+    }
+}
+
 /// A slice referring to a templated file.
 #[cfg_attr(feature = "stringify", derive(Serialize))]
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TemplatedFileSlice {
-    pub slice_type: String,
+    pub slice_type: TemplateSliceKind,
     pub source_slice: Range<usize>,
     pub templated_slice: Range<usize>,
 }
 
 impl TemplatedFileSlice {
     pub fn new(
-        slice_type: &str,
+        slice_type: TemplateSliceKind,
         source_slice: Range<usize>,
         templated_slice: Range<usize>,
     ) -> Self {
         Self {
-            slice_type: slice_type.to_string(),
+            slice_type,
             source_slice,
             templated_slice,
         }
+    }
+
+    pub fn new_typed(
+        slice_type: TemplateSliceKind,
+        source_slice: Range<usize>,
+        templated_slice: Range<usize>,
+    ) -> Self {
+        Self::new(slice_type, source_slice, templated_slice)
+    }
+
+    pub const fn slice_kind(&self) -> TemplateSliceKind {
+        self.slice_type
+    }
+
+    pub fn has_slice_kind(&self, kind: TemplateSliceKind) -> bool {
+        self.slice_kind() == kind
     }
 }
 
@@ -139,14 +198,14 @@ impl TemplatedFileInner {
                         panic!("Templated file was not sliced, but not has raw slices.")
                     } else {
                         (
-                            vec![TemplatedFileSlice::new(
-                                "literal",
+                            vec![TemplatedFileSlice::new_typed(
+                                TemplateSliceKind::Literal,
                                 0..source_str.len(),
                                 0..source_str.len(),
                             )],
-                            vec![RawFileSlice::new(
+                            vec![RawFileSlice::new_typed(
                                 source_str.clone(),
-                                "literal".to_string(),
+                                TemplateSliceKind::Literal,
                                 0,
                                 None,
                                 None,
@@ -394,7 +453,7 @@ impl TemplatedFileInner {
                 Ok(zero_slice(insertion_point.try_into().unwrap()))
                 // It's within a segment.
             } else if !ts_start_subsliced_file.is_empty()
-                && ts_start_subsliced_file[0].slice_type == "literal"
+                && ts_start_subsliced_file[0].has_slice_kind(TemplateSliceKind::Literal)
             {
                 let offset =
                     template_slice.start - ts_start_subsliced_file[0].templated_slice.start;
@@ -448,7 +507,7 @@ impl TemplatedFileInner {
 
         let source_start: isize = if insertion_point >= 0 {
             insertion_point
-        } else if start_slices[0].slice_type == "literal" {
+        } else if start_slices[0].has_slice_kind(TemplateSliceKind::Literal) {
             let offset = template_slice.start - start_slices[0].templated_slice.start;
             (start_slices[0].source_slice.start + offset)
                 .try_into()
@@ -457,7 +516,11 @@ impl TemplatedFileInner {
             start_slices[0].source_slice.start.try_into().unwrap()
         };
 
-        let source_stop = if stop_slices.last().unwrap().slice_type == "literal" {
+        let source_stop = if stop_slices
+            .last()
+            .unwrap()
+            .has_slice_kind(TemplateSliceKind::Literal)
+        {
             let offset = stop_slices.last().unwrap().templated_slice.end - template_slice.end;
             stop_slices.last().unwrap().source_slice.end - offset
         } else {
@@ -497,10 +560,10 @@ impl TemplatedFileInner {
             // Reset if we find a literal and we're up to the start
             // otherwise set false.
             if raw_slice.source_idx <= source_slice.start {
-                is_literal = raw_slice.slice_type == "literal";
+                is_literal = raw_slice.has_slice_kind(TemplateSliceKind::Literal);
             } else if raw_slice.source_idx >= source_slice.end {
                 break;
-            } else if raw_slice.slice_type != "literal" {
+            } else if !raw_slice.has_slice_kind(TemplateSliceKind::Literal) {
                 is_literal = false;
             };
         }
@@ -561,7 +624,7 @@ pub enum RawFileSliceType {
 pub struct RawFileSlice {
     /// Source string
     raw: String,
-    pub slice_type: String,
+    pub slice_type: TemplateSliceKind,
     /// Offset from beginning of source string
     pub source_idx: usize,
     slice_subtype: Option<RawFileSliceType>,
@@ -572,7 +635,7 @@ pub struct RawFileSlice {
 impl RawFileSlice {
     pub fn new(
         raw: String,
-        slice_type: String,
+        slice_type: TemplateSliceKind,
         source_idx: usize,
         slice_subtype: Option<RawFileSliceType>,
         block_idx: Option<usize>,
@@ -584,6 +647,16 @@ impl RawFileSlice {
             slice_subtype,
             block_idx: block_idx.unwrap_or(0),
         }
+    }
+
+    pub fn new_typed(
+        raw: String,
+        slice_type: TemplateSliceKind,
+        source_idx: usize,
+        slice_subtype: Option<RawFileSliceType>,
+        block_idx: Option<usize>,
+    ) -> Self {
+        Self::new(raw, slice_type, source_idx, slice_subtype, block_idx)
     }
 }
 
@@ -603,9 +676,17 @@ impl RawFileSlice {
         &self.raw
     }
 
-    /// Return the slice type (e.g., "literal", "templated", "comment", etc.).
-    pub fn slice_type(&self) -> &str {
-        &self.slice_type
+    /// Return the slice type (e.g., literal, templated, comment).
+    pub const fn slice_type(&self) -> TemplateSliceKind {
+        self.slice_type
+    }
+
+    pub const fn slice_kind(&self) -> TemplateSliceKind {
+        self.slice_type
+    }
+
+    pub fn has_slice_kind(&self, kind: TemplateSliceKind) -> bool {
+        self.slice_kind() == kind
     }
 
     /// Based on its slice_type, does it only appear in the *source*?
@@ -613,12 +694,7 @@ impl RawFileSlice {
     /// There are *also* some which are source only because they render
     /// to an empty string.
     fn is_source_only_slice(&self) -> bool {
-        // TODO: should any new logic go here?. Slice Type could probably go from String
-        // To Enum
-        matches!(
-            self.slice_type.as_str(),
-            "comment" | "block_end" | "block_start" | "block_mid"
-        )
+        self.slice_kind().is_source_only()
     }
 }
 
@@ -717,13 +793,13 @@ mod tests {
 
         let raw_sliced = vec![RawFileSlice::new(
             source.clone(),
-            "literal".to_string(),
+            TemplateSliceKind::Literal,
             0,
             None,
             None,
         )];
         let sliced_file = vec![TemplatedFileSlice::new(
-            "literal",
+            TemplateSliceKind::Literal,
             0..source.len(),
             0..source.len(),
         )];
@@ -751,26 +827,32 @@ mod tests {
         assert_eq!(source.len(), 14);
 
         let raw_sliced = vec![
-            RawFileSlice::new("SELECT '".to_string(), "literal".to_string(), 0, None, None),
+            RawFileSlice::new(
+                "SELECT '".to_string(),
+                TemplateSliceKind::Literal,
+                0,
+                None,
+                None,
+            ),
             RawFileSlice::new(
                 "café".to_string(),
-                "templated".to_string(),
+                TemplateSliceKind::Templated,
                 8, // byte offset
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "'".to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 13, // byte offset (8 + 5)
                 None,
                 None,
             ),
         ];
         let sliced_file = vec![
-            TemplatedFileSlice::new("literal", 0..8, 0..8),
-            TemplatedFileSlice::new("templated", 8..13, 8..13),
-            TemplatedFileSlice::new("literal", 13..14, 13..14),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 0..8, 0..8),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 8..13, 8..13),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 13..14, 13..14),
         ];
 
         let tf = TemplatedFile::new(
@@ -798,22 +880,22 @@ mod tests {
         let raw_sliced = vec![
             RawFileSlice::new(
                 "aあ".to_string(), // 4 bytes
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 0,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "b".to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 2, // WRONG: char index from Python (should be 4 for bytes)
                 None,
                 None,
             ),
         ];
         let sliced_file = vec![
-            TemplatedFileSlice::new("literal", 0..2, 0..2),
-            TemplatedFileSlice::new("literal", 2..3, 2..3),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 0..2, 0..2),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 2..3, 2..3),
         ];
 
         // This SHOULD panic because source_idx=2 != pos=4
@@ -848,53 +930,53 @@ mod tests {
 
     fn simple_sliced_file() -> Vec<TemplatedFileSlice> {
         vec![
-            TemplatedFileSlice::new("literal", 0..10, 0..10),
-            TemplatedFileSlice::new("templated", 10..17, 10..12),
-            TemplatedFileSlice::new("literal", 17..25, 12..20),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 0..10, 0..10),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 10..17, 10..12),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 17..25, 12..20),
         ]
     }
 
     fn simple_raw_sliced_file() -> [RawFileSlice; 3] {
         [
-            RawFileSlice::new("x".repeat(10), "literal".to_string(), 0, None, None),
-            RawFileSlice::new("x".repeat(7), "templated".to_string(), 10, None, None),
-            RawFileSlice::new("x".repeat(8), "literal".to_string(), 17, None, None),
+            RawFileSlice::new("x".repeat(10), TemplateSliceKind::Literal, 0, None, None),
+            RawFileSlice::new("x".repeat(7), TemplateSliceKind::Templated, 10, None, None),
+            RawFileSlice::new("x".repeat(8), TemplateSliceKind::Literal, 17, None, None),
         ]
     }
 
     fn complex_sliced_file() -> Vec<TemplatedFileSlice> {
         vec![
-            TemplatedFileSlice::new("literal", 0..13, 0..13),
-            TemplatedFileSlice::new("comment", 13..29, 13..13),
-            TemplatedFileSlice::new("literal", 29..44, 13..28),
-            TemplatedFileSlice::new("block_start", 44..68, 28..28),
-            TemplatedFileSlice::new("literal", 68..81, 28..41),
-            TemplatedFileSlice::new("templated", 81..86, 41..42),
-            TemplatedFileSlice::new("literal", 86..110, 42..66),
-            TemplatedFileSlice::new("templated", 68..86, 66..76),
-            TemplatedFileSlice::new("literal", 68..81, 76..89),
-            TemplatedFileSlice::new("templated", 81..86, 89..90),
-            TemplatedFileSlice::new("literal", 86..110, 90..114),
-            TemplatedFileSlice::new("templated", 68..86, 114..125),
-            TemplatedFileSlice::new("literal", 68..81, 125..138),
-            TemplatedFileSlice::new("templated", 81..86, 138..139),
-            TemplatedFileSlice::new("literal", 86..110, 139..163),
-            TemplatedFileSlice::new("templated", 110..123, 163..166),
-            TemplatedFileSlice::new("literal", 123..132, 166..175),
-            TemplatedFileSlice::new("block_end", 132..144, 175..175),
-            TemplatedFileSlice::new("literal", 144..155, 175..186),
-            TemplatedFileSlice::new("block_start", 155..179, 186..186),
-            TemplatedFileSlice::new("literal", 179..189, 186..196),
-            TemplatedFileSlice::new("templated", 189..194, 196..197),
-            TemplatedFileSlice::new("literal", 194..203, 197..206),
-            TemplatedFileSlice::new("literal", 179..189, 206..216),
-            TemplatedFileSlice::new("templated", 189..194, 216..217),
-            TemplatedFileSlice::new("literal", 194..203, 217..226),
-            TemplatedFileSlice::new("literal", 179..189, 226..236),
-            TemplatedFileSlice::new("templated", 189..194, 236..237),
-            TemplatedFileSlice::new("literal", 194..203, 237..246),
-            TemplatedFileSlice::new("block_end", 203..215, 246..246),
-            TemplatedFileSlice::new("literal", 215..230, 246..261),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 0..13, 0..13),
+            TemplatedFileSlice::new(TemplateSliceKind::Comment, 13..29, 13..13),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 29..44, 13..28),
+            TemplatedFileSlice::new(TemplateSliceKind::BlockStart, 44..68, 28..28),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 68..81, 28..41),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 81..86, 41..42),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 86..110, 42..66),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 68..86, 66..76),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 68..81, 76..89),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 81..86, 89..90),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 86..110, 90..114),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 68..86, 114..125),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 68..81, 125..138),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 81..86, 138..139),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 86..110, 139..163),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 110..123, 163..166),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 123..132, 166..175),
+            TemplatedFileSlice::new(TemplateSliceKind::BlockEnd, 132..144, 175..175),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 144..155, 175..186),
+            TemplatedFileSlice::new(TemplateSliceKind::BlockStart, 155..179, 186..186),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 179..189, 186..196),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 189..194, 196..197),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 194..203, 197..206),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 179..189, 206..216),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 189..194, 216..217),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 194..203, 217..226),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 179..189, 226..236),
+            TemplatedFileSlice::new(TemplateSliceKind::Templated, 189..194, 236..237),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 194..203, 237..246),
+            TemplatedFileSlice::new(TemplateSliceKind::BlockEnd, 203..215, 246..246),
+            TemplatedFileSlice::new(TemplateSliceKind::Literal, 215..230, 246..261),
         ]
     }
 
@@ -902,119 +984,119 @@ mod tests {
         vec![
             RawFileSlice::new(
                 "x".repeat(13).to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 0,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(16).to_string(),
-                "comment".to_string(),
+                TemplateSliceKind::Comment,
                 13,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(15).to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 29,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(24).to_string(),
-                "block_start".to_string(),
+                TemplateSliceKind::BlockStart,
                 44,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(13).to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 68,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(5).to_string(),
-                "templated".to_string(),
+                TemplateSliceKind::Templated,
                 81,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(24).to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 86,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(13).to_string(),
-                "templated".to_string(),
+                TemplateSliceKind::Templated,
                 110,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(9).to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 123,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(12).to_string(),
-                "block_end".to_string(),
+                TemplateSliceKind::BlockEnd,
                 132,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(11).to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 144,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(24).to_string(),
-                "block_start".to_string(),
+                TemplateSliceKind::BlockStart,
                 155,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(10).to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 179,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(5).to_string(),
-                "templated".to_string(),
+                TemplateSliceKind::Templated,
                 189,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(9).to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 194,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(12).to_string(),
-                "block_end".to_string(),
+                TemplateSliceKind::BlockEnd,
                 203,
                 None,
                 None,
             ),
             RawFileSlice::new(
                 "x".repeat(15).to_string(),
-                "literal".to_string(),
+                TemplateSliceKind::Literal,
                 215,
                 None,
                 None,
@@ -1126,10 +1208,14 @@ mod tests {
                 5..10,
                 true,
                 FileKwargs {
-                    sliced_file: vec![TemplatedFileSlice::new("literal", 0..20, 0..20)],
+                    sliced_file: vec![TemplatedFileSlice::new(
+                        TemplateSliceKind::Literal,
+                        0..20,
+                        0..20,
+                    )],
                     raw_sliced_file: vec![RawFileSlice::new(
                         "x".repeat(20),
-                        "literal".to_string(),
+                        TemplateSliceKind::Literal,
                         0,
                         None,
                         None,
@@ -1147,10 +1233,26 @@ mod tests {
                 55..60,
                 true,
                 FileKwargs {
-                    sliced_file: vec![TemplatedFileSlice::new("literal", 50..70, 0..20)],
+                    sliced_file: vec![TemplatedFileSlice::new(
+                        TemplateSliceKind::Literal,
+                        50..70,
+                        0..20,
+                    )],
                     raw_sliced_file: vec![
-                        RawFileSlice::new("x".repeat(50), "literal".to_string(), 0, None, None),
-                        RawFileSlice::new("x".repeat(20), "literal".to_string(), 50, None, None),
+                        RawFileSlice::new(
+                            "x".repeat(50),
+                            TemplateSliceKind::Literal,
+                            0,
+                            None,
+                            None,
+                        ),
+                        RawFileSlice::new(
+                            "x".repeat(20),
+                            TemplateSliceKind::Literal,
+                            50,
+                            None,
+                            None,
+                        ),
                     ],
                     source_str: "x".repeat(70),
                     f_name: "foo.sql".to_string(),
@@ -1170,7 +1272,7 @@ mod tests {
                         .iter()
                         .map(|slc| {
                             TemplatedFileSlice::new(
-                                "templated",
+                                TemplateSliceKind::Templated,
                                 slc.source_slice.clone(),
                                 slc.templated_slice.clone(),
                             )
@@ -1182,7 +1284,7 @@ mod tests {
                         .map(|slc| {
                             RawFileSlice::new(
                                 slc.raw.to_string(),
-                                "templated".to_string(),
+                                TemplateSliceKind::Templated,
                                 slc.source_idx,
                                 None,
                                 None,
@@ -1204,14 +1306,18 @@ mod tests {
                     sliced_file: simple_file_kwargs()
                         .sliced_file
                         .into_iter()
-                        .chain(vec![TemplatedFileSlice::new("comment", 25..35, 20..20)])
+                        .chain(vec![TemplatedFileSlice::new(
+                            TemplateSliceKind::Comment,
+                            25..35,
+                            20..20,
+                        )])
                         .collect(),
                     raw_sliced_file: simple_file_kwargs()
                         .raw_sliced_file
                         .into_iter()
                         .chain(vec![RawFileSlice::new(
                             "x".repeat(10),
-                            "comment".to_string(),
+                            TemplateSliceKind::Comment,
                             25,
                             None,
                             None,
@@ -1264,28 +1370,28 @@ mod tests {
                     "test".to_string(),
                     None,
                     Some(vec![
-                        TemplatedFileSlice::new("literal", 0..10, 0..10),
-                        TemplatedFileSlice::new("templated", 10..17, 10..10),
-                        TemplatedFileSlice::new("literal", 17..27, 10..20),
+                        TemplatedFileSlice::new(TemplateSliceKind::Literal, 0..10, 0..10),
+                        TemplatedFileSlice::new(TemplateSliceKind::Templated, 10..17, 10..10),
+                        TemplatedFileSlice::new(TemplateSliceKind::Literal, 17..27, 10..20),
                     ]),
                     Some(vec![
                         RawFileSlice::new(
                             "a".repeat(10).to_string(),
-                            "literal".to_string(),
+                            TemplateSliceKind::Literal,
                             0,
                             None,
                             None,
                         ),
                         RawFileSlice::new(
                             "{# b #}".to_string(),
-                            "comment".to_string(),
+                            TemplateSliceKind::Comment,
                             10,
                             None,
                             None,
                         ),
                         RawFileSlice::new(
                             "a".repeat(10).to_string(),
-                            "literal".to_string(),
+                            TemplateSliceKind::Literal,
                             17,
                             None,
                             None,
@@ -1295,7 +1401,7 @@ mod tests {
                 .unwrap(),
                 vec![RawFileSlice::new(
                     "{# b #}".to_string(),
-                    "comment".to_string(),
+                    TemplateSliceKind::Comment,
                     10,
                     None,
                     None,
@@ -1308,20 +1414,32 @@ mod tests {
                     "test".to_string(),
                     None,
                     Some(vec![
-                        TemplatedFileSlice::new("literal", 0..3, 0..3),
-                        TemplatedFileSlice::new("templated", 3..10, 3..6),
-                        TemplatedFileSlice::new("literal", 10..13, 6..9),
+                        TemplatedFileSlice::new(TemplateSliceKind::Literal, 0..3, 0..3),
+                        TemplatedFileSlice::new(TemplateSliceKind::Templated, 3..10, 3..6),
+                        TemplatedFileSlice::new(TemplateSliceKind::Literal, 10..13, 6..9),
                     ]),
                     Some(vec![
-                        RawFileSlice::new("aaa".to_string(), "literal".to_string(), 0, None, None),
+                        RawFileSlice::new(
+                            "aaa".to_string(),
+                            TemplateSliceKind::Literal,
+                            0,
+                            None,
+                            None,
+                        ),
                         RawFileSlice::new(
                             "{{ b }}".to_string(),
-                            "templated".to_string(),
+                            TemplateSliceKind::Templated,
                             3,
                             None,
                             None,
                         ),
-                        RawFileSlice::new("aaa".to_string(), "literal".to_string(), 10, None, None),
+                        RawFileSlice::new(
+                            "aaa".to_string(),
+                            TemplateSliceKind::Literal,
+                            10,
+                            None,
+                            None,
+                        ),
                     ]),
                 )
                 .unwrap(),
@@ -1332,5 +1450,34 @@ mod tests {
         for (file, expected) in test_cases {
             assert_eq!(file.source_only_slices(), expected, "Failed for {:?}", file);
         }
+    }
+
+    #[test]
+    fn template_slice_kind_parses_legacy_strings() {
+        assert_eq!(
+            TemplateSliceKind::from_slice_type("block_start").unwrap(),
+            TemplateSliceKind::BlockStart
+        );
+    }
+
+    #[test]
+    fn raw_file_slice_source_only_uses_typed_adapter() {
+        let comment = RawFileSlice::new_typed(
+            "/* comment */".to_string(),
+            TemplateSliceKind::Comment,
+            0,
+            None,
+            None,
+        );
+        let literal = RawFileSlice::new_typed(
+            "select".to_string(),
+            TemplateSliceKind::Literal,
+            0,
+            None,
+            None,
+        );
+
+        assert!(comment.is_source_only_slice());
+        assert!(!literal.is_source_only_slice());
     }
 }

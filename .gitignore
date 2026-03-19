@@ -202,7 +202,8 @@ cython_debug/
 .vscode/
 
 # Claude Code & Development
-.claude/
+.claude/*
+!.claude/commands/
 .history/
 
 # SQLFluff source (cloned for porting reference)

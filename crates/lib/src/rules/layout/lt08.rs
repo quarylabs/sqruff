@@ -9,9 +9,19 @@ use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::utils::reflow::rebreak::LinePosition;
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT08;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CteCommaStyle {
+    Final,
+    Oneline,
+    Trailing,
+    Leading,
+    Floating,
+}
 
 impl Rule for RuleLT08 {
     fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
@@ -57,9 +67,12 @@ SELECT a FROM plop
     }
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut error_buffer = Vec::new();
-        let global_comma_style = context.config.raw["layout"]["type"]["comma"]["line_position"]
-            .as_string()
-            .unwrap();
+        let global_comma_style = context
+            .config
+            .reflow()
+            .line_position_for(SyntaxKind::Comma)
+            .unwrap()
+            .position();
         let expanded_segments = context.segment.iter_segments(
             const { &SyntaxSet::new(&[SyntaxKind::CommonTableExpression]) },
             false,
@@ -110,19 +123,19 @@ SELECT a FROM plop
             }
 
             let comma_style = if comma_line_idx.is_none() {
-                "final"
+                CteCommaStyle::Final
             } else if line_idx == 0 {
-                "oneline"
+                CteCommaStyle::Oneline
             } else if let Some(0) = comma_line_idx {
-                "trailing"
+                CteCommaStyle::Trailing
             } else if let Some(idx) = comma_line_idx {
                 if idx == line_idx {
-                    "leading"
+                    CteCommaStyle::Leading
                 } else {
-                    "floating"
+                    CteCommaStyle::Floating
                 }
             } else {
-                "floating"
+                CteCommaStyle::Floating
             };
 
             if blank_lines >= 1 {
@@ -132,13 +145,13 @@ SELECT a FROM plop
             let mut is_replace = false;
             let mut fix_point = None;
 
-            let num_newlines = if comma_style == "oneline" {
-                if global_comma_style == "trailing" {
+            let num_newlines = if comma_style == CteCommaStyle::Oneline {
+                if global_comma_style == LinePosition::Trailing {
                     fix_point = forward_slice[comma_seg_idx + 1].clone().into();
                     if forward_slice[comma_seg_idx + 1].is_type(SyntaxKind::Whitespace) {
                         is_replace = true;
                     }
-                } else if global_comma_style == "leading" {
+                } else if global_comma_style == LinePosition::Leading {
                     fix_point = forward_slice[comma_seg_idx].clone().into();
                 } else {
                     unimplemented!("Unexpected global comma style {global_comma_style:?}");
@@ -146,12 +159,15 @@ SELECT a FROM plop
 
                 2
             } else {
-                if comma_style == "leading" {
+                if comma_style == CteCommaStyle::Leading {
                     if comma_seg_idx < forward_slice.len() {
                         fix_point = forward_slice[comma_seg_idx].clone().into();
                     }
                 } else if comment_lines.is_empty() || !comment_lines.contains(&(line_idx - 1)) {
-                    if matches!(comma_style, "trailing" | "final" | "floating") {
+                    if matches!(
+                        comma_style,
+                        CteCommaStyle::Trailing | CteCommaStyle::Final | CteCommaStyle::Floating
+                    ) {
                         if forward_slice[seg_idx - 1].is_type(SyntaxKind::Whitespace) {
                             fix_point = forward_slice[seg_idx - 1].clone().into();
                             is_replace = true;

@@ -1,5 +1,4 @@
 use std::cmp::PartialEq;
-use std::str::FromStr;
 
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::capitalize;
@@ -114,7 +113,7 @@ pub struct RebreakLocation {
     strict: bool,
 }
 
-#[derive(Debug, PartialEq, Clone, Copy, AsRefStr, EnumString)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, AsRefStr, EnumString)]
 #[strum(serialize_all = "lowercase")]
 pub enum LinePosition {
     Leading,
@@ -168,13 +167,12 @@ pub fn identify_rebreak_spans(
         };
 
         if let Some(original_line_position) = block.line_position() {
-            let line_position = original_line_position.first().unwrap();
             spans.push(RebreakSpan {
                 target: elem.segments().first().cloned().unwrap(),
                 start_idx: idx,
                 end_idx: idx,
-                line_position: *line_position,
-                strict: original_line_position.last() == Some(&LinePosition::Strict),
+                line_position: original_line_position.position(),
+                strict: original_line_position.is_strict(),
             });
         }
 
@@ -217,18 +215,14 @@ pub fn identify_rebreak_spans(
                     .segment
                     .clone();
 
-                let line_position_configs = block.line_position_configs()[key]
-                    .split(':')
-                    .next()
-                    .unwrap();
-                let line_position = LinePosition::from_str(line_position_configs).unwrap();
+                let line_position_config = block.line_position_configs()[key];
 
                 spans.push(RebreakSpan {
                     target,
                     start_idx: idx,
                     end_idx: final_idx,
-                    line_position,
-                    strict: block.line_position_configs()[key].ends_with("strict"),
+                    line_position: line_position_config.position(),
+                    strict: line_position_config.is_strict(),
                 });
             }
         }

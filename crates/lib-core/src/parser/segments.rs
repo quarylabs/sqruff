@@ -454,10 +454,13 @@ impl ErasedSegment {
                     let raw_segments = segment.get_raw_segments();
                     let first_segment_pos = raw_segments[0].get_position_marker().unwrap();
 
+                    // The slices must never go backwards so the end of the slice
+                    // must be >= the start. This can happen when source positions
+                    // are non-monotonic due to template expansion.
                     acc.push(FixPatch::new(
-                        templated_idx..first_segment_pos.templated_slice.start,
+                        templated_idx..first_segment_pos.templated_slice.start.max(templated_idx),
                         fixed_raw.into(),
-                        source_idx..first_segment_pos.source_slice.start,
+                        source_idx..first_segment_pos.source_slice.start.max(source_idx),
                         String::new(),
                         String::new(),
                     ));

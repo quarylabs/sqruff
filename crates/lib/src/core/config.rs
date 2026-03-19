@@ -1,7 +1,7 @@
 use crate::utils::reflow::config::{ReflowConfig, Spacing};
 use crate::utils::reflow::rebreak::{LinePosition, LinePositionConfig};
 use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
-use ahash::AHashMap;
+use hashbrown::HashMap as AHashMap;
 use itertools::Itertools;
 use regex::Regex;
 use serde::Deserialize;
@@ -2556,7 +2556,8 @@ impl FluffConfig {
                 DialectKind::from_str(value).map_err(|_| format!("Invalid dialect: {}", value))?
             }
         };
-        kind_to_dialect(&dialect).ok_or_else(|| format!("Invalid dialect: {}", dialect.as_ref()))
+        kind_to_dialect(&dialect, None)
+            .ok_or_else(|| format!("Invalid dialect: {}", dialect.as_ref()))
     }
 
     /// Check if the config specifies a dialect, raising an error if not.
@@ -2608,7 +2609,7 @@ impl FluffConfig {
     }
 
     pub fn override_dialect(&mut self, dialect: DialectKind) -> Result<(), String> {
-        kind_to_dialect(&dialect)
+        kind_to_dialect(&dialect, None)
             .ok_or_else(|| format!("Invalid dialect: {}", dialect.as_ref()))?;
         self.core.dialect = Some(dialect.as_ref().to_string());
         Ok(())
@@ -3464,7 +3465,7 @@ where
     let overrides = AHashMap::<String, LayoutTypeConfig>::deserialize(deserializer)?;
     let mut types = default_layout_types();
     for (key, value) in overrides {
-        let syntax_kind: SyntaxKind = key.parse().map_err(de::Error::custom)?;
+        let syntax_kind = SyntaxKind::from_str(&key).map_err(de::Error::custom)?;
         // Merge with existing defaults instead of replacing completely
         types.entry(syntax_kind).or_default().merge_with(value);
     }
@@ -4015,7 +4016,7 @@ fn merge_layers_replace_roots(config_stack: Vec<ConfigLayer>) -> FluffConfig {
 
 fn apply_overrides_to_typed(config: &mut FluffConfig, overrides: &AHashMap<String, String>) {
     if let Some(dialect) = overrides.get("dialect") {
-        config.core.dialect = Some(dialect.clone());
+        config.core.dialect = Some(dialect.to_string());
     }
 }
 

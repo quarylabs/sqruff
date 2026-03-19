@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use hashbrown::HashMap;
+use hashbrown::HashMap as AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::FluffConfig;

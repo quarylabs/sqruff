@@ -247,19 +247,17 @@ pub fn identify_rebreak_spans(
                 let target = root_segment.path_to(&element_buffer[idx].segments()[0])[target_depth]
                     .segment
                     .clone();
+                let line_position_config = block.line_position_configs()[key];
 
-                    let line_position_config = block.line_position_configs()[key];
+                spans.push(RebreakSpan {
+                    target,
+                    start_idx: idx,
+                    end_idx: final_idx,
+                    line_position: line_position_config.position,
+                    strict: line_position_config.strict,
+                });
 
-                    spans.push(RebreakSpan {
-                        target,
-                        start_idx: idx,
-                        end_idx: final_idx,
-                        line_position: line_position_config.position,
-                        strict: line_position_config.strict,
-                    });
-
-                    break;
-                }
+                break;
             }
         }
     }

@@ -55,7 +55,7 @@ impl Linter {
         let dialect = config
             .dialect()
             .expect("Dialect is disabled. Please enable the corresponding feature.");
-        Linter {
+        Ok(Linter {
             config,
             dialect,
             formatter,
@@ -65,7 +65,7 @@ impl Linter {
         })
     }
 
-    pub fn get_templater(config: &FluffConfig) -> &'static dyn Templater {
+    pub fn get_templater(config: &FluffConfig) -> Result<&'static dyn Templater, String> {
         let templater_name = config.core.templater.as_deref();
         match templater_name {
             Some(name) => match TEMPLATERS.into_iter().find(|t| t.name() == name) {
@@ -864,8 +864,13 @@ impl Linter {
         self.rules = OnceLock::new();
     }
 
-    pub fn rules(&self) -> &[ErasedRule] {
-        self.rules.get_or_init(|| self.get_rulepack().rules)
+    pub fn rules(&self) -> Result<&[ErasedRule], SQLFluffUserError> {
+        if let Some(rules) = self.rules.get() {
+            return Ok(rules);
+        }
+        let rulepack = self.get_rulepack()?;
+        let _ = self.rules.set(rulepack.rules);
+        Ok(self.rules.get().unwrap())
     }
 
     pub fn formatter(&self) -> Option<&Arc<dyn Formatter>> {

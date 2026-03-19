@@ -55,6 +55,7 @@ common-path = "1.0.0"
 log.workspace = true
 pretty_assertions = "1.4.0"
 hashbrown.workspace = true
+ahash = "0.8"
 lazy-regex = "3.2.0"
 rayon = "1.10.0"
 smol_str = "0.3.1"

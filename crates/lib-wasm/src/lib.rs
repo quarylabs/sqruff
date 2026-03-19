@@ -4,7 +4,7 @@ use serde::Serialize;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
 use sqruff_lib_core::parser::Parser;
-use sqruff_lib_core::parser::segments::Tables;
+use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -74,7 +74,7 @@ impl Linter {
     pub fn new(source: &str) -> Self {
         let config = FluffConfig::from_source(source, None).unwrap_or_default();
         Self {
-            base: SqruffLinter::new(config, None, None, true),
+            base: SqruffLinter::new(config, None, None, true).unwrap(),
         }
     }
 
@@ -145,7 +145,8 @@ impl Linter {
             }
             Tool::Templater => templated.templated_file.to_yaml(),
             Tool::Lexer => {
-                let lexer = self.base.config().get_dialect().lexer();
+                let dialect = self.base.config().dialect().unwrap();
+                let lexer = dialect.lexer();
                 let lex_tables = Tables::default();
                 let (segments, _errors) = lexer.lex(&lex_tables, sql);
                 format_lexer_output(&segments)

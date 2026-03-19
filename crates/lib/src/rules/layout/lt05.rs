@@ -1,4 +1,4 @@
-use ahash::AHashSet;
+use ahash::AHashSet as HashSet;
 use itertools::enumerate;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 

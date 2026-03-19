@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use ahash::AHashSet;
+use ahash::AHashSet as HashSet;
 use itertools::Itertools;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};

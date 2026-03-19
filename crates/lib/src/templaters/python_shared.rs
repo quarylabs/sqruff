@@ -1,5 +1,5 @@
 use crate::core::config::FluffConfig;
-use hashbrown::HashMap;
+use hashbrown::HashMap as AHashMap;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use pyo3::{Bound, Python};

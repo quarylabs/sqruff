@@ -1,4 +1,4 @@
-use hashbrown::HashMap;
+use hashbrown::HashMap as AHashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::GroupByOrderByStyle;
@@ -113,7 +113,7 @@ ORDER BY a ASC, b DESC
                 )];
             } else {
                 let current_group_by_order_by_convention =
-                    column_reference_category_set.pop().copied().unwrap();
+                    *column_reference_category_set.pop().unwrap();
 
                 if let Some(PriorGroupByOrderByConvention(prior_group_by_order_by_convention)) =
                     context.try_get::<PriorGroupByOrderByConvention>()

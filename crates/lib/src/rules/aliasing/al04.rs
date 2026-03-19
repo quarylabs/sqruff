@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use ahash::AHashSet;
+use ahash::AHashSet as HashSet;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};

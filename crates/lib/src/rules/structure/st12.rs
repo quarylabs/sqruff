@@ -1,11 +1,9 @@
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
 
-use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleST12;
@@ -18,10 +16,6 @@ fn is_semicolon(kind: SyntaxKind) -> bool {
 }
 
 impl Rule for RuleST12 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST12.erased())
-    }
-
     fn name(&self) -> &'static str {
         "structure.consecutive_semicolons"
     }

@@ -502,6 +502,15 @@ copy_to_directory(
     },
 )
 
+# Verify .sqlfluff-sha points to a real commit in sqlfluff/sqlfluff
+sh_test(
+    name = "verify_sqlfluff_sha",
+    size = "small",
+    srcs = [".hacking/scripts/verify_sqlfluff_sha.sh"],
+    data = [".sqlfluff-sha"],
+    tags = ["requires-network"],
+)
+
 # Python tests using uv - run for each Python version
 [
     sh_test(

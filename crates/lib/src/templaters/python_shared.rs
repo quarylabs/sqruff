@@ -1,4 +1,5 @@
 use crate::core::config::FluffConfig;
+use crate::templaters::TemplaterKind;
 use hashbrown::HashMap;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
@@ -30,19 +31,15 @@ impl PythonFluffConfig {
     }
 }
 
-impl From<FluffConfig> for PythonFluffConfig {
-    fn from(value: FluffConfig) -> Self {
+impl From<&FluffConfig> for PythonFluffConfig {
+    fn from(value: &FluffConfig) -> Self {
         Self {
             templater_unwrap_wrapped_queries: value
-                .get_section("templater")
-                .get("unwrap_wrapped_queries")
-                .map(|value| value.as_bool().unwrap())
+                .templater_root_value("unwrap_wrapped_queries")
+                .and_then(|value| value.as_bool())
                 .unwrap_or(false),
             jinja_templater_paths: value
-                .get_section("templater")
-                .get("jinja")
-                .and_then(|value| value.as_map())
-                .and_then(|value| value.get("templater_paths"))
+                .templater_value(TemplaterKind::Jinja, "templater_paths")
                 .map(|value| {
                     value
                         .as_array()
@@ -53,27 +50,18 @@ impl From<FluffConfig> for PythonFluffConfig {
                 })
                 .unwrap_or_default(),
             jinja_loader_search_path: value
-                .get_section("templater")
-                .get("jinja")
-                .and_then(|value| value.as_map().unwrap().get("loader_search_path"))
-                .map(|value| value.as_string().unwrap().to_string()),
+                .templater_value(TemplaterKind::Jinja, "loader_search_path")
+                .and_then(|value| value.as_string())
+                .map(ToString::to_string),
             jinja_apply_dbt_builtins: value
-                .get_section("templater")
-                .get("jinja")
-                .and_then(|value| value.as_map())
-                .and_then(|value| value.get("apply_dbt_builtins"))
-                .map(|value| value.as_bool().unwrap())
+                .templater_value(TemplaterKind::Jinja, "apply_dbt_builtins")
+                .and_then(|value| value.as_bool())
                 .unwrap_or(false),
             jinja_ignore_templating: value
-                .get_section("templater")
-                .get("jinja")
-                .and_then(|value| value.as_map())
-                .and_then(|value| value.get("ignore_templating").map(|v| v.as_bool().unwrap())),
+                .templater_value(TemplaterKind::Jinja, "ignore_templating")
+                .and_then(|value| value.as_bool()),
             jinja_library_paths: value
-                .get_section("templater")
-                .get("jinja")
-                .and_then(|value| value.as_map())
-                .and_then(|value| value.get("library_paths"))
+                .templater_value(TemplaterKind::Jinja, "library_paths")
                 .map(|value| {
                     value
                         .as_array()
@@ -85,25 +73,23 @@ impl From<FluffConfig> for PythonFluffConfig {
                 .unwrap_or_default(),
             dbt_profile: None,
             dbt_profiles_dir: value
-                .get_section("templater")
-                .get("dbt")
-                .map(|value| value.as_map().unwrap())
-                .and_then(|value| {
-                    value
-                        .get("profiles_dir")
-                        .map(|v| v.as_string().unwrap().to_string())
-                }),
+                .templater_value(TemplaterKind::Dbt, "profiles_dir")
+                .and_then(|value| value.as_string())
+                .map(ToString::to_string),
             dbt_target: None,
             dbt_target_path: None,
             dbt_context: None,
-            dbt_project_dir: value.get_section("templater").get("dbt").and_then(|value| {
-                value
-                    .as_map()
-                    .unwrap()
-                    .get("project_dir")
-                    .map(|v| v.as_string().unwrap().to_string())
-            }),
+            dbt_project_dir: value
+                .templater_value(TemplaterKind::Dbt, "project_dir")
+                .and_then(|value| value.as_string())
+                .map(ToString::to_string),
         }
+    }
+}
+
+impl From<FluffConfig> for PythonFluffConfig {
+    fn from(value: FluffConfig) -> Self {
+        Self::from(&value)
     }
 }
 
@@ -111,17 +97,12 @@ impl<'py> FluffConfig {
     pub fn to_python_context(
         &self,
         py: Python<'py>,
-        templater_name: &str,
+        templater: TemplaterKind,
     ) -> Result<Bound<'py, PyDict>, SQLFluffUserError> {
         let empty = HashMap::default();
-        let context = self
-            .get_section("templater")
-            .get(templater_name)
-            .map(|value| value.as_map().expect("templater section must be a map"))
-            .and_then(|value| value.get("context"))
-            .map(|value| value.as_map().expect("context section must be a map"))
-            .unwrap_or(&empty);
-        let hashmap = context
+        let hashmap = self
+            .templater_context(templater)
+            .unwrap_or(&empty)
             .iter()
             .map(|(k, v)| {
                 let value = v.as_string().ok_or(SQLFluffUserError::new(
@@ -151,13 +132,13 @@ mod tests {
 
         let python_fluff_config = PythonFluffConfig::from(config);
 
-        assert_eq!(python_fluff_config.templater_unwrap_wrapped_queries, true);
+        assert!(python_fluff_config.templater_unwrap_wrapped_queries);
         assert_eq!(
             python_fluff_config.jinja_templater_paths,
             Vec::<String>::new()
         );
         assert_eq!(python_fluff_config.jinja_loader_search_path, None);
-        assert_eq!(python_fluff_config.jinja_apply_dbt_builtins, true);
+        assert!(python_fluff_config.jinja_apply_dbt_builtins);
         assert_eq!(python_fluff_config.jinja_ignore_templating, None);
     }
 

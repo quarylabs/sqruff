@@ -14,8 +14,8 @@ pub struct Args {
 }
 
 impl Args {
-    fn parse_args(&mut self, iter: impl Iterator<Item = String>) {
-        self.file = iter.skip_while(|arg| arg == "--").next();
+    fn parse_args(&mut self, mut iter: impl Iterator<Item = String>) {
+        self.file = iter.find(|arg| arg != "--");
     }
 }
 

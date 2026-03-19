@@ -9,7 +9,7 @@ use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLLexError;
 use crate::slice_helpers::{is_zero_slice, offset_slice};
-use crate::templaters::TemplatedFile;
+use crate::templaters::{TemplateSliceKind, TemplatedFile};
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -681,7 +681,7 @@ fn iter_segments(
                 continue;
             }
 
-            if tfs.slice_type == "literal" {
+            if tfs.has_slice_kind(TemplateSliceKind::Literal) {
                 let tfs_offset =
                     (tfs.source_slice.start as isize) - (tfs.templated_slice.start as isize);
 
@@ -784,7 +784,10 @@ fn iter_segments(
                         continue;
                     }
                 }
-            } else if matches!(tfs.slice_type.as_str(), "templated" | "block_start") {
+            } else if matches!(
+                tfs.slice_kind(),
+                TemplateSliceKind::Templated | TemplateSliceKind::BlockStart
+            ) {
                 // Found a templated slice. Does it have length in the templated file?
                 // If it doesn't, then we'll pick it up next.
                 if !is_zero_slice(&tfs.templated_slice) {
@@ -792,7 +795,7 @@ fn iter_segments(
                     // NOTE: This is rare, but call blocks do occasionally
                     // have length (and so don't get picked up by
                     // _handle_zero_length_slice)
-                    if tfs.slice_type == "block_start" {
+                    if tfs.has_slice_kind(TemplateSliceKind::BlockStart) {
                         unimplemented!()
                         // block_stack.enter(tfs.source_slice)
                     }

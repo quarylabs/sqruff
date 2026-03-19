@@ -3,7 +3,7 @@ use std::ops::Range;
 use hashbrown::HashSet;
 
 use crate::parser::segments::ErasedSegment;
-use crate::templaters::{RawFileSlice, TemplatedFile};
+use crate::templaters::{RawFileSlice, TemplateSliceKind, TemplatedFile};
 
 /// A potential fix to a linting violation.
 #[derive(Debug, Clone)]
@@ -172,7 +172,14 @@ impl LintFix {
         self.raw_slices_from_templated_slices(
             templated_file,
             std::iter::once(templated_slice),
-            RawFileSlice::new(String::new(), "literal".to_string(), usize::MAX, None, None).into(),
+            RawFileSlice::new(
+                String::new(),
+                TemplateSliceKind::Literal,
+                usize::MAX,
+                None,
+                None,
+            )
+            .into(),
         )
     }
 
@@ -218,7 +225,9 @@ impl LintFix {
         };
 
         let fix_slices = self.fix_slices(templated_file, false);
-        let result = check_fn(fix_slices, |fs: RawFileSlice| fs.slice_type == "templated");
+        let result = check_fn(fix_slices, |fs: RawFileSlice| {
+            fs.has_slice_kind(TemplateSliceKind::Templated)
+        });
 
         let source_is_empty = match self {
             LintFix::CreateAfter { source, .. } | LintFix::Replace { source, .. } => {
@@ -237,7 +246,9 @@ impl LintFix {
             templated_slices.into_iter(),
             None,
         );
-        raw_slices.iter().any(|fs| fs.slice_type == "templated")
+        raw_slices
+            .iter()
+            .any(|fs| fs.has_slice_kind(TemplateSliceKind::Templated))
     }
 }
 

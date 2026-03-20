@@ -493,6 +493,38 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // PostgreSQL 15+ supports specifying columns in SET NULL/SET DEFAULT
+        // referential actions: ON DELETE SET NULL (col1, col2)
+        // https://github.com/sqlfluff/sqlfluff/pull/5628
+        (
+            "ReferentialActionGrammar".into(),
+            one_of(vec![
+                Ref::keyword("CASCADE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("RESTRICT").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NO").to_matchable(),
+                    Ref::keyword("ACTION").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "ExtendedTableReferenceGrammar".into(),
             one_of(vec![

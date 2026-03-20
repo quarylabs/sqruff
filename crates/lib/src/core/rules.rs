@@ -405,8 +405,10 @@ impl RuleSet {
                 .and_then(|section| section.as_map())
                 .unwrap_or(&tmp);
 
-            // TODO fail the rulepack if any need unwrapping
-            instantiated_rules.push(rule.load_from_config(specific_rule_config).unwrap());
+            instantiated_rules.push(
+                rule.load_from_config(specific_rule_config)
+                    .map_err(SQLFluffUserError::new)?,
+            );
         }
 
         Ok(RulePack {

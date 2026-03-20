@@ -36,13 +36,23 @@ pub struct RuleST09 {
 
 impl Rule for RuleST09 {
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST09 {
-            preferred_first_table_in_join_clause: config["preferred_first_table_in_join_clause"]
-                .as_string()
-                .unwrap()
-                .to_owned(),
+        match config["preferred_first_table_in_join_clause"].as_string() {
+            Some("earlier" | "later") => Ok(RuleST09 {
+                preferred_first_table_in_join_clause: config
+                    ["preferred_first_table_in_join_clause"]
+                    .as_string()
+                    .unwrap()
+                    .to_owned(),
+            }
+            .erased()),
+            Some(value) => Err(format!(
+                "Invalid value for preferred_first_table_in_join_clause: {value}. Must be one of \
+                 [earlier, later]"
+            )),
+            None => Err(
+                "Rule ST09 expects a string for `preferred_first_table_in_join_clause`".into(),
+            ),
         }
-        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -369,6 +379,9 @@ fn is_qualified_column_operator_qualified_column_sequence(segment_list: &[Erased
 #[cfg(test)]
 mod tests {
     use super::*;
+    use hashbrown::HashMap;
+
+    use crate::core::config::Value;
 
     #[test]
     fn st09_is_fix_compatible() {
@@ -386,5 +399,30 @@ mod tests {
             rule.preferred_first_table_in_join_clause
         );
         assert_eq!(result, "Joins should list the table referenced earlier first.");
+    }
+
+    #[test]
+    fn st09_load_from_config_rejects_invalid_value() {
+        let config = HashMap::from_iter([(
+            "preferred_first_table_in_join_clause".into(),
+            Value::String("middle".into()),
+        )]);
+
+        let err = RuleST09::default().load_from_config(&config).unwrap_err();
+        assert_eq!(
+            err,
+            "Invalid value for preferred_first_table_in_join_clause: middle. Must be one of \
+             [earlier, later]"
+        );
+    }
+
+    #[test]
+    fn st09_load_from_config_accepts_valid_value() {
+        let config = HashMap::from_iter([(
+            "preferred_first_table_in_join_clause".into(),
+            Value::String("later".into()),
+        )]);
+
+        assert!(RuleST09::default().load_from_config(&config).is_ok());
     }
 }

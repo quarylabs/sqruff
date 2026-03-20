@@ -417,7 +417,9 @@ cargo_test(
 
 # Run cargo tests (same as GitHub Action)
 cargo test --manifest-path ./crates/cli/Cargo.toml --locked --offline
-cargo test --all --all-features --exclude sqruff --locked --offline
+# sqruff-lib-core is excluded because it doesn't need the Python/maturin setup,
+# so it runs natively via rust_test at //crates/lib-core:sqruff-lib-core-test
+cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --locked --offline
 """,
 )
 

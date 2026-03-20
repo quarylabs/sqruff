@@ -1,5 +1,5 @@
 load("@crates//:defs.bzl", "all_crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
 ALL_FEATURES = [
     "serde",
@@ -13,6 +13,14 @@ rust_library(
     proc_macro_deps = all_crate_deps(proc_macro = True),
     visibility = ["//visibility:public"],
     deps = all_crate_deps(normal = True),
+)
+
+rust_test(
+    name = "sqruff-lib-core-test",
+    crate = ":sqruff-lib-core",
+    crate_features = ALL_FEATURES,
+    proc_macro_deps = all_crate_deps(proc_macro_dev = True),
+    deps = all_crate_deps(normal_dev = True),
 )
 
 filegroup(

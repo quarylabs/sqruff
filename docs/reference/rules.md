@@ -86,7 +86,7 @@ Implicit/explicit aliasing of table.
 
 **Groups:** `all`, `aliasing`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -148,7 +148,7 @@ Column expression without alias. Use explicit `AS` clause.
 
 **Groups:** `all`, `core`, `aliasing`
 
-**Fixable:** Yes
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -2700,3 +2700,4 @@ Use only a single semicolon.
 ```sql
 SELECT 1;
 ```
+

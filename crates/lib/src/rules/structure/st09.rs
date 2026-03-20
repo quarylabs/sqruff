@@ -22,8 +22,7 @@ fn normalize_identifier(raw: &str) -> SmolStr {
         && raw.len() >= 2
         && raw.chars().next() == raw.chars().last();
 
-    if is_bracket_quoted || is_matching_quote_quoted
-    {
+    if is_bracket_quoted || is_matching_quote_quoted {
         raw[1..raw.len() - 1].into()
     } else {
         raw.into()

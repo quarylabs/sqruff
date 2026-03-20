@@ -95,7 +95,8 @@ file:
                             - end_square_bracket: ']'
                         - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: X
           - where_clause:
             - keyword: WHERE

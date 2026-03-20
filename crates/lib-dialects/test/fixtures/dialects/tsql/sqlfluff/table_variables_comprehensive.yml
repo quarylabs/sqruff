@@ -31,7 +31,8 @@ file:
             - table_reference:
               - tsql_variable: '@DepartmentCodes'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: ids
 - statement_terminator: ;
 - statement:

@@ -20,7 +20,8 @@ file:
               - keyword: NFD
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: a
       - comma: ','
       - select_clause_element:
@@ -36,7 +37,8 @@ file:
               - keyword: NFD
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: b
       - comma: ','
       - select_clause_element:
@@ -52,7 +54,8 @@ file:
               - keyword: NFD
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: c
       - comma: ','
       - select_clause_element:
@@ -68,7 +71,8 @@ file:
               - keyword: NFD
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d
 - statement_terminator: ;
 - statement:
@@ -92,7 +96,8 @@ file:
           - column_reference:
             - naked_identifier: b
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: normalized
     - from_clause:
       - keyword: FROM
@@ -115,7 +120,8 @@ file:
                             - quoted_literal: '''\u00ea'''
                           - end_bracket: )
                     - alias_expression:
-                      - keyword: as
+                      - alias_operator:
+                        - keyword: as
                       - naked_identifier: a
                   - comma: ','
                   - select_clause_element:
@@ -129,7 +135,8 @@ file:
                             - quoted_literal: '''\u0065\u0302'''
                           - end_bracket: )
                     - alias_expression:
-                      - keyword: as
+                      - alias_operator:
+                        - keyword: as
                       - naked_identifier: b
               - end_bracket: )
 - statement_terminator: ;
@@ -173,7 +180,8 @@ file:
                             - end_square_bracket: ']'
                         - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: name
         - end_bracket: )
     - select_statement:
@@ -193,7 +201,8 @@ file:
                 - keyword: NFKC
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: normalized_name
         - comma: ','
         - select_clause_element:
@@ -206,7 +215,8 @@ file:
                 - star: '*'
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: name_count
       - from_clause:
         - keyword: FROM
@@ -257,7 +267,8 @@ file:
                     - naked_identifier: b
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: normalized
       - comma: ','
       - select_clause_element:
@@ -285,7 +296,8 @@ file:
                     - naked_identifier: b
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: normalized_with_case_folding
     - from_clause:
       - keyword: FROM
@@ -300,13 +312,15 @@ file:
                   - select_clause_element:
                     - quoted_literal: '''The red barn'''
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: a
                   - comma: ','
                   - select_clause_element:
                     - quoted_literal: '''The Red Barn'''
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: b
               - end_bracket: )
 - statement_terminator: ;
@@ -351,7 +365,8 @@ file:
                 - keyword: NFD
                 - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: nfd
       - comma: ','
       - select_clause_element:
@@ -383,7 +398,8 @@ file:
                 - keyword: NFC
                 - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: nfc
       - comma: ','
       - select_clause_element:
@@ -415,7 +431,8 @@ file:
                 - keyword: NFKD
                 - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: nkfd
       - comma: ','
       - select_clause_element:
@@ -447,5 +464,6 @@ file:
                 - keyword: NFKC
                 - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: nkfc

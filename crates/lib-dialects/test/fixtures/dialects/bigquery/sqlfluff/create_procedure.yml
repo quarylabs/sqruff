@@ -164,7 +164,8 @@ file:
                       - dot: .
                       - naked_identifier: partitioned_table1
                   - alias_expression:
-                    - keyword: AS
+                    - alias_operator:
+                      - keyword: AS
                     - naked_identifier: t1
                 - join_clause:
                   - keyword: JOIN
@@ -175,7 +176,8 @@ file:
                         - dot: .
                         - naked_identifier: partitioned_table2
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: t2
                   - join_on_condition:
                     - keyword: ON

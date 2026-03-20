@@ -27,7 +27,8 @@ file:
         - column_reference:
           - naked_identifier: total
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: amount#
     - from_clause:
       - keyword: FROM

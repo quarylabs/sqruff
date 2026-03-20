@@ -23,7 +23,8 @@ file:
                 - dot: .
                 - naked_identifier: Table_Sales_Position_Reference
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: op2ref
           - keyword: WITH
           - bracketed:
@@ -41,7 +42,8 @@ file:
                   - dot: .
                   - naked_identifier: TBL_POS_DATA
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: Position
             - keyword: WITH
             - bracketed:

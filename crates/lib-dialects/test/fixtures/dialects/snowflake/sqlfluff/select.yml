@@ -82,7 +82,8 @@ file:
                   - semi_structured_element: cross
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: cross
     - from_clause:
       - keyword: FROM

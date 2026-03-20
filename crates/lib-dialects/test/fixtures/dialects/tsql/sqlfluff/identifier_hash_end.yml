@@ -35,7 +35,8 @@ file:
               - object_reference:
                 - naked_identifier: orders#
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: o#
 - statement_terminator: ;
 - statement:
@@ -46,7 +47,8 @@ file:
         - column_reference:
           - naked_identifier: total
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: amount#
     - from_clause:
       - keyword: FROM

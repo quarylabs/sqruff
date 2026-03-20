@@ -22,12 +22,14 @@ file:
                       - start_bracket: (
                       - quoted_literal: '''hello'''
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: greeting
                       - comma: ','
                       - quoted_literal: '''world'''
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: subject
                       - end_bracket: )
               - comma: ','
@@ -40,17 +42,20 @@ file:
                       - start_bracket: (
                       - quoted_literal: '''hi'''
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: greeting
                       - comma: ','
                       - quoted_literal: '''there'''
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: subject
                       - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: salute
     - from_clause:
       - keyword: FROM
@@ -101,7 +106,8 @@ file:
                         - dot: .
                         - naked_identifier: xxx
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: M
                       - comma: ','
                       - column_reference:
@@ -109,12 +115,14 @@ file:
                         - dot: .
                         - naked_identifier: xxx
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: N
                       - end_bracket: )
             - keyword: END
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: xxx
     - from_clause:
       - keyword: FROM

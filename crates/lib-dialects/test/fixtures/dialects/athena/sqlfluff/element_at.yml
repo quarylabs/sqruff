@@ -51,7 +51,8 @@ file:
                   - naked_identifier: creator_id
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: part1
       - comma: ','
       - select_clause_element:
@@ -75,7 +76,8 @@ file:
           - object_reference:
             - naked_identifier: id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: part2
       - comma: ','
       - select_clause_element:
@@ -99,6 +101,7 @@ file:
           - object_reference:
             - naked_identifier: id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: part3
 - statement_terminator: ;

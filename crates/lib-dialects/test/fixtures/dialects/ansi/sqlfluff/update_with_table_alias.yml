@@ -5,7 +5,8 @@ file:
     - table_reference:
       - naked_identifier: my_table
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: tttd
     - set_clause_list:
       - keyword: SET

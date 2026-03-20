@@ -15,7 +15,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: StandardAlias
     - from_clause:
       - keyword: FROM

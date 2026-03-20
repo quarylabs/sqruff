@@ -21,7 +21,8 @@ file:
             - keyword: OVER
             - naked_identifier: w1
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: baz
     - from_clause:
       - keyword: FROM

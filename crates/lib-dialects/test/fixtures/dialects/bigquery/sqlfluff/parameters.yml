@@ -195,7 +195,8 @@ file:
                   - keyword: ROW
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: some_sum
     - from_clause:
       - keyword: from

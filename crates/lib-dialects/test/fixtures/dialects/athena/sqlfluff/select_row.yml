@@ -230,6 +230,7 @@ file:
                   - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: test
 - statement_terminator: ;

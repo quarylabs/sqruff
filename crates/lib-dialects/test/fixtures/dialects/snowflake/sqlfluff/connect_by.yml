@@ -141,7 +141,8 @@ file:
                 - quoted_literal: ''' -> '''
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: path
     - from_clause:
       - keyword: from
@@ -195,7 +196,8 @@ file:
         - column_reference:
           - naked_identifier: title
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: root_title
     - from_clause:
       - keyword: from

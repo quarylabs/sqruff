@@ -103,7 +103,8 @@ file:
                       - data_type_identifier: BIGINT
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - quoted_identifier: '[POPULATION]'
             - comma: ','
             - select_clause_element:
@@ -125,7 +126,8 @@ file:
                       - data_type_identifier: BIGINT
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - quoted_identifier: '[WEEKLY_COUNT]'
             - comma: ','
             - select_clause_element:
@@ -183,7 +185,8 @@ file:
                       - data_type_identifier: DATE
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - quoted_identifier: '[WEEK_START]'
             - comma: ','
             - select_clause_element:
@@ -247,7 +250,8 @@ file:
                       - data_type_identifier: DATE
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - quoted_identifier: '[WEEK_END]'
             - comma: ','
             - select_clause_element:
@@ -265,7 +269,8 @@ file:
                       - data_type_identifier: FLOAT
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - quoted_identifier: '[RATE_14_DAY]'
             - comma: ','
             - select_clause_element:
@@ -283,7 +288,8 @@ file:
                       - data_type_identifier: BIGINT
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - quoted_identifier: '[CUMULATIVE_COUNT]'
             - comma: ','
             - select_clause_element:

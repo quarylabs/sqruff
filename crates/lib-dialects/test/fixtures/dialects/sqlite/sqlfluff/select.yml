@@ -37,7 +37,8 @@ file:
                   - naked_identifier: light
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: trips
     - from_clause:
       - keyword: FROM
@@ -119,7 +120,8 @@ file:
                       - data_type_identifier: real
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: time_spent
           - from_clause:
             - keyword: FROM
@@ -174,7 +176,8 @@ file:
           - column_reference:
             - naked_identifier: branch
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: name
         - comma: ','
         - select_clause_element:
@@ -192,7 +195,8 @@ file:
                   - data_type_identifier: real
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: time_spent
         - comma: ','
         - select_clause_element:
@@ -236,7 +240,8 @@ file:
                   - data_type_identifier: real
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: time_percentage
       - from_clause:
         - keyword: FROM
@@ -275,7 +280,8 @@ file:
                               - data_type_identifier: real
                             - end_bracket: )
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: time_spent
                   - from_clause:
                     - keyword: FROM

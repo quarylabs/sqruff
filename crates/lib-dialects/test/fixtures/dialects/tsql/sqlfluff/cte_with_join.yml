@@ -47,7 +47,8 @@ file:
                   - object_reference:
                     - naked_identifier: bu2ic
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: BU2IC
             - join_on_condition:
               - keyword: ON

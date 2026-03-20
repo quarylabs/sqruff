@@ -44,7 +44,8 @@ file:
                   - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: data_row
     - from_clause:
       - keyword: FROM

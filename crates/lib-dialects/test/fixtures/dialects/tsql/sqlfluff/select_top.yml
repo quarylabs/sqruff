@@ -13,7 +13,8 @@ file:
           - dot: .
           - naked_identifier: date_column1
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: last_date_column1
     - from_clause:
       - keyword: from
@@ -192,7 +193,8 @@ file:
                 - dot: .
                 - naked_identifier: Person
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: pp
         - join_clause:
           - keyword: INNER
@@ -205,7 +207,8 @@ file:
                   - dot: .
                   - naked_identifier: Employee
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: e
           - join_on_condition:
             - keyword: ON
@@ -231,7 +234,8 @@ file:
                   - dot: .
                   - naked_identifier: EmployeePayHistory
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: r
           - join_on_condition:
             - keyword: ON

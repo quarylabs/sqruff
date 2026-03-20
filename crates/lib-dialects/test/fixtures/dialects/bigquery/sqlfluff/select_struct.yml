@@ -66,13 +66,15 @@ file:
       - select_clause_element:
         - quoted_literal: '''1'''
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: bb
       - comma: ','
       - select_clause_element:
         - numeric_literal: '2'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: aa
 - statement_terminator: ;
 - statement:
@@ -86,13 +88,15 @@ file:
       - select_clause_element:
         - quoted_literal: '''1'''
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: bb
       - comma: ','
       - select_clause_element:
         - numeric_literal: '2'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: aa
 - statement_terminator: ;
 - statement:
@@ -112,7 +116,8 @@ file:
                   - dot: .
                   - naked_identifier: bar_id
                 - alias_expression:
-                  - keyword: as
+                  - alias_operator:
+                    - keyword: as
                   - naked_identifier: id
                 - comma: ','
                 - column_reference:
@@ -120,11 +125,13 @@ file:
                   - dot: .
                   - naked_identifier: bar_name
                 - alias_expression:
-                  - keyword: as
+                  - alias_operator:
+                    - keyword: as
                   - naked_identifier: bar
                 - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: bar
     - from_clause:
       - keyword: from
@@ -313,7 +320,8 @@ file:
                   - naked_identifier: some_other_field
                 - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: col
     - from_clause:
       - keyword: FROM
@@ -344,7 +352,8 @@ file:
                       - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: col
     - from_clause:
       - keyword: FROM

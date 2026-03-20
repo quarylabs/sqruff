@@ -70,7 +70,8 @@ file:
                       - quoted_literal: '"2008-12-25 05:30:00+00"'
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: timestamp_value
         - end_bracket: )
     - select_statement:
@@ -96,7 +97,8 @@ file:
                       - quoted_literal: '"UTC"'
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: the_day_utc
         - comma: ','
         - select_clause_element:
@@ -119,7 +121,8 @@ file:
                       - quoted_literal: '"America/Los_Angeles"'
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: the_day_california
       - from_clause:
         - keyword: FROM

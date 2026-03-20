@@ -17,11 +17,12 @@ use crate::utils::functional::context::FunctionalContext;
 const REORDERABLE_OPERATORS: &[&str] = &["=", "!=", "<>", "<=>", "<", ">", "<=", ">="];
 
 fn normalize_identifier(raw: &str) -> SmolStr {
-    if raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2 {
-        raw[1..raw.len() - 1].into()
-    } else if matches!(raw.chars().next(), Some('"') | Some('\'') | Some('`'))
+    let is_bracket_quoted = raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2;
+    let is_matching_quote_quoted = matches!(raw.chars().next(), Some('"') | Some('\'') | Some('`'))
         && raw.len() >= 2
-        && raw.chars().next() == raw.chars().last()
+        && raw.chars().next() == raw.chars().last();
+
+    if is_bracket_quoted || is_matching_quote_quoted
     {
         raw[1..raw.len() - 1].into()
     } else {
@@ -38,20 +39,20 @@ impl Rule for RuleST09 {
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         match config["preferred_first_table_in_join_clause"].as_string() {
             Some("earlier" | "later") => Ok(RuleST09 {
-                preferred_first_table_in_join_clause: config
-                    ["preferred_first_table_in_join_clause"]
-                    .as_string()
-                    .unwrap()
-                    .to_owned(),
+                preferred_first_table_in_join_clause:
+                    config["preferred_first_table_in_join_clause"]
+                        .as_string()
+                        .unwrap()
+                        .to_owned(),
             }
             .erased()),
             Some(value) => Err(format!(
                 "Invalid value for preferred_first_table_in_join_clause: {value}. Must be one of \
                  [earlier, later]"
             )),
-            None => Err(
-                "Rule ST09 expects a string for `preferred_first_table_in_join_clause`".into(),
-            ),
+            None => {
+                Err("Rule ST09 expects a string for `preferred_first_table_in_join_clause`".into())
+            }
         }
     }
 
@@ -285,7 +286,10 @@ left join bar
                 if raw_comparison_operators
                     .first()
                     .is_some_and(|op| matches!(op.raw().as_ref(), "<" | ">"))
-                    && raw_comparison_operators.iter().map(|it| it.raw()).ne(["<", ">"])
+                    && raw_comparison_operators
+                        .iter()
+                        .map(|it| it.raw())
+                        .ne(["<", ">"])
                 {
                     fixes.push(LintFix::replace(
                         raw_comparison_operators[0].clone(),
@@ -398,7 +402,10 @@ mod tests {
             "Joins should list the table referenced {} first.",
             rule.preferred_first_table_in_join_clause
         );
-        assert_eq!(result, "Joins should list the table referenced earlier first.");
+        assert_eq!(
+            result,
+            "Joins should list the table referenced earlier first."
+        );
     }
 
     #[test]

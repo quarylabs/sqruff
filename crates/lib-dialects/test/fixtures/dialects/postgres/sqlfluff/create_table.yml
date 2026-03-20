@@ -2308,3 +2308,127 @@ file:
         - naked_identifier: parent_table
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col1
+      - data_type:
+        - keyword: int
+      - comma: ','
+      - column_reference:
+        - naked_identifier: col2
+      - data_type:
+        - keyword: int
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+        - naked_identifier: col3
+      - data_type:
+        - keyword: int
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: col1
+          - comma: ','
+          - column_reference:
+            - naked_identifier: col2
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: table1
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: col1
+          - comma: ','
+          - column_reference:
+            - naked_identifier: col2
+          - end_bracket: )
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: SET
+        - keyword: 'NULL'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: col1
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col1
+      - data_type:
+        - keyword: int
+      - comma: ','
+      - column_reference:
+        - naked_identifier: col2
+      - data_type:
+        - keyword: int
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+        - naked_identifier: col3
+      - data_type:
+        - keyword: int
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: col1
+          - comma: ','
+          - column_reference:
+            - naked_identifier: col2
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: table1
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: col1
+          - comma: ','
+          - column_reference:
+            - naked_identifier: col2
+          - end_bracket: )
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: SET
+        - keyword: DEFAULT
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: col1
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

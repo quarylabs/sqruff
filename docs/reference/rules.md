@@ -2566,7 +2566,7 @@ Joins should list the table referenced earlier/later first.
 
 **Groups:** `all`, `structure`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 

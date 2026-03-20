@@ -14,6 +14,21 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
+const REORDERABLE_OPERATORS: &[&str] = &["=", "!=", "<>", "<=>", "<", ">", "<=", ">="];
+
+fn normalize_identifier(raw: &str) -> SmolStr {
+    let is_bracket_quoted = raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2;
+    let is_matching_quote_quoted = matches!(raw.chars().next(), Some('"') | Some('\'') | Some('`'))
+        && raw.len() >= 2
+        && raw.chars().next() == raw.chars().last();
+
+    if is_bracket_quoted || is_matching_quote_quoted {
+        raw[1..raw.len() - 1].into()
+    } else {
+        raw.into()
+    }
+}
+
 #[derive(Default, Debug, Clone)]
 pub struct RuleST09 {
     preferred_first_table_in_join_clause: String,
@@ -21,13 +36,23 @@ pub struct RuleST09 {
 
 impl Rule for RuleST09 {
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST09 {
-            preferred_first_table_in_join_clause: config["preferred_first_table_in_join_clause"]
-                .as_string()
-                .unwrap()
-                .to_owned(),
+        match config["preferred_first_table_in_join_clause"].as_string() {
+            Some("earlier" | "later") => Ok(RuleST09 {
+                preferred_first_table_in_join_clause:
+                    config["preferred_first_table_in_join_clause"]
+                        .as_string()
+                        .unwrap()
+                        .to_owned(),
+            }
+            .erased()),
+            Some(value) => Err(format!(
+                "Invalid value for preferred_first_table_in_join_clause: {value}. Must be one of \
+                 [earlier, later]"
+            )),
+            None => {
+                Err("Rule ST09 expects a string for `preferred_first_table_in_join_clause`".into())
+            }
         }
-        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -81,6 +106,10 @@ left join bar
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut table_aliases = Vec::new();
         let children = FunctionalContext::new(context).segment().children_all();
@@ -95,16 +124,19 @@ left join bar
             return Vec::new();
         }
 
-        let from_expression_alias = FromExpressionElementSegment(
+        let from_expression_alias_info = FromExpressionElementSegment(
             children.recursive_crawl(
                 const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
                 true,
             )[0]
             .clone(),
         )
-        .eventual_alias()
-        .ref_str
-        .clone();
+        .eventual_alias();
+        let from_expression_alias = from_expression_alias_info
+            .segment
+            .as_ref()
+            .map(|segment| normalize_identifier(segment.raw()))
+            .unwrap_or_else(|| normalize_identifier(from_expression_alias_info.ref_str.as_str()));
 
         table_aliases.push(from_expression_alias);
 
@@ -116,8 +148,14 @@ left join bar
                     .first()
                     .unwrap()
                     .1
-                    .ref_str
                     .clone()
+            })
+            .map(|alias_info| {
+                alias_info
+                    .segment
+                    .as_ref()
+                    .map(|segment| normalize_identifier(segment.raw()))
+                    .unwrap_or_else(|| normalize_identifier(alias_info.ref_str.as_str()))
             })
             .collect_vec();
 
@@ -170,6 +208,16 @@ left join bar
             let raw_comparison_operators: Vec<_> = comparison_operator
                 .children(const { &SyntaxSet::new(&[SyntaxKind::RawComparisonOperator]) })
                 .collect();
+            let operator_str = if raw_comparison_operators.is_empty() {
+                comparison_operator.raw().trim().to_owned()
+            } else {
+                raw_comparison_operators.iter().map(|it| it.raw()).join("")
+            };
+
+            if !REORDERABLE_OPERATORS.contains(&operator_str.as_str()) {
+                continue;
+            }
+
             let first_table_seg = first_column_reference
                 .child(
                     const {
@@ -191,8 +239,8 @@ left join bar
                 )
                 .unwrap();
 
-            let first_table = first_table_seg.raw().to_uppercase_smolstr();
-            let second_table = second_table_seg.raw().to_uppercase_smolstr();
+            let first_table = normalize_identifier(first_table_seg.raw()).to_uppercase_smolstr();
+            let second_table = normalize_identifier(second_table_seg.raw()).to_uppercase_smolstr();
 
             let raw_comparison_operator_opposites = |op| match op {
                 "<" => ">",
@@ -234,7 +282,9 @@ left join bar
                     None,
                 ));
 
-                if matches!(raw_comparison_operators[0].raw().as_ref(), "<" | ">")
+                if raw_comparison_operators
+                    .first()
+                    .is_some_and(|op| matches!(op.raw().as_ref(), "<" | ">"))
                     && raw_comparison_operators
                         .iter()
                         .map(|it| it.raw())
@@ -266,7 +316,7 @@ left join bar
             context.segment.clone().into(),
             fixes,
             format!(
-                "Joins should list the table referenced {}",
+                "Joins should list the table referenced {} first.",
                 self.preferred_first_table_in_join_clause
             )
             .into(),
@@ -327,4 +377,58 @@ fn is_qualified_column_operator_qualified_column_sequence(segment_list: &[Erased
     }
 
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use hashbrown::HashMap;
+
+    use crate::core::config::Value;
+
+    #[test]
+    fn st09_is_fix_compatible() {
+        assert!(RuleST09::default().is_fix_compatible());
+    }
+
+    #[test]
+    fn st09_description_matches_python() {
+        let rule = RuleST09 {
+            preferred_first_table_in_join_clause: "earlier".into(),
+        };
+
+        let result = format!(
+            "Joins should list the table referenced {} first.",
+            rule.preferred_first_table_in_join_clause
+        );
+        assert_eq!(
+            result,
+            "Joins should list the table referenced earlier first."
+        );
+    }
+
+    #[test]
+    fn st09_load_from_config_rejects_invalid_value() {
+        let config = HashMap::from_iter([(
+            "preferred_first_table_in_join_clause".into(),
+            Value::String("middle".into()),
+        )]);
+
+        let err = RuleST09::default().load_from_config(&config).unwrap_err();
+        assert_eq!(
+            err,
+            "Invalid value for preferred_first_table_in_join_clause: middle. Must be one of \
+             [earlier, later]"
+        );
+    }
+
+    #[test]
+    fn st09_load_from_config_accepts_valid_value() {
+        let config = HashMap::from_iter([(
+            "preferred_first_table_in_join_clause".into(),
+            Value::String("later".into()),
+        )]);
+
+        assert!(RuleST09::default().load_from_config(&config).is_ok());
+    }
 }

@@ -304,6 +304,164 @@ python_venv_provider = rule(
     },
 )
 
+def _uv_python_install_impl(ctx):
+    """Downloads and caches a Python version via uv.
+
+    Produces a directory containing the installed Python runtime.
+    This is cached by Bazel and only re-runs when the Python version changes.
+    """
+    python_dir = ctx.actions.declare_directory(ctx.label.name + "_python")
+    uv_file = ctx.files.uv[0]
+    version = ctx.attr.python_version
+
+    script_content = """#!/bin/bash
+set -euo pipefail
+
+EXEC_ROOT="$PWD"
+UV_BIN="$EXEC_ROOT/{uv_path}"
+PYTHON_OUT="$EXEC_ROOT/{python_out}"
+
+WORK_DIR=$(mktemp -d)
+trap 'rm -rf "$WORK_DIR"' EXIT
+export UV_CACHE_DIR="$WORK_DIR/.uv-cache"
+export UV_PYTHON_INSTALL_DIR="$WORK_DIR/.uv-python"
+
+"$UV_BIN" python install "{version}"
+
+# Find the installed Python and copy it to the output directory
+PYTHON_BIN=$("$UV_BIN" python find "{version}")
+PYTHON_ROOT="$(dirname "$(dirname "$PYTHON_BIN")")"
+cp -r "$PYTHON_ROOT/." "$PYTHON_OUT/"
+
+echo "Python {version} installed at $PYTHON_OUT"
+""".format(
+        uv_path = uv_file.path,
+        python_out = python_dir.path,
+        version = version,
+    )
+
+    script_file = ctx.actions.declare_file(ctx.label.name + "_install.sh")
+    ctx.actions.write(script_file, script_content, is_executable = True)
+
+    ctx.actions.run(
+        inputs = [uv_file],
+        outputs = [python_dir],
+        executable = script_file,
+        mnemonic = "UvPythonInstall",
+        progress_message = "Installing Python %s via uv" % version,
+        execution_requirements = {
+            "requires-network": "1",
+        },
+    )
+
+    return [DefaultInfo(files = depset([python_dir]))]
+
+uv_python_install = rule(
+    implementation = _uv_python_install_impl,
+    attrs = {
+        "python_version": attr.string(
+            mandatory = True,
+            doc = "Python version to install (e.g. '3.12')",
+        ),
+        "uv": attr.label_list(
+            allow_files = True,
+            mandatory = True,
+            doc = "uv binary target",
+        ),
+    },
+)
+
+def _uv_python_venv_impl(ctx):
+    """Syncs project dependencies into a venv using an already-installed Python.
+
+    Takes the output of uv_python_install and project files, produces a venv
+    directory with all test dependencies installed. Cached by Bazel.
+    """
+    venv_dir = ctx.actions.declare_directory(ctx.label.name + "_venv")
+    uv_file = ctx.files.uv[0]
+    python_dir = ctx.files.python[0]
+    src_files = ctx.files.srcs
+
+    src_paths = " ".join([f.path for f in src_files])
+
+    script_content = """#!/bin/bash
+set -euo pipefail
+
+EXEC_ROOT="$PWD"
+UV_BIN="$EXEC_ROOT/{uv_path}"
+PYTHON_DIR="$EXEC_ROOT/{python_dir}"
+VENV_OUT="$EXEC_ROOT/{venv_out}"
+
+WORK_DIR=$(mktemp -d)
+trap 'rm -rf "$WORK_DIR"' EXIT
+export UV_CACHE_DIR="$WORK_DIR/.uv-cache"
+
+# Copy project files for dependency resolution
+for src in {srcs}; do
+    mkdir -p "$WORK_DIR/$(dirname "$src")"
+    cp "$src" "$WORK_DIR/$src"
+done
+
+# Copy the Python installation to a writable location
+cp -r "$PYTHON_DIR/." "$WORK_DIR/python/"
+
+cd "$WORK_DIR"
+
+# Find the python3 binary
+PYTHON_BIN="$WORK_DIR/python/bin/python3"
+
+# Install test dependencies
+"$UV_BIN" pip install --python "$PYTHON_BIN" \
+    --prefix "$WORK_DIR/python" \
+    -r pyproject.toml --extra test
+
+# Copy the complete environment to the Bazel output directory
+cp -r "$WORK_DIR/python/." "$VENV_OUT/"
+
+echo "Python venv created at $VENV_OUT"
+""".format(
+        uv_path = uv_file.path,
+        python_dir = python_dir.path,
+        srcs = src_paths,
+        venv_out = venv_dir.path,
+    )
+
+    script_file = ctx.actions.declare_file(ctx.label.name + "_sync.sh")
+    ctx.actions.write(script_file, script_content, is_executable = True)
+
+    ctx.actions.run(
+        inputs = src_files + [uv_file, python_dir],
+        outputs = [venv_dir],
+        executable = script_file,
+        mnemonic = "UvPythonVenv",
+        progress_message = "Syncing Python dependencies for %s" % ctx.label.name,
+        execution_requirements = {
+            "requires-network": "1",
+        },
+    )
+
+    return [DefaultInfo(files = depset([venv_dir]))]
+
+uv_python_venv = rule(
+    implementation = _uv_python_venv_impl,
+    attrs = {
+        "srcs": attr.label_list(
+            allow_files = True,
+            doc = "pyproject.toml and uv.lock for dependency resolution",
+        ),
+        "python": attr.label_list(
+            allow_files = True,
+            mandatory = True,
+            doc = "uv_python_install target providing the Python runtime",
+        ),
+        "uv": attr.label_list(
+            allow_files = True,
+            mandatory = True,
+            doc = "uv binary target",
+        ),
+    },
+)
+
 def _cargo_test_impl(ctx):
     """Runs cargo commands as a Bazel test using pre-installed toolchain.
 

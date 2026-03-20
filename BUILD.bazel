@@ -6,7 +6,7 @@ load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
-load(":cargo_build.bzl", "cargo_run", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider")
+load(":cargo_build.bzl", "cargo_run", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
@@ -511,24 +511,55 @@ sh_test(
     tags = ["requires-network"],
 )
 
-# Python tests using uv - run for each Python version
+# Python tests using uv - three incremental cached steps per version:
+# 1. uv_python_install: download and cache the Python runtime (re-runs only when version changes)
+# 2. uv_python_venv: sync dependencies into a cached venv (re-runs only when pyproject.toml/uv.lock change)
+# 3. sh_test: run pytest using the cached venv (runs every time)
+[
+    uv_python_install(
+        name = "pytest_py{}_python".format(version.replace(".", "")),
+        python_version = version,
+        uv = ["@uv//:uv"],
+    )
+    for version in [
+        "3.10",
+        "3.11",
+        "3.12",
+        "3.13",
+    ]
+]
+
+[
+    uv_python_venv(
+        name = "pytest_py{}_venv".format(version.replace(".", "")),
+        srcs = [
+            "pyproject.toml",
+            "uv.lock",
+        ],
+        python = [":pytest_py{}_python".format(version.replace(".", ""))],
+        uv = ["@uv//:uv"],
+    )
+    for version in [
+        "3.10",
+        "3.11",
+        "3.12",
+        "3.13",
+    ]
+]
+
 [
     sh_test(
         name = "pytest_py{}".format(version.replace(".", "")),
         size = "large",
         srcs = [".hacking/scripts/pytest_uv.sh"],
         data = [
-            "pyproject.toml",
-            "uv.lock",
+            ":pytest_py{}_venv".format(version.replace(".", "")),
             "//crates/cli-python:python_srcs",
             "//crates/cli-python:test_fixtures",
-            "@uv//:uv",
         ],
         env = {
-            "UV": "$(rlocationpath @uv//:uv)",
-            "PYTHON_VERSION": version,
+            "PYTHON_VENV": "$(rlocationpath :pytest_py{}_venv)".format(version.replace(".", "")),
         },
-        tags = ["exclusive"],
     )
     for version in [
         "3.10",

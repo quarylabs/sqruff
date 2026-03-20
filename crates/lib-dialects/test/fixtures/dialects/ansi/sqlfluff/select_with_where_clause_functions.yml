@@ -18,7 +18,8 @@ file:
               - dot: .
               - naked_identifier: table1
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: t
     - where_clause:
       - keyword: where

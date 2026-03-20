@@ -21,7 +21,8 @@ file:
                 - column_reference:
                   - naked_identifier: foo
                 - alias_expression:
-                  - keyword: as
+                  - alias_operator:
+                    - keyword: as
                   - naked_identifier: bar
               - comma: ','
               - select_clause_element:
@@ -88,7 +89,8 @@ file:
           - binary_operator: +
           - numeric_literal: '2'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: calculated
       - comma: ','
       - select_clause_element:

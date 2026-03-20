@@ -23,7 +23,8 @@ file:
           - binary_operator: +
           - numeric_literal: '13'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: val
 - statement_terminator: ;
 - statement:
@@ -53,7 +54,8 @@ file:
           - binary_operator: +
           - numeric_literal: '13'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: val
 - statement_terminator: ;
 - statement:

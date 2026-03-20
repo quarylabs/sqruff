@@ -167,7 +167,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: ProductCount
     - from_clause:
       - keyword: FROM
@@ -346,7 +347,8 @@ file:
                             - keyword: DESC
                           - end_bracket: )
                     - alias_expression:
-                      - keyword: as
+                      - alias_operator:
+                        - keyword: as
                       - naked_identifier: TopEarners
                 - from_clause:
                   - keyword: FROM
@@ -363,6 +365,7 @@ file:
                     - naked_identifier: DepartmentID
               - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: DeptSummary
 - statement_terminator: ;

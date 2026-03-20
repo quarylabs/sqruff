@@ -35,7 +35,8 @@ file:
                     - keyword: DESC
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: rank
       - from_clause:
         - keyword: FROM
@@ -100,7 +101,8 @@ file:
                     - keyword: DESC
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: rank
       - from_clause:
         - keyword: FROM

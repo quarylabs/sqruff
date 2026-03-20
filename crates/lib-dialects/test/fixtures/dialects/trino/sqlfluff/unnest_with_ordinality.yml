@@ -23,7 +23,8 @@ file:
                   - quoted_literal: '''c'''
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column
         - end_bracket: )
     - select_statement:
@@ -67,7 +68,8 @@ file:
                   - keyword: WITH
                   - keyword: ORDINALITY
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: u
                 - bracketed:
                   - start_bracket: (
@@ -101,84 +103,8 @@ file:
                   - quoted_literal: '''c'''
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
-                - naked_identifier: array_column
-        - end_bracket: )
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: u
-            - dot: .
-            - naked_identifier: element
-        - comma: ','
-        - select_clause_element:
-          - column_reference:
-            - naked_identifier: u
-            - dot: .
-            - naked_identifier: ordinality
-      - from_clause:
-        - keyword: FROM
-        - from_expression:
-          - from_expression_element:
-            - table_expression:
-              - table_reference:
-                - naked_identifier: t
-          - join_clause:
-            - keyword: CROSS
-            - keyword: JOIN
-            - from_expression_element:
-              - table_expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: UNNEST
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: t
-                          - dot: .
-                          - naked_identifier: array_column
-                      - end_bracket: )
-                  - keyword: WITH
-                  - keyword: ORDINALITY
-              - alias_expression:
-                - naked_identifier: u
-                - bracketed:
-                  - start_bracket: (
-                  - identifier_list:
-                    - naked_identifier: element
-                    - comma: ','
-                    - naked_identifier: ordinality
-                  - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - with_compound_statement:
-    - keyword: WITH
-    - common_table_expression:
-      - naked_identifier: t
-      - keyword: AS
-      - bracketed:
-        - start_bracket: (
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - typed_array_literal:
-                - array_type:
-                  - keyword: ARRAY
-                - array_literal:
-                  - start_square_bracket: '['
-                  - quoted_literal: '''a'''
-                  - comma: ','
-                  - quoted_literal: '''b'''
-                  - comma: ','
-                  - quoted_literal: '''c'''
-                  - end_square_bracket: ']'
-              - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column
         - end_bracket: )
     - select_statement:
@@ -255,7 +181,86 @@ file:
                   - quoted_literal: '''c'''
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: array_column
+        - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: element
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: ordinality
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: t
+          - join_clause:
+            - keyword: CROSS
+            - keyword: JOIN
+            - from_expression_element:
+              - table_expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: UNNEST
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column
+                      - end_bracket: )
+                  - keyword: WITH
+                  - keyword: ORDINALITY
+              - alias_expression:
+                - naked_identifier: u
+                - bracketed:
+                  - start_bracket: (
+                  - identifier_list:
+                    - naked_identifier: element
+                    - comma: ','
+                    - naked_identifier: ordinality
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - naked_identifier: t
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - typed_array_literal:
+                - array_type:
+                  - keyword: ARRAY
+                - array_literal:
+                  - start_square_bracket: '['
+                  - quoted_literal: '''a'''
+                  - comma: ','
+                  - quoted_literal: '''b'''
+                  - comma: ','
+                  - quoted_literal: '''c'''
+                  - end_square_bracket: ']'
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column1
             - comma: ','
             - select_clause_element:
@@ -269,7 +274,8 @@ file:
                   - numeric_literal: '2'
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column2
         - end_bracket: )
     - select_statement:
@@ -325,7 +331,8 @@ file:
                   - keyword: WITH
                   - keyword: ORDINALITY
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: u
                 - bracketed:
                   - start_bracket: (
@@ -359,7 +366,8 @@ file:
                   - numeric_literal: '2'
                   - end_square_bracket: ']'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: array_column
         - end_bracket: )
     - select_statement:
@@ -395,7 +403,8 @@ file:
                           - naked_identifier: array_column
                       - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: u
                 - bracketed:
                   - start_bracket: (

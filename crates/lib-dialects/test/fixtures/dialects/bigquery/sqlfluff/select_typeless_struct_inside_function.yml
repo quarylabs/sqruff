@@ -20,15 +20,18 @@ file:
                         - start_bracket: (
                         - numeric_literal: '1'
                         - alias_expression:
-                          - keyword: AS
+                          - alias_operator:
+                            - keyword: AS
                           - naked_identifier: b
                         - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: a
                 - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: foo
 - statement_terminator: ;
 - statement:
@@ -52,13 +55,15 @@ file:
                       - column_reference:
                         - naked_identifier: a
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: a
                       - comma: ','
                       - column_reference:
                         - naked_identifier: b
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: b
                       - end_bracket: )
               - end_bracket: )

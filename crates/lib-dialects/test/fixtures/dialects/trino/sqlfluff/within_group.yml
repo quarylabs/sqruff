@@ -313,7 +313,8 @@ file:
               - null_literal: 'NULL'
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: csv_value
     - from_clause:
       - keyword: FROM

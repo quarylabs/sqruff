@@ -177,7 +177,8 @@ file:
             - binary_operator: +
             - numeric_literal: '1'
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: c
       - from_clause:
         - keyword: from

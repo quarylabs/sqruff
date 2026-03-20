@@ -60,7 +60,8 @@ file:
                 - keyword: ZONE
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: _log_time
       - comma: ','
     - from_clause:

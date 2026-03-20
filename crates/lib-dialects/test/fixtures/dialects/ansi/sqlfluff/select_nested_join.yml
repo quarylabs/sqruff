@@ -9,7 +9,8 @@ file:
           - dot: .
           - naked_identifier: order_id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -18,7 +19,8 @@ file:
           - dot: .
           - naked_identifier: email
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: email
     - from_clause:
       - keyword: from
@@ -96,7 +98,8 @@ file:
           - dot: .
           - naked_identifier: order_id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -105,7 +108,8 @@ file:
           - dot: .
           - naked_identifier: email
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: email
     - from_clause:
       - keyword: from
@@ -186,7 +190,8 @@ file:
           - dot: .
           - naked_identifier: order_id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -195,7 +200,8 @@ file:
           - dot: .
           - naked_identifier: email
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: email
     - from_clause:
       - keyword: from
@@ -306,7 +312,8 @@ file:
           - dot: .
           - naked_identifier: order_id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: order_id
       - comma: ','
       - select_clause_element:
@@ -315,7 +322,8 @@ file:
           - dot: .
           - naked_identifier: email
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: email
     - from_clause:
       - keyword: from

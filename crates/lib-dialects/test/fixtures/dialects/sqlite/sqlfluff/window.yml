@@ -32,7 +32,8 @@ file:
         - column_reference:
           - naked_identifier: salary
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: sal
     - from_clause:
       - keyword: FROM
@@ -96,7 +97,8 @@ file:
                     - naked_identifier: a
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: group_concat
     - from_clause:
       - keyword: FROM

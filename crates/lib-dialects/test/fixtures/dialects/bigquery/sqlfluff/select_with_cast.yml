@@ -86,7 +86,8 @@ file:
                 - quoted_literal: '''ASCII'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: bytes_to_string
 - statement_terminator: ;
 - statement:
@@ -112,7 +113,8 @@ file:
                 - quoted_literal: '''YYYY-MM-DD HH24:MI:SS TZH:TZM'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: date_time_to_string
 - statement_terminator: ;
 - statement:
@@ -137,7 +139,8 @@ file:
                 - quoted_literal: '''ASCII'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: string_to_bytes
 - statement_terminator: ;
 - statement:
@@ -163,7 +166,8 @@ file:
                 - quoted_literal: '''YYYY'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: date_time_to_string
 - statement_terminator: ;
 - statement:
@@ -189,7 +193,8 @@ file:
                 - quoted_literal: '''HH24'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: date_time_to_string
 - statement_terminator: ;
 - statement:
@@ -243,7 +248,8 @@ file:
                 - quoted_literal: '''HH:MI P.M.'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: string_to_date_time
 - statement_terminator: ;
 - statement:
@@ -273,7 +279,8 @@ file:
                 - quoted_literal: '''$999,999.999'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: output
     - from_clause:
       - keyword: FROM
@@ -305,7 +312,8 @@ file:
                       - end_square_bracket: ']'
                   - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: input
 - statement_terminator: ;
 - statement:
@@ -330,7 +338,8 @@ file:
                 - quoted_literal: '''99.99'''
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: a
 - statement_terminator: ;
 - statement:
@@ -357,6 +366,7 @@ file:
                 - quoted_literal: '''9.999EEEE'''
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: a
 - statement_terminator: ;

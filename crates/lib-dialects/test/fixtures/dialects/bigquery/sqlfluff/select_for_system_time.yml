@@ -14,7 +14,8 @@ file:
             - table_reference:
               - naked_identifier: lists_emails
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: list_emails
           - keyword: FOR
           - keyword: SYSTEM_TIME

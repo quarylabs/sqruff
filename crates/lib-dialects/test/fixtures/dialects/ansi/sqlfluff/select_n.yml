@@ -9,7 +9,8 @@ file:
           - dot: .
           - naked_identifier: business_type
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: business_type_left
       - comma: ','
       - select_clause_element:
@@ -18,7 +19,8 @@ file:
           - dot: .
           - naked_identifier: business_type
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: business_type_right
     - from_clause:
       - keyword: FROM
@@ -28,7 +30,8 @@ file:
             - table_reference:
               - naked_identifier: benchmark_summaries
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: exists_left
         - join_clause:
           - keyword: FULL
@@ -38,7 +41,8 @@ file:
               - table_reference:
                 - naked_identifier: business_types
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: exists_right
           - join_on_condition:
             - keyword: ON

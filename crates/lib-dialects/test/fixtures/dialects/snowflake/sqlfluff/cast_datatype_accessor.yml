@@ -16,7 +16,8 @@ file:
               - numeric_literal: '0'
               - end_square_bracket: ']'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: channel
       - comma: ','
       - select_clause_element:
@@ -35,7 +36,8 @@ file:
               - numeric_literal: '2'
               - end_square_bracket: ']'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: channel2
       - comma: ','
       - select_clause_element:
@@ -55,7 +57,8 @@ file:
               - numeric_literal: '1'
               - end_square_bracket: ']'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: channel3
       - comma: ','
       - select_clause_element:
@@ -77,7 +80,8 @@ file:
             - data_type:
               - data_type_identifier: string
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: channel4
     - from_clause:
       - keyword: FROM

@@ -109,19 +109,22 @@ file:
             - select_clause_element:
               - numeric_literal: '2'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: Two
             - comma: ','
             - select_clause_element:
               - numeric_literal: '3'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: Three
             - comma: ','
             - select_clause_element:
               - numeric_literal: '4'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: Four
         - end_bracket: )
   - keyword: END

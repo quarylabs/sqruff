@@ -25,7 +25,8 @@ file:
                         - data_type_identifier: BOOLEAN
                       - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: foo
               - end_bracket: )
     - from_clause:
@@ -41,7 +42,8 @@ file:
                   - select_clause_element:
                     - numeric_literal: '1'
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: foo
               - end_bracket: )
 - statement_terminator: ;
@@ -60,7 +62,8 @@ file:
               - select_clause_element:
                 - quoted_literal: '''thing'''
                 - alias_expression:
-                  - keyword: as
+                  - alias_operator:
+                    - keyword: as
                   - naked_identifier: foo
               - end_bracket: )
     - from_clause:
@@ -90,13 +93,15 @@ file:
                   - binary_operator: /
                   - numeric_literal: '2'
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: quantity
               - comma: ','
               - select_clause_element:
                 - quoted_literal: '''thing'''
                 - alias_expression:
-                  - keyword: as
+                  - alias_operator:
+                    - keyword: as
                   - naked_identifier: foo
               - end_bracket: )
     - from_clause:

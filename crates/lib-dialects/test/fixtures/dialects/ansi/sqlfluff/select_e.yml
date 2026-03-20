@@ -8,7 +8,8 @@ file:
           - column_reference:
             - naked_identifier: col_a
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: foo
       - from_clause:
         - keyword: FROM
@@ -26,7 +27,8 @@ file:
           - column_reference:
             - naked_identifier: col_b
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: foo
       - from_clause:
         - keyword: FROM
@@ -45,7 +47,8 @@ file:
           - column_reference:
             - naked_identifier: col_c
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: foo
       - from_clause:
         - keyword: FROM
@@ -63,7 +66,8 @@ file:
           - column_reference:
             - naked_identifier: col_d
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: foo
       - from_clause:
         - keyword: FROM

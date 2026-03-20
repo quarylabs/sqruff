@@ -39,7 +39,8 @@ file:
               - end_bracket: )
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: f
           - bracketed:
             - start_bracket: (

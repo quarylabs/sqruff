@@ -231,7 +231,8 @@ file:
                           - naked_identifier: datetime
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: session_id
           - from_clause:
             - keyword: FROM
@@ -350,7 +351,8 @@ file:
                                     - end_bracket: )
                             - end_bracket: )
                         - alias_expression:
-                          - keyword: AS
+                          - alias_operator:
+                            - keyword: AS
                           - naked_identifier: session_id
                     - from_clause:
                       - keyword: FROM
@@ -384,7 +386,8 @@ file:
                         - naked_identifier: datetime
                   - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: v
         - where_clause:
           - keyword: WHERE

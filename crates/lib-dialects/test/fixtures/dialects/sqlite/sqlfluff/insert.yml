@@ -377,7 +377,8 @@ file:
                         - column_reference:
                           - naked_identifier: d
                       - alias_expression:
-                        - keyword: AS
+                        - alias_operator:
+                          - keyword: AS
                         - naked_identifier: e
                   - from_clause:
                     - keyword: FROM
@@ -388,7 +389,8 @@ file:
                             - naked_identifier: t2
                 - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: dt
 - statement_terminator: ;
 - statement:

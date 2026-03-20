@@ -13,7 +13,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{RegexParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -263,6 +263,15 @@ pub fn raw_dialect() -> Dialect {
     dialect.add([(
         "AssignmentOperatorSegment".into(),
         NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
+            Ref::new("RawEqualsSegment").to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "EqualAliasOperatorSegment".into(),
+        NodeMatcher::new(SyntaxKind::AliasOperator, |_| {
             Ref::new("RawEqualsSegment").to_matchable()
         })
         .to_matchable()
@@ -1550,7 +1559,7 @@ pub fn raw_dialect() -> Dialect {
             // T-SQL alias equals pattern: AliasName = Expression
             Sequence::new(vec![
                 Ref::new("NakedIdentifierSegment").to_matchable(),
-                StringParser::new("=", SyntaxKind::RawComparisonOperator).to_matchable(),
+                Ref::new("EqualAliasOperatorSegment").to_matchable(),
                 one_of(vec![
                     Ref::new("ColumnReferenceSegment").to_matchable(),
                     Ref::new("BaseExpressionElementGrammar").to_matchable(),

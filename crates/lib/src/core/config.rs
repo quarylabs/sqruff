@@ -489,7 +489,7 @@ impl ConfigLoader {
             let config_map = config.get_map_ref();
             if let Some(section) = config_map.get(&section) {
                 for (name, value) in section {
-                    let mut value: Value = value.as_ref().unwrap().parse().unwrap();
+                    let mut value: Value = value.as_deref().unwrap_or_default().parse().unwrap();
                     let name_lowercase = name.to_lowercase();
 
                     if name_lowercase == "load_macros_from_path" {

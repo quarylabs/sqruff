@@ -10,12 +10,14 @@ use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
 
 type ConfigDictType = HashMap<SyntaxKind, LayoutTypeConfig>;
 
-#[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
 struct LayoutTypeConfig {
     spacing_before: Option<Spacing>,
     spacing_after: Option<Spacing>,
     spacing_within: Option<Spacing>,
     line_position: Option<LinePositionConfig>,
+    keyword_line_position: Option<String>,
+    keyword_line_position_exclusions: SyntaxSet,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -73,6 +75,8 @@ pub struct BlockConfig {
     pub spacing_after: Spacing,
     pub spacing_within: Option<Spacing>,
     pub line_position: Option<LinePositionConfig>,
+    pub keyword_line_position: Option<String>,
+    pub keyword_line_position_exclusions: SyntaxSet,
 }
 
 impl Default for BlockConfig {
@@ -88,10 +92,12 @@ impl BlockConfig {
             spacing_after: Spacing::Single,
             spacing_within: None,
             line_position: None,
+            keyword_line_position: None,
+            keyword_line_position_exclusions: SyntaxSet::EMPTY,
         }
     }
 
-    /// Mutate the config based on additional information
+    /// Mutate the config based on additional information.
     fn incorporate(
         &mut self,
         before: Option<Spacing>,
@@ -110,6 +116,36 @@ impl BlockConfig {
 
         self.spacing_within = within.or_else(|| config.and_then(|c| c.spacing_within));
         self.line_position = line_position.or_else(|| config.and_then(|c| c.line_position));
+
+        if let Some(keyword_line_position) = config.and_then(|c| c.keyword_line_position.clone()) {
+            self.keyword_line_position = Some(keyword_line_position);
+        }
+
+        if let Some(keyword_line_position_exclusions) =
+            config.map(|c| c.keyword_line_position_exclusions.clone())
+        {
+            self.keyword_line_position_exclusions = keyword_line_position_exclusions;
+        }
+    }
+}
+
+fn parse_configured_syntax_set(raw: &str) -> SyntaxSet {
+    raw.split(',')
+        .filter_map(|seg_type| {
+            let seg_type = seg_type.trim();
+            if seg_type.is_empty() || seg_type.eq_ignore_ascii_case("none") {
+                None
+            } else {
+                parse_syntax_kind_alias(seg_type)
+            }
+        })
+        .collect()
+}
+
+fn parse_syntax_kind_alias(seg_type: &str) -> Option<SyntaxKind> {
+    match seg_type {
+        "aggregate_order_by" => Some(SyntaxKind::AggregateOrderByClause),
+        _ => seg_type.parse().ok(),
     }
 }
 
@@ -320,6 +356,19 @@ impl LayoutTypeConfig {
                 .transpose()
                 .unwrap()
                 .map(|it| it.parse().unwrap()),
+            keyword_line_position: map_value
+                .get("keyword_line_position")
+                .map(string_value)
+                .transpose()
+                .unwrap()
+                .map(ToOwned::to_owned),
+            keyword_line_position_exclusions: map_value
+                .get("keyword_line_position_exclusions")
+                .map(string_value)
+                .transpose()
+                .unwrap()
+                .map(parse_configured_syntax_set)
+                .unwrap_or(SyntaxSet::EMPTY),
         }
     }
 }

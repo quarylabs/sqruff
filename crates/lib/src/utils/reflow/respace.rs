@@ -463,13 +463,12 @@ pub fn handle_respace_inline_without_space(
     let mut existing_fix = None;
     let mut insertion = None;
 
-    if let Some(block) = prev_block {
-        if block.segment().get_position_marker().is_none() {
-            existing_fix = Some("after");
-            insertion = Some(block.segment().clone());
-        }
-    } else if let Some(block) = next_block
-        && block.segment().get_position_marker().is_none()
+    if let Some(block) = prev_block.filter(|block| block.segment().get_position_marker().is_none())
+    {
+        existing_fix = Some("after");
+        insertion = Some(block.segment().clone());
+    } else if let Some(block) =
+        next_block.filter(|block| block.segment().get_position_marker().is_none())
     {
         existing_fix = Some("before");
         insertion = Some(block.segment().clone());
@@ -503,7 +502,14 @@ pub fn handle_respace_inline_without_space(
         let fix = &mut existing_results[res].fixes[fix];
 
         if existing_fix == "before" {
-            unimplemented!()
+            match fix {
+                LintFix::CreateAfter { edit, .. }
+                | LintFix::CreateBefore { edit, .. }
+                | LintFix::Replace { edit, .. } => {
+                    edit.insert(0, added_whitespace);
+                }
+                LintFix::Delete { .. } => unreachable!(),
+            }
         } else if existing_fix == "after" {
             match fix {
                 LintFix::CreateAfter { edit, .. }
@@ -572,9 +578,16 @@ mod tests {
     use pretty_assertions::assert_eq;
     use smol_str::ToSmolStr;
     use sqruff_lib::core::test_functions::parse_ansi_string;
+    use sqruff_lib_core::dialects::syntax::SyntaxKind;
     use sqruff_lib_core::helpers::enter_panic;
     use sqruff_lib_core::lint_fix::LintFix;
+    use sqruff_lib_core::parser::segments::SegmentBuilder;
 
+    use crate::core::config::FluffConfig;
+    use crate::core::rules::LintResult;
+    use crate::utils::reflow::config::Spacing;
+    use crate::utils::reflow::depth_map::DepthMap;
+    use crate::utils::reflow::elements::ReflowBlock;
     use crate::utils::reflow::helpers::fixes_from_results;
     use crate::utils::reflow::respace::Tables;
     use crate::utils::reflow::sequence::{Filter, ReflowSequence};
@@ -631,6 +644,31 @@ mod tests {
         CreateAfter,
         Replace,
         Delete,
+    }
+
+    fn make_reflow_block(
+        segment: sqruff_lib_core::parser::segments::ErasedSegment,
+        reference: &sqruff_lib_core::parser::segments::ErasedSegment,
+        root: &sqruff_lib_core::parser::segments::ErasedSegment,
+        config: &FluffConfig,
+    ) -> ReflowBlock {
+        let depth_map = DepthMap::from_parent(root);
+        ReflowBlock::from_config(
+            segment,
+            config.reflow(),
+            depth_map.get_depth_info(reference),
+        )
+    }
+
+    fn fix_edit_raws(fix: &LintFix) -> Vec<String> {
+        match fix {
+            LintFix::CreateBefore { edit, .. }
+            | LintFix::CreateAfter { edit, .. }
+            | LintFix::Replace { edit, .. } => {
+                edit.iter().map(|seg| seg.raw().to_string()).collect()
+            }
+            LintFix::Delete { .. } => Vec::new(),
+        }
     }
 
     #[test]
@@ -728,5 +766,115 @@ mod tests {
 
             assert_eq!(fixes, fixes_out);
         }
+    }
+
+    #[test]
+    fn test_handle_respace_inline_without_space_piggybacks_after_existing_insert() {
+        let tables = Tables::default();
+        let config = FluffConfig::default();
+        let root = parse_ansi_string("select a+b");
+        let raw_segments = root.get_raw_segments();
+        let a_seg = raw_segments
+            .iter()
+            .find(|seg| seg.raw() == "a")
+            .unwrap()
+            .clone();
+        let plus_seg = raw_segments
+            .iter()
+            .find(|seg| seg.raw() == "+")
+            .unwrap()
+            .clone();
+
+        let insertion =
+            SegmentBuilder::token(tables.next_id(), "__inserted__", SyntaxKind::Raw).finish();
+
+        let prev_block = make_reflow_block(insertion.clone(), &a_seg, &root, &config);
+        let next_block = make_reflow_block(plus_seg.clone(), &plus_seg, &root, &config);
+        let existing_results = vec![LintResult::new(
+            Some(a_seg.clone()),
+            vec![LintFix::create_after(a_seg, vec![insertion.clone()], None)],
+            None,
+            None,
+        )];
+
+        let (segment_buffer, results, edited) = super::handle_respace_inline_without_space(
+            &tables,
+            Spacing::Single,
+            Spacing::Single,
+            Some(&prev_block),
+            Some(&next_block),
+            Vec::new(),
+            existing_results,
+            "before",
+        );
+
+        assert_eq!(
+            segment_buffer
+                .iter()
+                .map(|seg| seg.raw().to_string())
+                .collect_vec(),
+            vec![" ".to_owned()]
+        );
+        assert!(edited);
+        assert_eq!(results.len(), 1);
+        assert_eq!(
+            fix_edit_raws(&results[0].fixes[0]),
+            vec!["__inserted__".to_owned(), " ".to_owned()]
+        );
+    }
+
+    #[test]
+    fn test_handle_respace_inline_without_space_piggybacks_before_existing_insert() {
+        let tables = Tables::default();
+        let config = FluffConfig::default();
+        let root = parse_ansi_string("select a+b");
+        let raw_segments = root.get_raw_segments();
+        let a_seg = raw_segments
+            .iter()
+            .find(|seg| seg.raw() == "a")
+            .unwrap()
+            .clone();
+        let plus_seg = raw_segments
+            .iter()
+            .find(|seg| seg.raw() == "+")
+            .unwrap()
+            .clone();
+
+        let insertion =
+            SegmentBuilder::token(tables.next_id(), "__inserted__", SyntaxKind::Raw).finish();
+
+        let prev_block = make_reflow_block(a_seg.clone(), &a_seg, &root, &config);
+        let next_block = make_reflow_block(insertion.clone(), &plus_seg, &root, &config);
+        let existing_results = vec![LintResult::new(
+            Some(plus_seg.clone()),
+            vec![LintFix::create_before(plus_seg, vec![insertion.clone()])],
+            None,
+            None,
+        )];
+
+        let (segment_buffer, results, edited) = super::handle_respace_inline_without_space(
+            &tables,
+            Spacing::Single,
+            Spacing::Single,
+            Some(&prev_block),
+            Some(&next_block),
+            Vec::new(),
+            existing_results,
+            "before",
+        );
+
+        assert_eq!(
+            segment_buffer
+                .iter()
+                .map(|seg| seg.raw().to_string())
+                .collect_vec(),
+            vec![" ".to_owned()]
+        );
+        assert!(edited);
+        assert_eq!(results.len(), 1);
+        assert_eq!(
+            fix_edit_raws(&results[0].fixes[0]),
+            vec![" ".to_owned(), "__inserted__".to_owned()]
+        );
     }
 }

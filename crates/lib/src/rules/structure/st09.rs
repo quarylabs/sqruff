@@ -96,6 +96,10 @@ left join bar
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut table_aliases = Vec::new();
         let children = FunctionalContext::new(context).segment().children_all();
@@ -299,7 +303,7 @@ left join bar
             context.segment.clone().into(),
             fixes,
             format!(
-                "Joins should list the table referenced {}",
+                "Joins should list the table referenced {} first.",
                 self.preferred_first_table_in_join_clause
             )
             .into(),
@@ -360,4 +364,27 @@ fn is_qualified_column_operator_qualified_column_sequence(segment_list: &[Erased
     }
 
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn st09_is_fix_compatible() {
+        assert!(RuleST09::default().is_fix_compatible());
+    }
+
+    #[test]
+    fn st09_description_matches_python() {
+        let rule = RuleST09 {
+            preferred_first_table_in_join_clause: "earlier".into(),
+        };
+
+        let result = format!(
+            "Joins should list the table referenced {} first.",
+            rule.preferred_first_table_in_join_clause
+        );
+        assert_eq!(result, "Joins should list the table referenced earlier first.");
+    }
 }

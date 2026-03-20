@@ -86,7 +86,7 @@ Implicit/explicit aliasing of table.
 
 **Groups:** `all`, `aliasing`
 
-**Fixable:** Yes
+**Fixable:** No
 
 **Anti-pattern**
 
@@ -148,7 +148,7 @@ Column expression without alias. Use explicit `AS` clause.
 
 **Groups:** `all`, `core`, `aliasing`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -2566,7 +2566,7 @@ Joins should list the table referenced earlier/later first.
 
 **Groups:** `all`, `structure`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -2700,4 +2700,3 @@ Use only a single semicolon.
 ```sql
 SELECT 1;
 ```
-

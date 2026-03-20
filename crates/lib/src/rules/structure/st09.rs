@@ -16,6 +16,19 @@ use crate::utils::functional::context::FunctionalContext;
 
 const REORDERABLE_OPERATORS: &[&str] = &["=", "!=", "<>", "<=>", "<", ">", "<=", ">="];
 
+fn normalize_identifier(raw: &str) -> SmolStr {
+    if raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2 {
+        raw[1..raw.len() - 1].into()
+    } else if matches!(raw.chars().next(), Some('"') | Some('\'') | Some('`'))
+        && raw.len() >= 2
+        && raw.chars().next() == raw.chars().last()
+    {
+        raw[1..raw.len() - 1].into()
+    } else {
+        raw.into()
+    }
+}
+
 #[derive(Default, Debug, Clone)]
 pub struct RuleST09 {
     preferred_first_table_in_join_clause: String,
@@ -97,16 +110,19 @@ left join bar
             return Vec::new();
         }
 
-        let from_expression_alias = FromExpressionElementSegment(
+        let from_expression_alias_info = FromExpressionElementSegment(
             children.recursive_crawl(
                 const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) },
                 true,
             )[0]
             .clone(),
         )
-        .eventual_alias()
-        .ref_str
-        .clone();
+        .eventual_alias();
+        let from_expression_alias = from_expression_alias_info
+            .segment
+            .as_ref()
+            .map(|segment| normalize_identifier(segment.raw()))
+            .unwrap_or_else(|| normalize_identifier(from_expression_alias_info.ref_str.as_str()));
 
         table_aliases.push(from_expression_alias);
 
@@ -118,8 +134,14 @@ left join bar
                     .first()
                     .unwrap()
                     .1
-                    .ref_str
                     .clone()
+            })
+            .map(|alias_info| {
+                alias_info
+                    .segment
+                    .as_ref()
+                    .map(|segment| normalize_identifier(segment.raw()))
+                    .unwrap_or_else(|| normalize_identifier(alias_info.ref_str.as_str()))
             })
             .collect_vec();
 
@@ -203,8 +225,8 @@ left join bar
                 )
                 .unwrap();
 
-            let first_table = first_table_seg.raw().to_uppercase_smolstr();
-            let second_table = second_table_seg.raw().to_uppercase_smolstr();
+            let first_table = normalize_identifier(first_table_seg.raw()).to_uppercase_smolstr();
+            let second_table = normalize_identifier(second_table_seg.raw()).to_uppercase_smolstr();
 
             let raw_comparison_operator_opposites = |op| match op {
                 "<" => ">",

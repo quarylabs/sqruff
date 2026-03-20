@@ -1,0 +1,173 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: coin
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: time
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: prices
+    - orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: coin
+      - keyword: asc
+      - comma: ','
+      - column_reference:
+        - naked_identifier: time
+      - keyword: asc
+      - keyword: with
+      - keyword: fill
+      - keyword: to
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: now
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+      - keyword: step
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: toIntervalMinute
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: coin
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: time
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: prices
+    - orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: coin
+      - keyword: asc
+      - comma: ','
+      - column_reference:
+        - naked_identifier: time
+      - keyword: asc
+      - keyword: with
+      - keyword: fill
+      - keyword: from
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: now
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+      - keyword: step
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: toIntervalMinute
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: coin
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: time
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: prices
+    - orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: coin
+      - keyword: asc
+      - comma: ','
+      - column_reference:
+        - naked_identifier: time
+      - keyword: asc
+      - keyword: with
+      - keyword: fill
+      - keyword: from
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: now
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+      - keyword: to
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: now
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+        - binary_operator: +
+        - function:
+          - function_name:
+            - function_name_identifier: toIntervalMinute
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '10'
+              - end_bracket: )
+      - keyword: step
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: toIntervalMinute
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;

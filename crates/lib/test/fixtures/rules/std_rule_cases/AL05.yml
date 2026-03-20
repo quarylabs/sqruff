@@ -410,3 +410,52 @@ test_pass_redshift_semi_structured_op:
   configs:
     core:
       dialect: redshift
+
+test_pass_postgres_values_clause:
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES
+        (1, 2),
+        (3, 4)
+    ) AS t (x, y)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_naked_select_single_quoted_table_wrong_case_cs:
+  fail_str: |
+    SELECT a.col_1
+    FROM table_a AS 'A'
+  fix_str: |
+    SELECT a.col_1
+    FROM table_a
+  configs:
+    rules:
+      aliasing.unused:
+        alias_case_check: case_sensitive
+
+test_pass_repeat_referenced_table:
+  pass_str: |
+    SELECT ROW_NUMBER() OVER(PARTITION BY a.object_id ORDER BY a.object_id)
+    FROM sys.objects a
+    CROSS JOIN sys.objects b
+    CROSS JOIN sys.objects c
+
+test_pass_bigquery_cross_join_array:
+  pass_str: |
+    with table_arr as (select [1,2,4,2] as arr)
+    SELECT arr
+    FROM table_arr t, t.arr
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_redshift_qualify_follows_from:
+  pass_str: |
+    SELECT *
+    FROM #store_sales AS ss
+    QUALIFY row_number() OVER (PARTITION BY ss_sold_date ORDER BY ss_sales_price DESC) <= 2
+  configs:
+    core:
+      dialect: redshift

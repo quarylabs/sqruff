@@ -20,6 +20,7 @@ pub struct SelectStatementColumnsAndTables {
     pub select_targets: Vec<SelectClauseElementSegment>,
     pub col_aliases: Vec<ColumnAliasInfo>,
     pub using_cols: Vec<SmolStr>,
+    pub table_reference_buffer: Vec<ObjectReferenceSegment>,
 }
 
 pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegment> {
@@ -48,6 +49,7 @@ pub fn get_select_statement_info(
 
     let sc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) })?;
     let mut reference_buffer = get_object_references(&sc);
+    let mut table_reference_buffer = Vec::new();
     for potential_clause in [
         SyntaxKind::WhereClause,
         SyntaxKind::GroupbyClause,
@@ -79,6 +81,21 @@ pub fn get_select_statement_info(
     let fc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::FromClause]) });
 
     if let Some(fc) = fc {
+        for table_expression in fc.recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::TableExpression]) },
+            true,
+            const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
+            true,
+        ) {
+            for seg in table_expression.segments() {
+                if !seg.is_type(SyntaxKind::TableReference) {
+                    reference_buffer.extend(get_object_references(seg));
+                } else if seg.reference().is_qualified() {
+                    table_reference_buffer.extend(get_object_references(seg));
+                }
+            }
+        }
+
         for join_clause in fc.recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) },
             true,
@@ -121,6 +138,7 @@ pub fn get_select_statement_info(
         select_targets,
         col_aliases,
         using_cols,
+        table_reference_buffer,
     }
     .into()
 }

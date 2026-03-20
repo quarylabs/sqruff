@@ -14,6 +14,8 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
+const REORDERABLE_OPERATORS: &[&str] = &["=", "!=", "<>", "<=>", "<", ">", "<=", ">="];
+
 #[derive(Default, Debug, Clone)]
 pub struct RuleST09 {
     preferred_first_table_in_join_clause: String,
@@ -170,6 +172,16 @@ left join bar
             let raw_comparison_operators: Vec<_> = comparison_operator
                 .children(const { &SyntaxSet::new(&[SyntaxKind::RawComparisonOperator]) })
                 .collect();
+            let operator_str = if raw_comparison_operators.is_empty() {
+                comparison_operator.raw().trim().to_owned()
+            } else {
+                raw_comparison_operators.iter().map(|it| it.raw()).join("")
+            };
+
+            if !REORDERABLE_OPERATORS.contains(&operator_str.as_str()) {
+                continue;
+            }
+
             let first_table_seg = first_column_reference
                 .child(
                     const {
@@ -234,11 +246,10 @@ left join bar
                     None,
                 ));
 
-                if matches!(raw_comparison_operators[0].raw().as_ref(), "<" | ">")
-                    && raw_comparison_operators
-                        .iter()
-                        .map(|it| it.raw())
-                        .ne(["<", ">"])
+                if raw_comparison_operators
+                    .first()
+                    .is_some_and(|op| matches!(op.raw().as_ref(), "<" | ">"))
+                    && raw_comparison_operators.iter().map(|it| it.raw()).ne(["<", ">"])
                 {
                     fixes.push(LintFix::replace(
                         raw_comparison_operators[0].clone(),

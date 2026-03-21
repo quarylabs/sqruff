@@ -417,9 +417,11 @@ cargo_test(
 
 # Run cargo tests (same as GitHub Action)
 cargo test --manifest-path ./crates/cli/Cargo.toml --locked --offline
-# sqruff-lib-core is excluded because it doesn't need the Python/maturin setup,
-# so it runs natively via rust_test at //crates/lib-core:sqruff-lib-core-test
-cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --locked --offline
+# Crates that don't need the Python/maturin setup run natively via rust_test:
+#   //crates/lib-core:sqruff-lib-core-test
+#   //crates/sqlinference:sqruff-sqlinference-test
+#   //crates/lineage:lineage-test
+cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --exclude sqruff-sqlinference --exclude lineage --locked --offline
 """,
 )
 

@@ -91,7 +91,7 @@ mod tests {
         rules().iter().for_each(|rule| {
             let skips = rule.dialect_skip();
             for i in 1..skips.len() {
-                if skips[i].as_ref() < skips[i].as_ref() {
+                if skips[i - 1].as_ref() > skips[i].as_ref() {
                     panic!("not in alphabetical order in rule {}", rule.code())
                 }
             }

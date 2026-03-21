@@ -6,6 +6,7 @@ use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
 #[derive(Debug, Default, Clone)]
@@ -63,10 +64,12 @@ FROM foo
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if context.segment.is_type(SyntaxKind::ComparisonOperator) {
-            let comparison_positioning =
-                context.config.raw["layout"]["type"]["comparison_operator"]["line_position"]
-                    .as_string()
-                    .unwrap();
+            let comparison_positioning = context
+                .config
+                .reflow()
+                .line_position_for(SyntaxKind::ComparisonOperator)
+                .unwrap()
+                .position();
 
             if self.check_trail_lead_shortcut(
                 &context.segment,
@@ -76,10 +79,12 @@ FROM foo
                 return vec![LintResult::new(None, Vec::new(), None, None)];
             }
         } else if context.segment.is_type(SyntaxKind::BinaryOperator) {
-            let binary_positioning =
-                context.config.raw["layout"]["type"]["binary_operator"]["line_position"]
-                    .as_string()
-                    .unwrap();
+            let binary_positioning = context
+                .config
+                .reflow()
+                .line_position_for(SyntaxKind::BinaryOperator)
+                .unwrap()
+                .position();
 
             if self.check_trail_lead_shortcut(
                 &context.segment,
@@ -117,7 +122,7 @@ impl RuleLT03 {
         &self,
         segment: &ErasedSegment,
         parent: &ErasedSegment,
-        line_position: &str,
+        line_position: LinePosition,
     ) -> bool {
         let idx = parent
             .segments()
@@ -126,7 +131,7 @@ impl RuleLT03 {
             .unwrap();
 
         // Shortcut #1: Leading.
-        if line_position == "leading" {
+        if line_position == LinePosition::Leading {
             if self.seek_newline(parent.segments(), idx, Direction::Backward) {
                 return true;
             }
@@ -137,7 +142,7 @@ impl RuleLT03 {
             }
         }
         // Shortcut #2: Trailing.
-        else if line_position == "trailing" {
+        else if line_position == LinePosition::Trailing {
             if self.seek_newline(parent.segments(), idx, Direction::Forward) {
                 return true;
             }

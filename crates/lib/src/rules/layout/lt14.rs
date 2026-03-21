@@ -1,22 +1,10 @@
 use hashbrown::HashMap;
-use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
-use crate::utils::reflow::sequence::ReflowSequence;
-
-const CLAUSE_TYPES: SyntaxSet = SyntaxSet::new(&[
-    SyntaxKind::SelectClause,
-    SyntaxKind::FromClause,
-    SyntaxKind::WhereClause,
-    SyntaxKind::JoinClause,
-    SyntaxKind::GroupbyClause,
-    SyntaxKind::OrderbyClause,
-    SyntaxKind::HavingClause,
-    SyntaxKind::LimitClause,
-]);
+use crate::utils::reflow::sequence::{RebreakType, ReflowSequence};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT14;
@@ -75,15 +63,8 @@ WHERE a = 1
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         ReflowSequence::from_root(&context.segment, context.config)
-            .rebreak(context.tables)
+            .rebreak(context.tables, RebreakType::Keywords)
             .results()
-            .into_iter()
-            .filter(|r| {
-                r.anchor
-                    .as_ref()
-                    .is_some_and(|seg| CLAUSE_TYPES.contains(seg.get_type()))
-            })
-            .collect()
     }
 
     fn is_fix_compatible(&self) -> bool {

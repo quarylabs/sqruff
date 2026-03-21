@@ -16,7 +16,9 @@ pub struct BlockConfig {
     pub spacing_before: Spacing,
     pub spacing_after: Spacing,
     pub spacing_within: Option<Spacing>,
-    pub line_position: Option<&'static str>,
+    pub line_position: Option<String>,
+    pub keyword_line_position: Option<String>,
+    pub keyword_line_position_exclusions: SyntaxSet,
 }
 
 impl Default for BlockConfig {
@@ -32,16 +34,8 @@ impl BlockConfig {
             spacing_after: Spacing::Single,
             spacing_within: None,
             line_position: None,
-        }
-    }
-
-    fn convert_line_position(line_position: &str) -> &'static str {
-        match line_position {
-            "alone" => "alone",
-            "leading" => "leading",
-            "trailing" => "trailing",
-            "alone:strict" => "alone:strict",
-            _ => unreachable!("Expected 'alone', 'leading' found '{}'", line_position),
+            keyword_line_position: None,
+            keyword_line_position_exclusions: SyntaxSet::EMPTY,
         }
     }
 
@@ -51,7 +45,6 @@ impl BlockConfig {
         before: Option<Spacing>,
         after: Option<Spacing>,
         within: Option<Spacing>,
-        line_position: Option<&'static str>,
         config: Option<&ConfigElementType>,
     ) {
         self.spacing_before = before
@@ -70,17 +63,54 @@ impl BlockConfig {
             })
             .unwrap_or(self.spacing_after);
 
-        self.spacing_within = within.or_else(|| {
-            config
-                .and_then(|c| c.get("spacing_within"))
-                .map(|it| it.parse().unwrap())
-        });
+        self.spacing_within = within
+            .or_else(|| {
+                config
+                    .and_then(|c| c.get("spacing_within"))
+                    .map(|it| it.parse().unwrap())
+            })
+            .or(self.spacing_within);
 
-        self.line_position = line_position.or_else(|| {
-            config
-                .and_then(|c| c.get("line_position"))
-                .map(|value| Self::convert_line_position(value))
-        });
+        if let Some(line_position) = config
+            .and_then(|c| c.get("line_position"))
+            .map(ToOwned::to_owned)
+        {
+            self.line_position = Some(line_position);
+        }
+
+        if let Some(keyword_line_position) = config
+            .and_then(|c| c.get("keyword_line_position"))
+            .map(ToOwned::to_owned)
+        {
+            self.keyword_line_position = Some(keyword_line_position);
+        }
+
+        if let Some(keyword_line_position_exclusions) =
+            config.and_then(|c| c.get("keyword_line_position_exclusions"))
+        {
+            self.keyword_line_position_exclusions =
+                parse_configured_syntax_set(keyword_line_position_exclusions);
+        }
+    }
+}
+
+fn parse_configured_syntax_set(raw: &str) -> SyntaxSet {
+    raw.split(',')
+        .filter_map(|seg_type| {
+            let seg_type = seg_type.trim();
+            if seg_type.is_empty() || seg_type.eq_ignore_ascii_case("none") {
+                None
+            } else {
+                parse_syntax_kind_alias(seg_type)
+            }
+        })
+        .collect()
+}
+
+fn parse_syntax_kind_alias(seg_type: &str) -> Option<SyntaxKind> {
+    match seg_type {
+        "aggregate_order_by" => Some(SyntaxKind::AggregateOrderByClause),
+        _ => seg_type.parse().ok(),
     }
 }
 
@@ -198,7 +228,7 @@ impl ReflowConfig {
                             .map(|it| it.as_str());
                         let before = before.map(|it| it.parse().unwrap());
 
-                        block_config.incorporate(before, None, None, None, None);
+                        block_config.incorporate(before, None, None, None);
                     }
                 }
 
@@ -211,14 +241,14 @@ impl ReflowConfig {
                             .map(|it| it.as_str());
 
                         let after = after.map(|it| it.parse().unwrap());
-                        block_config.incorporate(None, after, None, None, None);
+                        block_config.incorporate(None, after, None, None);
                     }
                 }
             }
         }
 
         for seg_type in configured_types {
-            block_config.incorporate(None, None, None, None, self.configs.get(&seg_type));
+            block_config.incorporate(None, None, None, self.configs.get(&seg_type));
         }
 
         block_config
@@ -289,11 +319,11 @@ fn convert_to_config_dict(input: HashMap<String, Value>) -> ConfigDictType {
                 let element = map_value
                     .into_iter()
                     .map(|(inner_key, inner_value)| {
-                        if let Value::String(value_str) = inner_value {
-                            (inner_key, value_str.into())
-                        } else {
-                            panic!("Expected a Value::String, found another variant.");
-                        }
+                        (
+                            inner_key,
+                            normalize_layout_value(inner_value)
+                                .expect("Expected a scalar or array config value."),
+                        )
                     })
                     .collect::<ConfigElementType>();
                 config_dict.insert(
@@ -306,4 +336,22 @@ fn convert_to_config_dict(input: HashMap<String, Value>) -> ConfigDictType {
     }
 
     config_dict
+}
+
+fn normalize_layout_value(value: Value) -> Option<String> {
+    match value {
+        Value::Int(value) => Some(value.to_string()),
+        Value::Bool(value) => Some(value.to_string()),
+        Value::Float(value) => Some(value.to_string()),
+        Value::String(value) => Some(value.into()),
+        Value::Array(values) => {
+            let mut normalized = Vec::with_capacity(values.len());
+            for value in values {
+                normalized.push(normalize_layout_value(value)?);
+            }
+            Some(normalized.join(","))
+        }
+        Value::None => Some("none".to_string()),
+        Value::Map(_) => None,
+    }
 }

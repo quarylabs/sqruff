@@ -8,7 +8,7 @@ use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
-use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
+use crate::utils::reflow::sequence::{RebreakType, ReflowSequence, TargetSide};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT04 {
@@ -86,7 +86,7 @@ FROM foo
             TargetSide::Both,
             context.config,
         )
-        .rebreak(context.tables)
+        .rebreak(context.tables, RebreakType::Lines)
         .results()
     }
 

@@ -11,6 +11,7 @@ Sqruff currently supports the following SQL dialects:
 - [databricks](#databricks)
 - [duckdb](#duckdb)
 - [mysql](#mysql)
+- [oracle](#oracle)
 - [postgres](#postgres)
 - [redshift](#redshift)
 - [snowflake](#snowflake)
@@ -100,6 +101,18 @@ MySQL SQL dialect for the popular open-source database.
 **Configuration:**
 ```ini
 [sqruff:dialect:mysql]
+```
+
+
+### oracle
+
+Oracle SQL dialect for Oracle Database.
+
+**Documentation:** [https://www.oracle.com/database/technologies/appdev/sql.html](https://www.oracle.com/database/technologies/appdev/sql.html)
+
+**Configuration:**
+```ini
+[sqruff:dialect:oracle]
 ```
 
 

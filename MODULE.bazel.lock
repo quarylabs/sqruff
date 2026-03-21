@@ -3868,7 +3868,7 @@
           "FILE:@@//crates/cli-python/Cargo.toml 4e56eedc77e49aaf2e96ff176694a91be1df4eae3c864c662b2712a21482ba3b",
           "FILE:@@//crates/lib/Cargo.toml 6968ca8ef4e7334f2fd0e416ff94f639ae6f3e8e67958e4849023dd0e52bffd5",
           "FILE:@@//crates/lib-core/Cargo.toml 6ba996ba076a9f43d74b8c86621321212d18d3442bc89b7aec8eecbd07dbeb8c",
-          "FILE:@@//crates/lib-dialects/Cargo.toml 5b2b9ec3d832e336091bf50feb4db97dd726f11f27c763e324fdb0a97601416e",
+          "FILE:@@//crates/lib-dialects/Cargo.toml d35c1abdaf9426457f55078ec20cab269dbbba4dd2b1fb7c5a8edb47382fa77f",
           "FILE:@@//crates/lib-wasm/Cargo.toml dcafc87d240f6567664317913da006a8e786a195a1c0d7e93263b6ef7fa10874",
           "FILE:@@//crates/lineage/Cargo.toml d26ee434e736f8dd310937ca3dad5a5090d207ecf3e553dd627b4bdc576d82bb",
           "FILE:@@//crates/lsp/Cargo.toml 2cb3b8dbf8809afbbf67b49cbe52249f1f0a1b1440ddb1e898d5490c55cd6980",

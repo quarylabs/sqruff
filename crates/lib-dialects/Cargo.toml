@@ -25,6 +25,7 @@ default = [
     "duckdb",
     "hive",
     "mysql",
+    "oracle",
     "postgres",
     "redshift",
     "snowflake",
@@ -40,6 +41,7 @@ databricks = ["sparksql"]
 duckdb = ["postgres"]
 hive = []
 mysql = []
+oracle = []
 postgres = []
 redshift = ["postgres"]
 snowflake = []

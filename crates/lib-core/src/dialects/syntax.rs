@@ -1002,6 +1002,100 @@ pub enum SyntaxKind {
     WithRollupClause,
     WithinGroupClause,
     WithordinalityClause,
+    // Oracle-specific
+    OracleAtSign,
+    OraclePowerOperator,
+    OracleAssignmentOperator,
+    HierarchicalQueryClause,
+    PivotSegment,
+    UnpivotSegment,
+    TriggerCorrelationName,
+    OracleBindVariable,
+    AlterTableProperties,
+    AlterTableColumnClauses,
+    AlterTableConstraintClauses,
+    IndexTypeReference,
+    ExecuteFileStatement,
+    SlashBufferExecutor,
+    OracleBatch,
+    OracleCommentStatement,
+    OracleCreateProcedureStatement,
+    OracleDropProcedureStatement,
+    OracleDeclareSegment,
+    OracleColumnTypeReference,
+    OracleRowTypeReference,
+    CollectionType,
+    RecordType,
+    RefCursorType,
+    DeclareCursorVariable,
+    OracleExecuteImmediateStatement,
+    OracleBeginEndBlock,
+    OracleCreateFunctionStatement,
+    OracleAlterFunctionStatement,
+    OracleCreateTypeStatement,
+    OracleTypeReference,
+    OracleCreateTypeBodyStatement,
+    OracleCreatePackageStatement,
+    OraclePackageReference,
+    OracleAlterPackageStatement,
+    OracleDropPackageStatement,
+    OracleCreateTriggerStatement,
+    DmlEventClause,
+    OracleReferencingClause,
+    CompoundTriggerStatement,
+    TimingPointSection,
+    OracleAlterTriggerStatement,
+    AssignmentSegmentStatement,
+    OracleIfThenStatement,
+    OracleIfClause,
+    OracleCaseExpression,
+    OracleWhenClause,
+    OracleElseClause,
+    OracleNullStatement,
+    ForLoopStatement,
+    WhileLoopStatement,
+    OracleLoopStatement,
+    ForallStatement,
+    OracleOpenStatement,
+    OracleOpenForStatement,
+    OracleFetchStatement,
+    OracleIntoClause,
+    BulkCollectIntoClause,
+    OracleExitStatement,
+    OracleReturnStatement,
+    OracleCreateUserStatement,
+    OracleReturningClause,
+    DatabaseLinkReference,
+    OracleCreateDatabaseLinkStatement,
+    OracleDropDatabaseLinkStatement,
+    OracleAlterDatabaseLinkStatement,
+    OracleCreateSynonymStatement,
+    OracleDropSynonymStatement,
+    OracleAlterSynonymStatement,
+    OracleWithinGroupClause,
+    OracleListaggOverflowClause,
+    OracleNamedArgument,
+    OracleCreateTableStatement,
+    OracleColumnDefinition,
+    OracleSqlplusVariable,
+    StartwithClause,
+    OracleTableReference,
+    OracleCreateViewStatement,
+    OracleAlterIndexStatement,
+    OracleAlterTableStatement,
+    OracleAlterSessionStatement,
+    JsonTableColumnDefinition,
+    JsonTableColumnsClause,
+    JsonTableFunctionContents,
+    OracleMergeUpdateClause,
+    OracleInsertStatement,
+    OracleUpdateStatement,
+    OracleDeleteStatement,
+    OracleTransactionStatement,
+    OracleValuesClause,
+    OracleTableConstraint,
+    OracleFunctionName,
+    OracleOrderByClause,
 }
 
 impl SyntaxKind {
@@ -1021,7 +1115,7 @@ impl SyntaxKind {
 }
 
 #[derive(Clone, PartialEq, Eq, Default)]
-pub struct SyntaxSet([u64; 16]);
+pub struct SyntaxSet([u64; 18]);
 
 impl std::fmt::Debug for SyntaxSet {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -1030,7 +1124,7 @@ impl std::fmt::Debug for SyntaxSet {
 }
 
 impl SyntaxSet {
-    pub const EMPTY: SyntaxSet = Self([0; 16]);
+    pub const EMPTY: SyntaxSet = Self([0; 18]);
     const SLICE_BITS: u16 = u64::BITS as u16;
 
     pub const fn new(kinds: &[SyntaxKind]) -> Self {

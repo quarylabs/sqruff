@@ -1,5 +1,6 @@
 pub mod common;
 pub mod init;
+pub mod sets;
 pub mod syntax;
 
 use std::borrow::Cow;
@@ -9,6 +10,7 @@ use hashbrown::hash_map::Entry;
 use hashbrown::{HashMap, HashSet};
 
 use crate::dialects::init::DialectKind;
+use crate::dialects::sets::DialectSetKey;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::ToMatchable;
 use crate::parser::lexer::{Lexer, Matcher};
@@ -147,25 +149,23 @@ impl Dialect {
     }
 
     pub fn sets(&self, label: &str) -> HashSet<&'static str> {
-        match label {
-            "bracket_pairs" | "angle_bracket_pairs" => {
+        match DialectSetKey::parse(label) {
+            DialectSetKey::Named(label) => self.sets.get(label).cloned().unwrap_or_default(),
+            DialectSetKey::BracketPairs | DialectSetKey::AngleBracketPairs => {
                 panic!("Use `bracket_sets` to retrieve {label} set.");
             }
-            _ => (),
         }
-
-        self.sets.get(label).cloned().unwrap_or_default()
     }
 
     pub fn sets_mut(&mut self, label: &'static str) -> &mut HashSet<&'static str> {
-        assert!(
-            label != "bracket_pairs" && label != "angle_bracket_pairs",
-            "Use `bracket_sets` to retrieve {label} set."
-        );
-
-        match self.sets.entry(label) {
-            Entry::Occupied(entry) => entry.into_mut(),
-            Entry::Vacant(entry) => entry.insert(<_>::default()),
+        match DialectSetKey::parse(label) {
+            DialectSetKey::Named(label) => match self.sets.entry(label) {
+                Entry::Occupied(entry) => entry.into_mut(),
+                Entry::Vacant(entry) => entry.insert(<_>::default()),
+            },
+            DialectSetKey::BracketPairs | DialectSetKey::AngleBracketPairs => {
+                panic!("Use `bracket_sets` to retrieve {label} set.");
+            }
         }
     }
 
@@ -183,24 +183,26 @@ impl Dialect {
     }
 
     pub fn bracket_sets(&self, label: &str) -> HashSet<BracketPair> {
-        assert!(
-            label == "bracket_pairs" || label == "angle_bracket_pairs",
-            "Invalid bracket set. Consider using another identifier instead."
-        );
+        let key = DialectSetKey::parse(label)
+            .as_bracket_set_name()
+            .unwrap_or_else(|| {
+                panic!("Invalid bracket set. Consider using another identifier instead.")
+            });
 
         self.bracket_collections
-            .get(label)
+            .get(key)
             .cloned()
             .unwrap_or_default()
     }
 
     pub fn bracket_sets_mut(&mut self, label: &'static str) -> &mut HashSet<BracketPair> {
-        assert!(
-            label == "bracket_pairs" || label == "angle_bracket_pairs",
-            "Invalid bracket set. Consider using another identifier instead."
-        );
+        let key = DialectSetKey::parse(label)
+            .as_bracket_set_name()
+            .unwrap_or_else(|| {
+                panic!("Invalid bracket set. Consider using another identifier instead.")
+            });
 
-        self.bracket_collections.entry(label).or_default()
+        self.bracket_collections.entry(key).or_default()
     }
 
     pub fn update_bracket_sets(&mut self, label: &'static str, pairs: Vec<BracketPair>) {

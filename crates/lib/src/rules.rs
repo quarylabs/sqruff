@@ -72,7 +72,7 @@ mod tests {
     fn if_rule_contains_core_is_second_in_list() {
         rules().iter().for_each(|rule| {
             let groups = rule.groups();
-            if groups.iter().any(|&rule| rule == RuleGroups::Core) {
+            if groups.contains(&RuleGroups::Core) {
                 assert_eq!(groups.get(1).unwrap(), &RuleGroups::Core);
             }
         })
@@ -90,8 +90,8 @@ mod tests {
     fn rule_skip_dialect_should_be_alphabetical() {
         rules().iter().for_each(|rule| {
             let skips = rule.dialect_skip();
-            for i in 1..skips.len() {
-                if skips[i].as_ref() < skips[i].as_ref() {
+            for pair in skips.windows(2) {
+                if pair[1].as_ref() < pair[0].as_ref() {
                     panic!("not in alphabetical order in rule {}", rule.code())
                 }
             }

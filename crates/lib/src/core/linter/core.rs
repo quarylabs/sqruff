@@ -12,8 +12,7 @@ use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::noqa::IgnoreMask;
 use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
 use crate::rules::get_ruleset;
-use crate::templaters::raw::RawTemplater;
-use crate::templaters::{ProcessingMode, TEMPLATERS, Templater};
+use crate::templaters::{ProcessingMode, Templater, TemplaterKind};
 use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use rayon::iter::{IntoParallelRefIterator as _, ParallelIterator as _};
@@ -61,21 +60,7 @@ impl Linter {
     }
 
     pub fn get_templater(config: &FluffConfig) -> Result<&'static dyn Templater, String> {
-        let templater_name = config.get("templater", "core").as_string();
-        match templater_name {
-            Some(name) => match TEMPLATERS.into_iter().find(|t| t.name() == name) {
-                Some(t) => Ok(t),
-                None => {
-                    let available: Vec<&str> = TEMPLATERS.iter().map(|t| t.name()).collect();
-                    Err(format!(
-                        "Unknown templater '{}'. Available templaters: {}",
-                        name,
-                        available.join(", ")
-                    ))
-                }
-            },
-            None => Ok(&RawTemplater),
-        }
+        config.templater_kind().map(TemplaterKind::templater)
     }
 
     /// Lint strings directly.

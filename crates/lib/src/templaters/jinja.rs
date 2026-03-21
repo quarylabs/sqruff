@@ -2,7 +2,7 @@ use super::Templater;
 use super::python::PythonTemplatedFile;
 use crate::core::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
-use crate::templaters::{Formatter, ProcessingMode};
+use crate::templaters::{Formatter, ProcessingMode, TemplaterKind};
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
@@ -22,8 +22,8 @@ impl JinjaTemplater {
             let main_module = PyModule::import(py, "sqruff.templaters.jinja_templater")?;
             let fun: Py<PyAny> = main_module.getattr("process_from_rust")?.into();
 
-            let py_dict = config.to_python_context(py, "jinja").unwrap();
-            let python_fluff_config: PythonFluffConfig = config.clone().into();
+            let py_dict = config.to_python_context(py, TemplaterKind::Jinja).unwrap();
+            let python_fluff_config = PythonFluffConfig::from(config);
             let args = (
                 in_str.to_string(),
                 f_name.to_string(),
@@ -35,7 +35,7 @@ impl JinjaTemplater {
             // Parse the returned value
             let returned = returned?;
             let templated_file: PythonTemplatedFile = returned.extract(py)?;
-            Ok(templated_file.to_templated_file())
+            templated_file.to_templated_file()
         })
         .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {e:?}")))?;
         Ok(templated_file)

@@ -147,6 +147,7 @@ impl Selectable<'_> {
             select_targets: Vec::new(),
             col_aliases: Vec::new(),
             using_cols: Vec::new(),
+            table_reference_buffer: Vec::new(),
         }
         .into()
     }

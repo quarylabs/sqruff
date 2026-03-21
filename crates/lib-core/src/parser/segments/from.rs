@@ -88,7 +88,14 @@ impl FromExpressionElementSegment {
             .child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
         if let Some(alias_expression) = alias_expression {
             let segment = alias_expression.child(
-                const { &SyntaxSet::new(&[SyntaxKind::Identifier, SyntaxKind::NakedIdentifier]) },
+                const {
+                    &SyntaxSet::new(&[
+                        SyntaxKind::Identifier,
+                        SyntaxKind::NakedIdentifier,
+                        SyntaxKind::QuotedIdentifier,
+                        SyntaxKind::Literal,
+                    ])
+                },
             );
             if let Some(segment) = segment {
                 return AliasInfo {

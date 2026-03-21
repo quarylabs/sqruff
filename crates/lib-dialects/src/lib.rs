@@ -26,6 +26,8 @@ pub mod duckdb;
 pub mod hive;
 #[cfg(feature = "mysql")]
 pub mod mysql;
+#[cfg(feature = "oracle")]
+pub mod oracle;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 #[cfg(feature = "postgres")]
@@ -75,6 +77,8 @@ pub fn dialect_config_options(
         DialectKind::Duckdb => duckdb::DuckDBDialectConfig::config_options(),
         #[cfg(feature = "mysql")]
         DialectKind::Mysql => mysql::MySQLDialectConfig::config_options(),
+        #[cfg(feature = "oracle")]
+        DialectKind::Oracle => oracle::OracleDialectConfig::config_options(),
         #[cfg(feature = "postgres")]
         DialectKind::Postgres => postgres::PostgresDialectConfig::config_options(),
         #[cfg(feature = "redshift")]
@@ -109,6 +113,8 @@ pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dia
         DialectKind::Duckdb => duckdb::dialect(config),
         #[cfg(feature = "mysql")]
         DialectKind::Mysql => mysql::dialect(config),
+        #[cfg(feature = "oracle")]
+        DialectKind::Oracle => oracle::dialect(config),
         #[cfg(feature = "postgres")]
         DialectKind::Postgres => postgres::dialect(config),
         #[cfg(feature = "redshift")]

@@ -101,6 +101,7 @@ pub enum DialectKind {
     Databricks,
     Duckdb,
     Mysql,
+    Oracle,
     Postgres,
     Redshift,
     Snowflake,
@@ -121,6 +122,7 @@ impl DialectKind {
             DialectKind::Databricks => "databricks",
             DialectKind::Duckdb => "duckdb",
             DialectKind::Mysql => "mysql",
+            DialectKind::Oracle => "oracle",
             DialectKind::Postgres => "postgres",
             DialectKind::Redshift => "redshift",
             DialectKind::Snowflake => "snowflake",
@@ -145,6 +147,7 @@ impl DialectKind {
             DialectKind::Databricks => "Databricks SQL dialect for lakehouse analytics.",
             DialectKind::Duckdb => "DuckDB SQL dialect for in-process analytical database.",
             DialectKind::Mysql => "MySQL SQL dialect for the popular open-source database.",
+            DialectKind::Oracle => "Oracle SQL dialect for Oracle Database.",
             DialectKind::Postgres => {
                 "PostgreSQL SQL dialect for the advanced open-source database."
             }
@@ -179,6 +182,9 @@ impl DialectKind {
             }
             DialectKind::Duckdb => Some("https://duckdb.org/docs/sql/introduction"),
             DialectKind::Mysql => Some("https://dev.mysql.com/doc/"),
+            DialectKind::Oracle => {
+                Some("https://www.oracle.com/database/technologies/appdev/sql.html")
+            }
             DialectKind::Postgres => Some("https://www.postgresql.org/docs/current/sql.html"),
             DialectKind::Redshift => {
                 Some("https://docs.aws.amazon.com/redshift/latest/dg/cm_chap_SQLCommandRef.html")

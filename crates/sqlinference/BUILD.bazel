@@ -1,5 +1,5 @@
 load("@crates//:defs.bzl", "all_crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
 rust_library(
     name = "sqruff-sqlinference",
@@ -8,6 +8,15 @@ rust_library(
     visibility = ["//visibility:public"],
     deps = all_crate_deps(normal = True) + [
         "//crates/lib-core:sqruff-lib-core",
+    ],
+)
+
+rust_test(
+    name = "sqruff-sqlinference-test",
+    crate = ":sqruff-sqlinference",
+    proc_macro_deps = all_crate_deps(proc_macro_dev = True),
+    deps = all_crate_deps(normal_dev = True) + [
+        "//crates/lib-dialects:sqruff-lib-dialects",
     ],
 )
 

@@ -1,5 +1,5 @@
 load("@crates//:defs.bzl", "all_crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
 
 rust_library(
     name = "lineage",
@@ -10,6 +10,13 @@ rust_library(
         "//crates/lib-core:sqruff-lib-core",
         "//crates/lib-dialects:sqruff-lib-dialects",
     ],
+)
+
+rust_test(
+    name = "lineage-test",
+    crate = ":lineage",
+    proc_macro_deps = all_crate_deps(proc_macro_dev = True),
+    deps = all_crate_deps(normal_dev = True),
 )
 
 filegroup(

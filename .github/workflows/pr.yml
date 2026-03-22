@@ -12,6 +12,30 @@ env:
   RUST_BACKTRACE: short
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
 jobs:
+  pr-title:
+    name: PR Title Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check PR title follows conventional commits
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Conventional commit pattern: type(optional-scope): description
+          pattern='^(feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert)(\([a-zA-Z0-9_-]+\))?!?: .+'
+          if ! echo "$PR_TITLE" | grep -qE "$pattern"; then
+            echo "::error::PR title does not follow conventional commits format."
+            echo ""
+            echo "Expected format: type(optional-scope): description"
+            echo "  Types: feat, fix, chore, docs, style, refactor, perf, test, build, ci, revert"
+            echo "  Examples:"
+            echo "    feat: add new linting rule"
+            echo "    fix(parser): handle trailing commas"
+            echo "    chore: bump version to 1.0.0"
+            echo ""
+            echo "Got: $PR_TITLE"
+            exit 1
+          fi
   bazel-lint:
     name: Bazel Lint
     runs-on: ubuntu-latest

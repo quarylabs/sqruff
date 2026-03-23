@@ -57,14 +57,11 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
     }
 
     pub fn from_root(root_segment: &'b ErasedSegment, config: &'a FluffConfig) -> Self {
-        let depth_map = DepthMap::from_parent(root_segment).into();
+        let raws_with_stack = root_segment.raw_segments_with_ancestors();
+        let depth_map = Some(DepthMap::from_raws_with_stack(raws_with_stack));
+        let segments = raws_with_stack.iter().map(|(raw, _)| raw.clone()).collect();
 
-        Self::from_raw_segments(
-            root_segment.get_raw_segments(),
-            root_segment,
-            config,
-            depth_map,
-        )
+        Self::from_raw_segments(segments, root_segment, config, depth_map)
     }
 
     pub fn from_raw_segments(

@@ -5,10 +5,66 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
+use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
 
-type ConfigElementType = HashMap<String, String>;
-type ConfigDictType = HashMap<SyntaxKind, ConfigElementType>;
+type ConfigDictType = HashMap<SyntaxKind, LayoutTypeConfig>;
+
+#[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
+struct LayoutTypeConfig {
+    spacing_before: Option<Spacing>,
+    spacing_after: Option<Spacing>,
+    spacing_within: Option<Spacing>,
+    line_position: Option<LinePositionConfig>,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub struct LinePositionConfig {
+    position: LinePosition,
+    strict: bool,
+}
+
+impl LinePositionConfig {
+    pub const fn new(position: LinePosition, strict: bool) -> Self {
+        Self { position, strict }
+    }
+
+    pub const fn position(self) -> LinePosition {
+        self.position
+    }
+
+    pub const fn is_strict(self) -> bool {
+        self.strict
+    }
+}
+
+impl FromStr for LinePositionConfig {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut parts = s.split(':');
+        let position = parts
+            .next()
+            .ok_or_else(|| "line_position cannot be empty".to_string())?
+            .parse::<LinePosition>()
+            .map_err(|_| format!("Unexpected line_position value: {s}"))?;
+        let strict = match parts.next() {
+            Some("strict") => true,
+            Some(other) => {
+                return Err(format!(
+                    "Unexpected line_position modifier '{other}' in '{s}'"
+                ));
+            }
+            None => false,
+        };
+
+        if parts.next().is_some() {
+            return Err(format!("Unexpected line_position value: {s}"));
+        }
+
+        Ok(Self::new(position, strict))
+    }
+}
 
 /// Holds spacing config for a block and allows easy manipulation
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -16,7 +72,7 @@ pub struct BlockConfig {
     pub spacing_before: Spacing,
     pub spacing_after: Spacing,
     pub spacing_within: Option<Spacing>,
-    pub line_position: Option<&'static str>,
+    pub line_position: Option<LinePositionConfig>,
 }
 
 impl Default for BlockConfig {
@@ -35,52 +91,25 @@ impl BlockConfig {
         }
     }
 
-    fn convert_line_position(line_position: &str) -> &'static str {
-        match line_position {
-            "alone" => "alone",
-            "leading" => "leading",
-            "trailing" => "trailing",
-            "alone:strict" => "alone:strict",
-            _ => unreachable!("Expected 'alone', 'leading' found '{}'", line_position),
-        }
-    }
-
     /// Mutate the config based on additional information
-    pub fn incorporate(
+    fn incorporate(
         &mut self,
         before: Option<Spacing>,
         after: Option<Spacing>,
         within: Option<Spacing>,
-        line_position: Option<&'static str>,
-        config: Option<&ConfigElementType>,
+        line_position: Option<LinePositionConfig>,
+        config: Option<&LayoutTypeConfig>,
     ) {
         self.spacing_before = before
-            .or_else(|| {
-                config
-                    .and_then(|c| c.get("spacing_before"))
-                    .map(|it| it.parse().unwrap())
-            })
+            .or_else(|| config.and_then(|c| c.spacing_before))
             .unwrap_or(self.spacing_before);
 
         self.spacing_after = after
-            .or_else(|| {
-                config
-                    .and_then(|c| c.get("spacing_after"))
-                    .map(|it| it.parse().unwrap())
-            })
+            .or_else(|| config.and_then(|c| c.spacing_after))
             .unwrap_or(self.spacing_after);
 
-        self.spacing_within = within.or_else(|| {
-            config
-                .and_then(|c| c.get("spacing_within"))
-                .map(|it| it.parse().unwrap())
-        });
-
-        self.line_position = line_position.or_else(|| {
-            config
-                .and_then(|c| c.get("line_position"))
-                .map(|value| Self::convert_line_position(value))
-        });
+        self.spacing_within = within.or_else(|| config.and_then(|c| c.spacing_within));
+        self.line_position = line_position.or_else(|| config.and_then(|c| c.line_position));
     }
 }
 
@@ -150,6 +179,12 @@ impl FromStr for Spacing {
 }
 
 impl ReflowConfig {
+    pub fn line_position_for(&self, seg_type: SyntaxKind) -> Option<LinePositionConfig> {
+        self.configs
+            .get(&seg_type)
+            .and_then(|cfg| cfg.line_position)
+    }
+
     pub fn get_block_config(
         &self,
         block_class_types: &SyntaxSet,
@@ -194,10 +229,7 @@ impl ReflowConfig {
                         let before = self
                             .configs
                             .get(&seg_type)
-                            .and_then(|conf| conf.get("spacing_before"))
-                            .map(|it| it.as_str());
-                        let before = before.map(|it| it.parse().unwrap());
-
+                            .and_then(|conf| conf.spacing_before);
                         block_config.incorporate(before, None, None, None, None);
                     }
                 }
@@ -207,10 +239,7 @@ impl ReflowConfig {
                         let after = self
                             .configs
                             .get(&seg_type)
-                            .and_then(|conf| conf.get("spacing_after"))
-                            .map(|it| it.as_str());
-
-                        let after = after.map(|it| it.parse().unwrap());
+                            .and_then(|conf| conf.spacing_after);
                         block_config.incorporate(None, after, None, None, None);
                     }
                 }
@@ -244,28 +273,8 @@ impl ReflowConfig {
             .unwrap();
         let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
 
-        let mut configs = convert_to_config_dict(configs);
-        let keys: Vec<_> = configs.keys().copied().collect();
-
-        for seg_type in keys {
-            for key in ["spacing_before", "spacing_after"] {
-                if configs[&seg_type].get(key).map(String::as_str) == Some("align") {
-                    let mut new_key = format!("align:{}", seg_type.as_str());
-                    if let Some(align_within) = configs[&seg_type].get("align_within") {
-                        new_key.push_str(&format!(":{align_within}"));
-
-                        if let Some(align_scope) = configs[&seg_type].get("align_scope") {
-                            new_key.push_str(&format!(":{align_scope}"));
-                        }
-                    }
-
-                    *configs.get_mut(&seg_type).unwrap().get_mut(key).unwrap() = new_key;
-                }
-            }
-        }
-
         ReflowConfig {
-            configs,
+            configs: convert_to_config_dict(configs),
             config_types,
             indent_unit,
             max_line_length: config.raw["core"]["max_line_length"].as_int().unwrap() as usize,
@@ -286,19 +295,10 @@ fn convert_to_config_dict(input: HashMap<String, Value>) -> ConfigDictType {
     for (key, value) in input {
         match value {
             Value::Map(map_value) => {
-                let element = map_value
-                    .into_iter()
-                    .map(|(inner_key, inner_value)| {
-                        if let Value::String(value_str) = inner_value {
-                            (inner_key, value_str.into())
-                        } else {
-                            panic!("Expected a Value::String, found another variant.");
-                        }
-                    })
-                    .collect::<ConfigElementType>();
+                let seg_type = key.parse().unwrap_or_else(|_| unimplemented!("{key}"));
                 config_dict.insert(
-                    key.parse().unwrap_or_else(|_| unimplemented!("{key}")),
-                    element,
+                    seg_type,
+                    LayoutTypeConfig::from_value_map(seg_type, map_value),
                 );
             }
             _ => panic!("Expected a Value::Map, found another variant."),
@@ -306,4 +306,85 @@ fn convert_to_config_dict(input: HashMap<String, Value>) -> ConfigDictType {
     }
 
     config_dict
+}
+
+impl LayoutTypeConfig {
+    fn from_value_map(seg_type: SyntaxKind, map_value: HashMap<String, Value>) -> Self {
+        Self {
+            spacing_before: spacing_from_map(seg_type, &map_value, "spacing_before"),
+            spacing_after: spacing_from_map(seg_type, &map_value, "spacing_after"),
+            spacing_within: spacing_from_map(seg_type, &map_value, "spacing_within"),
+            line_position: map_value
+                .get("line_position")
+                .map(string_value)
+                .transpose()
+                .unwrap()
+                .map(|it| it.parse().unwrap()),
+        }
+    }
+}
+
+fn spacing_from_map(
+    seg_type: SyntaxKind,
+    map_value: &HashMap<String, Value>,
+    key: &str,
+) -> Option<Spacing> {
+    let spacing = map_value.get(key).map(string_value).transpose().unwrap()?;
+    if spacing == "align" {
+        Some(Spacing::Align {
+            seg_type,
+            within: map_value
+                .get("align_within")
+                .map(string_value)
+                .transpose()
+                .unwrap()
+                .map(|it| it.parse().unwrap()),
+            scope: map_value
+                .get("align_scope")
+                .map(string_value)
+                .transpose()
+                .unwrap()
+                .map(|it| it.parse().unwrap()),
+        })
+    } else {
+        Some(spacing.parse().unwrap())
+    }
+}
+
+fn string_value(value: &Value) -> Result<&str, String> {
+    value
+        .as_string()
+        .ok_or_else(|| "Expected a Value::String, found another variant.".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_line_position_config() {
+        let config: LinePositionConfig = "alone:strict".parse().unwrap();
+
+        assert_eq!(config.position(), LinePosition::Alone);
+        assert!(config.is_strict());
+    }
+
+    #[test]
+    fn parses_align_spacing_from_layout_config() {
+        let mut layout = HashMap::new();
+        layout.insert("spacing_before".into(), Value::String("align".into()));
+        layout.insert("align_within".into(), Value::String("select_clause".into()));
+        layout.insert("align_scope".into(), Value::String("statement".into()));
+
+        let config = LayoutTypeConfig::from_value_map(SyntaxKind::AliasExpression, layout);
+
+        assert_eq!(
+            config.spacing_before,
+            Some(Spacing::Align {
+                seg_type: SyntaxKind::AliasExpression,
+                within: Some(SyntaxKind::SelectClause),
+                scope: Some(SyntaxKind::Statement),
+            })
+        );
+    }
 }

@@ -68,9 +68,12 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let comma_positioning = context.config.raw["layout"]["type"]["comma"]["line_position"]
-            .as_string()
-            .unwrap();
+        let comma_positioning = context
+            .config
+            .reflow()
+            .line_position_for(SyntaxKind::Comma)
+            .unwrap()
+            .position();
 
         if self.check_trail_lead_shortcut(
             &context.segment,

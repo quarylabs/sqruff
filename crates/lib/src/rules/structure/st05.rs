@@ -60,10 +60,17 @@ pub(crate) struct RuleST05 {
 
 impl Rule for RuleST05 {
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleST05 {
-            forbid_subquery_in: config["forbid_subquery_in"].as_string().unwrap().into(),
+        match config["forbid_subquery_in"].as_string() {
+            Some("join" | "from" | "both") => Ok(RuleST05 {
+                forbid_subquery_in: config["forbid_subquery_in"].as_string().unwrap().into(),
+            }
+            .erased()),
+            Some(value) => Err(format!(
+                "Invalid value for forbid_subquery_in: {value}. Must be one of [join, from, \
+                 both]"
+            )),
+            None => Err("Rule ST05 expects a string for `forbid_subquery_in`".into()),
         }
-        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -901,8 +908,14 @@ impl SegmentCloneMap {
 
 #[cfg(test)]
 mod tests {
+    use hashbrown::HashMap;
+
     use crate::core::config::FluffConfig;
+    use crate::core::config::Value;
     use crate::core::linter::core::Linter;
+    use crate::core::rules::Rule;
+
+    use super::RuleST05;
 
     fn st05_linter(dialect: &str) -> Linter {
         let config = FluffConfig::from_source(
@@ -1407,5 +1420,27 @@ FROM `func`((
 "#;
 
         assert_pass("bigquery", source);
+    }
+
+    #[test]
+    fn st05_load_from_config_rejects_invalid_value() {
+        let config = HashMap::from_iter([(
+            "forbid_subquery_in".into(),
+            Value::String("sideways".into()),
+        )]);
+
+        let err = RuleST05::default().load_from_config(&config).unwrap_err();
+        assert_eq!(
+            err,
+            "Invalid value for forbid_subquery_in: sideways. Must be one of [join, from, both]"
+        );
+    }
+
+    #[test]
+    fn st05_load_from_config_accepts_valid_value() {
+        let config =
+            HashMap::from_iter([("forbid_subquery_in".into(), Value::String("from".into()))]);
+
+        assert!(RuleST05::default().load_from_config(&config).is_ok());
     }
 }

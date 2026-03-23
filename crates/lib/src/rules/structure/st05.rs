@@ -272,7 +272,7 @@ join c using(x)
                 .collect();
         }
 
-        let output_select_clone = clone_map[&output_select[0]].clone();
+        let mut output_select_clone = clone_map[&output_select[0]].clone();
 
         for result in &mut results_list {
             if !result.is_fixable {
@@ -282,7 +282,7 @@ join c using(x)
             let mut fixes = ctes.ensure_space_after_from(
                 context.tables,
                 output_select[0].clone(),
-                &output_select_clone,
+                &mut output_select_clone,
                 result.subquery_parent.clone(),
             );
 
@@ -584,17 +584,26 @@ impl CTEBuilder {
         &self,
         tables: &Tables,
         output_select: ErasedSegment,
-        output_select_clone: &ErasedSegment,
+        output_select_clone: &mut ErasedSegment,
         subquery_parent: ErasedSegment,
     ) -> Vec<LintFix> {
         let mut fixes = Vec::new();
 
         if subquery_parent.is(&output_select) {
-            let (missing_space_after_from, _from_clause, _from_clause_children, _from_segment) =
+            let (missing_space_after_from, _from_clause, _from_clause_children, from_segment) =
                 Self::missing_space_after_from(output_select_clone.clone());
 
             if missing_space_after_from {
-                todo!()
+                let mut anchor_fixes = HashMap::default();
+                compute_anchor_edit_info(
+                    &mut anchor_fixes,
+                    vec![LintFix::create_after(
+                        from_segment.unwrap().base[0].clone(),
+                        vec![SegmentBuilder::whitespace(tables.next_id(), " ")],
+                        None,
+                    )],
+                );
+                *output_select_clone = output_select_clone.apply_fixes(&mut anchor_fixes).0;
             }
         } else {
             let (missing_space_after_from, _from_clause, _from_clause_children, from_segment) =
@@ -1199,6 +1208,29 @@ cte2 AS (
     ON sot.id = oops.id
 )
 SELECT CURRENT_DATE();
+"#;
+
+        assert_fix("ansi", source, expected);
+    }
+
+    #[test]
+    fn st05_inserts_space_after_from_when_rewriting_root_subquery() {
+        let source = r#"CREATE TABLE t
+AS
+SELECT
+    col1
+FROM(
+    SELECT 'x' AS col1
+) x
+"#;
+        let expected = r#"CREATE TABLE t
+AS
+WITH x AS (
+    SELECT 'x' AS col1
+)
+SELECT
+    col1
+FROM x
 "#;
 
         assert_fix("ansi", source, expected);

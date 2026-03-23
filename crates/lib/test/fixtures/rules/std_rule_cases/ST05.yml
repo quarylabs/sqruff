@@ -673,3 +673,55 @@ test_fail_clickhouse_expression_cte_preserved:
   configs:
     core:
       dialect: clickhouse
+
+test_fail_nested_join_subquery_inside_allowed_from_subquery:
+  fail_str: |
+    select
+        outer_q.x,
+        outer_q.y
+    from (
+        select
+            a.x,
+            b.y
+        from a
+        join (
+            select x, y from b
+        ) as b on a.x = b.x
+    ) as outer_q
+  fix_str: |
+    with b as (
+            select x, y from b
+        )
+    select
+        outer_q.x,
+        outer_q.y
+    from (
+        select
+            a.x,
+            b.y
+        from a
+        join b on a.x = b.x
+    ) as outer_q
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: join
+
+test_fail_preserves_quoted_aliases_in_generated_ctes:
+  fail_str: |
+    select
+        a.x,
+        "b".y
+    from a
+    join (
+        select x, y from b
+    ) as "b" on a.x = "b".x
+  fix_str: |
+    with "b" as (
+        select x, y from b
+    )
+    select
+        a.x,
+        "b".y
+    from a
+    join "b" on a.x = "b".x

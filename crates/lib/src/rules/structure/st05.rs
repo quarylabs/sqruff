@@ -1,7 +1,6 @@
-use std::ops::{Index, IndexMut};
+use std::ops::Index;
 
 use hashbrown::{HashMap, HashSet};
-use itertools::{Itertools, enumerate};
 use smol_str::{SmolStr, StrExt, ToSmolStr, format_smolstr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::common::AliasInfo;
@@ -27,27 +26,107 @@ const SELECT_TYPES: SyntaxSet = SyntaxSet::new(&[
     SyntaxKind::SelectStatement,
 ]);
 
-fn config_mapping(key: &str) -> SyntaxSet {
-    match key {
-        "join" => SyntaxSet::single(SyntaxKind::JoinClause),
-        "from" => SyntaxSet::single(SyntaxKind::FromExpressionElement),
-        "both" => SyntaxSet::new(&[SyntaxKind::JoinClause, SyntaxKind::FromExpressionElement]),
-        _ => unreachable!("Invalid value for 'forbid_subquery_in': {key}"),
+fn normalize_identifier_name(raw: &str) -> SmolStr {
+    let is_bracket_quoted = raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2;
+    let is_matching_quote_quoted = matches!(raw.chars().next(), Some('"') | Some('`'))
+        && raw.len() >= 2
+        && raw.chars().next() == raw.chars().last();
+
+    if is_bracket_quoted || is_matching_quote_quoted {
+        raw[1..raw.len() - 1].into()
+    } else {
+        raw.into()
     }
 }
 
-#[allow(dead_code)]
-struct NestedSubQuerySummary<'a> {
-    query: Query<'a>,
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+enum ForbidSubqueryIn {
+    Join,
+    From,
+    #[default]
+    Both,
+}
+
+impl ForbidSubqueryIn {
+    fn syntax_set(self) -> SyntaxSet {
+        match self {
+            Self::Join => SyntaxSet::single(SyntaxKind::JoinClause),
+            Self::From => SyntaxSet::single(SyntaxKind::FromExpressionElement),
+            Self::Both => {
+                SyntaxSet::new(&[SyntaxKind::JoinClause, SyntaxKind::FromExpressionElement])
+            }
+        }
+    }
+}
+
+impl std::str::FromStr for ForbidSubqueryIn {
+    type Err = String;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "join" => Ok(Self::Join),
+            "from" => Ok(Self::From),
+            "both" => Ok(Self::Both),
+            _ => Err(format!(
+                "Invalid value for forbid_subquery_in: {value}. Must be one of [join, from, \
+                 both]"
+            )),
+        }
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+struct IdentifierSpec {
+    raw: SmolStr,
+    normalized: SmolStr,
+    kind: SyntaxKind,
+}
+
+impl IdentifierSpec {
+    fn new(raw: SmolStr, kind: SyntaxKind) -> Self {
+        Self {
+            normalized: normalize_identifier_name(&raw),
+            raw,
+            kind: match kind {
+                SyntaxKind::Identifier
+                | SyntaxKind::NakedIdentifier
+                | SyntaxKind::QuotedIdentifier => kind,
+                _ => SyntaxKind::NakedIdentifier,
+            },
+        }
+    }
+
+    fn from_segment(segment: &ErasedSegment) -> Self {
+        Self::new(segment.raw().clone(), segment.get_type())
+    }
+
+    fn from_alias(alias: &AliasInfo) -> Option<Self> {
+        if alias.ref_str.is_empty() {
+            return None;
+        }
+
+        alias.segment.as_ref().map(Self::from_segment).or_else(|| {
+            Some(Self::new(
+                alias.ref_str.clone(),
+                SyntaxKind::NakedIdentifier,
+            ))
+        })
+    }
+
+    fn generated(raw: SmolStr) -> Self {
+        Self::new(raw, SyntaxKind::NakedIdentifier)
+    }
+}
+
+struct NestedSubqueryCandidate<'a> {
     selectable: Selectable<'a>,
     table_alias: AliasInfo,
-    select_source_names: HashSet<SmolStr>,
 }
 
 struct LintQueryResult {
     lint_result: LintResult,
     from_expression: ErasedSegment,
-    alias_name: SmolStr,
+    alias_name: IdentifierSpec,
     subquery_parent: ErasedSegment,
     cte_source: Option<ErasedSegment>,
     is_fixable: bool,
@@ -55,22 +134,20 @@ struct LintQueryResult {
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct RuleST05 {
-    forbid_subquery_in: String,
+    forbid_subquery_in: ForbidSubqueryIn,
 }
 
 impl Rule for RuleST05 {
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        match config["forbid_subquery_in"].as_string() {
-            Some("join" | "from" | "both") => Ok(RuleST05 {
-                forbid_subquery_in: config["forbid_subquery_in"].as_string().unwrap().into(),
-            }
-            .erased()),
-            Some(value) => Err(format!(
-                "Invalid value for forbid_subquery_in: {value}. Must be one of [join, from, \
-                 both]"
-            )),
-            None => Err("Rule ST05 expects a string for `forbid_subquery_in`".into()),
-        }
+        let forbid_subquery_in = match config.get("forbid_subquery_in") {
+            Some(value) => value
+                .as_string()
+                .ok_or_else(|| "Rule ST05 expects a string for `forbid_subquery_in`".to_string())?
+                .parse()?,
+            None => self.forbid_subquery_in,
+        };
+
+        Ok(RuleST05 { forbid_subquery_in }.erased())
     }
 
     fn name(&self) -> &'static str {
@@ -285,7 +362,7 @@ join c using(x)
                 case_preference,
                 context.dialect,
             );
-            ctes.replace_cte(&result.alias_name, new_cte);
+            ctes.replace_cte(result.alias_name.normalized.as_str(), new_cte);
         }
 
         // If there's no SELECT statement (e.g., WITH ... INSERT/UPDATE/DELETE),
@@ -355,16 +432,16 @@ impl RuleST05 {
         let mut acc = Vec::new();
 
         for nsq in self.nested_subqueries(query, dialect) {
-            let (alias_name, _) = ctes.create_cte_alias(Some(&nsq.table_alias));
+            let alias_name = ctes.create_cte_alias(Some(&nsq.table_alias));
             let anchor = nsq
                 .table_alias
                 .from_expression_element
                 .segments()
                 .first()
                 .cloned()
-                .unwrap();
+                .expect("from_expression_element should have at least one segment");
 
-            let mut is_fixable = !ctes.list_used_names().contains(&alias_name);
+            let mut is_fixable = !ctes.is_name_used(&alias_name.normalized);
             let bracket_anchor = if anchor.is_type(SyntaxKind::TableExpression) {
                 let Some(bracket_anchor) =
                     anchor.child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
@@ -397,20 +474,23 @@ impl RuleST05 {
                 ctes.insert_cte(new_cte);
             }
 
-            let anchor = anchor.recursive_crawl(
-                const {
-                    &SyntaxSet::new(&[
-                        SyntaxKind::Keyword,
-                        SyntaxKind::Symbol,
-                        SyntaxKind::StartBracket,
-                        SyntaxKind::EndBracket,
-                    ])
-                },
-                true,
-                &SyntaxSet::EMPTY,
-                true,
-            )[0]
-            .clone();
+            let anchor = anchor
+                .recursive_crawl(
+                    const {
+                        &SyntaxSet::new(&[
+                            SyntaxKind::Keyword,
+                            SyntaxKind::Symbol,
+                            SyntaxKind::StartBracket,
+                            SyntaxKind::EndBracket,
+                        ])
+                    },
+                    true,
+                    &SyntaxSet::EMPTY,
+                    true,
+                )
+                .first()
+                .cloned()
+                .expect("expected a code anchor inside the offending subquery");
 
             let res = LintResult::new(
                 anchor.into(),
@@ -440,21 +520,32 @@ impl RuleST05 {
         &self,
         query: Query<'a>,
         dialect: &'a Dialect,
-    ) -> Vec<NestedSubQuerySummary<'a>> {
+    ) -> Vec<NestedSubqueryCandidate<'a>> {
         let mut acc = Vec::new();
+        self.collect_nested_subqueries(&query, dialect, &mut acc);
+        acc
+    }
 
-        let parent_types = config_mapping(&self.forbid_subquery_in);
+    fn collect_nested_subqueries<'a>(
+        &self,
+        query: &Query<'a>,
+        dialect: &'a Dialect,
+        acc: &mut Vec<NestedSubqueryCandidate<'a>>,
+    ) {
+        let parent_types = self.forbid_subquery_in.syntax_set();
         let mut queries = vec![query.clone()];
         queries.extend(query.inner.borrow().ctes.values().cloned());
 
-        for (i, q) in enumerate(queries) {
-            for selectable in &q.inner.borrow().selectables {
+        for current_query in queries {
+            let selectables = current_query.inner.borrow().selectables.clone();
+
+            for selectable in selectables {
                 let Some(select_info) = selectable.select_info() else {
                     continue;
                 };
 
                 let mut select_source_names = HashSet::new();
-                for table_alias in select_info.table_aliases {
+                for table_alias in &select_info.table_aliases {
                     if !table_alias.ref_str.is_empty() {
                         select_source_names.insert(table_alias.ref_str.clone());
                     }
@@ -462,8 +553,10 @@ impl RuleST05 {
                     if let Some(object_reference) = &table_alias.object_reference {
                         select_source_names.insert(object_reference.raw().to_smolstr());
                     }
+                }
 
-                    let Some(query) =
+                for table_alias in select_info.table_aliases {
+                    let Some(subquery) =
                         Query::from_root(&table_alias.from_expression_element, dialect)
                     else {
                         continue;
@@ -472,48 +565,35 @@ impl RuleST05 {
                     let path_to = selectable
                         .selectable
                         .path_to(&table_alias.from_expression_element);
-
-                    if !(parent_types.contains(table_alias.from_expression_element.get_type())
+                    let is_target_parent = parent_types
+                        .contains(table_alias.from_expression_element.get_type())
                         || path_to
                             .iter()
-                            .any(|ps| parent_types.contains(ps.segment.get_type())))
+                            .any(|ps| parent_types.contains(ps.segment.get_type()));
+
+                    let Some(nested_selectable) =
+                        subquery.inner.borrow().selectables.first().cloned()
+                    else {
+                        continue;
+                    };
+
+                    if is_target_parent
+                        && !is_correlated_subquery(
+                            Segments::new(nested_selectable.selectable.clone(), None),
+                            &select_source_names,
+                            dialect,
+                        )
                     {
-                        continue;
+                        acc.push(NestedSubqueryCandidate {
+                            selectable: selectable.clone(),
+                            table_alias: table_alias.clone(),
+                        });
                     }
 
-                    if is_correlated_subquery(
-                        Segments::new(
-                            query
-                                .inner
-                                .borrow()
-                                .selectables
-                                .first()
-                                .unwrap()
-                                .selectable
-                                .clone(),
-                            None,
-                        ),
-                        &select_source_names,
-                        dialect,
-                    ) {
-                        continue;
-                    }
-
-                    acc.push(NestedSubQuerySummary {
-                        query: q.clone(),
-                        selectable: selectable.clone(),
-                        table_alias: table_alias.clone(),
-                        select_source_names: select_source_names.clone(),
-                    });
-
-                    if i > 0 {
-                        acc.append(&mut self.nested_subqueries(query.clone(), dialect));
-                    }
+                    self.collect_nested_subqueries(&subquery, dialect, acc);
                 }
             }
         }
-
-        acc
     }
 }
 
@@ -557,6 +637,7 @@ fn is_correlated_subquery(
 #[derive(Default)]
 struct CTEBuilder {
     ctes: Vec<ErasedSegment>,
+    used_names: HashSet<SmolStr>,
     name_idx: usize,
 }
 
@@ -615,71 +696,42 @@ impl CTEBuilder {
         let mut fixes = Vec::new();
 
         if subquery_parent.is(&output_select) {
-            let (missing_space_after_from, _from_clause, _from_clause_children, from_segment) =
-                Self::missing_space_after_from(output_select_clone.clone());
-
-            if missing_space_after_from {
+            if let Some(from_keyword) = Self::from_keyword_needing_separator(output_select_clone) {
                 let mut anchor_fixes = HashMap::default();
                 compute_anchor_edit_info(
                     &mut anchor_fixes,
                     vec![LintFix::create_after(
-                        from_segment.unwrap().base[0].clone(),
+                        from_keyword,
                         vec![SegmentBuilder::whitespace(tables.next_id(), " ")],
                         None,
                     )],
                 );
                 *output_select_clone = output_select_clone.apply_fixes(&mut anchor_fixes).0;
             }
-        } else {
-            let (missing_space_after_from, _from_clause, _from_clause_children, from_segment) =
-                Self::missing_space_after_from(subquery_parent);
-
-            if missing_space_after_from {
-                fixes.push(LintFix::create_after(
-                    from_segment.unwrap().base[0].clone(),
-                    vec![SegmentBuilder::whitespace(tables.next_id(), " ")],
-                    None,
-                ))
-            }
+        } else if let Some(from_keyword) = Self::from_keyword_needing_separator(&subquery_parent) {
+            fixes.push(LintFix::create_after(
+                from_keyword,
+                vec![SegmentBuilder::whitespace(tables.next_id(), " ")],
+                None,
+            ))
         }
 
         fixes
     }
 
-    fn missing_space_after_from(
-        segment: ErasedSegment,
-    ) -> (
-        bool,
-        Option<ErasedSegment>,
-        Option<ErasedSegment>,
-        Option<Segments>,
-    ) {
-        let mut missing_space_after_from = false;
-        let from_clause_children = None;
-        let mut from_segment = None;
-        let from_clause = segment.child(const { &SyntaxSet::single(SyntaxKind::FromClause) });
+    fn from_keyword_needing_separator(segment: &ErasedSegment) -> Option<ErasedSegment> {
+        let from_clause = segment.child(const { &SyntaxSet::single(SyntaxKind::FromClause) })?;
+        let from_clause_children = Segments::from_vec(from_clause.segments().to_vec(), None);
+        let from_keyword = from_clause_children
+            .find_first_where(|it: &ErasedSegment| it.is_keyword("FROM"))
+            .first()
+            .cloned()?;
+        let has_separator = !from_clause_children
+            .after(&from_keyword)
+            .take_while(|it| it.is_whitespace() || it.is_comment() || it.is_meta())
+            .is_empty();
 
-        if let Some(from_clause) = &from_clause {
-            let from_clause_children = Segments::from_vec(from_clause.segments().to_vec(), None);
-            from_segment = from_clause_children
-                .find_first_where(|it: &ErasedSegment| it.is_keyword("FROM"))
-                .into();
-            if !from_segment.as_ref().unwrap().is_empty()
-                && from_clause_children
-                    .after(&from_segment.as_ref().unwrap().base[0])
-                    .take_while(|it| it.is_whitespace())
-                    .is_empty()
-            {
-                missing_space_after_from = true;
-            }
-        }
-
-        (
-            missing_space_after_from,
-            from_clause,
-            from_clause_children,
-            from_segment,
-        )
+        (!has_separator).then_some(from_keyword)
     }
 }
 
@@ -689,7 +741,7 @@ impl CTEBuilder {
         segment: ErasedSegment,
         clone_map: &SegmentCloneMap,
     ) {
-        for (idx, cte) in enumerate(&self.ctes) {
+        for (idx, cte) in self.ctes.iter().enumerate() {
             if cte
                 .recursive_crawl_all(false)
                 .into_iter()
@@ -716,18 +768,13 @@ impl CTEBuilder {
                     ])
                 },
             )
-            .unwrap();
+            .expect("CTE should contain an identifier segment");
 
-        if id_seg.is_type(SyntaxKind::QuotedIdentifier) {
-            let raw = id_seg.raw();
-            raw[1..raw.len() - 1].to_smolstr()
-        } else {
-            id_seg.raw().to_smolstr()
-        }
+        normalize_identifier_name(id_seg.raw().as_ref())
     }
 
-    fn list_used_names(&self) -> Vec<SmolStr> {
-        self.ctes.iter().map(Self::cte_name).collect()
+    fn is_name_used(&self, name: &SmolStr) -> bool {
+        self.used_names.contains(name)
     }
 
     fn replace_cte(&mut self, cte_name: &str, new_cte: ErasedSegment) {
@@ -736,25 +783,30 @@ impl CTEBuilder {
             .iter()
             .position(|cte| Self::cte_name(cte) == cte_name)
         {
+            self.used_names.remove(&Self::cte_name(&self.ctes[idx]));
             self.ctes[idx] = new_cte;
+            self.used_names.insert(Self::cte_name(&self.ctes[idx]));
         }
     }
 
-    fn create_cte_alias(&mut self, alias: Option<&AliasInfo>) -> (SmolStr, bool) {
-        if let Some(alias) = alias.filter(|alias| alias.aliased && !alias.ref_str.is_empty()) {
-            return (alias.ref_str.clone(), false);
+    fn create_cte_alias(&mut self, alias: Option<&AliasInfo>) -> IdentifierSpec {
+        if let Some(alias) = alias.filter(|alias| alias.aliased)
+            && let Some(alias_name) = IdentifierSpec::from_alias(alias)
+        {
+            return alias_name;
         }
 
-        self.name_idx += 1;
-        let name = format_smolstr!("prep_{}", self.name_idx);
-        if self.list_used_names().iter().contains(&name) {
-            return self.create_cte_alias(None);
+        loop {
+            self.name_idx += 1;
+            let name = format_smolstr!("prep_{}", self.name_idx);
+            if !self.is_name_used(&name) {
+                return IdentifierSpec::generated(name);
+            }
         }
-
-        (name, true)
     }
 
     fn insert_cte(&mut self, cte: ErasedSegment) {
+        let cte_name = Self::cte_name(&cte);
         let inbound_subquery = Segments::new(cte.clone(), None)
             .children_all()
             .find_first_where(|it: &ErasedSegment| it.get_position_marker().is_some());
@@ -770,7 +822,7 @@ impl CTEBuilder {
                             .children_all()
                             .last()
                             .cloned()
-                            .unwrap(),
+                            .expect("CTE should contain a trailing selectable segment"),
                         None,
                     ),
                     inbound_subquery.clone(),
@@ -781,6 +833,7 @@ impl CTEBuilder {
             .unwrap_or(self.ctes.len());
 
         self.ctes.insert(insert_position, cte);
+        self.used_names.insert(cte_name);
     }
 }
 
@@ -836,7 +889,7 @@ fn segmentify(tables: &Tables, input_el: &str, casing: Case) -> ErasedSegment {
 
 fn create_cte_seg(
     tables: &Tables,
-    alias_name: SmolStr,
+    alias_name: IdentifierSpec,
     subquery: ErasedSegment,
     case_preference: Case,
     dialect: &Dialect,
@@ -846,8 +899,7 @@ fn create_cte_seg(
         SyntaxKind::CommonTableExpression,
         dialect.name,
         vec![
-            SegmentBuilder::token(tables.next_id(), &alias_name, SyntaxKind::NakedIdentifier)
-                .finish(),
+            SegmentBuilder::token(tables.next_id(), &alias_name.raw, alias_name.kind).finish(),
             SegmentBuilder::whitespace(tables.next_id(), " "),
             segmentify(tables, "AS", case_preference),
             SegmentBuilder::whitespace(tables.next_id(), " "),
@@ -857,7 +909,11 @@ fn create_cte_seg(
     .finish()
 }
 
-fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> ErasedSegment {
+fn create_table_ref(
+    tables: &Tables,
+    table_name: &IdentifierSpec,
+    dialect: &Dialect,
+) -> ErasedSegment {
     SegmentBuilder::node(
         tables.next_id(),
         SyntaxKind::TableExpression,
@@ -868,12 +924,8 @@ fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> Era
                 SyntaxKind::TableReference,
                 dialect.name,
                 vec![
-                    SegmentBuilder::token(
-                        tables.next_id(),
-                        table_name,
-                        SyntaxKind::NakedIdentifier,
-                    )
-                    .finish(),
+                    SegmentBuilder::token(tables.next_id(), &table_name.raw, table_name.kind)
+                        .finish(),
                 ],
             )
             .finish(),
@@ -892,12 +944,6 @@ impl Index<&ErasedSegment> for SegmentCloneMap {
 
     fn index(&self, index: &ErasedSegment) -> &Self::Output {
         &self.segment_map[&index.id()]
-    }
-}
-
-impl IndexMut<&ErasedSegment> for SegmentCloneMap {
-    fn index_mut(&mut self, index: &ErasedSegment) -> &mut Self::Output {
-        self.segment_map.get_mut(&index.id()).unwrap()
     }
 }
 
@@ -929,7 +975,7 @@ mod tests {
     use crate::core::linter::core::Linter;
     use crate::core::rules::Rule;
 
-    use super::RuleST05;
+    use super::{ForbidSubqueryIn, RuleST05};
 
     fn st05_linter(dialect: &str) -> Linter {
         let config = FluffConfig::from_source(
@@ -1458,4 +1504,16 @@ FROM `func`((
         assert!(RuleST05::default().load_from_config(&config).is_ok());
     }
 
+    #[test]
+    fn st05_default_config_is_safe_and_uses_both() {
+        assert_eq!(
+            RuleST05::default().forbid_subquery_in,
+            ForbidSubqueryIn::Both
+        );
+        assert!(
+            RuleST05::default()
+                .load_from_config(&HashMap::default())
+                .is_ok()
+        );
+    }
 }

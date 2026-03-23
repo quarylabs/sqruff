@@ -132,15 +132,25 @@ join c using(x)
             return Vec::new();
         }
 
+        let is_with =
+            segment.all_match(|it: &ErasedSegment| it.is_type(SyntaxKind::WithCompoundStatement));
         let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
         let mut ctes = CTEBuilder::default();
 
-        for cte in query.inner.borrow().ctes.values() {
-            ctes.insert_cte(cte.inner.borrow().cte_definition_segment.clone().unwrap());
+        if is_with {
+            // Mirror SQLFluff by preserving all CTEs in document order, including
+            // non-select expression CTEs (e.g. ClickHouse `expr AS alias`) which
+            // Query::from_segment intentionally skips in `query.ctes`.
+            for cte in context.segment.recursive_crawl(
+                const { &SyntaxSet::single(SyntaxKind::CommonTableExpression) },
+                false,
+                const { &SyntaxSet::single(SyntaxKind::WithCompoundStatement) },
+                false,
+            ) {
+                ctes.insert_cte(cte);
+            }
         }
 
-        let is_with =
-            segment.all_match(|it: &ErasedSegment| it.is_type(SyntaxKind::WithCompoundStatement));
         let is_recursive = is_with
             && !segment
                 .children_where(|it: &ErasedSegment| it.is_keyword("recursive"))
@@ -1420,6 +1430,56 @@ FROM `func`((
 "#;
 
         assert_pass("bigquery", source);
+    }
+
+    #[test]
+    fn st05_preserves_clickhouse_expression_ctes_when_fixing_join_subquery() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = clickhouse
+rules = ST05
+"#,
+            None,
+        );
+        let source = r#"insert into demo_table
+with
+array('A', 'B') as keep_list
+select
+    orders.id,
+    default_tags.tag
+from (
+    select 1 as id, 'A' as tag
+) as orders
+left join (
+    select 1 as id, 'x' as tag
+) as default_tags
+    on orders.id = default_tags.id
+where orders.tag in keep_list
+"#;
+        let expected = r#"insert into demo_table
+with array('A', 'B') as keep_list,
+default_tags as (
+    select 1 as id, 'x' as tag
+)
+select
+    orders.id,
+    default_tags.tag
+from (
+    select 1 as id, 'A' as tag
+) as orders
+left join default_tags
+    on orders.id = default_tags.id
+where orders.tag in keep_list
+"#;
+
+        let mut linter = Linter::new(config, None, None, false).unwrap();
+        let actual = linter
+            .lint_string_wrapped(source, true)
+            .unwrap()
+            .fix_string();
+
+        pretty_assertions::assert_eq!(actual, expected);
     }
 
     #[test]

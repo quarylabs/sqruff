@@ -932,6 +932,25 @@ forbid_subquery_in = both
         pretty_assertions::assert_eq!(actual, expected);
     }
 
+    fn assert_lint_without_fix(dialect: &str, source: &str, expected_violations: usize) {
+        let mut linter = st05_linter(dialect);
+        let linted = linter.lint_string_wrapped(source, false).unwrap();
+        assert_eq!(linted.violations().len(), expected_violations);
+
+        let mut linter = st05_linter(dialect);
+        let fixed = linter
+            .lint_string_wrapped(source, true)
+            .unwrap()
+            .fix_string();
+        pretty_assertions::assert_eq!(fixed, source);
+    }
+
+    fn assert_pass(dialect: &str, source: &str) {
+        let mut linter = st05_linter(dialect);
+        let linted = linter.lint_string_wrapped(source, false).unwrap();
+        assert!(linted.violations().is_empty(), "{:?}", linted.violations());
+    }
+
     #[test]
     fn st05_fixes_double_nested_subquery_without_panicking() {
         let source = r#"WITH q AS (
@@ -1354,5 +1373,39 @@ ON Main.Id = Subq.Id
 "#;
 
         assert_fix("tsql", source, expected);
+    }
+
+    #[test]
+    fn st05_lints_nested_joined_subquery_without_fixing() {
+        let source = r#"SELECT
+    x.a,
+    w2.b
+FROM x
+LEFT JOIN (
+    (
+        SELECT
+            w.a,
+            w.b,
+            w.c
+        FROM w
+    ) AS w2
+    LEFT JOIN y
+        ON w2.a = y.a
+)
+    ON x.a = w2.a;
+"#;
+
+        assert_lint_without_fix("ansi", source, 1);
+    }
+
+    #[test]
+    fn st05_ignores_nested_table_function_subqueries() {
+        let source = r#"SELECT *
+FROM `func`((
+  SELECT 1
+));
+"#;
+
+        assert_pass("bigquery", source);
     }
 }

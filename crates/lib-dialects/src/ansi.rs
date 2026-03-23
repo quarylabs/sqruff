@@ -4707,34 +4707,52 @@ pub fn raw_dialect() -> Dialect {
         (
             "FromExpressionElementSegment".into(),
             NodeMatcher::new(SyntaxKind::FromExpressionElement, |_| {
-                Sequence::new(vec![
-                    Ref::new("PreTableFunctionKeywordsGrammar")
-                        .optional()
-                        .to_matchable(),
-                    optionally_bracketed(vec![Ref::new("TableExpressionSegment").to_matchable()])
-                        .to_matchable(),
-                    Ref::new("AliasExpressionSegment")
-                        .exclude(one_of(vec![
-                            Ref::new("FromClauseTerminatorGrammar").to_matchable(),
-                            Ref::new("SamplingExpressionSegment").to_matchable(),
-                            Ref::new("JoinLikeClauseGrammar").to_matchable(),
-                            LookaheadExclude::new("WITH", "(").to_matchable(),
-                        ]))
-                        .optional()
-                        .to_matchable(),
+                let base_from_expression_element = || {
                     Sequence::new(vec![
-                        Ref::keyword("WITH").to_matchable(),
-                        Ref::keyword("OFFSET").to_matchable(),
-                        Ref::new("AliasExpressionSegment").to_matchable(),
+                        Ref::new("PreTableFunctionKeywordsGrammar")
+                            .optional()
+                            .to_matchable(),
+                        optionally_bracketed(vec![
+                            Ref::new("TableExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("AliasExpressionSegment")
+                            .exclude(one_of(vec![
+                                Ref::new("FromClauseTerminatorGrammar").to_matchable(),
+                                Ref::new("SamplingExpressionSegment").to_matchable(),
+                                Ref::new("JoinLikeClauseGrammar").to_matchable(),
+                                LookaheadExclude::new("WITH", "(").to_matchable(),
+                            ]))
+                            .optional()
+                            .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("OFFSET").to_matchable(),
+                            Ref::new("AliasExpressionSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Ref::new("SamplingExpressionSegment")
+                            .optional()
+                            .to_matchable(),
+                        Ref::new("PostTableExpressionGrammar")
+                            .optional()
+                            .to_matchable(),
                     ])
-                    .config(|this| this.optional())
+                    .to_matchable()
+                };
+
+                one_of(vec![
+                    base_from_expression_element(),
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            base_from_expression_element(),
+                            AnyNumberOf::new(vec![Ref::new("JoinClauseSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
                     .to_matchable(),
-                    Ref::new("SamplingExpressionSegment")
-                        .optional()
-                        .to_matchable(),
-                    Ref::new("PostTableExpressionGrammar")
-                        .optional()
-                        .to_matchable(),
                 ])
                 .to_matchable()
             })

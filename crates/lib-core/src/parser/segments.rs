@@ -35,9 +35,10 @@ struct TextExtent {
 
 impl TextExtent {
     fn from_raw(raw: &str) -> Self {
+        let (next_line_no, next_line_pos) = PositionMarker::infer_next_position(raw, 1, 1);
         Self {
-            newline_count: raw.as_bytes().iter().filter(|byte| **byte == b'\n').count(),
-            last_line_width: raw.rsplit('\n').next().unwrap_or_default().len(),
+            newline_count: next_line_no - 1,
+            last_line_width: next_line_pos - 1,
         }
     }
 
@@ -821,8 +822,33 @@ impl ErasedSegment {
         &self,
         fixes: &mut HashMap<u32, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>) {
-        let fixes = std::mem::take(fixes);
-        (self.apply_fixes_v2(fixes), Vec::new(), Vec::new())
+        if fixes.is_empty() || self.segments().is_empty() {
+            return (self.clone(), Vec::new(), Vec::new());
+        }
+
+        let pending_filter = fixes
+            .keys()
+            .fold(0_u64, |filter, id| filter | segment_id_filter(*id));
+        if self.subtree_anchor_filter() & pending_filter == 0 {
+            return (self.clone(), Vec::new(), Vec::new());
+        }
+
+        let mut applicable_fixes = HashMap::new();
+        for segment in self.recursive_crawl_all(false).into_iter().skip(1) {
+            if let Some(anchor_info) = fixes.remove(&segment.id()) {
+                applicable_fixes.insert(segment.id(), anchor_info);
+            }
+        }
+
+        if applicable_fixes.is_empty() {
+            return (self.clone(), Vec::new(), Vec::new());
+        }
+
+        (
+            self.apply_fixes_v2(applicable_fixes),
+            Vec::new(),
+            Vec::new(),
+        )
     }
 
     pub fn apply_fixes_v2(&self, fixes: HashMap<u32, AnchorEditInfo>) -> ErasedSegment {
@@ -1096,16 +1122,10 @@ fn execute_anchor_plan(
     program: &mut FixProgram,
 ) -> Vec<DraftSegment> {
     let mut emitted = Vec::new();
-    let mut kept_anchor = false;
 
     for step in plan.steps {
         match step {
-            Step::KeepAnchor => {
-                if !kept_anchor {
-                    emitted.push(rewrite_segment(anchor.clone(), None, program));
-                    kept_anchor = true;
-                }
-            }
+            Step::KeepAnchor => emitted.push(rewrite_segment(anchor.clone(), None, program)),
             Step::Insert(edit) => {
                 emitted.extend(
                     edit.into_iter()
@@ -1138,8 +1158,18 @@ fn rewrite_segment(
     seed_pos: Option<PositionMarker>,
     program: &mut FixProgram,
 ) -> DraftSegment {
-    if seed_pos.is_none() && segment.subtree_anchor_filter() & program.pending_filter == 0 {
-        return DraftSegment::reuse(segment);
+    if segment.subtree_anchor_filter() & program.pending_filter == 0 {
+        return if let Some(seed_pos) = seed_pos {
+            DraftSegment {
+                extent: segment.text_extent(),
+                base: segment,
+                seed_pos: Some(seed_pos),
+                children: None,
+                content_changed: false,
+            }
+        } else {
+            DraftSegment::reuse(segment)
+        };
     }
 
     if segment.segments().is_empty() {
@@ -1179,8 +1209,8 @@ fn compute_next_known_start_drafts(children: &[DraftSegment]) -> Vec<Option<Posi
 
     for idx in (0..children.len()).rev() {
         next_known_start[idx] = right_anchor.clone();
-        if let Some(pos) = children[idx].position_seed() {
-            right_anchor = Some(pos.start_point_marker());
+        if let Some(pos) = start_anchor_for_draft_positioning(&children[idx]) {
+            right_anchor = Some(pos);
         }
     }
 
@@ -1193,12 +1223,35 @@ fn compute_next_known_start_segments(children: &[ErasedSegment]) -> Vec<Option<P
 
     for idx in (0..children.len()).rev() {
         next_known_start[idx] = right_anchor.clone();
-        if let Some(pos) = children[idx].get_position_marker() {
-            right_anchor = Some(pos.start_point_marker());
+        if let Some(pos) = start_anchor_for_positioning(&children[idx]) {
+            right_anchor = Some(pos);
         }
     }
 
     next_known_start
+}
+
+fn start_anchor_for_positioning(segment: &ErasedSegment) -> Option<PositionMarker> {
+    if segment.get_position_marker().is_none() {
+        return None;
+    }
+
+    if segment.segments().is_empty() {
+        return Some(segment.get_position_marker().unwrap().start_point_marker());
+    }
+
+    segment
+        .segments()
+        .iter()
+        .find_map(start_anchor_for_positioning)
+}
+
+fn start_anchor_for_draft_positioning(draft: &DraftSegment) -> Option<PositionMarker> {
+    if let Some(seed_pos) = draft.seed_pos.as_ref() {
+        return Some(seed_pos.start_point_marker());
+    }
+
+    start_anchor_for_positioning(&draft.base)
 }
 
 fn infer_position(
@@ -1294,12 +1347,6 @@ fn position_only_freeze_base(base: &ErasedSegment, pos: PositionMarker) -> Erase
     }
 
     let finalized_children = position_segments(base.segments(), &pos);
-    if same_segment_list(base.segments(), &finalized_children) {
-        let mut segment = base.deep_clone();
-        segment.get_mut().set_position_marker(Some(pos));
-        return segment;
-    }
-
     freeze_with_children(
         base,
         finalized_children,
@@ -1345,16 +1392,13 @@ fn freeze_with_children(
                     FreezeMode::PositionOnly => node.descendant_type_set.clone(),
                     FreezeMode::ContentChanged => OnceCell::new(),
                 },
-                raw_segments_with_ancestors: OnceCell::new(),
+                raw_segments_with_ancestors: match mode {
+                    FreezeMode::PositionOnly => node.raw_segments_with_ancestors.clone(),
+                    FreezeMode::ContentChanged => OnceCell::new(),
+                },
             }),
-            code_idx: match mode {
-                FreezeMode::PositionOnly => base.value.code_idx.clone(),
-                FreezeMode::ContentChanged => OnceCell::new(),
-            },
-            hash: match mode {
-                FreezeMode::PositionOnly => base.value.hash.clone(),
-                FreezeMode::ContentChanged => OnceCell::new(),
-            },
+            code_idx: OnceCell::new(),
+            hash: OnceCell::new(),
             text_extent: match mode {
                 FreezeMode::PositionOnly => base.value.text_extent.clone(),
                 FreezeMode::ContentChanged => once_cell_with(extent),
@@ -1648,6 +1692,72 @@ mod tests {
     }
 
     #[test]
+    fn test_apply_fixes_leaves_unrelated_fixes_in_map() {
+        let tables = Tables::default();
+        let raw_segs = unique_raw_segments(&["foobar", ".barfoo"]);
+        let parent = file_segment(tables.next_id(), raw_segs.clone());
+        let external =
+            SegmentBuilder::token(10_000, "external", SyntaxKind::RawComparisonOperator).finish();
+
+        let mut fixes = HashMap::new();
+        compute_anchor_edit_info(
+            &mut fixes,
+            vec![
+                LintFix::replace(
+                    raw_segs[0].clone(),
+                    vec![raw_segs[0].edit(tables.next_id(), Some("fixed".to_string()), None)],
+                    None,
+                ),
+                LintFix::replace(
+                    external.clone(),
+                    vec![
+                        SegmentBuilder::token(10_001, "unused", SyntaxKind::RawComparisonOperator)
+                            .finish(),
+                    ],
+                    None,
+                ),
+            ],
+        );
+
+        let (fixed, _, _) = parent.apply_fixes(&mut fixes);
+        assert_eq!(
+            fixed.segments()[0].raw().as_str(),
+            "fixed",
+            "the in-subtree fix should still apply",
+        );
+        assert_eq!(fixes.len(), 1);
+        assert!(fixes.contains_key(&external.id()));
+    }
+
+    #[test]
+    fn test_apply_fixes_preserves_multiple_create_before_anchor_emission() {
+        let tables = Tables::default();
+        let raw_segs = unique_raw_segments(&["foobar", ".barfoo"]);
+        let parent = file_segment(tables.next_id(), raw_segs.clone());
+
+        let before_a = raw_segs[0].edit(tables.next_id(), Some("a".to_string()), None);
+        let before_b = raw_segs[0].edit(tables.next_id(), Some("b".to_string()), None);
+
+        let mut fixes = HashMap::new();
+        compute_anchor_edit_info(
+            &mut fixes,
+            vec![
+                LintFix::create_before(raw_segs[0].clone(), vec![before_a]),
+                LintFix::create_before(raw_segs[0].clone(), vec![before_b]),
+            ],
+        );
+
+        let (fixed, _, _) = parent.apply_fixes(&mut fixes);
+        let raws = fixed
+            .segments()
+            .iter()
+            .map(|segment| segment.raw().to_string())
+            .collect::<Vec<_>>();
+
+        assert_eq!(raws, vec!["a", "foobar", "b", "foobar", ".barfoo"]);
+    }
+
+    #[test]
     fn test_apply_fixes_replacement_adopts_anchor_position_on_first_raw_match() {
         let tables = Tables::default();
         let raw_segs = unique_raw_segments(&["foobar", ".barfoo"]);
@@ -1714,5 +1824,119 @@ mod tests {
             .collect::<Vec<_>>();
 
         assert_eq!(starts, vec![(1, 1), (1, 7), (1, 8), (1, 10)]);
+    }
+
+    #[test]
+    fn test_position_segments_uses_first_raw_descendant_for_right_anchor() {
+        let tables = Tables::default();
+        let templated_file: TemplatedFile = "___bar".into();
+        let raw = SegmentBuilder::token(tables.next_id(), "bar", SyntaxKind::RawComparisonOperator)
+            .with_position(PositionMarker::new(
+                3..6,
+                3..6,
+                templated_file.clone(),
+                None,
+                None,
+            ))
+            .finish();
+        let inner = SegmentBuilder::node(
+            tables.next_id(),
+            SyntaxKind::Bracketed,
+            DialectKind::Ansi,
+            vec![raw],
+        )
+        .with_position(PositionMarker::new(
+            0..6,
+            0..6,
+            templated_file.clone(),
+            None,
+            None,
+        ))
+        .finish();
+        let node = SegmentBuilder::node(
+            tables.next_id(),
+            SyntaxKind::SelectStatement,
+            DialectKind::Ansi,
+            vec![inner],
+        )
+        .position_from_segments()
+        .finish();
+        let parent = file_segment(tables.next_id(), vec![node.clone()]);
+
+        let mut inserted =
+            SegmentBuilder::token(tables.next_id(), "x", SyntaxKind::RawComparisonOperator)
+                .finish();
+        inserted.make_mut().set_position_marker(None);
+
+        let positioned =
+            position_segments(&[inserted, node], parent.get_position_marker().unwrap());
+
+        assert_eq!(
+            positioned[0].get_position_marker().unwrap().source_slice,
+            0..3
+        );
+        assert_eq!(
+            positioned[0].get_position_marker().unwrap().templated_slice,
+            0..3
+        );
+    }
+
+    #[test]
+    fn test_text_extent_matches_infer_next_position() {
+        let samples = [
+            "", "a", "\n", "\r", "\r\n", "é", "🙂", "\t", "a\n", "a\r\n", "\n🙂", "é\n🙂",
+        ];
+
+        for left in samples {
+            for right in samples {
+                let raw = format!("{left}{right}");
+                let extent = TextExtent::from_raw(&raw);
+                for (line_no, line_pos) in [(1, 1), (2, 4), (5, 9)] {
+                    assert_eq!(
+                        extent.advance(line_no, line_pos),
+                        PositionMarker::infer_next_position(&raw, line_no, line_pos),
+                        "raw={raw:?}, start=({line_no}, {line_pos})",
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_position_only_freeze_matches_old_cache_policy() {
+        let tables = Tables::default();
+        let raw = unique_raw_segments(&["foo"]);
+        let node = SegmentBuilder::node(
+            tables.next_id(),
+            SyntaxKind::SelectStatement,
+            DialectKind::Ansi,
+            raw,
+        )
+        .position_from_segments()
+        .finish();
+
+        let _ = node.raw();
+        let _ = node.descendant_type_set();
+        let _ = node.raw_segments_with_ancestors();
+        let _ = node.code_indices();
+        let _ = node.hash_value();
+
+        let moved = position_only_freeze_base(
+            &node,
+            node.get_position_marker()
+                .unwrap()
+                .clone()
+                .with_working_position(3, 7),
+        );
+
+        let NodeOrTokenKind::Node(node_data) = &moved.value.kind else {
+            panic!("expected node");
+        };
+
+        assert!(moved.value.code_idx.get().is_none());
+        assert!(moved.value.hash.get().is_none());
+        assert!(node_data.raw.get().is_some());
+        assert!(node_data.descendant_type_set.get().is_some());
+        assert!(node_data.raw_segments_with_ancestors.get().is_some());
     }
 }

@@ -788,11 +788,15 @@ fn is_child(maybe_parent: Segments, maybe_child: Segments) -> bool {
     let child_markers = maybe_child[0].get_position_marker().unwrap();
     let parent_pos = maybe_parent[0].get_position_marker().unwrap();
 
-    if child_markers < &parent_pos.start_point_marker() {
+    // Preserve the original source nesting relationship even after earlier fix
+    // passes have changed working positions within the tree. Structural rewrites
+    // like ST05 rely on this to keep generated CTEs ahead of the CTEs/selects
+    // they were extracted from.
+    if child_markers.source_slice.start < parent_pos.source_slice.start {
         return false;
     }
 
-    if child_markers > &parent_pos.end_point_marker() {
+    if child_markers.source_slice.end > parent_pos.source_slice.end {
         return false;
     }
 
@@ -1502,5 +1506,75 @@ where orders.tag in keep_list
             HashMap::from_iter([("forbid_subquery_in".into(), Value::String("from".into()))]);
 
         assert!(RuleST05::default().load_from_config(&config).is_ok());
+    }
+
+    #[test]
+    fn st05_with_lt09_keeps_generated_cte_before_first_use() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = ansi
+rules = ST05,LT09
+
+[sqruff:rules:structure.subquery]
+forbid_subquery_in = both
+"#,
+            None,
+        );
+        let source = r#"with
+
+cte1 as (
+    select t1.x, t2.y
+    from tbl1 t1
+    join (select x, y from tbl2) t2
+        on t1.x = t2.x
+)
+
+, cte2 as (
+    select x, y from tbl2 t2
+)
+
+select x, y from cte1
+union all
+select x, y from cte2
+;
+"#;
+        let expected = r#"with t2 as (select
+x,
+y
+from tbl2),
+cte1 as (
+    select
+t1.x,
+t2.y
+    from tbl1 t1
+    join t2
+        on t1.x = t2.x
+),
+cte2 as (
+    select
+x,
+y
+from tbl2 t2
+)
+select
+x,
+y
+from cte1
+union all
+select
+x,
+y
+from cte2
+;
+"#;
+
+        let mut linter = Linter::new(config, None, None, false).unwrap();
+        let fixed = linter
+            .lint_string_wrapped(source, true)
+            .unwrap()
+            .fix_string();
+
+        pretty_assertions::assert_eq!(fixed, expected);
     }
 }

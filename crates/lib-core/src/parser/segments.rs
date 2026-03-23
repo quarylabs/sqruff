@@ -14,7 +14,7 @@ use std::fmt::Debug;
 use std::hash::{BuildHasher, Hash, Hasher};
 use std::rc::Rc;
 
-use hashbrown::{DefaultHashBuilder, HashMap};
+use hashbrown::{DefaultHashBuilder, HashMap, HashSet};
 use itertools::enumerate;
 use smol_str::SmolStr;
 
@@ -60,12 +60,6 @@ impl TextExtent {
         children.iter().fold(Self::default(), |extent, child| {
             extent.append(child.text_extent())
         })
-    }
-
-    fn from_drafts(children: &[DraftSegment]) -> Self {
-        children
-            .iter()
-            .fold(Self::default(), |extent, child| extent.append(child.extent))
     }
 
     fn advance(self, line_no: usize, line_pos: usize) -> (usize, usize) {
@@ -136,6 +130,7 @@ impl SegmentBuilder {
                 hash: OnceCell::new(),
                 text_extent: OnceCell::new(),
                 subtree_anchor_filter: OnceCell::new(),
+                position_basis_start: OnceCell::new(),
             },
         }
     }
@@ -152,6 +147,7 @@ impl SegmentBuilder {
                 hash: OnceCell::new(),
                 text_extent: OnceCell::new(),
                 subtree_anchor_filter: OnceCell::new(),
+                position_basis_start: OnceCell::new(),
             },
         }
     }
@@ -239,6 +235,22 @@ impl ErasedSegment {
                     .iter()
                     .fold(0, |filter, child| filter | child.subtree_anchor_filter())
         })
+    }
+
+    fn position_basis_start(&self) -> Option<PositionMarker> {
+        self.value
+            .position_basis_start
+            .get_or_init(|| {
+                let pos = self.get_position_marker()?;
+                if self.segments().is_empty() {
+                    return Some(pos.start_point_marker());
+                }
+
+                self.segments()
+                    .iter()
+                    .find_map(ErasedSegment::position_basis_start)
+            })
+            .clone()
     }
 
     pub fn segments(&self) -> &[ErasedSegment] {
@@ -856,31 +868,25 @@ impl ErasedSegment {
             return self.clone();
         }
 
-        let mut program = FixProgram::compile(fixes);
-        let Some((draft_children, content_changed)) = rewrite_children(self, &mut program) else {
+        let program = FixProgram::compile(fixes);
+        let frontier = locate_frontier(self, &program.plans, program.pending_filter);
+        if frontier.is_empty() {
             return self.clone();
-        };
+        }
 
         let parent_pos = self
             .get_position_marker()
             .cloned()
             .expect("segments with children must have a position marker");
-        let finalized_children = finalize_draft_children(&draft_children, &parent_pos);
-        if !content_changed && same_segment_list(self.segments(), &finalized_children) {
-            return self.clone();
-        }
+        let mut context = PrepareContext::new(frontier);
+        let prepared = prepare_segment(
+            self.clone(),
+            None,
+            PrepareOrigin::OriginalTree,
+            &mut context,
+        );
 
-        freeze_with_children(
-            self,
-            finalized_children,
-            parent_pos,
-            if content_changed {
-                FreezeMode::ContentChanged
-            } else {
-                FreezeMode::PositionOnly
-            },
-            TextExtent::from_drafts(&draft_children),
-        )
+        freeze_prepared_child(&prepared, parent_pos, &context.arena)
     }
 }
 
@@ -972,28 +978,28 @@ impl PartialEq for ErasedSegment {
 
 #[derive(Debug)]
 struct FixProgram {
-    by_anchor: HashMap<u32, AnchorPlan>,
+    plans: HashMap<u32, AnchorPlan>,
     pending_filter: u64,
 }
 
 impl FixProgram {
     fn compile(fixes: HashMap<u32, AnchorEditInfo>) -> Self {
-        let mut by_anchor = HashMap::with_capacity(fixes.len());
+        let mut plans = HashMap::with_capacity(fixes.len());
         let mut pending_filter = 0;
 
         for (anchor_id, anchor_info) in fixes {
             pending_filter |= segment_id_filter(anchor_id);
-            by_anchor.insert(anchor_id, AnchorPlan::compile(anchor_info));
+            plans.insert(anchor_id, AnchorPlan::compile(anchor_info));
         }
 
         Self {
-            by_anchor,
+            plans,
             pending_filter,
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct AnchorPlan {
     steps: Vec<Step>,
 }
@@ -1036,9 +1042,26 @@ impl AnchorPlan {
 
         Self { steps }
     }
+
+    fn keeps_anchor(&self) -> bool {
+        self.steps
+            .iter()
+            .any(|step| matches!(step, Step::KeepAnchor))
+    }
+
+    fn emitted_len(&self) -> usize {
+        self.steps
+            .iter()
+            .map(|step| match step {
+                Step::KeepAnchor => 1,
+                Step::Insert(edit) | Step::Replace { edit, .. } => edit.len(),
+                Step::DeleteAnchor => 0,
+            })
+            .sum()
+    }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Step {
     KeepAnchor,
     Insert(Vec<ErasedSegment>),
@@ -1049,36 +1072,74 @@ enum Step {
     DeleteAnchor,
 }
 
+type ArenaIdx = usize;
+
 #[derive(Debug)]
-struct DraftSegment {
-    base: ErasedSegment,
-    seed_pos: Option<PositionMarker>,
-    children: Option<Vec<DraftSegment>>,
-    content_changed: bool,
-    extent: TextExtent,
+struct Frontier {
+    affected_nodes: HashSet<u32>,
+    parent_patches: HashMap<u32, ParentPatch>,
 }
 
-impl DraftSegment {
-    fn reuse(base: ErasedSegment) -> Self {
+impl Frontier {
+    fn is_empty(&self) -> bool {
+        self.affected_nodes.is_empty() && self.parent_patches.is_empty()
+    }
+}
+
+#[derive(Debug, Default)]
+struct ParentPatch {
+    edits: Vec<ChildPatch>,
+    final_len_hint: usize,
+}
+
+#[derive(Debug, Clone)]
+struct ChildPatch {
+    child_idx: usize,
+    anchor_id: u32,
+    plan: AnchorPlan,
+}
+
+#[derive(Debug, Clone)]
+struct ChildSummary {
+    extent: TextExtent,
+    basis_start: Option<PositionMarker>,
+}
+
+#[derive(Debug)]
+struct PreparedChild {
+    base: ErasedSegment,
+    built: Option<ArenaIdx>,
+    seed: Option<PositionMarker>,
+    summary: ChildSummary,
+    content_changed: bool,
+}
+
+impl PreparedChild {
+    fn reuse(base: ErasedSegment, seed: Option<PositionMarker>) -> Self {
         let extent = base.text_extent();
+        let summary = child_summary(&seed, &extent, &base);
         Self {
             base,
-            seed_pos: None,
-            children: None,
+            built: None,
+            seed: seed.clone(),
+            summary,
             content_changed: false,
-            extent,
         }
     }
 
     fn position_seed(&self) -> Option<&PositionMarker> {
-        self.seed_pos
+        self.seed
             .as_ref()
             .or_else(|| self.base.get_position_marker())
     }
+}
 
-    fn is_reused(&self) -> bool {
-        self.seed_pos.is_none() && self.children.is_none() && !self.content_changed
-    }
+#[derive(Debug)]
+struct BuildNode {
+    base: ErasedSegment,
+    children: Vec<PreparedChild>,
+    content_changed: bool,
+    summary: ChildSummary,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1087,62 +1148,151 @@ enum FreezeMode {
     ContentChanged,
 }
 
-fn same_segment_list(left: &[ErasedSegment], right: &[ErasedSegment]) -> bool {
-    left.len() == right.len() && left.iter().zip(right).all(|(lhs, rhs)| lhs.is(rhs))
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum PrepareOrigin {
+    OriginalTree,
+    EmittedEdit,
 }
 
-fn rewrite_children(
-    parent: &ErasedSegment,
-    program: &mut FixProgram,
-) -> Option<(Vec<DraftSegment>, bool)> {
-    let mut drafts = Vec::with_capacity(parent.segments().len());
-    let mut any_change = false;
-    let mut content_changed = false;
+#[derive(Debug)]
+struct PrepareContext {
+    frontier: Frontier,
+    arena: Vec<BuildNode>,
+}
 
-    for child in parent.segments() {
-        if let Some(plan) = program.by_anchor.remove(&child.id()) {
-            any_change = true;
-            content_changed = true;
-            drafts.extend(execute_anchor_plan(child, plan, program));
+impl PrepareContext {
+    fn new(frontier: Frontier) -> Self {
+        Self {
+            frontier,
+            arena: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug)]
+struct FrontierFrame {
+    segment: ErasedSegment,
+    next_child_idx: usize,
+    any_match: bool,
+}
+
+fn locate_frontier(
+    root: &ErasedSegment,
+    plans: &HashMap<u32, AnchorPlan>,
+    pending_filter: u64,
+) -> Frontier {
+    let mut frontier = Frontier {
+        affected_nodes: HashSet::new(),
+        parent_patches: HashMap::new(),
+    };
+
+    if root.subtree_anchor_filter() & pending_filter == 0 {
+        return frontier;
+    }
+
+    let mut stack = vec![FrontierFrame {
+        segment: root.clone(),
+        next_child_idx: 0,
+        any_match: false,
+    }];
+
+    while let Some(frame) = stack.last_mut() {
+        if frame.next_child_idx == frame.segment.segments().len() {
+            let finished = stack.pop().unwrap();
+            if finished.any_match {
+                frontier.affected_nodes.insert(finished.segment.id());
+                if let Some(parent) = stack.last_mut() {
+                    parent.any_match = true;
+                }
+            }
             continue;
         }
 
-        let draft = rewrite_segment(child.clone(), None, program);
-        any_change |= !draft.is_reused();
-        content_changed |= draft.content_changed;
-        drafts.push(draft);
+        let child_idx = frame.next_child_idx;
+        frame.next_child_idx += 1;
+        let child = frame.segment.segments()[child_idx].clone();
+
+        if let Some(plan) = plans.get(&child.id()) {
+            let parent_patch = frontier
+                .parent_patches
+                .entry(frame.segment.id())
+                .or_insert_with(|| ParentPatch {
+                    edits: Vec::new(),
+                    final_len_hint: frame.segment.segments().len(),
+                });
+            parent_patch.final_len_hint = parent_patch.final_len_hint - 1 + plan.emitted_len();
+            parent_patch.edits.push(ChildPatch {
+                child_idx,
+                anchor_id: child.id(),
+                plan: plan.clone(),
+            });
+            frame.any_match = true;
+
+            if !plan.keeps_anchor() {
+                continue;
+            }
+        }
+
+        if child.segments().is_empty() || child.subtree_anchor_filter() & pending_filter == 0 {
+            continue;
+        }
+
+        stack.push(FrontierFrame {
+            segment: child,
+            next_child_idx: 0,
+            any_match: false,
+        });
     }
 
-    any_change.then_some((drafts, content_changed))
+    frontier
 }
 
-fn execute_anchor_plan(
+fn child_summary(
+    seed: &Option<PositionMarker>,
+    extent: &TextExtent,
+    base: &ErasedSegment,
+) -> ChildSummary {
+    ChildSummary {
+        extent: *extent,
+        basis_start: seed
+            .as_ref()
+            .map(PositionMarker::start_point_marker)
+            .or_else(|| base.position_basis_start()),
+    }
+}
+
+fn prepare_anchor_plan(
     anchor: &ErasedSegment,
     plan: AnchorPlan,
-    program: &mut FixProgram,
-) -> Vec<DraftSegment> {
+    context: &mut PrepareContext,
+) -> Vec<PreparedChild> {
     let mut emitted = Vec::new();
 
     for step in plan.steps {
         match step {
-            Step::KeepAnchor => emitted.push(rewrite_segment(anchor.clone(), None, program)),
+            Step::KeepAnchor => emitted.push(prepare_segment(
+                anchor.clone(),
+                None,
+                PrepareOrigin::OriginalTree,
+                context,
+            )),
             Step::Insert(edit) => {
-                emitted.extend(
-                    edit.into_iter()
-                        .map(|segment| rewrite_segment(segment, None, program)),
-                );
+                emitted.extend(edit.into_iter().map(|segment| {
+                    prepare_segment(segment, None, PrepareOrigin::EmittedEdit, context)
+                }));
             }
             Step::Replace {
                 edit,
                 seed_match_idx,
             } => {
                 for (idx, segment) in edit.into_iter().enumerate() {
-                    emitted.push(rewrite_segment(
+                    emitted.push(prepare_segment(
                         segment,
                         (seed_match_idx == Some(idx))
                             .then(|| anchor.get_position_marker().cloned())
                             .flatten(),
-                        program,
+                        PrepareOrigin::EmittedEdit,
+                        context,
                     ));
                 }
             }
@@ -1153,63 +1303,98 @@ fn execute_anchor_plan(
     emitted
 }
 
-fn rewrite_segment(
+fn prepare_children(
+    parent: &ErasedSegment,
+    patch: Option<ParentPatch>,
+    context: &mut PrepareContext,
+) -> (Vec<PreparedChild>, bool) {
+    let capacity = patch
+        .as_ref()
+        .map(|patch| patch.final_len_hint.max(parent.segments().len()))
+        .unwrap_or_else(|| parent.segments().len());
+    let mut children = Vec::with_capacity(capacity);
+    let mut content_changed = false;
+    let mut patch_iter = patch
+        .map(|patch| patch.edits.into_iter())
+        .into_iter()
+        .flatten()
+        .peekable();
+
+    for (idx, child) in parent.segments().iter().enumerate() {
+        if patch_iter
+            .peek()
+            .is_some_and(|patch| patch.child_idx == idx && patch.anchor_id == child.id())
+        {
+            let patch = patch_iter.next().unwrap();
+            content_changed = true;
+            children.extend(prepare_anchor_plan(child, patch.plan, context));
+            continue;
+        }
+
+        let prepared = prepare_segment(child.clone(), None, PrepareOrigin::OriginalTree, context);
+        content_changed |= prepared.content_changed;
+        children.push(prepared);
+    }
+
+    debug_assert!(patch_iter.next().is_none());
+
+    (children, content_changed)
+}
+
+fn prepare_segment(
     segment: ErasedSegment,
-    seed_pos: Option<PositionMarker>,
-    program: &mut FixProgram,
-) -> DraftSegment {
-    if segment.subtree_anchor_filter() & program.pending_filter == 0 {
-        return if let Some(seed_pos) = seed_pos {
-            DraftSegment {
-                extent: segment.text_extent(),
-                base: segment,
-                seed_pos: Some(seed_pos),
-                children: None,
-                content_changed: false,
-            }
-        } else {
-            DraftSegment::reuse(segment)
-        };
-    }
-
+    seed: Option<PositionMarker>,
+    origin: PrepareOrigin,
+    context: &mut PrepareContext,
+) -> PreparedChild {
     if segment.segments().is_empty() {
-        return DraftSegment {
-            extent: segment.text_extent(),
-            base: segment,
-            seed_pos,
-            children: None,
-            content_changed: false,
-        };
+        return PreparedChild::reuse(segment, seed);
     }
 
-    if let Some((children, content_changed)) = rewrite_children(&segment, program) {
-        DraftSegment {
-            extent: TextExtent::from_drafts(&children),
-            base: segment,
-            seed_pos,
-            children: Some(children),
-            content_changed,
-        }
-    } else if seed_pos.is_some() {
-        DraftSegment {
-            extent: segment.text_extent(),
-            base: segment,
-            seed_pos,
-            children: None,
-            content_changed: false,
-        }
-    } else {
-        DraftSegment::reuse(segment)
+    let (is_affected, patch) = match origin {
+        PrepareOrigin::OriginalTree => (
+            context.frontier.affected_nodes.contains(&segment.id()),
+            context.frontier.parent_patches.remove(&segment.id()),
+        ),
+        PrepareOrigin::EmittedEdit => (false, None),
+    };
+
+    if !is_affected && patch.is_none() {
+        return PreparedChild::reuse(segment, seed);
+    }
+
+    let (children, content_changed) = prepare_children(&segment, patch, context);
+    let extent = children
+        .iter()
+        .fold(TextExtent::default(), |extent, child| {
+            extent.append(child.summary.extent)
+        });
+    let summary = child_summary(&seed, &extent, &segment);
+
+    let built_idx = context.arena.len();
+    context.arena.push(BuildNode {
+        base: segment.clone(),
+        children,
+        content_changed,
+        summary: summary.clone(),
+    });
+
+    PreparedChild {
+        base: segment,
+        built: Some(built_idx),
+        seed,
+        summary,
+        content_changed,
     }
 }
 
-fn compute_next_known_start_drafts(children: &[DraftSegment]) -> Vec<Option<PositionMarker>> {
+fn compute_next_known_start_prepared(children: &[PreparedChild]) -> Vec<Option<PositionMarker>> {
     let mut next_known_start = vec![None; children.len()];
     let mut right_anchor = None;
 
     for idx in (0..children.len()).rev() {
         next_known_start[idx] = right_anchor.clone();
-        if let Some(pos) = start_anchor_for_draft_positioning(&children[idx]) {
+        if let Some(pos) = children[idx].summary.basis_start.clone() {
             right_anchor = Some(pos);
         }
     }
@@ -1223,35 +1408,12 @@ fn compute_next_known_start_segments(children: &[ErasedSegment]) -> Vec<Option<P
 
     for idx in (0..children.len()).rev() {
         next_known_start[idx] = right_anchor.clone();
-        if let Some(pos) = start_anchor_for_positioning(&children[idx]) {
+        if let Some(pos) = children[idx].position_basis_start() {
             right_anchor = Some(pos);
         }
     }
 
     next_known_start
-}
-
-fn start_anchor_for_positioning(segment: &ErasedSegment) -> Option<PositionMarker> {
-    if segment.get_position_marker().is_none() {
-        return None;
-    }
-
-    if segment.segments().is_empty() {
-        return Some(segment.get_position_marker().unwrap().start_point_marker());
-    }
-
-    segment
-        .segments()
-        .iter()
-        .find_map(start_anchor_for_positioning)
-}
-
-fn start_anchor_for_draft_positioning(draft: &DraftSegment) -> Option<PositionMarker> {
-    if let Some(seed_pos) = draft.seed_pos.as_ref() {
-        return Some(seed_pos.start_point_marker());
-    }
-
-    start_anchor_for_positioning(&draft.base)
 }
 
 fn infer_position(
@@ -1280,58 +1442,55 @@ fn infer_position(
         .with_working_position(line_no, line_pos)
 }
 
-fn finalize_draft_children(
-    children: &[DraftSegment],
-    parent_pos: &PositionMarker,
-) -> Vec<ErasedSegment> {
-    if children.is_empty() {
-        return Vec::new();
-    }
+fn freeze_prepared_child(
+    child: &PreparedChild,
+    pos: PositionMarker,
+    arena: &[BuildNode],
+) -> ErasedSegment {
+    let Some(built_idx) = child.built else {
+        return position_only_freeze_base(&child.base, pos);
+    };
 
-    let next_known_start = compute_next_known_start_drafts(children);
-    let (mut line_no, mut line_pos) = parent_pos.working_loc();
-    let mut left_anchor = Some(parent_pos.start_point_marker());
-    let mut finalized = Vec::with_capacity(children.len());
+    let node = &arena[built_idx];
+    let next_known_start = compute_next_known_start_prepared(&node.children);
+    let (mut line_no, mut line_pos) = pos.working_loc();
+    let mut left_anchor = Some(pos.start_point_marker());
+    let mut finalized_children = Vec::with_capacity(node.children.len());
+    let base_children = node.base.segments();
+    let mut all_same_children = base_children.len() == node.children.len();
 
-    for (idx, child) in children.iter().enumerate() {
-        let new_pos = infer_position(
-            child.position_seed(),
+    for (idx, prepared_child) in node.children.iter().enumerate() {
+        let child_pos = infer_position(
+            prepared_child.position_seed(),
             left_anchor.as_ref(),
             next_known_start[idx].as_ref(),
             line_no,
             line_pos,
         );
-        (line_no, line_pos) = child.extent.advance(line_no, line_pos);
-        left_anchor = Some(new_pos.end_point_marker());
-        finalized.push(freeze_draft(child, new_pos));
+        let finalized_child = freeze_prepared_child(prepared_child, child_pos.clone(), arena);
+        if all_same_children && !base_children[idx].is(&finalized_child) {
+            all_same_children = false;
+        }
+
+        (line_no, line_pos) = prepared_child.summary.extent.advance(line_no, line_pos);
+        left_anchor = Some(child_pos.end_point_marker());
+        finalized_children.push(finalized_child);
     }
 
-    finalized
-}
-
-fn freeze_draft(draft: &DraftSegment, pos: PositionMarker) -> ErasedSegment {
-    let Some(children) = &draft.children else {
-        return position_only_freeze_base(&draft.base, pos);
-    };
-
-    let finalized_children = finalize_draft_children(children, &pos);
-    if !draft.content_changed
-        && draft.base.get_position_marker() == Some(&pos)
-        && same_segment_list(draft.base.segments(), &finalized_children)
-    {
-        return draft.base.clone();
+    if !node.content_changed && node.base.get_position_marker() == Some(&pos) && all_same_children {
+        return node.base.clone();
     }
 
     freeze_with_children(
-        &draft.base,
+        &node.base,
         finalized_children,
         pos,
-        if draft.content_changed {
+        if node.content_changed {
             FreezeMode::ContentChanged
         } else {
             FreezeMode::PositionOnly
         },
-        draft.extent,
+        node.summary.extent,
     )
 }
 
@@ -1407,6 +1566,7 @@ fn freeze_with_children(
                 FreezeMode::PositionOnly => base.value.subtree_anchor_filter.clone(),
                 FreezeMode::ContentChanged => once_cell_with(subtree_anchor_filter),
             },
+            position_basis_start: OnceCell::new(),
         }),
     }
 }
@@ -1451,6 +1611,7 @@ pub struct NodeOrToken {
     hash: OnceCell<u64>,
     text_extent: OnceCell<TextExtent>,
     subtree_anchor_filter: OnceCell<u64>,
+    position_basis_start: OnceCell<Option<PositionMarker>>,
 }
 
 #[derive(Debug, Clone)]
@@ -1463,6 +1624,7 @@ pub enum NodeOrTokenKind {
 impl NodeOrToken {
     pub fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
         self.position_marker = position_marker;
+        self.position_basis_start = OnceCell::new();
     }
 
     pub fn set_id(&mut self, id: u32) {
@@ -1755,6 +1917,62 @@ mod tests {
             .collect::<Vec<_>>();
 
         assert_eq!(raws, vec!["a", "foobar", "b", "foobar", ".barfoo"]);
+    }
+
+    #[test]
+    fn test_apply_fixes_consumes_descendant_fix_once_across_repeated_keep_anchor_emission() {
+        let tables = Tables::default();
+        let templated_file: TemplatedFile = "footail".into();
+        let child =
+            SegmentBuilder::token(tables.next_id(), "foo", SyntaxKind::RawComparisonOperator)
+                .with_position(PositionMarker::new(
+                    0..3,
+                    0..3,
+                    templated_file.clone(),
+                    None,
+                    None,
+                ))
+                .finish();
+        let anchor = SegmentBuilder::node(
+            tables.next_id(),
+            SyntaxKind::SelectStatement,
+            DialectKind::Ansi,
+            vec![child.clone()],
+        )
+        .position_from_segments()
+        .finish();
+        let tail =
+            SegmentBuilder::token(tables.next_id(), "tail", SyntaxKind::RawComparisonOperator)
+                .with_position(PositionMarker::new(3..7, 3..7, templated_file, None, None))
+                .finish();
+        let parent = file_segment(tables.next_id(), vec![anchor.clone(), tail]);
+
+        let before_a =
+            SegmentBuilder::token(tables.next_id(), "a", SyntaxKind::RawComparisonOperator)
+                .finish();
+        let before_b =
+            SegmentBuilder::token(tables.next_id(), "b", SyntaxKind::RawComparisonOperator)
+                .finish();
+        let replaced_child = child.edit(tables.next_id(), Some("bar".to_string()), None);
+
+        let mut fixes = HashMap::new();
+        compute_anchor_edit_info(
+            &mut fixes,
+            vec![
+                LintFix::create_before(anchor.clone(), vec![before_a]),
+                LintFix::create_before(anchor.clone(), vec![before_b]),
+                LintFix::replace(child, vec![replaced_child], None),
+            ],
+        );
+
+        let fixed = parent.apply_fixes_v2(fixes);
+        let raws = fixed
+            .segments()
+            .iter()
+            .map(|segment| segment.raw().to_string())
+            .collect::<Vec<_>>();
+
+        assert_eq!(raws, vec!["a", "bar", "b", "foo", "tail"]);
     }
 
     #[test]

@@ -1235,4 +1235,41 @@ FROM x
 
         assert_fix("ansi", source, expected);
     }
+
+    #[test]
+    fn st05_fixes_set_subquery_in_second_query() {
+        let source = r#"SELECT 1 AS value_name
+UNION
+SELECT value
+FROM (SELECT 2 AS value_name);
+"#;
+        let expected = r#"WITH prep_1 AS (SELECT 2 AS value_name)
+SELECT 1 AS value_name
+UNION
+SELECT value
+FROM prep_1;
+"#;
+
+        assert_fix("ansi", source, expected);
+    }
+
+    #[test]
+    fn st05_fixes_multiple_set_subqueries_in_second_query() {
+        let source = r#"SELECT 1 AS value_name
+UNION
+SELECT value
+FROM (SELECT 2 AS value_name)
+CROSS JOIN (SELECT 1 as v2);
+"#;
+        let expected = r#"WITH prep_1 AS (SELECT 2 AS value_name),
+prep_2 AS (SELECT 1 as v2)
+SELECT 1 AS value_name
+UNION
+SELECT value
+FROM prep_1
+CROSS JOIN prep_2;
+"#;
+
+        assert_fix("ansi", source, expected);
+    }
 }

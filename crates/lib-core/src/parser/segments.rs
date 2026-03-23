@@ -27,6 +27,65 @@ use crate::parser::segments::object_reference::{ObjectReferenceKind, ObjectRefer
 use crate::segments::AnchorEditInfo;
 use crate::templaters::TemplatedFile;
 
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+struct TextExtent {
+    newline_count: usize,
+    last_line_width: usize,
+}
+
+impl TextExtent {
+    fn from_raw(raw: &str) -> Self {
+        Self {
+            newline_count: raw.as_bytes().iter().filter(|byte| **byte == b'\n').count(),
+            last_line_width: raw.rsplit('\n').next().unwrap_or_default().len(),
+        }
+    }
+
+    fn append(self, other: Self) -> Self {
+        if other.newline_count == 0 {
+            Self {
+                newline_count: self.newline_count,
+                last_line_width: self.last_line_width + other.last_line_width,
+            }
+        } else {
+            Self {
+                newline_count: self.newline_count + other.newline_count,
+                last_line_width: other.last_line_width,
+            }
+        }
+    }
+
+    fn from_children(children: &[ErasedSegment]) -> Self {
+        children.iter().fold(Self::default(), |extent, child| {
+            extent.append(child.text_extent())
+        })
+    }
+
+    fn from_drafts(children: &[DraftSegment]) -> Self {
+        children
+            .iter()
+            .fold(Self::default(), |extent, child| extent.append(child.extent))
+    }
+
+    fn advance(self, line_no: usize, line_pos: usize) -> (usize, usize) {
+        if self.newline_count == 0 {
+            (line_no, line_pos + self.last_line_width)
+        } else {
+            (line_no + self.newline_count, self.last_line_width + 1)
+        }
+    }
+}
+
+fn segment_id_filter(id: u32) -> u64 {
+    1_u64 << (id & 63)
+}
+
+fn once_cell_with<T>(value: T) -> OnceCell<T> {
+    let cell = OnceCell::new();
+    let _ = cell.set(value);
+    cell
+}
+
 pub struct SegmentBuilder {
     node_or_token: NodeOrToken,
 }
@@ -74,6 +133,8 @@ impl SegmentBuilder {
                     raw_segments_with_ancestors: Default::default(),
                 }),
                 hash: OnceCell::new(),
+                text_extent: OnceCell::new(),
+                subtree_anchor_filter: OnceCell::new(),
             },
         }
     }
@@ -88,6 +149,8 @@ impl SegmentBuilder {
                 position_marker: None,
                 kind: NodeOrTokenKind::Token(TokenData { raw: raw.into() }),
                 hash: OnceCell::new(),
+                text_extent: OnceCell::new(),
+                subtree_anchor_filter: OnceCell::new(),
             },
         }
     }
@@ -155,6 +218,26 @@ impl ErasedSegment {
             }),
             NodeOrTokenKind::Token(token) => &token.raw,
         }
+    }
+
+    fn text_extent(&self) -> TextExtent {
+        *self
+            .value
+            .text_extent
+            .get_or_init(|| match &self.value.kind {
+                NodeOrTokenKind::Node(node) => TextExtent::from_children(&node.segments),
+                NodeOrTokenKind::Token(token) => TextExtent::from_raw(&token.raw),
+            })
+    }
+
+    fn subtree_anchor_filter(&self) -> u64 {
+        *self.value.subtree_anchor_filter.get_or_init(|| {
+            segment_id_filter(self.id())
+                | self
+                    .segments()
+                    .iter()
+                    .fold(0, |filter, child| filter | child.subtree_anchor_filter())
+        })
     }
 
     pub fn segments(&self) -> &[ErasedSegment] {
@@ -258,31 +341,6 @@ impl ErasedSegment {
                 builder.finish()
             }
             NodeOrTokenKind::Token(_) => self.deep_clone(),
-        }
-    }
-
-    fn change_segments(&self, segments: Vec<ErasedSegment>) -> ErasedSegment {
-        let NodeOrTokenKind::Node(node) = &self.value.kind else {
-            unimplemented!()
-        };
-
-        ErasedSegment {
-            value: Rc::new(NodeOrToken {
-                id: self.value.id,
-                syntax_kind: self.value.syntax_kind,
-                class_types: self.value.class_types.clone(),
-                position_marker: None,
-                code_idx: OnceCell::new(),
-                kind: NodeOrTokenKind::Node(NodeData {
-                    dialect: node.dialect,
-                    segments,
-                    raw: node.raw.clone(),
-                    source_fixes: node.source_fixes.clone(),
-                    descendant_type_set: node.descendant_type_set.clone(),
-                    raw_segments_with_ancestors: node.raw_segments_with_ancestors.clone(),
-                }),
-                hash: OnceCell::new(),
-            }),
         }
     }
 
@@ -763,113 +821,40 @@ impl ErasedSegment {
         &self,
         fixes: &mut HashMap<u32, AnchorEditInfo>,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>) {
+        let fixes = std::mem::take(fixes);
+        (self.apply_fixes_v2(fixes), Vec::new(), Vec::new())
+    }
+
+    pub fn apply_fixes_v2(&self, fixes: HashMap<u32, AnchorEditInfo>) -> ErasedSegment {
         if fixes.is_empty() || self.segments().is_empty() {
-            return (self.clone(), Vec::new(), Vec::new());
+            return self.clone();
         }
 
-        let mut seg_buffer = Vec::new();
-        let mut has_applied_fixes = false;
-        let mut _requires_validate = false;
+        let mut program = FixProgram::compile(fixes);
+        let Some((draft_children, content_changed)) = rewrite_children(self, &mut program) else {
+            return self.clone();
+        };
 
-        for seg in self.segments() {
-            // Look for uuid match.
-            // This handles potential positioning ambiguity.
-
-            let Some(mut anchor_info) = fixes.remove(&seg.id()) else {
-                seg_buffer.push(seg.clone());
-                continue;
-            };
-
-            if anchor_info.fixes.len() == 2
-                && matches!(anchor_info.fixes[0], LintFix::CreateAfter { .. })
-            {
-                anchor_info.fixes.reverse();
-            }
-
-            let fixes_count = anchor_info.fixes.len();
-            for lint_fix in anchor_info.fixes {
-                has_applied_fixes = true;
-
-                // Deletes are easy.
-                if matches!(lint_fix, LintFix::Delete { .. }) {
-                    // We're just getting rid of this segment.
-                    _requires_validate = true;
-                    // NOTE: We don't add the segment in this case.
-                    continue;
-                }
-
-                // Otherwise it must be a replace or a create.
-                assert!(matches!(
-                    lint_fix,
-                    LintFix::Replace { .. }
-                        | LintFix::CreateBefore { .. }
-                        | LintFix::CreateAfter { .. }
-                ));
-
-                match lint_fix {
-                    LintFix::CreateAfter { edit, .. } => {
-                        if fixes_count == 1 {
-                            // In the case of a creation after that is not part
-                            // of a create_before/create_after pair, also add
-                            // this segment before the edit.
-                            seg_buffer.push(seg.clone());
-                        }
-                        for s in edit {
-                            seg_buffer.push(s);
-                        }
-                        _requires_validate = true;
-                    }
-                    LintFix::CreateBefore { edit, .. } => {
-                        for s in edit {
-                            seg_buffer.push(s);
-                        }
-                        seg_buffer.push(seg.clone());
-                        _requires_validate = true;
-                    }
-                    LintFix::Replace { edit, .. } => {
-                        let mut consumed_pos = false;
-                        let is_single_same_type =
-                            edit.len() == 1 && edit[0].class_types() == seg.class_types();
-
-                        for mut s in edit {
-                            if !consumed_pos && s.raw() == seg.raw() {
-                                consumed_pos = true;
-                                s.make_mut()
-                                    .set_position_marker(seg.get_position_marker().cloned());
-                            }
-                            seg_buffer.push(s);
-                        }
-
-                        if !is_single_same_type {
-                            _requires_validate = true;
-                        }
-                    }
-                    LintFix::Delete { .. } => {
-                        // Already handled above
-                        unreachable!()
-                    }
-                }
-            }
+        let parent_pos = self
+            .get_position_marker()
+            .cloned()
+            .expect("segments with children must have a position marker");
+        let finalized_children = finalize_draft_children(&draft_children, &parent_pos);
+        if !content_changed && same_segment_list(self.segments(), &finalized_children) {
+            return self.clone();
         }
 
-        if has_applied_fixes {
-            seg_buffer =
-                position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
-        }
-
-        let seg_queue = seg_buffer;
-        let mut seg_buffer = Vec::new();
-        for seg in seg_queue {
-            let (mid, pre, post) = seg.apply_fixes(fixes);
-
-            seg_buffer.extend(pre);
-            seg_buffer.push(mid);
-            seg_buffer.extend(post);
-        }
-
-        let seg_buffer =
-            position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
-        (self.new(seg_buffer), Vec::new(), Vec::new())
+        freeze_with_children(
+            self,
+            finalized_children,
+            parent_pos,
+            if content_changed {
+                FreezeMode::ContentChanged
+            } else {
+                FreezeMode::PositionOnly
+            },
+            TextExtent::from_drafts(&draft_children),
+        )
     }
 }
 
@@ -959,6 +944,429 @@ impl PartialEq for ErasedSegment {
     }
 }
 
+#[derive(Debug)]
+struct FixProgram {
+    by_anchor: HashMap<u32, AnchorPlan>,
+    pending_filter: u64,
+}
+
+impl FixProgram {
+    fn compile(fixes: HashMap<u32, AnchorEditInfo>) -> Self {
+        let mut by_anchor = HashMap::with_capacity(fixes.len());
+        let mut pending_filter = 0;
+
+        for (anchor_id, anchor_info) in fixes {
+            pending_filter |= segment_id_filter(anchor_id);
+            by_anchor.insert(anchor_id, AnchorPlan::compile(anchor_info));
+        }
+
+        Self {
+            by_anchor,
+            pending_filter,
+        }
+    }
+}
+
+#[derive(Debug)]
+struct AnchorPlan {
+    steps: Vec<Step>,
+}
+
+impl AnchorPlan {
+    fn compile(mut anchor_info: AnchorEditInfo) -> Self {
+        if anchor_info.fixes.len() == 2
+            && matches!(anchor_info.fixes[0], LintFix::CreateAfter { .. })
+        {
+            anchor_info.fixes.reverse();
+        }
+
+        let fixes_count = anchor_info.fixes.len();
+        let mut steps = Vec::with_capacity(fixes_count * 2);
+
+        for fix in anchor_info.fixes {
+            match fix {
+                LintFix::CreateAfter { edit, .. } => {
+                    if fixes_count == 1 {
+                        steps.push(Step::KeepAnchor);
+                    }
+                    steps.push(Step::Insert(edit));
+                }
+                LintFix::CreateBefore { edit, .. } => {
+                    steps.push(Step::Insert(edit));
+                    steps.push(Step::KeepAnchor);
+                }
+                LintFix::Replace { anchor, edit, .. } => {
+                    let seed_match_idx = edit
+                        .iter()
+                        .position(|segment| segment.raw() == anchor.raw());
+                    steps.push(Step::Replace {
+                        edit,
+                        seed_match_idx,
+                    });
+                }
+                LintFix::Delete { .. } => steps.push(Step::DeleteAnchor),
+            }
+        }
+
+        Self { steps }
+    }
+}
+
+#[derive(Debug)]
+enum Step {
+    KeepAnchor,
+    Insert(Vec<ErasedSegment>),
+    Replace {
+        edit: Vec<ErasedSegment>,
+        seed_match_idx: Option<usize>,
+    },
+    DeleteAnchor,
+}
+
+#[derive(Debug)]
+struct DraftSegment {
+    base: ErasedSegment,
+    seed_pos: Option<PositionMarker>,
+    children: Option<Vec<DraftSegment>>,
+    content_changed: bool,
+    extent: TextExtent,
+}
+
+impl DraftSegment {
+    fn reuse(base: ErasedSegment) -> Self {
+        let extent = base.text_extent();
+        Self {
+            base,
+            seed_pos: None,
+            children: None,
+            content_changed: false,
+            extent,
+        }
+    }
+
+    fn position_seed(&self) -> Option<&PositionMarker> {
+        self.seed_pos
+            .as_ref()
+            .or_else(|| self.base.get_position_marker())
+    }
+
+    fn is_reused(&self) -> bool {
+        self.seed_pos.is_none() && self.children.is_none() && !self.content_changed
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum FreezeMode {
+    PositionOnly,
+    ContentChanged,
+}
+
+fn same_segment_list(left: &[ErasedSegment], right: &[ErasedSegment]) -> bool {
+    left.len() == right.len() && left.iter().zip(right).all(|(lhs, rhs)| lhs.is(rhs))
+}
+
+fn rewrite_children(
+    parent: &ErasedSegment,
+    program: &mut FixProgram,
+) -> Option<(Vec<DraftSegment>, bool)> {
+    let mut drafts = Vec::with_capacity(parent.segments().len());
+    let mut any_change = false;
+    let mut content_changed = false;
+
+    for child in parent.segments() {
+        if let Some(plan) = program.by_anchor.remove(&child.id()) {
+            any_change = true;
+            content_changed = true;
+            drafts.extend(execute_anchor_plan(child, plan, program));
+            continue;
+        }
+
+        let draft = rewrite_segment(child.clone(), None, program);
+        any_change |= !draft.is_reused();
+        content_changed |= draft.content_changed;
+        drafts.push(draft);
+    }
+
+    any_change.then_some((drafts, content_changed))
+}
+
+fn execute_anchor_plan(
+    anchor: &ErasedSegment,
+    plan: AnchorPlan,
+    program: &mut FixProgram,
+) -> Vec<DraftSegment> {
+    let mut emitted = Vec::new();
+    let mut kept_anchor = false;
+
+    for step in plan.steps {
+        match step {
+            Step::KeepAnchor => {
+                if !kept_anchor {
+                    emitted.push(rewrite_segment(anchor.clone(), None, program));
+                    kept_anchor = true;
+                }
+            }
+            Step::Insert(edit) => {
+                emitted.extend(
+                    edit.into_iter()
+                        .map(|segment| rewrite_segment(segment, None, program)),
+                );
+            }
+            Step::Replace {
+                edit,
+                seed_match_idx,
+            } => {
+                for (idx, segment) in edit.into_iter().enumerate() {
+                    emitted.push(rewrite_segment(
+                        segment,
+                        (seed_match_idx == Some(idx))
+                            .then(|| anchor.get_position_marker().cloned())
+                            .flatten(),
+                        program,
+                    ));
+                }
+            }
+            Step::DeleteAnchor => {}
+        }
+    }
+
+    emitted
+}
+
+fn rewrite_segment(
+    segment: ErasedSegment,
+    seed_pos: Option<PositionMarker>,
+    program: &mut FixProgram,
+) -> DraftSegment {
+    if seed_pos.is_none() && segment.subtree_anchor_filter() & program.pending_filter == 0 {
+        return DraftSegment::reuse(segment);
+    }
+
+    if segment.segments().is_empty() {
+        return DraftSegment {
+            extent: segment.text_extent(),
+            base: segment,
+            seed_pos,
+            children: None,
+            content_changed: false,
+        };
+    }
+
+    if let Some((children, content_changed)) = rewrite_children(&segment, program) {
+        DraftSegment {
+            extent: TextExtent::from_drafts(&children),
+            base: segment,
+            seed_pos,
+            children: Some(children),
+            content_changed,
+        }
+    } else if seed_pos.is_some() {
+        DraftSegment {
+            extent: segment.text_extent(),
+            base: segment,
+            seed_pos,
+            children: None,
+            content_changed: false,
+        }
+    } else {
+        DraftSegment::reuse(segment)
+    }
+}
+
+fn compute_next_known_start_drafts(children: &[DraftSegment]) -> Vec<Option<PositionMarker>> {
+    let mut next_known_start = vec![None; children.len()];
+    let mut right_anchor = None;
+
+    for idx in (0..children.len()).rev() {
+        next_known_start[idx] = right_anchor.clone();
+        if let Some(pos) = children[idx].position_seed() {
+            right_anchor = Some(pos.start_point_marker());
+        }
+    }
+
+    next_known_start
+}
+
+fn compute_next_known_start_segments(children: &[ErasedSegment]) -> Vec<Option<PositionMarker>> {
+    let mut next_known_start = vec![None; children.len()];
+    let mut right_anchor = None;
+
+    for idx in (0..children.len()).rev() {
+        next_known_start[idx] = right_anchor.clone();
+        if let Some(pos) = children[idx].get_position_marker() {
+            right_anchor = Some(pos.start_point_marker());
+        }
+    }
+
+    next_known_start
+}
+
+fn infer_position(
+    basis: Option<&PositionMarker>,
+    left_anchor: Option<&PositionMarker>,
+    right_anchor: Option<&PositionMarker>,
+    line_no: usize,
+    line_pos: usize,
+) -> PositionMarker {
+    basis
+        .cloned()
+        .unwrap_or_else(|| {
+            if let Some((left_anchor, right_anchor)) = left_anchor
+                .zip(right_anchor)
+                .filter(|(left_anchor, right_anchor)| left_anchor != right_anchor)
+            {
+                PositionMarker::from_points(left_anchor, right_anchor)
+            } else if let Some(left_anchor) = left_anchor {
+                left_anchor.clone()
+            } else if let Some(right_anchor) = right_anchor {
+                right_anchor.clone()
+            } else {
+                unreachable!("Unable to position new segment")
+            }
+        })
+        .with_working_position(line_no, line_pos)
+}
+
+fn finalize_draft_children(
+    children: &[DraftSegment],
+    parent_pos: &PositionMarker,
+) -> Vec<ErasedSegment> {
+    if children.is_empty() {
+        return Vec::new();
+    }
+
+    let next_known_start = compute_next_known_start_drafts(children);
+    let (mut line_no, mut line_pos) = parent_pos.working_loc();
+    let mut left_anchor = Some(parent_pos.start_point_marker());
+    let mut finalized = Vec::with_capacity(children.len());
+
+    for (idx, child) in children.iter().enumerate() {
+        let new_pos = infer_position(
+            child.position_seed(),
+            left_anchor.as_ref(),
+            next_known_start[idx].as_ref(),
+            line_no,
+            line_pos,
+        );
+        (line_no, line_pos) = child.extent.advance(line_no, line_pos);
+        left_anchor = Some(new_pos.end_point_marker());
+        finalized.push(freeze_draft(child, new_pos));
+    }
+
+    finalized
+}
+
+fn freeze_draft(draft: &DraftSegment, pos: PositionMarker) -> ErasedSegment {
+    let Some(children) = &draft.children else {
+        return position_only_freeze_base(&draft.base, pos);
+    };
+
+    let finalized_children = finalize_draft_children(children, &pos);
+    if !draft.content_changed
+        && draft.base.get_position_marker() == Some(&pos)
+        && same_segment_list(draft.base.segments(), &finalized_children)
+    {
+        return draft.base.clone();
+    }
+
+    freeze_with_children(
+        &draft.base,
+        finalized_children,
+        pos,
+        if draft.content_changed {
+            FreezeMode::ContentChanged
+        } else {
+            FreezeMode::PositionOnly
+        },
+        draft.extent,
+    )
+}
+
+fn position_only_freeze_base(base: &ErasedSegment, pos: PositionMarker) -> ErasedSegment {
+    if base.get_position_marker() == Some(&pos) {
+        return base.clone();
+    }
+
+    if base.segments().is_empty() {
+        let mut segment = base.deep_clone();
+        segment.get_mut().set_position_marker(Some(pos));
+        return segment;
+    }
+
+    let finalized_children = position_segments(base.segments(), &pos);
+    if same_segment_list(base.segments(), &finalized_children) {
+        let mut segment = base.deep_clone();
+        segment.get_mut().set_position_marker(Some(pos));
+        return segment;
+    }
+
+    freeze_with_children(
+        base,
+        finalized_children,
+        pos,
+        FreezeMode::PositionOnly,
+        base.text_extent(),
+    )
+}
+
+fn freeze_with_children(
+    base: &ErasedSegment,
+    children: Vec<ErasedSegment>,
+    pos: PositionMarker,
+    mode: FreezeMode,
+    extent: TextExtent,
+) -> ErasedSegment {
+    let NodeOrTokenKind::Node(node) = &base.value.kind else {
+        let mut segment = base.deep_clone();
+        segment.get_mut().set_position_marker(Some(pos));
+        return segment;
+    };
+
+    let subtree_anchor_filter = segment_id_filter(base.id())
+        | children
+            .iter()
+            .fold(0, |filter, child| filter | child.subtree_anchor_filter());
+
+    ErasedSegment {
+        value: Rc::new(NodeOrToken {
+            id: base.value.id,
+            syntax_kind: base.value.syntax_kind,
+            class_types: base.value.class_types.clone(),
+            position_marker: Some(pos),
+            kind: NodeOrTokenKind::Node(NodeData {
+                dialect: node.dialect,
+                segments: children,
+                raw: match mode {
+                    FreezeMode::PositionOnly => node.raw.clone(),
+                    FreezeMode::ContentChanged => OnceCell::new(),
+                },
+                source_fixes: node.source_fixes.clone(),
+                descendant_type_set: match mode {
+                    FreezeMode::PositionOnly => node.descendant_type_set.clone(),
+                    FreezeMode::ContentChanged => OnceCell::new(),
+                },
+                raw_segments_with_ancestors: OnceCell::new(),
+            }),
+            code_idx: match mode {
+                FreezeMode::PositionOnly => base.value.code_idx.clone(),
+                FreezeMode::ContentChanged => OnceCell::new(),
+            },
+            hash: match mode {
+                FreezeMode::PositionOnly => base.value.hash.clone(),
+                FreezeMode::ContentChanged => OnceCell::new(),
+            },
+            text_extent: match mode {
+                FreezeMode::PositionOnly => base.value.text_extent.clone(),
+                FreezeMode::ContentChanged => once_cell_with(extent),
+            },
+            subtree_anchor_filter: match mode {
+                FreezeMode::PositionOnly => base.value.subtree_anchor_filter.clone(),
+                FreezeMode::ContentChanged => once_cell_with(subtree_anchor_filter),
+            },
+        }),
+    }
+}
+
 pub fn position_segments(
     segments: &[ErasedSegment],
     parent_pos: &PositionMarker,
@@ -967,66 +1375,25 @@ pub fn position_segments(
         return Vec::new();
     }
 
-    let (mut line_no, mut line_pos) = { (parent_pos.working_line_no, parent_pos.working_line_pos) };
+    let next_known_start = compute_next_known_start_segments(segments);
+    let (mut line_no, mut line_pos) = parent_pos.working_loc();
+    let mut left_anchor = Some(parent_pos.start_point_marker());
+    let mut finalized = Vec::with_capacity(segments.len());
 
-    let mut segment_buffer: Vec<ErasedSegment> = Vec::new();
-    for (idx, segment) in enumerate(segments) {
-        let old_position = segment.get_position_marker();
-
-        let mut new_position = match old_position {
-            Some(pos_marker) => pos_marker.clone(),
-            None => {
-                let start_point = if idx > 0 {
-                    let prev_seg = segment_buffer[idx - 1].clone();
-                    Some(prev_seg.get_position_marker().unwrap().end_point_marker())
-                } else {
-                    Some(parent_pos.start_point_marker())
-                };
-
-                let mut end_point = None;
-                for fwd_seg in &segments[idx + 1..] {
-                    if fwd_seg.get_position_marker().is_some() {
-                        end_point = Some(
-                            fwd_seg.get_raw_segments()[0]
-                                .get_position_marker()
-                                .unwrap()
-                                .start_point_marker(),
-                        );
-                        break;
-                    }
-                }
-
-                if let Some((start_point, end_point)) = start_point
-                    .as_ref()
-                    .zip(end_point.as_ref())
-                    .filter(|(start_point, end_point)| start_point != end_point)
-                {
-                    PositionMarker::from_points(start_point, end_point)
-                } else if let Some(start_point) = start_point.as_ref() {
-                    start_point.clone()
-                } else if let Some(end_point) = end_point.as_ref() {
-                    end_point.clone()
-                } else {
-                    unimplemented!("Unable to position new segment")
-                }
-            }
-        };
-
-        new_position = new_position.with_working_position(line_no, line_pos);
-        (line_no, line_pos) = PositionMarker::infer_next_position(segment.raw(), line_no, line_pos);
-
-        let mut new_seg = if !segment.segments().is_empty() && old_position != Some(&new_position) {
-            let child_segments = position_segments(segment.segments(), &new_position);
-            segment.change_segments(child_segments)
-        } else {
-            segment.deep_clone()
-        };
-
-        new_seg.get_mut().set_position_marker(new_position.into());
-        segment_buffer.push(new_seg);
+    for (idx, segment) in segments.iter().enumerate() {
+        let new_pos = infer_position(
+            segment.get_position_marker(),
+            left_anchor.as_ref(),
+            next_known_start[idx].as_ref(),
+            line_no,
+            line_pos,
+        );
+        (line_no, line_pos) = segment.text_extent().advance(line_no, line_pos);
+        left_anchor = Some(new_pos.end_point_marker());
+        finalized.push(position_only_freeze_base(segment, new_pos));
     }
 
-    segment_buffer
+    finalized
 }
 
 #[derive(Debug, Clone)]
@@ -1038,6 +1405,8 @@ pub struct NodeOrToken {
     kind: NodeOrTokenKind,
     code_idx: OnceCell<Rc<Vec<usize>>>,
     hash: OnceCell<u64>,
+    text_extent: OnceCell<TextExtent>,
+    subtree_anchor_filter: OnceCell<u64>,
 }
 
 #[derive(Debug, Clone)]
@@ -1104,6 +1473,38 @@ mod tests {
     use crate::lint_fix::LintFix;
     use crate::linter::compute_anchor_edit_info;
     use crate::parser::segments::test_functions::{raw_seg, raw_segments};
+
+    fn file_segment(id: u32, segments: Vec<ErasedSegment>) -> ErasedSegment {
+        SegmentBuilder::node(id, SyntaxKind::File, DialectKind::Ansi, segments)
+            .position_from_segments()
+            .finish()
+    }
+
+    fn unique_raw_segments(raws: &[&str]) -> Vec<ErasedSegment> {
+        let tables = Tables::default();
+        let raw = raws.concat();
+        let templated_file: TemplatedFile = raw.into();
+        let mut offset = 0;
+        let mut segments = Vec::with_capacity(raws.len());
+
+        for raw in raws {
+            let position = PositionMarker::new(
+                offset..offset + raw.len(),
+                offset..offset + raw.len(),
+                templated_file.clone(),
+                None,
+                None,
+            );
+            segments.push(
+                SegmentBuilder::token(tables.next_id(), raw, SyntaxKind::RawComparisonOperator)
+                    .with_position(position)
+                    .finish(),
+            );
+            offset += raw.len();
+        }
+
+        segments
+    }
 
     #[test]
     /// Test comparison of raw segments.
@@ -1209,5 +1610,109 @@ mod tests {
                 None,
             )
         );
+    }
+
+    #[test]
+    fn test_apply_fixes_keeps_anchor_once_for_before_after_pair() {
+        let tables = Tables::default();
+        let raw_segs = unique_raw_segments(&["foobar", ".barfoo"]);
+        let parent = file_segment(tables.next_id(), raw_segs.clone());
+
+        let before = raw_segs[0].edit(tables.next_id(), Some("before".to_string()), None);
+        let after = raw_segs[0].edit(tables.next_id(), Some("after".to_string()), None);
+
+        let mut fixes = HashMap::new();
+        compute_anchor_edit_info(
+            &mut fixes,
+            vec![
+                LintFix::create_after(raw_segs[0].clone(), vec![after], None),
+                LintFix::create_before(raw_segs[0].clone(), vec![before]),
+            ],
+        );
+
+        let (fixed, pre, post) = parent.apply_fixes(&mut fixes);
+        assert!(pre.is_empty());
+        assert!(post.is_empty());
+
+        let raws = fixed
+            .segments()
+            .iter()
+            .map(|segment| segment.raw().to_string())
+            .collect::<Vec<_>>();
+
+        assert_eq!(raws, vec!["before", "foobar", "after", ".barfoo"]);
+        assert_eq!(
+            raws.iter().filter(|raw| raw.as_str() == "foobar").count(),
+            1
+        );
+    }
+
+    #[test]
+    fn test_apply_fixes_replacement_adopts_anchor_position_on_first_raw_match() {
+        let tables = Tables::default();
+        let raw_segs = unique_raw_segments(&["foobar", ".barfoo"]);
+        let parent = file_segment(tables.next_id(), raw_segs.clone());
+        let anchor_pos = raw_segs[0].get_position_marker().unwrap().clone();
+
+        let replacement_same_raw =
+            raw_segs[0].edit(tables.next_id(), Some("foobar".to_string()), None);
+        let replacement_extra = raw_segs[0].edit(tables.next_id(), Some("zz".to_string()), None);
+
+        let mut fixes = HashMap::new();
+        compute_anchor_edit_info(
+            &mut fixes,
+            vec![LintFix::replace(
+                raw_segs[0].clone(),
+                vec![replacement_same_raw, replacement_extra],
+                None,
+            )],
+        );
+
+        let fixed = parent.apply_fixes_v2(fixes);
+        let children = fixed.segments();
+
+        assert_eq!(children[0].raw().as_str(), "foobar");
+        assert_eq!(
+            children[0].get_position_marker().unwrap().source_slice,
+            anchor_pos.source_slice
+        );
+        assert_eq!(
+            children[0].get_position_marker().unwrap().templated_slice,
+            anchor_pos.templated_slice
+        );
+        assert_eq!(children[0].get_start_loc(), anchor_pos.working_loc());
+        assert_eq!(children[1].raw().as_str(), "zz");
+        assert_eq!(children[1].get_start_loc(), (1, 7));
+        assert_eq!(children[2].get_start_loc(), (1, 9));
+    }
+
+    #[test]
+    fn test_position_segments_positions_runs_of_unpositioned_siblings_linearly() {
+        let tables = Tables::default();
+        let raw_segs = unique_raw_segments(&["foobar", ".barfoo"]);
+        let parent = file_segment(tables.next_id(), raw_segs.clone());
+
+        let mut inserted_a = raw_segs[0].edit(tables.next_id(), Some("x".to_string()), None);
+        inserted_a.make_mut().set_position_marker(None);
+
+        let mut inserted_b = raw_segs[0].edit(tables.next_id(), Some("yy".to_string()), None);
+        inserted_b.make_mut().set_position_marker(None);
+
+        let positioned = position_segments(
+            &[
+                raw_segs[0].clone(),
+                inserted_a,
+                inserted_b,
+                raw_segs[1].clone(),
+            ],
+            parent.get_position_marker().unwrap(),
+        );
+
+        let starts = positioned
+            .iter()
+            .map(ErasedSegment::get_start_loc)
+            .collect::<Vec<_>>();
+
+        assert_eq!(starts, vec![(1, 1), (1, 7), (1, 8), (1, 10)]);
     }
 }

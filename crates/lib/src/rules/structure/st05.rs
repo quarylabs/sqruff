@@ -1,4 +1,3 @@
-use std::iter::zip;
 use std::ops::{Index, IndexMut};
 
 use hashbrown::{HashMap, HashSet};
@@ -43,6 +42,15 @@ struct NestedSubQuerySummary<'a> {
     selectable: Selectable<'a>,
     table_alias: AliasInfo,
     select_source_names: HashSet<SmolStr>,
+}
+
+struct LintQueryResult {
+    lint_result: LintResult,
+    from_expression: ErasedSegment,
+    alias_name: SmolStr,
+    subquery_parent: ErasedSegment,
+    cte_source: Option<ErasedSegment>,
+    is_fixable: bool,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -130,13 +138,27 @@ join c using(x)
                 .is_empty();
 
         let case_preference = get_case_preference(&segment);
+        let output_select = if is_with {
+            segment.children_where(|it: &ErasedSegment| {
+                matches!(
+                    it.get_type(),
+                    SyntaxKind::SetExpression | SyntaxKind::SelectStatement
+                )
+            })
+        } else {
+            segment.clone()
+        };
+        let bracketed_ctas = parent_stack
+            .base
+            .iter()
+            .rev()
+            .take(2)
+            .map(|it| it.get_type())
+            .eq([SyntaxKind::CreateTableStatement, SyntaxKind::Bracketed]);
 
-        let clone_map = SegmentCloneMap::new(
-            segment.first().unwrap().clone(),
-            segment.first().unwrap().deep_clone(),
-        );
+        let clone_map = SegmentCloneMap::new(segment.first().unwrap().deep_clone());
 
-        let results = self.lint_query(
+        let mut results_list = self.lint_query(
             context.tables,
             context.dialect,
             query,
@@ -145,19 +167,16 @@ join c using(x)
             &clone_map,
         );
 
-        let mut lint_results = Vec::with_capacity(results.len());
-        let mut is_fixable = true;
-
-        let mut subquery_parent = None;
-
         let mut local_fixes = Vec::new();
-        let mut q = Vec::new();
 
-        for result in results {
-            let (lint_result, from_expression, alias_name, subquery_parent_slot) = result;
-            subquery_parent = Some(subquery_parent_slot.clone());
-            let this_seg_clone = clone_map[&from_expression].clone();
-            let new_table_ref = create_table_ref(context.tables, &alias_name, context.dialect);
+        for result in &results_list {
+            if !result.is_fixable {
+                continue;
+            }
+
+            let this_seg_clone = clone_map[&result.from_expression].clone();
+            let new_table_ref =
+                create_table_ref(context.tables, &result.alias_name, context.dialect);
 
             local_fixes.push(LintFix::replace(
                 this_seg_clone.clone(),
@@ -172,64 +191,99 @@ join c using(x)
                 ],
                 None,
             ));
-
-            q.push(subquery_parent_slot);
-
-            let bracketed_ctas = parent_stack
-                .base
-                .iter()
-                .rev()
-                .take(2)
-                .map(|it| it.get_type())
-                .eq([SyntaxKind::CreateTableStatement, SyntaxKind::Bracketed]);
-
-            if bracketed_ctas || ctes.has_duplicate_aliases() || is_recursive {
-                is_fixable = false;
-            }
-
-            lint_results.push(lint_result);
         }
 
-        if !is_fixable {
-            return lint_results;
+        if bracketed_ctas || is_recursive || local_fixes.is_empty() {
+            return results_list
+                .into_iter()
+                .map(|result| result.lint_result)
+                .collect();
         }
 
         let mut fixes = HashMap::default();
         compute_anchor_edit_info(&mut fixes, local_fixes);
         let (new_root, _, _) = clone_map.root.apply_fixes(&mut fixes);
 
-        let clone_map = SegmentCloneMap::new(segment.first().unwrap().clone(), new_root.clone());
-        for subquery_parent_slot in q {
-            ctes.replace_with_clone(subquery_parent_slot, &clone_map);
+        let clone_map = SegmentCloneMap::new(new_root.clone());
+        for result in &results_list {
+            if result.is_fixable {
+                ctes.replace_with_clone(result.subquery_parent.clone(), &clone_map);
+            }
         }
+        for result in &results_list {
+            let Some(cte_source) = &result.cte_source else {
+                continue;
+            };
 
-        let _segment = Segments::new(new_root, None);
-        let output_select = if is_with {
-            _segment.children_where(|it: &ErasedSegment| {
-                matches!(
-                    it.get_type(),
-                    SyntaxKind::SetExpression | SyntaxKind::SelectStatement
-                )
-            })
-        } else {
-            _segment.clone()
-        };
+            let cte_source_clone = cte_source.deep_clone();
+            let cte_clone_map = SegmentCloneMap::new(cte_source_clone.clone());
+            let mut cte_fixes = Vec::new();
+
+            for nested_result in &results_list {
+                if !nested_result.is_fixable
+                    || cte_clone_map.get(&nested_result.from_expression).is_none()
+                {
+                    continue;
+                }
+
+                let from_expression_clone = cte_clone_map[&nested_result.from_expression].clone();
+                let new_table_ref =
+                    create_table_ref(context.tables, &nested_result.alias_name, context.dialect);
+
+                cte_fixes.push(LintFix::replace(
+                    from_expression_clone.clone(),
+                    vec![
+                        SegmentBuilder::node(
+                            context.tables.next_id(),
+                            from_expression_clone.get_type(),
+                            context.dialect.name,
+                            vec![new_table_ref],
+                        )
+                        .finish(),
+                    ],
+                    None,
+                ));
+            }
+
+            let cte_source = if cte_fixes.is_empty() {
+                cte_source_clone
+            } else {
+                let mut fixes = HashMap::default();
+                compute_anchor_edit_info(&mut fixes, cte_fixes);
+                cte_source_clone.apply_fixes(&mut fixes).0
+            };
+
+            let new_cte = create_cte_seg(
+                context.tables,
+                result.alias_name.clone(),
+                cte_source,
+                case_preference,
+                context.dialect,
+            );
+            ctes.replace_cte(&result.alias_name, new_cte);
+        }
 
         // If there's no SELECT statement (e.g., WITH ... INSERT/UPDATE/DELETE),
         // we can't safely create fixes, so return lint results without fixes.
         if output_select.is_empty() {
-            return lint_results;
+            return results_list
+                .into_iter()
+                .map(|result| result.lint_result)
+                .collect();
         }
 
-        for result in &mut lint_results {
-            let subquery_parent = subquery_parent.clone().unwrap();
-            let output_select_clone = output_select[0].clone();
+        let output_select_clone = clone_map[&output_select[0]].clone();
+
+        for result in &mut results_list {
+            if !result.is_fixable {
+                continue;
+            }
 
             let mut fixes = ctes.ensure_space_after_from(
                 context.tables,
                 output_select[0].clone(),
                 &output_select_clone,
-                subquery_parent,
+                result.subquery_parent.clone(),
             );
 
             let new_select = ctes.compose_select(
@@ -239,16 +293,19 @@ join c using(x)
                 case_preference,
             );
 
-            result.fixes = vec![LintFix::replace(
+            result.lint_result.fixes = vec![LintFix::replace(
                 segment.first().unwrap().clone(),
                 vec![new_select],
                 None,
             )];
 
-            result.fixes.append(&mut fixes);
+            result.lint_result.fixes.append(&mut fixes);
         }
 
-        lint_results
+        results_list
+            .into_iter()
+            .map(|result| result.lint_result)
+            .collect()
     }
 
     fn is_fix_compatible(&self) -> bool {
@@ -269,7 +326,7 @@ impl RuleST05 {
         ctes: &mut CTEBuilder,
         case_preference: Case,
         segment_clone_map: &SegmentCloneMap,
-    ) -> Vec<(LintResult, ErasedSegment, SmolStr, ErasedSegment)> {
+    ) -> Vec<LintQueryResult> {
         let mut acc = Vec::new();
 
         for nsq in self.nested_subqueries(query, dialect) {
@@ -282,21 +339,39 @@ impl RuleST05 {
                 .cloned()
                 .unwrap();
 
-            let new_cte = create_cte_seg(
-                tables,
-                alias_name.clone(),
-                segment_clone_map[&anchor].clone(),
-                case_preference,
-                dialect,
-            );
+            let mut is_fixable = !ctes.list_used_names().contains(&alias_name);
+            let bracket_anchor = if anchor.is_type(SyntaxKind::TableExpression) {
+                let Some(bracket_anchor) =
+                    anchor.child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
+                else {
+                    continue;
+                };
 
-            ctes.insert_cte(new_cte);
+                bracket_anchor
+            } else {
+                anchor.clone()
+            };
 
-            if nsq.query.inner.borrow().selectables.len() != 1 {
-                continue;
+            if !bracket_anchor.is_type(SyntaxKind::Bracketed)
+                || bracket_anchor
+                    .child(const { &SyntaxSet::single(SyntaxKind::TableExpression) })
+                    .is_some()
+            {
+                is_fixable = false;
             }
 
-            let select = nsq.query.inner.borrow().selectables[0].clone().selectable;
+            if is_fixable {
+                let new_cte = create_cte_seg(
+                    tables,
+                    alias_name.clone(),
+                    segment_clone_map[&bracket_anchor].clone(),
+                    case_preference,
+                    dialect,
+                );
+
+                ctes.insert_cte(new_cte);
+            }
+
             let anchor = anchor.recursive_crawl(
                 const {
                     &SyntaxSet::new(&[
@@ -317,18 +392,20 @@ impl RuleST05 {
                 Vec::new(),
                 format!(
                     "{} clauses should not contain subqueries. Use CTEs instead",
-                    select.get_type().as_str()
+                    nsq.selectable.selectable.get_type().as_str()
                 )
                 .into(),
                 None,
             );
 
-            acc.push((
-                res,
-                nsq.table_alias.from_expression_element,
-                alias_name.clone(),
-                nsq.query.inner.borrow().selectables[0].clone().selectable,
-            ));
+            acc.push(LintQueryResult {
+                lint_result: res,
+                from_expression: nsq.table_alias.from_expression_element,
+                alias_name: alias_name.clone(),
+                subquery_parent: nsq.selectable.selectable,
+                cte_source: is_fixable.then_some(bracket_anchor),
+                is_fixable,
+            });
         }
 
         acc
@@ -584,7 +661,9 @@ impl CTEBuilder {
                 .into_iter()
                 .any(|seg| segment.is(&seg))
             {
-                self.ctes[idx] = clone_map[&self.ctes[idx]].clone();
+                if let Some(cte_clone) = clone_map.get(&self.ctes[idx]) {
+                    self.ctes[idx] = cte_clone.clone();
+                }
                 return;
             }
         }
@@ -592,38 +671,39 @@ impl CTEBuilder {
 }
 
 impl CTEBuilder {
-    fn list_used_names(&self) -> Vec<SmolStr> {
-        let mut used_names = Vec::new();
+    fn cte_name(cte: &ErasedSegment) -> SmolStr {
+        let id_seg = cte
+            .child(
+                const {
+                    &SyntaxSet::new(&[
+                        SyntaxKind::Identifier,
+                        SyntaxKind::NakedIdentifier,
+                        SyntaxKind::QuotedIdentifier,
+                    ])
+                },
+            )
+            .unwrap();
 
-        for cte in &self.ctes {
-            let id_seg = cte
-                .child(
-                    const {
-                        &SyntaxSet::new(&[
-                            SyntaxKind::Identifier,
-                            SyntaxKind::NakedIdentifier,
-                            SyntaxKind::QuotedIdentifier,
-                        ])
-                    },
-                )
-                .unwrap();
-
-            let cte_name = if id_seg.is_type(SyntaxKind::QuotedIdentifier) {
-                let raw = id_seg.raw();
-                raw[1..raw.len() - 1].to_smolstr()
-            } else {
-                id_seg.raw().to_smolstr()
-            };
-
-            used_names.push(cte_name);
+        if id_seg.is_type(SyntaxKind::QuotedIdentifier) {
+            let raw = id_seg.raw();
+            raw[1..raw.len() - 1].to_smolstr()
+        } else {
+            id_seg.raw().to_smolstr()
         }
-
-        used_names
     }
 
-    fn has_duplicate_aliases(&self) -> bool {
-        let used_names = self.list_used_names();
-        !used_names.into_iter().all_unique()
+    fn list_used_names(&self) -> Vec<SmolStr> {
+        self.ctes.iter().map(Self::cte_name).collect()
+    }
+
+    fn replace_cte(&mut self, cte_name: &str, new_cte: ErasedSegment) {
+        if let Some(idx) = self
+            .ctes
+            .iter()
+            .position(|cte| Self::cte_name(cte) == cte_name)
+        {
+            self.ctes[idx] = new_cte;
+        }
     }
 
     fn create_cte_alias(&mut self, alias: Option<&AliasInfo>) -> (SmolStr, bool) {
@@ -766,37 +846,361 @@ fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> Era
 
 pub(crate) struct SegmentCloneMap {
     root: ErasedSegment,
-    segment_map: HashMap<usize, ErasedSegment>,
+    segment_map: HashMap<u32, ErasedSegment>,
 }
 
 impl Index<&ErasedSegment> for SegmentCloneMap {
     type Output = ErasedSegment;
 
     fn index(&self, index: &ErasedSegment) -> &Self::Output {
-        &self.segment_map[&index.addr()]
+        &self.segment_map[&index.id()]
     }
 }
 
 impl IndexMut<&ErasedSegment> for SegmentCloneMap {
     fn index_mut(&mut self, index: &ErasedSegment) -> &mut Self::Output {
-        self.segment_map.get_mut(&index.addr()).unwrap()
+        self.segment_map.get_mut(&index.id()).unwrap()
     }
 }
 
 impl SegmentCloneMap {
-    fn new(segment: ErasedSegment, segment_copy: ErasedSegment) -> Self {
+    fn get(&self, old_segment: &ErasedSegment) -> Option<&ErasedSegment> {
+        self.segment_map.get(&old_segment.id())
+    }
+
+    fn new(segment_copy: ErasedSegment) -> Self {
         let mut segment_map = HashMap::new();
 
-        for (old_segment, new_segment) in zip(
-            segment.recursive_crawl_all(false),
-            segment_copy.recursive_crawl_all(false),
-        ) {
-            segment_map.insert(old_segment.addr(), new_segment);
+        for segment in segment_copy.recursive_crawl_all(false) {
+            segment_map.insert(segment.id(), segment.clone());
         }
 
         Self {
             root: segment_copy,
             segment_map,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::core::config::FluffConfig;
+    use crate::core::linter::core::Linter;
+
+    fn st05_linter(dialect: &str) -> Linter {
+        let config = FluffConfig::from_source(
+            &format!(
+                r#"
+[sqruff]
+dialect = {dialect}
+rules = ST05
+
+[sqruff:rules:structure.subquery]
+forbid_subquery_in = both
+"#
+            ),
+            None,
+        );
+
+        Linter::new(config, None, None, false).unwrap()
+    }
+
+    fn assert_fix(dialect: &str, source: &str, expected: &str) {
+        let mut linter = st05_linter(dialect);
+        let actual = linter
+            .lint_string_wrapped(source, true)
+            .unwrap()
+            .fix_string();
+
+        pretty_assertions::assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn st05_fixes_double_nested_subquery_without_panicking() {
+        let source = r#"WITH q AS (
+    SELECT
+        t1.a
+    FROM
+        table_1 AS t1
+    INNER JOIN
+        table_2 AS t2 USING (a)
+    LEFT JOIN (
+        SELECT DISTINCT a FROM table_3
+            WHERE c = 'v1'
+    ) AS dns USING (a)
+    LEFT JOIN (
+        SELECT DISTINCT a FROM table_5
+        LEFT JOIN (
+            SELECT DISTINCT
+                a,
+                b
+            FROM table_6
+            WHERE c < 5
+        ) AS t4
+            USING (a)
+        WHERE table_5.b = 'v2'
+    ) AS dcod USING (a)
+)
+SELECT
+    a
+FROM
+    q;
+"#;
+        let expected = r#"WITH dns AS (
+        SELECT DISTINCT a FROM table_3
+            WHERE c = 'v1'
+    ),
+t4 AS (
+            SELECT DISTINCT
+                a,
+                b
+            FROM table_6
+            WHERE c < 5
+        ),
+dcod AS (
+        SELECT DISTINCT a FROM table_5
+        LEFT JOIN t4
+            USING (a)
+        WHERE table_5.b = 'v2'
+    ),
+q AS (
+    SELECT
+        t1.a
+    FROM
+        table_1 AS t1
+    INNER JOIN
+        table_2 AS t2 USING (a)
+    LEFT JOIN dns USING (a)
+    LEFT JOIN dcod USING (a)
+)
+SELECT
+    a
+FROM
+    q;
+"#;
+
+        assert_fix("ansi", source, expected);
+    }
+
+    #[test]
+    fn st05_fixes_order_4782_without_panicking() {
+        let source = r#"WITH
+cte_1 AS (
+    SELECT
+        subquery_a.field_a,
+        subquery_a.field_b
+    FROM (
+        SELECT
+            subquery_b.field_a,
+            alias_a.field_d,
+            alias_a.field_b,
+            alias_b.field_c
+        FROM table_b AS alias_a
+        INNER JOIN
+            (SELECT * FROM table_a) AS subquery_b
+            ON subquery_b.field_a >= alias_a.field_d
+        LEFT OUTER JOIN table_b AS alias_b ON alias_a.field_b = alias_b.field_c
+    ) AS subquery_a
+),
+
+cte_2 AS (
+    SELECT *
+    FROM table_c
+    WHERE field_a > 0
+    ORDER BY field_b DESC
+),
+
+join_ctes AS (
+    SELECT * FROM cte_1 LEFT OUTER JOIN cte_2 ON cte_1.field_a = cte_2.field_a
+)
+
+SELECT *
+FROM join_ctes;
+"#;
+        let expected = r#"WITH subquery_b AS (SELECT * FROM table_a),
+subquery_a AS (
+        SELECT
+            subquery_b.field_a,
+            alias_a.field_d,
+            alias_a.field_b,
+            alias_b.field_c
+        FROM table_b AS alias_a
+        INNER JOIN
+            subquery_b
+            ON subquery_b.field_a >= alias_a.field_d
+        LEFT OUTER JOIN table_b AS alias_b ON alias_a.field_b = alias_b.field_c
+    ),
+cte_1 AS (
+    SELECT
+        subquery_a.field_a,
+        subquery_a.field_b
+    FROM subquery_a
+),
+cte_2 AS (
+    SELECT *
+    FROM table_c
+    WHERE field_a > 0
+    ORDER BY field_b DESC
+),
+join_ctes AS (
+    SELECT * FROM cte_1 LEFT OUTER JOIN cte_2 ON cte_1.field_a = cte_2.field_a
+)
+SELECT *
+FROM join_ctes;
+"#;
+
+        assert_fix("ansi", source, expected);
+    }
+
+    #[test]
+    fn st05_fixes_same_named_nested_subqueries_across_ctes() {
+        let source = r#"with purchases_in_the_last_year as (
+    select
+        customer_id
+        , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+    from (
+        select
+            o.customer_id
+            , p.attr
+        from
+            order_line_item as o
+        inner join product as p
+            on o.product_id = p.product_id
+            and o.time_placed >= dateadd(year, -1, current_date())
+    ) group by customer_id
+)
+
+, purchases_in_the_last_three_years as (
+    select
+        customer_id
+        , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+    from (
+        select
+            o.customer_id
+            , p.attr
+        from
+            order_line_item as o
+        inner join product as p
+            on o.product_id = p.product_id
+            and o.time_placed >= dateadd(year, -3, current_date())
+    ) group by customer_id
+)
+
+
+select distinct
+    c.customer_id
+    , ly.attrlist as attrlist_last_year
+    , l3y.attrlist as attrlist_last_three_years
+from
+    customers as c
+left outer join
+    purchases_in_the_last_year as ly
+    on c.customer_id = ly.customer_id
+left outer join
+    purchases_in_the_last_three_years as l3y
+    on c.customer_id = l3y.customer_id
+;
+"#;
+        let expected = r#"with prep_1 as (
+        select
+            o.customer_id
+            , p.attr
+        from
+            order_line_item as o
+        inner join product as p
+            on o.product_id = p.product_id
+            and o.time_placed >= dateadd(year, -1, current_date())
+    ),
+purchases_in_the_last_year as (
+    select
+        customer_id
+        , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+    from prep_1 group by customer_id
+),
+prep_2 as (
+        select
+            o.customer_id
+            , p.attr
+        from
+            order_line_item as o
+        inner join product as p
+            on o.product_id = p.product_id
+            and o.time_placed >= dateadd(year, -3, current_date())
+    ),
+purchases_in_the_last_three_years as (
+    select
+        customer_id
+        , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+    from prep_2 group by customer_id
+)
+select distinct
+    c.customer_id
+    , ly.attrlist as attrlist_last_year
+    , l3y.attrlist as attrlist_last_three_years
+from
+    customers as c
+left outer join
+    purchases_in_the_last_year as ly
+    on c.customer_id = ly.customer_id
+left outer join
+    purchases_in_the_last_three_years as l3y
+    on c.customer_id = l3y.customer_id
+;
+"#;
+
+        assert_fix("snowflake", source, expected);
+    }
+
+    #[test]
+    fn st05_partially_fixes_duplicate_aliases_in_order_5265_case() {
+        let source = r#"WITH
+cte1 AS (
+    SELECT COUNT(*) AS qty
+    FROM some_table AS st
+    LEFT JOIN (
+        SELECT 'first' AS id
+    ) AS oops
+    ON st.id = oops.id
+),
+cte2 AS (
+    SELECT COUNT(*) AS other_qty
+    FROM other_table AS sot
+    LEFT JOIN (
+        SELECT 'middle' AS id
+    ) AS another
+    ON sot.id = another.id
+    LEFT JOIN (
+        SELECT 'last' AS id
+    ) AS oops
+    ON sot.id = oops.id
+)
+SELECT CURRENT_DATE();
+"#;
+        let expected = r#"WITH oops AS (
+        SELECT 'first' AS id
+    ),
+cte1 AS (
+    SELECT COUNT(*) AS qty
+    FROM some_table AS st
+    LEFT JOIN oops
+    ON st.id = oops.id
+),
+another AS (
+        SELECT 'middle' AS id
+    ),
+cte2 AS (
+    SELECT COUNT(*) AS other_qty
+    FROM other_table AS sot
+    LEFT JOIN another
+    ON sot.id = another.id
+    LEFT JOIN (
+        SELECT 'last' AS id
+    ) AS oops
+    ON sot.id = oops.id
+)
+SELECT CURRENT_DATE();
+"#;
+
+        assert_fix("ansi", source, expected);
     }
 }

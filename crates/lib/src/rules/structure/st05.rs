@@ -113,6 +113,8 @@ join c using(x)
         let functional_context = FunctionalContext::new(context);
         let segment = functional_context.segment();
         let parent_stack = functional_context.parent_stack();
+        let insert_parent = parent_stack
+            .find_last_where(|it: &ErasedSegment| it.is_type(SyntaxKind::InsertStatement));
 
         let is_select =
             segment.all_match(|it: &ErasedSegment| SELECT_TYPES.contains(it.get_type()));
@@ -138,13 +140,19 @@ join c using(x)
                 .is_empty();
 
         let case_preference = get_case_preference(&segment);
+        let mut root_segment = segment.first().unwrap().clone();
         let output_select = if is_with {
             segment.children_where(|it: &ErasedSegment| {
                 matches!(
                     it.get_type(),
-                    SyntaxKind::SetExpression | SyntaxKind::SelectStatement
+                    SyntaxKind::InsertStatement
+                        | SyntaxKind::SetExpression
+                        | SyntaxKind::SelectStatement
                 )
             })
+        } else if context.dialect.name == DialectKind::Tsql && !insert_parent.is_empty() {
+            root_segment = insert_parent.first().unwrap().clone();
+            insert_parent
         } else {
             segment.clone()
         };
@@ -156,7 +164,7 @@ join c using(x)
             .map(|it| it.get_type())
             .eq([SyntaxKind::CreateTableStatement, SyntaxKind::Bracketed]);
 
-        let clone_map = SegmentCloneMap::new(segment.first().unwrap().deep_clone());
+        let clone_map = SegmentCloneMap::new(root_segment.deep_clone());
 
         let mut results_list = self.lint_query(
             context.tables,
@@ -294,7 +302,7 @@ join c using(x)
             );
 
             result.lint_result.fixes = vec![LintFix::replace(
-                segment.first().unwrap().clone(),
+                root_segment.clone(),
                 vec![new_select],
                 None,
             )];
@@ -1271,5 +1279,80 @@ CROSS JOIN prep_2;
 "#;
 
         assert_fix("ansi", source, expected);
+    }
+
+    #[test]
+    fn st05_rewrites_tsql_insert_to_with_before_insert() {
+        let source = r#"INSERT INTO Table1 (Id,Name,Attribute)
+SELECT
+Main.Id
+,Main.Name
+,Subq.Attribute
+FROM MainTable AS Main
+LEFT JOIN
+(SELECT
+Id
+,Attribute
+FROM Table2) Subq
+ON Main.Id = Subq.Id
+"#;
+        let expected = r#"WITH Subq AS (SELECT
+Id
+,Attribute
+FROM Table2)
+INSERT INTO Table1 (Id,Name,Attribute)
+SELECT
+Main.Id
+,Main.Name
+,Subq.Attribute
+FROM MainTable AS Main
+LEFT JOIN
+Subq
+ON Main.Id = Subq.Id
+"#;
+
+        assert_fix("tsql", source, expected);
+    }
+
+    #[test]
+    fn st05_rewrites_existing_tsql_with_insert_statement() {
+        let source = r#"WITH MainTable as (
+    select *
+    from sales
+)
+
+INSERT INTO Table1 (Id,Name,Attribute)
+SELECT
+Main.Id
+,Main.Name
+,Subq.Attribute
+FROM MainTable AS Main
+LEFT JOIN
+(SELECT
+Id
+,Attribute
+FROM Table2) Subq
+ON Main.Id = Subq.Id
+"#;
+        let expected = r#"WITH MainTable as (
+    select *
+    from sales
+),
+Subq AS (SELECT
+Id
+,Attribute
+FROM Table2)
+INSERT INTO Table1 (Id,Name,Attribute)
+SELECT
+Main.Id
+,Main.Name
+,Subq.Attribute
+FROM MainTable AS Main
+LEFT JOIN
+Subq
+ON Main.Id = Subq.Id
+"#;
+
+        assert_fix("tsql", source, expected);
     }
 }

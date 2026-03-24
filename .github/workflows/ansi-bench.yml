@@ -16,6 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v5
       - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b
-      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4
       - name: Run benchmarks
         run: cargo run --color=always --bin bench --manifest-path ./crates/cli/Cargo.toml --features="bench"

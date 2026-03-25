@@ -65,6 +65,10 @@ pub fn determine_constraints(
             within_spacing = Some(within_spacing_inner);
             strip_newlines = strip_newlines_inner;
         }
+
+        if prev_block.segment().is_comment() {
+            strip_newlines = false;
+        }
     }
 
     match within_spacing {
@@ -585,13 +589,26 @@ mod tests {
     use itertools::Itertools;
     use pretty_assertions::assert_eq;
     use smol_str::ToSmolStr;
-    use sqruff_lib::core::test_functions::parse_ansi_string;
     use sqruff_lib_core::helpers::enter_panic;
     use sqruff_lib_core::lint_fix::LintFix;
+    use sqruff_lib_core::parser::segments::ErasedSegment;
 
+    use crate::core::config::FluffConfig;
+    use crate::core::linter::core::Linter;
+    use crate::core::test_functions::parse_ansi_string;
     use crate::utils::reflow::helpers::fixes_from_results;
     use crate::utils::reflow::respace::Tables;
     use crate::utils::reflow::sequence::{Filter, ReflowSequence};
+
+    fn parse_string_with_config(sql: &str, config: &FluffConfig) -> ErasedSegment {
+        let tables = Tables::default();
+        let linter = Linter::new(config.clone(), None, None, false).unwrap();
+        linter
+            .parse_string(&tables, sql, None)
+            .unwrap()
+            .tree
+            .unwrap()
+    }
 
     #[test]
     fn test_reflow_sequence_respace() {
@@ -741,6 +758,34 @@ mod tests {
                 .collect_vec();
 
             assert_eq!(fixes, fixes_out);
+        }
+    }
+
+    #[test]
+    fn test_reflow_sequence_respace_preserves_newline_after_inline_comment() {
+        let cases = ["touch:inline", "single:inline"];
+
+        for spacing_after in cases {
+            let _panic = enter_panic(format!("spacing_after={spacing_after}"));
+
+            let config = FluffConfig::from_source(
+                &format!(
+                    r#"
+[sqruff]
+dialect = ansi
+
+[sqruff:layout:type:inline_comment]
+spacing_after = {spacing_after}
+"#
+                ),
+                None,
+            );
+            let root = parse_string_with_config("select 1 -- comment\n+ 2", &config);
+            let seq = ReflowSequence::from_root(&root, &config);
+            let new_seq = seq.respace(&Tables::default(), false, Filter::All);
+
+            assert_eq!(new_seq.raw(), "select 1 -- comment\n+ 2");
+            assert!(new_seq.results().is_empty());
         }
     }
 }

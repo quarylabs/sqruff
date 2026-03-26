@@ -329,10 +329,13 @@ pub fn rebreak_sequence(
 
                 new_results
             } else {
-                fixes.push(LintFix::delete(loc.target.clone()));
-                for seg in elem_buff[loc.prev.adj_pt_idx as usize].segments() {
-                    fixes.push(LintFix::delete(seg.clone()));
-                }
+                let Some(create_anchor) = first_create_anchor(
+                    &elem_buff,
+                    ((loc.next.adj_pt_idx as usize)..=(loc.next.pre_code_pt_idx as usize)).rev(),
+                )
+                .and_then(|segments| segments.last().cloned()) else {
+                    continue;
+                };
 
                 let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(
                     tables,
@@ -344,26 +347,17 @@ pub fn rebreak_sequence(
                     "after",
                 );
 
-                let mut create_anchor = None;
-                for i in 0..loc.next.pre_code_pt_idx {
-                    let idx = loc.next.pre_code_pt_idx - i;
-                    if let Some(elem) = elem_buff.get(idx as usize)
-                        && let Some(segments) = elem.segments().last()
-                    {
-                        create_anchor = Some(segments.clone());
-                        break;
-                    }
-                }
-
-                if create_anchor.is_none() {
-                    panic!("Could not find anchor for creation.");
-                }
-
-                fixes.push(LintFix::create_after(
-                    create_anchor.unwrap(),
+                let mut local_fixes = vec![LintFix::delete(loc.target.clone())];
+                local_fixes.extend(point_delete_fixes(
+                    elem_buff[loc.prev.adj_pt_idx as usize].segments(),
+                    true,
+                ));
+                local_fixes.push(LintFix::create_after(
+                    create_anchor,
                     vec![loc.target.clone()],
                     None,
                 ));
+                fixes.extend(local_fixes);
 
                 rearrange_and_insert(&mut elem_buff, &loc, new_point);
 
@@ -412,10 +406,18 @@ pub fn rebreak_sequence(
 
                 new_results
             } else {
-                fixes.push(LintFix::delete(loc.target.clone()));
-                for seg in elem_buff[loc.next.adj_pt_idx as usize].segments() {
-                    fixes.push(LintFix::delete(seg.clone()));
-                }
+                let Some(create_anchor_segments) = first_create_anchor(
+                    &elem_buff,
+                    (loc.prev.pre_code_pt_idx as usize)..=(loc.prev.adj_pt_idx as usize),
+                ) else {
+                    continue;
+                };
+
+                let Some(create_fix) =
+                    dedent_aware_reinsert_fix(&create_anchor_segments, loc.target.clone())
+                else {
+                    continue;
+                };
 
                 let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(
                     tables,
@@ -427,10 +429,13 @@ pub fn rebreak_sequence(
                     "before",
                 );
 
-                fixes.push(LintFix::create_before(
-                    elem_buff[loc.prev.pre_code_pt_idx as usize].segments()[0].clone(),
-                    vec![loc.target.clone()],
+                let mut local_fixes = vec![LintFix::delete(loc.target.clone())];
+                local_fixes.extend(point_delete_fixes(
+                    elem_buff[loc.next.adj_pt_idx as usize].segments(),
+                    false,
                 ));
+                local_fixes.push(create_fix);
+                fixes.extend(local_fixes);
 
                 reorder_and_insert(&mut elem_buff, &loc, new_point);
 
@@ -515,6 +520,42 @@ pub fn rebreak_sequence(
     (elem_buff, lint_results)
 }
 
+fn first_create_anchor<I>(elem_buff: &[ReflowElement], loc_range: I) -> Option<Vec<ErasedSegment>>
+where
+    I: IntoIterator<Item = usize>,
+{
+    loc_range.into_iter().find_map(|idx| {
+        let segments = elem_buff.get(idx)?.segments();
+        (!segments.is_empty()).then(|| segments.to_vec())
+    })
+}
+
+fn point_delete_fixes(point_segments: &[ErasedSegment], preserve_dedent: bool) -> Vec<LintFix> {
+    point_segments
+        .iter()
+        .filter(|seg| !(preserve_dedent && seg.is_type(SyntaxKind::Dedent)))
+        .cloned()
+        .map(LintFix::delete)
+        .collect()
+}
+
+fn dedent_aware_reinsert_fix(
+    create_anchor_segments: &[ErasedSegment],
+    target: ErasedSegment,
+) -> Option<LintFix> {
+    create_anchor_segments
+        .iter()
+        .find(|seg| !seg.is_type(SyntaxKind::Dedent))
+        .cloned()
+        .map(|anchor| LintFix::create_before(anchor, vec![target.clone()]))
+        .or_else(|| {
+            create_anchor_segments
+                .last()
+                .cloned()
+                .map(|anchor| LintFix::create_after(anchor, vec![target], None))
+        })
+}
+
 fn rearrange_and_insert(
     elem_buff: &mut Vec<ReflowElement>,
     loc: &RebreakLocation,
@@ -589,9 +630,17 @@ fn reorder_and_insert(
 #[cfg(test)]
 mod tests {
     use sqruff_lib::core::test_functions::parse_ansi_string;
+    use sqruff_lib_core::dialects::syntax::SyntaxKind;
     use sqruff_lib_core::helpers::enter_panic;
+    use sqruff_lib_core::lint_fix::LintFix;
     use sqruff_lib_core::parser::segments::Tables;
+    use sqruff_lib_core::parser::segments::test_functions::generate_test_segments_func;
 
+    use super::{
+        ReflowElement, ReflowPoint, dedent_aware_reinsert_fix, first_create_anchor,
+        point_delete_fixes,
+    };
+    use crate::core::config::FluffConfig;
     use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
 
     #[test]
@@ -616,6 +665,10 @@ mod tests {
             (
                 "select\n  a\n  -- comment\n  , b",
                 "select\n  a,\n  -- comment\n  b",
+            ),
+            (
+                "select\n  foo(\n    a\n  )\n  -- comment\n  , b\nfrom bar",
+                "select\n  foo(\n    a\n  ),\n  -- comment\n  b\nfrom bar\n",
             ),
         ];
 
@@ -657,5 +710,74 @@ mod tests {
             let new_seq = seq.rebreak(&tables);
             assert_eq!(new_seq.raw(), seq_sql_out);
         }
+    }
+
+    #[test]
+    fn test_reflow_sequence_rebreak_leading_comma_tricky_comment_case() {
+        let root = parse_ansi_string(
+            "select\n  case\n    when x then y\n  end,\n  -- comment\n  z\nfrom bar",
+        );
+        let config = FluffConfig::from_source(
+            "[sqruff]\ndialect = ansi\n\n[sqruff:layout:type:comma]\nline_position = leading\n",
+            None,
+        );
+        let seq = ReflowSequence::from_root(&root, &config);
+        let new_seq = seq.rebreak(&Tables::default());
+
+        assert_eq!(
+            new_seq.raw(),
+            "select\n  case\n    when x then y\n  end\n  -- comment\n  , z\nfrom bar\n"
+        );
+    }
+
+    #[test]
+    fn test_first_create_anchor_returns_none_when_range_has_no_segments() {
+        let elem_buff = vec![
+            ReflowElement::Point(ReflowPoint::new(Vec::new())),
+            ReflowElement::Point(ReflowPoint::new(Vec::new())),
+        ];
+
+        assert!(first_create_anchor(&elem_buff, 0..2).is_none());
+    }
+
+    #[test]
+    fn test_point_delete_fixes_can_preserve_dedent_segments() {
+        let point_segments = generate_test_segments_func(vec!["\n", "  ", "<dedent>"]);
+        let delete_fixes = point_delete_fixes(&point_segments, true);
+
+        assert_eq!(delete_fixes.len(), 2);
+        for fix in delete_fixes {
+            let LintFix::Delete { anchor } = fix else {
+                panic!("expected delete fix");
+            };
+            assert!(!anchor.is_type(SyntaxKind::Dedent));
+        }
+    }
+
+    #[test]
+    fn test_dedent_aware_reinsert_fix_prefers_non_dedent_anchor() {
+        let create_anchor_segments = generate_test_segments_func(vec!["\n", "  ", "<dedent>"]);
+        let target = generate_test_segments_func(vec![","]).pop().unwrap();
+
+        let create_fix = dedent_aware_reinsert_fix(&create_anchor_segments, target).unwrap();
+
+        let LintFix::CreateBefore { anchor, .. } = create_fix else {
+            panic!("expected create-before fix");
+        };
+        assert!(!anchor.is_type(SyntaxKind::Dedent));
+        assert_eq!(anchor.raw(), "\n");
+    }
+
+    #[test]
+    fn test_dedent_aware_reinsert_fix_falls_back_to_after_last_dedent() {
+        let create_anchor_segments = generate_test_segments_func(vec!["<dedent>", "<dedent>"]);
+        let target = generate_test_segments_func(vec![","]).pop().unwrap();
+
+        let create_fix = dedent_aware_reinsert_fix(&create_anchor_segments, target).unwrap();
+
+        let LintFix::CreateAfter { anchor, .. } = create_fix else {
+            panic!("expected create-after fix");
+        };
+        assert!(anchor.is_type(SyntaxKind::Dedent));
     }
 }

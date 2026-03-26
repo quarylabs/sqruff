@@ -306,45 +306,45 @@ mod tests {
         struct Test {
             raw: String,
             start: Range<usize>,
-            end: Range<usize>,
+            end: (usize, usize),
         }
 
         let tests: Vec<Test> = vec![
             Test {
                 raw: "fsaljk".to_string(),
                 start: 0..0,
-                end: 0..6,
+                end: (0, 6),
             },
             Test {
                 raw: "".to_string(),
                 start: 2..2,
-                end: 2..2,
+                end: (2, 2),
             },
             Test {
                 raw: "\n".to_string(),
                 start: 2..2,
-                end: 3..1,
+                end: (3, 1),
             },
             Test {
                 raw: "boo\n".to_string(),
                 start: 2..2,
-                end: 3..1,
+                end: (3, 1),
             },
             Test {
                 raw: "boo\nfoo".to_string(),
                 start: 2..2,
-                end: 3..4,
+                end: (3, 4),
             },
             Test {
                 raw: "\nfoo".to_string(),
                 start: 2..2,
-                end: 3..4,
+                end: (3, 4),
             },
         ];
 
         for t in tests {
             assert_eq!(
-                (t.end.start, t.end.end),
+                t.end,
                 PositionMarker::infer_next_position(&t.raw, t.start.start, t.start.end)
             );
         }
@@ -393,11 +393,11 @@ mod tests {
         // TODO Finish these tests
         // Check less than
         assert!(a_pos < b_pos && b_pos < c_pos);
-        assert!(!(c_pos < a_pos));
+        assert!(c_pos >= a_pos);
 
         // Check greater than
         assert!(c_pos > a_pos && c_pos > b_pos);
-        assert!(!(a_pos > c_pos));
+        assert!(a_pos <= c_pos);
 
         // Check less than or equal
         assert!(all_pos.iter().all(|p| a_pos <= **p));

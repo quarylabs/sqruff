@@ -9,8 +9,8 @@
     "onlyBuiltDependencies": ["code-server", "esbuild", "@swc/core", "argon2"]
   },
   "devDependencies": {
-    "@secretlint/secretlint-formatter-sarif": "^11.3.1",
-    "@secretlint/secretlint-rule-no-dotenv": "^11.3.1",
+    "@secretlint/secretlint-formatter-sarif": "^11.4.0",
+    "@secretlint/secretlint-rule-no-dotenv": "^11.4.0",
     "@secretlint/secretlint-rule-preset-recommend": "^11.3.1",
     "prettier": "^3.8.1"
   },

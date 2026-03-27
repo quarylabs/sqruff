@@ -530,3 +530,47 @@ test_fail_redshift_qualify_does_not_follows_from:
   configs:
     core:
       dialect: redshift
+
+test_pass_postgres_json_arrow_operator_alias_reference:
+  # sqruff issue #2327
+  pass_str: |
+    SELECT data -> 'name' AS name
+    FROM jsonb_array_elements('[{"name": "backup"}]'::jsonb) AS data;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_json_arrow_text_operator_alias_reference:
+  # sqruff issue #2327
+  pass_str: |
+    SELECT data ->> 'name' AS name
+    FROM jsonb_array_elements('[{"name": "backup"}]'::jsonb) AS data;
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_json_arrow_operator_alias_reference_reproducer:
+  # sqruff issue #2327
+  pass_str: |
+    with stanza as (
+        select
+            data -> 'name' as name,
+            data -> 'backup' -> (
+                jsonb_array_length(data -> 'backup') - 1
+            ) as last_backup,
+            data -> 'archive' -> (
+                jsonb_array_length(data -> 'archive') - 1
+            ) as current_archive
+        from jsonb_array_elements(monitor.pgbackrest_info()) as data
+    )
+
+    select
+        name,
+        to_timestamp(
+            (last_backup -> 'timestamp' ->> 'stop')::numeric
+        ) as last_successful_backup,
+        current_archive ->> 'max' as last_archived_wal
+    from stanza;
+  configs:
+    core:
+      dialect: postgres

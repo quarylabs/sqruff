@@ -198,6 +198,10 @@ FROM foo
                 continue;
             }
 
+            if self.has_function_alias_reference(alias, &select_info, context.dialect.name) {
+                continue;
+            }
+
             if alias.aliased
                 && !payload
                     .tbl_refs
@@ -395,6 +399,43 @@ impl RuleAL05 {
         false
     }
 
+    fn has_function_alias_reference(
+        &self,
+        alias: &AliasInfo,
+        select_info: &SelectStatementColumnsAndTables,
+        dialect_name: DialectKind,
+    ) -> bool {
+        let Some(table_expression) = alias
+            .from_expression_element
+            .child(const { &SyntaxSet::single(SyntaxKind::TableExpression) })
+        else {
+            return false;
+        };
+
+        if table_expression
+            .child(const { &SyntaxSet::single(SyntaxKind::Function) })
+            .is_none()
+        {
+            return false;
+        }
+
+        let alias_name = self.alias_name(alias, dialect_name);
+
+        select_info.reference_buffer.iter().any(|reference| {
+            let references = reference.iter_raw_references();
+            if references.len() != 1 {
+                return false;
+            }
+
+            references
+                .first()
+                .and_then(|reference_part| reference_part.segments.first())
+                .is_some_and(|segment| {
+                    self.normalize_identifier(segment, dialect_name) == alias_name
+                })
+        })
+    }
+
     fn report_unused_alias(&self, alias: &AliasInfo) -> LintResult {
         let mut fixes = vec![LintFix::delete(alias.alias_expression.clone().unwrap())];
 
@@ -525,5 +566,65 @@ impl RuleAL05 {
         }
 
         false
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::core::config::FluffConfig;
+    use crate::core::linter::core::Linter;
+
+    const POSTGRES_JSON_ALIAS_REPRODUCER: &str = r#"with stanza as (
+    select
+        data -> 'name' as name,
+        data -> 'backup' -> (
+            jsonb_array_length(data -> 'backup') - 1
+        ) as last_backup,
+        data -> 'archive' -> (
+            jsonb_array_length(data -> 'archive') - 1
+        ) as current_archive
+    from jsonb_array_elements(monitor.pgbackrest_info()) as data
+)
+
+select
+    name,
+    to_timestamp(
+        (last_backup -> 'timestamp' ->> 'stop')::numeric
+    ) as last_successful_backup,
+    current_archive ->> 'max' as last_archived_wal
+from stanza;
+"#;
+
+    fn postgres_al05_linter() -> Linter {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+rules = AL05
+dialect = postgres
+"#,
+            None,
+        );
+
+        Linter::new(config, None, None, true).unwrap()
+    }
+
+    #[test]
+    fn test_al05_postgres_json_operator_alias_is_used() {
+        let mut linter = postgres_al05_linter();
+        let linted = linter
+            .lint_string_wrapped(POSTGRES_JSON_ALIAS_REPRODUCER, false)
+            .unwrap();
+
+        assert_eq!(linted.violations(), &[]);
+    }
+
+    #[test]
+    fn test_al05_postgres_json_operator_fix_preserves_alias() {
+        let mut linter = postgres_al05_linter();
+        let linted = linter
+            .lint_string_wrapped(POSTGRES_JSON_ALIAS_REPRODUCER, true)
+            .unwrap();
+
+        assert_eq!(linted.fix_string(), POSTGRES_JSON_ALIAS_REPRODUCER);
     }
 }

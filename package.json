@@ -6,7 +6,12 @@
   },
   "engineStrict": true,
   "pnpm": {
-    "onlyBuiltDependencies": ["code-server", "esbuild", "@swc/core", "argon2"]
+    "onlyBuiltDependencies": [
+      "code-server",
+      "esbuild",
+      "@swc/core",
+      "argon2"
+    ]
   },
   "devDependencies": {
     "@secretlint/secretlint-formatter-sarif": "^11.4.0",

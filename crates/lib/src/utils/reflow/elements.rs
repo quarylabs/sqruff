@@ -13,6 +13,7 @@ use super::config::{LinePositionConfig, ReflowConfig, Spacing};
 use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
 use crate::core::rules::LintResult;
+use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,
 };
@@ -610,6 +611,10 @@ pub struct ReflowBlockData {
     depth_info: DepthInfo,
     stack_spacing_configs: IntMap<u64, Spacing>,
     line_position_configs: IntMap<u64, LinePositionConfig>,
+    keyword_line_position: Option<Vec<LinePosition>>,
+    keyword_line_position_configs: IntMap<u64, String>,
+    keyword_line_position_exclusions: SyntaxSet,
+    keyword_line_position_exclusions_configs: IntMap<u64, SyntaxSet>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -657,6 +662,22 @@ impl ReflowBlock {
     pub fn line_position_configs(&self) -> &IntMap<u64, LinePositionConfig> {
         &self.line_position_configs
     }
+
+    pub fn keyword_line_position(&self) -> Option<&[LinePosition]> {
+        self.keyword_line_position.as_deref()
+    }
+
+    pub fn keyword_line_position_configs(&self) -> &IntMap<u64, String> {
+        &self.keyword_line_position_configs
+    }
+
+    pub fn keyword_line_position_exclusions(&self) -> &SyntaxSet {
+        &self.keyword_line_position_exclusions
+    }
+
+    pub fn keyword_line_position_exclusions_configs(&self) -> &IntMap<u64, SyntaxSet> {
+        &self.keyword_line_position_exclusions_configs
+    }
 }
 
 impl ReflowBlock {
@@ -669,6 +690,8 @@ impl ReflowBlock {
 
         let mut stack_spacing_configs = IntMap::default();
         let mut line_position_configs = IntMap::default();
+        let mut keyword_line_position_configs = IntMap::default();
+        let mut keyword_line_position_exclusions_configs = IntMap::default();
 
         for (hash, class_types) in zip(&depth_info.stack_hashes, &depth_info.stack_class_types) {
             let cfg = config.get_block_config(class_types, None);
@@ -680,7 +703,21 @@ impl ReflowBlock {
             if let Some(line_position) = cfg.line_position {
                 line_position_configs.insert(*hash, line_position);
             }
+
+            if let Some(keyword_line_position) = cfg.keyword_line_position {
+                keyword_line_position_configs.insert(*hash, keyword_line_position);
+            }
+
+            if !cfg.keyword_line_position_exclusions.is_empty() {
+                keyword_line_position_exclusions_configs
+                    .insert(*hash, cfg.keyword_line_position_exclusions);
+            }
         }
+
+        let keyword_line_position = block_config
+            .keyword_line_position
+            .as_deref()
+            .map(parse_line_position_config);
 
         Self {
             value: Rc::new(ReflowBlockData {
@@ -691,9 +728,20 @@ impl ReflowBlock {
                 depth_info,
                 stack_spacing_configs,
                 line_position_configs,
+                keyword_line_position,
+                keyword_line_position_configs,
+                keyword_line_position_exclusions: block_config.keyword_line_position_exclusions,
+                keyword_line_position_exclusions_configs,
             }),
         }
     }
+}
+
+fn parse_line_position_config(line_position: &str) -> Vec<LinePosition> {
+    line_position
+        .split(':')
+        .map(|it| it.parse().unwrap())
+        .collect()
 }
 
 impl From<ReflowBlock> for ReflowElement {

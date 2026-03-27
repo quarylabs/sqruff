@@ -1,4 +1,5 @@
 use std::cmp::PartialEq;
+use std::str::FromStr;
 
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::capitalize;
@@ -10,7 +11,7 @@ use super::elements::{ReflowElement, ReflowSequenceType};
 use crate::core::rules::LintResult;
 use crate::utils::reflow::depth_map::StackPositionType;
 use crate::utils::reflow::elements::ReflowPoint;
-use crate::utils::reflow::helpers::{deduce_line_indent, fixes_from_results};
+use crate::utils::reflow::helpers::{deduce_line_indent, fixes_from_results, pretty_segment_name};
 
 #[derive(Debug)]
 pub struct RebreakSpan {
@@ -146,7 +147,7 @@ impl RebreakLocation {
     }
 
     fn pretty_target_name(&self) -> String {
-        format!("{} {}", self.target.get_type().as_str(), self.target.raw())
+        pretty_segment_name(&self.target)
     }
 }
 
@@ -167,6 +168,17 @@ pub fn identify_rebreak_spans(
         };
 
         if let Some(original_line_position) = block.line_position() {
+            let Some(pos_marker) = elem
+                .segments()
+                .first()
+                .and_then(|seg| seg.get_position_marker())
+            else {
+                continue;
+            };
+            if !pos_marker.is_literal() {
+                continue;
+            }
+
             spans.push(RebreakSpan {
                 target: elem.segments().first().cloned().unwrap(),
                 start_idx: idx,
@@ -231,6 +243,105 @@ pub fn identify_rebreak_spans(
     spans
 }
 
+pub fn identify_keyword_rebreak_spans(element_buffer: &ReflowSequenceType) -> Vec<RebreakSpan> {
+    let mut spans = Vec::new();
+
+    for idx in 2..element_buffer.len().saturating_sub(2) {
+        let ReflowElement::Block(block) = &element_buffer[idx] else {
+            continue;
+        };
+
+        for key in block.keyword_line_position_configs().keys() {
+            let line_position_config = &block.keyword_line_position_configs()[key];
+            if line_position_config.eq_ignore_ascii_case("none") {
+                continue;
+            }
+
+            if block.depth_info().stack_positions[key].idx > 1 {
+                continue;
+            }
+
+            let configured_depth = block
+                .depth_info()
+                .stack_hashes
+                .iter()
+                .position(|it| it == key)
+                .unwrap();
+            if block.depth_info().stack_depth > configured_depth + 1 {
+                continue;
+            }
+
+            if element_buffer[idx].segments().is_empty()
+                || !element_buffer[idx].segments()[0].is_type(SyntaxKind::Keyword)
+            {
+                continue;
+            }
+
+            for end_idx in idx..element_buffer.len() {
+                let end_elem = &element_buffer[end_idx];
+                let final_idx = match end_elem {
+                    ReflowElement::Point(point)
+                        if point.segments().iter().any(|seg| seg.is_indent()) =>
+                    {
+                        Some(end_idx - 1)
+                    }
+                    ReflowElement::Point(_) => continue,
+                    ReflowElement::Block(end_block)
+                        if matches!(
+                            end_block.depth_info().stack_positions[key].type_,
+                            Some(StackPositionType::End) | Some(StackPositionType::Solo)
+                        ) =>
+                    {
+                        Some(end_idx)
+                    }
+                    ReflowElement::Block(_) => continue,
+                };
+
+                if let Some(final_idx) = final_idx {
+                    let parent_exclusion = block
+                        .keyword_line_position_exclusions_configs()
+                        .get(key)
+                        .cloned()
+                        .unwrap_or_default();
+                    if block
+                        .depth_info()
+                        .stack_class_types
+                        .iter()
+                        .any(|class_types| class_types.intersects(&parent_exclusion))
+                    {
+                        break;
+                    }
+
+                    let line_position =
+                        LinePosition::from_str(line_position_config.split(':').next().unwrap())
+                            .unwrap();
+
+                    spans.push(RebreakSpan {
+                        target: element_buffer[idx].segments()[0].clone(),
+                        start_idx: idx,
+                        end_idx: final_idx,
+                        line_position,
+                        strict: line_position_config.ends_with("strict"),
+                    });
+                    break;
+                }
+            }
+        }
+    }
+
+    spans
+}
+
+fn locations_from_spans(
+    spans: Vec<RebreakSpan>,
+    elements: &ReflowSequenceType,
+) -> Vec<RebreakLocation> {
+    spans
+        .into_iter()
+        .filter_map(|span| RebreakLocation::from_span(span, elements))
+        .collect()
+}
+
 pub fn rebreak_sequence(
     tables: &Tables,
     elements: ReflowSequenceType,
@@ -249,13 +360,7 @@ pub fn rebreak_sequence(
 
     // 1. First find appropriate spans.
     let spans = identify_rebreak_spans(&elem_buff, root_segment);
-
-    let mut locations = Vec::new();
-    for span in spans {
-        if let Some(loc) = RebreakLocation::from_span(span, &elements) {
-            locations.push(loc);
-        }
-    }
+    let locations = locations_from_spans(spans, &elements);
 
     // Handle each span:
     for loc in locations {
@@ -515,6 +620,164 @@ pub fn rebreak_sequence(
     (elem_buff, lint_results)
 }
 
+pub fn rebreak_keywords_sequence(
+    tables: &Tables,
+    elements: ReflowSequenceType,
+    root_segment: &ErasedSegment,
+) -> (ReflowSequenceType, Vec<LintResult>) {
+    let mut lint_results = Vec::new();
+    let mut fixes = Vec::new();
+    let mut elem_buff = elements.clone();
+
+    let spans = identify_keyword_rebreak_spans(&elem_buff);
+    let locations = locations_from_spans(spans, &elements);
+
+    for loc in locations {
+        if loc.has_inappropriate_newlines(&elem_buff, true) {
+            continue;
+        }
+
+        let prev_point = elem_buff[loc.prev.adj_pt_idx as usize]
+            .as_point()
+            .unwrap()
+            .clone();
+        let next_point = elem_buff[loc.next.adj_pt_idx as usize]
+            .as_point()
+            .unwrap()
+            .clone();
+
+        let (desc, new_results) = if loc.line_position == LinePosition::Leading {
+            if elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() != 0 {
+                continue;
+            }
+
+            let pretty_name = loc.pretty_target_name();
+            let desc = format!("The {pretty_name} should always start a new line.");
+
+            let (new_results, prev_point) = prev_point.indent_to(
+                tables,
+                next_point.get_indent().as_deref().unwrap_or_default(),
+                None,
+                elem_buff[loc.prev.adj_pt_idx as usize + 1]
+                    .segments()
+                    .first()
+                    .cloned(),
+                None,
+                None,
+            );
+            let (new_results, next_point) = next_point.respace_point(
+                tables,
+                elem_buff[loc.next.adj_pt_idx as usize - 1].as_block(),
+                elem_buff[loc.next.adj_pt_idx as usize + 1].as_block(),
+                root_segment,
+                new_results,
+                true,
+                "before",
+            );
+
+            elem_buff[loc.prev.adj_pt_idx as usize] = prev_point.into();
+            elem_buff[loc.next.adj_pt_idx as usize] = next_point.into();
+
+            (desc, new_results)
+        } else if loc.line_position == LinePosition::Trailing {
+            if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() != 0 {
+                continue;
+            }
+
+            let pretty_name = loc.pretty_target_name();
+            let desc = format!("The {pretty_name} should always be at the end of a line.");
+
+            let (new_results, next_point) = next_point.indent_to(
+                tables,
+                prev_point.get_indent().as_deref().unwrap_or_default(),
+                Some(
+                    elem_buff[loc.next.adj_pt_idx as usize - 1]
+                        .segments()
+                        .last()
+                        .cloned()
+                        .unwrap(),
+                ),
+                None,
+                None,
+                None,
+            );
+            let (new_results, prev_point) = prev_point.respace_point(
+                tables,
+                elem_buff[loc.prev.adj_pt_idx as usize - 1].as_block(),
+                elem_buff[loc.prev.adj_pt_idx as usize + 1].as_block(),
+                root_segment,
+                new_results,
+                true,
+                "before",
+            );
+
+            elem_buff[loc.prev.adj_pt_idx as usize] = prev_point.into();
+            elem_buff[loc.next.adj_pt_idx as usize] = next_point.into();
+
+            (desc, new_results)
+        } else if loc.line_position == LinePosition::Alone {
+            let pretty_name = loc.pretty_target_name();
+            let desc =
+                format!("The {pretty_name} should always have a line break both before and after.");
+            let mut new_results = Vec::new();
+
+            if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() == 0 {
+                let (results, next_point) = next_point.indent_to(
+                    tables,
+                    prev_point.get_indent().as_deref().unwrap_or_default(),
+                    Some(
+                        elem_buff[loc.next.adj_pt_idx as usize - 1]
+                            .segments()
+                            .last()
+                            .cloned()
+                            .unwrap(),
+                    ),
+                    None,
+                    None,
+                    None,
+                );
+                new_results = results;
+                elem_buff[loc.next.adj_pt_idx as usize] = next_point.into();
+            }
+
+            if elem_buff[loc.prev.adj_pt_idx as usize].num_newlines() == 0 {
+                let (results, prev_point) = prev_point.indent_to(
+                    tables,
+                    next_point.get_indent().as_deref().unwrap_or_default(),
+                    None,
+                    elem_buff[loc.prev.adj_pt_idx as usize + 1]
+                        .segments()
+                        .first()
+                        .cloned(),
+                    None,
+                    None,
+                );
+                new_results = results;
+                elem_buff[loc.prev.adj_pt_idx as usize] = prev_point.into();
+            }
+
+            (desc, new_results)
+        } else {
+            unimplemented!(
+                "Unexpected line_position config: {}",
+                loc.line_position.as_ref()
+            )
+        };
+
+        let fixes = fixes_from_results(new_results.into_iter())
+            .chain(std::mem::take(&mut fixes))
+            .collect();
+        lint_results.push(LintResult::new(
+            loc.target.clone().into(),
+            fixes,
+            Some(desc),
+            None,
+        ));
+    }
+
+    (elem_buff, lint_results)
+}
+
 fn rearrange_and_insert(
     elem_buff: &mut Vec<ReflowElement>,
     loc: &RebreakLocation,
@@ -592,7 +855,7 @@ mod tests {
     use sqruff_lib_core::helpers::enter_panic;
     use sqruff_lib_core::parser::segments::Tables;
 
-    use crate::utils::reflow::sequence::{ReflowSequence, TargetSide};
+    use crate::utils::reflow::sequence::{RebreakType, ReflowSequence, TargetSide};
 
     #[test]
     fn test_reflow_sequence_rebreak_root() {
@@ -626,7 +889,7 @@ mod tests {
             let root = parse_ansi_string(raw_sql_in);
             let config = <_>::default();
             let seq = ReflowSequence::from_root(&root, &config);
-            let new_seq = seq.rebreak(&tables);
+            let new_seq = seq.rebreak(&tables, RebreakType::Lines);
 
             assert_eq!(new_seq.raw(), raw_sql_out);
         }
@@ -654,7 +917,7 @@ mod tests {
 
             assert_eq!(seq.raw(), seq_sql_in);
 
-            let new_seq = seq.rebreak(&tables);
+            let new_seq = seq.rebreak(&tables, RebreakType::Lines);
             assert_eq!(new_seq.raw(), seq_sql_out);
         }
     }

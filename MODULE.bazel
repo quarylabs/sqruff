@@ -12,7 +12,7 @@ tools = use_extension("//:tools.bzl", "tools")
 use_repo(tools, "cargo_hack", "cargo_machete", "ratchet", "uv")
 
 bazel_dep(name = "aspect_rules_js", version = "2.9.1")
-bazel_dep(name = "rules_nodejs", version = "6.6.2")
+bazel_dep(name = "rules_nodejs", version = "6.7.3")
 bazel_dep(name = "rules_playwright", version = "0.5.3")
 bazel_dep(name = "rules_python", version = "1.8.3")
 

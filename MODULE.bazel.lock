@@ -980,7 +980,7 @@
     },
     "@@rules_go+//go:extensions.bzl%go_sdk": {
       "os:linux,arch:amd64": {
-        "bzlTransitiveDigest": "hCiZzD1nLHlMVWdyPMeEEpKRprZ+wW2SOqCI1ZzigIQ=",
+        "bzlTransitiveDigest": "u6ipp4B4trSrM0FoJr/iOAbAzHnadJmFUMourQbBdA0=",
         "usagesDigest": "igIBXyqNg9Be63Cuu6kZxOeoDRDMqxSv8BcoWiqSh3w=",
         "recordedInputs": [
           "REPO_MAPPING:bazel_features+,bazel_features_globals bazel_features++version_extension+bazel_features_globals",

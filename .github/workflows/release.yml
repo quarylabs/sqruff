@@ -173,7 +173,7 @@ jobs:
           toolchain: stable
           profile: minimal
       - name: Authenticate with crates.io
-        uses: rust-lang/crates-io-auth-action@b7e9a28eded4986ec6b1fa40eeee8f8f165559ec # ratchet:rust-lang/crates-io-auth-action@v1
+        uses: rust-lang/crates-io-auth-action@bbd81622f20ce9e2dd9622e3218b975523e45bbe # ratchet:rust-lang/crates-io-auth-action@v1
         id: auth
       - name: Publish sqruff-lib-core to Cargo
         run: cargo publish -p sqruff-lib-core

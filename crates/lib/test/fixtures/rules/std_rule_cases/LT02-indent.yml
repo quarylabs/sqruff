@@ -2174,3 +2174,56 @@ test_pass_implicit_where:
   configs:
     indentation:
       allow_implicit_indents: true
+
+test_pass_comment_in_bracketed_expression:
+  # Github Bug #1967
+  # A comment inside parentheses should not cause extra indentation.
+  pass_str: |
+    SELECT
+        col1,
+        col2
+    FROM (
+        SELECT
+            col1,
+            (
+                -- This comment should not break indentation.
+                file_type ILIKE '%tif%' -- inline comment
+            ) AS col2,
+            another_col
+        FROM my_table
+    ) a
+    GROUP BY col1, col2
+
+test_fix_comment_in_bracketed_expression:
+  # Github Bug #1967
+  # A comment inside parentheses should not cause extra indentation.
+  fail_str: |
+    SELECT
+        col1,
+        col2
+    FROM (
+        SELECT
+            col1,
+            (
+                -- This comment should not break indentation.
+                    file_type ILIKE '%tif%' -- inline comment
+                ) AS col2,
+                another_col
+            FROM my_table
+        ) a
+    GROUP BY col1, col2
+  fix_str: |
+    SELECT
+        col1,
+        col2
+    FROM (
+        SELECT
+            col1,
+            (
+                -- This comment should not break indentation.
+                file_type ILIKE '%tif%' -- inline comment
+            ) AS col2,
+            another_col
+        FROM my_table
+    ) a
+    GROUP BY col1, col2

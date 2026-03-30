@@ -1,0 +1,8 @@
+file:
+- statement:
+  - declare_segment:
+    - keyword: DECLARE
+    - naked_identifier: abc
+    - data_type:
+      - data_type_identifier: int
+- statement_terminator: ;

@@ -1,0 +1,35 @@
+file:
+- statement:
+  - call_statement:
+    - keyword: CALL
+    - function_name:
+      - function_name_identifier: somefunction
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - quoted_literal: '''test'''
+      - comma: ','
+      - expression:
+        - column_reference:
+          - at_sign_literal: '@test1'
+      - comma: ','
+      - expression:
+        - column_reference:
+          - naked_identifier: test2
+      - comma: ','
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: test3
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''test'''
+              - end_bracket: )
+      - comma: ','
+      - expression:
+        - column_reference:
+          - quoted_identifier: '"test4"'
+      - end_bracket: )
+- statement_terminator: ;

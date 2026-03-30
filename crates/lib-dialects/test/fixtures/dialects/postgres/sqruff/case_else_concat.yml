@@ -1,0 +1,51 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
+          - case_expression:
+            - keyword: case
+            - when_clause:
+              - keyword: when
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - numeric_literal: '1'
+              - keyword: then
+              - expression:
+                - quoted_literal: '''one'''
+            - when_clause:
+              - keyword: when
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - numeric_literal: '2'
+              - keyword: then
+              - expression:
+                - quoted_literal: '''two'''
+            - else_clause:
+              - keyword: else
+              - expression:
+                - quoted_literal: '''other'''
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: '''s'''
+            - keyword: end
+        - alias_expression:
+          - keyword: as
+          - naked_identifier: b
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: test
+- statement_terminator: ;

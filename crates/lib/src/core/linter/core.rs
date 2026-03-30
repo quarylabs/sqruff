@@ -864,6 +864,19 @@ mod tests {
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;
 
+    fn postgres_all_rules_linter() -> Linter {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = postgres
+rules = all
+"#,
+            None,
+        );
+
+        Linter::new(config, None, None, true).unwrap()
+    }
+
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {
         paths
             .into_iter()
@@ -1081,5 +1094,89 @@ mod tests {
             !violations.iter().any(|v| v.rule_code() == "LT01"),
             "Should not have LT01 false positives on template syntax"
         );
+    }
+
+    #[test]
+    fn test_postgres_case_else_concat_does_not_raise_lt01_and_fixes_cleanly() {
+        let sql = r#"select case
+      when a = 1 then 'one'
+      when a = 2 then 'two'
+  else 'other' || 's'
+    end as b
+from test;
+"#;
+        let expected = r#"select
+    case
+        when a = 1 then 'one'
+        when a = 2 then 'two'
+        else 'other' || 's'
+    end as b
+from test;
+"#;
+
+        let mut linter = postgres_all_rules_linter();
+        let linted = linter.lint_string_wrapped(sql, false).unwrap();
+        let violations = linted.violations();
+
+        assert!(
+            !violations.iter().any(|v| v.rule_code() == "LT01"),
+            "Expected no LT01 violations, got: {:?}",
+            violations
+                .iter()
+                .map(|v| (v.rule_code(), v.desc().to_string()))
+                .collect::<Vec<_>>()
+        );
+        assert!(
+            violations.iter().all(|v| v.rule_code() == "LT02"),
+            "Expected only LT02 violations, got: {:?}",
+            violations
+                .iter()
+                .map(|v| (v.rule_code(), v.desc().to_string()))
+                .collect::<Vec<_>>()
+        );
+
+        let fixed = postgres_all_rules_linter()
+            .lint_string_wrapped(sql, true)
+            .unwrap()
+            .fix_string();
+
+        assert_eq!(fixed, expected);
+    }
+
+    #[test]
+    fn test_postgres_case_else_binary_operator_spacing_still_triggers_lt01() {
+        let sql = r#"select case
+      when a = 1 then 'one'
+  else 1+2
+    end as b
+from test;
+"#;
+        let expected = r#"select
+    case
+        when a = 1 then 'one'
+        else 1 + 2
+    end as b
+from test;
+"#;
+
+        let mut linter = postgres_all_rules_linter();
+        let linted = linter.lint_string_wrapped(sql, false).unwrap();
+        let violations = linted.violations();
+
+        assert!(
+            violations.iter().any(|v| v.rule_code() == "LT01"),
+            "Expected LT01 violations, got: {:?}",
+            violations
+                .iter()
+                .map(|v| (v.rule_code(), v.desc().to_string()))
+                .collect::<Vec<_>>()
+        );
+
+        let fixed = postgres_all_rules_linter()
+            .lint_string_wrapped(sql, true)
+            .unwrap()
+            .fix_string();
+
+        assert_eq!(fixed, expected);
     }
 }

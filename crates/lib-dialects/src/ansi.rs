@@ -3953,7 +3953,11 @@ pub fn raw_dialect() -> Dialect {
                                 ];
                             })
                             .to_matchable(),
-                        Ref::new("ElseClauseSegment").optional().to_matchable(),
+                        Ref::new("ElseClauseSegment")
+                            .optional()
+                            .reset_terminators()
+                            .terminators(vec![Ref::keyword("END").to_matchable()])
+                            .to_matchable(),
                         MetaSegment::dedent().to_matchable(),
                         Ref::keyword("END").to_matchable(),
                     ])
@@ -3971,7 +3975,11 @@ pub fn raw_dialect() -> Dialect {
                                 ];
                             })
                             .to_matchable(),
-                        Ref::new("ElseClauseSegment").optional().to_matchable(),
+                        Ref::new("ElseClauseSegment")
+                            .optional()
+                            .reset_terminators()
+                            .terminators(vec![Ref::keyword("END").to_matchable()])
+                            .to_matchable(),
                         MetaSegment::dedent().to_matchable(),
                         Ref::keyword("END").to_matchable(),
                     ])

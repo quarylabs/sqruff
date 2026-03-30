@@ -90,6 +90,35 @@ pass_tsql_assignment_operator:
 pass_concat_string:
   pass_str: SELECT 'barry' || 'pollard'
 
+pass_postgres_case_else_concat_string:
+  pass_str: |
+    select case
+          when a = 1 then 'one'
+          when a = 2 then 'two'
+      else 'other' || 's'
+        end as b
+    from test;
+  configs:
+    core:
+      dialect: postgres
+
+fail_postgres_case_else_binary_operator_spacing:
+  fail_str: |
+    select case
+          when a = 1 then 'one'
+      else 1+2
+        end as b
+    from test;
+  fix_str: |
+    select case
+          when a = 1 then 'one'
+      else 1 + 2
+        end as b
+    from test;
+  configs:
+    core:
+      dialect: postgres
+
 test_pass_placeholder_spacing:
   # Test for spacing issues around placeholders
   # https://github.com/sqlfluff/sqlfluff/issues/4253

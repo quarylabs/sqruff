@@ -5658,22 +5658,19 @@ pub fn raw_dialect() -> Dialect {
 
     // ---- TableExpressionSegment: add SqlplusSubstitutionVariable ----
     // SQLFluff: ansi.TableExpressionSegment.match_grammar.copy(insert=[Ref("SqlplusSubstitutionVariableSegment")])
-    {
-        let existing = oracle.grammar("TableExpressionSegment");
-        oracle.replace_grammar(
-            "TableExpressionSegment",
-            existing.copy(
-                Some(vec![
-                    Ref::new("SqlplusSubstitutionVariableSegment").to_matchable(),
-                ]),
-                None,
-                None,
-                None,
-                vec![],
-                false,
-            ),
-        );
-    }
+    oracle.replace_grammar(
+        "TableExpressionSegment",
+        one_of(vec![
+            Ref::new("ValuesClauseSegment").to_matchable(),
+            Ref::new("BareFunctionSegment").to_matchable(),
+            Ref::new("FunctionSegment").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
+            Bracketed::new(vec![Ref::new("MergeStatementSegment").to_matchable()]).to_matchable(),
+            Ref::new("SqlplusSubstitutionVariableSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     // ---- Fix GRANT: add QUERY REWRITE to AccessPermissionSegment ----
     oracle.add([(

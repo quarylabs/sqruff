@@ -30,8 +30,8 @@ importers:
         specifier: ^11.4.0
         version: 11.4.0
       '@secretlint/secretlint-rule-no-dotenv':
-        specifier: ^11.4.0
-        version: 11.4.0
+        specifier: ^11.4.1
+        version: 11.4.1
       '@secretlint/secretlint-rule-preset-recommend':
         specifier: ^11.3.1
         version: 11.3.1
@@ -758,8 +758,8 @@ packages:
     resolution: {integrity: sha512-KJRbIShA9DVc5Va3yArtJ6QDzGjg3PRa1uYp9As4RsyKtKSSZjI64jVca57FZ8gbuk4em0/0Jq+uy6485wxIdg==}
     engines: {node: '>=20.0.0'}
 
-  '@secretlint/secretlint-rule-no-dotenv@11.4.0':
-    resolution: {integrity: sha512-FhwvDrUBYnCOMPQuWjriQ0hWntbPsXrhusFC70Iz5qSrprLXNJCL9HA0RUyf6UO4teVFL10ifiHX69Y1rBZqrw==}
+  '@secretlint/secretlint-rule-no-dotenv@11.4.1':
+    resolution: {integrity: sha512-OTFCM/8dasoy1nrlD9RzO+B9BgErn48tfBQ/r6TcsTn7HuCQpLLR/RvxZxw0H210drsntNMJ5/EkyHTCESXOQw==}
     engines: {node: '>=20.0.0'}
 
   '@secretlint/secretlint-rule-preset-recommend@10.2.2':
@@ -778,8 +778,8 @@ packages:
     resolution: {integrity: sha512-Nqc90v4lWCXyakD6xNyNACBJNJ0tNCwj2WNk/7ivyacYHxiITVgmLUFXTBOeCdy79iz6HtN9Y31uw/jbLrdOAg==}
     engines: {node: '>=20.0.0'}
 
-  '@secretlint/types@11.4.0':
-    resolution: {integrity: sha512-aqEnJHFtzRJX0QumzPSQW35yi6vwDgexPaAC5WoZFidatSQF1hH6lQIGY0FQrng+vP0zTTA0/45atowRlvrTNA==}
+  '@secretlint/types@11.4.1':
+    resolution: {integrity: sha512-30jPadVKENeyZKNT7MCO0jTKAYQcWV6TIIccqHx874rBlzU/mBiTnGZdLSflFGECttscgqtozPKawM0fjBwDEg==}
     engines: {node: '>=20.0.0'}
 
   '@sindresorhus/merge-streams@2.3.0':
@@ -4673,9 +4673,9 @@ snapshots:
     dependencies:
       '@secretlint/types': 10.2.2
 
-  '@secretlint/secretlint-rule-no-dotenv@11.4.0':
+  '@secretlint/secretlint-rule-no-dotenv@11.4.1':
     dependencies:
-      '@secretlint/types': 11.4.0
+      '@secretlint/types': 11.4.1
 
   '@secretlint/secretlint-rule-preset-recommend@10.2.2': {}
 
@@ -4688,7 +4688,7 @@ snapshots:
 
   '@secretlint/types@10.2.2': {}
 
-  '@secretlint/types@11.4.0': {}
+  '@secretlint/types@11.4.1': {}
 
   '@sindresorhus/merge-streams@2.3.0': {}
 

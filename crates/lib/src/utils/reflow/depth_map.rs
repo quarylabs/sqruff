@@ -74,7 +74,8 @@ impl DepthMap {
     }
 
     pub fn from_parent(parent: &ErasedSegment) -> Self {
-        Self::new(parent.raw_segments_with_ancestors().iter())
+        let raws = parent.raw_segments_with_ancestors();
+        Self::new(raws.iter())
     }
 
     pub fn from_raws_and_root(

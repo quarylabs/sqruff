@@ -58,6 +58,17 @@ INSERT INTO mydataset.customers (customer_id, name)
 SELECT FORMAT("Created customer %s (%s)", id, name);
 END;
 
+CREATE OR REPLACE PROCEDURE `project.dataset.my_proc` (
+  p_param INT64
+)
+OPTIONS (
+  description = "Test procedure",
+  strict_mode = TRUE
+)
+BEGIN
+  SELECT p_param;
+END;
+
 CREATE OR REPLACE PROCEDURE mydataset.test_raise_return(error_message STRING)
 BEGIN
 RETURN;

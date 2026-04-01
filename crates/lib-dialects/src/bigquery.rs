@@ -474,16 +474,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::new("ProcedureNameSegment").to_matchable(),
                     Ref::new("ProcedureParameterListSegment").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("OPTIONS").to_matchable(),
-                        Ref::keyword("STRICT_MODE").to_matchable(),
-                        StringParser::new("strict_mode", SyntaxKind::ProcedureOption)
-                            .to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").optional().to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Ref::new("OptionsSegment").optional().to_matchable(),
                     Ref::keyword("BEGIN").to_matchable(),
                     MetaSegment::indent().to_matchable(),
                     Ref::new("ProcedureStatements").to_matchable(),

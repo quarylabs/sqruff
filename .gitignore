@@ -207,7 +207,7 @@ cython_debug/
 .history/
 
 # SQLFluff source (cloned for porting reference)
-sqlfluff/
+/sqlfluff/
 
 # Bazel
 bazel-*

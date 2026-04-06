@@ -1,0 +1,42 @@
+file:
+- multi_statement_segment:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+      - procedure_name_identifier: '`project.dataset.my_proc`'
+    - procedure_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: p_param
+        - data_type:
+          - data_type_identifier: INT64
+        - end_bracket: )
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: description
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '"Test procedure"'
+        - comma: ','
+        - parameter: strict_mode
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - boolean_literal: 'TRUE'
+        - end_bracket: )
+    - keyword: BEGIN
+    - procedure_statements:
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: p_param
+      - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

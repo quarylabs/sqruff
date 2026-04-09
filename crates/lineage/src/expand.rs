@@ -15,7 +15,11 @@ pub(crate) fn expand(tables: &mut Tables, sources: &HashMap<String, ErasedSegmen
             };
 
             let mut stmts = specific_statement_segment(new_node);
-            let new_node = stmts.pop().unwrap();
+            let new_node = stmts.pop().unwrap_or_else(|| {
+                panic!(
+                    "lineage expand() could not find a top-level selectable statement in source SQL for table reference `{name}`"
+                )
+            });
 
             let new_node = lower_inner(tables, new_node, None);
 

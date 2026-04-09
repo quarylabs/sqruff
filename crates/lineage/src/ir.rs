@@ -393,7 +393,9 @@ pub(crate) fn lower(segment: ErasedSegment) -> (Tables, Expr) {
     let mut tables = Tables::default();
 
     let mut stmts = specific_statement_segment(segment);
-    let stmt = stmts.pop().unwrap();
+    let stmt = stmts
+        .pop()
+        .expect("lineage lower() could not find a top-level selectable statement in parsed SQL");
 
     let root_expr = lower_inner(&mut tables, stmt, None);
     (tables, root_expr)
@@ -646,6 +648,10 @@ pub(crate) fn lower_inner(
             ExprKind::TableReference(segment.raw().to_string(), None),
             parent,
         ),
+        SyntaxKind::OracleTableReference => tables.alloc_expr(
+            ExprKind::TableReference(segment.raw().to_string(), None),
+            parent,
+        ),
         SyntaxKind::ObjectReference => tables.alloc_expr(
             ExprKind::TableReference(segment.raw().to_string(), None),
             parent,
@@ -770,7 +776,7 @@ pub(crate) fn lower_inner(
 
             this.unwrap()
         }
-        SyntaxKind::ValuesClause => {
+        SyntaxKind::ValuesClause | SyntaxKind::OracleValuesClause => {
             tables.alloc_expr(ExprKind::ValuesClause(segment, None), parent)
         }
         _ => tables.alloc_expr(ExprKind::Unknown(segment), parent),
@@ -794,8 +800,34 @@ pub(crate) fn specific_statement_segment(parsed: ErasedSegment) -> Vec<ErasedSeg
             SyntaxKind::Statement => {
                 segments.push(top_segment.segments()[0].clone());
             }
+            SyntaxKind::WithCompoundStatement
+            | SyntaxKind::SetExpression
+            | SyntaxKind::SelectStatement => {
+                segments.push(top_segment.clone());
+            }
             SyntaxKind::Batch => unimplemented!(),
             _ => {}
+        }
+    }
+
+    if segments.is_empty() {
+        let selectable_types = SyntaxSet::new(&[
+            SyntaxKind::WithCompoundStatement,
+            SyntaxKind::SetExpression,
+            SyntaxKind::SelectStatement,
+        ]);
+
+        if let Some(segment) = parsed
+            .recursive_crawl(
+                &selectable_types,
+                true,
+                &SyntaxSet::single(SyntaxKind::MergeStatement),
+                true,
+            )
+            .into_iter()
+            .next()
+        {
+            segments.push(segment);
         }
     }
 

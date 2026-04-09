@@ -36,7 +36,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Matcher::string("question_mark", "?", SyntaxKind::QuestionMark),
             Matcher::regex(
                 "at_sign_literal",
-                r"@[a-zA-Z_][\w]*",
+                r"@{1,2}[a-zA-Z_][\w.]*",
                 SyntaxKind::AtSignLiteral,
             ),
         ],

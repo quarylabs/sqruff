@@ -638,3 +638,90 @@ test_fail_subquery_in_cte_3:
     rules:
       structure.subquery:
         forbid_subquery_in: both
+
+test_fail_clickhouse_expression_cte_preserved:
+  fail_str: |
+    insert into demo_table
+    with
+    array('A', 'B') as keep_list
+    select
+        orders.id,
+        default_tags.tag
+    from (
+        select 1 as id, 'A' as tag
+    ) as orders
+    left join (
+        select 1 as id, 'x' as tag
+    ) as default_tags
+        on orders.id = default_tags.id
+    where orders.tag in keep_list
+  fix_str: |
+    insert into demo_table
+    with array('A', 'B') as keep_list,
+    default_tags as (
+        select 1 as id, 'x' as tag
+    )
+    select
+        orders.id,
+        default_tags.tag
+    from (
+        select 1 as id, 'A' as tag
+    ) as orders
+    left join default_tags
+        on orders.id = default_tags.id
+    where orders.tag in keep_list
+  configs:
+    core:
+      dialect: clickhouse
+
+test_fail_nested_join_subquery_inside_allowed_from_subquery:
+  fail_str: |
+    select
+        outer_q.x,
+        outer_q.y
+    from (
+        select
+            a.x,
+            b.y
+        from a
+        join (
+            select x, y from b
+        ) as b on a.x = b.x
+    ) as outer_q
+  fix_str: |
+    with b as (
+            select x, y from b
+        )
+    select
+        outer_q.x,
+        outer_q.y
+    from (
+        select
+            a.x,
+            b.y
+        from a
+        join b on a.x = b.x
+    ) as outer_q
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: join
+
+test_fail_preserves_quoted_aliases_in_generated_ctes:
+  fail_str: |
+    select
+        a.x,
+        "b".y
+    from a
+    join (
+        select x, y from b
+    ) as "b" on a.x = "b".x
+  fix_str: |
+    with "b" as (
+        select x, y from b
+    )
+    select
+        a.x,
+        "b".y
+    from a
+    join "b" on a.x = "b".x

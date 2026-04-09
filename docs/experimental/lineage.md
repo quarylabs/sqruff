@@ -5,6 +5,7 @@ Sqruff includes a column lineage analysis feature that traces data flow through 
 ## Overview
 
 Column lineage analysis answers questions like:
+
 - Where does this column come from?
 - What source tables contribute to this column?
 - How does data flow through CTEs and subqueries?
@@ -12,6 +13,7 @@ Column lineage analysis answers questions like:
 ## Availability
 
 The lineage feature is currently available through:
+
 - **Web Playground**: Try it at [playground.quary.dev](https://playground.quary.dev) by selecting the "Lineage" tool
 - **Rust API**: For programmatic use in Rust applications
 
@@ -81,7 +83,7 @@ FROM users AS u
 INNER JOIN tests AS t ON u.id = t.id
 ```
 
-### SELECT * Expansion
+### SELECT \* Expansion
 
 Star projections are handled and can be traced to their source tables:
 
@@ -124,13 +126,13 @@ for &child in &node_data.downstream {
 
 The `Lineage` builder provides several configuration options:
 
-| Method | Description |
-|--------|-------------|
-| `new(parser, column, sql)` | Create a new lineage analyzer for a column |
-| `schema(name, columns)` | Register table schema (column name to type mapping) |
-| `source(name, sql)` | Register a source table's SQL definition |
-| `disable_trim_selects()` | Keep intermediate SELECT projections in output |
-| `build()` | Execute analysis and return `(Tables, Node)` |
+| Method                     | Description                                         |
+| -------------------------- | --------------------------------------------------- |
+| `new(parser, column, sql)` | Create a new lineage analyzer for a column          |
+| `schema(name, columns)`    | Register table schema (column name to type mapping) |
+| `source(name, sql)`        | Register a source table's SQL definition            |
+| `disable_trim_selects()`   | Keep intermediate SELECT projections in output      |
+| `build()`                  | Execute analysis and return `(Tables, Node)`        |
 
 ### Registering Source Tables
 
@@ -145,6 +147,7 @@ let (tables, node) = Lineage::new(parser, "a", "SELECT a FROM z")
 ```
 
 This traces column `a` through:
+
 1. The main query (`SELECT a FROM z`)
 2. Source `z` (`SELECT a FROM y`)
 3. Source `y` (`SELECT * FROM x`)
@@ -154,28 +157,28 @@ This traces column `a` through:
 
 Each node in the lineage tree contains:
 
-| Field | Description |
-|-------|-------------|
-| `name` | Column or node identifier |
-| `source` | The source expression (full query context) |
-| `expression` | The specific expression for this column |
-| `downstream` | Child nodes (dependencies) |
-| `source_name` | Name of the source table |
-| `reference_node_name` | Referenced CTE name (if applicable) |
+| Field                 | Description                                |
+| --------------------- | ------------------------------------------ |
+| `name`                | Column or node identifier                  |
+| `source`              | The source expression (full query context) |
+| `expression`          | The specific expression for this column    |
+| `downstream`          | Child nodes (dependencies)                 |
+| `source_name`         | Name of the source table                   |
+| `reference_node_name` | Referenced CTE name (if applicable)        |
 
 ## Supported SQL Features
 
-| Feature | Status |
-|---------|--------|
-| Basic SELECT | Supported |
-| CTEs (WITH clause) | Supported |
-| Subqueries | Supported |
-| UNION / UNION ALL | Supported |
-| JOINs | Supported |
-| SELECT * | Supported |
-| VALUES clause | Supported |
+| Feature                  | Status    |
+| ------------------------ | --------- |
+| Basic SELECT             | Supported |
+| CTEs (WITH clause)       | Supported |
+| Subqueries               | Supported |
+| UNION / UNION ALL        | Supported |
+| JOINs                    | Supported |
+| SELECT \*                | Supported |
+| VALUES clause            | Supported |
 | UNNEST / array functions | Supported |
-| Multiple dialects | Supported |
+| Multiple dialects        | Supported |
 
 ## Limitations
 
@@ -186,12 +189,14 @@ Each node in the lineage tree contains:
 ## Example Output
 
 For a query like:
+
 ```sql
 WITH cte AS (SELECT a FROM source_table)
 SELECT a FROM cte
 ```
 
 The lineage tree shows:
+
 ```
 name: a
 source: with cte as (select source_table.a as a from source_table) select cte.a as a from cte

@@ -121,7 +121,6 @@ test_pass_line_too_long_ignore_comments_false:
 test_compute_line_length_before_template_expansion_1:
   # Line 3 is fine before expansion. Too long after expansion is NOT considered
   # a violation.
-  ignored: "jinja is not set"
   pass_str: |
     SELECT user_id
     FROM
@@ -129,6 +128,7 @@ test_compute_line_length_before_template_expansion_1:
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     templater:
       jinja:
         context:
@@ -136,7 +136,6 @@ test_compute_line_length_before_template_expansion_1:
           bi_ecommerce_orders: bq-business-intelligence.user.ecommerce_orders
 
 test_compute_line_length_before_template_expansion_2:
-  ignored: "jinja is not supported"
   # Line 3 is too long before expansion. It's fine after expansion, but the rule
   # does not look at that.
   fail_str: |
@@ -157,6 +156,7 @@ test_compute_line_length_before_template_expansion_2:
   configs:
     core:
       dialect: bigquery
+      templater: jinja
     templater:
       jinja:
         context:
@@ -178,7 +178,6 @@ test_long_jinja_comment:
 
 test_long_jinja_comment_ignore:
   # A Jinja comment is a comment.
-  ignored: "jinja is not supported"
   pass_str: |
     SELECT *
     {# comment #}
@@ -187,23 +186,25 @@ test_long_jinja_comment_ignore:
   configs:
     core:
       max_line_length: 80
+      templater: jinja
     rules:
       layout.long_lines:
         ignore_comment_lines: true
 
 test_for_loop:
   # A Jinja for loop
-  ignored: "jinja is not set"
   pass_str: |
     {% for elem in 'foo' %}
     SELECT '{{ elem }}' FROM table1;
     SELECT '{{ elem }}' FROM table2;
     {% endfor %}
+  configs:
+    core:
+      templater: jinja
 
 test_for_loop_repeating_elements_starts_with_literal:
   # A Jinja for loop with repeating elements (that are difficult to match)
   # but starting with a literal that can be used to match
-  ignored: "jinja is not set"
   pass_str: |
     {% set elements = 'foo' %}
     SELECT
@@ -213,9 +214,11 @@ test_for_loop_repeating_elements_starts_with_literal:
             WHEN '{{ elem }}' = '' THEN 1
             {% endfor %}
         END
+  configs:
+    core:
+      templater: jinja
 
 test_for_loop_starting_with_templated_piece:
-  ignored: "jinja is not set"
   # A Jinja for loop starting with non-literals
   # But unique parts can be used to match
   pass_str: |
@@ -228,12 +231,14 @@ test_for_loop_starting_with_templated_piece:
             {{ when }} '{{ elem }}' = '' THEN 2
             {% endfor %}
         END
+  configs:
+    core:
+      templater: jinja
 
 test_for_loop_fail_complex_match:
   # A Jinja for loop starting with non-literals
   # But non-unique parts which therefore cannot
   # be used to match
-  ignored: "jinja is not set"
   pass_str: |
     {% set elements = 'foo' %}
     {% set when = 'WHEN' %}
@@ -244,10 +249,12 @@ test_for_loop_fail_complex_match:
             {{ when }} '{{ elem }}' = '' THEN 1
             {% endfor %}
         END
+  configs:
+    core:
+      templater: jinja
 
 test_for_loop_fail_simple_match:
   # If for loop only contains literals it should still pass
-  ignored: "jinja is not set"
   pass_str: |
     {% set elements = 'foo' %}
     SELECT
@@ -256,16 +263,19 @@ test_for_loop_fail_simple_match:
             WHEN 'f' THEN a
             {% endfor %}
         END
+  configs:
+    core:
+      templater: jinja
 
 test_set_statement:
   # A Jinja set statement
-  ignored: "jinja is not set"
   pass_str: |
     {% set statement = "SELECT 1 from table1;" %}
     {{ statement }}{{ statement }}
   configs:
     core:
       max_line_length: 80
+      templater: jinja
 
 test_issue_1666_line_too_long_unfixable_jinja:
   # Note the trailing space at the end of line 1. This is a necessary part of
@@ -273,7 +283,9 @@ test_issue_1666_line_too_long_unfixable_jinja:
   # "tricking" LT05 into trying to split the line, then encountering an internal
   # error.
   fail_str: "{{ config (schema='bronze', materialized='view', sort =['id','number'], dist = 'all', tags =['longlonglonglonglong']) }} \n\nselect 1\n"
-  ignored: "jinja is not set"
+  configs:
+    core:
+      templater: jinja
 
 test_fail_ignore_comment_clauses_1:
   # Too long, comment clause not ignored
@@ -370,12 +382,13 @@ test_pass_ignore_templated_comment_lines:
   # NOTE: This is potentially a behaviour change in 2.0.0.
   # This was erroneously using the `ignore_comment_clauses`
   # config when this query contains no comment clauses.
-  ignored: "jinja is not supported"
   pass_str: |
     SELECT *
         {# ........................................................................... #}
     FROM table
   configs:
+    core:
+      templater: jinja
     rules:
       layout.long_lines:
         ignore_comment_lines: true
@@ -438,7 +451,6 @@ test_pass_long_multiline_jinja:
   # None of the lines are longer than 30
   # but the whole tag is. It shouldn't
   # cause issues.
-  ignored: "jinja is not set"
   pass_str: |
     select
         {{
@@ -449,6 +461,7 @@ test_pass_long_multiline_jinja:
   configs:
     core:
       max_line_length: 30
+      templater: jinja
 
 test_fail_long_inline_statement:
   # Tests that breaks happen between clauses properly
@@ -647,7 +660,6 @@ test_long_functions_and_aliases:
     FROM my_table
 
 test_order_by_rebreak_span:
-  ignored: "jinja is not supported"
   # This tests that we can correctly rebreak an "order by" expressions.
   fail_str: |
     select * from
@@ -675,6 +687,9 @@ test_order_by_rebreak_span:
             inner join tbl2
                 on tbl1.the_name = tbl2.the_name
         )
+  configs:
+    core:
+      templater: jinja
 
 test_trailing_semicolon_moves:
   # The checks that we don't move the semicolon or the comma.

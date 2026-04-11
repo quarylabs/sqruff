@@ -57,6 +57,10 @@ impl DepthMap {
         Self { depth_info }
     }
 
+    pub fn from_raws_with_stack(raws_with_stack: &[(ErasedSegment, Vec<PathStep>)]) -> Self {
+        Self::new(raws_with_stack.iter())
+    }
+
     pub fn get_depth_info(&self, seg: &ErasedSegment) -> DepthInfo {
         self.depth_info[&seg.id()].clone()
     }
@@ -74,7 +78,7 @@ impl DepthMap {
     }
 
     pub fn from_parent(parent: &ErasedSegment) -> Self {
-        Self::new(parent.raw_segments_with_ancestors().iter())
+        Self::from_raws_with_stack(parent.raw_segments_with_ancestors())
     }
 
     pub fn from_raws_and_root(

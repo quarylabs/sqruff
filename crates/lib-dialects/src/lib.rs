@@ -20,6 +20,10 @@ mod clickhouse_keywords;
 pub mod databricks;
 #[cfg(feature = "databricks")]
 pub mod databricks_keywords;
+#[cfg(feature = "db2")]
+pub mod db2;
+#[cfg(feature = "db2")]
+mod db2_keywords;
 #[cfg(feature = "duckdb")]
 pub mod duckdb;
 #[cfg(feature = "hive")]
@@ -75,6 +79,8 @@ pub fn dialect_config_options(
         DialectKind::Clickhouse => clickhouse::ClickHouseDialectConfig::config_options(),
         #[cfg(feature = "databricks")]
         DialectKind::Databricks => databricks::DatabricksDialectConfig::config_options(),
+        #[cfg(feature = "db2")]
+        DialectKind::Db2 => db2::Db2DialectConfig::config_options(),
         #[cfg(feature = "duckdb")]
         DialectKind::Duckdb => duckdb::DuckDBDialectConfig::config_options(),
         #[cfg(feature = "mysql")]
@@ -111,6 +117,8 @@ pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dia
         DialectKind::Clickhouse => clickhouse::dialect(config),
         #[cfg(feature = "databricks")]
         DialectKind::Databricks => databricks::dialect(config),
+        #[cfg(feature = "db2")]
+        DialectKind::Db2 => db2::dialect(config),
         #[cfg(feature = "duckdb")]
         DialectKind::Duckdb => duckdb::dialect(config),
         #[cfg(feature = "mysql")]

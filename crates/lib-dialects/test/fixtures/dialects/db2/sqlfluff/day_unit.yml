@@ -1,0 +1,45 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: ROLL
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - numeric_literal: '1'
+              - keyword: THEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: DAG
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: ROLL
+                - comparison_operator:
+                  - raw_comparison_operator: '>'
+                - numeric_literal: '1'
+              - keyword: THEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: DAG_MOD
+                - binary_operator: '-'
+                - numeric_literal: '1'
+                - keyword: DAY
+            - keyword: END
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+- statement_terminator: ;

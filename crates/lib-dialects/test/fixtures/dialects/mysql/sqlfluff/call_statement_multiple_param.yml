@@ -1,0 +1,26 @@
+file:
+- statement:
+  - call_segment:
+    - keyword: CALL
+    - naked_identifier: somefunction
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''test'''
+      - comma: ','
+      - variable: '@test1'
+      - comma: ','
+      - variable: test2
+      - comma: ','
+      - function:
+        - function_name:
+          - function_name_identifier: test3
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''test'''
+            - end_bracket: )
+      - comma: ','
+      - quoted_literal: '"test4"'
+      - end_bracket: )
+- statement_terminator: ;

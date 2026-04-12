@@ -1,0 +1,9 @@
+file:
+- statement:
+  - call_segment:
+    - keyword: CALL
+    - naked_identifier: somefunction
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+- statement_terminator: ;

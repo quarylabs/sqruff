@@ -1583,6 +1583,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("AlterDatabaseSegment").to_matchable(),
                 Ref::new("AlterMaskingPolicySegment").to_matchable(),
                 Ref::new("AlterNetworkPolicyStatementSegment").to_matchable(),
+                Ref::new("AlterCortexSearchServiceStatementSegment").to_matchable(),
             ]),
             None,
             None,
@@ -9850,6 +9851,97 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .to_matchable()
             })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER CORTEX SEARCH SERVICE` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-cortex-search
+            "AlterCortexSearchServiceStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::AlterCortexSearchServiceStatement,
+                |_| {
+                    Sequence::new(vec![
+                        Ref::keyword("ALTER").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CORTEX").to_matchable(),
+                            Ref::keyword("SEARCH").to_matchable(),
+                            Ref::keyword("SERVICE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("IfExistsGrammar").optional().to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::keyword("SUSPEND").to_matchable(),
+                                    Ref::keyword("RESUME").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("INDEXING").to_matchable(),
+                                    Ref::keyword("SERVING").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("SET").to_matchable(),
+                                any_set_of(vec![
+                                    Sequence::new(vec![
+                                        Ref::keyword("WAREHOUSE").to_matchable(),
+                                        Ref::new("EqualsSegment").to_matchable(),
+                                        one_of(vec![
+                                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("TARGET_LAG").to_matchable(),
+                                        Ref::new("EqualsSegment").to_matchable(),
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                    Ref::new("CommentEqualsClauseSegment")
+                                        .optional()
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("RENAME").to_matchable(),
+                                Ref::keyword("TO").to_matchable(),
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("ADD").to_matchable(),
+                                Ref::keyword("SCORING").to_matchable(),
+                                Ref::keyword("PROFILE").to_matchable(),
+                                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("DROP").to_matchable(),
+                                Ref::keyword("SCORING").to_matchable(),
+                                Ref::keyword("PROFILE").to_matchable(),
+                                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable()
+                },
+            )
             .to_matchable()
             .into(),
         ),

@@ -616,6 +616,7 @@ pub enum SyntaxKind {
     AlterExternalVolumeStatement,
     AlterForeignTableActionSegment,
     AlterForeignTableStatement,
+    AlterCortexSearchServiceStatement,
     AlterMaskingPolicy,
     AlterMasterKeyStatement,
     AlterNetworkPolicyStatement,

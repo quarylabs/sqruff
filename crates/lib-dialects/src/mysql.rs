@@ -612,20 +612,6 @@ pub fn raw_dialect() -> Dialect {
     // Segment definitions
     // ============================================================
 
-    // AliasExpressionSegment - optional AS.
-    mysql.add([(
-        "AliasExpressionSegment".into(),
-        NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
-            Sequence::new(vec![
-                Ref::keyword("AS").optional().to_matchable(),
-                Ref::new("SingleIdentifierGrammar").to_matchable(),
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
-
     // ColumnDefinitionSegment.
     mysql.replace_grammar(
         "ColumnDefinitionSegment",
@@ -3928,7 +3914,6 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("LoadDataSegment").to_matchable(),
                 Ref::new("ReplaceSegment").to_matchable(),
                 Ref::new("AlterDatabaseStatementSegment").to_matchable(),
-                Ref::new("ValuesStatementSegment").to_matchable(),
             ]),
             None,
             None,

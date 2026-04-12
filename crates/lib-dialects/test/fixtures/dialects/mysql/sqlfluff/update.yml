@@ -226,7 +226,8 @@ file:
                     - end_bracket: )
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: discounted
     - set_clause_list:
       - keyword: SET
@@ -284,7 +285,8 @@ file:
                     - column_reference:
                       - naked_identifier: wholesale
                   - alias_expression:
-                    - keyword: AS
+                    - alias_operator:
+                      - keyword: AS
                     - naked_identifier: markup
                 - comma: ','
                 - select_clause_element:
@@ -299,7 +301,8 @@ file:
                         - naked_identifier: items
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: discounted
     - set_clause_list:
       - keyword: SET

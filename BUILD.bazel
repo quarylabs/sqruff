@@ -564,6 +564,7 @@ sh_test(
         env = {
             "PYTHON_VENV": "$(rlocationpath :pytest_py{}_venv)".format(version.replace(".", "")),
         },
+        tags = ["exclusive"],
     )
     for version in [
         "3.10",

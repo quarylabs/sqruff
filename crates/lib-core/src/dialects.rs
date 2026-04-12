@@ -261,6 +261,11 @@ impl Dialect {
     pub fn lexer(&self) -> &Lexer {
         self.lexer.as_ref().unwrap()
     }
+
+    /// Returns an iterator over all names registered in the dialect's library.
+    pub fn library_names(&self) -> impl Iterator<Item = &str> {
+        self.library.keys().map(|k| k.as_ref())
+    }
 }
 
 pub type BracketPair = (&'static str, &'static str, &'static str, bool);

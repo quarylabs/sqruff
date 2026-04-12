@@ -24,7 +24,7 @@ use crate::parser::segments::ErasedSegment;
 pub struct Delimited {
     pub base: AnyNumberOf,
     pub allow_trailing: bool,
-    pub(crate) delimiter: Matchable,
+    pub delimiter: Matchable,
     pub min_delimiters: usize,
     pub optional_delimiter: bool,
     optional: bool,

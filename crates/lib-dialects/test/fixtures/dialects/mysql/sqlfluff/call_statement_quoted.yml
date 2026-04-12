@@ -1,0 +1,10 @@
+file:
+- statement:
+  - call_segment:
+    - keyword: CALL
+    - quoted_identifier: '`somefunction`'
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''a'''
+      - end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,61 @@
+file:
+- statement:
+  - purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: TO
+    - quoted_literal: '''mysql-bin.010'''
+- statement_terminator: ;
+- statement:
+  - purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - date_constructor_literal: '''2019-04-02 22:46:26'''
+- statement_terminator: ;
+- statement:
+  - purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - keyword: DATETIME
+    - date_constructor_literal: '''2019-04-02 22:46:26'''
+- statement_terminator: ;
+- statement:
+  - purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - keyword: TIMESTAMP
+    - date_constructor_literal: '''2019-04-02 22:46:26'''
+- statement_terminator: ;
+- statement:
+  - purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - numeric_literal: '19830905132800'
+- statement_terminator: ;
+- statement:
+  - purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - keyword: DATETIME
+    - numeric_literal: '19830905132800'
+- statement_terminator: ;
+- statement:
+  - purge_binary_logs_statement:
+    - keyword: PURGE
+    - keyword: BINARY
+    - keyword: LOGS
+    - keyword: BEFORE
+    - keyword: TIMESTAMP
+    - numeric_literal: '19830905132800'
+- statement_terminator: ;

@@ -9,9 +9,10 @@ Port the next SQLFluff commit to sqruff.
    git clone https://github.com/sqlfluff/sqlfluff.git sqlfluff
    ```
 
-3. **Find the next commit** in the local SQLFluff clone at `sqlfluff/`:
+3. **Find the next commit** in the local SQLFluff clone at `sqlfluff/`. First make sure it's up to date, then get the next commit after the saved SHA on the main branch (first-parent only, so merge commits are followed but side-branch commits are skipped):
    ```bash
-   git -C sqlfluff log --reverse --ancestry-path <SHA>..HEAD --format="%H" -n 1
+   git -C sqlfluff pull
+   git -C sqlfluff log --reverse --first-parent --format="%H" <SHA>..main | head -n 1
    ```
 
 3. **Inspect the commit** — show its message and full diff:
@@ -44,9 +45,9 @@ Port the next SQLFluff commit to sqruff.
 
 8. **Update `.sqlfluff-sha`** with the newly ported commit SHA.
 
-9. **Commit the changes** with a message that includes the SQLFluff PR link. Format:
+9. **Commit the changes** with a message that includes the SQLFluff PR link. Use a conventional commit prefix (`feat:` for new features/rules/dialects, `fix:` for bug fixes, `chore:` for refactors/docs/tests/cleanup). Format:
    ```
-   port: <short description of what was ported>
+   <prefix>: <short description of what was ported> (<sqlfluff-pr-number>)
 
    Ported from SQLFluff <commit-sha>
    https://github.com/sqlfluff/sqlfluff/pull/<pr-number>

@@ -45,9 +45,9 @@ Port the next SQLFluff commit to sqruff.
    - `src/sqlfluff/core/templaters/` → `crates/lib-core/src/templaters/`
    - `test/` → corresponding `#[test]` modules or test files in the relevant crate
 
-9. **Implement the equivalent change** in sqruff's Rust codebase. Some SQLFluff commits (docs-only, CI, Python-specific tooling) may not need a code change — if so, note why and skip to step 12.
+9. **Implement the equivalent change** in sqruff's Rust codebase. Some SQLFluff commits (docs-only, CI, Python-specific tooling) may not need a code change — if so, note why and skip to step 12. Do NOT skip the Bazel test step.
 
-10. **Check that test fixtures are ported.** If the SQLFluff commit adds or modifies test fixture files (SQL files, YAML parse trees, etc.), verify that equivalent fixtures exist in sqruff. If they don't, add them. Fixture files in SQLFluff under `test/fixtures/dialects/<dialect>/` map to `crates/lib-dialects/test/fixtures/dialects/<dialect>/sqlfluff/` in sqruff. If the change is already ported (code + fixtures both present), note that and skip to step 12.
+10. **Check that test fixtures are ported.** If the SQLFluff commit adds or modifies test fixture files (SQL files, YAML parse trees, etc.), verify that equivalent fixtures exist in sqruff. If they don't, add them. Fixture files in SQLFluff under `test/fixtures/dialects/<dialect>/` map to `crates/lib-dialects/test/fixtures/dialects/<dialect>/sqlfluff/` in sqruff. If the change is already ported (code + fixtures both present), note that and skip to step 12. Do NOT skip the Bazel test step.
 
 11. **Verify the change** builds and passes tests:
     ```bash
@@ -56,7 +56,7 @@ Port the next SQLFluff commit to sqruff.
     ```
     Fix any issues before proceeding.
 
-12. **Run all Bazel tests** to ensure nothing is broken:
+12. **Run all Bazel tests** to ensure nothing is broken. This step is MANDATORY even if no code changes were made (skip-only SHA updates still need a green CI):
     ```bash
     bazel test //...
     ```

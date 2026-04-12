@@ -51,6 +51,7 @@ Port the next SQLFluff commit to sqruff.
 
    Ported from SQLFluff <commit-sha>
    https://github.com/sqlfluff/sqlfluff/pull/<pr-number>
+   https://github.com/sqlfluff/sqlfluff/commit/<commit-sha>
    ```
 
 10. **Summarize** what was ported, what was changed in sqruff, and any decisions made (e.g., skipped because docs-only, adapted because of language differences).

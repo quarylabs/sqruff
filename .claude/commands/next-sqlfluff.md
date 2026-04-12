@@ -56,15 +56,34 @@ Port the next SQLFluff commit to sqruff.
     ```
     Fix any issues before proceeding.
 
-12. **Update `.sqlfluff-sha`** with the newly ported commit SHA.
+12. **Run all Bazel tests** to ensure nothing is broken:
+    ```bash
+    bazel test //...
+    ```
+    Fix any failures before proceeding.
 
-13. **Commit the changes** with a message that includes the SQLFluff PR link. Use a conventional commit prefix (`feat:` for new features/rules/dialects, `fix:` for bug fixes, `chore:` for refactors/docs/tests/cleanup). Format:
+13. **Update `.sqlfluff-sha`** with the newly ported commit SHA.
+
+14. **Commit and create a PR**. Use a conventional commit prefix (`feat:` for new features/rules/dialects, `fix:` for bug fixes, `chore:` for refactors/docs/tests/cleanup). Use the same message for both the commit and the PR title/body. Format:
+
+    **Commit message / PR title:**
     ```
     <prefix>: <short description of what was ported> (<sqlfluff-pr-number>)
+    ```
+
+    **Commit body / PR body:**
+    ```
+    ## Summary
+    - <1-3 bullet points describing what was ported and any decisions made>
 
     Ported from SQLFluff <commit-sha>
     https://github.com/sqlfluff/sqlfluff/pull/<pr-number>
     https://github.com/sqlfluff/sqlfluff/commit/<commit-sha>
     ```
 
-14. **Summarize** what was ported, what was changed in sqruff, and any decisions made (e.g., skipped because docs-only, adapted because of language differences).
+    ```bash
+    git push -u origin port/sqlfluff-<pr-number>
+    gh pr create
+    ```
+
+15. **Summarize** what was ported, what was changed in sqruff, and any decisions made (e.g., skipped because docs-only, adapted because of language differences).

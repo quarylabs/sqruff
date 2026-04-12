@@ -4,7 +4,12 @@ Port the next SQLFluff commit to sqruff.
 
 1. **Read the current SHA** from `.sqlfluff-sha` in the project root.
 
-2. **Find the next commit** in the local SQLFluff clone at `sqlfluff/` (relative to project root):
+2. **Ensure the SQLFluff clone exists** at `sqlfluff/` (relative to project root). If it doesn't exist, clone it:
+   ```bash
+   git clone https://github.com/sqlfluff/sqlfluff.git sqlfluff
+   ```
+
+3. **Find the next commit** in the local SQLFluff clone at `sqlfluff/`:
    ```bash
    git -C sqlfluff log --reverse --ancestry-path <SHA>..HEAD --format="%H" -n 1
    ```

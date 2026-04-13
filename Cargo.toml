@@ -23,7 +23,7 @@ codegen-units = 1
 [workspace.dependencies]
 log = "0.4"
 indexmap = "2.11.4"
-hashbrown = { version = "0.16", features = ["serde"] }
+hashbrown = { version = "0.17", features = ["serde"] }
 sqruff-cli-lib = { version = "0.38.0", path = "crates/cli-lib" }
 sqruff-lib = { version = "0.38.0", path = "crates/lib" }
 sqruff-lsp = { version = "0.38.0", path = "crates/lsp" }

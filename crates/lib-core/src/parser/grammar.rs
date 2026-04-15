@@ -21,9 +21,9 @@ use crate::parser::segments::ErasedSegment;
 
 #[derive(Clone)]
 pub struct Ref {
-    pub(crate) reference: Cow<'static, str>,
+    pub reference: Cow<'static, str>,
     pub exclude: Option<Matchable>,
-    terminators: Vec<Matchable>,
+    pub terminators: Vec<Matchable>,
     reset_terminators: bool,
     pub(crate) allow_gaps: bool,
     pub(crate) optional: bool,
@@ -176,7 +176,7 @@ impl MatchableTrait for Ref {
 #[derive(Clone, Debug)]
 pub struct Anything {
     cache_key: MatchableCacheKey,
-    terminators: Vec<Matchable>,
+    pub terminators: Vec<Matchable>,
 }
 
 impl PartialEq for Anything {

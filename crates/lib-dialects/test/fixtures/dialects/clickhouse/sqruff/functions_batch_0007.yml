@@ -1,0 +1,1337 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: DATE_TRUNC
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''day'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: now
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dateTrunc
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''day'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: now
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: decodeHTMLComponent
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''&lt;tag&gt;'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: decodeURLComponent
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''https%3A%2F%2Fexample.com%2Fa%20b'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: decodeURLFormComponent
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''a%2Bb'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: decodeXMLComponent
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''&lt;tag&gt;'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: decrypt
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''aes-128-ecb'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: unhex
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''000102030405060708090A0B0C0D0E0F'''
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: unhex
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''00112233445566778899AABBCCDDEEFF'''
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: defaultProfiles
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: defaultRoles
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: defaultValueOfArgumentType
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''UInt8'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: defaultValueOfTypeName
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''UInt8'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: degrees
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: deltaSum
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: deltaSumTimestamp
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toDateTime
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''2024-01-01 00:00:00'''
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: demangle
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''_Z3foov'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dense_rank
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: number
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - function:
+              - function_name:
+                - function_name_identifier: numbers
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '1'
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: denseRank
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: number
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - function:
+              - function_name:
+                - function_name_identifier: numbers
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - numeric_literal: '1'
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: detectCharset
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''hello world'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: detectLanguage
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''hello world'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: detectLanguageMixed
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''hello world'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: detectLanguageUnknown
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''hello world'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: detectProgrammingLanguage
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''fn main() {}'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: detectTonality
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''great'''
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGet
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetAll
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - numeric_literal: '10'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetChildren
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetDate
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetDateOrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toDate
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''2024-01-01'''
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetDateTime
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetDateTimeOrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toDateTime
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''2024-01-01 00:00:00'''
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetDescendants
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetFloat32
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetFloat32OrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toFloat32
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '0'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetFloat64
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetFloat64OrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toFloat64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '0'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetHierarchy
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetInt16
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetInt16OrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toInt16
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '0'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetInt32
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetInt32OrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toInt32
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '0'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetInt64
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetInt64OrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '0'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetInt8
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetInt8OrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toInt8
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '0'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetIPv4
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetIPv4OrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toIPv4
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''0.0.0.0'''
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetIPv6
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetIPv6OrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toIPv6
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''::'''
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetOrDefault
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '0'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: dictGetOrNull
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''my_dict'''
+              - comma: ','
+              - expression:
+                - quoted_literal: '''my_attr'''
+              - comma: ','
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: toUInt64
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;

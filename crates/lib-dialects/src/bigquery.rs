@@ -35,8 +35,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Matcher::string("right_arrow", "=>", SyntaxKind::RightArrow),
             Matcher::string("question_mark", "?", SyntaxKind::QuestionMark),
             Matcher::regex(
+                "double_at_sign_literal",
+                r"@@[a-zA-Z_][\w.]*",
+                SyntaxKind::DoubleAtSignLiteral,
+            ),
+            Matcher::regex(
                 "at_sign_literal",
-                r"@{1,2}[a-zA-Z_][\w.]*",
+                r"@[a-zA-Z_][\w]*",
                 SyntaxKind::AtSignLiteral,
             ),
         ],
@@ -146,6 +151,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             TypedParser::new(SyntaxKind::AtSignLiteral, SyntaxKind::AtSignLiteral)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "DoubleAtSignLiteralSegment".into(),
+            TypedParser::new(
+                SyntaxKind::DoubleAtSignLiteral,
+                SyntaxKind::DoubleAtSignLiteral,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SystemVariableSegment".into(),
+            NodeMatcher::new(SyntaxKind::SystemVariable, |_| {
+                Ref::new("DoubleAtSignLiteralSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "DefaultDeclareOptionsGrammar".into(),
@@ -2516,6 +2538,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral)
                     .to_matchable(),
                 Ref::new("ParameterizedSegment").to_matchable(),
+                Ref::new("SystemVariableSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -2534,7 +2557,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             dialect
                 .grammar("LiteralGrammar")
                 .copy(
-                    Some(vec![Ref::new("ParameterizedSegment").to_matchable()]),
+                    Some(vec![
+                        Ref::new("ParameterizedSegment").to_matchable(),
+                        Ref::new("SystemVariableSegment").to_matchable(),
+                    ]),
                     None,
                     None,
                     None,

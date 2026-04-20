@@ -260,16 +260,21 @@ impl ReflowPoint {
 
                 let new_indent = SegmentBuilder::whitespace(tables.next_id(), desired_indent);
 
-                let (last_newline_idx, last_newline) = self
+                // No literal newline => all newlines are templated; emit no fix.
+                let Some((last_newline_idx, last_newline)) = self
                     .segments
                     .iter()
                     .enumerate()
                     .rev()
                     .find(|(_, it)| {
                         it.is_type(SyntaxKind::Newline)
-                            && it.get_position_marker().unwrap().is_literal()
+                            && it
+                                .get_position_marker()
+                                .is_some_and(|pm| pm.is_literal())
                     })
-                    .unwrap();
+                else {
+                    return (Vec::new(), self.clone());
+                };
 
                 let mut new_segments = self.segments[..=last_newline_idx].to_vec();
                 new_segments.push(new_indent.clone());

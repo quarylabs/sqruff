@@ -260,16 +260,25 @@ impl ReflowPoint {
 
                 let new_indent = SegmentBuilder::whitespace(tables.next_id(), desired_indent);
 
-                let (last_newline_idx, last_newline) = self
+                // Find the last *literal* newline to anchor the indent fix on.
+                // All newlines may be templated (e.g., inside a Jinja `{{ config(...) }}`
+                // block combined with `{{ ref() }}`/`{{ source() }}`): in that case no
+                // safe source-level edit exists, so emit no fix rather than panicking.
+                // See https://github.com/quarylabs/sqruff/issues/2464
+                let Some((last_newline_idx, last_newline)) = self
                     .segments
                     .iter()
                     .enumerate()
                     .rev()
                     .find(|(_, it)| {
                         it.is_type(SyntaxKind::Newline)
-                            && it.get_position_marker().unwrap().is_literal()
+                            && it
+                                .get_position_marker()
+                                .is_some_and(|pm| pm.is_literal())
                     })
-                    .unwrap();
+                else {
+                    return (Vec::new(), self.clone());
+                };
 
                 let mut new_segments = self.segments[..=last_newline_idx].to_vec();
                 new_segments.push(new_indent.clone());

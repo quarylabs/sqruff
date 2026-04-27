@@ -46,7 +46,7 @@ serde_json = { version = "1.0" }
 assert_cmd = "2.0.16"
 expect-test = "1.5.0"
 tempfile = "3.23.0"
-fancy-regex = { version = "0.17" }
+fancy-regex = { version = "0.18" }
 # Include codegen deps as dev-deps so they appear in Bazel crate_universe
 clap-markdown.workspace = true
 minijinja.workspace = true

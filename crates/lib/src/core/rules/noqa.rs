@@ -367,10 +367,10 @@ impl IgnoreMask {
         let is_masked_by_line_rules = || {
             for ignore in &self.ignore_list {
                 match ignore {
-                    NoQADirective::LineIgnoreAll(LineIgnoreAll { line_no, .. }) => {
-                        if vline_no == *line_no {
-                            return true;
-                        }
+                    NoQADirective::LineIgnoreAll(LineIgnoreAll { line_no, .. })
+                        if vline_no == *line_no =>
+                    {
+                        return true;
                     }
                     NoQADirective::LineIgnoreRules(LineIgnoreRules { line_no, rules, .. }) => {
                         if vline_no == *line_no

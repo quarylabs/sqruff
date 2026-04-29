@@ -76,10 +76,10 @@ pyo3 = { version = "0.28.2", features = ["auto-initialize"], optional = true }
 dhat = { version = "0.3.3", optional = true }
 
 [target.'cfg(all(target_os = "windows", not(feature = "dhat-heap")))'.dependencies]
-mimalloc = { version = "0.1", optional = true }
+mimalloc = { version = "0.1.50", optional = true }
 
 [dev-dependencies]
-assert_cmd = "2.0.16"
+assert_cmd = "2.2.1"
 expect-test = "1.5.0"
 tempfile = "3.23.0"
 sqruff-lib.workspace = true

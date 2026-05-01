@@ -4,7 +4,7 @@ packages:
 
 catalog:
   '@eslint/js': ^10.0.1
-  '@playwright/test': 1.57.0
+  '@playwright/test': 1.59.1
   eslint: ^10.2.1
   typescript: ^6.0.2
   typescript-eslint: ^8.56.1

@@ -12,7 +12,7 @@ pub struct PythonFluffConfig {
     templater_unwrap_wrapped_queries: bool,
 
     jinja_templater_paths: Vec<String>,
-    jinja_loader_search_path: Option<String>,
+    jinja_loader_search_path: Vec<String>,
     jinja_apply_dbt_builtins: bool,
     jinja_ignore_templating: Option<bool>,
     jinja_library_paths: Vec<String>,
@@ -51,8 +51,18 @@ impl From<&FluffConfig> for PythonFluffConfig {
                 .unwrap_or_default(),
             jinja_loader_search_path: value
                 .templater_value(TemplaterKind::Jinja, "loader_search_path")
-                .and_then(|value| value.as_string())
-                .map(ToString::to_string),
+                .map(|value| {
+                    if let Some(arr) = value.as_array() {
+                        arr.iter()
+                            .filter_map(|v| v.as_string().map(ToString::to_string))
+                            .collect()
+                    } else if let Some(s) = value.as_string() {
+                        vec![s.to_string()]
+                    } else {
+                        vec![]
+                    }
+                })
+                .unwrap_or_default(),
             jinja_apply_dbt_builtins: value
                 .templater_value(TemplaterKind::Jinja, "apply_dbt_builtins")
                 .and_then(|value| value.as_bool())
@@ -137,7 +147,10 @@ mod tests {
             python_fluff_config.jinja_templater_paths,
             Vec::<String>::new()
         );
-        assert_eq!(python_fluff_config.jinja_loader_search_path, None);
+        assert_eq!(
+            python_fluff_config.jinja_loader_search_path,
+            Vec::<String>::new()
+        );
         assert!(python_fluff_config.jinja_apply_dbt_builtins);
         assert_eq!(python_fluff_config.jinja_ignore_templating, None);
     }

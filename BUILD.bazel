@@ -223,7 +223,7 @@ filegroup(
 cargo_vendor(
     name = "cargo_vendor",
     manifests = [":cargo_srcs"],
-    rust_version = "1.94.1",
+    rust_version = "1.95.0",
     components = [
         "clippy",
         "rustfmt",

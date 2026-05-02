@@ -5,7 +5,7 @@ version.workspace = true
 repository.workspace = true
 edition.workspace = true
 license.workspace = true
-rust-version = "1.94"
+rust-version = "1.95"
 
 crate-type = ["cdylib"]
 

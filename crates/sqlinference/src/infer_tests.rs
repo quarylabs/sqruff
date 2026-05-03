@@ -541,10 +541,8 @@ fn extract_select(query: &Query<'_>) -> Result<ExtractedSelect, String> {
                         let args = fn_args(args);
 
                         match name.to_lowercase().as_str() {
-                            "count" => {
-                                if args.first().map(|it| it.raw().as_str()) == Some("*") {
-                                    count_stars.insert(alias.raw().to_string());
-                                };
+                            "count" if args.first().map(|it| it.raw().as_str()) == Some("*") => {
+                                count_stars.insert(alias.raw().to_string());
                             }
                             "avg" => {
                                 avg_min_max_function_parser(
@@ -895,15 +893,11 @@ impl ExtractedFunc for Vec<Extracted> {
                         }
                     }
                 },
-                Extracted::AliasedStar(a, reference) => {
-                    if a == alias {
-                        return Ok(Some((reference.clone(), target.to_string())));
-                    }
+                Extracted::AliasedStar(a, reference) if a == alias => {
+                    return Ok(Some((reference.clone(), target.to_string())));
                 }
-                Extracted::ZeroMap(a) => {
-                    if a == alias {
-                        return Ok(None);
-                    }
+                Extracted::ZeroMap(a) if a == alias => {
+                    return Ok(None);
                 }
                 _ => {}
             }

@@ -4,7 +4,7 @@ Settings for SQL dialect, indentation, capitalization, and other linting and sty
 This file should be located in the directory where sqruff is run.
 
 The following example highlights a few configuration points: setting the dialect to `sqlite`, turning on all rules except AM01 and AM02, and configuring some indentation settings.
-For a comprehensive list of configuration options, see the [default configuration file](../../crates/lib/src/core/default_config.cfg).
+For a comprehensive list of configuration options, see the [default configuration file](https://github.com/quarylabs/sqruff/blob/main/crates/lib/src/core/default_config.cfg).
 You can also refer to the [rules documentation](../reference/rules.md) for more information on configuring specific rules.
 
 ```ini

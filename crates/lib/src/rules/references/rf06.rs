@@ -271,7 +271,7 @@ fn is_full_match(pattern: &str, text: &str) -> bool {
 fn identifier_quote_chars(dialect: DialectKind) -> (&'static str, &'static str) {
     match dialect {
         DialectKind::Tsql => ("[", "]"),
-        DialectKind::Bigquery | DialectKind::Mysql | DialectKind::Sparksql => ("`", "`"),
+        DialectKind::Bigquery | DialectKind::Databricks | DialectKind::Mysql | DialectKind::Sparksql => ("`", "`"),
         _ => ("\"", "\""),
     }
 }

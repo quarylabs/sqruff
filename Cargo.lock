@@ -718,9 +718,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f467dd6dccf739c208452f8014c75c18bb8301b050ad1cfb27153803edb0f51"
+checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 dependencies = [
  "allocator-api2",
  "equivalent",
@@ -782,7 +782,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9"
 dependencies = [
  "equivalent",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "serde",
  "serde_core",
 ]
@@ -903,7 +903,7 @@ name = "lineage"
 version = "0.38.0"
 dependencies = [
  "append-only-vec",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "indexmap",
  "sqruff-lib-core",
  "sqruff-lib-dialects",
@@ -1561,7 +1561,7 @@ dependencies = [
  "fancy-regex",
  "getrandom 0.2.17",
  "glob",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "indexmap",
  "itertools 0.14.0",
  "lazy-regex",
@@ -1590,7 +1590,7 @@ version = "0.38.0"
 dependencies = [
  "enum_dispatch",
  "fancy-regex",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "indexmap",
  "itertools 0.14.0",
  "log",
@@ -1611,7 +1611,7 @@ version = "0.38.0"
 dependencies = [
  "expect-test",
  "glob",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "itertools 0.14.0",
  "rayon",
  "serde_yaml",
@@ -1624,7 +1624,7 @@ name = "sqruff-lsp"
 version = "0.38.0"
 dependencies = [
  "console_error_panic_hook",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "js-sys",
  "lsp-server",
  "lsp-types",
@@ -1638,7 +1638,7 @@ dependencies = [
 name = "sqruff-sqlinference"
 version = "0.38.0"
 dependencies = [
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "sqruff-lib-core",
  "sqruff-lib-dialects",
 ]

@@ -68,3 +68,12 @@ Key entry points:
 - [Configuration](https://playground.quary.dev/docs/usage/configuration/)
 - [Rules](https://playground.quary.dev/docs/reference/rules/)
 - [CLI reference](https://playground.quary.dev/docs/reference/cli/)
+
+## Editor integrations
+
+`sqruff` ships an LSP server (`sqruff lsp`) that can be used in most editors.
+
+Repo-maintained integrations:
+
+- VS Code: `editors/code`
+- Zed: `editors/zed`

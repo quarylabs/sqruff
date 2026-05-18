@@ -1,0 +1,11 @@
+id = "sqruff-lsp"
+name = "Sqruff LSP"
+version = "0.0.1"
+schema_version = 1
+authors = ["quarylabs"]
+description = "Use `sqruff lsp` for SQL linting and formatting."
+repository = "https://github.com/quarylabs/sqruff"
+
+[language_servers.sqruff]
+name = "Sqruff"
+language = "SQL"

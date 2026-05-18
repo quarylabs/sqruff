@@ -1,0 +1,14 @@
+[package]
+name = "zed_sqruff_lsp"
+version = "0.0.1"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[lib]
+path = "src/sqruff.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+zed_extension_api = "0.7.0"

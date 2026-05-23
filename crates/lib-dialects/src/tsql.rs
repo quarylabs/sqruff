@@ -830,10 +830,41 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropSequenceStatementSegment").to_matchable(),
             Ref::new("CreateTriggerStatementSegment").to_matchable(),
             Ref::new("DropTriggerStatementSegment").to_matchable(),
+            Ref::new("CreateDatabaseScopedCredentialStatementSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),
     );
+
+    // CREATE DATABASE SCOPED CREDENTIAL statement
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-database-scoped-credential-transact-sql
+    dialect.add([(
+        "CreateDatabaseScopedCredentialStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateDatabaseScopedCredentialStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("DATABASE").to_matchable(),
+                Ref::keyword("SCOPED").to_matchable(),
+                Ref::keyword("CREDENTIAL").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("IDENTITY").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::keyword("SECRET").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // USE statement for changing database context
     dialect.add([

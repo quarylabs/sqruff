@@ -13,7 +13,19 @@ use_repo(tools, "cargo_hack", "cargo_machete", "ratchet", "uv")
 
 bazel_dep(name = "aspect_rules_js", version = "2.9.1")
 bazel_dep(name = "rules_nodejs", version = "6.7.3")
-bazel_dep(name = "rules_playwright", version = "0.5.3")
+bazel_dep(name = "rules_playwright", version = "0.6.0")
+
+# rules_playwright 0.6.0 hasn't been published to BCR yet (the upstream publish
+# fork's token lacked push rights), so pin the GitHub Release tarball directly.
+# Remove this override once https://github.com/quarylabs/rules_playwright is
+# back on BCR and bump the version above to match.
+archive_override(
+    module_name = "rules_playwright",
+    urls = ["https://github.com/quarylabs/rules_playwright/releases/download/v0.6.0/rules_playwright-v0.6.0.tar.gz"],
+    integrity = "sha256-detWCMrc9QKwPgiRAdE82/0VEnI+0dfoAia8D8NPWm8=",
+    strip_prefix = "rules_playwright-0.6.0",
+)
+
 bazel_dep(name = "rules_python", version = "1.8.3")
 
 # Python toolchain for hermetic Python builds (required by pyo3)
@@ -72,7 +84,7 @@ use_repo(pnpm, "pnpm")
 playwright = use_extension("@rules_playwright//playwright:extensions.bzl", "playwright")
 playwright.repo(
     name = "playwright",
-    playwright_version = "1.57.0",
+    playwright_version = "1.60.0",
 )
 use_repo(playwright, "playwright")
 

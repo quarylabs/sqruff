@@ -550,6 +550,10 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "SCHEMABINDING",
         "CALLER",
         "OWNER",
+        // CREATE DATABASE SCOPED CREDENTIAL keywords
+        "CREDENTIAL",
+        "SCOPED",
+        "SECRET",
     ]
     .into_iter()
     .collect()

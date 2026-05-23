@@ -82,7 +82,6 @@ pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
     "IS",
     "ISNULL",
     "JOIN",
-    "KEY",
     "LAST",
     "LEFT",
     "LIKE",
@@ -153,6 +152,7 @@ pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
 ];
 
 pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
+    "KEY",
     "INT",
     "INTEGER",
     "TINYINT",

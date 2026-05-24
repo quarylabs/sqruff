@@ -1147,7 +1147,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Sequence::new(vec![
                     Ref::keyword("CONSTRAINT").to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").optional().to_matchable(),
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),

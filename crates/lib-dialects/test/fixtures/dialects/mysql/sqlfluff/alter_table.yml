@@ -385,3 +385,29 @@ file:
     - keyword: INDEX
     - database_reference:
       - quoted_identifier: '`index_name`'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`x`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '`xk`'
+        - end_bracket: )
+      - keyword: REFERENCES
+      - column_reference:
+        - quoted_identifier: '`y`'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '`yk`'
+        - end_bracket: )
+- statement_terminator: ;

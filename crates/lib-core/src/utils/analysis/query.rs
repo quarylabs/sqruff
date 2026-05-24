@@ -130,7 +130,10 @@ impl Selectable<'_> {
             ref_str: if name.is_empty() {
                 SmolStr::new_static("")
             } else {
-                name.first().unwrap().raw().clone()
+                name.first()
+                    .expect("non-empty name checked in else branch")
+                    .raw()
+                    .clone()
             },
             segment: name.first().cloned(),
             aliased: !name.is_empty(),

@@ -139,7 +139,10 @@ impl PositionMarker {
             panic!("Attempted to make a parent marker from multiple files.");
         }
 
-        let templated_file = templated_files.into_iter().next().unwrap();
+        let templated_file = templated_files
+            .into_iter()
+            .next()
+            .expect("templated_files must contain exactly one file (checked above)");
         PositionMarker::new(
             source_start..source_end,
             template_start..template_end,
@@ -177,7 +180,11 @@ impl PositionMarker {
             if split.len() == 1 {
                 line_pos + raw.len()
             } else {
-                split.last().unwrap().len() + 1
+                split
+                    .last()
+                    .expect("split has at least one element when len() > 1")
+                    .len()
+                    + 1
             },
         )
     }

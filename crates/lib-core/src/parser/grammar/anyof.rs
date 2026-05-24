@@ -230,7 +230,8 @@ impl MatchableTrait for AnyNumberOf {
                 ));
             }
 
-            let matched_option = matched_option.unwrap();
+            let matched_option =
+                matched_option.expect("longest_match returns Some when has_match() is true");
             let matched_key = matched_option.cache_key();
 
             if let Some(counter) = option_counter.get_mut(&matched_key) {

@@ -13,12 +13,12 @@ fn get_point_pos_at_idx(segments: &[ErasedSegment], idx: u32) -> PositionMarker 
     if idx < segments.len() {
         segments[idx]
             .get_position_marker()
-            .unwrap()
+            .expect("lexed segment must have a position marker")
             .start_point_marker()
     } else {
         segments[idx - 1]
             .get_position_marker()
-            .unwrap()
+            .expect("lexed segment must have a position marker")
             .end_point_marker()
     }
 }
@@ -169,7 +169,10 @@ impl MatchResult {
                 Ordering::Equal => {}
             }
 
-            for trigger in trigger_locs.remove(&idx).unwrap() {
+            for trigger in trigger_locs
+                .remove(&idx)
+                .expect("trigger_locs must contain entry for current idx (loop invariant)")
+            {
                 match trigger {
                     Trigger::MatchResult(trigger) => {
                         max_idx = trigger.span.end;
@@ -203,11 +206,17 @@ impl MatchResult {
                 ]
             }
             Matched::Newtype(kind) => {
-                let old = result_segments.pop().unwrap();
+                let old = result_segments
+                    .pop()
+                    .expect("Newtype match must have produced at least one result segment");
 
                 vec![
                     SegmentBuilder::token(old.id(), old.raw().as_ref(), kind)
-                        .with_position(old.get_position_marker().unwrap().clone())
+                        .with_position(
+                            old.get_position_marker()
+                                .expect("lexed segment must have a position marker")
+                                .clone(),
+                        )
                         .finish(),
                 ]
             }

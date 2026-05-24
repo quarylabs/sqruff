@@ -1,3 +1,5 @@
+#![deny(clippy::unwrap_used)]
+
 pub mod dialects;
 pub mod errors;
 pub mod helpers;

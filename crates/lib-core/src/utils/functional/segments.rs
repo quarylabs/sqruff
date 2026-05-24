@@ -67,7 +67,9 @@ impl Segments {
 
     #[track_caller]
     pub fn pop(&mut self) -> ErasedSegment {
-        self.base.pop().unwrap()
+        self.base
+            .pop()
+            .expect("Segments::pop called on empty Segments")
     }
 
     pub fn all_match<F: Fn(&ErasedSegment) -> bool>(&self, predicate: F) -> bool {

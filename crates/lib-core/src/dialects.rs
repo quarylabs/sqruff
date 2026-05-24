@@ -259,7 +259,9 @@ impl Dialect {
     }
 
     pub fn lexer(&self) -> &Lexer {
-        self.lexer.as_ref().unwrap()
+        self.lexer
+            .as_ref()
+            .expect("lexer not initialized; call expand() before lexer()")
     }
 }
 

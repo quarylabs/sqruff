@@ -40,14 +40,16 @@ impl FileSegment {
             return Ok(FileSegment::of(tables, dialect, segments.to_vec()));
         }
 
-        let final_seg = segments.last().unwrap();
+        let final_seg = segments
+            .last()
+            .expect("segments non-empty here (start_idx != end_idx implies code present)");
         assert!(final_seg.get_position_marker().is_some());
 
         let file_segment = parse_context.dialect().r#ref("FileSegment");
 
         let match_result = file_segment
             .match_grammar(parse_context.dialect())
-            .unwrap()
+            .expect("FileSegment must have a match grammar")
             .match_segments(&segments[..end_idx as usize], start_idx, parse_context)?;
 
         let match_span = match_result.span;

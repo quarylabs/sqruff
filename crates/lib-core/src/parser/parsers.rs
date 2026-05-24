@@ -222,7 +222,8 @@ impl PartialEq for RegexParser {
 
 impl RegexParser {
     pub fn new(template: &str, kind: SyntaxKind) -> Self {
-        let template_pattern = Regex::new(&format!("(?i){template}")).unwrap();
+        let template_pattern =
+            Regex::new(&format!("(?i){template}")).expect("RegexParser template must compile");
 
         Self {
             template: template_pattern,
@@ -233,7 +234,9 @@ impl RegexParser {
     }
 
     pub fn anti_template(mut self, anti_template: &str) -> Self {
-        self.anti_template = Regex::new(&format!("(?i){anti_template}")).unwrap().into();
+        self.anti_template = Regex::new(&format!("(?i){anti_template}"))
+            .expect("RegexParser anti_template must compile")
+            .into();
         self
     }
 }

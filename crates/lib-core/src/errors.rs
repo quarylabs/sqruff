@@ -54,7 +54,12 @@ impl SQLLintError {
         Self {
             base: SQLBaseError::default().config(|this| {
                 this.description = description.into();
-                this.set_position_marker(segment.get_position_marker().unwrap().clone());
+                this.set_position_marker(
+                    segment
+                        .get_position_marker()
+                        .expect("lint error segment must have a position marker")
+                        .clone(),
+                );
                 this.fixable = fixable;
             }),
         }

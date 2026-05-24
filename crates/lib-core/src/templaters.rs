@@ -128,7 +128,7 @@ impl TemplatedFile {
     #[cfg(feature = "stringify")]
     pub fn to_yaml(&self) -> String {
         let inner = &*self.inner;
-        serde_yaml::to_string(inner).unwrap()
+        serde_yaml::to_string(inner).expect("TemplatedFileInner must serialise to YAML")
     }
 }
 
@@ -136,7 +136,8 @@ impl From<String> for TemplatedFile {
     fn from(raw: String) -> Self {
         TemplatedFile {
             inner: Arc::new(
-                TemplatedFileInner::new(raw, "<string>".to_string(), None, None, None).unwrap(),
+                TemplatedFileInner::new(raw, "<string>".to_string(), None, None, None)
+                    .expect("constructing TemplatedFileInner from raw string cannot fail"),
             ),
         }
     }
@@ -147,7 +148,7 @@ impl From<&str> for TemplatedFile {
         TemplatedFile {
             inner: Arc::new(
                 TemplatedFileInner::new(raw.to_string(), "<string>".to_string(), None, None, None)
-                    .unwrap(),
+                    .expect("constructing TemplatedFileInner from raw string cannot fail"),
             ),
         }
     }
@@ -335,13 +336,16 @@ impl TemplatedFileInner {
 
     /// Create TemplatedFile from a string.
     pub fn from_string(raw: SmolStr) -> TemplatedFile {
-        // TODO: Might need to deal with this unwrap
-        TemplatedFile::new(raw.into(), "<string>".to_string(), None, None, None).unwrap()
+        // TODO: Might need to surface this error
+        TemplatedFile::new(raw.into(), "<string>".to_string(), None, None, None)
+            .expect("constructing TemplatedFile from raw string cannot fail")
     }
 
     /// Get templated string
     pub fn templated(&self) -> &str {
-        self.templated_str.as_deref().unwrap()
+        self.templated_str
+            .as_deref()
+            .expect("TemplatedFile must have a templated string")
     }
 
     pub fn source_only_slices(&self) -> Vec<RawFileSlice> {
@@ -436,7 +440,9 @@ impl TemplatedFileInner {
                         elem.source_slice.end
                     };
 
-                    let point: isize = point.try_into().unwrap();
+                    let point: isize = point
+                        .try_into()
+                        .expect("source slice position fits in isize");
                     if insertion_point < 0 || point < insertion_point {
                         insertion_point = point;
                     }
@@ -450,7 +456,11 @@ impl TemplatedFileInner {
         if template_slice.start == template_slice.end {
             // Is it on a join?
             return if insertion_point >= 0 {
-                Ok(zero_slice(insertion_point.try_into().unwrap()))
+                Ok(zero_slice(
+                    insertion_point
+                        .try_into()
+                        .expect("insertion_point is non-negative here"),
+                ))
                 // It's within a segment.
             } else if !ts_start_subsliced_file.is_empty()
                 && ts_start_subsliced_file[0].has_slice_kind(TemplateSliceKind::Literal)
@@ -475,7 +485,9 @@ impl TemplatedFileInner {
         let mut ts_start_sf_start = ts_start_sf_start;
         if insertion_point >= 0 {
             for elem in &sliced_file[ts_start_sf_start..] {
-                let insertion_point: usize = insertion_point.try_into().unwrap();
+                let insertion_point: usize = insertion_point
+                    .try_into()
+                    .expect("insertion_point is non-negative here");
                 if elem.source_slice.start != insertion_point {
                     ts_start_sf_start += 1;
                 } else {
@@ -493,7 +505,11 @@ impl TemplatedFileInner {
                     panic!("Starting position higher than sliced file position")
                 }
                 Ordering::Less => Ok(sliced_file[1].source_slice.clone()),
-                Ordering::Equal => Ok(sliced_file.last().unwrap().source_slice.clone()),
+                Ordering::Equal => Ok(sliced_file
+                    .last()
+                    .expect("sliced_file non-empty when ts_start_sf_start == sliced_file.len()")
+                    .source_slice
+                    .clone()),
             };
         } else {
             &sliced_file[ts_start_sf_start..ts_start_sf_stop]
@@ -511,24 +527,27 @@ impl TemplatedFileInner {
             let offset = template_slice.start - start_slices[0].templated_slice.start;
             (start_slices[0].source_slice.start + offset)
                 .try_into()
-                .unwrap()
+                .expect("source slice position fits in isize")
         } else {
-            start_slices[0].source_slice.start.try_into().unwrap()
+            start_slices[0]
+                .source_slice
+                .start
+                .try_into()
+                .expect("source slice position fits in isize")
         };
 
-        let source_stop = if stop_slices
+        let last_stop = stop_slices
             .last()
-            .unwrap()
-            .has_slice_kind(TemplateSliceKind::Literal)
-        {
-            let offset = stop_slices.last().unwrap().templated_slice.end - template_slice.end;
-            stop_slices.last().unwrap().source_slice.end - offset
+            .expect("stop_slices must be non-empty (built above)");
+        let source_stop = if last_stop.has_slice_kind(TemplateSliceKind::Literal) {
+            let offset = last_stop.templated_slice.end - template_slice.end;
+            last_stop.source_slice.end - offset
         } else {
-            stop_slices.last().unwrap().source_slice.end
+            last_stop.source_slice.end
         };
 
         let source_slice;
-        if source_start > source_stop.try_into().unwrap() {
+        if source_start > source_stop.try_into().expect("source_stop fits in isize") {
             let mut source_start = usize::MAX;
             let mut source_stop = 0;
             for elem in subslices {
@@ -537,7 +556,10 @@ impl TemplatedFileInner {
             }
             source_slice = source_start..source_stop;
         } else {
-            source_slice = source_start.try_into().unwrap()..source_stop;
+            source_slice = source_start
+                .try_into()
+                .expect("source_start is non-negative in this branch")
+                ..source_stop;
         }
 
         Ok(source_slice)
@@ -576,7 +598,10 @@ impl TemplatedFileInner {
         source_slice: &Range<usize>,
     ) -> Vec<RawFileSlice> {
         // Special case: The source_slice is at the end of the file.
-        let last_raw_slice = self.raw_sliced.last().unwrap();
+        let last_raw_slice = self
+            .raw_sliced
+            .last()
+            .expect("TemplatedFile must have at least one raw slice");
         if source_slice.start >= last_raw_slice.source_idx + last_raw_slice.raw.len() {
             return Vec::new();
         }
@@ -731,6 +756,7 @@ pub fn char_idx_to_byte_idx(char_to_byte: &[usize], char_idx: usize) -> usize {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

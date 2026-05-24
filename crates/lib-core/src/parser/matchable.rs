@@ -44,7 +44,7 @@ impl Matchable {
     }
 
     pub fn get_mut(&mut self) -> &mut MatchableTraitImpl {
-        Arc::get_mut(&mut self.inner).unwrap()
+        Arc::get_mut(&mut self.inner).expect("Matchable Arc must be uniquely owned for get_mut")
     }
 
     pub fn make_mut(&mut self) -> &mut MatchableTraitImpl {
@@ -202,5 +202,5 @@ pub fn next_matchable_cache_key() -> MatchableCacheKey {
     static ID: AtomicU32 = AtomicU32::new(1);
 
     ID.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1))
-        .unwrap()
+        .expect("MatchableCacheKey counter overflowed u32")
 }

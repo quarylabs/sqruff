@@ -65,7 +65,7 @@ pub fn get_select_statement_info(
 
     let select_clause = segment
         .child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) })
-        .unwrap();
+        .expect("select statement must contain a SelectClause");
     let select_targets =
         select_clause.children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) });
     let select_targets = select_targets
@@ -268,13 +268,15 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
                 .collect_vec();
 
             assert_eq!(argument_segments.len(), 1);
-            let child_segment = argument_segments.pop().unwrap();
+            let child_segment = argument_segments
+                .pop()
+                .expect("argument_segments length asserted == 1 above");
 
             match child_segment.get_type() {
                 SyntaxKind::Bracketed => {
                     let start_bracket = child_segment
                         .child(&SyntaxSet::single(SyntaxKind::StartBracket))
-                        .unwrap();
+                        .expect("Bracketed segment must contain a StartBracket");
 
                     if start_bracket.raw() == "(" {
                         let bracketed_arguments = child_segment

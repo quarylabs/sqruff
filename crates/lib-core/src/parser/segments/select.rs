@@ -30,7 +30,7 @@ impl SelectClauseElementSegment {
             .segments()
             .iter()
             .find(|&s| !s.is_whitespace() && !s.is_meta() && s != &alias_expression_segment)
-            .unwrap();
+            .expect("aliased select target must contain a non-meta segment besides the alias");
 
         let mut column_reference_segments = Vec::new();
         if aliased_segment.is_type(SyntaxKind::ColumnReference) {

@@ -134,7 +134,7 @@ impl LintFix {
 
         let anchor_slice = anchor
             .get_position_marker()
-            .unwrap()
+            .expect("lint fix anchor must have a position marker")
             .templated_slice
             .clone();
 
@@ -146,7 +146,9 @@ impl LintFix {
             }
             LintFix::CreateAfter { .. } => anchor_slice.end - adjust_boundary..anchor_slice.end + 1,
             LintFix::Replace { anchor, edit, .. } => {
-                let pos = anchor.get_position_marker().unwrap();
+                let pos = anchor
+                    .get_position_marker()
+                    .expect("lint fix anchor must have a position marker");
                 if pos.source_slice.start == pos.source_slice.end {
                     return HashSet::new();
                 } else if edit

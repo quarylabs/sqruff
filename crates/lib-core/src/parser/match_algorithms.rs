@@ -126,7 +126,9 @@ pub fn longest_match(
     }
 
     let terminators = parse_context.terminators.clone();
-    let cache_position = segments[idx as usize].get_position_marker().unwrap();
+    let cache_position = segments[idx as usize]
+        .get_position_marker()
+        .expect("lexed segment must have a position marker");
 
     let loc_key = (
         segments[idx as usize].raw().clone(),
@@ -205,7 +207,9 @@ fn next_match(
     let mut type_simple_map: HashMap<SyntaxKind, Vec<usize>> = HashMap::new();
 
     for (idx, matcher) in enumerate(matchers) {
-        let (raws, types) = matcher.simple(parse_context, None).unwrap();
+        let (raws, types) = matcher
+            .simple(parse_context, None)
+            .expect("matchers passed to trim_to_terminator must have a simple representation");
 
         raw_simple_map.reserve(raws.len());
         type_simple_map.reserve(types.len());
@@ -265,7 +269,7 @@ pub fn resolve_bracket(
     let type_idx = start_brackets
         .iter()
         .position(|it| it == &opening_matcher)
-        .unwrap();
+        .expect("opening_matcher must be one of the start_brackets");
     let mut matched_idx = opening_match.span.end;
     let mut child_matches = vec![opening_match.clone()];
 
@@ -280,9 +284,12 @@ pub fn resolve_bracket(
             });
         }
 
-        let matcher = matcher.unwrap();
+        let matcher = matcher.expect("next_match returns Some matcher when has_match() is true");
         if end_brackets.contains(&matcher) {
-            let closing_idx = end_brackets.iter().position(|it| it == &matcher).unwrap();
+            let closing_idx = end_brackets
+                .iter()
+                .position(|it| it == &matcher)
+                .expect("matcher was just confirmed to be in end_brackets");
 
             if closing_idx == type_idx {
                 let match_span = match_result.span;
@@ -397,7 +404,7 @@ fn next_ex_bracket_match(
         let bracket_match = resolve_bracket(
             segments,
             match_result,
-            matcher.unwrap(),
+            matcher.expect("matcher must be Some when match_result has a match"),
             &start_brackets,
             &end_brackets,
             &bracket_persists,
@@ -450,8 +457,10 @@ pub fn greedy_match(
         let start_idx = matched.span.start;
         stop_idx = matched.span.end;
 
-        let matcher = matcher.unwrap();
-        let (strings, types) = matcher.simple(parse_context, None).unwrap();
+        let matcher = matcher.expect("matcher must be Some when matched.has_match() is true");
+        let (strings, types) = matcher
+            .simple(parse_context, None)
+            .expect("greedy_match matchers must have a simple representation");
 
         if types.is_empty() && strings.iter().all(|s| s.chars().all(|c| c.is_alphabetic())) {
             let mut allowable_match = start_idx == working_idx;

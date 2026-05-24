@@ -90,8 +90,14 @@ impl ObjectReferenceSegment {
         match dialect_kind {
             DialectKind::Bigquery => {
                 let levels_tmp: Vec<_> = levels.iter().map(|level| *level as usize).collect();
-                let min_level: usize = *levels_tmp.iter().min().unwrap();
-                let max_level: usize = *levels_tmp.iter().max().unwrap();
+                let min_level: usize = *levels_tmp
+                    .iter()
+                    .min()
+                    .expect("caller passes non-empty levels");
+                let max_level: usize = *levels_tmp
+                    .iter()
+                    .max()
+                    .expect("caller passes non-empty levels");
                 let refs = self.iter_raw_references();
 
                 if max_level == ObjectReferenceLevel::Schema as usize && refs.len() >= 3 {

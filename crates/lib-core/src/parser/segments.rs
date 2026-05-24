@@ -197,7 +197,8 @@ impl ErasedSegment {
 
     #[cfg(feature = "stringify")]
     pub fn stringify(&self, code_only: bool) -> String {
-        serde_yaml::to_string(&self.to_serialised(code_only, true)).unwrap()
+        serde_yaml::to_string(&self.to_serialised(code_only, true))
+            .expect("serialised segment must serialise to YAML")
     }
 
     pub fn child(&self, seg_types: &SyntaxSet) -> Option<ErasedSegment> {
@@ -250,7 +251,11 @@ impl ErasedSegment {
                     node.dialect,
                     segments,
                 )
-                .with_position(self.get_position_marker().unwrap().clone());
+                .with_position(
+                    self.get_position_marker()
+                        .expect("node segment must have a position marker when rebuilding")
+                        .clone(),
+                );
                 // Preserve source_fixes during tree rebuilds
                 if !node.source_fixes.is_empty() {
                     builder = builder.with_source_fixes(node.source_fixes.clone());
@@ -378,8 +383,14 @@ impl ErasedSegment {
     pub fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
         let mut acc = Vec::new();
 
-        let templated_raw = &templated_file.templated_str.as_ref().unwrap()
-            [self.get_position_marker().unwrap().templated_slice.clone()];
+        let templated_raw = &templated_file
+            .templated_str
+            .as_ref()
+            .expect("templated file must have a templated string for iter_patches")[self
+            .get_position_marker()
+            .expect("segment must have a position marker for iter_patches")
+            .templated_slice
+            .clone()];
 
         // Always collect source fixes from this segment first
         acc.extend(self.iter_source_fix_patches(templated_file));
@@ -406,7 +417,9 @@ impl ErasedSegment {
             return Vec::new();
         }
 
-        let pos_marker = self.get_position_marker().unwrap();
+        let pos_marker = self
+            .get_position_marker()
+            .expect("position marker presence was checked above");
         if pos_marker.is_literal() && !has_descendant_source_fixes {
             acc.extend(self.iter_source_fix_patches(templated_file));
             acc.push(FixPatch::new(
@@ -414,8 +427,12 @@ impl ErasedSegment {
                 self.raw().clone(),
                 // SyntaxKind::Literal.into(),
                 pos_marker.source_slice.clone(),
-                templated_file.templated_str.as_ref().unwrap()[pos_marker.templated_slice.clone()]
-                    .to_string(),
+                templated_file
+                    .templated_str
+                    .as_ref()
+                    .expect("templated file must have a templated string for iter_patches")
+                    [pos_marker.templated_slice.clone()]
+                .to_string(),
                 templated_file.source_str[pos_marker.source_slice.clone()].to_string(),
             ));
         } else if self.segments().is_empty() {
@@ -425,7 +442,10 @@ impl ErasedSegment {
 
             while !segments.is_empty()
                 && matches!(
-                    segments.last().unwrap().get_type(),
+                    segments
+                        .last()
+                        .expect("checked non-empty above in while condition")
+                        .get_type(),
                     SyntaxKind::EndOfFile
                         | SyntaxKind::Indent
                         | SyntaxKind::Dedent
@@ -435,13 +455,17 @@ impl ErasedSegment {
                 segments = &segments[..segments.len() - 1];
             }
 
-            let pos = self.get_position_marker().unwrap();
+            let pos = self
+                .get_position_marker()
+                .expect("position marker presence was checked above");
             let mut source_idx = pos.source_slice.start;
             let mut templated_idx = pos.templated_slice.start;
             let mut insert_buff = String::new();
 
             for segment in segments {
-                let pos_marker = segment.get_position_marker().unwrap();
+                let pos_marker = segment
+                    .get_position_marker()
+                    .expect("child segment must have a position marker for iter_patches");
                 if !segment.raw().is_empty() && pos_marker.is_point() {
                     insert_buff.push_str(segment.raw().as_ref());
                     continue;
@@ -452,7 +476,9 @@ impl ErasedSegment {
                 if start_diff > 0 || !insert_buff.is_empty() {
                     let fixed_raw = std::mem::take(&mut insert_buff);
                     let raw_segments = segment.get_raw_segments();
-                    let first_segment_pos = raw_segments[0].get_position_marker().unwrap();
+                    let first_segment_pos = raw_segments[0]
+                        .get_position_marker()
+                        .expect("raw segment must have a position marker");
 
                     // The slices must never go backwards so the end of the slice
                     // must be >= the start. This can happen when source positions
@@ -477,7 +503,10 @@ impl ErasedSegment {
                 let source_slice = source_idx..pos.source_slice.end;
                 let templated_slice = templated_idx..pos.templated_slice.end;
 
-                let templated_str = templated_file.templated_str.as_ref().unwrap()
+                let templated_str = templated_file
+                    .templated_str
+                    .as_ref()
+                    .expect("templated file must have a templated string for iter_patches")
                     [templated_slice.clone()]
                 .to_owned();
                 let source_str = templated_file.source_str[source_slice.clone()].to_owned();
@@ -550,8 +579,12 @@ impl ErasedSegment {
                 source_fix.edit.clone(),
                 // String::from("source"),
                 source_fix.source_slice.clone(),
-                templated_file.templated_str.clone().unwrap()[source_fix.templated_slice.clone()]
-                    .to_string(),
+                templated_file
+                    .templated_str
+                    .clone()
+                    .expect("templated file must have a templated string for source fix patches")
+                    [source_fix.templated_slice.clone()]
+                .to_string(),
                 templated_file.source_str[source_fix.source_slice.clone()].to_string(),
             ));
         }
@@ -593,7 +626,11 @@ impl ErasedSegment {
             NodeOrTokenKind::Token(token) => {
                 let raw = raw.as_deref().unwrap_or(token.raw.as_ref());
                 SegmentBuilder::token(id, raw, self.value.syntax_kind)
-                    .with_position(self.get_position_marker().unwrap().clone())
+                    .with_position(
+                        self.get_position_marker()
+                            .expect("token segment must have a position marker for edit()")
+                            .clone(),
+                    )
                     .finish()
             }
         }
@@ -654,7 +691,7 @@ impl ErasedSegment {
 
     #[track_caller]
     pub(crate) fn get_mut(&mut self) -> &mut NodeOrToken {
-        Rc::get_mut(&mut self.value).unwrap()
+        Rc::get_mut(&mut self.value).expect("ErasedSegment Rc must be uniquely owned for get_mut")
     }
 
     #[track_caller]
@@ -853,8 +890,12 @@ impl ErasedSegment {
         }
 
         if has_applied_fixes {
-            seg_buffer =
-                position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
+            seg_buffer = position_segments(
+                &seg_buffer,
+                self.get_position_marker()
+                    .as_ref()
+                    .expect("segment must have a position marker when applying fixes"),
+            );
         }
 
         let seg_queue = seg_buffer;
@@ -867,8 +908,12 @@ impl ErasedSegment {
             seg_buffer.extend(post);
         }
 
-        let seg_buffer =
-            position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
+        let seg_buffer = position_segments(
+            &seg_buffer,
+            self.get_position_marker()
+                .as_ref()
+                .expect("segment must have a position marker when applying fixes"),
+        );
         (self.new(seg_buffer), Vec::new(), Vec::new())
     }
 }
@@ -978,7 +1023,12 @@ pub fn position_segments(
             None => {
                 let start_point = if idx > 0 {
                     let prev_seg = segment_buffer[idx - 1].clone();
-                    Some(prev_seg.get_position_marker().unwrap().end_point_marker())
+                    Some(
+                        prev_seg
+                            .get_position_marker()
+                            .expect("previous repositioned segment has a position marker")
+                            .end_point_marker(),
+                    )
                 } else {
                     Some(parent_pos.start_point_marker())
                 };
@@ -989,7 +1039,7 @@ pub fn position_segments(
                         end_point = Some(
                             fwd_seg.get_raw_segments()[0]
                                 .get_position_marker()
-                                .unwrap()
+                                .expect("forward segment with a marker must contain a raw segment with a marker")
                                 .start_point_marker(),
                         );
                         break;
@@ -1099,6 +1149,7 @@ fn class_types(syntax_kind: SyntaxKind) -> SyntaxSet {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::lint_fix::LintFix;

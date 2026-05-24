@@ -312,7 +312,10 @@ impl Pattern {
         Self {
             name,
             syntax_kind,
-            kind: SearchPatternKind::Legacy(starts_with, fancy_regex::Regex::new(&regex).unwrap()),
+            kind: SearchPatternKind::Legacy(
+                starts_with,
+                fancy_regex::Regex::new(&regex).expect("lexer regex must compile"),
+            ),
         }
     }
 
@@ -473,7 +476,8 @@ impl Lexer {
         Lexer {
             syntax_map,
             matchers,
-            regex: regex_automata::meta::Regex::new_many(&patterns).unwrap(),
+            regex: regex_automata::meta::Regex::new_many(&patterns)
+                .expect("lexer aggregate regex must compile"),
             last_resort_lexer: Matcher::legacy(
                 "<unlexable>",
                 |_| true,
@@ -489,7 +493,10 @@ impl Lexer {
         template: impl Into<TemplatedFile>,
     ) -> (Vec<ErasedSegment>, Vec<SQLLexError>) {
         let template = template.into();
-        let mut str_buff = template.templated_str.as_deref().unwrap();
+        let mut str_buff = template
+            .templated_str
+            .as_deref()
+            .expect("templated file must have a templated string when lexing");
 
         // Lex the string to get a tuple of LexedElement
         let mut element_buffer: Vec<Element> = Vec::new();
@@ -540,7 +547,9 @@ impl Lexer {
                         "Unable to lex characters: {}",
                         s.raw().chars().take(10).collect::<String>()
                     ),
-                    s.get_position_marker().unwrap().clone(),
+                    s.get_position_marker()
+                        .expect("unlexable segment must have a position marker")
+                        .clone(),
                 )
             })
             .collect()
@@ -634,7 +643,10 @@ impl Lexer {
 
         // Add an end of file marker
         let position_maker = match segments.last() {
-            Some(segment) => segment.get_position_marker().unwrap().end_point_marker(),
+            Some(segment) => segment
+                .get_position_marker()
+                .expect("lexed segment must have a position marker")
+                .end_point_marker(),
             None => PositionMarker::from_point(0, 0, templated_file.clone(), None, None),
         };
 

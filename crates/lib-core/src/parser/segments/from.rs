@@ -37,7 +37,7 @@ impl FromClauseSegment {
             } else {
                 tmp = clause
                     .child(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
-                    .unwrap();
+                    .expect("non-direct table child must contain a FromExpressionElement");
                 &tmp
             };
 
@@ -113,7 +113,9 @@ impl FromExpressionElementSegment {
             let references = reference.iter_raw_references();
 
             if !references.is_empty() {
-                let penultimate_ref = references.last().unwrap();
+                let penultimate_ref = references
+                    .last()
+                    .expect("non-empty references checked above");
                 return AliasInfo {
                     ref_str: penultimate_ref.part.clone().into(),
                     segment: penultimate_ref.segments[0].clone().into(),

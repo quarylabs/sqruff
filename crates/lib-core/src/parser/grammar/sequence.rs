@@ -399,7 +399,9 @@ impl MatchableTrait for Bracketed {
         parse_context: &ParseContext,
         crumbs: Option<Vec<&str>>,
     ) -> Option<(HashSet<String>, SyntaxSet)> {
-        let (start_bracket, _, _) = self.get_bracket_from_dialect(parse_context).unwrap();
+        let (start_bracket, _, _) = self
+            .get_bracket_from_dialect(parse_context)
+            .expect("bracket pair must be present in dialect for this Bracketed grammar");
         start_bracket.simple(parse_context, crumbs)
     }
 
@@ -409,8 +411,9 @@ impl MatchableTrait for Bracketed {
         idx: u32,
         parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
-        let (start_bracket, end_bracket, bracket_persists) =
-            self.get_bracket_from_dialect(parse_context).unwrap();
+        let (start_bracket, end_bracket, bracket_persists) = self
+            .get_bracket_from_dialect(parse_context)
+            .expect("bracket pair must be present in dialect for this Bracketed grammar");
 
         let start_match = parse_context.deeper_match(false, &[], |ctx| {
             start_bracket.match_segments(segments, idx, ctx)

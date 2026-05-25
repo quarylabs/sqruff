@@ -366,6 +366,34 @@ test_align_multiple_all:
           spacing_before: align
           align_within: create_table_statement
 
+test_align_alias_multibyte_literals:
+  # https://github.com/quarylabs/sqruff/issues/2605
+  # Multi-byte UTF-8 literals (Cyrillic) should be padded by character
+  # width, not byte length. Previously this overshot the column and
+  # produced misaligned output that sqruff lint would keep flagging.
+  fail_str: |
+    SELECT
+        'cash' AS a,
+        'наличные' AS b,
+        'нет' AS c,
+        'plain' AS d
+    FROM t
+  fix_str: |
+    SELECT
+        'cash'     AS a,
+        'наличные' AS b,
+        'нет'      AS c,
+        'plain'    AS d
+    FROM t
+  configs:
+    core:
+      dialect: mysql
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+
 test_align_multiple_operators:
   # Unrealistic but more stretching with several lines which
   # have different numbers of the same target.

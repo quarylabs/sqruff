@@ -2,7 +2,7 @@ use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::SegmentBuilder;
+use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -77,9 +77,6 @@ SELECT 123 as foo
 ```
 
 When `prefer_quoted_identifiers = True`, the quotes are always necessary, no matter if the identifier is valid, a reserved keyword, or contains special characters.
-
-> **Note**
-> Note due to different quotes being used by different dialects supported by `SQLFluff`, and those quotes meaning different things in different contexts, this mode is not `sqlfluff fix` compatible.
 
 **Anti-pattern**
 
@@ -198,7 +195,15 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
         if self.prefer_quoted_identifiers {
             return vec![LintResult::new(
                 context.segment.clone().into(),
-                Vec::new(),
+                vec![LintFix::replace(
+                    context.segment.clone(),
+                    vec![make_quoted_identifier(
+                        context.dialect.name,
+                        &identifier_contents,
+                        context.tables.next_id(),
+                    )],
+                    None,
+                )],
                 Some(format!("Missing quoted identifier {identifier_contents}.")),
                 None,
             )];
@@ -259,4 +264,33 @@ fn is_full_match(pattern: &str, text: &str) -> bool {
     let full_pattern = format!("(?i)^{pattern}$"); // Adding (?i) for case insensitivity
     let regex = fancy_regex::Regex::new(&full_pattern).unwrap();
     regex.is_match(text).unwrap()
+}
+
+/// Returns the appropriate open and close quote characters for identifier quoting
+/// in the given dialect.
+fn identifier_quote_chars(dialect: DialectKind) -> (&'static str, &'static str) {
+    match dialect {
+        DialectKind::Tsql => ("[", "]"),
+        DialectKind::Bigquery
+        | DialectKind::Databricks
+        | DialectKind::Mysql
+        | DialectKind::Sparksql => ("`", "`"),
+        _ => ("\"", "\""),
+    }
+}
+
+/// Creates a `QuotedIdentifier` segment by wrapping `identifier_contents` in
+/// the dialect-appropriate quote characters.
+fn make_quoted_identifier(
+    dialect: DialectKind,
+    identifier_contents: &str,
+    id: u32,
+) -> ErasedSegment {
+    let (open, close) = identifier_quote_chars(dialect);
+    SegmentBuilder::token(
+        id,
+        &format!("{open}{identifier_contents}{close}"),
+        SyntaxKind::QuotedIdentifier,
+    )
+    .finish()
 }

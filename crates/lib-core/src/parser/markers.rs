@@ -175,9 +175,9 @@ impl PositionMarker {
         (
             line_no + (split.len() - 1),
             if split.len() == 1 {
-                line_pos + raw.len()
+                line_pos + raw.chars().count()
             } else {
-                split.last().unwrap().len() + 1
+                split.last().unwrap().chars().count() + 1
             },
         )
     }
@@ -339,6 +339,12 @@ mod tests {
                 raw: "\nfoo".to_string(),
                 start: 2..2,
                 end: (3, 4),
+            },
+            // Multi-byte UTF-8: positions count characters, not bytes.
+            Test {
+                raw: "'наличные'".to_string(),
+                start: 0..0,
+                end: (0, 10),
             },
         ];
 

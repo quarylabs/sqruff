@@ -65,7 +65,6 @@ test_pass_ignore_templated_code_true:
       ignore_templated_areas: true
 
 test_fail_ignore_templated_code_false:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT
         {{ "greatest(a, b)" }},
@@ -76,6 +75,7 @@ test_fail_ignore_templated_code_false:
         greatest(i, j)
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: false
 
 test_pass_func_name_templated_literal_mix:

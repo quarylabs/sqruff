@@ -11,21 +11,24 @@ test_fail_trailing_whitespace_on_initial_blank_line:
 
 
 test_pass_trailing_whitespace_before_template_code:
-  ignored: "jinja is not supported"
   pass_str: |
     SELECT
         {% for elem in ["a", "b"] %}
         {{ elem }},
         {% endfor %}
         0
+  configs:
+    core:
+      templater: jinja
 
 test_fail_trailing_whitespace_and_whitespace_control:
-  ignored: "jinja is not supported"
   fail_str: "{%- set temp = 'temp' -%}\n\nSELECT\n    1, \n    2,\n"
   fix_str: "{%- set temp = 'temp' -%}\n\nSELECT\n    1,\n    2,\n"
+  configs:
+    core:
+      templater: jinja
 
 test_pass_macro_trailing:
-  ignored: "jinja is not supported"
   pass_str: |
     {% macro foo(bar) %}
         {{bar}}
@@ -41,3 +44,6 @@ test_pass_macro_trailing:
 
     select *
     from tbl
+  configs:
+    core:
+      templater: jinja

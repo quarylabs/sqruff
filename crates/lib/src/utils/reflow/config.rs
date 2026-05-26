@@ -1,24 +1,15 @@
 use std::str::FromStr;
 
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::config::{CoreConfig, FluffConfig, IndentationConfig, LayoutConfig, Value};
+use crate::config::{
+    ConfigError, CoreConfig, FluffConfig, IndentationConfig, LayoutConfig, LayoutTypeConfig,
+};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
 use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
 
-type ConfigDictType = HashMap<SyntaxKind, LayoutTypeConfig>;
-
-#[derive(Debug, Default, PartialEq, Eq, Clone)]
-struct LayoutTypeConfig {
-    spacing_before: Option<Spacing>,
-    spacing_after: Option<Spacing>,
-    spacing_within: Option<Spacing>,
-    line_position: Option<LinePositionConfig>,
-    keyword_line_position: Option<String>,
-    keyword_line_position_exclusions: SyntaxSet,
-}
+type ConfigDictType = hashbrown::HashMap<SyntaxKind, LayoutTypeConfig>;
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct LinePositionConfig {
@@ -37,6 +28,15 @@ impl LinePositionConfig {
 
     pub const fn is_strict(self) -> bool {
         self.strict
+    }
+
+    pub(crate) fn to_config_string(self) -> String {
+        let position: &str = self.position.as_ref();
+        if self.strict {
+            format!("{position}:strict")
+        } else {
+            position.to_string()
+        }
     }
 }
 
@@ -75,7 +75,7 @@ pub struct BlockConfig {
     pub spacing_after: Spacing,
     pub spacing_within: Option<Spacing>,
     pub line_position: Option<LinePositionConfig>,
-    pub keyword_line_position: Option<String>,
+    pub keyword_line_position: Option<LinePosition>,
     pub keyword_line_position_exclusions: SyntaxSet,
 }
 
@@ -117,7 +117,7 @@ impl BlockConfig {
         self.spacing_within = within.or_else(|| config.and_then(|c| c.spacing_within));
         self.line_position = line_position.or_else(|| config.and_then(|c| c.line_position));
 
-        if let Some(keyword_line_position) = config.and_then(|c| c.keyword_line_position.clone()) {
+        if let Some(keyword_line_position) = config.and_then(|c| c.keyword_line_position) {
             self.keyword_line_position = Some(keyword_line_position);
         }
 
@@ -126,26 +126,6 @@ impl BlockConfig {
         {
             self.keyword_line_position_exclusions = keyword_line_position_exclusions;
         }
-    }
-}
-
-fn parse_configured_syntax_set(raw: &str) -> SyntaxSet {
-    raw.split(',')
-        .filter_map(|seg_type| {
-            let seg_type = seg_type.trim();
-            if seg_type.is_empty() || seg_type.eq_ignore_ascii_case("none") {
-                None
-            } else {
-                parse_syntax_kind_alias(seg_type)
-            }
-        })
-        .collect()
-}
-
-fn parse_syntax_kind_alias(seg_type: &str) -> Option<SyntaxKind> {
-    match seg_type {
-        "aggregate_order_by" => Some(SyntaxKind::AggregateOrderByClause),
-        _ => seg_type.parse().ok(),
     }
 }
 
@@ -169,6 +149,65 @@ pub struct ReflowConfig {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum SpacingSpec {
+    Single,
+    Touch,
+    TouchInline,
+    SingleInline,
+    Any,
+    Align,
+}
+
+impl SpacingSpec {
+    pub(crate) fn as_str(self) -> &'static str {
+        match self {
+            Self::Single => "single",
+            Self::Touch => "touch",
+            Self::TouchInline => "touch:inline",
+            Self::SingleInline => "single:inline",
+            Self::Any => "any",
+            Self::Align => "align",
+        }
+    }
+
+    pub(crate) fn resolve(
+        self,
+        seg_type: SyntaxKind,
+        align_within: Option<SyntaxKind>,
+        align_scope: Option<SyntaxKind>,
+    ) -> Result<Spacing, ConfigError> {
+        Ok(match self {
+            Self::Single => Spacing::Single,
+            Self::Touch => Spacing::Touch,
+            Self::TouchInline => Spacing::TouchInline,
+            Self::SingleInline => Spacing::SingleInline,
+            Self::Any => Spacing::Any,
+            Self::Align => Spacing::Align {
+                seg_type,
+                within: align_within,
+                scope: align_scope,
+            },
+        })
+    }
+}
+
+impl FromStr for SpacingSpec {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "single" => Ok(Self::Single),
+            "touch" => Ok(Self::Touch),
+            "touch:inline" => Ok(Self::TouchInline),
+            "single:inline" => Ok(Self::SingleInline),
+            "any" => Ok(Self::Any),
+            "align" => Ok(Self::Align),
+            _ => Err(format!("invalid spacing spec '{s}'")),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Spacing {
     Single,
     Touch,
@@ -183,7 +222,7 @@ pub enum Spacing {
 }
 
 impl FromStr for Spacing {
-    type Err = ();
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
@@ -193,13 +232,27 @@ impl FromStr for Spacing {
             "single:inline" => Self::SingleInline,
             "any" => Self::Any,
             s => {
-                if let Some(rest) = s.strip_prefix("align") {
+                if let Some(rest) = s.strip_prefix("align:") {
                     let mut args = rest.split(':');
-                    args.next();
+                    let seg_type = args
+                        .next()
+                        .ok_or_else(|| format!("missing align segment type in '{s}'"))?
+                        .parse()
+                        .map_err(|_| format!("invalid layout syntax kind in '{s}'"))?;
+                    let within = args
+                        .next()
+                        .map(str::parse)
+                        .transpose()
+                        .map_err(|_| format!("invalid align_within syntax kind in '{s}'"))?;
+                    let scope = args
+                        .next()
+                        .map(str::parse)
+                        .transpose()
+                        .map_err(|_| format!("invalid align_scope syntax kind in '{s}'"))?;
 
-                    let seg_type = args.next().map(|it| it.parse().unwrap()).unwrap();
-                    let within = args.next().map(|it| it.parse().unwrap());
-                    let scope = args.next().map(|it| it.parse().unwrap());
+                    if args.next().is_some() {
+                        return Err(format!("too many align arguments in '{s}'"));
+                    }
 
                     Spacing::Align {
                         seg_type,
@@ -207,7 +260,7 @@ impl FromStr for Spacing {
                         scope,
                     }
                 } else {
-                    unimplemented!("{s}")
+                    return Err(format!("invalid spacing spec '{s}'"));
                 }
             }
         })
@@ -289,119 +342,40 @@ impl ReflowConfig {
         block_config
     }
 
-    pub fn from_fluff_config(config: &FluffConfig) -> ReflowConfig {
-        Self::from_config_sections(config.core(), config.indentation(), config.layout())
+    pub fn from_fluff_config(config: &FluffConfig) -> Result<ReflowConfig, ConfigError> {
+        Self::from_config_parts(config.layout(), config.indentation(), config.core())
     }
 
-    pub(crate) fn from_config_sections(
-        core: &CoreConfig,
-        indentation: &IndentationConfig,
+    pub fn from_config_parts(
         layout: &LayoutConfig,
-    ) -> ReflowConfig {
-        let configs = layout.type_configs();
-        let config_types = configs
-            .keys()
-            .map(|x| x.parse().unwrap_or_else(|_| unimplemented!("{x}")))
-            .collect::<SyntaxSet>();
+        indentation: &IndentationConfig,
+        core: &CoreConfig,
+    ) -> Result<Self, ConfigError> {
+        let configs = layout.types.clone();
+        let config_types = configs.keys().copied().collect::<SyntaxSet>();
 
         let trailing_comments = indentation.trailing_comments();
-        let trailing_comments = TrailingComments::from_str(trailing_comments).unwrap();
+        let trailing_comments = TrailingComments::from_str(trailing_comments).map_err(|_| {
+            ConfigError::InvalidField {
+                field: "trailing_comments",
+                reason: format!("invalid trailing_comments value '{trailing_comments}'"),
+            }
+        })?;
 
         let tab_space_size = indentation.tab_space_size();
         let indent_unit = indentation.indent_unit();
         let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
 
-        ReflowConfig {
-            configs: convert_to_config_dict(configs),
+        Ok(ReflowConfig {
+            configs,
             config_types,
             indent_unit,
             max_line_length: core.max_line_length(),
             hanging_indents: indentation.hanging_indents(),
             allow_implicit_indents: indentation.allow_implicit_indents(),
             trailing_comments,
-        }
-    }
-}
-
-fn convert_to_config_dict(input: HashMap<String, Value>) -> ConfigDictType {
-    let mut config_dict = ConfigDictType::new();
-
-    for (key, value) in input {
-        match value {
-            Value::Map(map_value) => {
-                let seg_type = key.parse().unwrap_or_else(|_| unimplemented!("{key}"));
-                config_dict.insert(
-                    seg_type,
-                    LayoutTypeConfig::from_value_map(seg_type, map_value),
-                );
-            }
-            _ => panic!("Expected a Value::Map, found another variant."),
-        }
-    }
-
-    config_dict
-}
-
-impl LayoutTypeConfig {
-    fn from_value_map(seg_type: SyntaxKind, map_value: HashMap<String, Value>) -> Self {
-        Self {
-            spacing_before: spacing_from_map(seg_type, &map_value, "spacing_before"),
-            spacing_after: spacing_from_map(seg_type, &map_value, "spacing_after"),
-            spacing_within: spacing_from_map(seg_type, &map_value, "spacing_within"),
-            line_position: map_value
-                .get("line_position")
-                .map(string_value)
-                .transpose()
-                .unwrap()
-                .map(|it| it.parse().unwrap()),
-            keyword_line_position: map_value
-                .get("keyword_line_position")
-                .map(string_value)
-                .transpose()
-                .unwrap()
-                .map(ToOwned::to_owned),
-            keyword_line_position_exclusions: map_value
-                .get("keyword_line_position_exclusions")
-                .map(string_value)
-                .transpose()
-                .unwrap()
-                .map(parse_configured_syntax_set)
-                .unwrap_or(SyntaxSet::EMPTY),
-        }
-    }
-}
-
-fn spacing_from_map(
-    seg_type: SyntaxKind,
-    map_value: &HashMap<String, Value>,
-    key: &str,
-) -> Option<Spacing> {
-    let spacing = map_value.get(key).map(string_value).transpose().unwrap()?;
-    if spacing == "align" {
-        Some(Spacing::Align {
-            seg_type,
-            within: map_value
-                .get("align_within")
-                .map(string_value)
-                .transpose()
-                .unwrap()
-                .map(|it| it.parse().unwrap()),
-            scope: map_value
-                .get("align_scope")
-                .map(string_value)
-                .transpose()
-                .unwrap()
-                .map(|it| it.parse().unwrap()),
         })
-    } else {
-        Some(spacing.parse().unwrap())
     }
-}
-
-fn string_value(value: &Value) -> Result<&str, String> {
-    value
-        .as_string()
-        .ok_or_else(|| "Expected a Value::String, found another variant.".to_string())
 }
 
 #[cfg(test)]
@@ -418,20 +392,21 @@ mod tests {
 
     #[test]
     fn parses_align_spacing_from_layout_config() {
-        let mut layout = HashMap::new();
-        layout.insert("spacing_before".into(), Value::String("align".into()));
-        layout.insert("align_within".into(), Value::String("select_clause".into()));
-        layout.insert("align_scope".into(), Value::String("statement".into()));
-
-        let config = LayoutTypeConfig::from_value_map(SyntaxKind::AliasExpression, layout);
+        let spacing = SpacingSpec::Align
+            .resolve(
+                SyntaxKind::AliasExpression,
+                Some(SyntaxKind::SelectClause),
+                Some(SyntaxKind::Statement),
+            )
+            .unwrap();
 
         assert_eq!(
-            config.spacing_before,
-            Some(Spacing::Align {
+            spacing,
+            Spacing::Align {
                 seg_type: SyntaxKind::AliasExpression,
                 within: Some(SyntaxKind::SelectClause),
                 scope: Some(SyntaxKind::Statement),
-            })
+            }
         );
     }
 }

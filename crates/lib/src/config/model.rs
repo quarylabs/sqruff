@@ -8,6 +8,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::parser::{IndentationConfig as ParserIndentationConfig, Parser};
 use sqruff_lib_dialects::kind_to_dialect;
 
+use super::error::ConfigError;
 use super::layout::LayoutConfig;
 use super::loader::ConfigLoader;
 use super::options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
@@ -179,7 +180,7 @@ impl Default for FluffConfig {
 }
 
 impl FluffConfig {
-    pub(crate) fn build_from_raw(configs: RawConfig) -> Self {
+    pub(crate) fn try_build_from_raw(configs: RawConfig) -> Result<Self, SqruffError> {
         let defaults: RawConfig =
             ConfigLoader::try_from_source(include_str!("./default_config.cfg"), None)
                 .expect("built-in default config must be valid")
@@ -190,7 +191,7 @@ impl FluffConfig {
 
         let core = CoreConfig::from_raw(&raw);
         let indentation = IndentationConfig::from_raw(&raw);
-        let layout = LayoutConfig::from_raw(&raw);
+        let layout = LayoutConfig::from_raw(&raw).map_err(config_error)?;
         let rules = RuleConfigs::from_raw(&raw);
         let templater = TemplaterConfig::from_raw(&raw);
         let dialects = DialectConfigStore::from_raw(&raw);
@@ -200,9 +201,10 @@ impl FluffConfig {
         let dialect = kind_to_dialect(&dialect_kind, dialect_config)
             .expect("Dialect is disabled. Please enable the corresponding feature.");
 
-        let reflow = ReflowConfig::from_config_sections(&core, &indentation, &layout);
+        let reflow =
+            ReflowConfig::from_config_parts(&layout, &indentation, &core).map_err(config_error)?;
 
-        Self {
+        Ok(Self {
             raw,
             core,
             indentation,
@@ -213,11 +215,19 @@ impl FluffConfig {
             dialect_kind,
             dialect,
             reflow,
-        }
+        })
+    }
+
+    pub(crate) fn build_from_raw(configs: RawConfig) -> Self {
+        Self::try_build_from_raw(configs).expect("config must be valid")
     }
 
     pub fn from_patch(patch: ConfigPatch) -> Self {
         Self::build_from_raw(patch.into())
+    }
+
+    pub fn try_from_patch(patch: ConfigPatch) -> Result<Self, SqruffError> {
+        Self::try_build_from_raw(patch.into())
     }
 
     pub fn with_patch(&self, patch: ConfigPatch) -> Self {
@@ -566,6 +576,10 @@ fn normalize_core_lists(configs: &mut RawConfig) {
     }
 }
 
+fn config_error(err: ConfigError) -> SqruffError {
+    SqruffError::Config(err.to_string())
+}
+
 fn int_value(map: &HashMap<String, Value>, key: &str) -> i32 {
     map.get(key).and_then(Value::as_int).unwrap_or_default()
 }
@@ -661,7 +675,7 @@ impl FluffConfigBuilder {
     /// Build the [`FluffConfig`], returning an error if the config is invalid
     /// (e.g. the requested templater is not supported in this build).
     pub fn build(self) -> Result<FluffConfig, SqruffError> {
-        let config = FluffConfig::from_patch(self.patch);
+        let config = FluffConfig::try_from_patch(self.patch)?;
         config.try_templater_kind().map_err(SqruffError::Config)?;
         Ok(config)
     }

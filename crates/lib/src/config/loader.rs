@@ -90,7 +90,7 @@ impl ConfigLoader {
 
         apply_overrides(&mut patch, options.overrides);
 
-        Ok(FluffConfig::from_patch(patch))
+        FluffConfig::try_from_patch(patch)
     }
 
     #[allow(unused_variables)]

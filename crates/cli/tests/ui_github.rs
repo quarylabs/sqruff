@@ -55,11 +55,14 @@ fn main() {
             let exit_code_str = output.status.code().unwrap().to_string();
 
             let test_dir_str = lint_dir.to_string_lossy().to_string();
+            let escaped_test_dir_str = test_dir_str.replace(':', "%3A");
             let stderr_normalized: String = stderr_str
                 .replace(&test_dir_str, "tests/lint")
+                .replace(&escaped_test_dir_str, "tests/lint")
                 .replace('\\', "/");
             let stdout_normalized: String = stdout_str
                 .replace(&test_dir_str, "tests/lint")
+                .replace(&escaped_test_dir_str, "tests/lint")
                 .replace('\\', "/");
 
             expect_file![expected_output_path_stderr].assert_eq(&stderr_normalized);

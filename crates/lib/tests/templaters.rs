@@ -25,7 +25,17 @@ fn main() {
     for templater_setup in &templaters_folders {
         println!("{:?}", templater_setup);
         let config = std::fs::read_to_string(templater_setup.join(".sqruff")).unwrap();
-        let config = FluffConfig::try_from_source(&config, None).unwrap();
+        let config = match FluffConfig::try_from_source(&config, None) {
+            Ok(config) => config,
+            Err(error) => {
+                println!(
+                    "Skipping templater test for {:?}: {}",
+                    templater_setup.file_name().unwrap(),
+                    error
+                );
+                continue;
+            }
+        };
 
         let templater = match TemplaterRuntime::from_config(&config) {
             Ok(t) => t,

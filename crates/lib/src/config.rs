@@ -11,7 +11,7 @@ pub mod setting;
 pub mod templater;
 
 pub use error::ConfigError;
-pub use layout::{LayoutConfig, LayoutConfigPatch, LayoutTypeConfigPatch};
+pub use layout::{LayoutConfig, LayoutConfigPatch, LayoutTypeConfig, LayoutTypeConfigPatch};
 pub use loader::ConfigLoader;
 pub use model::{
     CoreConfig, DialectConfigStore, EncodingMode, ErrorCategory, FluffConfig, FluffConfigBuilder,

@@ -277,10 +277,6 @@ impl Linter {
         sources: &[Source<'_>],
         config: &FluffConfig,
     ) -> Result<Vec<RenderedSource>, TemplaterError> {
-        if let Some(error) = config.verify_dialect_specified() {
-            return Err(TemplaterError::Failed(error));
-        }
-
         let normalized_sources = sources
             .iter()
             .map(|source| NormalizedSource {

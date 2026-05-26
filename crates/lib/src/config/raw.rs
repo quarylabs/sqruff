@@ -41,14 +41,26 @@ pub(crate) fn insert_config_path(ctx: &mut HashMap<String, Value>, path: &[Strin
 }
 
 pub(crate) fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, Value> {
-    let capacity = config_stack.len();
-    let mut result = HashMap::with_capacity(capacity);
+    config_stack
+        .into_iter()
+        .fold(HashMap::new(), deep_merge)
+}
 
-    for dict in config_stack {
-        for (key, value) in dict {
-            result.insert(key, value);
+fn deep_merge(mut a: HashMap<String, Value>, b: HashMap<String, Value>) -> HashMap<String, Value> {
+    for (key, value_b) in b {
+        match (a.get(&key), value_b) {
+            (Some(Value::Map(map_a)), Value::Map(map_b)) => {
+                let combined = deep_merge(map_a.clone(), map_b);
+                a.insert(key, Value::Map(combined));
+            }
+            (_, value) => {
+                a.insert(key, value);
+            }
         }
     }
+    a
+}
 
-    result
+pub(crate) fn merge_configs(a: HashMap<String, Value>, b: HashMap<String, Value>) -> HashMap<String, Value> {
+    deep_merge(a, b)
 }

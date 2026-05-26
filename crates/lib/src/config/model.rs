@@ -5,14 +5,13 @@ use std::str::FromStr;
 use hashbrown::HashMap;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::parser::{IndentationConfig as ParserIndentationConfig, Parser};
 use sqruff_lib_dialects::kind_to_dialect;
 
 use super::loader::ConfigLoader;
 use super::options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 use super::patch::ConfigPatch;
-use super::raw::{RawConfig, Value, split_comma_separated_string};
+use super::raw::{RawConfig, Value, merge_configs, split_comma_separated_string};
 use crate::api::SqruffError;
 use crate::templaters::TemplaterKind;
 use crate::utils::reflow::config::ReflowConfig;
@@ -80,7 +79,7 @@ impl FluffConfig {
         let mut defaults = HashMap::new();
         ConfigLoader::incorporate_vals(&mut defaults, values);
 
-        let mut raw = nested_combine(defaults, configs);
+        let mut raw = merge_configs(defaults, configs);
         normalize_core_lists(&mut raw);
 
         let core = CoreConfig::from_raw(&raw);
@@ -131,7 +130,7 @@ impl FluffConfig {
     }
 
     pub fn with_patch(&self, patch: ConfigPatch) -> Self {
-        let raw = nested_combine(self.raw.clone(), patch.into());
+        let raw = merge_configs(self.raw.clone(), patch.into());
         Self::build_from_raw(raw)
     }
 
@@ -262,7 +261,7 @@ impl FluffConfig {
             .and_then(Value::as_map)
     }
 
-    #[allow(dead_code)]
+    #[cfg(feature = "python")]
     pub(crate) fn templater_root_value(&self, key: &str) -> Option<&Value> {
         self.templater_config.root_value(key)
     }
@@ -271,21 +270,61 @@ impl FluffConfig {
         &self.reflow
     }
 
-    pub(crate) fn verify_dialect_specified(&self) -> Option<SQLFluffUserError> {
-        None
-    }
-
     pub fn for_source<'a>(&'a self, source: &str) -> Result<Cow<'a, FluffConfig>, SqruffError> {
         if !source.contains("-- sqlfluff") && !source.contains("-- sqruff") {
             return Ok(Cow::Borrowed(self));
         }
 
-        // Future implementation:
-        // parse inline config into ConfigPatch,
-        // apply to self,
-        // return Cow::Owned(new_config).
-        Ok(Cow::Borrowed(self))
+        let mut patch = ConfigPatch::default();
+        let mut found = false;
+
+        for line in source.lines() {
+            let Some(directive) = extract_inline_config_directive(line) else {
+                continue;
+            };
+
+            let Some((key, raw_value)) = directive.split_once('=') else {
+                continue;
+            };
+
+            let key = key.trim();
+            let raw_value = raw_value.trim();
+
+            // Keys without a section prefix go under `core` (e.g. `dialect`).
+            // Keys with `:` are treated as a nested path (e.g. `rules:LT01:comma_style`).
+            let path: Vec<&str> = if key.contains(':') {
+                key.split(':').collect()
+            } else {
+                vec!["core", key]
+            };
+
+            let value: Value = raw_value.parse().unwrap_or_else(|_| Value::String(raw_value.into()));
+            patch.set_value(&path, value);
+            found = true;
+        }
+
+        if found {
+            Ok(Cow::Owned(self.with_patch(patch)))
+        } else {
+            Ok(Cow::Borrowed(self))
+        }
     }
+}
+
+/// Scan a single SQL line for an inline sqruff/sqlfluff config directive of the
+/// form `-- sqruff:set key=value` (or `-- sqlfluff:set …`).  Returns the
+/// `key=value` substring (with surrounding whitespace stripped), or `None`
+/// when the line contains no directive.
+fn extract_inline_config_directive(line: &str) -> Option<&str> {
+    for prefix in &["-- sqlfluff:set", "-- sqruff:set"] {
+        if let Some(pos) = line.find(prefix) {
+            let rest = line[pos + prefix.len()..].trim();
+            if !rest.is_empty() {
+                return Some(rest);
+            }
+        }
+    }
+    None
 }
 
 impl CoreConfig {
@@ -475,21 +514,6 @@ fn normalize_core_lists(configs: &mut RawConfig) {
             _ => {}
         }
     }
-}
-
-fn nested_combine(mut a: RawConfig, b: RawConfig) -> RawConfig {
-    for (key, value_b) in b {
-        match (a.get(&key), value_b) {
-            (Some(Value::Map(map_a)), Value::Map(map_b)) => {
-                let combined = nested_combine(map_a.clone(), map_b);
-                a.insert(key, Value::Map(combined));
-            }
-            (_, value) => {
-                a.insert(key, value);
-            }
-        }
-    }
-    a
 }
 
 fn int_value(map: &HashMap<String, Value>, key: &str) -> i32 {

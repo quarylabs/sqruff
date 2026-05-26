@@ -1,5 +1,3 @@
-#![allow(deprecated)]
-
 use std::borrow::Cow;
 use std::str::FromStr;
 

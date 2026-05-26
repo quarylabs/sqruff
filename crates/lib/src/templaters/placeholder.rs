@@ -305,7 +305,8 @@ Also consider making a pull request to the project to have your style added, it 
 mod tests {
 
     use super::*;
-    use crate::core::linter::core::Linter;
+    use crate::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
+    use std::borrow::Cow;
 
     type PlaceholderCase<'a> = (&'a str, &'a str, &'a str, Vec<(&'a str, &'a str)>);
 
@@ -315,7 +316,7 @@ mod tests {
         name: &str,
         config: &FluffConfig,
     ) -> Result<TemplatedFile, SQLFluffUserError> {
-        let source_id = crate::api::SourceId::Virtual(name.to_string());
+        let source_id = SourceId::Virtual(name.to_string());
         templater
             .process(
                 &[TemplaterInput {
@@ -772,11 +773,20 @@ param_style = percent
         .unwrap();
         let sql = "SELECT a,b FROM users WHERE a = %s";
 
-        let mut linter = Linter::new(config, None, crate::api::ParseErrors::Suppress).unwrap();
-        let result = linter
-            .lint_string_wrapped(sql, crate::api::Mode::Fix)
-            .unwrap()
-            .fix_string();
+        let result = Engine::new(
+            config,
+            EngineOptions {
+                parse_errors: ParseErrors::Suppress,
+            },
+        )
+        .unwrap()
+        .fix_source(Source {
+            id: SourceId::Virtual("test.sql".into()),
+            text: Cow::Borrowed(sql),
+        })
+        .unwrap()
+        .fixed_source
+        .unwrap();
 
         assert_eq!(result, "SELECT\n    a,\n    b\nFROM users\nWHERE a = %s\n");
     }

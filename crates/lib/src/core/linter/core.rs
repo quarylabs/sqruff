@@ -25,7 +25,7 @@ use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
 
-pub struct Linter {
+pub(crate) struct Linter {
     config: FluffConfig,
     templater: TemplaterRuntime,
     rules: OnceLock<Vec<ErasedRule>>,
@@ -39,14 +39,14 @@ struct NormalizedSource {
 }
 
 impl Linter {
-    pub fn new(
+    pub(crate) fn new(
         config: FluffConfig,
         templater: Option<TemplaterRuntime>,
         parse_errors: ParseErrors,
     ) -> Result<Linter, crate::api::SqruffError> {
         let templater = match templater {
             Some(templater) => templater,
-            None => Linter::get_templater(&config)?,
+            None => TemplaterRuntime::from_config(&config)?,
         };
         Ok(Linter {
             config,
@@ -56,59 +56,12 @@ impl Linter {
         })
     }
 
-    pub fn get_templater(
-        config: &FluffConfig,
-    ) -> Result<TemplaterRuntime, crate::api::SqruffError> {
-        TemplaterRuntime::from_config(config)
-    }
-
-    /// Lint strings directly.
-    #[deprecated(note = "use Engine::check_source or Engine::fix_source")]
-    pub fn lint_string_wrapped(
-        &mut self,
-        sql: &str,
-        mode: Mode,
-    ) -> Result<LintedFile, SQLFluffUserError> {
-        let filename = "<string input>".to_owned();
-        #[allow(deprecated)]
-        self.lint_string(sql, Some(filename), mode)
-    }
-
-    /// Parse a string.
-    pub fn parse_string(
-        &self,
-        tables: &Tables,
-        sql: &str,
-        filename: Option<String>,
-    ) -> Result<ParsedString, SQLFluffUserError> {
-        let f_name = filename.unwrap_or_else(|| "<string>".to_string());
-
-        let rendered = self.render_string(sql, f_name, &self.config)?;
-
-        Ok(self.parse_rendered(tables, rendered))
-    }
-
-    /// Lint a string.
-    #[deprecated(note = "use Engine::check_source or Engine::fix_source")]
-    pub fn lint_string(
-        &self,
-        sql: &str,
-        filename: Option<String>,
-        mode: Mode,
-    ) -> Result<LintedFile, SQLFluffUserError> {
-        let tables = Tables::default();
-        let parsed = self.parse_string(&tables, sql, filename)?;
-
-        // Lint the file and return the LintedFile
-        self.lint_parsed(&tables, parsed, mode)
-    }
-
-    pub fn get_rulepack(&self) -> Result<RulePack, SQLFluffUserError> {
+    fn get_rulepack(&self) -> Result<RulePack, SQLFluffUserError> {
         let rs = get_ruleset();
         rs.get_rulepack(&self.config)
     }
 
-    pub fn lint_rendered(
+    pub(crate) fn lint_rendered(
         &self,
         rendered: RenderedFile,
         mode: Mode,
@@ -118,7 +71,7 @@ impl Linter {
         self.lint_parsed(&tables, parsed, mode)
     }
 
-    pub fn lint_parsed(
+    fn lint_parsed(
         &self,
         tables: &Tables,
         parsed_string: ParsedString,
@@ -158,7 +111,7 @@ impl Linter {
         Ok(linted_file)
     }
 
-    pub fn lint_fix_parsed(
+    fn lint_fix_parsed(
         &self,
         tables: &Tables,
         mut tree: ErasedSegment,
@@ -298,20 +251,6 @@ impl Linter {
         Ok((tree, ignore_mask, initial_violations))
     }
 
-    /// Template the file.
-    pub fn render_string(
-        &self,
-        sql: &str,
-        filename: String,
-        config: &FluffConfig,
-    ) -> Result<RenderedFile, SQLFluffUserError> {
-        let source_id = SourceId::Virtual(filename);
-        self.render_source(sql, &source_id, config)
-            .map_err(TemplaterError::into_user_error)?
-            .into_rendered()
-            .ok_or_else(|| SQLFluffUserError::new("Templater skipped string input".to_string()))
-    }
-
     pub(crate) fn render_source(
         &self,
         sql: &str,
@@ -423,7 +362,7 @@ impl Linter {
     }
 
     /// Parse a rendered file.
-    pub fn parse_rendered(&self, tables: &Tables, rendered: RenderedFile) -> ParsedString {
+    pub(crate) fn parse_rendered(&self, tables: &Tables, rendered: RenderedFile) -> ParsedString {
         let templater_violations = rendered.templater_violations.clone();
         if !templater_violations.is_empty() {
             // If the templater reported violations (e.g., dbt/jinja templater
@@ -511,7 +450,7 @@ impl Linter {
     }
 
     /// Lex a templated file.
-    pub fn lex_templated_file(
+    pub(crate) fn lex_templated_file(
         tables: &Tables,
         templated_file: TemplatedFile,
         dialect: &Dialect,
@@ -537,11 +476,11 @@ impl Linter {
         lazy_regex::regex!("\r\n|\r").replace_all(string, "\n")
     }
 
-    pub fn config(&self) -> &FluffConfig {
+    pub(crate) fn config(&self) -> &FluffConfig {
         &self.config
     }
 
-    pub fn rules(&self) -> Result<&[ErasedRule], SQLFluffUserError> {
+    fn rules(&self) -> Result<&[ErasedRule], SQLFluffUserError> {
         if let Some(rules) = self.rules.get() {
             return Ok(rules);
         }
@@ -553,17 +492,30 @@ impl Linter {
 
 #[cfg(test)]
 mod tests {
+    use std::borrow::Cow;
     use std::fs;
     use std::path::{Path, PathBuf};
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    use sqruff_lib_core::parser::segments::Tables;
-
-    use crate::api::{Mode, ParseErrors, PathDiscoveryOptions, discover_paths};
+    use crate::api::{
+        Engine, EngineOptions, Mode, ParseErrors, PathDiscoveryOptions, Source, SourceId,
+        discover_paths,
+    };
     use crate::config::FluffConfig;
     use crate::core::linter::core::Linter;
 
-    fn postgres_all_rules_linter() -> Linter {
+    fn source(sql: &str) -> Source<'_> {
+        Source {
+            id: SourceId::Virtual("test.sql".into()),
+            text: Cow::Borrowed(sql),
+        }
+    }
+
+    fn engine(config: FluffConfig, parse_errors: ParseErrors) -> Engine {
+        Engine::new(config, EngineOptions { parse_errors }).unwrap()
+    }
+
+    fn postgres_all_rules_engine() -> Engine {
         let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
@@ -574,7 +526,7 @@ rules = all
         )
         .unwrap();
 
-        Linter::new(config, None, ParseErrors::Include).unwrap()
+        engine(config, ParseErrors::Include)
     }
 
     fn normalise_paths(paths: Vec<PathBuf>) -> Vec<String> {
@@ -717,11 +669,11 @@ rules = all
     // test__linter__linting_unexpected_error_handled_gracefully
     #[test]
     fn test_linter_empty_file() {
-        let linter = Linter::new(FluffConfig::default(), None, ParseErrors::Suppress).unwrap();
-        let tables = Tables::default();
-        let parsed = linter.parse_string(&tables, "", None).unwrap();
+        let parsed = engine(FluffConfig::default(), ParseErrors::Suppress)
+            .parse_source(source(""))
+            .unwrap();
 
-        assert!(parsed.violations.is_empty());
+        assert!(parsed.diagnostics.is_empty());
     }
 
     // test__linter__mask_templated_violations
@@ -744,9 +696,9 @@ rules = all
         "
         .to_string();
 
-        let linter = Linter::new(FluffConfig::default(), None, ParseErrors::Suppress).unwrap();
-        let tables = Tables::default();
-        let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
+        let _parsed = engine(FluffConfig::default(), ParseErrors::Suppress)
+            .parse_source(source(&sql))
+            .unwrap();
     }
 
     #[test]
@@ -820,31 +772,33 @@ from test;
 from test;
 "#;
 
-        let mut linter = postgres_all_rules_linter();
-        let linted = linter.lint_string_wrapped(sql, Mode::Check).unwrap();
-        let violations = linted.violations();
+        let report = postgres_all_rules_engine()
+            .check_source(source(sql))
+            .unwrap();
+        let violations = &report.diagnostics;
 
         assert!(
-            !violations.iter().any(|v| v.rule_code() == "LT01"),
+            !violations.iter().any(|v| v.code.as_deref() == Some("LT01")),
             "Expected no LT01 violations, got: {:?}",
             violations
                 .iter()
-                .map(|v| (v.rule_code(), v.desc().to_string()))
+                .map(|v| (v.code.as_deref(), v.message.as_str()))
                 .collect::<Vec<_>>()
         );
         assert!(
-            violations.iter().all(|v| v.rule_code() == "LT02"),
+            violations.iter().all(|v| v.code.as_deref() == Some("LT02")),
             "Expected only LT02 violations, got: {:?}",
             violations
                 .iter()
-                .map(|v| (v.rule_code(), v.desc().to_string()))
+                .map(|v| (v.code.as_deref(), v.message.as_str()))
                 .collect::<Vec<_>>()
         );
 
-        let fixed = postgres_all_rules_linter()
-            .lint_string_wrapped(sql, Mode::Fix)
+        let fixed = postgres_all_rules_engine()
+            .fix_source(source(sql))
             .unwrap()
-            .fix_string();
+            .fixed_source
+            .unwrap();
 
         assert_eq!(fixed, expected);
     }
@@ -865,23 +819,25 @@ from test;
 from test;
 "#;
 
-        let mut linter = postgres_all_rules_linter();
-        let linted = linter.lint_string_wrapped(sql, Mode::Check).unwrap();
-        let violations = linted.violations();
+        let report = postgres_all_rules_engine()
+            .check_source(source(sql))
+            .unwrap();
+        let violations = &report.diagnostics;
 
         assert!(
-            violations.iter().any(|v| v.rule_code() == "LT01"),
+            violations.iter().any(|v| v.code.as_deref() == Some("LT01")),
             "Expected LT01 violations, got: {:?}",
             violations
                 .iter()
-                .map(|v| (v.rule_code(), v.desc().to_string()))
+                .map(|v| (v.code.as_deref(), v.message.as_str()))
                 .collect::<Vec<_>>()
         );
 
-        let fixed = postgres_all_rules_linter()
-            .lint_string_wrapped(sql, Mode::Fix)
+        let fixed = postgres_all_rules_engine()
+            .fix_source(source(sql))
             .unwrap()
-            .fix_string();
+            .fixed_source
+            .unwrap();
 
         assert_eq!(fixed, expected);
     }

@@ -571,8 +571,10 @@ impl RuleAL05 {
 
 #[cfg(test)]
 mod tests {
+    use std::borrow::Cow;
+
+    use crate::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
     use crate::config::FluffConfig;
-    use crate::core::linter::core::Linter;
 
     const POSTGRES_JSON_ALIAS_REPRODUCER: &str = r#"with stanza as (
     select
@@ -595,7 +597,7 @@ select
 from stanza;
 "#;
 
-    fn postgres_al05_linter() -> Linter {
+    fn postgres_al05_engine() -> Engine {
         let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
@@ -606,26 +608,40 @@ dialect = postgres
         )
         .unwrap();
 
-        Linter::new(config, None, crate::api::ParseErrors::Include).unwrap()
+        Engine::new(
+            config,
+            EngineOptions {
+                parse_errors: ParseErrors::Include,
+            },
+        )
+        .unwrap()
+    }
+
+    fn source(sql: &str) -> Source<'_> {
+        Source {
+            id: SourceId::Virtual("test.sql".into()),
+            text: Cow::Borrowed(sql),
+        }
     }
 
     #[test]
     fn test_al05_postgres_json_operator_alias_is_used() {
-        let mut linter = postgres_al05_linter();
-        let linted = linter
-            .lint_string_wrapped(POSTGRES_JSON_ALIAS_REPRODUCER, crate::api::Mode::Check)
+        let report = postgres_al05_engine()
+            .check_source(source(POSTGRES_JSON_ALIAS_REPRODUCER))
             .unwrap();
 
-        assert_eq!(linted.violations(), &[]);
+        assert_eq!(report.diagnostics, []);
     }
 
     #[test]
     fn test_al05_postgres_json_operator_fix_preserves_alias() {
-        let mut linter = postgres_al05_linter();
-        let linted = linter
-            .lint_string_wrapped(POSTGRES_JSON_ALIAS_REPRODUCER, crate::api::Mode::Fix)
+        let report = postgres_al05_engine()
+            .fix_source(source(POSTGRES_JSON_ALIAS_REPRODUCER))
             .unwrap();
 
-        assert_eq!(linted.fix_string(), POSTGRES_JSON_ALIAS_REPRODUCER);
+        assert_eq!(
+            report.fixed_source.as_deref(),
+            Some(POSTGRES_JSON_ALIAS_REPRODUCER)
+        );
     }
 }

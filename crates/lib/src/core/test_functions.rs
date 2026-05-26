@@ -1,19 +1,27 @@
+use std::borrow::Cow;
+
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
+use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_dialects::kind_to_dialect;
 
-use crate::api::ParseErrors;
-use crate::core::linter::core::Linter;
+use crate::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
 
 pub fn parse_ansi_string(sql: &str) -> ErasedSegment {
-    let tables = Tables::default();
-    let linter = Linter::new(<_>::default(), None, ParseErrors::Suppress).unwrap();
-    linter
-        .parse_string(&tables, sql, None)
-        .unwrap()
-        .tree
-        .unwrap()
+    Engine::new(
+        <_>::default(),
+        EngineOptions {
+            parse_errors: ParseErrors::Suppress,
+        },
+    )
+    .unwrap()
+    .parse_source(Source {
+        id: SourceId::Virtual("test.sql".into()),
+        text: Cow::Borrowed(sql),
+    })
+    .unwrap()
+    .tree
+    .unwrap()
 }
 
 pub fn fresh_ansi_dialect() -> Dialect {

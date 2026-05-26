@@ -592,22 +592,30 @@ mod tests {
     use sqruff_lib_core::helpers::enter_panic;
     use sqruff_lib_core::lint_fix::LintFix;
     use sqruff_lib_core::parser::segments::ErasedSegment;
+    use std::borrow::Cow;
 
+    use crate::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
     use crate::config::FluffConfig;
-    use crate::core::linter::core::Linter;
     use crate::core::test_functions::parse_ansi_string;
     use crate::utils::reflow::helpers::fixes_from_results;
     use crate::utils::reflow::respace::Tables;
     use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
     fn parse_string_with_config(sql: &str, config: &FluffConfig) -> ErasedSegment {
-        let tables = Tables::default();
-        let linter = Linter::new(config.clone(), None, crate::api::ParseErrors::Suppress).unwrap();
-        linter
-            .parse_string(&tables, sql, None)
-            .unwrap()
-            .tree
-            .unwrap()
+        Engine::new(
+            config.clone(),
+            EngineOptions {
+                parse_errors: ParseErrors::Suppress,
+            },
+        )
+        .unwrap()
+        .parse_source(Source {
+            id: SourceId::Virtual("test.sql".into()),
+            text: Cow::Borrowed(sql),
+        })
+        .unwrap()
+        .tree
+        .unwrap()
     }
 
     #[test]

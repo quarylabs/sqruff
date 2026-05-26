@@ -1,5 +1,3 @@
-#![cfg_attr(test, allow(deprecated))]
-
 pub mod api;
 pub mod config;
 pub mod rules;

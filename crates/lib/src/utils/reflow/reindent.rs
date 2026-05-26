@@ -1722,20 +1722,30 @@ mod tests {
         // A CTE with select on the same line as `as (`, an aliased join, and
         // the ON condition on a new line caused a capacity overflow panic in
         // lint_line_untaken_positive_indents due to a negative repeat count.
-        use crate::core::linter::core::Linter;
+        use std::borrow::Cow;
+
+        use crate::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
 
         let sql = "with a as (select 1\nfrom t join u v on\n1=1\n)\nselect * from a\n";
-        let linter = Linter::new(<_>::default(), None, crate::api::ParseErrors::Suppress).unwrap();
-        let result = linter
-            .lint_string(sql, None, crate::api::Mode::Check)
-            .unwrap();
+        let result = Engine::new(
+            <_>::default(),
+            EngineOptions {
+                parse_errors: ParseErrors::Suppress,
+            },
+        )
+        .unwrap()
+        .check_source(Source {
+            id: SourceId::Virtual("test.sql".into()),
+            text: Cow::Borrowed(sql),
+        })
+        .unwrap();
         // The panic is caught by catch_unwind and surfaced as an
         // "Unexpected exception" violation. Assert none are present.
-        for v in result.violations() {
+        for v in result.diagnostics {
             assert!(
-                !v.desc().contains("Unexpected exception"),
+                !v.message.contains("Unexpected exception"),
                 "Rule evaluation panicked: {}",
-                v.desc()
+                v.message
             );
         }
     }

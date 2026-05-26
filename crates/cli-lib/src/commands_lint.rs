@@ -30,7 +30,7 @@ pub(crate) fn run_lint(
     args: LintArgs,
     config: FluffConfig,
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
-    collect_parse_errors: bool,
+    parse_errors: ParseErrors,
 ) -> i32 {
     let LintArgs { paths, format } = args;
     run_lint_command(
@@ -42,14 +42,14 @@ pub(crate) fn run_lint(
         },
         config,
         ignorer,
-        collect_parse_errors,
+        parse_errors,
     )
 }
 
 pub(crate) fn run_lint_stdin(
     config: FluffConfig,
     format: Format,
-    collect_parse_errors: bool,
+    parse_errors: ParseErrors,
 ) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
@@ -62,7 +62,7 @@ pub(crate) fn run_lint_stdin(
         },
         config,
         |_| false,
-        collect_parse_errors,
+        parse_errors,
     )
 }
 
@@ -70,7 +70,7 @@ pub(crate) fn run_lint_command(
     command: LintCommand,
     config: FluffConfig,
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
-    collect_parse_errors: bool,
+    parse_errors: ParseErrors,
 ) -> i32 {
     let mut reporter = Reporter::new(command.format, &config);
     let workspace_root = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
@@ -88,16 +88,7 @@ pub(crate) fn run_lint_command(
             return 1;
         }
     };
-    let engine = match Engine::new(
-        config,
-        EngineOptions {
-            parse_errors: if collect_parse_errors {
-                ParseErrors::Include
-            } else {
-                ParseErrors::Suppress
-            },
-        },
-    ) {
+    let engine = match Engine::new(config, EngineOptions { parse_errors }) {
         Ok(engine) => engine,
         Err(e) => {
             eprintln!("{}", e.value);

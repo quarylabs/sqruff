@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use sqruff_lib::api::ParseErrors;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
@@ -190,7 +191,12 @@ fn test_dialect_ansi_specific_segment_not_parse() {
     ];
 
     for (raw, err_locations) in tests {
-        let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+        let lnt = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            ParseErrors::Suppress,
+        )
+        .unwrap();
         let tables = Tables::default();
         let parsed = lnt.parse_string(&tables, raw, None).unwrap();
         assert!(!parsed.violations.is_empty());
@@ -206,7 +212,12 @@ fn test_dialect_ansi_specific_segment_not_parse() {
 
 #[test]
 fn test_dialect_ansi_is_whitespace() {
-    let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+    let lnt = Linter::new(
+        FluffConfig::new(<_>::default(), None, None),
+        None,
+        ParseErrors::Suppress,
+    )
+    .unwrap();
     let file_content = std::fs::read_to_string(
         "../lib-dialects/test/fixtures/dialects/ansi/sqlfluff/select_in_multiline_comment.sql",
     )
@@ -234,7 +245,12 @@ fn test_dialect_ansi_parse_indented_joins() {
             [1, 5, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35].as_slice(),
         ),
     ];
-    let lnt = Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+    let lnt = Linter::new(
+        FluffConfig::new(<_>::default(), None, None),
+        None,
+        ParseErrors::Suppress,
+    )
+    .unwrap();
 
     for (sql_string, meta_loc) in cases {
         let tables = Tables::default();

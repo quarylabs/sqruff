@@ -4,8 +4,8 @@ use crate::core::linter::linted_file::LintedFile;
 use sqruff_lib_core::errors::{SQLBaseError, SQLFluffUserError};
 
 use super::{
-    EngineOptions, FileReport, LintDiagnostic, Mode, ParseErrors, RunReport, RunRequest, Source,
-    SourceId, SqruffError,
+    EngineOptions, FileReport, LintDiagnostic, Mode, RunReport, RunRequest, Source, SourceId,
+    SqruffError,
 };
 
 pub struct Engine {
@@ -14,19 +14,18 @@ pub struct Engine {
 
 impl Engine {
     pub fn new(config: FluffConfig, options: EngineOptions) -> Result<Self, SqruffError> {
-        let include_parse_errors = matches!(options.parse_errors, ParseErrors::Include);
         let inner =
-            Linter::new(config, None, include_parse_errors).map_err(SQLFluffUserError::new)?;
+            Linter::new(config, None, options.parse_errors).map_err(SQLFluffUserError::new)?;
 
         Ok(Self { inner })
     }
 
     pub fn check_source(&self, source: Source<'_>) -> Result<FileReport, SqruffError> {
-        self.lint_source(source, false)
+        self.lint_source(source, Mode::Check)
     }
 
     pub fn fix_source(&self, source: Source<'_>) -> Result<FileReport, SqruffError> {
-        self.lint_source(source, true)
+        self.lint_source(source, Mode::Fix)
     }
 
     pub fn run(&self, request: RunRequest<'_>) -> Result<RunReport, SqruffError> {
@@ -44,20 +43,19 @@ impl Engine {
     }
 
     pub fn reload_config(&mut self, config: FluffConfig) -> Result<(), SqruffError> {
-        let include_parse_errors = self.inner.include_parse_errors();
-        self.inner =
-            Linter::new(config, None, include_parse_errors).map_err(SQLFluffUserError::new)?;
+        let parse_errors = self.inner.parse_errors();
+        self.inner = Linter::new(config, None, parse_errors).map_err(SQLFluffUserError::new)?;
 
         Ok(())
     }
 
-    fn lint_source(&self, source: Source<'_>, fix: bool) -> Result<FileReport, SqruffError> {
+    fn lint_source(&self, source: Source<'_>, mode: Mode) -> Result<FileReport, SqruffError> {
         let filename = filename_for_source_id(&source.id);
         let linted_file = self
             .inner
-            .lint_string(source.text.as_ref(), filename, fix)?;
+            .lint_string(source.text.as_ref(), filename, mode)?;
 
-        Ok(file_report_from_linted_file(linted_file, source.id, fix))
+        Ok(file_report_from_linted_file(linted_file, source.id, mode))
     }
 }
 
@@ -72,14 +70,14 @@ fn filename_for_source_id(source_id: &SourceId) -> Option<String> {
 fn file_report_from_linted_file(
     linted_file: LintedFile,
     source_id: SourceId,
-    include_fixed_source: bool,
+    mode: Mode,
 ) -> FileReport {
     let diagnostics = linted_file
         .violations()
         .iter()
         .map(lint_diagnostic_from_error)
         .collect();
-    let fixed_source = include_fixed_source.then(|| linted_file.fix_string());
+    let fixed_source = matches!(mode, Mode::Fix).then(|| linted_file.fix_string());
 
     FileReport {
         source_id,
@@ -103,6 +101,8 @@ fn lint_diagnostic_from_error(error: &SQLBaseError) -> LintDiagnostic {
 #[cfg(test)]
 mod tests {
     use std::borrow::Cow;
+
+    use crate::api::ParseErrors;
 
     use super::*;
 

@@ -6,6 +6,7 @@ use hashbrown::HashMap;
 use rayon::prelude::*;
 use serde::Deserialize;
 use serde_with::{KeyValueMap, serde_as};
+use sqruff_lib::api::{Mode, ParseErrors};
 use sqruff_lib::core::config::{FluffConfig, Value};
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -84,7 +85,8 @@ struct RuleTestState {
 
 impl RuleTestState {
     fn new() -> Self {
-        let mut linter = Linter::new(FluffConfig::default(), None, None, true).unwrap();
+        let mut linter =
+            Linter::new(FluffConfig::default(), None, ParseErrors::Include).unwrap();
         let mut core = HashMap::new();
         core.insert(
             "core".to_string(),
@@ -203,13 +205,20 @@ fn process_file(state: &mut RuleTestState, path: &Path, verbose: bool) {
                     }
                 }
             };
-            state.linter =
-                Linter::new(state.linter.config().clone(), None, Some(templater), true).unwrap();
+            state.linter = Linter::new(
+                state.linter.config().clone(),
+                Some(templater),
+                ParseErrors::Include,
+            )
+            .unwrap();
         }
 
         match case.kind {
             TestCaseKind::Pass { pass_str } => {
-                let result = state.linter.lint_string_wrapped(&pass_str, false).unwrap();
+                let result = state
+                    .linter
+                    .lint_string_wrapped(&pass_str, Mode::Check)
+                    .unwrap();
                 let error_string = format!(
                     r#"
 The following test test can be used to recreate the issue:
@@ -227,7 +236,7 @@ dialect = {dialect}
 ",
  None);
 
-        let mut linter = Linter::new(config, None, None, true);
+        let mut linter = Linter::new(config, None, ParseErrors::Include);
 
         let pass_str = r"{pass_str}";
 
@@ -244,7 +253,10 @@ dialect = {dialect}
                 assert_eq!(&result.violations(), &[], "{}", error_string);
             }
             TestCaseKind::Fail { fail_str } => {
-                let file = state.linter.lint_string_wrapped(&fail_str, false).unwrap();
+                let file = state
+                    .linter
+                    .lint_string_wrapped(&fail_str, Mode::Check)
+                    .unwrap();
                 assert_ne!(&file.violations(), &[])
             }
             TestCaseKind::Fix { fail_str, fix_str } => {
@@ -253,7 +265,10 @@ dialect = {dialect}
                     "Fail and fix strings should not be equal"
                 );
 
-                let linted = state.linter.lint_string_wrapped(&fail_str, true).unwrap();
+                let linted = state
+                    .linter
+                    .lint_string_wrapped(&fail_str, Mode::Fix)
+                    .unwrap();
                 let actual = linted.fix_string();
 
                 pretty_assertions::assert_eq!(actual, fix_str);
@@ -269,8 +284,12 @@ dialect = {dialect}
             // the custom templater (e.g. placeholder) into subsequent tests.
             let templater = Linter::get_templater(state.linter.config())
                 .expect("Default config should have a valid templater");
-            state.linter =
-                Linter::new(state.linter.config().clone(), None, Some(templater), true).unwrap();
+            state.linter = Linter::new(
+                state.linter.config().clone(),
+                Some(templater),
+                ParseErrors::Include,
+            )
+            .unwrap();
         }
     }
 }

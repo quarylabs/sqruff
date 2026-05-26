@@ -631,7 +631,7 @@ rules = AL02
                 None,
             ),
             None,
-            false,
+            crate::api::ParseErrors::Suppress,
         )
         .unwrap();
 
@@ -641,7 +641,9 @@ rules = AL02
 FROM foo
 "#;
 
-        let result = linter.lint_string(sql, None, false).unwrap();
+        let result = linter
+            .lint_string(sql, None, crate::api::Mode::Check)
+            .unwrap();
         let violations = result.violations();
 
         assert_eq!(violations.len(), 1);
@@ -664,7 +666,7 @@ rules = AL02
                 None,
             ),
             None,
-            false,
+            crate::api::ParseErrors::Suppress,
         )
         .unwrap();
         let linter_with_disabled = Linter::new(
@@ -678,7 +680,7 @@ disable_noqa = True
                 None,
             ),
             None,
-            false,
+            crate::api::ParseErrors::Suppress,
         )
         .unwrap();
 
@@ -687,9 +689,11 @@ disable_noqa = True
     col_b b --noqa
 FROM foo
     "#;
-        let result_with_disabled = linter_with_disabled.lint_string(sql, None, false).unwrap();
+        let result_with_disabled = linter_with_disabled
+            .lint_string(sql, None, crate::api::Mode::Check)
+            .unwrap();
         let result_without_disabled = linter_without_disabled
-            .lint_string(sql, None, false)
+            .lint_string(sql, None, crate::api::Mode::Check)
             .unwrap();
 
         assert_eq!(result_without_disabled.violations().len(), 1);
@@ -708,7 +712,7 @@ rules = AL02
                 None,
             ),
             None,
-            false,
+            crate::api::ParseErrors::Suppress,
         )
         .unwrap();
         let sql_disable_rule = r#"SELECT
@@ -729,10 +733,10 @@ FROM foo
 FROM foo
 "#;
         let result_rule = linter_without_disabled
-            .lint_string(sql_disable_rule, None, false)
+            .lint_string(sql_disable_rule, None, crate::api::Mode::Check)
             .unwrap();
         let result_all = linter_without_disabled
-            .lint_string(sql_disable_all, None, false)
+            .lint_string(sql_disable_all, None, crate::api::Mode::Check)
             .unwrap();
 
         assert_eq!(result_rule.violations().len(), 3);

@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 use std::sync::OnceLock;
 
+use crate::api::{Mode, ParseErrors};
 use crate::core::config::FluffConfig;
 use crate::core::linter::common::{ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
@@ -26,15 +27,14 @@ pub struct Linter {
     templater: &'static dyn Templater,
     rules: OnceLock<Vec<ErasedRule>>,
 
-    /// include_parse_errors is a flag to indicate whether to include parse errors in the output
-    include_parse_errors: bool,
+    parse_errors: ParseErrors,
 }
 
 impl Linter {
     pub fn new(
         config: FluffConfig,
         templater: Option<&'static dyn Templater>,
-        include_parse_errors: bool,
+        parse_errors: ParseErrors,
     ) -> Result<Linter, String> {
         let templater: &'static dyn Templater = match templater {
             Some(templater) => templater,
@@ -44,7 +44,7 @@ impl Linter {
             config,
             templater,
             rules: OnceLock::new(),
-            include_parse_errors,
+            parse_errors,
         })
     }
 
@@ -56,10 +56,10 @@ impl Linter {
     pub fn lint_string_wrapped(
         &mut self,
         sql: &str,
-        fix: bool,
+        mode: Mode,
     ) -> Result<LintedFile, SQLFluffUserError> {
         let filename = "<string input>".to_owned();
-        self.lint_string(sql, Some(filename), fix)
+        self.lint_string(sql, Some(filename), mode)
     }
 
     /// Parse a string.
@@ -83,13 +83,13 @@ impl Linter {
         &self,
         sql: &str,
         filename: Option<String>,
-        fix: bool,
+        mode: Mode,
     ) -> Result<LintedFile, SQLFluffUserError> {
         let tables = Tables::default();
         let parsed = self.parse_string(&tables, sql, filename)?;
 
         // Lint the file and return the LintedFile
-        self.lint_parsed(&tables, parsed, fix)
+        self.lint_parsed(&tables, parsed, mode)
     }
 
     pub fn get_rulepack(&self) -> Result<RulePack, SQLFluffUserError> {
@@ -100,18 +100,18 @@ impl Linter {
     pub fn lint_rendered(
         &self,
         rendered: RenderedFile,
-        fix: bool,
+        mode: Mode,
     ) -> Result<LintedFile, SQLFluffUserError> {
         let tables = Tables::default();
         let parsed = self.parse_rendered(&tables, rendered);
-        self.lint_parsed(&tables, parsed, fix)
+        self.lint_parsed(&tables, parsed, mode)
     }
 
     pub fn lint_parsed(
         &self,
         tables: &Tables,
         parsed_string: ParsedString,
-        fix: bool,
+        mode: Mode,
     ) -> Result<LintedFile, SQLFluffUserError> {
         let mut violations = parsed_string.violations;
 
@@ -121,7 +121,7 @@ impl Linter {
                     tables,
                     erased_segment,
                     &parsed_string.templated_file,
-                    fix,
+                    mode,
                 )?;
                 let patches = tree.iter_patches(&parsed_string.templated_file);
                 (patches, ignore_mask, initial_linting_errors)
@@ -152,20 +152,22 @@ impl Linter {
         tables: &Tables,
         mut tree: ErasedSegment,
         templated_file: &TemplatedFile,
-        fix: bool,
+        mode: Mode,
     ) -> Result<(ErasedSegment, Option<IgnoreMask>, Vec<SQLLintError>), SQLFluffUserError> {
         let mut initial_violations = Vec::new();
-        let phases: &[_] = if fix {
-            &[LintPhase::Main, LintPhase::Post]
-        } else {
-            &[LintPhase::Main]
+        let phases: &[_] = match mode {
+            Mode::Check => &[LintPhase::Main],
+            Mode::Fix => &[LintPhase::Main, LintPhase::Post],
         };
         let mut previous_versions: HashSet<(SmolStr, bool)> =
             [(tree.raw().to_smolstr(), false)].into_iter().collect();
 
         // If we are fixing then we want to loop up to the runaway_limit, otherwise just
         // once for linting.
-        let loop_limit = if fix { 10 } else { 1 };
+        let loop_limit = match mode {
+            Mode::Check => 1,
+            Mode::Fix => 10,
+        };
         // Look for comment segments which might indicate lines to ignore.
         let (ignore_mask, violations): (Option<IgnoreMask>, Vec<SQLBaseError>) = {
             let disable_noqa = self
@@ -228,7 +230,10 @@ impl Linter {
                     // results returned won't be seen by the user anyway (linting errors ADDED by
                     // rules changing SQL, are not reported back to the user - only initial linting
                     // errors), so there's absolutely no reason to run them.
-                    if fix && !is_first_linter_pass && !rule.is_fix_compatible() {
+                    if matches!(mode, Mode::Fix)
+                        && !is_first_linter_pass
+                        && !rule.is_fix_compatible()
+                    {
                         continue;
                     }
 
@@ -280,7 +285,7 @@ impl Linter {
                         continue;
                     }
 
-                    if fix && !anchor_info.is_empty() {
+                    if matches!(mode, Mode::Fix) && !anchor_info.is_empty() {
                         let (new_tree, _, _) = tree.apply_fixes(&mut anchor_info);
                         let has_source_fixes = !new_tree.get_all_source_fixes().is_empty();
 
@@ -297,7 +302,7 @@ impl Linter {
                     }
                 }
 
-                if fix && !changed {
+                if matches!(mode, Mode::Fix) && !changed {
                     break;
                 }
             }
@@ -378,8 +383,7 @@ impl Linter {
 
         let parsed: Option<ErasedSegment>;
         if let Some(token_list) = tokens {
-            let (p, pvs) =
-                Self::parse_tokens(tables, &token_list, &self.config, self.include_parse_errors);
+            let (p, pvs) = Self::parse_tokens(tables, &token_list, &self.config, self.parse_errors);
             parsed = p;
             violations.extend(pvs.into_iter().map_into());
         } else {
@@ -399,7 +403,7 @@ impl Linter {
         tables: &Tables,
         tokens: &[ErasedSegment],
         config: &FluffConfig,
-        include_parse_errors: bool,
+        parse_errors: ParseErrors,
     ) -> (Option<ErasedSegment>, Vec<SQLParseError>) {
         let parser: Parser = config.into();
         let mut violations: Vec<SQLParseError> = Vec::new();
@@ -412,7 +416,9 @@ impl Linter {
             }
         };
 
-        if include_parse_errors && let Some(parsed) = &parsed {
+        if matches!(parse_errors, ParseErrors::Include)
+            && let Some(parsed) = &parsed
+        {
             let unparsables = parsed.recursive_crawl(
                 &SyntaxSet::single(SyntaxKind::Unparsable),
                 true,
@@ -474,8 +480,8 @@ impl Linter {
         Ok(self.rules.get().unwrap())
     }
 
-    pub(crate) fn include_parse_errors(&self) -> bool {
-        self.include_parse_errors
+    pub(crate) fn parse_errors(&self) -> ParseErrors {
+        self.parse_errors
     }
 }
 
@@ -487,7 +493,7 @@ mod tests {
 
     use sqruff_lib_core::parser::segments::Tables;
 
-    use crate::api::{PathDiscoveryOptions, discover_paths};
+    use crate::api::{Mode, ParseErrors, PathDiscoveryOptions, discover_paths};
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;
 
@@ -501,7 +507,7 @@ rules = all
             None,
         );
 
-        Linter::new(config, None, true).unwrap()
+        Linter::new(config, None, ParseErrors::Include).unwrap()
     }
 
     fn normalise_paths(paths: Vec<PathBuf>) -> Vec<String> {
@@ -632,8 +638,12 @@ rules = all
     // test__linter__linting_unexpected_error_handled_gracefully
     #[test]
     fn test_linter_empty_file() {
-        let linter =
-            Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+        let linter = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            ParseErrors::Suppress,
+        )
+        .unwrap();
         let tables = Tables::default();
         let parsed = linter.parse_string(&tables, "", None).unwrap();
 
@@ -660,8 +670,12 @@ rules = all
         "
         .to_string();
 
-        let linter =
-            Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+        let linter = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            ParseErrors::Suppress,
+        )
+        .unwrap();
         let tables = Tables::default();
         let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
     }
@@ -686,8 +700,12 @@ rules = all
 
         let source =
             "SELECT *\nFROM {{ ref('stg_users') }}\nWHERE created_at > '{{ var(\"start_date\") }}'";
-        let linter =
-            Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+        let linter = Linter::new(
+            FluffConfig::new(<_>::default(), None, None),
+            None,
+            ParseErrors::Suppress,
+        )
+        .unwrap();
 
         // Simulate a failed templater by creating a RenderedFile with
         // templater_violations.
@@ -707,7 +725,7 @@ rules = all
             source_str: source.to_string(),
         };
 
-        let result = linter.lint_rendered(rendered, false).unwrap();
+        let result = linter.lint_rendered(rendered, Mode::Check).unwrap();
         let violations = result.violations();
 
         // Should have exactly 1 violation: the templater error.
@@ -739,7 +757,7 @@ from test;
 "#;
 
         let mut linter = postgres_all_rules_linter();
-        let linted = linter.lint_string_wrapped(sql, false).unwrap();
+        let linted = linter.lint_string_wrapped(sql, Mode::Check).unwrap();
         let violations = linted.violations();
 
         assert!(
@@ -760,7 +778,7 @@ from test;
         );
 
         let fixed = postgres_all_rules_linter()
-            .lint_string_wrapped(sql, true)
+            .lint_string_wrapped(sql, Mode::Fix)
             .unwrap()
             .fix_string();
 
@@ -784,7 +802,7 @@ from test;
 "#;
 
         let mut linter = postgres_all_rules_linter();
-        let linted = linter.lint_string_wrapped(sql, false).unwrap();
+        let linted = linter.lint_string_wrapped(sql, Mode::Check).unwrap();
         let violations = linted.violations();
 
         assert!(
@@ -797,7 +815,7 @@ from test;
         );
 
         let fixed = postgres_all_rules_linter()
-            .lint_string_wrapped(sql, true)
+            .lint_string_wrapped(sql, Mode::Fix)
             .unwrap()
             .fix_string();
 

@@ -42,7 +42,7 @@ parser = ["sqruff-lib-core/stringify"]
 python = ["pyo3", "sqruff-lib-core/serde"]
 
 [dependencies]
-sqruff-lib-core.workspace = true
+sqruff-lib-core = { workspace = true, features = ["serde"] }
 sqruff-lib-dialects.workspace = true
 
 fancy-regex = "0.18.0"

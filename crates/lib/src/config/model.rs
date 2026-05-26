@@ -8,29 +8,59 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::parser::{IndentationConfig as ParserIndentationConfig, Parser};
 use sqruff_lib_dialects::kind_to_dialect;
 
+use super::layout::LayoutConfig;
 use super::loader::ConfigLoader;
 use super::options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 use super::patch::ConfigPatch;
 use super::raw::{RawConfig, Value, merge_configs, split_comma_separated_string};
+use super::rules::RuleConfigs;
+use super::templater::TemplaterConfig;
 use crate::api::SqruffError;
-use crate::templaters::TemplaterKind;
 use crate::utils::reflow::config::ReflowConfig;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct FluffConfig {
+    /// Kept for internal operations that still require the raw map
+    /// (e.g. `with_patch`, `for_source`).
     raw: RawConfig,
+
     core: CoreConfig,
     indentation: IndentationConfig,
     layout: LayoutConfig,
-    rule_config: RuleConfigStore,
-    templater_config: TemplaterConfigStore,
+    templater: TemplaterConfig,
+    rules: RuleConfigs,
+    dialects: DialectConfigStore,
 
     dialect_kind: DialectKind,
     dialect: Dialect,
-    templater_kind: TemplaterKind,
-    sql_file_exts: Vec<String>,
     reflow: ReflowConfig,
 }
+
+// ── DialectConfigStore ───────────────────────────────────────────────────────
+
+/// Resolved per-dialect configuration.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DialectConfigStore {
+    values: HashMap<String, Value>,
+}
+
+impl DialectConfigStore {
+    fn from_raw(raw: &RawConfig) -> Self {
+        Self {
+            values: raw
+                .get("dialect")
+                .and_then(Value::as_map)
+                .cloned()
+                .unwrap_or_default(),
+        }
+    }
+
+    pub fn section(&self, dialect_kind: DialectKind) -> Option<&Value> {
+        self.values.get(dialect_kind.as_ref())
+    }
+}
+
+// ── CoreConfig ───────────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct CoreConfig {
@@ -40,27 +70,25 @@ pub struct CoreConfig {
     max_line_length: usize,
     rule_allowlist: Option<Vec<String>>,
     rule_denylist: Vec<String>,
+    sql_file_exts: Vec<String>,
 }
+
+// ── IndentationConfig ────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IndentationConfig {
     values: HashMap<String, Value>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct LayoutConfig {
-    values: HashMap<String, Value>,
-}
+// ── Backward-compatible type aliases ─────────────────────────────────────────
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct RuleConfigStore {
-    values: HashMap<String, Value>,
-}
+/// Deprecated alias — prefer [`RuleConfigs`].
+#[deprecated(note = "Use `RuleConfigs` instead")]
+pub type RuleConfigStore = RuleConfigs;
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct TemplaterConfigStore {
-    values: HashMap<String, Value>,
-}
+/// Deprecated alias — prefer [`TemplaterConfig`].
+#[deprecated(note = "Use `TemplaterConfig` instead")]
+pub type TemplaterConfigStore = TemplaterConfig;
 
 impl Default for FluffConfig {
     fn default() -> Self {
@@ -85,28 +113,14 @@ impl FluffConfig {
         let core = CoreConfig::from_raw(&raw);
         let indentation = IndentationConfig::from_raw(&raw);
         let layout = LayoutConfig::from_raw(&raw);
-        let rule_config = RuleConfigStore::from_raw(&raw);
-        let templater_config = TemplaterConfigStore::from_raw(&raw);
+        let rules = RuleConfigs::from_raw(&raw);
+        let templater = TemplaterConfig::from_raw(&raw);
+        let dialects = DialectConfigStore::from_raw(&raw);
 
         let dialect_kind = configured_dialect_kind_from_raw(&raw);
-        let dialect_config = dialect_section_from_raw(&raw, dialect_kind);
+        let dialect_config = dialects.section(dialect_kind);
         let dialect = kind_to_dialect(&dialect_kind, dialect_config)
             .expect("Dialect is disabled. Please enable the corresponding feature.");
-
-        let templater_kind = raw["core"]["templater"]
-            .as_string()
-            .map(TemplaterKind::from_name)
-            .transpose()
-            .ok()
-            .flatten()
-            .unwrap_or(TemplaterKind::Raw);
-
-        let sql_file_exts = raw["core"]["sql_file_exts"]
-            .as_array()
-            .unwrap_or_default()
-            .iter()
-            .filter_map(|it| it.as_string().map(ToOwned::to_owned))
-            .collect();
 
         let reflow = ReflowConfig::from_config_sections(&core, &indentation, &layout);
 
@@ -115,12 +129,11 @@ impl FluffConfig {
             core,
             indentation,
             layout,
-            rule_config,
-            templater_config,
+            rules,
+            templater,
+            dialects,
             dialect_kind,
             dialect,
-            templater_kind,
-            sql_file_exts,
             reflow,
         }
     }
@@ -201,23 +214,19 @@ impl FluffConfig {
     }
 
     pub fn dialect_section(&self, dialect_kind: DialectKind) -> Option<&Value> {
-        dialect_section_from_raw(&self.raw, dialect_kind)
+        self.dialects.section(dialect_kind)
     }
 
-    pub fn templater_kind(&self) -> TemplaterKind {
-        self.templater_kind
+    pub fn templater_kind(&self) -> crate::templaters::TemplaterKind {
+        self.templater.kind()
     }
 
-    pub(crate) fn try_templater_kind(&self) -> Result<TemplaterKind, String> {
-        self.raw["core"]["templater"]
-            .as_string()
-            .map(TemplaterKind::from_name)
-            .transpose()
-            .map(|templater| templater.unwrap_or(TemplaterKind::Raw))
+    pub(crate) fn try_templater_kind(&self) -> Result<crate::templaters::TemplaterKind, String> {
+        Ok(self.templater.kind())
     }
 
     pub fn sql_file_exts(&self) -> &[String] {
-        self.sql_file_exts.as_ref()
+        self.core.sql_file_exts()
     }
 
     pub fn no_color(&self) -> bool {
@@ -245,25 +254,35 @@ impl FluffConfig {
     }
 
     pub fn rule_config_map(&self, rule_config_ref: &str) -> HashMap<String, Value> {
-        self.rule_config.config_map(rule_config_ref)
+        self.rules.config_map(rule_config_ref)
     }
 
-    pub fn templater_section(&self, templater: TemplaterKind) -> Option<&HashMap<String, Value>> {
-        self.templater_config.section(templater)
+    pub fn templater_section(
+        &self,
+        templater: crate::templaters::TemplaterKind,
+    ) -> Option<&HashMap<String, Value>> {
+        self.templater.section(templater)
     }
 
-    pub fn templater_value(&self, templater: TemplaterKind, key: &str) -> Option<&Value> {
-        self.templater_config.value(templater, key)
+    pub fn templater_value(
+        &self,
+        templater: crate::templaters::TemplaterKind,
+        key: &str,
+    ) -> Option<&Value> {
+        self.templater.value(templater, key)
     }
 
-    pub fn templater_context(&self, templater: TemplaterKind) -> Option<&HashMap<String, Value>> {
+    pub fn templater_context(
+        &self,
+        templater: crate::templaters::TemplaterKind,
+    ) -> Option<&HashMap<String, Value>> {
         self.templater_value(templater, "context")
             .and_then(Value::as_map)
     }
 
     #[cfg(feature = "python")]
     pub(crate) fn templater_root_value(&self, key: &str) -> Option<&Value> {
-        self.templater_config.root_value(key)
+        self.templater.root_value(key)
     }
 
     pub fn reflow(&self) -> &ReflowConfig {
@@ -333,6 +352,13 @@ impl CoreConfig {
     fn from_raw(raw: &RawConfig) -> Self {
         let core = raw["core"].as_map().unwrap();
 
+        let sql_file_exts = raw["core"]["sql_file_exts"]
+            .as_array()
+            .unwrap_or_default()
+            .iter()
+            .filter_map(|it| it.as_string().map(ToOwned::to_owned))
+            .collect();
+
         Self {
             no_color: bool_value(core, "nocolor"),
             verbosity: int_value(core, "verbose"),
@@ -340,6 +366,7 @@ impl CoreConfig {
             max_line_length: int_value(core, "max_line_length").max(0) as usize,
             rule_allowlist: string_list_value(core, "rule_allowlist"),
             rule_denylist: string_list_value(core, "rule_denylist").unwrap_or_default(),
+            sql_file_exts,
         }
     }
 
@@ -365,6 +392,10 @@ impl CoreConfig {
 
     pub fn rule_denylist(&self) -> &[String] {
         &self.rule_denylist
+    }
+
+    pub fn sql_file_exts(&self) -> &[String] {
+        &self.sql_file_exts
     }
 }
 
@@ -404,68 +435,6 @@ impl IndentationConfig {
     }
 }
 
-impl LayoutConfig {
-    fn from_raw(raw: &RawConfig) -> Self {
-        Self {
-            values: raw["layout"].as_map().unwrap().clone(),
-        }
-    }
-
-    pub(crate) fn type_configs(&self) -> HashMap<String, Value> {
-        self.values["type"].as_map().unwrap().clone()
-    }
-}
-
-impl RuleConfigStore {
-    fn from_raw(raw: &RawConfig) -> Self {
-        Self {
-            values: raw["rules"].as_map().unwrap().clone(),
-        }
-    }
-
-    fn config_map(&self, rule_config_ref: &str) -> HashMap<String, Value> {
-        if rule_config_ref.is_empty() || rule_config_ref == "rules" {
-            return self.values.clone();
-        }
-
-        // Start with scalar values from the global [rules] section
-        let mut merged: HashMap<String, Value> = self
-            .values
-            .iter()
-            .filter(|(_, v)| !matches!(v, Value::Map(_)))
-            .map(|(k, v)| (k.clone(), v.clone()))
-            .collect();
-
-        // Override/extend with rule-specific values
-        if let Some(specific) = self.values.get(rule_config_ref).and_then(Value::as_map) {
-            merged.extend(specific.clone());
-        }
-
-        merged
-    }
-}
-
-impl TemplaterConfigStore {
-    fn from_raw(raw: &RawConfig) -> Self {
-        Self {
-            values: raw["templater"].as_map().unwrap().clone(),
-        }
-    }
-
-    #[allow(dead_code)]
-    fn root_value(&self, key: &str) -> Option<&Value> {
-        self.values.get(key)
-    }
-
-    fn section(&self, templater: TemplaterKind) -> Option<&HashMap<String, Value>> {
-        self.values.get(templater.as_str()).and_then(Value::as_map)
-    }
-
-    fn value(&self, templater: TemplaterKind, key: &str) -> Option<&Value> {
-        self.section(templater)?.get(key)
-    }
-}
-
 impl<'a> From<&'a FluffConfig> for Parser<'a> {
     fn from(config: &'a FluffConfig) -> Self {
         let dialect = config.dialect();
@@ -485,13 +454,6 @@ fn configured_dialect_kind_from_raw(configs: &RawConfig) -> DialectKind {
         Some(Value::String(std)) => DialectKind::from_str(std).unwrap(),
         _value => DialectKind::default(),
     }
-}
-
-fn dialect_section_from_raw(configs: &RawConfig, dialect_kind: DialectKind) -> Option<&Value> {
-    configs
-        .get("dialect")
-        .and_then(|v| v.as_map())
-        .and_then(|m| m.get(dialect_kind.as_ref()))
 }
 
 fn normalize_core_lists(configs: &mut RawConfig) {
@@ -562,6 +524,7 @@ impl FluffConfigBuilder {
 mod tests {
     use super::*;
     use crate::api::SqruffError;
+    use crate::templaters::TemplaterKind;
     use sqruff_lib_core::dialects::init::DialectKind;
 
     #[test]

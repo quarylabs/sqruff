@@ -859,6 +859,10 @@ impl Linter {
     pub fn formatter_mut(&mut self) -> Option<&mut Arc<dyn Formatter>> {
         self.formatter.as_mut()
     }
+
+    pub(crate) fn include_parse_errors(&self) -> bool {
+        self.include_parse_errors
+    }
 }
 
 #[cfg(test)]

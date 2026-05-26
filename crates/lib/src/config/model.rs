@@ -378,11 +378,20 @@ impl RuleConfigStore {
             return self.values.clone();
         }
 
-        self.values
-            .get(rule_config_ref)
-            .and_then(Value::as_map)
-            .cloned()
-            .unwrap_or_default()
+        // Start with scalar values from the global [rules] section
+        let mut merged: HashMap<String, Value> = self
+            .values
+            .iter()
+            .filter(|(_, v)| !matches!(v, Value::Map(_)))
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
+
+        // Override/extend with rule-specific values
+        if let Some(specific) = self.values.get(rule_config_ref).and_then(Value::as_map) {
+            merged.extend(specific.clone());
+        }
+
+        merged
     }
 }
 

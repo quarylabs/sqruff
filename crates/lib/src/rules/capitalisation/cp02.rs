@@ -129,15 +129,9 @@ from foo
             return Vec::new();
         }
 
-        let rule_config = context.config.rule_config_map("capitalisation");
         let policy = self
             .unquoted_identifiers_policy
             .as_deref()
-            .or_else(|| {
-                rule_config
-                    .get("unquoted_identifiers_policy")
-                    .and_then(Value::as_string)
-            })
             .unwrap_or("all");
         if identifiers_policy_applicable(policy, &context.parent_stack) {
             self.base.eval(context)

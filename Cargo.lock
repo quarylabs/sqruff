@@ -1600,6 +1600,7 @@ dependencies = [
  "sqruff-lib-dialects",
  "strum",
  "strum_macros",
+ "thiserror",
  "toml",
  "walkdir",
 ]

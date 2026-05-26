@@ -26,7 +26,13 @@ pub(crate) fn run_fix(
 }
 
 pub(crate) fn run_fix_stdin(config: FluffConfig, format: Format, parse_errors: ParseErrors) -> i32 {
-    let read_in = crate::stdin::read_std_in().unwrap();
+    let read_in = match crate::stdin::read_std_in() {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("Failed to read stdin: {e}");
+            return 1;
+        }
+    };
 
     run_lint_command(
         LintCommand {

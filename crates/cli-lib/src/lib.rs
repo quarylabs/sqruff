@@ -55,19 +55,19 @@ where
 
             std::process::exit(1);
         };
-        match FluffConfig::try_from_file(Path::new(config)) {
+        match FluffConfig::from_file(Path::new(config)) {
             Ok(config) => config,
-            Err(err) => {
-                eprintln!("{err}");
-                std::process::exit(1);
+            Err(error) => {
+                eprintln!("{}", error.message());
+                return 1;
             }
         }
     } else {
         match FluffConfig::from_root(None, false, None) {
             Ok(config) => config,
-            Err(err) => {
-                eprintln!("{err}");
-                std::process::exit(1);
+            Err(error) => {
+                eprintln!("{}", error.message());
+                return 1;
             }
         }
     };
@@ -113,10 +113,13 @@ where
             Ok(false) => commands_fix::run_fix(args, config, ignorer, parse_errors),
             Ok(true) => commands_fix::run_fix_stdin(config, args.format, parse_errors),
         },
-        Commands::Lsp => {
-            sqruff_lsp::run();
-            0
-        }
+        Commands::Lsp => match sqruff_lsp::run() {
+            Ok(()) => 0,
+            Err(e) => {
+                eprintln!("{e}");
+                1
+            }
+        },
         Commands::Info => {
             commands_info::info();
             0

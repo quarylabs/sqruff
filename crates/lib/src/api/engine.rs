@@ -2,7 +2,6 @@ use crate::core::config::FluffConfig;
 use crate::core::linter::common::RenderedSource;
 use crate::core::linter::core::Linter;
 use crate::core::linter::linted_file::LintedFile;
-use sqruff_lib_core::errors::SQLFluffUserError;
 
 use super::{
     EngineOptions, FileReport, LintDiagnostic, Mode, RunReport, RunRequest, Source, SourceId,
@@ -15,8 +14,7 @@ pub struct Engine {
 
 impl Engine {
     pub fn new(config: FluffConfig, options: EngineOptions) -> Result<Self, SqruffError> {
-        let inner =
-            Linter::new(config, None, options.parse_errors).map_err(SQLFluffUserError::new)?;
+        let inner = Linter::new(config, None, options.parse_errors)?;
 
         Ok(Self { inner })
     }
@@ -45,7 +43,7 @@ impl Engine {
 
     pub fn reload_config(&mut self, config: FluffConfig) -> Result<(), SqruffError> {
         let parse_errors = self.inner.parse_errors();
-        self.inner = Linter::new(config, None, parse_errors).map_err(SQLFluffUserError::new)?;
+        self.inner = Linter::new(config, None, parse_errors)?;
 
         Ok(())
     }
@@ -54,7 +52,7 @@ impl Engine {
         let rendered = self
             .inner
             .render_source(source.text.as_ref(), &source.id, self.inner.config())
-            .map_err(|error| error.into_user_error())?;
+            .map_err(SqruffError::from)?;
         let rendered = match rendered {
             RenderedSource::Rendered(rendered) => rendered,
             RenderedSource::Skipped(skipped) => {
@@ -67,7 +65,10 @@ impl Engine {
             }
         };
 
-        let linted_file = self.inner.lint_rendered(rendered, mode)?;
+        let linted_file = self
+            .inner
+            .lint_rendered(rendered, mode)
+            .map_err(|error| SqruffError::Lint(error.value))?;
 
         Ok(file_report_from_linted_file(linted_file, source.id, mode))
     }

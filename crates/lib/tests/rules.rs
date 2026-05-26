@@ -85,8 +85,7 @@ struct RuleTestState {
 
 impl RuleTestState {
     fn new() -> Self {
-        let mut linter =
-            Linter::new(FluffConfig::default(), None, ParseErrors::Include).unwrap();
+        let mut linter = Linter::new(FluffConfig::default(), None, ParseErrors::Include).unwrap();
         let mut core = HashMap::new();
         core.insert(
             "core".to_string(),

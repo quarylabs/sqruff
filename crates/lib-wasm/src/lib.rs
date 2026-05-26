@@ -75,18 +75,18 @@ impl Result {
 #[wasm_bindgen]
 impl Linter {
     #[wasm_bindgen(constructor)]
-    pub fn new(source: &str) -> Self {
-        let config = FluffConfig::from_source(source, None);
-        Self {
-            engine: Engine::new(
-                config.clone(),
-                EngineOptions {
-                    parse_errors: ParseErrors::Include,
-                },
-            )
-            .unwrap(),
-            base: SqruffLinter::new(config, None, ParseErrors::Include).unwrap(),
-        }
+    pub fn new(source: &str) -> std::result::Result<Self, JsValue> {
+        let config = FluffConfig::try_from_source(source, None).unwrap_or_default();
+        let engine = Engine::new(
+            config.clone(),
+            EngineOptions {
+                parse_errors: ParseErrors::Include,
+            },
+        )
+        .map_err(|e| JsValue::from_str(&e.to_string()))?;
+        let base = SqruffLinter::new(config, None, ParseErrors::Include)
+            .map_err(|e| JsValue::from_str(&e.to_string()))?;
+        Ok(Self { engine, base })
     }
 
     #[wasm_bindgen]
@@ -121,12 +121,18 @@ impl Linter {
             Err(e) => return result_from_error(e),
         };
         let tables = Tables::default();
-        let parsed = self.base.parse_string(&tables, sql, None).unwrap();
+        let parsed = match self.base.parse_string(&tables, sql, None) {
+            Ok(parsed) => parsed,
+            Err(e) => return result_from_str(&e.value),
+        };
 
-        let templated = self
+        let templated = match self
             .base
             .render_string(sql, "".to_string(), self.base.config())
-            .unwrap();
+        {
+            Ok(t) => t,
+            Err(e) => return result_from_str(&e.value),
+        };
 
         let cst = if tool == Tool::Cst {
             parsed.tree.clone()
@@ -135,7 +141,10 @@ impl Linter {
         };
 
         let secondary = match tool {
-            Tool::Cst => cst.unwrap().stringify(false),
+            Tool::Cst => match cst {
+                Some(cst) => cst.stringify(false),
+                None => String::new(),
+            },
             Tool::Lineage => {
                 let parser = Parser::new(
                     self.base.config().get_dialect(),
@@ -194,9 +203,13 @@ fn to_wasm_diagnostic(diagnostic: &LintDiagnostic) -> Diagnostic {
 }
 
 fn result_from_error(error: SqruffError) -> Result {
+    result_from_str(&error.to_string())
+}
+
+fn result_from_str(message: &str) -> Result {
     Result {
         diagnostics: vec![Diagnostic {
-            message: error.value,
+            message: message.to_string(),
             start_line_number: 1,
             start_column: 1,
             end_line_number: 1,

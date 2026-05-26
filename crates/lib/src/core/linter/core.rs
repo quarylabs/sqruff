@@ -541,14 +541,6 @@ impl Linter {
         &self.config
     }
 
-    #[cfg(test)]
-    #[allow(dead_code)]
-    pub(crate) fn replace_config_for_test(&mut self, config: FluffConfig) {
-        self.templater = TemplaterRuntime::from_config(&config).unwrap();
-        self.config = config;
-        self.rules = OnceLock::new();
-    }
-
     pub fn rules(&self) -> Result<&[ErasedRule], SQLFluffUserError> {
         if let Some(rules) = self.rules.get() {
             return Ok(rules);
@@ -556,10 +548,6 @@ impl Linter {
         let rulepack = self.get_rulepack()?;
         let _ = self.rules.set(rulepack.rules);
         Ok(self.rules.get().unwrap())
-    }
-
-    pub(crate) fn parse_errors(&self) -> ParseErrors {
-        self.parse_errors
     }
 }
 

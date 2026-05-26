@@ -210,7 +210,8 @@ impl LanguageServer {
     }
 
     fn set_config(&mut self, new_config: FluffConfig) -> Result<(), SqruffError> {
-        self.engine.reload_config(new_config)?;
+        let new_engine = Engine::new(new_config, self.engine.options())?;
+        self.engine = new_engine;
         Ok(())
     }
 

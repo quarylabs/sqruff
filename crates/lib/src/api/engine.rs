@@ -12,13 +12,18 @@ use super::{
 
 pub struct Engine {
     inner: Linter,
+    options: EngineOptions,
 }
 
 impl Engine {
     pub fn new(config: FluffConfig, options: EngineOptions) -> Result<Self, SqruffError> {
         let inner = Linter::new(config, None, options.parse_errors)?;
 
-        Ok(Self { inner })
+        Ok(Self { inner, options })
+    }
+
+    pub fn options(&self) -> EngineOptions {
+        self.options
     }
 
     pub fn check_source(&self, source: Source<'_>) -> Result<FileReport, SqruffError> {
@@ -40,13 +45,6 @@ impl Engine {
             .collect::<Result<Vec<_>, _>>()?;
 
         Ok(RunReport { files })
-    }
-
-    pub fn reload_config(&mut self, config: FluffConfig) -> Result<(), SqruffError> {
-        let parse_errors = self.inner.parse_errors();
-        self.inner = Linter::new(config, None, parse_errors)?;
-
-        Ok(())
     }
 
     pub fn parse_source(&self, source: Source<'_>) -> Result<ParsedDebugReport, SqruffError> {
@@ -418,6 +416,9 @@ dialect = ansi
                 ParseErrors::Include,
             )
             .unwrap(),
+            options: EngineOptions {
+                parse_errors: ParseErrors::Include,
+            },
         };
 
         let report = engine
@@ -457,6 +458,9 @@ dialect = ansi
                 ParseErrors::Include,
             )
             .unwrap(),
+            options: EngineOptions {
+                parse_errors: ParseErrors::Include,
+            },
         };
 
         let report = engine

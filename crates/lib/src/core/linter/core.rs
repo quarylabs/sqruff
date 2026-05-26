@@ -629,13 +629,9 @@ rules = all
     }
 
     fn path_options() -> PathDiscoveryOptions<'static> {
-        PathDiscoveryOptions {
-            ignore_file_name: ".sqruffignore",
-            ignore_non_existent_files: false,
-            ignore_files: false,
-            working_dir: std::env::current_dir().unwrap(),
-            ignorer: None,
-        }
+        let mut options = PathDiscoveryOptions::new(std::env::current_dir().unwrap());
+        options.ignore_files = false;
+        options
     }
 
     fn temp_project(name: &str) -> PathBuf {
@@ -663,7 +659,28 @@ rules = all
 
     #[test]
     fn test_linter_path_from_paths_default() {
-        // Test .sql files are found by default.
+        // Test configured default SQL file extensions are found by default.
+        let options = path_options();
+        let project = temp_project("configured-exts");
+        fs::write(project.join("query.sql"), "SELECT 1;\n").unwrap();
+        fs::write(project.join("template.sql.j2"), "SELECT {{ value }};\n").unwrap();
+        fs::write(project.join("statement.dml"), "SELECT 2;\n").unwrap();
+        fs::write(project.join("schema.ddl"), "CREATE TABLE t (id INT);\n").unwrap();
+        fs::write(project.join("notes.txt"), "not sql\n").unwrap();
+
+        let paths = discover_paths(&project, &options).unwrap();
+
+        assert!(paths.iter().any(|path| path.ends_with("query.sql")));
+        assert!(paths.iter().any(|path| path.ends_with("template.sql.j2")));
+        assert!(paths.iter().any(|path| path.ends_with("statement.dml")));
+        assert!(paths.iter().any(|path| path.ends_with("schema.ddl")));
+        assert!(!paths.iter().any(|path| path.ends_with("notes.txt")));
+
+        fs::remove_dir_all(project).unwrap();
+    }
+
+    #[test]
+    fn test_linter_path_from_paths_respects_case_insensitive_exts() {
         let options = path_options();
         let paths =
             normalise_paths(discover_paths(Path::new("test/fixtures/linter"), &options).unwrap());
@@ -708,13 +725,8 @@ rules = all
         fs::write(ignored_dir.join("hidden.sql"), "SELECT bad FROM hidden;\n").unwrap();
 
         let ignorer = |path: &Path| path.file_name().is_some_and(|name| name == "ignored");
-        let options = PathDiscoveryOptions {
-            ignore_file_name: ".sqruffignore",
-            ignore_non_existent_files: false,
-            ignore_files: false,
-            working_dir: std::env::current_dir().unwrap(),
-            ignorer: Some(&ignorer),
-        };
+        let mut options = path_options();
+        options.ignorer = Some(&ignorer);
         let paths = discover_paths(&project, &options).unwrap();
 
         assert_eq!(paths.len(), 1);

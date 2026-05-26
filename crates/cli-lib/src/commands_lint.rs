@@ -87,7 +87,13 @@ pub(crate) fn run_lint_command(
             return 1;
         }
     };
-    let loaded_sources = match load_sources(&command.input, &workspace, &workspace_root, &ignorer) {
+    let loaded_sources = match load_sources(
+        &command.input,
+        &workspace,
+        &workspace_root,
+        config.sql_file_exts(),
+        &ignorer,
+    ) {
         Ok(sources) => sources,
         Err(e) => {
             eprintln!("{}", e.message());
@@ -170,6 +176,7 @@ fn load_sources(
     input: &Input,
     workspace: &Workspace,
     working_dir: &Path,
+    file_exts: &[String],
     ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
 ) -> Result<Vec<Source<'static>>, sqruff_lib::api::SqruffError> {
     match input {
@@ -184,6 +191,7 @@ fn load_sources(
                 ignore_non_existent_files: false,
                 ignore_files: true,
                 working_dir: working_dir.to_path_buf(),
+                file_exts,
                 ignorer: Some(&ignore_matcher),
             };
             workspace.discover_sources(paths, &options)

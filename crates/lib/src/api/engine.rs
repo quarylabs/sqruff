@@ -15,8 +15,8 @@ pub struct Engine {
 impl Engine {
     pub fn new(config: FluffConfig, options: EngineOptions) -> Result<Self, SqruffError> {
         let include_parse_errors = matches!(options.parse_errors, ParseErrors::Include);
-        let inner = Linter::new(config, None, None, include_parse_errors)
-            .map_err(SQLFluffUserError::new)?;
+        let inner =
+            Linter::new(config, None, include_parse_errors).map_err(SQLFluffUserError::new)?;
 
         Ok(Self { inner })
     }
@@ -45,9 +45,8 @@ impl Engine {
 
     pub fn reload_config(&mut self, config: FluffConfig) -> Result<(), SqruffError> {
         let include_parse_errors = self.inner.include_parse_errors();
-        let formatter = self.inner.formatter().cloned();
-        self.inner = Linter::new(config, formatter, None, include_parse_errors)
-            .map_err(SQLFluffUserError::new)?;
+        self.inner =
+            Linter::new(config, None, include_parse_errors).map_err(SQLFluffUserError::new)?;
 
         Ok(())
     }

@@ -66,7 +66,7 @@ fn parse_and_output_tree(
     format: ParseFormat,
 ) -> i32 {
     // Create a linter and parse the SQL
-    let linter = match Linter::new(config.clone(), None, None, true) {
+    let linter = match Linter::new(config.clone(), None, true) {
         Ok(l) => l,
         Err(e) => {
             eprintln!("{}", e);

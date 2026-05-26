@@ -134,12 +134,14 @@ impl FluffConfig {
         Ok(FluffConfig::new(configs, None, None))
     }
 
-    /// from_source creates a config object from a string. This is used for testing and for
-    /// loading a config from a string.
+    /// Creates a config object from a source string, falling back to defaults on invalid input.
     ///
-    /// The optional_path_specification is used to specify a path to use for relative paths in the
-    /// config. This is useful for testing.
-    pub fn from_source(source: &str, optional_path_specification: Option<&Path>) -> FluffConfig {
+    /// Production code should use `try_from_source()` and surface the error.
+    #[cfg(test)]
+    pub fn from_source_or_default_for_tests(
+        source: &str,
+        optional_path_specification: Option<&Path>,
+    ) -> FluffConfig {
         Self::try_from_source(source, optional_path_specification).unwrap_or_default()
     }
 
@@ -424,7 +426,7 @@ impl ConfigLoader {
         head.chain(tail)
     }
 
-    pub fn load_config_up_to_path(
+    pub fn load_config_up_to_path_or_default(
         &self,
         path: impl AsRef<Path>,
         extra_config_path: Option<String>,
@@ -458,7 +460,7 @@ impl ConfigLoader {
         Ok(nested_combine(config_stack))
     }
 
-    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> HashMap<String, Value> {
+    pub fn load_config_at_path_or_default(&self, path: impl AsRef<Path>) -> HashMap<String, Value> {
         self.try_load_config_at_path(path).unwrap_or_default()
     }
 
@@ -493,7 +495,11 @@ impl ConfigLoader {
         Ok(configs)
     }
 
-    pub fn from_source(source: &str, path: Option<&Path>) -> HashMap<String, Value> {
+    #[cfg(test)]
+    pub fn from_source_or_default_for_tests(
+        source: &str,
+        path: Option<&Path>,
+    ) -> HashMap<String, Value> {
         Self::try_from_source(source, path).unwrap_or_default()
     }
 
@@ -507,7 +513,10 @@ impl ConfigLoader {
         Ok(configs)
     }
 
-    pub fn load_config_file(path: impl AsRef<Path>, configs: &mut HashMap<String, Value>) {
+    pub fn load_config_file_or_default(
+        path: impl AsRef<Path>,
+        configs: &mut HashMap<String, Value>,
+    ) {
         let Ok(elems) = ConfigLoader::try_get_config_elems_from_file(path.as_ref().into(), None)
         else {
             return;
@@ -804,7 +813,7 @@ mod tests {
     #[test]
     fn test_dialect_config_section_parsing() {
         // Test that [sqruff:dialect:snowflake] section is correctly parsed
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = snowflake
@@ -813,7 +822,8 @@ dialect = snowflake
 some_option = value
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         // Verify that the dialect config section is accessible
         let dialect_section = config.raw.get("dialect");
@@ -832,7 +842,7 @@ some_option = value
     #[test]
     fn test_dialect_config_empty_section() {
         // Test that empty [sqruff:dialect:bigquery] section works
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = bigquery
@@ -840,7 +850,8 @@ dialect = bigquery
 [sqruff:dialect:bigquery]
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         // The config should still be valid
         assert_eq!(config.get_dialect().name, DialectKind::Bigquery);
@@ -849,13 +860,14 @@ dialect = bigquery
     #[test]
     fn test_dialect_without_config_section() {
         // Test that a dialect works without a config section
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = postgres
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         // The config should still be valid
         assert_eq!(config.get_dialect().name, DialectKind::Postgres);
@@ -863,26 +875,27 @@ dialect = postgres
 
     #[test]
     fn test_templater_kind_defaults_to_raw() {
-        let config = FluffConfig::from_source("", None);
+        let config = FluffConfig::try_from_source("", None).unwrap();
         assert_eq!(config.templater_kind().unwrap(), TemplaterKind::Raw);
     }
 
     #[test]
     fn test_templater_kind_parses_placeholder() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 templater = placeholder
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         assert_eq!(config.templater_kind().unwrap(), TemplaterKind::Placeholder);
     }
 
     #[test]
     fn test_templater_section_uses_typed_kind() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 templater = placeholder
@@ -891,7 +904,8 @@ templater = placeholder
 param_style = colon
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         let section = config
             .templater_section(TemplaterKind::Placeholder)
@@ -1038,7 +1052,7 @@ max_line_length = 44
     #[cfg(feature = "python")]
     #[test]
     fn test_templater_context_uses_typed_kind() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 templater = python
@@ -1047,7 +1061,8 @@ templater = python
 blah = foo
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         let context = config.templater_context(TemplaterKind::Python).unwrap();
         assert_eq!(context.get("blah").unwrap().as_string(), Some("foo"));

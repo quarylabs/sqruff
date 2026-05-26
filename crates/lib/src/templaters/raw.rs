@@ -68,7 +68,7 @@ mod test {
                 source: in_str,
                 source_id: &source_id,
             }],
-            &FluffConfig::from_source("", None),
+            &FluffConfig::try_from_source("", None).unwrap(),
         );
 
         assert_eq!(results.len(), 1);

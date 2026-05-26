@@ -25,21 +25,13 @@ use std::path::{Path, PathBuf};
 use wasm_bindgen::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
-fn load_config(root: Option<&Path>) -> FluffConfig {
-    if let Some(root) = root {
-        let loader = ConfigLoader {};
-        loader
-            .try_load_config_at_path(root)
-            .map(|config| FluffConfig::new(config, None, None))
-            .unwrap_or_default()
-    } else {
-        FluffConfig::from_root(None, false, None).unwrap_or_default()
-    }
+fn load_config() -> Result<FluffConfig, SqruffError> {
+    FluffConfig::from_root(None, false, None)
 }
 
 #[cfg(target_arch = "wasm32")]
-fn load_config(_root: Option<&Path>) -> FluffConfig {
-    FluffConfig::default()
+fn load_config() -> Result<FluffConfig, SqruffError> {
+    Ok(FluffConfig::default())
 }
 
 fn server_initialize_result() -> InitializeResult {
@@ -57,6 +49,7 @@ pub struct LanguageServer {
     engine: Engine,
     send_diagnostics_callback: Box<dyn Fn(PublishDiagnosticsParams)>,
     documents: HashMap<Uri, String>,
+    startup_config_error: Option<String>,
 }
 
 #[wasm_bindgen]
@@ -138,16 +131,32 @@ impl Wasm {
 
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
-        let config = load_config(None);
-        let engine = Self::new_engine(config).unwrap_or_else(|e| {
-            eprintln!("Failed to create engine from config, using defaults: {e}");
-            Self::new_engine(FluffConfig::default())
-                .expect("default config must produce a valid engine")
-        });
+        let (config, mut startup_config_error) = match load_config() {
+            Ok(config) => (config, None),
+            Err(error) => {
+                let message = format!("Failed to load config, using defaults: {error}");
+                eprintln!("{message}");
+                (FluffConfig::default(), Some(message))
+            }
+        };
+        let engine = match Self::new_engine(config) {
+            Ok(engine) => engine,
+            Err(error) => {
+                let message =
+                    format!("Failed to create engine from config, using defaults: {error}");
+                eprintln!("{message}");
+                if startup_config_error.is_none() {
+                    startup_config_error = Some(message);
+                }
+                Self::new_engine(FluffConfig::default())
+                    .expect("default config must produce a valid engine")
+            }
+        };
         Self {
             engine,
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: HashMap::new(),
+            startup_config_error,
         }
     }
 
@@ -207,6 +216,10 @@ impl LanguageServer {
         )
     }
 
+    pub fn startup_config_error(&self) -> Option<&str> {
+        self.startup_config_error.as_deref()
+    }
+
     pub fn on_notification(&mut self, method: &str, params: Value) {
         match method {
             DidOpenTextDocument::METHOD => {
@@ -249,7 +262,13 @@ impl LanguageServer {
                 let uri = params.text_document.uri.as_str();
 
                 if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
-                    let new_config = load_config(None);
+                    let new_config = match load_config() {
+                        Ok(config) => config,
+                        Err(error) => {
+                            eprintln!("Invalid config, keeping previous configuration: {error}");
+                            return;
+                        }
+                    };
                     if self.set_config(new_config).is_ok() {
                         self.recheck_files();
                     } else {
@@ -652,6 +671,22 @@ mod tests {
 
         let diagnostics = diagnostics.lock().unwrap();
         assert!(diagnostics.last().unwrap().diagnostics.is_empty());
+    }
+
+    #[test]
+    fn startup_config_error_is_visible() {
+        let _guard = CWD_LOCK.lock().unwrap();
+        let _workspace = Workspace::new(
+            "invalid-startup-config",
+            "[sqruff]\ntemplater = dbt\n\n[sqruff:templater:dbt]\nproject_dir = 1\n",
+        );
+        let (server, _diagnostics) = server_with_diagnostics();
+
+        assert!(
+            server
+                .startup_config_error()
+                .is_some_and(|error| error.contains("invalid path value"))
+        );
     }
 
     #[test]

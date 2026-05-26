@@ -213,12 +213,12 @@ mod tests {{
 
     #[test]
     fn test_example() {{
-        let config = FluffConfig::from_source("
+        let config = FluffConfig::try_from_source("
 [sqruff]
 rules = {rule}
 dialect = {dialect}
 ",
- None);
+ None).unwrap();
 
         let mut linter = Linter::new(config, None, ParseErrors::Include);
 

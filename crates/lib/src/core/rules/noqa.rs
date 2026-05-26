@@ -622,14 +622,15 @@ mod tests {
     /// Test "noqa" feature at the higher "Linter" level.
     fn test_linter_single_noqa() {
         let linter = Linter::new(
-            FluffConfig::from_source(
+            FluffConfig::try_from_source(
                 r#"
 [sqruff]
 dialect = bigquery
 rules = AL02
 "#,
                 None,
-            ),
+            )
+            .unwrap(),
             None,
             crate::api::ParseErrors::Suppress,
         )
@@ -657,20 +658,21 @@ FROM foo
     /// Test "noqa" feature at the higher "Linter" level and turn off noqa
     fn test_linter_noqa_but_disabled() {
         let linter_without_disabled = Linter::new(
-            FluffConfig::from_source(
+            FluffConfig::try_from_source(
                 r#"
 [sqruff]
 dialect = bigquery
 rules = AL02
 "#,
                 None,
-            ),
+            )
+            .unwrap(),
             None,
             crate::api::ParseErrors::Suppress,
         )
         .unwrap();
         let linter_with_disabled = Linter::new(
-            FluffConfig::from_source(
+            FluffConfig::try_from_source(
                 r#"
 [sqruff]
 dialect = bigquery
@@ -678,7 +680,8 @@ rules = AL02
 disable_noqa = True
 "#,
                 None,
-            ),
+            )
+            .unwrap(),
             None,
             crate::api::ParseErrors::Suppress,
         )
@@ -703,14 +706,15 @@ FROM foo
     #[test]
     fn test_range_code() {
         let linter_without_disabled = Linter::new(
-            FluffConfig::from_source(
+            FluffConfig::try_from_source(
                 r#"
 [sqruff]
 dialect = bigquery
 rules = AL02
 "#,
                 None,
-            ),
+            )
+            .unwrap(),
             None,
             crate::api::ParseErrors::Suppress,
         )

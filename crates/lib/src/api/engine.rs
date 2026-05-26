@@ -206,14 +206,15 @@ mod tests {
     }
 
     fn test_engine() -> Engine {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = ansi
 rules = LT01
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         Engine::new(
             config,
@@ -265,13 +266,14 @@ rules = LT01
 
     #[test]
     fn check_source_reports_templater_skip() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = ansi
 "#,
             None,
-        );
+        )
+        .unwrap();
         let engine = Engine {
             inner: Linter::new(
                 config,
@@ -303,13 +305,14 @@ dialect = ansi
     #[test]
     fn run_batches_sources_for_batch_templaters() {
         RECORDING_BATCH_TEMPLATER.take_calls();
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = ansi
 "#,
             None,
-        );
+        )
+        .unwrap();
         let engine = Engine {
             inner: Linter::new(
                 config,

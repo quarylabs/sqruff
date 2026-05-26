@@ -69,6 +69,7 @@ harness = false
 
 [[test]]
 name = "none_format"
+harness = false
 
 [[test]]
 name = "path_discovery"

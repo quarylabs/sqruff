@@ -1,14 +1,16 @@
 use std::borrow::Cow;
 use std::sync::OnceLock;
 
-use crate::api::{Mode, ParseErrors};
+use crate::api::{Mode, ParseErrors, SourceId};
 use crate::core::config::FluffConfig;
-use crate::core::linter::common::{ParsedString, RenderedFile};
+use crate::core::linter::common::{ParsedString, RenderedFile, RenderedSource};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::rules::noqa::IgnoreMask;
 use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
 use crate::rules::get_ruleset;
-use crate::templaters::{Templater, TemplaterKind};
+use crate::templaters::{
+    Templater, TemplaterError, TemplaterInput, TemplaterKind, TemplaterOutput, source_id_name,
+};
 use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use smol_str::{SmolStr, ToSmolStr};
@@ -73,7 +75,7 @@ impl Linter {
 
         // Scan the raw file for config commands.
         self.config.process_raw_file_for_config(sql);
-        let rendered = self.render_string(sql, f_name.clone(), &self.config)?;
+        let rendered = self.render_string(sql, f_name, &self.config)?;
 
         Ok(self.parse_rendered(tables, rendered))
     }
@@ -298,30 +300,47 @@ impl Linter {
         filename: String,
         config: &FluffConfig,
     ) -> Result<RenderedFile, SQLFluffUserError> {
+        let source_id = SourceId::Virtual(filename);
+        self.render_source(sql, &source_id, config)
+            .map_err(TemplaterError::into_user_error)?
+            .into_rendered()
+            .ok_or_else(|| SQLFluffUserError::new("Templater skipped string input".to_string()))
+    }
+
+    pub(crate) fn render_source(
+        &self,
+        sql: &str,
+        source_id: &SourceId,
+        config: &FluffConfig,
+    ) -> Result<RenderedSource, TemplaterError> {
         let sql = Self::normalise_newlines(sql);
 
         if let Some(error) = config.verify_dialect_specified() {
-            return Err(error);
+            return Err(TemplaterError::Failed(error));
         }
 
         let templater_violations = vec![];
-        let mut results = self
-            .templater
-            .process(&[(sql.as_ref(), filename.as_str())], config);
+        let input = TemplaterInput {
+            source: sql.as_ref(),
+            source_id,
+        };
+        let mut results = self.templater.process(std::slice::from_ref(&input), config);
 
         match results.pop() {
-            Some(Ok(templated_file)) => Ok(RenderedFile {
-                templated_file,
-                templater_violations,
-                filename,
-                source_str: sql.to_string(),
-            }),
-            Some(Err(err)) => Err(SQLFluffUserError::new(format!(
-                "Failed to template file {filename} with error {err:?}"
-            ))),
-            None => Err(SQLFluffUserError::new(format!(
-                "Templater returned no results for file {filename}"
-            ))),
+            Some(Ok(TemplaterOutput::Rendered(templated_file))) => {
+                Ok(RenderedSource::Rendered(RenderedFile {
+                    templated_file,
+                    templater_violations,
+                    filename: source_id_name(source_id),
+                    source_str: sql.to_string(),
+                }))
+            }
+            Some(Ok(TemplaterOutput::Skipped(reason))) => Ok(RenderedSource::Skipped(reason)),
+            Some(Err(err)) => Err(err),
+            None => Err(TemplaterError::Failed(SQLFluffUserError::new(format!(
+                "Templater returned no results for file {}",
+                source_id_name(source_id)
+            )))),
         }
     }
 

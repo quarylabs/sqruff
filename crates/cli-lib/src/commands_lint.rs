@@ -79,12 +79,7 @@ pub(crate) fn run_lint_command(
             return 1;
         }
     };
-    let loaded_sources = match load_sources(
-        &command.input,
-        &workspace,
-        &workspace_root,
-        &config,
-    ) {
+    let loaded_sources = match load_sources(&command.input, &workspace, &workspace_root, &config) {
         Ok(sources) => sources,
         Err(e) => {
             eprintln!("{}", e.message());

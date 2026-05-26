@@ -129,10 +129,7 @@ from foo
             return Vec::new();
         }
 
-        let policy = self
-            .unquoted_identifiers_policy
-            .as_deref()
-            .unwrap_or("all");
+        let policy = self.unquoted_identifiers_policy.as_deref().unwrap_or("all");
         if identifiers_policy_applicable(policy, &context.parent_stack) {
             self.base.eval(context)
         } else {

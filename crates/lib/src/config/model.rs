@@ -298,7 +298,9 @@ impl FluffConfig {
                 vec!["core", key]
             };
 
-            let value: Value = raw_value.parse().unwrap_or_else(|_| Value::String(raw_value.into()));
+            let value: Value = raw_value
+                .parse()
+                .unwrap_or_else(|_| Value::String(raw_value.into()));
             patch.set_value(&path, value);
             found = true;
         }

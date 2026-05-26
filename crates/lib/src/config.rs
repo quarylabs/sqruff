@@ -7,14 +7,18 @@ pub mod options;
 pub mod patch;
 pub mod raw;
 pub mod rules;
+pub mod setting;
 pub mod templater;
 
 pub use error::ConfigError;
 pub use layout::{LayoutConfig, LayoutConfigPatch, LayoutTypeConfigPatch};
 pub use loader::ConfigLoader;
-pub use model::{CoreConfig, DialectConfigStore, FluffConfig, FluffConfigBuilder, IndentationConfig};
+pub use model::{
+    CoreConfig, DialectConfigStore, FluffConfig, FluffConfigBuilder, IndentationConfig,
+};
 pub use options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 pub use patch::{ConfigPatch, CoreConfigPatch, DialectConfigPatch, IndentationConfigPatch};
 pub use raw::{Value, split_comma_separated_string};
 pub use rules::{RuleConfigs, RuleConfigsPatch};
+pub use setting::{Merge, NullableSetting, Setting};
 pub use templater::{TemplaterConfig, TemplaterConfigPatch};

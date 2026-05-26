@@ -2,18 +2,19 @@ use hashbrown::HashMap;
 use serde::Deserialize;
 
 use super::raw::{RawConfig, Value};
+use super::setting::Setting;
 
 /// Typed patch for a single layout type entry
 /// (e.g. `[sqruff:layout:type:comma]`).
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default, rename_all = "snake_case")]
 pub struct LayoutTypeConfigPatch {
-    pub spacing_before: Option<String>,
-    pub spacing_after: Option<String>,
-    pub spacing_within: Option<String>,
-    pub line_position: Option<String>,
-    pub keyword_line_position: Option<String>,
-    pub keyword_line_position_exclusions: Option<String>,
+    pub spacing_before: Setting<String>,
+    pub spacing_after: Setting<String>,
+    pub spacing_within: Setting<String>,
+    pub line_position: Setting<String>,
+    pub keyword_line_position: Setting<String>,
+    pub keyword_line_position_exclusions: Setting<String>,
 }
 
 /// Typed patch for the `[sqruff:layout]` section.
@@ -44,24 +45,26 @@ impl LayoutConfigPatch {
             let entry = type_map
                 .entry(type_name)
                 .or_insert_with(|| Value::Map(HashMap::new()));
-            let entry_map = entry.as_map_mut().expect("layout type config must be a map");
+            let entry_map = entry
+                .as_map_mut()
+                .expect("layout type config must be a map");
 
-            if let Some(v) = tp.spacing_before {
+            if let Setting::Set(v) = tp.spacing_before {
                 entry_map.insert("spacing_before".into(), Value::String(v.into()));
             }
-            if let Some(v) = tp.spacing_after {
+            if let Setting::Set(v) = tp.spacing_after {
                 entry_map.insert("spacing_after".into(), Value::String(v.into()));
             }
-            if let Some(v) = tp.spacing_within {
+            if let Setting::Set(v) = tp.spacing_within {
                 entry_map.insert("spacing_within".into(), Value::String(v.into()));
             }
-            if let Some(v) = tp.line_position {
+            if let Setting::Set(v) = tp.line_position {
                 entry_map.insert("line_position".into(), Value::String(v.into()));
             }
-            if let Some(v) = tp.keyword_line_position {
+            if let Setting::Set(v) = tp.keyword_line_position {
                 entry_map.insert("keyword_line_position".into(), Value::String(v.into()));
             }
-            if let Some(v) = tp.keyword_line_position_exclusions {
+            if let Setting::Set(v) = tp.keyword_line_position_exclusions {
                 entry_map.insert(
                     "keyword_line_position_exclusions".into(),
                     Value::String(v.into()),

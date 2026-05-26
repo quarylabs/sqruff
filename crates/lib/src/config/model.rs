@@ -475,6 +475,14 @@ fn normalize_core_lists(configs: &mut RawConfig) {
                     .unwrap()
                     .insert(out_key.into(), values);
             }
+            Some(_) => {
+                configs
+                    .get_mut("core")
+                    .unwrap()
+                    .as_map_mut()
+                    .unwrap()
+                    .insert(out_key.into(), Value::None);
+            }
             _ => {}
         }
     }
@@ -602,6 +610,56 @@ dialect = postgres
             &["AL02".to_string(), "LT02".to_string()]
         );
         assert_eq!(config.rule_denylist(), &["CP01".to_string()]);
+    }
+
+    #[test]
+    fn typed_patch_absent_values_do_not_override_existing_config() {
+        let base = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+dialect = postgres
+rules = AL01
+"#,
+            None,
+        )
+        .unwrap();
+
+        let patch: ConfigPatch = serde_json::from_value(serde_json::json!({
+            "core": {}
+        }))
+        .unwrap();
+        let config = base.with_patch(patch);
+
+        assert_eq!(config.dialect_kind(), DialectKind::Postgres);
+        assert_eq!(config.rule_allowlist().unwrap(), &["AL01".to_string()]);
+    }
+
+    #[test]
+    fn typed_patch_null_values_clear_existing_config() {
+        let base = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+dialect = postgres
+rules = AL01
+exclude_rules = LT01
+"#,
+            None,
+        )
+        .unwrap();
+
+        let patch: ConfigPatch = serde_json::from_value(serde_json::json!({
+            "core": {
+                "dialect": null,
+                "rules": null,
+                "exclude_rules": null
+            }
+        }))
+        .unwrap();
+        let config = base.with_patch(patch);
+
+        assert_eq!(config.dialect_kind(), DialectKind::default());
+        assert_eq!(config.rule_allowlist(), None);
+        assert!(config.rule_denylist().is_empty());
     }
 
     #[test]

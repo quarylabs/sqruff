@@ -4,6 +4,7 @@ use super::de;
 use super::layout::LayoutConfigPatch;
 use super::raw::{RawConfig, Value, insert_config_path, merge_configs};
 use super::rules::RuleConfigsPatch;
+use super::setting::{NullableSetting, Setting};
 use super::templater::TemplaterConfigPatch;
 
 // ── CoreConfigPatch ──────────────────────────────────────────────────────────
@@ -12,18 +13,18 @@ use super::templater::TemplaterConfigPatch;
 #[derive(Debug, Clone, Default, serde::Deserialize)]
 #[serde(default, rename_all = "snake_case")]
 pub struct CoreConfigPatch {
-    pub dialect: Option<String>,
-    pub max_line_length: Option<usize>,
-    pub nocolor: Option<bool>,
-    pub verbose: Option<i32>,
-    pub disable_noqa: Option<bool>,
-    #[serde(default, deserialize_with = "de::opt_csv")]
-    pub rules: Option<Vec<String>>,
-    #[serde(default, deserialize_with = "de::opt_csv")]
-    pub exclude_rules: Option<Vec<String>>,
-    pub templater: Option<String>,
-    #[serde(default, deserialize_with = "de::opt_csv")]
-    pub sql_file_exts: Option<Vec<String>>,
+    pub dialect: NullableSetting<String>,
+    pub max_line_length: Setting<usize>,
+    pub nocolor: Setting<bool>,
+    pub verbose: Setting<i32>,
+    pub disable_noqa: Setting<bool>,
+    #[serde(default, deserialize_with = "de::nullable_setting_csv")]
+    pub rules: NullableSetting<Vec<String>>,
+    #[serde(default, deserialize_with = "de::nullable_setting_csv")]
+    pub exclude_rules: NullableSetting<Vec<String>>,
+    pub templater: Setting<String>,
+    #[serde(default, deserialize_with = "de::setting_csv")]
+    pub sql_file_exts: Setting<Vec<String>>,
 }
 
 impl CoreConfigPatch {
@@ -33,38 +34,53 @@ impl CoreConfigPatch {
             .or_insert_with(|| Value::Map(HashMap::new()));
         let map = core.as_map_mut().expect("core must be a map");
 
-        if let Some(v) = self.dialect {
-            map.insert("dialect".into(), Value::String(v.into()));
+        match self.dialect {
+            Setting::Unset => {}
+            Setting::Set(Some(v)) => {
+                map.insert("dialect".into(), Value::String(v.into()));
+            }
+            Setting::Set(None) => {
+                map.insert("dialect".into(), Value::None);
+            }
         }
-        if let Some(v) = self.max_line_length {
+        if let Setting::Set(v) = self.max_line_length {
             map.insert("max_line_length".into(), Value::Int(v as i32));
         }
-        if let Some(v) = self.nocolor {
+        if let Setting::Set(v) = self.nocolor {
             map.insert("nocolor".into(), Value::Bool(v));
         }
-        if let Some(v) = self.verbose {
+        if let Setting::Set(v) = self.verbose {
             map.insert("verbose".into(), Value::Int(v));
         }
-        if let Some(v) = self.disable_noqa {
+        if let Setting::Set(v) = self.disable_noqa {
             map.insert("disable_noqa".into(), Value::Bool(v));
         }
-        if let Some(rules) = self.rules {
-            map.insert("rules".into(), Value::String(rules.join(",").into()));
+        match self.rules {
+            Setting::Unset => {}
+            Setting::Set(Some(rules)) => {
+                map.insert("rules".into(), Value::String(rules.join(",").into()));
+            }
+            Setting::Set(None) => {
+                map.insert("rules".into(), Value::None);
+            }
         }
-        if let Some(exclude) = self.exclude_rules {
-            map.insert(
-                "exclude_rules".into(),
-                Value::String(exclude.join(",").into()),
-            );
+        match self.exclude_rules {
+            Setting::Unset => {}
+            Setting::Set(Some(exclude)) => {
+                map.insert(
+                    "exclude_rules".into(),
+                    Value::String(exclude.join(",").into()),
+                );
+            }
+            Setting::Set(None) => {
+                map.insert("exclude_rules".into(), Value::None);
+            }
         }
-        if let Some(v) = self.templater {
+        if let Setting::Set(v) = self.templater {
             map.insert("templater".into(), Value::String(v.into()));
         }
-        if let Some(exts) = self.sql_file_exts {
-            map.insert(
-                "sql_file_exts".into(),
-                Value::String(exts.join(",").into()),
-            );
+        if let Setting::Set(exts) = self.sql_file_exts {
+            map.insert("sql_file_exts".into(), Value::String(exts.join(",").into()));
         }
     }
 }
@@ -75,11 +91,11 @@ impl CoreConfigPatch {
 #[derive(Debug, Clone, Default, serde::Deserialize)]
 #[serde(default, rename_all = "snake_case")]
 pub struct IndentationConfigPatch {
-    pub indent_unit: Option<String>,
-    pub tab_space_size: Option<usize>,
-    pub hanging_indents: Option<bool>,
-    pub allow_implicit_indents: Option<bool>,
-    pub trailing_comments: Option<String>,
+    pub indent_unit: Setting<String>,
+    pub tab_space_size: Setting<usize>,
+    pub hanging_indents: Setting<bool>,
+    pub allow_implicit_indents: Setting<bool>,
+    pub trailing_comments: Setting<String>,
 }
 
 impl IndentationConfigPatch {
@@ -89,19 +105,19 @@ impl IndentationConfigPatch {
             .or_insert_with(|| Value::Map(HashMap::new()));
         let map = indentation.as_map_mut().expect("indentation must be a map");
 
-        if let Some(v) = self.indent_unit {
+        if let Setting::Set(v) = self.indent_unit {
             map.insert("indent_unit".into(), Value::String(v.into()));
         }
-        if let Some(v) = self.tab_space_size {
+        if let Setting::Set(v) = self.tab_space_size {
             map.insert("tab_space_size".into(), Value::Int(v as i32));
         }
-        if let Some(v) = self.hanging_indents {
+        if let Setting::Set(v) = self.hanging_indents {
             map.insert("hanging_indents".into(), Value::Bool(v));
         }
-        if let Some(v) = self.allow_implicit_indents {
+        if let Setting::Set(v) = self.allow_implicit_indents {
             map.insert("allow_implicit_indents".into(), Value::Bool(v));
         }
-        if let Some(v) = self.trailing_comments {
+        if let Setting::Set(v) = self.trailing_comments {
             map.insert("trailing_comments".into(), Value::String(v.into()));
         }
     }

@@ -1,6 +1,7 @@
 use crate::commands::FixArgs;
 use crate::commands::Format;
-use crate::linter;
+use crate::commands_lint::{ApplyFixes, Input, LintCommand, run_lint_command};
+use sqruff_lib::api::Mode;
 use sqruff_lib::core::config::FluffConfig;
 use std::path::Path;
 
@@ -11,48 +12,17 @@ pub(crate) fn run_fix(
     collect_parse_errors: bool,
 ) -> i32 {
     let FixArgs { paths, format } = args;
-    let mut linter = match linter(config, format, collect_parse_errors) {
-        Ok(l) => l,
-        Err(e) => {
-            eprintln!("{}", e);
-            return 1;
-        }
-    };
-    let result = match linter.lint_paths(paths, true, &ignorer) {
-        Ok(result) => result,
-        Err(e) => {
-            eprintln!("{}", e.value);
-            return 1;
-        }
-    };
-
-    if !result.has_violations() {
-        println!("{} files processed, nothing to fix.", result.len());
-        0
-    } else {
-        let any_unfixable_errors = result.has_unfixable_violations();
-        let files = result.len();
-
-        for mut file in result {
-            if !file.has_fixes() {
-                continue;
-            }
-            if file
-                .violations()
-                .iter()
-                .any(|violation| violation.rule.is_none())
-            {
-                continue;
-            }
-            let path = std::mem::take(&mut file.path);
-            let fixed = file.fix_string();
-            std::fs::write(path, fixed).unwrap();
-        }
-
-        linter.formatter_mut().unwrap().completion_message(files);
-
-        any_unfixable_errors as i32
-    }
+    run_lint_command(
+        LintCommand {
+            mode: Mode::Fix,
+            input: Input::Paths(paths),
+            apply: ApplyFixes::ToDisk,
+            format,
+        },
+        config,
+        ignorer,
+        collect_parse_errors,
+    )
 }
 
 pub(crate) fn run_fix_stdin(
@@ -62,27 +32,17 @@ pub(crate) fn run_fix_stdin(
 ) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
-    let linter = match linter(config, format, collect_parse_errors) {
-        Ok(l) => l,
-        Err(e) => {
-            eprintln!("{}", e);
-            return 1;
-        }
-    };
-    let result = match linter.lint_string(&read_in, None, true) {
-        Ok(result) => result,
-        Err(e) => {
-            eprintln!("{}", e.value);
-            return 1;
-        }
-    };
-
-    let has_unfixable_errors = result.has_unfixable_violations();
-
-    println!("{}", result.fix_string());
-
-    // if all fixable violations are fixable, return 0 else return 1
-    has_unfixable_errors as i32
+    run_lint_command(
+        LintCommand {
+            mode: Mode::Fix,
+            input: Input::Stdin(read_in),
+            apply: ApplyFixes::Stdout,
+            format,
+        },
+        config,
+        |_| false,
+        collect_parse_errors,
+    )
 }
 
 #[cfg(test)]

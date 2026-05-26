@@ -1,5 +1,5 @@
 use sqruff_lib::api::RunReport;
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::config::FluffConfig;
 
 use crate::formatters::OutputStreamFormatter;
 use crate::reporters::{CliError, display_source_id};

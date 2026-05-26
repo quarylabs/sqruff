@@ -1,6 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::test_functions::fresh_ansi_dialect;
+use sqruff_lib::config::FluffConfig;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::context::ParseContext;
@@ -78,8 +77,6 @@ and (
 order by t1.id desc"#;
 
 fn parse(c: &mut Criterion) {
-    let dialect = fresh_ansi_dialect();
-
     let passes = [
         ("parse_simple_query", SIMPLE_QUERY),
         ("parse_expression_recursion", EXPRESSION_RECURSION),
@@ -88,6 +85,7 @@ fn parse(c: &mut Criterion) {
 
     for (name, source) in passes {
         let config = FluffConfig::default();
+        let dialect = config.get_dialect().clone();
         let config_for_parser = config.clone();
         let parser: Parser = (&config_for_parser).into();
         let mut ctx: ParseContext = (&parser).into();

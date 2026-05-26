@@ -1,8 +1,8 @@
+use crate::api::ParseErrors;
+use crate::config::FluffConfig;
+use crate::core::linter::core::Linter;
+use crate::core::test_functions::fresh_ansi_dialect;
 use itertools::Itertools;
-use sqruff_lib::api::ParseErrors;
-use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib::core::test_functions::fresh_ansi_dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::Parser;

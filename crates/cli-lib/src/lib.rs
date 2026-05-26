@@ -1,6 +1,6 @@
 use clap::Parser as _;
 use sqruff_lib::api::ParseErrors;
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::config::FluffConfig;
 use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
 use stdin::is_std_in_flag_input;

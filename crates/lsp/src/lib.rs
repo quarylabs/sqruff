@@ -17,7 +17,7 @@ use serde_json::Value;
 use sqruff_lib::api::{
     Engine, EngineOptions, LintDiagnostic, ParseErrors, Source, SourceId, SqruffError,
 };
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::config::FluffConfig;
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 use wasm_bindgen::prelude::*;

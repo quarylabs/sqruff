@@ -1,6 +1,6 @@
 use hashbrown::HashMap;
 
-use crate::core::config::Value;
+use crate::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};

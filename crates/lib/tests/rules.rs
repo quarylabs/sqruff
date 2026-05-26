@@ -1,14 +1,14 @@
 #![allow(deprecated)]
 
+use std::borrow::Cow;
 use std::str::FromStr;
 
 use glob::glob;
 use hashbrown::HashMap;
 use serde::Deserialize;
 use serde_with::{KeyValueMap, serde_as};
-use sqruff_lib::api::{Mode, ParseErrors};
-use sqruff_lib::core::config::{FluffConfig, Value};
-use sqruff_lib::core::linter::core::Linter;
+use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
+use sqruff_lib::config::{FluffConfig, Value};
 use sqruff_lib_core::dialects::init::DialectKind;
 
 #[derive(Default)]
@@ -155,8 +155,13 @@ fn main() {
                 config
             };
 
-            let templater = match Linter::get_templater(&config) {
-                Ok(t) => t,
+            let engine = match Engine::new(
+                config,
+                EngineOptions {
+                    parse_errors: ParseErrors::Include,
+                },
+            ) {
+                Ok(engine) => engine,
                 Err(e) => {
                     if std::env::var("SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS").is_ok() {
                         println!("Skipping case '{}': {}", case.name, e);
@@ -170,18 +175,22 @@ fn main() {
                     }
                 }
             };
-            let mut linter = Linter::new(config, Some(templater), ParseErrors::Include).unwrap();
 
             match case.kind {
                 TestCaseKind::Pass { pass_str } => {
-                    let result = linter.lint_string_wrapped(&pass_str, Mode::Check).unwrap();
+                    let result = engine
+                        .check_source(Source {
+                            id: SourceId::Virtual(case.name.clone()),
+                            text: Cow::Borrowed(&pass_str),
+                        })
+                        .unwrap();
                     let error_string = format!(
                         r#"
 The following test test can be used to recreate the issue:
 
 #[cfg(test)]
 mod tests {{
-    use sqruff_lib::core::{{config::FluffConfig, linter::core::Linter}};
+    use sqruff_lib::{{api::{{Engine, EngineOptions, ParseErrors, Source, SourceId}}, config::FluffConfig}};
 
     #[test]
     fn test_example() {{
@@ -192,12 +201,15 @@ dialect = {dialect}
 ",
  None).unwrap();
 
-        let mut linter = Linter::new(config, None, ParseErrors::Include);
+        let engine = Engine::new(config, EngineOptions {{ parse_errors: ParseErrors::Include }}).unwrap();
 
         let pass_str = r"{pass_str}";
 
-        let f = linter.lint_string_wrapped(&pass_str, Mode::Check);
-        assert_eq!(&f.violations, &[]);
+        let f = engine.check_source(Source {{
+            id: SourceId::Virtual("test_example".into()),
+            text: pass_str.into(),
+        }}).unwrap();
+        assert_eq!(&f.diagnostics, &[]);
     }}
 }}
 "#,
@@ -206,11 +218,16 @@ dialect = {dialect}
                         pass_str = pass_str
                     );
 
-                    assert_eq!(&result.violations(), &[], "{}", error_string);
+                    assert_eq!(&result.diagnostics, &[], "{}", error_string);
                 }
                 TestCaseKind::Fail { fail_str } => {
-                    let file = linter.lint_string_wrapped(&fail_str, Mode::Check).unwrap();
-                    assert_ne!(&file.violations(), &[])
+                    let file = engine
+                        .check_source(Source {
+                            id: SourceId::Virtual(case.name.clone()),
+                            text: Cow::Borrowed(&fail_str),
+                        })
+                        .unwrap();
+                    assert_ne!(&file.diagnostics, &[])
                 }
                 TestCaseKind::Fix { fail_str, fix_str } => {
                     assert_ne!(
@@ -218,8 +235,13 @@ dialect = {dialect}
                         "Fail and fix strings should not be equal"
                     );
 
-                    let linted = linter.lint_string_wrapped(&fail_str, Mode::Fix).unwrap();
-                    let actual = linted.fix_string();
+                    let linted = engine
+                        .fix_source(Source {
+                            id: SourceId::Virtual(case.name.clone()),
+                            text: Cow::Borrowed(&fail_str),
+                        })
+                        .unwrap();
+                    let actual = linted.fixed_source.unwrap();
 
                     pretty_assertions::assert_eq!(actual, fix_str);
                 }

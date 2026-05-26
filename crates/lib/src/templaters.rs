@@ -2,7 +2,7 @@ use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::TemplatedFile;
 
 use crate::api::{SkipReason, SourceId, SqruffError};
-use crate::core::config::FluffConfig;
+use crate::config::FluffConfig;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
 

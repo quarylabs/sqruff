@@ -6,7 +6,7 @@ use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
 
-use crate::core::config::Value;
+use crate::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};

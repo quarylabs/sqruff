@@ -1,7 +1,7 @@
 use sqruff_lib_core::templaters::TemplatedFile;
 
 use crate::api::SourceId;
-use crate::core::config::FluffConfig;
+use crate::config::FluffConfig;
 use crate::templaters::{
     ProcessingMode, Templater, TemplaterError, TemplaterInput, TemplaterOutput, source_id_name,
 };

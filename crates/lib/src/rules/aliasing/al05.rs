@@ -14,7 +14,7 @@ use sqruff_lib_core::utils::analysis::select::{
     SelectStatementColumnsAndTables, get_select_statement_info,
 };
 
-use crate::core::config::Value;
+use crate::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -571,7 +571,7 @@ impl RuleAL05 {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::config::FluffConfig;
+    use crate::config::FluffConfig;
     use crate::core::linter::core::Linter;
 
     const POSTGRES_JSON_ALIAS_REPRODUCER: &str = r#"with stanza as (

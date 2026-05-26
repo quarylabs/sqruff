@@ -1,7 +1,6 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use sqruff_lib::api::{Mode, ParseErrors};
-use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib_core::parser::segments::Tables;
+use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
+use sqruff_lib::config::FluffConfig;
 use std::hint::black_box;
 use std::path::Path;
 
@@ -67,18 +66,21 @@ fn fix(c: &mut Criterion) {
         ("fix_superlong", superlong),
     ];
 
-    let linter = Linter::new(
-        sqruff_lib::core::config::FluffConfig::default(),
-        None,
-        ParseErrors::Suppress,
+    let engine = Engine::new(
+        FluffConfig::default(),
+        EngineOptions {
+            parse_errors: ParseErrors::Suppress,
+        },
     )
     .unwrap();
     for (name, source) in passes {
-        let tables = Tables::default();
-        let parsed = linter.parse_string(&tables, &source, None).unwrap();
-
         c.bench_function(name, |b| {
-            b.iter(|| black_box(linter.lint_parsed(&tables, parsed.clone(), Mode::Fix)));
+            b.iter(|| {
+                black_box(engine.fix_source(Source {
+                    id: SourceId::Virtual(name.into()),
+                    text: source.as_str().into(),
+                }))
+            });
         });
     }
 }

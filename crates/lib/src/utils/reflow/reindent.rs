@@ -1565,8 +1565,8 @@ impl Iterator for Range {
 
 #[cfg(test)]
 mod tests {
+    use crate::core::test_functions::parse_ansi_string;
     use pretty_assertions::assert_eq;
-    use sqruff_lib::core::test_functions::parse_ansi_string;
 
     use super::{IndentLine, IndentPoint};
     use crate::utils::reflow::sequence::ReflowSequence;

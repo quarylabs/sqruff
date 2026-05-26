@@ -3,7 +3,7 @@ use std::str::FromStr;
 use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::core::config::{FluffConfig, Value};
+use crate::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
 use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};

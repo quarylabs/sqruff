@@ -8,7 +8,7 @@ use sqruff_lib_core::templaters::{
 };
 
 use super::Templater;
-use crate::core::config::FluffConfig;
+use crate::config::FluffConfig;
 use crate::templaters::TemplaterKind;
 use crate::templaters::python_shared::PythonFluffConfig;
 use crate::templaters::{

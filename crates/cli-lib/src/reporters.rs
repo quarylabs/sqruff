@@ -3,7 +3,7 @@ pub(crate) mod human;
 pub(crate) mod json;
 
 use sqruff_lib::api::{RunReport, SourceId};
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::config::FluffConfig;
 
 use crate::commands::Format;
 use crate::reporters::github::GithubReporter;

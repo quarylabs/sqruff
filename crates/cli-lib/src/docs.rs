@@ -8,9 +8,7 @@ use minijinja::{Environment, context};
 #[cfg(feature = "codegen-docs")]
 use serde::Serialize;
 #[cfg(feature = "codegen-docs")]
-use sqruff_lib::core::rules::ErasedRule;
-#[cfg(feature = "codegen-docs")]
-use sqruff_lib::rules::rules;
+use sqruff_lib::rules::{ErasedRule, rules};
 #[cfg(feature = "codegen-docs")]
 use sqruff_lib::templaters::{TEMPLATERS, TemplaterKind, TemplaterRuntime};
 #[cfg(feature = "codegen-docs")]

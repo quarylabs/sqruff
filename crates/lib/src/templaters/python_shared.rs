@@ -1,4 +1,4 @@
-use crate::core::config::FluffConfig;
+use crate::config::FluffConfig;
 use crate::templaters::TemplaterKind;
 use hashbrown::HashMap;
 use pyo3::prelude::*;

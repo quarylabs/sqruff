@@ -3,9 +3,8 @@ use hashbrown::HashSet;
 use expect_test::expect_file;
 use glob::glob;
 use sqruff_lib::api::SourceId;
-use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib::templaters::{TemplaterInput, TemplaterOutput};
+use sqruff_lib::config::FluffConfig;
+use sqruff_lib::templaters::{TemplaterInput, TemplaterOutput, TemplaterRuntime};
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::Tables;
@@ -28,7 +27,7 @@ fn main() {
         let config = std::fs::read_to_string(templater_setup.join(".sqruff")).unwrap();
         let config = FluffConfig::try_from_source(&config, None).unwrap();
 
-        let templater = match Linter::get_templater(&config) {
+        let templater = match TemplaterRuntime::from_config(&config) {
             Ok(t) => t,
             Err(e) => {
                 println!(

@@ -4,7 +4,7 @@ use sqruff_lib::api::{
     Engine, EngineOptions, FileReport, Mode, ParseErrors, PathDiscoveryOptions, RunRequest, Source,
     SourceId, Workspace,
 };
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::config::FluffConfig;
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 

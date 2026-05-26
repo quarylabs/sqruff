@@ -1,7 +1,7 @@
 use super::utils::*;
 
 use anstyle::{AnsiColor, Style};
-use sqruff_lib::{core::rules::ErasedRule, rules::rules};
+use sqruff_lib::rules::{ErasedRule, rules};
 use std::borrow::Cow;
 
 const BLUE: Style = AnsiColor::Blue.on_default();

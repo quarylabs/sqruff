@@ -1,7 +1,7 @@
 use std::io::{self, BufRead};
 
 use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::config::FluffConfig;
 use std::borrow::Cow;
 
 use crate::commands::{ParseArgs, ParseFormat};

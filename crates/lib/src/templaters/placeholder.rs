@@ -5,7 +5,7 @@ use sqruff_lib_core::templaters::{
     RawFileSlice, TemplateSliceKind, TemplatedFile, TemplatedFileSlice,
 };
 
-use crate::core::config::FluffConfig;
+use crate::config::FluffConfig;
 use crate::templaters::{
     PlaceholderStyle, ProcessingMode, Templater, TemplaterError, TemplaterInput, TemplaterOutput,
     source_id_name,

@@ -593,7 +593,7 @@ mod tests {
     use sqruff_lib_core::lint_fix::LintFix;
     use sqruff_lib_core::parser::segments::ErasedSegment;
 
-    use crate::core::config::FluffConfig;
+    use crate::config::FluffConfig;
     use crate::core::linter::core::Linter;
     use crate::core::test_functions::parse_ansi_string;
     use crate::utils::reflow::helpers::fixes_from_results;

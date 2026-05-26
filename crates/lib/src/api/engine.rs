@@ -1,4 +1,4 @@
-use crate::core::config::FluffConfig;
+use crate::config::FluffConfig;
 use crate::core::linter::common::RenderedSource;
 use crate::core::linter::core::Linter;
 use crate::core::linter::linted_file::LintedFile;

@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::sync::OnceLock;
 
 use crate::api::{Mode, ParseErrors, Source, SourceId};
-use crate::core::config::FluffConfig;
+use crate::config::FluffConfig;
 use crate::core::linter::common::{ParsedString, RenderedFile, RenderedSource};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::rules::noqa::IgnoreMask;
@@ -578,7 +578,7 @@ mod tests {
     use sqruff_lib_core::parser::segments::Tables;
 
     use crate::api::{Mode, ParseErrors, PathDiscoveryOptions, discover_paths};
-    use crate::core::config::FluffConfig;
+    use crate::config::FluffConfig;
     use crate::core::linter::core::Linter;
 
     fn postgres_all_rules_linter() -> Linter {

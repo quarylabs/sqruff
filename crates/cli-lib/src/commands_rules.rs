@@ -1,4 +1,4 @@
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::config::FluffConfig;
 
 use crate::formatters::rules::RulesFormatter;
 

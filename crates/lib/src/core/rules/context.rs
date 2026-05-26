@@ -7,7 +7,7 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
 
-use crate::core::config::FluffConfig;
+use crate::config::FluffConfig;
 
 #[derive(Debug)]
 pub struct RuleContext<'a> {

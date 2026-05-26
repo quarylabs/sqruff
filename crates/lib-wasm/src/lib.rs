@@ -3,7 +3,7 @@ use serde::Serialize;
 use sqruff_lib::api::{
     Engine, EngineOptions, LintDiagnostic, Mode, ParseErrors, Source, SourceId, SqruffError,
 };
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::config::FluffConfig;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use std::borrow::Cow;

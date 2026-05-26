@@ -1,6 +1,6 @@
 use super::Templater;
 use super::python::PythonTemplatedFile;
-use crate::core::config::FluffConfig;
+use crate::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
 use crate::templaters::{
     ProcessingMode, TemplaterError, TemplaterInput, TemplaterKind, TemplaterOutput, source_id_name,

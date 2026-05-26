@@ -19,7 +19,7 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
 use strum_macros::AsRefStr;
 
-use crate::core::config::{FluffConfig, Value};
+use crate::config::{FluffConfig, Value};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{BaseCrawler as _, Crawler};
 

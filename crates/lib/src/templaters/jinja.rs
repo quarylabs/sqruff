@@ -1,6 +1,6 @@
 use super::Templater;
 use super::python::PythonTemplatedFile;
-use crate::core::config::FluffConfig;
+use crate::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
 use crate::templaters::{
     ProcessingMode, TemplaterError, TemplaterInput, TemplaterKind, TemplaterOutput, source_id_name,
@@ -152,7 +152,7 @@ When `apply_dbt_builtins` is enabled (the default), common dbt functions like `r
 #[cfg(test)]
 mod tests {
     use crate::api::SourceId;
-    use crate::core::config::FluffConfig;
+    use crate::config::FluffConfig;
     use crate::templaters::{TemplaterInput, TemplaterOutput};
 
     use super::*;

@@ -474,7 +474,7 @@ impl IgnoreMask {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::config::FluffConfig;
+    use crate::config::FluffConfig;
     use crate::core::linter::core::Linter;
     use crate::core::rules::Erased;
     use crate::core::rules::noqa::NoQADirective;

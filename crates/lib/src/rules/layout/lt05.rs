@@ -2,7 +2,7 @@ use hashbrown::{HashMap, HashSet};
 use itertools::enumerate;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
-use crate::core::config::Value;
+use crate::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};

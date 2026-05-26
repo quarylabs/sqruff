@@ -2,7 +2,7 @@ use crate::commands::FixArgs;
 use crate::commands::Format;
 use crate::commands_lint::{ApplyFixes, Input, LintCommand, run_lint_command};
 use sqruff_lib::api::{Mode, ParseErrors};
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::config::FluffConfig;
 
 pub(crate) fn run_fix(args: FixArgs, config: FluffConfig, parse_errors: ParseErrors) -> i32 {
     let FixArgs { paths, format } = args;

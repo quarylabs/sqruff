@@ -851,7 +851,7 @@ fn reorder_and_insert(
 
 #[cfg(test)]
 mod tests {
-    use sqruff_lib::core::test_functions::parse_ansi_string;
+    use crate::core::test_functions::parse_ansi_string;
     use sqruff_lib_core::helpers::enter_panic;
     use sqruff_lib_core::parser::segments::Tables;
 

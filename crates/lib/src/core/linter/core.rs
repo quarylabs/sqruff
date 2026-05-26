@@ -1,7 +1,7 @@
 use std::borrow::Cow;
 use std::sync::OnceLock;
 
-use crate::api::{Mode, ParseErrors, SourceId};
+use crate::api::{Mode, ParseErrors, Source, SourceId};
 use crate::core::config::FluffConfig;
 use crate::core::linter::common::{ParsedString, RenderedFile, RenderedSource};
 use crate::core::linter::linted_file::LintedFile;
@@ -9,7 +9,8 @@ use crate::core::rules::noqa::IgnoreMask;
 use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
 use crate::rules::get_ruleset;
 use crate::templaters::{
-    TemplaterError, TemplaterInput, TemplaterOutput, TemplaterRuntime, source_id_name,
+    ProcessingMode, TemplaterError, TemplaterInput, TemplaterOutput, TemplaterRuntime,
+    source_id_name,
 };
 use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
@@ -30,6 +31,11 @@ pub struct Linter {
     rules: OnceLock<Vec<ErasedRule>>,
 
     parse_errors: ParseErrors,
+}
+
+struct NormalizedSource {
+    id: SourceId,
+    text: String,
 }
 
 impl Linter {
@@ -338,35 +344,108 @@ impl Linter {
         source_id: &SourceId,
         config: &FluffConfig,
     ) -> Result<RenderedSource, TemplaterError> {
-        let sql = Self::normalise_newlines(sql);
+        let source = Source {
+            id: source_id.clone(),
+            text: Cow::Borrowed(sql),
+        };
+        self.render_sources(std::slice::from_ref(&source), config)?
+            .into_iter()
+            .next()
+            .ok_or_else(|| {
+                TemplaterError::Failed(SQLFluffUserError::new(format!(
+                    "Templater returned no results for file {}",
+                    source_id_name(source_id)
+                )))
+            })
+    }
 
+    pub(crate) fn render_sources(
+        &self,
+        sources: &[Source<'_>],
+        config: &FluffConfig,
+    ) -> Result<Vec<RenderedSource>, TemplaterError> {
         if let Some(error) = config.verify_dialect_specified() {
             return Err(TemplaterError::Failed(error));
         }
 
-        let templater_violations = vec![];
-        let input = TemplaterInput {
-            source: sql.as_ref(),
-            source_id,
-        };
-        let mut results = self.templater.process(std::slice::from_ref(&input), config);
+        let normalized_sources = sources
+            .iter()
+            .map(|source| NormalizedSource {
+                id: source.id.clone(),
+                text: Self::normalise_newlines(source.text.as_ref()).into_owned(),
+            })
+            .collect::<Vec<_>>();
 
-        match results.pop() {
-            Some(Ok(TemplaterOutput::Rendered(templated_file))) => {
-                Ok(RenderedSource::Rendered(RenderedFile {
-                    templated_file,
-                    templater_violations,
-                    filename: source_id_name(source_id),
-                    source_str: sql.to_string(),
-                }))
-            }
-            Some(Ok(TemplaterOutput::Skipped(reason))) => Ok(RenderedSource::Skipped(reason)),
-            Some(Err(err)) => Err(err),
-            None => Err(TemplaterError::Failed(SQLFluffUserError::new(format!(
-                "Templater returned no results for file {}",
-                source_id_name(source_id)
-            )))),
+        let outputs = match self.templater.processing_mode() {
+            ProcessingMode::Batch => self.process_templater_batch(&normalized_sources, config),
+            ProcessingMode::Parallel | ProcessingMode::Sequential => normalized_sources
+                .iter()
+                .map(|source| {
+                    self.process_templater_batch(std::slice::from_ref(source), config)
+                        .and_then(|mut rendered| {
+                            rendered.pop().ok_or_else(|| {
+                                TemplaterError::Failed(SQLFluffUserError::new(format!(
+                                    "Templater returned no results for file {}",
+                                    source_id_name(&source.id)
+                                )))
+                            })
+                        })
+                })
+                .collect::<Result<Vec<_>, _>>(),
+        }?;
+
+        if outputs.len() != normalized_sources.len() {
+            return Err(TemplaterError::Failed(SQLFluffUserError::new(format!(
+                "Templater returned {} result(s) for {} source(s)",
+                outputs.len(),
+                normalized_sources.len()
+            ))));
         }
+
+        Ok(outputs)
+    }
+
+    fn process_templater_batch(
+        &self,
+        sources: &[NormalizedSource],
+        config: &FluffConfig,
+    ) -> Result<Vec<RenderedSource>, TemplaterError> {
+        let inputs = sources
+            .iter()
+            .map(|source| TemplaterInput {
+                source: source.text.as_str(),
+                source_id: &source.id,
+            })
+            .collect::<Vec<_>>();
+        let results = self.templater.process(&inputs, config);
+
+        if results.len() != sources.len() {
+            return Err(TemplaterError::Failed(SQLFluffUserError::new(format!(
+                "Templater returned {} result(s) for {} source(s)",
+                results.len(),
+                sources.len()
+            ))));
+        }
+
+        sources
+            .iter()
+            .zip(results)
+            .map(|(source, result)| match result? {
+                TemplaterOutput::Rendered(templated_file) => Ok(RenderedSource::Rendered {
+                    source_id: source.id.clone(),
+                    rendered: RenderedFile {
+                        templated_file,
+                        templater_violations: Vec::new(),
+                        filename: source_id_name(&source.id),
+                        source_str: source.text.clone(),
+                    },
+                }),
+                TemplaterOutput::Skipped(reason) => Ok(RenderedSource::Skipped {
+                    source_id: source.id.clone(),
+                    reason,
+                }),
+            })
+            .collect()
     }
 
     /// Parse a rendered file.

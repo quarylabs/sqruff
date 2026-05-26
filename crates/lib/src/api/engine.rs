@@ -28,15 +28,14 @@ impl Engine {
     }
 
     pub fn run(&self, request: RunRequest<'_>) -> Result<RunReport, SqruffError> {
-        let mut files = Vec::with_capacity(request.sources.len());
-
-        for source in request.sources {
-            let report = match request.mode {
-                Mode::Check => self.check_source(source)?,
-                Mode::Fix => self.fix_source(source)?,
-            };
-            files.push(report);
-        }
+        let rendered = self
+            .inner
+            .render_sources(&request.sources, self.inner.config())
+            .map_err(SqruffError::from)?;
+        let files = rendered
+            .into_iter()
+            .map(|rendered| self.lint_rendered_source(rendered, request.mode))
+            .collect::<Result<Vec<_>, _>>()?;
 
         Ok(RunReport { files })
     }
@@ -53,24 +52,34 @@ impl Engine {
             .inner
             .render_source(source.text.as_ref(), &source.id, self.inner.config())
             .map_err(SqruffError::from)?;
-        let rendered = match rendered {
-            RenderedSource::Rendered(rendered) => rendered,
-            RenderedSource::Skipped(skipped) => {
+        self.lint_rendered_source(rendered, mode)
+    }
+
+    fn lint_rendered_source(
+        &self,
+        rendered: RenderedSource,
+        mode: Mode,
+    ) -> Result<FileReport, SqruffError> {
+        let (source_id, rendered) = match rendered {
+            RenderedSource::Rendered {
+                source_id,
+                rendered,
+            } => (source_id, rendered),
+            RenderedSource::Skipped { source_id, reason } => {
                 return Ok(FileReport {
-                    source_id: source.id,
+                    source_id,
                     diagnostics: Vec::new(),
                     fixed_source: None,
-                    skipped: Some(skipped),
+                    skipped: Some(reason),
                 });
             }
         };
-
         let linted_file = self
             .inner
             .lint_rendered(rendered, mode)
             .map_err(|error| SqruffError::Lint(error.value))?;
 
-        Ok(file_report_from_linted_file(linted_file, source.id, mode))
+        Ok(file_report_from_linted_file(linted_file, source_id, mode))
     }
 }
 
@@ -97,6 +106,7 @@ fn file_report_from_linted_file(
 #[cfg(test)]
 mod tests {
     use std::borrow::Cow;
+    use std::sync::Mutex;
 
     use crate::api::{ParseErrors, SkipReason};
     use crate::templaters::{
@@ -107,8 +117,14 @@ mod tests {
     use super::*;
 
     static SKIPPING_TEMPLATER: SkippingTemplater = SkippingTemplater;
+    static RECORDING_BATCH_TEMPLATER: RecordingBatchTemplater = RecordingBatchTemplater {
+        calls: Mutex::new(Vec::new()),
+    };
 
     struct SkippingTemplater;
+    struct RecordingBatchTemplater {
+        calls: Mutex<Vec<usize>>,
+    }
 
     impl Templater for SkippingTemplater {
         fn name(&self) -> &'static str {
@@ -134,6 +150,56 @@ mod tests {
                     Ok(TemplaterOutput::Skipped(SkipReason {
                         message: "disabled by templater".into(),
                     }))
+                })
+                .collect()
+        }
+    }
+
+    impl RecordingBatchTemplater {
+        fn take_calls(&self) -> Vec<usize> {
+            std::mem::take(&mut *self.calls.lock().unwrap())
+        }
+    }
+
+    impl Templater for RecordingBatchTemplater {
+        fn name(&self) -> &'static str {
+            "recording-batch"
+        }
+
+        fn description(&self) -> &'static str {
+            "test batch templater that records batch sizes"
+        }
+
+        fn processing_mode(&self) -> ProcessingMode {
+            ProcessingMode::Batch
+        }
+
+        fn process(
+            &self,
+            files: &[TemplaterInput<'_>],
+            _config: &FluffConfig,
+        ) -> Vec<Result<TemplaterOutput, TemplaterError>> {
+            self.calls.lock().unwrap().push(files.len());
+            files
+                .iter()
+                .map(|file| {
+                    sqruff_lib_core::templaters::TemplatedFile::new(
+                        file.source.to_string(),
+                        match file.source_id {
+                            SourceId::Stdin => "<stdin>".to_string(),
+                            SourceId::Path(path) => path.to_string_lossy().into_owned(),
+                            SourceId::Virtual(name) => name.clone(),
+                        },
+                        None,
+                        None,
+                        None,
+                    )
+                    .map(TemplaterOutput::Rendered)
+                    .map_err(|error| {
+                        TemplaterError::Failed(sqruff_lib_core::errors::SQLFluffUserError::new(
+                            format!("templater error: {error}"),
+                        ))
+                    })
                 })
                 .collect()
         }
@@ -231,6 +297,53 @@ dialect = ansi
                 .as_ref()
                 .map(|reason| reason.message.as_str()),
             Some("disabled by templater")
+        );
+    }
+
+    #[test]
+    fn run_batches_sources_for_batch_templaters() {
+        RECORDING_BATCH_TEMPLATER.take_calls();
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = ansi
+"#,
+            None,
+        );
+        let engine = Engine {
+            inner: Linter::new(
+                config,
+                Some(TemplaterRuntime::custom(&RECORDING_BATCH_TEMPLATER)),
+                ParseErrors::Include,
+            )
+            .unwrap(),
+        };
+
+        let report = engine
+            .run(RunRequest {
+                mode: Mode::Check,
+                sources: vec![
+                    Source {
+                        id: SourceId::Virtual("one.sql".into()),
+                        text: Cow::Borrowed("select 1\n"),
+                    },
+                    Source {
+                        id: SourceId::Virtual("two.sql".into()),
+                        text: Cow::Borrowed("select 2\r\n"),
+                    },
+                ],
+            })
+            .unwrap();
+
+        assert_eq!(RECORDING_BATCH_TEMPLATER.take_calls(), vec![2]);
+        assert_eq!(report.files.len(), 2);
+        assert_eq!(
+            report.files[0].source_id,
+            SourceId::Virtual("one.sql".into())
+        );
+        assert_eq!(
+            report.files[1].source_id,
+            SourceId::Virtual("two.sql".into())
         );
     }
 }

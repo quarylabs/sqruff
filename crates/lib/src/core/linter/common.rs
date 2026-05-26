@@ -2,7 +2,7 @@ use sqruff_lib_core::errors::{SQLBaseError, SQLTemplaterError};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::templaters::TemplatedFile;
 
-use crate::api::SkipReason;
+use crate::api::{SkipReason, SourceId};
 
 /// An object to store the result of a templated file/string.
 ///
@@ -17,15 +17,21 @@ pub struct RenderedFile {
 }
 
 pub enum RenderedSource {
-    Rendered(RenderedFile),
-    Skipped(SkipReason),
+    Rendered {
+        source_id: SourceId,
+        rendered: RenderedFile,
+    },
+    Skipped {
+        source_id: SourceId,
+        reason: SkipReason,
+    },
 }
 
 impl RenderedSource {
     pub fn into_rendered(self) -> Option<RenderedFile> {
         match self {
-            Self::Rendered(rendered) => Some(rendered),
-            Self::Skipped(_) => None,
+            Self::Rendered { rendered, .. } => Some(rendered),
+            Self::Skipped { .. } => None,
         }
     }
 }

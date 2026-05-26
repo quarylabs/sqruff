@@ -69,6 +69,9 @@ harness = false
 
 [[test]]
 name = "none_format"
+
+[[test]]
+name = "path_discovery"
 harness = false
 
 [package.metadata.cargo-machete]

@@ -2,12 +2,13 @@ use super::Templater;
 use super::python::PythonTemplatedFile;
 use crate::core::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
-use crate::templaters::{ProcessingMode, TemplaterKind};
+use crate::templaters::{
+    ProcessingMode, TemplaterError, TemplaterInput, TemplaterKind, TemplaterOutput, source_id_name,
+};
 use pyo3::prelude::*;
 use pyo3::types::PyList;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
-use sqruff_lib_core::templaters::TemplatedFile;
 pub struct DBTTemplater;
 
 impl Templater for DBTTemplater {
@@ -122,23 +123,23 @@ The linter then operates on this compiled SQL."#
 
     fn process(
         &self,
-        files: &[(&str, &str)],
+        files: &[TemplaterInput<'_>],
         config: &FluffConfig,
-    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+    ) -> Vec<Result<TemplaterOutput, TemplaterError>> {
         if files.is_empty() {
             return Vec::new();
         }
 
-        Python::attach(|py| -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+        Python::attach(|py| -> Vec<Result<TemplaterOutput, TemplaterError>> {
             let main_module = match PyModule::import(py, "sqruff.templaters.dbt_templater") {
                 Ok(m) => m,
                 Err(e) => {
                     return files
                         .iter()
                         .map(|_| {
-                            Err(SQLFluffUserError::new(format!(
+                            Err(TemplaterError::Failed(SQLFluffUserError::new(format!(
                                 "Failed to import dbt_templater module: {e:?}"
-                            )))
+                            ))))
                         })
                         .collect();
                 }
@@ -150,9 +151,9 @@ The linter then operates on this compiled SQL."#
                     return files
                         .iter()
                         .map(|_| {
-                            Err(SQLFluffUserError::new(format!(
+                            Err(TemplaterError::Failed(SQLFluffUserError::new(format!(
                                 "Failed to get process_batch_from_rust function: {e:?}"
-                            )))
+                            ))))
                         })
                         .collect();
                 }
@@ -164,9 +165,9 @@ The linter then operates on this compiled SQL."#
                     return files
                         .iter()
                         .map(|_| {
-                            Err(SQLFluffUserError::new(format!(
+                            Err(TemplaterError::Failed(SQLFluffUserError::new(format!(
                                 "Failed to create Python context: {e:?}"
-                            )))
+                            ))))
                         })
                         .collect();
                 }
@@ -177,7 +178,7 @@ The linter then operates on this compiled SQL."#
             // Convert files to Python list of tuples
             let py_files: Vec<(String, String)> = files
                 .iter()
-                .map(|(content, fname)| (content.to_string(), fname.to_string()))
+                .map(|file| (file.source.to_string(), source_id_name(file.source_id)))
                 .collect();
 
             let py_files_list = PyList::new(py, &py_files).unwrap();
@@ -186,37 +187,47 @@ The linter then operates on this compiled SQL."#
 
             match fun.call1(py, args) {
                 Ok(returned) => {
-                    // The Python function returns a list of (TemplatedFile | None, error_message | None)
-                    let results: Vec<(Option<PythonTemplatedFile>, Option<String>)> =
-                        match returned.extract(py) {
-                            Ok(r) => r,
-                            Err(e) => {
-                                return files
-                                    .iter()
-                                    .map(|_| {
-                                        Err(SQLFluffUserError::new(format!(
-                                            "Failed to extract batch results: {e:?}"
-                                        )))
-                                    })
-                                    .collect();
-                            }
-                        };
+                    // The Python function returns:
+                    // (TemplatedFile | None, error_message | None, skip_reason | None)
+                    let results: Vec<(
+                        Option<PythonTemplatedFile>,
+                        Option<String>,
+                        Option<String>,
+                    )> = match returned.extract(py) {
+                        Ok(r) => r,
+                        Err(e) => {
+                            return files
+                                .iter()
+                                .map(|_| {
+                                    Err(TemplaterError::Failed(SQLFluffUserError::new(format!(
+                                        "Failed to extract batch results: {e:?}"
+                                    ))))
+                                })
+                                .collect();
+                        }
+                    };
 
                     results
                         .into_iter()
-                        .map(|(templated_file, error)| {
+                        .map(|(templated_file, error, skip_reason)| {
                             if let Some(err_msg) = error {
-                                Err(SQLFluffUserError::new(err_msg))
+                                Err(TemplaterError::Failed(SQLFluffUserError::new(err_msg)))
+                            } else if let Some(reason) = skip_reason {
+                                Ok(TemplaterOutput::Skipped(crate::api::SkipReason {
+                                    message: reason,
+                                }))
                             } else if let Some(tf) = templated_file {
-                                tf.to_templated_file().map_err(|e| {
-                                    SQLFluffUserError::new(format!(
-                                        "Failed to convert dbt templated file: {e:?}"
-                                    ))
-                                })
+                                tf.to_templated_file()
+                                    .map_err(|e| {
+                                        TemplaterError::Failed(SQLFluffUserError::new(format!(
+                                            "Failed to convert dbt templated file: {e:?}"
+                                        )))
+                                    })
+                                    .map(TemplaterOutput::Rendered)
                             } else {
-                                Err(SQLFluffUserError::new(
+                                Err(TemplaterError::Failed(SQLFluffUserError::new(
                                     "No templated file or error returned".to_string(),
-                                ))
+                                )))
                             }
                         })
                         .collect()
@@ -224,9 +235,9 @@ The linter then operates on this compiled SQL."#
                 Err(e) => files
                     .iter()
                     .map(|_| {
-                        Err(SQLFluffUserError::new(format!(
+                        Err(TemplaterError::Failed(SQLFluffUserError::new(format!(
                             "Python batch templater error: {e:?}"
-                        )))
+                        ))))
                     })
                     .collect(),
             }

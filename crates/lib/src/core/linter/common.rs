@@ -2,6 +2,8 @@ use sqruff_lib_core::errors::{SQLBaseError, SQLTemplaterError};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::templaters::TemplatedFile;
 
+use crate::api::SkipReason;
+
 /// An object to store the result of a templated file/string.
 ///
 /// This is notable as it's the intermediate state between what happens
@@ -14,10 +16,18 @@ pub struct RenderedFile {
     pub source_str: String,
 }
 
-/// Result of batch rendering: either a rendered file or a skipped file.
-pub enum BatchRenderedResult {
+pub enum RenderedSource {
     Rendered(RenderedFile),
-    Skipped { filename: String, reason: String },
+    Skipped(SkipReason),
+}
+
+impl RenderedSource {
+    pub fn into_rendered(self) -> Option<RenderedFile> {
+        match self {
+            Self::Rendered(rendered) => Some(rendered),
+            Self::Skipped(_) => None,
+        }
+    }
 }
 
 /// An object to store the result of parsing a string.

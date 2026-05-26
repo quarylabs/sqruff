@@ -2,8 +2,10 @@ use hashbrown::HashSet;
 
 use expect_test::expect_file;
 use glob::glob;
+use sqruff_lib::api::SourceId;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
+use sqruff_lib::templaters::{TemplaterInput, TemplaterOutput};
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::Tables;
@@ -51,13 +53,22 @@ fn main() {
                 let lexer = Lexer::from(dialect);
                 let parser = Parser::from(dialect);
 
-                let file_name = sql_file.to_string_lossy();
+                let source_id = SourceId::Path(sql_file.clone());
                 let templated_file = templater
-                    .process(&[(&sql, &file_name)], &config)
+                    .process(
+                        &[TemplaterInput {
+                            source: &sql,
+                            source_id: &source_id,
+                        }],
+                        &config,
+                    )
                     .into_iter()
                     .next()
                     .unwrap()
                     .unwrap();
+                let TemplaterOutput::Rendered(templated_file) = templated_file else {
+                    panic!("templater fixture was skipped");
+                };
 
                 let (tokens, errors) = lexer.lex(&tables, templated_file);
                 assert!(errors.is_empty());

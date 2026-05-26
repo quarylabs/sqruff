@@ -8,7 +8,7 @@ use std::io::{Stderr, Write};
 use std::sync::OnceLock;
 
 use anstyle::{AnsiColor, Effects, Style};
-use sqruff_lib::api::LintDiagnostic;
+use sqruff_lib::api::{LintDiagnostic, SkipReason};
 use sqruff_lib::rules as sqruff_rules;
 #[cfg(test)]
 use sqruff_lib_core::errors::SQLBaseError;
@@ -71,6 +71,17 @@ impl OutputStreamFormatter {
 
         let s = self.format_file_diagnostics(fname, diagnostics);
         self.dispatch(&s);
+    }
+
+    pub(crate) fn dispatch_file_skip(&self, fname: &str, reason: &SkipReason) {
+        if self.verbosity < 0 {
+            return;
+        }
+
+        let mut text = self.format_filename(fname, true);
+        text.push('\n');
+        text.push_str(&format!("    SKIP | {}\n", reason.message));
+        self.dispatch(&text);
     }
 
     pub(crate) fn emit_completion(&self, count: usize) {

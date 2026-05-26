@@ -48,9 +48,10 @@ impl Engine {
     }
 
     pub fn parse_source(&self, source: Source<'_>) -> Result<ParsedDebugReport, SqruffError> {
+        let config = self.inner.config().for_source(source.text.as_ref())?;
         let rendered = self
             .inner
-            .render_source(source.text.as_ref(), &source.id, self.inner.config())
+            .render_source(source.text.as_ref(), &source.id, &config)
             .map_err(SqruffError::from)?;
 
         self.parse_rendered_for_debug(rendered)
@@ -60,9 +61,10 @@ impl Engine {
         &self,
         source: Source<'_>,
     ) -> Result<RenderDebugReport, SqruffError> {
+        let config = self.inner.config().for_source(source.text.as_ref())?;
         let rendered = self
             .inner
-            .render_source(source.text.as_ref(), &source.id, self.inner.config())
+            .render_source(source.text.as_ref(), &source.id, &config)
             .map_err(SqruffError::from)?;
 
         Ok(match rendered {
@@ -91,9 +93,10 @@ impl Engine {
     }
 
     pub fn lex_source_for_debug(&self, source: Source<'_>) -> Result<LexDebugReport, SqruffError> {
+        let config = self.inner.config().for_source(source.text.as_ref())?;
         let rendered = self
             .inner
-            .render_source(source.text.as_ref(), &source.id, self.inner.config())
+            .render_source(source.text.as_ref(), &source.id, &config)
             .map_err(SqruffError::from)?;
 
         let (source_id, rendered) = match rendered {
@@ -139,9 +142,10 @@ impl Engine {
     }
 
     fn lint_source(&self, source: Source<'_>, mode: Mode) -> Result<FileReport, SqruffError> {
+        let config = self.inner.config().for_source(source.text.as_ref())?;
         let rendered = self
             .inner
-            .render_source(source.text.as_ref(), &source.id, self.inner.config())
+            .render_source(source.text.as_ref(), &source.id, &config)
             .map_err(SqruffError::from)?;
         self.lint_rendered_source(rendered, mode)
     }

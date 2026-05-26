@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
@@ -282,6 +283,18 @@ impl FluffConfig {
 
     pub(crate) fn verify_dialect_specified(&self) -> Option<SQLFluffUserError> {
         None
+    }
+
+    pub fn for_source<'a>(&'a self, source: &str) -> Result<Cow<'a, FluffConfig>, SqruffError> {
+        if !source.contains("-- sqlfluff") && !source.contains("-- sqruff") {
+            return Ok(Cow::Borrowed(self));
+        }
+
+        // Future implementation:
+        // parse inline config into ConfigPatch,
+        // apply to self,
+        // return Cow::Owned(new_config).
+        Ok(Cow::Borrowed(self))
     }
 }
 

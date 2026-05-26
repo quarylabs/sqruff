@@ -94,7 +94,7 @@ mod tests {
             paths: vec![path.clone()],
             format: Format::Human,
         };
-        let config = FluffConfig::from_source("[sqruff]\nrules = AL02\n", None);
+        let config = FluffConfig::try_from_source("[sqruff]\nrules = AL02\n", None).unwrap();
         let exit_code = run_fix(args, config, ignore_none, ParseErrors::Include);
 
         assert_eq!(exit_code, 0);

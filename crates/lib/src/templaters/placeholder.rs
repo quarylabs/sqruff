@@ -341,12 +341,13 @@ mod tests {
     fn test_templater_no_replacement() {
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             "
 [sqruff:templater:placeholder]
 param_style = colon",
             None,
-        );
+        )
+        .unwrap();
         let out_str = process_one(&templater, in_str, "test.sql", &config).unwrap();
         let out = out_str.templated();
         assert_eq!(in_str, out)
@@ -647,7 +648,7 @@ WHERE userid = 42 AND date > '2021-10-01'
         ];
 
         for (in_str, param_style, expected_out, values) in cases {
-            let config = FluffConfig::from_source(
+            let config = FluffConfig::try_from_source(
                 format!(
                     r#"
 [sqruff:templater:placeholder]
@@ -663,7 +664,8 @@ param_style = {}
                 )
                 .as_str(),
                 None,
-            );
+            )
+            .unwrap();
             let templater = PlaceholderTemplater {};
             let out_str = process_one(&templater, in_str, "test.sql", &config).unwrap();
             let out = out_str.templated();
@@ -675,7 +677,7 @@ param_style = {}
     /// Test the error raised when config is incomplete, as in no param_regex
     /// nor param_style.
     fn test_templater_setup_none() {
-        let config = FluffConfig::from_source("", None);
+        let config = FluffConfig::try_from_source("", None).unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
         let out_str = process_one(&templater, in_str, "test.sql", &config);
@@ -691,14 +693,15 @@ param_style = {}
     /// Test the error raised when both param_regex and param_style are
     /// provided.
     fn test_templater_setup_both_provided() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff:templater:placeholder]
 param_regex = __(?P<param_name>[\w_]+)__
 param_style = colon
             "#,
             None,
-        );
+        )
+        .unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
         let out_str = process_one(&templater, in_str, "test.sql", &config);
@@ -713,14 +716,15 @@ param_style = colon
     #[test]
     /// Test custom regex templating.
     fn test_templater_custom_regex() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff:templater:placeholder]
 param_regex = __(?P<param_name>[\w_]+)__
 my_name = john
 "#,
             None,
-        );
+        )
+        .unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT bla FROM blob WHERE id = __my_name__";
         let out_str = process_one(&templater, in_str, "test", &config).unwrap();
@@ -731,13 +735,14 @@ my_name = john
     #[test]
     /// Test the exception raised when parameter styles is unknown.
     fn test_templater_styles_not_existing() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff:templater:placeholder]
 param_style = unknown
             "#,
             None,
-        );
+        )
+        .unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
         let out_str = process_one(&templater, in_str, "test.sql", &config);
@@ -752,7 +757,7 @@ param_style = unknown
     #[test]
     /// Test the linter fully with this templater.
     fn test_templater_placeholder() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = ansi
@@ -763,7 +768,8 @@ rules = all
 param_style = percent
 "#,
             None,
-        );
+        )
+        .unwrap();
         let sql = "SELECT a,b FROM users WHERE a = %s";
 
         let mut linter = Linter::new(config, None, crate::api::ParseErrors::Suppress).unwrap();

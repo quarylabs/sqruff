@@ -596,14 +596,15 @@ from stanza;
 "#;
 
     fn postgres_al05_linter() -> Linter {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 rules = AL05
 dialect = postgres
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         Linter::new(config, None, crate::api::ParseErrors::Include).unwrap()
     }

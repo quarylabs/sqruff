@@ -280,7 +280,7 @@ templater = python
 [sqruff:templater:python:context]
 blah = foo
 ";
-        let config = FluffConfig::from_source(source, None);
+        let config = FluffConfig::try_from_source(source, None).unwrap();
 
         let templater = PythonTemplater;
 
@@ -387,7 +387,7 @@ templater = python
 [sqruff:templater:python:context]
 noblah = foo
 ";
-        let config = FluffConfig::from_source(source, None);
+        let config = FluffConfig::try_from_source(source, None).unwrap();
 
         let templater = PythonTemplater;
 

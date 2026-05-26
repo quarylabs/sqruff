@@ -582,14 +582,15 @@ mod tests {
     use crate::core::linter::core::Linter;
 
     fn postgres_all_rules_linter() -> Linter {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = postgres
 rules = all
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         Linter::new(config, None, ParseErrors::Include).unwrap()
     }

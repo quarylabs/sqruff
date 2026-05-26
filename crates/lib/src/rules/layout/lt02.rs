@@ -2,7 +2,7 @@ use hashbrown::HashMap;
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::core::rules::crawlers::{Crawler, RootOnly};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::ReflowSequence;
 
@@ -64,6 +64,6 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler.into()
+        RootOnly.into()
     }
 }

@@ -66,6 +66,20 @@ struct GithubAnnotation {
     message: String,
 }
 
+impl From<&LintDiagnostic> for GithubAnnotation {
+    fn from(diagnostic: &LintDiagnostic) -> Self {
+        Self {
+            code: diagnostic
+                .code
+                .clone()
+                .unwrap_or_else(|| "????".to_string()),
+            line: diagnostic.line,
+            column: diagnostic.column,
+            message: diagnostic.message.clone(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -113,19 +127,5 @@ mod tests {
             message,
             "::error title=sqruff,file=path%3Awith%2Cmeta%25/query.sql,line=1,col=2::LT%3A01%2Codd%25: bad %25 message%0Awith newline\n"
         );
-    }
-}
-
-impl From<&LintDiagnostic> for GithubAnnotation {
-    fn from(diagnostic: &LintDiagnostic) -> Self {
-        Self {
-            code: diagnostic
-                .code
-                .clone()
-                .unwrap_or_else(|| "????".to_string()),
-            line: diagnostic.line,
-            column: diagnostic.column,
-            message: diagnostic.message.clone(),
-        }
     }
 }

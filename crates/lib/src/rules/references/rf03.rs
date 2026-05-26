@@ -14,7 +14,7 @@ use sqruff_lib_core::utils::analysis::query::Query;
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Clone, Default)]
@@ -366,7 +366,7 @@ FROM foo
         let single_table_references = self
             .single_table_references
             .as_deref()
-            .unwrap_or_else(|| "consistent");
+            .unwrap_or("consistent");
 
         let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
         let mut visited: HashSet<ErasedSegment> = HashSet::new();
@@ -386,7 +386,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(
+        SegmentSeeker::new(
             const {
                 SyntaxSet::new(&[
                     SyntaxKind::SelectStatement,

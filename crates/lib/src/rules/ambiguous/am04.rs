@@ -6,7 +6,7 @@ use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source};
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Clone, Debug, Default)]
@@ -86,7 +86,7 @@ SELECT a, b FROM t
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&START_TYPES) })
+        SegmentSeeker::new(const { SyntaxSet::new(&START_TYPES) })
             .disallow_recurse()
             .into()
     }

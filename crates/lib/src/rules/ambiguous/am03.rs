@@ -6,7 +6,7 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Clone, Debug, Default)]
@@ -97,7 +97,7 @@ ORDER BY a ASC, b DESC
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::OrderbyClause]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::OrderbyClause]) }).into()
     }
 }
 

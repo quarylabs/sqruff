@@ -23,7 +23,7 @@ impl Reporter {
         match format {
             Format::Human => Self::Human(HumanReporter::new(config)),
             Format::GithubAnnotationNative => Self::Github(GithubReporter::new()),
-            Format::Json => Self::Json(JsonReporter::default()),
+            Format::Json => Self::Json(JsonReporter),
         }
     }
 

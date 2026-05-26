@@ -4,7 +4,7 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, TokenSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, TokenSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Default, Clone, Debug)]
@@ -141,6 +141,6 @@ CREATE TABLE myschema.t1 (a BOOL);
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        TokenSeekerCrawler.into()
+        TokenSeeker.into()
     }
 }

@@ -8,7 +8,7 @@ use sqruff_lib_core::utils::analysis::query::Query;
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
@@ -104,7 +104,7 @@ FROM cte1
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::WithCompoundStatement]) })
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::WithCompoundStatement]) })
             .into()
     }
 }

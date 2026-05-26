@@ -10,7 +10,7 @@ use sqruff_lib_core::templaters::TemplateSliceKind;
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::core::rules::crawlers::{Crawler, RootOnly};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 /// Represents the parsed components of a Jinja tag.
@@ -268,7 +268,7 @@ SELECT {{ a }} from {{ ref('foo') }};
 
     fn crawl_behaviour(&self) -> Crawler {
         // Run once per file at the root level
-        RootOnlyCrawler.into()
+        RootOnly.into()
     }
 }
 

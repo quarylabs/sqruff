@@ -3,7 +3,7 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::{RebreakType, ReflowSequence, TargetSide};
 
@@ -66,6 +66,6 @@ SELECT 'b' AS col
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SetOperator]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::SetOperator]) }).into()
     }
 }

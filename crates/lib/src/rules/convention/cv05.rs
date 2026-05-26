@@ -7,7 +7,7 @@ use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::{Filter, ReflowSequence, TargetSide};
 
@@ -163,7 +163,7 @@ WHERE a IS NULL
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::ComparisonOperator]) })
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::ComparisonOperator]) })
             .into()
     }
 }

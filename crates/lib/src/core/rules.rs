@@ -62,7 +62,7 @@ impl LintResult {
         }
     }
 
-    pub fn to_linting_error(self, rule: &ErasedRule) -> Option<SQLLintError> {
+    pub fn to_linting_error(&self, rule: &ErasedRule) -> Option<SQLLintError> {
         let anchor = self.anchor.clone()?;
 
         let description = self

@@ -8,7 +8,7 @@ use strum_macros::{AsRefStr, EnumString};
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq, Default)]
@@ -165,7 +165,7 @@ from foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::QuotedLiteral]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::QuotedLiteral]) }).into()
     }
 }
 

@@ -9,7 +9,7 @@ use strum_macros::{AsRefStr, EnumString};
 
 use crate::config::Value;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Clone, Debug)]
@@ -168,6 +168,6 @@ INNER JOIN baz;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::JoinClause]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::JoinClause]) }).into()
     }
 }

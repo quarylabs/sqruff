@@ -400,10 +400,9 @@ fn main_loop(connection: Connection, _init_param: InitializeParams) {
                 }
 
                 if let Some(response) = lsp.on_request(request.id, &request.method, request.params)
+                    && let Err(e) = connection.sender.send(Message::Response(response))
                 {
-                    if let Err(e) = connection.sender.send(Message::Response(response)) {
-                        eprintln!("Failed to send response: {e}");
-                    }
+                    eprintln!("Failed to send response: {e}");
                 }
             }
             Message::Response(_) => {}

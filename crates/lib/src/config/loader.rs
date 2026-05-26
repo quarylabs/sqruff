@@ -9,6 +9,12 @@ use super::raw::{RawConfig, Value, insert_config_path, nested_combine};
 use crate::api::SqruffError;
 pub struct ConfigLoader;
 
+impl Default for ConfigLoader {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ConfigLoader {
     pub fn new() -> Self {
         Self

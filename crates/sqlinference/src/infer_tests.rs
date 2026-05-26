@@ -2494,7 +2494,8 @@ LEFT JOIN q.shift_last sl
 
     #[test]
     fn test_get_column_with_source() {
-        let tests: Vec<(&str, Vec<(&str, (&str, &str))>, Vec<&str>, Vec<&str>)> = vec![
+        type TestCase = (&'static str, Vec<(&'static str, (&'static str, &'static str))>, Vec<&'static str>, Vec<&'static str>);
+        let tests: Vec<TestCase> = vec![
             (
                 "SELECT a FROM q.model_a",
                 vec![("a", ("q.model_a", "a"))],

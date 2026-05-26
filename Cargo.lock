@@ -1572,6 +1572,7 @@ dependencies = [
  "getrandom 0.2.17",
  "glob",
  "hashbrown 0.17.1",
+ "ignore",
  "indexmap",
  "itertools 0.14.0",
  "lazy-regex",

@@ -135,8 +135,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) })
-            .into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) }).into()
     }
 }
 

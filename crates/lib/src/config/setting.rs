@@ -1,15 +1,10 @@
 use serde::{Deserialize, Deserializer};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub enum Setting<T> {
+    #[default]
     Unset,
     Set(T),
-}
-
-impl<T> Default for Setting<T> {
-    fn default() -> Self {
-        Self::Unset
-    }
 }
 
 impl<T> Setting<T> {

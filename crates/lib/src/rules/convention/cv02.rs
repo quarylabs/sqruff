@@ -121,7 +121,6 @@ FROM baz;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::FunctionNameIdentifier]) })
-            .into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::FunctionNameIdentifier]) }).into()
     }
 }

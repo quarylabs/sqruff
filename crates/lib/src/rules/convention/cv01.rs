@@ -171,7 +171,6 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::ComparisonOperator]) })
-            .into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::ComparisonOperator]) }).into()
     }
 }

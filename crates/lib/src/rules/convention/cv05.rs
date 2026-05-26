@@ -163,7 +163,6 @@ WHERE a IS NULL
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::ComparisonOperator]) })
-            .into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::ComparisonOperator]) }).into()
     }
 }

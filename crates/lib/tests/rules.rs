@@ -7,6 +7,7 @@ use serde::Deserialize;
 use serde_with::{KeyValueMap, serde_as};
 use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId, SqruffError};
 use sqruff_lib::config::{ConfigPatch, FluffConfig, Value};
+use sqruff_lib::templaters::TemplaterKind;
 use sqruff_lib_core::dialects::init::DialectKind;
 
 #[derive(Default)]
@@ -68,9 +69,22 @@ fn config_for_rule_case(rule: &str, case: &TestCase) -> Result<FluffConfig, Sqru
     FluffConfig::builder().patch(patch).build()
 }
 
+fn unsupported_templater(case: &TestCase) -> Option<String> {
+    let templater = case
+        .configs
+        .get("core")
+        .and_then(Value::as_map)
+        .and_then(|core| core.get("templater"))
+        .and_then(Value::as_string)?;
+
+    TemplaterKind::from_name(templater)
+        .err()
+        .map(|error| format!("unsupported templater for this build: {error}"))
+}
+
 fn main() {
     let mut args = Args::default();
-    args.parse_args(std::env::args().skip(1));
+    args.parse_args(std::env::args().skip(1).filter(|arg| arg != "rules"));
 
     let pattern = args
         .file
@@ -102,6 +116,11 @@ fn main() {
                     .unwrap_or_else(|| format!("ignored, dialect {dialect_name} is not supported"));
                 println!("{message}");
 
+                continue;
+            }
+
+            if let Some(message) = unsupported_templater(&case) {
+                println!("{message}");
                 continue;
             }
 

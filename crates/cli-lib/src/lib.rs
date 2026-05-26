@@ -65,7 +65,7 @@ where
                 cli.config.as_ref().unwrap()
             );
 
-            std::process::exit(1);
+            return 1;
         };
 
         ConfigInput::File(path)

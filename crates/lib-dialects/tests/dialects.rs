@@ -29,12 +29,19 @@ fn check_no_unparsable_segments(tree: &ErasedSegment) -> Vec<String> {
 }
 
 fn main() {
-    let args = std::env::args().skip(1).collect::<Vec<String>>();
-
     let mut arg_dialect = None;
+    let filters = std::env::args()
+        .skip(1)
+        .filter(|arg| !arg.starts_with("--"))
+        .collect::<Vec<String>>();
 
-    if args.len() == 1 {
-        arg_dialect = Some(DialectKind::from_str(&args[0]).unwrap());
+    if let Some(filter) = filters.first() {
+        if filter != "dialects" {
+            let Ok(dialect) = DialectKind::from_str(filter) else {
+                return;
+            };
+            arg_dialect = Some(dialect);
+        }
     }
 
     let dialects = DialectKind::iter()

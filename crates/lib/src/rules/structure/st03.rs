@@ -104,7 +104,6 @@ FROM cte1
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::WithCompoundStatement]) })
-            .into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::WithCompoundStatement]) }).into()
     }
 }

@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use std::str::FromStr;
 
 use glob::glob;
@@ -55,11 +57,10 @@ fn main() {
     let mut args = Args::default();
     args.parse_args(std::env::args().skip(1));
 
-    let mut linter = Linter::new(FluffConfig::default(), None, ParseErrors::Include).unwrap();
     let mut core = HashMap::new();
     core.insert(
         "core".to_string(),
-        linter.config_mut().raw.get("core").unwrap().clone(),
+        FluffConfig::default().raw.get("core").unwrap().clone(),
     );
 
     let pattern = args
@@ -80,14 +81,13 @@ fn main() {
             .map(|x| Value::String(x.into()))
             .collect::<Vec<Value>>();
 
-        core.get_mut("core")
+        let mut file_core = core.clone();
+        file_core
+            .get_mut("core")
             .unwrap()
             .as_map_mut()
             .unwrap()
             .insert("rule_allowlist".into(), Value::Array(file_rules));
-
-        linter.config_mut().raw.extend(core.clone());
-        linter.config_mut().reload_reflow();
 
         for case in file.cases {
             println!("Processing case: {}", case.name);
@@ -112,13 +112,12 @@ fn main() {
 
             let has_config = !case.configs.is_empty();
             let rule = &file.rule;
-            if has_config {
-                *linter.config_mut() = FluffConfig::new(case.configs.clone(), None, None);
-                linter.config_mut().raw.extend(core.clone());
+            let config = if has_config {
+                let mut config = FluffConfig::new(case.configs.clone(), None, None);
+                config.raw.extend(file_core.clone());
 
                 if let Some(core) = case.configs.get("core").and_then(|it| it.as_map()) {
-                    linter
-                        .config_mut()
+                    config
                         .raw
                         .get_mut("core")
                         .unwrap()
@@ -127,7 +126,7 @@ fn main() {
                         .extend(core.clone());
                 }
 
-                for (config, value) in &case
+                for (config_name, value) in &case
                     .configs
                     .get("rules")
                     .cloned()
@@ -136,46 +135,42 @@ fn main() {
                     .cloned()
                     .unwrap_or_default()
                 {
-                    if INDENT_CONFIG.contains(&config.as_str()) {
-                        linter
-                            .config_mut()
+                    if INDENT_CONFIG.contains(&config_name.as_str()) {
+                        config
                             .raw
                             .get_mut("indentation")
                             .unwrap()
                             .as_map_mut()
                             .unwrap()
-                            .insert(config.clone(), value.clone());
+                            .insert(config_name.clone(), value.clone());
                     }
                 }
 
-                linter.config_mut().reload_reflow();
+                config.reload_reflow();
+                config
+            } else {
+                let mut config = FluffConfig::default();
+                config.raw.extend(file_core.clone());
+                config.reload_reflow();
+                config
+            };
 
-                // Recreate linter with proper templater after all config is set up
-                let templater = match Linter::get_templater(linter.config()) {
-                    Ok(t) => t,
-                    Err(e) => {
-                        if std::env::var("SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS").is_ok() {
-                            println!("Skipping case '{}': {}", case.name, e);
-                            *linter.config_mut() = FluffConfig::default();
-                            linter.config_mut().raw.extend(core.clone());
-                            linter.config_mut().reload_reflow();
-                            continue;
-                        } else {
-                            panic!(
-                                "Unsupported templater in case '{}': {}. \
-                                 Set SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS=1 to skip these tests.",
-                                case.name, e
-                            );
-                        }
+            let templater = match Linter::get_templater(&config) {
+                Ok(t) => t,
+                Err(e) => {
+                    if std::env::var("SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS").is_ok() {
+                        println!("Skipping case '{}': {}", case.name, e);
+                        continue;
+                    } else {
+                        panic!(
+                            "Unsupported templater in case '{}': {}. \
+                             Set SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS=1 to skip these tests.",
+                            case.name, e
+                        );
                     }
-                };
-                linter = Linter::new(
-                    linter.config().clone(),
-                    Some(templater),
-                    ParseErrors::Include,
-                )
-                .unwrap();
-            }
+                }
+            };
+            let mut linter = Linter::new(config, Some(templater), ParseErrors::Include).unwrap();
 
             match case.kind {
                 TestCaseKind::Pass { pass_str } => {
@@ -228,23 +223,6 @@ dialect = {dialect}
 
                     pretty_assertions::assert_eq!(actual, fix_str);
                 }
-            }
-
-            if has_config {
-                *linter.config_mut() = FluffConfig::default();
-                linter.config_mut().raw.extend(core.clone());
-                linter.config_mut().reload_reflow();
-
-                // Recreate linter with default templater to avoid leaking
-                // the custom templater (e.g. placeholder) into subsequent tests.
-                let templater = Linter::get_templater(linter.config())
-                    .expect("Default config should have a valid templater");
-                linter = Linter::new(
-                    linter.config().clone(),
-                    Some(templater),
-                    ParseErrors::Include,
-                )
-                .unwrap();
             }
         }
     }

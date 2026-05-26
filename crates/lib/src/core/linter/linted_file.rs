@@ -9,8 +9,7 @@ use sqruff_lib_core::templaters::{RawFileSlice, TemplateSliceKind, TemplatedFile
 
 #[derive(Debug, Default, Clone)]
 pub struct LintedFile {
-    // FIXME: remove pub when we have a better way to handle this.
-    pub path: String,
+    path: String,
     patches: Vec<FixPatch>,
     templated_file: TemplatedFile,
     violations: Vec<SQLBaseError>,

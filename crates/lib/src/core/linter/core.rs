@@ -57,12 +57,14 @@ impl Linter {
     }
 
     /// Lint strings directly.
+    #[deprecated(note = "use Engine::check_source or Engine::fix_source")]
     pub fn lint_string_wrapped(
         &mut self,
         sql: &str,
         mode: Mode,
     ) -> Result<LintedFile, SQLFluffUserError> {
         let filename = "<string input>".to_owned();
+        #[allow(deprecated)]
         self.lint_string(sql, Some(filename), mode)
     }
 
@@ -83,6 +85,7 @@ impl Linter {
     }
 
     /// Lint a string.
+    #[deprecated(note = "use Engine::check_source or Engine::fix_source")]
     pub fn lint_string(
         &self,
         sql: &str,
@@ -465,9 +468,12 @@ impl Linter {
         &self.config
     }
 
-    pub fn config_mut(&mut self) -> &mut FluffConfig {
+    #[cfg(test)]
+    #[allow(dead_code)]
+    pub(crate) fn replace_config_for_test(&mut self, config: FluffConfig) {
+        self.templater = TemplaterRuntime::from_config(&config).unwrap();
+        self.config = config;
         self.rules = OnceLock::new();
-        &mut self.config
     }
 
     pub fn rules(&self) -> Result<&[ErasedRule], SQLFluffUserError> {

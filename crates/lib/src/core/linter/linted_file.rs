@@ -61,6 +61,10 @@ impl LintedFile {
         &self.violations
     }
 
+    pub fn source(&self) -> &str {
+        &self.templated_file.source_str
+    }
+
     ///  Use patches and raw file to fix the source file.
     ///
     ///  This assumes that patches and slices have already

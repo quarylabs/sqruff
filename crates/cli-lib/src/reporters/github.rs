@@ -31,15 +31,36 @@ impl GithubReporter {
         filename: &str,
         diagnostic: &LintDiagnostic,
     ) -> Result<(), CliError> {
-        let code = diagnostic.code.as_deref().unwrap_or("????");
+        let diagnostic = GithubAnnotation::from(diagnostic);
         let message = format!(
             "::error title=sqruff,file={},line={},col={}::{}: {}\n",
-            filename, diagnostic.line, diagnostic.column, code, diagnostic.message
+            filename, diagnostic.line, diagnostic.column, diagnostic.code, diagnostic.message
         );
 
         let mut output_stream = self.output_stream.lock();
         output_stream.write_all(message.as_bytes())?;
         output_stream.flush()?;
         Ok(())
+    }
+}
+
+struct GithubAnnotation {
+    code: String,
+    line: usize,
+    column: usize,
+    message: String,
+}
+
+impl From<&LintDiagnostic> for GithubAnnotation {
+    fn from(diagnostic: &LintDiagnostic) -> Self {
+        Self {
+            code: diagnostic
+                .code
+                .clone()
+                .unwrap_or_else(|| "????".to_string()),
+            line: diagnostic.line,
+            column: diagnostic.column,
+            message: diagnostic.message.clone(),
+        }
     }
 }

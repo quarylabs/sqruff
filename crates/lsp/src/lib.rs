@@ -243,11 +243,10 @@ impl LanguageServer {
             }
         };
 
-        let line_index = LineIndex::new(text);
         let diagnostics = report
             .diagnostics
             .iter()
-            .map(|diag| to_lsp_diagnostic(diag, &line_index))
+            .map(|diag| to_lsp_diagnostic(diag, text))
             .collect();
 
         let diagnostics = PublishDiagnosticsParams::new(uri.clone(), diagnostics, None);
@@ -384,15 +383,11 @@ where
     }
 }
 
-fn to_lsp_diagnostic(diag: &LintDiagnostic, line_index: &LineIndex) -> Diagnostic {
-    let range = if diag.source_range.is_empty() && diag.line > 0 && diag.column > 0 {
-        let pos = Position::new((diag.line as u32) - 1, (diag.column as u32) - 1);
-        lsp_types::Range::new(pos, pos)
-    } else {
-        let start = line_index.position(diag.source_range.start);
-        let end = line_index.position(diag.source_range.end);
-        lsp_types::Range::new(start, end)
-    };
+fn to_lsp_diagnostic(diag: &LintDiagnostic, source: &str) -> Diagnostic {
+    let line_index = LineIndex::new(source);
+    let start = line_index.position(diag.source_range.start);
+    let end = line_index.position(diag.source_range.end);
+    let range = lsp_types::Range::new(start, end);
 
     let code = diag.code.clone().map(NumberOrString::String);
 

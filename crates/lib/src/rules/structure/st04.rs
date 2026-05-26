@@ -176,13 +176,10 @@ FROM mytable
             .map(LintFix::delete)
             .collect_vec();
 
-        let tab_space_size = context.config.raw["indentation"]["tab_space_size"]
-            .as_int()
-            .unwrap() as usize;
-        let indent_unit = context.config.raw["indentation"]["indent_unit"]
-            .as_string()
-            .unwrap();
-        let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
+        let indent_unit = IndentUnit::from_type_and_size(
+            context.config.indentation().indent_unit(),
+            context.config.indentation().tab_space_size(),
+        );
 
         let when_indent_str = indentation(&case1_children, case1_last_when, indent_unit);
         let end_indent_str = indentation(&case1_children, case1_first_case, indent_unit);

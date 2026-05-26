@@ -3,7 +3,7 @@ use std::str::FromStr;
 use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::config::{FluffConfig, Value};
+use crate::config::{CoreConfig, FluffConfig, IndentationConfig, LayoutConfig, Value};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
 use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
@@ -290,36 +290,34 @@ impl ReflowConfig {
     }
 
     pub fn from_fluff_config(config: &FluffConfig) -> ReflowConfig {
-        let configs = config.raw["layout"]["type"].as_map().unwrap().clone();
+        Self::from_config_sections(config.core(), config.indentation(), config.layout())
+    }
+
+    pub(crate) fn from_config_sections(
+        core: &CoreConfig,
+        indentation: &IndentationConfig,
+        layout: &LayoutConfig,
+    ) -> ReflowConfig {
+        let configs = layout.type_configs();
         let config_types = configs
             .keys()
             .map(|x| x.parse().unwrap_or_else(|_| unimplemented!("{x}")))
             .collect::<SyntaxSet>();
 
-        let trailing_comments = config.raw["indentation"]["trailing_comments"]
-            .as_string()
-            .unwrap();
+        let trailing_comments = indentation.trailing_comments();
         let trailing_comments = TrailingComments::from_str(trailing_comments).unwrap();
 
-        let tab_space_size = config.raw["indentation"]["tab_space_size"]
-            .as_int()
-            .unwrap() as usize;
-        let indent_unit = config.raw["indentation"]["indent_unit"]
-            .as_string()
-            .unwrap();
+        let tab_space_size = indentation.tab_space_size();
+        let indent_unit = indentation.indent_unit();
         let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
 
         ReflowConfig {
             configs: convert_to_config_dict(configs),
             config_types,
             indent_unit,
-            max_line_length: config.raw["core"]["max_line_length"].as_int().unwrap() as usize,
-            hanging_indents: config.raw["indentation"]["hanging_indents"]
-                .as_bool()
-                .unwrap_or_default(),
-            allow_implicit_indents: config.raw["indentation"]["allow_implicit_indents"]
-                .as_bool()
-                .unwrap(),
+            max_line_length: core.max_line_length(),
+            hanging_indents: indentation.hanging_indents(),
+            allow_implicit_indents: indentation.allow_implicit_indents(),
             trailing_comments,
         }
     }

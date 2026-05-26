@@ -1,6 +1,6 @@
 use clap::Parser as _;
 use sqruff_lib::api::ParseErrors;
-use sqruff_lib::config::FluffConfig;
+use sqruff_lib::config::{ConfigOverrides, ConfigPatch, FluffConfig, Value};
 use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
 use stdin::is_std_in_flag_input;
@@ -44,7 +44,18 @@ where
         ParseErrors::Suppress
     };
 
-    let mut config: FluffConfig = if let Some(config) = cli.config.as_ref() {
+    let dialect_override = match cli.dialect.as_ref() {
+        Some(dialect) => match DialectKind::try_from(dialect.as_str()) {
+            Ok(_) => Some(dialect.clone()),
+            Err(e) => {
+                eprintln!("{}", e);
+                std::process::exit(1);
+            }
+        },
+        None => None,
+    };
+
+    let config: FluffConfig = if let Some(config) = cli.config.as_ref() {
         if !Path::new(config).is_file() {
             eprintln!(
                 "The specified config file '{}' does not exist.",
@@ -54,14 +65,17 @@ where
             std::process::exit(1);
         };
         match FluffConfig::from_file(Path::new(config)) {
-            Ok(config) => config,
+            Ok(config) => apply_dialect_override(config, dialect_override),
             Err(error) => {
                 eprintln!("{}", error.message());
                 return 1;
             }
         }
     } else {
-        match FluffConfig::from_root(None, false, None) {
+        let overrides = dialect_override
+            .as_ref()
+            .map(|dialect| ConfigOverrides::from([("dialect".to_string(), dialect.clone())]));
+        match FluffConfig::from_root(None, false, overrides) {
             Ok(config) => config,
             Err(error) => {
                 eprintln!("{}", error.message());
@@ -69,22 +83,6 @@ where
             }
         }
     };
-
-    if let Some(dialect) = cli.dialect {
-        let dialect_kind = DialectKind::try_from(dialect.as_str());
-        match dialect_kind {
-            Ok(dialect_kind) => {
-                config.override_dialect(dialect_kind).unwrap_or_else(|e| {
-                    eprintln!("{}", e);
-                    std::process::exit(1);
-                });
-            }
-            Err(e) => {
-                eprintln!("{}", e);
-                std::process::exit(1);
-            }
-        }
-    }
 
     match cli.command {
         Commands::Lint(args) => match is_std_in_flag_input(&args.paths) {
@@ -129,4 +127,15 @@ where
         #[cfg(feature = "parser")]
         Commands::Parse(args) => commands_parse::run_parse(args, config),
     }
+}
+
+fn apply_dialect_override(config: FluffConfig, dialect: Option<String>) -> FluffConfig {
+    let Some(dialect) = dialect else {
+        return config;
+    };
+
+    let mut core = ConfigPatch::new();
+    core.insert("dialect".to_string(), Value::String(dialect.into()));
+
+    config.with_patch(ConfigPatch::from([("core".to_string(), Value::Map(core))]))
 }

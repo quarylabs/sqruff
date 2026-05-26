@@ -140,13 +140,7 @@ FROM my_table
                         {
                             let line_pos =
                                 ps.segment.get_position_marker().unwrap().working_line_pos;
-                            if (line_pos as i32)
-                                < context
-                                    .config
-                                    .get("max_line_length", "core")
-                                    .as_int()
-                                    .unwrap()
-                            {
+                            if line_pos < context.config.max_line_length() {
                                 to_remove.insert(res_idx);
                                 is_break = true;
                                 break;

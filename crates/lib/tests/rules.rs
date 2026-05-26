@@ -8,7 +8,7 @@ use hashbrown::HashMap;
 use serde::Deserialize;
 use serde_with::{KeyValueMap, serde_as};
 use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
-use sqruff_lib::config::{FluffConfig, Value};
+use sqruff_lib::config::{ConfigPatch, FluffConfig, Value};
 use sqruff_lib_core::dialects::init::DialectKind;
 
 #[derive(Default)]
@@ -52,16 +52,43 @@ enum TestCaseKind {
     Fail { fail_str: String },
 }
 
-// FIXME: Simplify FluffConfig handling. It's quite chaotic right now.
+fn case_patch(rule: &str, configs: &ConfigPatch) -> ConfigPatch {
+    let mut patch = configs.clone();
+
+    let core = patch
+        .entry("core".to_string())
+        .or_insert_with(|| Value::Map(HashMap::new()));
+    let core = core.as_map_mut().unwrap();
+    core.insert("rules".to_string(), Value::String(rule.into()));
+
+    let rule_configs = patch
+        .get("rules")
+        .cloned()
+        .unwrap_or_default()
+        .as_map()
+        .cloned()
+        .unwrap_or_default();
+    let indentation_updates = rule_configs
+        .into_iter()
+        .filter(|(config_name, _)| INDENT_CONFIG.contains(&config_name.as_str()))
+        .collect::<HashMap<_, _>>();
+
+    if !indentation_updates.is_empty() {
+        let indentation = patch
+            .entry("indentation".to_string())
+            .or_insert_with(|| Value::Map(HashMap::new()));
+        indentation
+            .as_map_mut()
+            .unwrap()
+            .extend(indentation_updates);
+    }
+
+    patch
+}
+
 fn main() {
     let mut args = Args::default();
     args.parse_args(std::env::args().skip(1));
-
-    let mut core = HashMap::new();
-    core.insert(
-        "core".to_string(),
-        FluffConfig::default().raw.get("core").unwrap().clone(),
-    );
 
     let pattern = args
         .file
@@ -75,20 +102,6 @@ fn main() {
         let input = std::fs::read_to_string(path).unwrap();
 
         let file: TestFile = serde_yaml::from_str(&input).unwrap();
-        let file_rules = file
-            .rule
-            .split(",")
-            .map(|x| Value::String(x.into()))
-            .collect::<Vec<Value>>();
-
-        let mut file_core = core.clone();
-        file_core
-            .get_mut("core")
-            .unwrap()
-            .as_map_mut()
-            .unwrap()
-            .insert("rule_allowlist".into(), Value::Array(file_rules));
-
         for case in file.cases {
             println!("Processing case: {}", case.name);
             let dialect_name = case
@@ -110,50 +123,8 @@ fn main() {
                 continue;
             }
 
-            let has_config = !case.configs.is_empty();
             let rule = &file.rule;
-            let config = if has_config {
-                let mut config = FluffConfig::new(case.configs.clone(), None, None);
-                config.raw.extend(file_core.clone());
-
-                if let Some(core) = case.configs.get("core").and_then(|it| it.as_map()) {
-                    config
-                        .raw
-                        .get_mut("core")
-                        .unwrap()
-                        .as_map_mut()
-                        .unwrap()
-                        .extend(core.clone());
-                }
-
-                for (config_name, value) in &case
-                    .configs
-                    .get("rules")
-                    .cloned()
-                    .unwrap_or_default()
-                    .as_map()
-                    .cloned()
-                    .unwrap_or_default()
-                {
-                    if INDENT_CONFIG.contains(&config_name.as_str()) {
-                        config
-                            .raw
-                            .get_mut("indentation")
-                            .unwrap()
-                            .as_map_mut()
-                            .unwrap()
-                            .insert(config_name.clone(), value.clone());
-                    }
-                }
-
-                config.reload_reflow();
-                config
-            } else {
-                let mut config = FluffConfig::default();
-                config.raw.extend(file_core.clone());
-                config.reload_reflow();
-                config
-            };
+            let config = FluffConfig::from_patch(case_patch(&file.rule, &case.configs));
 
             let engine = match Engine::new(
                 config,

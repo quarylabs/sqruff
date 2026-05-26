@@ -123,7 +123,7 @@ pub enum TemplaterRuntime {
 
 impl TemplaterRuntime {
     pub fn from_config(config: &FluffConfig) -> Result<Self, SqruffError> {
-        let kind = config.templater_kind().map_err(SqruffError::Config)?;
+        let kind = config.try_templater_kind().map_err(SqruffError::Config)?;
         Ok(Self::from_kind(kind))
     }
 

@@ -105,9 +105,10 @@ FROM foo
 
         if context
             .config
-            .get("allow_scalar", "rules")
-            .as_bool()
-            .unwrap()
+            .rule_config_map("rules")
+            .get("allow_scalar")
+            .and_then(Value::as_bool)
+            .unwrap_or(true)
         {
             let immediate_parent = parent_stack.last().unwrap().clone();
             let elements = Segments::new(immediate_parent, None)

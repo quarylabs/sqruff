@@ -366,25 +366,15 @@ impl RuleSet {
 
     pub(crate) fn get_rulepack(&self, config: &FluffConfig) -> Result<RulePack, SQLFluffUserError> {
         let reference_map = self.rule_reference_map();
-        let rules = config.get_section("rules");
         let keylist = self.register.keys();
         let mut instantiated_rules = Vec::with_capacity(keylist.len());
 
-        let allowlist: Vec<String> = match config.get("rule_allowlist", "core").as_array() {
-            Some(array) => array
-                .iter()
-                .map(|it| it.as_string().unwrap().to_owned())
-                .collect(),
-            None => self.register.keys().map(|it| it.to_string()).collect(),
-        };
+        let allowlist: Vec<String> = config
+            .rule_allowlist()
+            .map(|rules| rules.to_vec())
+            .unwrap_or_else(|| self.register.keys().map(|it| it.to_string()).collect());
 
-        let denylist: Vec<String> = match config.get("rule_denylist", "core").as_array() {
-            Some(array) => array
-                .iter()
-                .map(|it| it.as_string().unwrap().to_owned())
-                .collect(),
-            None => Vec::new(),
-        };
+        let denylist: Vec<String> = config.rule_denylist().to_vec();
 
         let expanded_allowlist = self.expand_rule_refs(allowlist, &reference_map)?;
         let expanded_denylist = self.expand_rule_refs(denylist, &reference_map)?;
@@ -398,15 +388,10 @@ impl RuleSet {
             let rule = self.register[code].rule_class.clone();
             let rule_config_ref = rule.config_ref();
 
-            let tmp = HashMap::new();
-
-            let specific_rule_config = rules
-                .get(rule_config_ref)
-                .and_then(|section| section.as_map())
-                .unwrap_or(&tmp);
+            let specific_rule_config = config.rule_config_map(rule_config_ref);
 
             instantiated_rules.push(
-                rule.load_from_config(specific_rule_config)
+                rule.load_from_config(&specific_rule_config)
                     .map_err(SQLFluffUserError::new)?,
             );
         }

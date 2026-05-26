@@ -85,12 +85,12 @@ fn parse(c: &mut Criterion) {
 
     for (name, source) in passes {
         let config = FluffConfig::default();
-        let dialect = config.get_dialect().clone();
+        let dialect = config.dialect().clone();
         let config_for_parser = config.clone();
         let parser: Parser = (&config_for_parser).into();
         let mut ctx: ParseContext = (&parser).into();
         let segment = dialect.r#ref("FileSegment");
-        let mut segments = lex(config.get_dialect(), source);
+        let mut segments = lex(config.dialect(), source);
 
         if segments.last().unwrap().get_type() == SyntaxKind::EndOfFile {
             segments.pop();

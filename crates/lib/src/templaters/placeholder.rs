@@ -27,8 +27,7 @@ const NO_PARAM_OR_STYLE: &str =
 impl PlaceholderTemplater {
     fn derive_style(&self, config: &FluffConfig) -> Result<Regex, SQLFluffUserError> {
         let config = config
-            .get("placeholder", "templater")
-            .as_map()
+            .templater_section(crate::templaters::TemplaterKind::Placeholder)
             .ok_or(SQLFluffUserError::new(NO_PARAM_OR_STYLE.to_string()))?;
         match (config.get("param_regex"), config.get("param_style")) {
             (Some(_), Some(_)) => Err(SQLFluffUserError::new(
@@ -75,7 +74,8 @@ impl PlaceholderTemplater {
         let mut param_counter = 1;
         let regex = self.derive_style(config)?;
 
-        let template_config = config.get("placeholder", "templater").as_map();
+        let template_config =
+            config.templater_section(crate::templaters::TemplaterKind::Placeholder);
 
         for cap in regex.captures_iter(in_str) {
             let cap = cap.unwrap();

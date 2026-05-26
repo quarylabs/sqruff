@@ -363,12 +363,10 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let single_table_references =
-            self.single_table_references.as_deref().unwrap_or_else(|| {
-                context.config.raw["rules"]["single_table_references"]
-                    .as_string()
-                    .unwrap()
-            });
+        let single_table_references = self
+            .single_table_references
+            .as_deref()
+            .unwrap_or_else(|| "consistent");
 
         let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
         let mut visited: HashSet<ErasedSegment> = HashSet::new();

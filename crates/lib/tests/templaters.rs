@@ -46,7 +46,7 @@ fn main() {
             let yaml_file = std::path::absolute(yaml_file).unwrap();
 
             let actual = {
-                let dialect = config.get_dialect();
+                let dialect = config.dialect();
                 let sql = std::fs::read_to_string(&sql_file).unwrap();
                 let tables = Tables::default();
                 let lexer = Lexer::from(dialect);

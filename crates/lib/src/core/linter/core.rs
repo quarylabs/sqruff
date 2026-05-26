@@ -83,8 +83,6 @@ impl Linter {
     ) -> Result<ParsedString, SQLFluffUserError> {
         let f_name = filename.unwrap_or_else(|| "<string>".to_string());
 
-        // Scan the raw file for config commands.
-        self.config.process_raw_file_for_config(sql);
         let rendered = self.render_string(sql, f_name, &self.config)?;
 
         Ok(self.parse_rendered(tables, rendered))
@@ -183,11 +181,7 @@ impl Linter {
         };
         // Look for comment segments which might indicate lines to ignore.
         let (ignore_mask, violations): (Option<IgnoreMask>, Vec<SQLBaseError>) = {
-            let disable_noqa = self
-                .config
-                .get("disable_noqa", "core")
-                .as_bool()
-                .unwrap_or(false);
+            let disable_noqa = self.config.disable_noqa();
             if disable_noqa {
                 (None, Vec::new())
             } else {
@@ -244,7 +238,7 @@ impl Linter {
                     let result = crate::core::rules::crawl(
                         rule,
                         tables,
-                        &self.config.dialect,
+                        self.config.dialect(),
                         templated_file,
                         tree.clone(),
                         &self.config,
@@ -454,7 +448,7 @@ impl Linter {
             let (t, lvs) = Self::lex_templated_file(
                 tables,
                 rendered.templated_file.clone(),
-                &self.config.dialect,
+                self.config.dialect(),
             );
             violations.extend(lvs.into_iter().map_into());
             t
@@ -735,12 +729,7 @@ rules = all
     // test__linter__linting_unexpected_error_handled_gracefully
     #[test]
     fn test_linter_empty_file() {
-        let linter = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            ParseErrors::Suppress,
-        )
-        .unwrap();
+        let linter = Linter::new(FluffConfig::default(), None, ParseErrors::Suppress).unwrap();
         let tables = Tables::default();
         let parsed = linter.parse_string(&tables, "", None).unwrap();
 
@@ -767,12 +756,7 @@ rules = all
         "
         .to_string();
 
-        let linter = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            ParseErrors::Suppress,
-        )
-        .unwrap();
+        let linter = Linter::new(FluffConfig::default(), None, ParseErrors::Suppress).unwrap();
         let tables = Tables::default();
         let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
     }
@@ -797,12 +781,7 @@ rules = all
 
         let source =
             "SELECT *\nFROM {{ ref('stg_users') }}\nWHERE created_at > '{{ var(\"start_date\") }}'";
-        let linter = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            ParseErrors::Suppress,
-        )
-        .unwrap();
+        let linter = Linter::new(FluffConfig::default(), None, ParseErrors::Suppress).unwrap();
 
         // Simulate a failed templater by creating a RenderedFile with
         // templater_violations.

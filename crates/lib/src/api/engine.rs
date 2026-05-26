@@ -50,9 +50,6 @@ impl Engine {
     }
 
     pub fn parse_source(&self, source: Source<'_>) -> Result<ParsedDebugReport, SqruffError> {
-        self.inner
-            .config()
-            .process_raw_file_for_config(source.text.as_ref());
         let rendered = self
             .inner
             .render_source(source.text.as_ref(), &source.id, self.inner.config())
@@ -65,9 +62,6 @@ impl Engine {
         &self,
         source: Source<'_>,
     ) -> Result<RenderDebugReport, SqruffError> {
-        self.inner
-            .config()
-            .process_raw_file_for_config(source.text.as_ref());
         let rendered = self
             .inner
             .render_source(source.text.as_ref(), &source.id, self.inner.config())
@@ -99,9 +93,6 @@ impl Engine {
     }
 
     pub fn lex_source_for_debug(&self, source: Source<'_>) -> Result<LexDebugReport, SqruffError> {
-        self.inner
-            .config()
-            .process_raw_file_for_config(source.text.as_ref());
         let rendered = self
             .inner
             .render_source(source.text.as_ref(), &source.id, self.inner.config())
@@ -132,7 +123,7 @@ impl Engine {
         let (segments, diagnostics) = Linter::lex_templated_file(
             &Tables::default(),
             rendered.templated_file,
-            self.inner.config().get_dialect(),
+            self.inner.config().dialect(),
         );
         debug_diagnostics.extend(
             diagnostics

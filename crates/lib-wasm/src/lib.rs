@@ -150,7 +150,7 @@ impl Linter {
                 }
             }
             Tool::Lineage => {
-                let parser = Parser::new(self.config.get_dialect(), IndentationConfig::default());
+                let parser = Parser::new(self.config.dialect(), IndentationConfig::default());
                 let (tables, node) = Lineage::new(parser, "", sql).build();
 
                 print_tree(&tables, node, "", "", "")

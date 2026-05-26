@@ -2,6 +2,8 @@ use hashbrown::HashMap;
 
 pub use sqruff_lib_core::value::Value;
 
+pub(crate) type RawConfig = HashMap<String, Value>;
+
 /// split_comma_separated_string takes a string and splits it on commas and
 /// trims and filters out empty strings.
 pub fn split_comma_separated_string(raw_str: &str) -> Value {

@@ -13,8 +13,8 @@ impl HumanReporter {
         Self {
             formatter: OutputStreamFormatter::new(
                 std::io::stderr().into(),
-                config.get("nocolor", "core").as_bool().unwrap_or_default(),
-                config.get("verbose", "core").as_int().unwrap_or_default(),
+                config.no_color(),
+                config.verbosity(),
             ),
         }
     }

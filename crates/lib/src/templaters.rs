@@ -1,6 +1,7 @@
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::TemplatedFile;
 
+use crate::api::{SkipReason, SourceId};
 use crate::core::config::FluffConfig;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
@@ -61,6 +62,35 @@ pub enum ProcessingMode {
     Batch,
 }
 
+pub struct TemplaterInput<'a> {
+    pub source: &'a str,
+    pub source_id: &'a SourceId,
+}
+
+pub enum TemplaterOutput {
+    Rendered(TemplatedFile),
+    Skipped(SkipReason),
+}
+
+#[derive(Debug)]
+pub enum TemplaterError {
+    Failed(SQLFluffUserError),
+}
+
+impl From<SQLFluffUserError> for TemplaterError {
+    fn from(error: SQLFluffUserError) -> Self {
+        Self::Failed(error)
+    }
+}
+
+impl TemplaterError {
+    pub fn into_user_error(self) -> SQLFluffUserError {
+        match self {
+            Self::Failed(error) => error,
+        }
+    }
+}
+
 pub trait Templater: Send + Sync {
     /// The name of the templater.
     fn name(&self) -> &'static str;
@@ -71,15 +101,23 @@ pub trait Templater: Send + Sync {
     /// Returns the processing mode for this templater.
     fn processing_mode(&self) -> ProcessingMode;
 
-    /// Process one or more files and return TemplatedFiles.
+    /// Process one or more files and return typed templater outcomes.
     ///
     /// Arguments:
-    /// - files: Slice of (file_content, file_name) tuples
+    /// - files: Input files with source text and identity.
     /// - config: The configuration to use
     /// Returns a vector of results in the same order as the input files.
     fn process(
         &self,
-        files: &[(&str, &str)],
+        files: &[TemplaterInput<'_>],
         config: &FluffConfig,
-    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>>;
+    ) -> Vec<Result<TemplaterOutput, TemplaterError>>;
+}
+
+pub(crate) fn source_id_name(source_id: &SourceId) -> String {
+    match source_id {
+        SourceId::Stdin => "<stdin>".to_string(),
+        SourceId::Path(path) => path.to_string_lossy().into_owned(),
+        SourceId::Virtual(name) => name.clone(),
+    }
 }

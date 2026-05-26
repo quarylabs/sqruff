@@ -1,4 +1,5 @@
 use crate::core::config::FluffConfig;
+use crate::core::linter::common::RenderedSource;
 use crate::core::linter::core::Linter;
 use crate::core::linter::linted_file::LintedFile;
 use sqruff_lib_core::errors::SQLFluffUserError;
@@ -50,20 +51,25 @@ impl Engine {
     }
 
     fn lint_source(&self, source: Source<'_>, mode: Mode) -> Result<FileReport, SqruffError> {
-        let filename = filename_for_source_id(&source.id);
-        let linted_file = self
+        let rendered = self
             .inner
-            .lint_string(source.text.as_ref(), filename, mode)?;
+            .render_source(source.text.as_ref(), &source.id, self.inner.config())
+            .map_err(|error| error.into_user_error())?;
+        let rendered = match rendered {
+            RenderedSource::Rendered(rendered) => rendered,
+            RenderedSource::Skipped(skipped) => {
+                return Ok(FileReport {
+                    source_id: source.id,
+                    diagnostics: Vec::new(),
+                    fixed_source: None,
+                    skipped: Some(skipped),
+                });
+            }
+        };
+
+        let linted_file = self.inner.lint_rendered(rendered, mode)?;
 
         Ok(file_report_from_linted_file(linted_file, source.id, mode))
-    }
-}
-
-fn filename_for_source_id(source_id: &SourceId) -> Option<String> {
-    match source_id {
-        SourceId::Stdin => None,
-        SourceId::Path(path) => Some(path.to_string_lossy().into_owned()),
-        SourceId::Virtual(name) => Some(name.clone()),
     }
 }
 
@@ -91,9 +97,45 @@ fn file_report_from_linted_file(
 mod tests {
     use std::borrow::Cow;
 
-    use crate::api::ParseErrors;
+    use crate::api::{ParseErrors, SkipReason};
+    use crate::templaters::{
+        ProcessingMode, Templater, TemplaterError, TemplaterInput, TemplaterOutput,
+    };
 
     use super::*;
+
+    static SKIPPING_TEMPLATER: SkippingTemplater = SkippingTemplater;
+
+    struct SkippingTemplater;
+
+    impl Templater for SkippingTemplater {
+        fn name(&self) -> &'static str {
+            "skipping"
+        }
+
+        fn description(&self) -> &'static str {
+            "test templater that skips every source"
+        }
+
+        fn processing_mode(&self) -> ProcessingMode {
+            ProcessingMode::Sequential
+        }
+
+        fn process(
+            &self,
+            files: &[TemplaterInput<'_>],
+            _config: &FluffConfig,
+        ) -> Vec<Result<TemplaterOutput, TemplaterError>> {
+            files
+                .iter()
+                .map(|_| {
+                    Ok(TemplaterOutput::Skipped(SkipReason {
+                        message: "disabled by templater".into(),
+                    }))
+                })
+                .collect()
+        }
+    }
 
     fn test_engine() -> Engine {
         let config = FluffConfig::from_source(
@@ -150,6 +192,38 @@ rules = LT01
                 .diagnostics
                 .iter()
                 .any(|diagnostic| diagnostic.code.as_deref() == Some("LT01"))
+        );
+    }
+
+    #[test]
+    fn check_source_reports_templater_skip() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = ansi
+"#,
+            None,
+        );
+        let engine = Engine {
+            inner: Linter::new(config, Some(&SKIPPING_TEMPLATER), ParseErrors::Include).unwrap(),
+        };
+
+        let report = engine
+            .check_source(Source {
+                id: SourceId::Virtual("disabled.sql".into()),
+                text: Cow::Borrowed("select  1\n"),
+            })
+            .unwrap();
+
+        assert_eq!(report.source_id, SourceId::Virtual("disabled.sql".into()));
+        assert!(report.diagnostics.is_empty());
+        assert!(report.fixed_source.is_none());
+        assert_eq!(
+            report
+                .skipped
+                .as_ref()
+                .map(|reason| reason.message.as_str()),
+            Some("disabled by templater")
         );
     }
 }

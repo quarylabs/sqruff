@@ -2,7 +2,9 @@ use super::Templater;
 use super::python::PythonTemplatedFile;
 use crate::core::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
-use crate::templaters::{ProcessingMode, TemplaterKind};
+use crate::templaters::{
+    ProcessingMode, TemplaterError, TemplaterInput, TemplaterKind, TemplaterOutput, source_id_name,
+};
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
@@ -132,19 +134,26 @@ When `apply_dbt_builtins` is enabled (the default), common dbt functions like `r
 
     fn process(
         &self,
-        files: &[(&str, &str)],
+        files: &[TemplaterInput<'_>],
         config: &FluffConfig,
-    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+    ) -> Vec<Result<TemplaterOutput, TemplaterError>> {
         files
             .iter()
-            .map(|(content, fname)| self.process_single(content, fname, config))
+            .map(|file| {
+                let fname = source_id_name(file.source_id);
+                self.process_single(file.source, &fname, config)
+                    .map(TemplaterOutput::Rendered)
+                    .map_err(TemplaterError::Failed)
+            })
             .collect()
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::api::SourceId;
     use crate::core::config::FluffConfig;
+    use crate::templaters::{TemplaterInput, TemplaterOutput};
 
     use super::*;
 
@@ -168,8 +177,18 @@ FROM events
         let config = FluffConfig::from_source(source, None);
         let templater = JinjaTemplater;
 
-        let results = templater.process(&[(JINJA_STRING, "test.sql")], &config);
-        let processed = results.into_iter().next().unwrap().unwrap();
+        let source_id = SourceId::Virtual("test.sql".into());
+        let results = templater.process(
+            &[TemplaterInput {
+                source: JINJA_STRING,
+                source_id: &source_id,
+            }],
+            &config,
+        );
+        let processed = match results.into_iter().next().unwrap().unwrap() {
+            TemplaterOutput::Rendered(file) => file,
+            TemplaterOutput::Skipped(reason) => panic!("jinja skipped: {}", reason.message),
+        };
 
         assert_eq!(
             processed.templated(),
@@ -190,8 +209,18 @@ FROM events
     SELECT {{some_var}}
 {% endif %}
 "#;
-        let results = templater.process(&[(instr, "test.sql")], &config);
-        let processed = results.into_iter().next().unwrap().unwrap();
+        let source_id = SourceId::Virtual("test.sql".into());
+        let results = templater.process(
+            &[TemplaterInput {
+                source: instr,
+                source_id: &source_id,
+            }],
+            &config,
+        );
+        let processed = match results.into_iter().next().unwrap().unwrap() {
+            TemplaterOutput::Rendered(file) => file,
+            TemplaterOutput::Skipped(reason) => panic!("jinja skipped: {}", reason.message),
+        };
 
         assert_eq!(processed.templated(), "\n    \n    SELECT 1\n\n");
     }

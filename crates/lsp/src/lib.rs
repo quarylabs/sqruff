@@ -1,3 +1,5 @@
+use std::path::{Path, PathBuf};
+
 use hashbrown::HashMap;
 use lsp_server::{Connection, Message, Request, RequestId, Response};
 use lsp_types::notification::{
@@ -13,18 +15,28 @@ use lsp_types::{
     TextDocumentSyncCapability, TextDocumentSyncKind, Uri, VersionedTextDocumentIdentifier,
 };
 use serde_json::Value;
+#[cfg(not(target_arch = "wasm32"))]
+use sqruff_lib::core::config::ConfigLoader;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
+#[cfg(not(target_arch = "wasm32"))]
+use sqruff_lib::ignore::IgnoreFile;
 use sqruff_lib::templaters::RAW_TEMPLATER;
 use wasm_bindgen::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
-fn load_config() -> FluffConfig {
-    FluffConfig::from_root(None, false, None).unwrap_or_default()
+fn load_config(root: Option<&Path>) -> FluffConfig {
+    if let Some(root) = root {
+        let loader = ConfigLoader {};
+        let config = loader.load_config_at_path(root);
+        FluffConfig::new(config, None, None)
+    } else {
+        FluffConfig::from_root(None, false, None).unwrap_or_default()
+    }
 }
 
 #[cfg(target_arch = "wasm32")]
-fn load_config() -> FluffConfig {
+fn load_config(_root: Option<&Path>) -> FluffConfig {
     FluffConfig::default()
 }
 
@@ -43,6 +55,10 @@ pub struct LanguageServer {
     linter: Linter,
     send_diagnostics_callback: Box<dyn Fn(PublishDiagnosticsParams)>,
     documents: HashMap<Uri, String>,
+    #[cfg(not(target_arch = "wasm32"))]
+    workspace_root: PathBuf,
+    #[cfg(not(target_arch = "wasm32"))]
+    ignore_file: IgnoreFile,
 }
 
 #[wasm_bindgen]
@@ -95,18 +111,40 @@ impl Wasm {
 
     #[wasm_bindgen(js_name = formatSource)]
     pub fn format_source(&mut self, source: &str) -> String {
-        self.0.format_source(source)
+        self.0.format_source(source, None)
     }
 }
 
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
-        let config = load_config();
+        Self::new_with_workspace_root(None, send_diagnostics_callback)
+    }
+
+    fn new_with_workspace_root(
+        workspace_root: Option<PathBuf>,
+        send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static,
+    ) -> Self {
+        #[cfg(not(target_arch = "wasm32"))]
+        let config = load_config(workspace_root.as_deref());
+
+        #[cfg(not(target_arch = "wasm32"))]
+        let workspace_root = workspace_root.unwrap_or_else(|| std::env::current_dir().unwrap());
+
+        #[cfg(target_arch = "wasm32")]
+        let _ = workspace_root;
+
+        #[cfg(target_arch = "wasm32")]
+        let config = load_config(None);
+
         let templater = Linter::get_templater(&config).unwrap_or(&RAW_TEMPLATER);
         Self {
             linter: Linter::new(config, None, Some(templater), false).unwrap(),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: HashMap::new(),
+            #[cfg(not(target_arch = "wasm32"))]
+            ignore_file: load_ignore_file(&workspace_root),
+            #[cfg(not(target_arch = "wasm32"))]
+            workspace_root,
         }
     }
 
@@ -126,14 +164,19 @@ impl LanguageServer {
     }
 
     fn format(&mut self, uri: Uri) -> Vec<lsp_types::TextEdit> {
+        if self.is_ignored(&uri) {
+            return Vec::new();
+        }
+
         let text = self.documents.get(&uri).cloned().unwrap();
-        let new_text = self.format_source(&text);
+        let filename = file_uri_to_path(&uri).map(|path| path.to_string_lossy().to_string());
+        let new_text = self.format_source(&text, filename);
         self.documents.insert(uri.clone(), new_text.clone());
         Self::build_edits(new_text)
     }
 
-    fn format_source(&mut self, source: &str) -> String {
-        match self.linter.lint_string(source, None, true) {
+    fn format_source(&mut self, source: &str, filename: Option<String>) -> String {
+        match self.linter.lint_string(source, filename, true) {
             Ok(tree) => tree.fix_string(),
             Err(e) => {
                 eprintln!("Failed to format source: {}", e.value);
@@ -190,13 +233,12 @@ impl LanguageServer {
                 let uri = params.text_document.uri.as_str();
 
                 if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
-                    let new_config = load_config();
-                    if Linter::get_templater(&new_config).is_ok() {
-                        *self.linter.config_mut() = new_config;
+                    if self.reload_config() {
                         self.recheck_files();
-                    } else {
-                        eprintln!("Invalid templater in config, keeping previous configuration");
                     }
+                } else if uri.ends_with(".sqruffignore") {
+                    self.reload_ignore_file();
+                    self.recheck_files();
                 }
             }
             _ => {}
@@ -210,7 +252,14 @@ impl LanguageServer {
     }
 
     fn check_file(&self, uri: Uri, text: &str) {
-        let result = match self.linter.lint_string(text, None, false) {
+        if self.is_ignored(&uri) {
+            let diagnostics = PublishDiagnosticsParams::new(uri.clone(), Vec::new(), None);
+            (self.send_diagnostics_callback)(diagnostics);
+            return;
+        }
+
+        let filename = file_uri_to_path(&uri).map(|path| path.to_string_lossy().to_string());
+        let result = match self.linter.lint_string(text, filename, false) {
             Ok(result) => result,
             Err(e) => {
                 eprintln!("Failed to check file: {}", e.value);
@@ -249,6 +298,56 @@ impl LanguageServer {
         let diagnostics = PublishDiagnosticsParams::new(uri.clone(), diagnostics, None);
         (self.send_diagnostics_callback)(diagnostics);
     }
+
+    fn is_ignored(&self, uri: &Uri) -> bool {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            file_uri_to_path(uri).is_some_and(|path| self.ignore_file.is_ignored(&path))
+        }
+
+        #[cfg(target_arch = "wasm32")]
+        {
+            let _ = uri;
+            false
+        }
+    }
+
+    fn reload_config(&mut self) -> bool {
+        let new_config = {
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                load_config(Some(&self.workspace_root))
+            }
+
+            #[cfg(target_arch = "wasm32")]
+            {
+                load_config(None)
+            }
+        };
+
+        if Linter::get_templater(&new_config).is_ok() {
+            *self.linter.config_mut() = new_config;
+            true
+        } else {
+            eprintln!("Invalid templater in config, keeping previous configuration");
+            false
+        }
+    }
+
+    fn reload_ignore_file(&mut self) {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            self.ignore_file = load_ignore_file(&self.workspace_root);
+        }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn load_ignore_file(root: &Path) -> IgnoreFile {
+    IgnoreFile::new_from_root(root).unwrap_or_else(|err| {
+        eprintln!("Failed to load .sqruffignore: {err}");
+        IgnoreFile::empty()
+    })
 }
 
 pub fn run() {
@@ -264,9 +363,10 @@ pub fn run() {
     io_threads.join().unwrap();
 }
 
-fn main_loop(connection: Connection, _init_param: InitializeParams) {
+fn main_loop(connection: Connection, init_param: InitializeParams) {
     let sender = connection.sender.clone();
-    let mut lsp = LanguageServer::new(move |diagnostics| {
+    let workspace_root = workspace_root_from_initialize(&init_param);
+    let mut lsp = LanguageServer::new_with_workspace_root(workspace_root, move |diagnostics| {
         let notification = new_notification::<PublishDiagnostics>(diagnostics);
         sender.send(Message::Notification(notification)).unwrap();
     });
@@ -301,6 +401,81 @@ fn main_loop(connection: Connection, _init_param: InitializeParams) {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+fn workspace_root_from_initialize(params: &InitializeParams) -> Option<PathBuf> {
+    params
+        .workspace_folders
+        .as_ref()
+        .and_then(|folders| folders.first())
+        .and_then(|folder| file_uri_to_path(&folder.uri))
+        .or_else(|| {
+            #[allow(deprecated)]
+            params.root_uri.as_ref().and_then(file_uri_to_path)
+        })
+        .or_else(|| {
+            #[allow(deprecated)]
+            params.root_path.as_ref().map(PathBuf::from)
+        })
+}
+
+#[cfg(target_arch = "wasm32")]
+fn workspace_root_from_initialize(_params: &InitializeParams) -> Option<PathBuf> {
+    None
+}
+
+fn file_uri_to_path(uri: &Uri) -> Option<PathBuf> {
+    let uri = uri.as_str();
+    let path = uri.strip_prefix("file://")?;
+    let path = percent_decode(path)?;
+
+    #[cfg(target_os = "windows")]
+    {
+        let path = if path.starts_with('/')
+            && path
+                .as_bytes()
+                .get(2)
+                .is_some_and(|character| *character == b':')
+        {
+            &path[1..]
+        } else {
+            path.as_str()
+        };
+
+        return Some(PathBuf::from(path.replace('/', "\\")));
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Some(PathBuf::from(path))
+    }
+}
+
+fn percent_decode(input: &str) -> Option<String> {
+    let mut output = Vec::with_capacity(input.len());
+    let mut bytes = input.as_bytes().iter().copied();
+
+    while let Some(byte) = bytes.next() {
+        if byte == b'%' {
+            let high = bytes.next()?;
+            let low = bytes.next()?;
+            output.push((hex_value(high)? << 4) | hex_value(low)?);
+        } else {
+            output.push(byte);
+        }
+    }
+
+    String::from_utf8(output).ok()
+}
+
+fn hex_value(byte: u8) -> Option<u8> {
+    match byte {
+        b'0'..=b'9' => Some(byte - b'0'),
+        b'a'..=b'f' => Some(byte - b'a' + 10),
+        b'A'..=b'F' => Some(byte - b'A' + 10),
+        _ => None,
+    }
+}
+
 pub fn save_registration_options() -> lsp_types::RegistrationParams {
     let save_registration_options = lsp_types::TextDocumentSaveRegistrationOptions {
         include_text: false.into(),
@@ -315,6 +490,11 @@ pub fn save_registration_options() -> lsp_types::RegistrationParams {
                     language: None,
                     scheme: None,
                     pattern: Some("**/.sqruff".into()),
+                },
+                lsp_types::DocumentFilter {
+                    language: None,
+                    scheme: None,
+                    pattern: Some("**/.sqruffignore".into()),
                 },
             ]),
         },
@@ -338,5 +518,134 @@ where
     lsp_server::Notification {
         method: T::METHOD.to_owned(),
         params: serde_json::to_value(&params).unwrap(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+    use std::sync::{Arc, Mutex};
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    use super::*;
+
+    struct TempRoot {
+        path: PathBuf,
+    }
+
+    impl TempRoot {
+        fn new() -> Self {
+            let suffix = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos();
+            let path = std::env::temp_dir()
+                .join(format!("sqruff-lsp-test-{}-{suffix}", std::process::id()));
+            fs::create_dir_all(&path).unwrap();
+            Self { path }
+        }
+    }
+
+    impl Drop for TempRoot {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.path);
+        }
+    }
+
+    fn path_to_uri(path: &Path) -> Uri {
+        let path = path.canonicalize().unwrap();
+        let path = path.to_string_lossy().replace('\\', "/");
+        let uri = if cfg!(windows) {
+            format!("file:///{path}")
+        } else {
+            format!("file://{path}")
+        };
+        uri.parse().unwrap()
+    }
+
+    fn diagnostics_lsp(root: &Path) -> (LanguageServer, Arc<Mutex<Vec<PublishDiagnosticsParams>>>) {
+        let diagnostics = Arc::new(Mutex::new(Vec::new()));
+        let sent_diagnostics = Arc::clone(&diagnostics);
+        let lsp =
+            LanguageServer::new_with_workspace_root(Some(root.to_path_buf()), move |params| {
+                sent_diagnostics.lock().unwrap().push(params)
+            });
+
+        (lsp, diagnostics)
+    }
+
+    #[test]
+    fn loads_config_from_workspace_root() {
+        let root = TempRoot::new();
+        fs::write(root.path.join(".sqruff"), "[sqruff]\ndialect = postgres\n").unwrap();
+
+        let (lsp, _) = diagnostics_lsp(&root.path);
+
+        assert_eq!(lsp.linter.config().dialect_kind().as_ref(), "postgres");
+    }
+
+    #[test]
+    fn clears_diagnostics_for_sqruffignored_file() {
+        let root = TempRoot::new();
+        fs::write(
+            root.path.join(".sqruff"),
+            "[sqruff]\ndialect = ansi\nrules = all\n",
+        )
+        .unwrap();
+        fs::write(root.path.join(".sqruffignore"), "ignored.sql\n").unwrap();
+
+        let checked = root.path.join("checked.sql");
+        fs::write(&checked, "select  1").unwrap();
+        let ignored = root.path.join("ignored.sql");
+        fs::write(&ignored, "select  1").unwrap();
+
+        let (lsp, diagnostics) = diagnostics_lsp(&root.path);
+
+        lsp.check_file(path_to_uri(&checked), "select  1");
+        assert!(
+            !diagnostics
+                .lock()
+                .unwrap()
+                .last()
+                .unwrap()
+                .diagnostics
+                .is_empty(),
+            "test fixture should produce diagnostics for a non-ignored file",
+        );
+
+        lsp.check_file(path_to_uri(&ignored), "select  1");
+        assert!(
+            diagnostics
+                .lock()
+                .unwrap()
+                .last()
+                .unwrap()
+                .diagnostics
+                .is_empty(),
+            "ignored files should publish an empty diagnostics set",
+        );
+    }
+
+    #[test]
+    fn skips_formatting_sqruffignored_file() {
+        let root = TempRoot::new();
+        fs::write(
+            root.path.join(".sqruff"),
+            "[sqruff]\ndialect = ansi\nrules = all\n",
+        )
+        .unwrap();
+        fs::write(root.path.join(".sqruffignore"), "ignored.sql\n").unwrap();
+
+        let ignored = root.path.join("ignored.sql");
+        fs::write(&ignored, "select  1").unwrap();
+
+        let (mut lsp, _) = diagnostics_lsp(&root.path);
+        let uri = path_to_uri(&ignored);
+        lsp.documents.insert(uri.clone(), "select  1".to_string());
+
+        assert!(
+            lsp.format(uri).is_empty(),
+            "ignored files should not receive formatting edits",
+        );
     }
 }

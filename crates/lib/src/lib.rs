@@ -1,4 +1,6 @@
 pub mod core;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod ignore;
 pub mod rules;
 pub mod templaters;
 #[cfg(test)]

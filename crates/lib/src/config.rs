@@ -8,6 +8,6 @@ pub use loader::ConfigLoader;
 pub use model::{
     CoreConfig, FluffConfig, IndentationConfig, LayoutConfig, RuleConfigStore, TemplaterConfigStore,
 };
-pub use options::{ConfigLoadOptions, ConfigOverrides};
+pub use options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 pub use patch::ConfigPatch;
 pub use raw::{Value, split_comma_separated_string};

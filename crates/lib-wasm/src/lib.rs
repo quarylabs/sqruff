@@ -3,7 +3,7 @@ use serde::Serialize;
 use sqruff_lib::api::{
     Engine, EngineOptions, LintDiagnostic, Mode, ParseErrors, Source, SourceId, SqruffError,
 };
-use sqruff_lib::config::FluffConfig;
+use sqruff_lib::config::{ConfigInput, ConfigLoadOptions, ConfigLoader, FluffConfig};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use std::borrow::Cow;
@@ -89,7 +89,14 @@ impl Result {
 impl Linter {
     #[wasm_bindgen(constructor)]
     pub fn new(source: &str) -> std::result::Result<Self, JsValue> {
-        let config = FluffConfig::try_from_source(source, None)
+        let config = ConfigLoader::new()
+            .load(ConfigLoadOptions {
+                input: ConfigInput::Source {
+                    text: source.to_string(),
+                    path: None,
+                },
+                ..Default::default()
+            })
             .map_err(|e| JsValue::from_str(&e.to_string()))?;
         let engine = Engine::new(
             config.clone(),

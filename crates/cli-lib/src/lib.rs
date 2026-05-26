@@ -1,8 +1,8 @@
 use clap::Parser as _;
 use sqruff_lib::api::ParseErrors;
-use sqruff_lib::config::{ConfigOverrides, ConfigPatch, FluffConfig, Value};
+use sqruff_lib::config::{ConfigInput, ConfigLoadOptions, ConfigLoader, ConfigOverrides};
 use sqruff_lib_core::dialects::init::DialectKind;
-use std::path::Path;
+use std::path::PathBuf;
 use stdin::is_std_in_flag_input;
 
 use crate::commands::{Cli, Commands};
@@ -44,19 +44,22 @@ where
         ParseErrors::Suppress
     };
 
-    let dialect_override = match cli.dialect.as_ref() {
-        Some(dialect) => match DialectKind::try_from(dialect.as_str()) {
-            Ok(_) => Some(dialect.clone()),
-            Err(e) => {
-                eprintln!("{}", e);
-                std::process::exit(1);
-            }
-        },
-        None => None,
+    let dialect = match cli
+        .dialect
+        .as_deref()
+        .map(DialectKind::try_from)
+        .transpose()
+    {
+        Ok(dialect) => dialect,
+        Err(error) => {
+            eprintln!("{error}");
+            return 1;
+        }
     };
 
-    let config: FluffConfig = if let Some(config) = cli.config.as_ref() {
-        if !Path::new(config).is_file() {
+    let input = if let Some(config) = cli.config.as_ref() {
+        let path = PathBuf::from(config);
+        if !path.is_file() {
             eprintln!(
                 "The specified config file '{}' does not exist.",
                 cli.config.as_ref().unwrap()
@@ -64,23 +67,24 @@ where
 
             std::process::exit(1);
         };
-        match FluffConfig::from_file(Path::new(config)) {
-            Ok(config) => apply_dialect_override(config, dialect_override),
-            Err(error) => {
-                eprintln!("{}", error.message());
-                return 1;
-            }
-        }
+
+        ConfigInput::File(path)
     } else {
-        let overrides = dialect_override
-            .as_ref()
-            .map(|dialect| ConfigOverrides::from([("dialect".to_string(), dialect.clone())]));
-        match FluffConfig::from_root(None, false, overrides) {
-            Ok(config) => config,
-            Err(error) => {
-                eprintln!("{}", error.message());
-                return 1;
-            }
+        ConfigInput::ProjectRoot(std::env::current_dir().unwrap_or_else(|_| ".".into()))
+    };
+
+    let config = match ConfigLoader::new().load(ConfigLoadOptions {
+        input,
+        ignore_local_config: false,
+        overrides: ConfigOverrides {
+            dialect,
+            ..Default::default()
+        },
+    }) {
+        Ok(config) => config,
+        Err(error) => {
+            eprintln!("{}", error.message());
+            return 1;
         }
     };
 
@@ -127,15 +131,4 @@ where
         #[cfg(feature = "parser")]
         Commands::Parse(args) => commands_parse::run_parse(args, config),
     }
-}
-
-fn apply_dialect_override(config: FluffConfig, dialect: Option<String>) -> FluffConfig {
-    let Some(dialect) = dialect else {
-        return config;
-    };
-
-    let mut core = ConfigPatch::new();
-    core.insert("dialect".to_string(), Value::String(dialect.into()));
-
-    config.with_patch(ConfigPatch::from([("core".to_string(), Value::Map(core))]))
 }

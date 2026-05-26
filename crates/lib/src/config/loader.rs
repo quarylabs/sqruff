@@ -3,11 +3,36 @@ use std::path::{Path, PathBuf};
 use configparser::ini::Ini;
 use hashbrown::HashMap;
 
-use super::raw::{Value, insert_config_path, nested_combine};
+use super::model::FluffConfig;
+use super::options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
+use super::raw::{RawConfig, Value, insert_config_path, nested_combine};
 use crate::api::SqruffError;
 pub struct ConfigLoader;
 
 impl ConfigLoader {
+    pub fn new() -> Self {
+        Self
+    }
+
+    pub fn load(&self, options: ConfigLoadOptions) -> Result<FluffConfig, SqruffError> {
+        let mut configs = match options.input {
+            ConfigInput::ProjectRoot(path) => {
+                self.try_load_config_up_to_path(path, None, options.ignore_local_config)?
+            }
+            ConfigInput::File(path) => {
+                let mut configs = HashMap::new();
+                Self::try_load_config_file(path, &mut configs)?;
+                configs
+            }
+            ConfigInput::Source { text, path } => Self::try_from_source(&text, path.as_deref())?,
+            ConfigInput::Default => HashMap::new(),
+        };
+
+        apply_overrides(&mut configs, options.overrides)?;
+
+        Ok(FluffConfig::build_from_raw(configs))
+    }
+
     #[allow(unused_variables)]
     fn iter_config_locations_up_to_path(
         path: &Path,
@@ -270,4 +295,38 @@ impl ConfigLoader {
             insert_config_path(ctx, &path, value);
         }
     }
+}
+
+fn apply_overrides(config: &mut RawConfig, overrides: ConfigOverrides) -> Result<(), SqruffError> {
+    if overrides.dialect.is_none() && overrides.rules.is_none() && overrides.exclude_rules.is_none()
+    {
+        return Ok(());
+    }
+
+    let core = config
+        .entry("core".into())
+        .or_insert_with(|| Value::Map(HashMap::new()));
+
+    let Some(core) = core.as_map_mut() else {
+        return Err(SqruffError::Config(
+            "core config section must be a table".to_string(),
+        ));
+    };
+
+    if let Some(dialect) = overrides.dialect {
+        core.insert("dialect".into(), Value::String(dialect.as_ref().into()));
+    }
+
+    if let Some(rules) = overrides.rules {
+        core.insert("rules".into(), Value::String(rules.join(",").into()));
+    }
+
+    if let Some(exclude_rules) = overrides.exclude_rules {
+        core.insert(
+            "exclude_rules".into(),
+            Value::String(exclude_rules.join(",").into()),
+        );
+    }
+
+    Ok(())
 }

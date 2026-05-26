@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 use hashbrown::HashMap;
@@ -9,7 +9,7 @@ use sqruff_lib_core::parser::{IndentationConfig as ParserIndentationConfig, Pars
 use sqruff_lib_dialects::kind_to_dialect;
 
 use super::loader::ConfigLoader;
-use super::options::ConfigOverrides;
+use super::options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 use super::patch::ConfigPatch;
 use super::raw::{RawConfig, Value, split_comma_separated_string};
 use crate::api::SqruffError;
@@ -69,7 +69,7 @@ impl Default for FluffConfig {
 }
 
 impl FluffConfig {
-    fn build_from_raw(configs: RawConfig) -> Self {
+    pub(crate) fn build_from_raw(configs: RawConfig) -> Self {
         let values = ConfigLoader::get_config_elems_from_file(
             None,
             include_str!("./default_config.cfg").into(),
@@ -136,9 +136,10 @@ impl FluffConfig {
     /// from_file creates a config object from a file path. The path is used both
     /// to read the file content and to resolve relative `_path`/`_dir` values.
     pub fn from_file(path: &Path) -> Result<FluffConfig, SqruffError> {
-        let mut configs = HashMap::new();
-        ConfigLoader::try_load_config_file(path, &mut configs)?;
-        Ok(FluffConfig::build_from_raw(configs))
+        ConfigLoader::new().load(ConfigLoadOptions {
+            input: ConfigInput::File(path.to_path_buf()),
+            ..Default::default()
+        })
     }
 
     /// Creates a config object from a source string, falling back to defaults on invalid input.
@@ -156,8 +157,13 @@ impl FluffConfig {
         source: &str,
         optional_path_specification: Option<&Path>,
     ) -> Result<FluffConfig, SqruffError> {
-        let configs = ConfigLoader::try_from_source(source, optional_path_specification)?;
-        Ok(FluffConfig::build_from_raw(configs))
+        ConfigLoader::new().load(ConfigLoadOptions {
+            input: ConfigInput::Source {
+                text: source.to_string(),
+                path: optional_path_specification.map(Path::to_path_buf),
+            },
+            ..Default::default()
+        })
     }
 
     /// Loads a config object just based on the root directory.
@@ -166,15 +172,16 @@ impl FluffConfig {
         ignore_local_config: bool,
         overrides: Option<ConfigOverrides>,
     ) -> Result<FluffConfig, SqruffError> {
-        let loader = ConfigLoader {};
-        let mut config =
-            loader.try_load_config_up_to_path(".", extra_config_path, ignore_local_config)?;
+        let input = extra_config_path
+            .map(PathBuf::from)
+            .map(ConfigInput::File)
+            .unwrap_or_else(|| ConfigInput::ProjectRoot(".".into()));
 
-        if let Some(overrides) = overrides {
-            apply_overrides(&mut config, overrides)?;
-        }
-
-        Ok(FluffConfig::build_from_raw(config))
+        ConfigLoader::new().load(ConfigLoadOptions {
+            input,
+            ignore_local_config,
+            overrides: overrides.unwrap_or_default(),
+        })
     }
 
     pub fn core(&self) -> &CoreConfig {
@@ -428,23 +435,6 @@ fn dialect_section_from_raw(configs: &RawConfig, dialect_kind: DialectKind) -> O
         .and_then(|m| m.get(dialect_kind.as_ref()))
 }
 
-fn apply_overrides(config: &mut RawConfig, overrides: ConfigOverrides) -> Result<(), SqruffError> {
-    if let Some(dialect) = overrides.get("dialect") {
-        let core = config
-            .entry("core".into())
-            .or_insert_with(|| Value::Map(HashMap::new()));
-
-        let Some(core) = core.as_map_mut() else {
-            return Err(SqruffError::Config(
-                "core config section must be a table".to_string(),
-            ));
-        };
-        core.insert("dialect".into(), Value::String(dialect.clone().into()));
-    }
-
-    Ok(())
-}
-
 fn normalize_core_lists(configs: &mut RawConfig) {
     for (in_key, out_key) in [
         ("ignore", "ignore"),
@@ -557,6 +547,31 @@ dialect = postgres
         .unwrap();
 
         assert_eq!(config.dialect().name, DialectKind::Postgres);
+    }
+
+    #[test]
+    fn config_loader_applies_typed_overrides() {
+        let config = ConfigLoader::new()
+            .load(ConfigLoadOptions {
+                input: ConfigInput::Source {
+                    text: "[sqruff]\ndialect = ansi\nrules = AL01\nexclude_rules = LT01\n".into(),
+                    path: None,
+                },
+                overrides: ConfigOverrides {
+                    dialect: Some(DialectKind::Postgres),
+                    rules: Some(vec!["AL02".into(), "LT02".into()]),
+                    exclude_rules: Some(vec!["CP01".into()]),
+                },
+                ..Default::default()
+            })
+            .unwrap();
+
+        assert_eq!(config.dialect_kind(), DialectKind::Postgres);
+        assert_eq!(
+            config.rule_allowlist().unwrap(),
+            &["AL02".to_string(), "LT02".to_string()]
+        );
+        assert_eq!(config.rule_denylist(), &["CP01".to_string()]);
     }
 
     #[test]

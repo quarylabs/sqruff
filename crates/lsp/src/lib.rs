@@ -17,14 +17,17 @@ use serde_json::Value;
 use sqruff_lib::api::{
     Engine, EngineOptions, LintDiagnostic, ParseErrors, Source, SourceId, SqruffError,
 };
-use sqruff_lib::config::FluffConfig;
+use sqruff_lib::config::{ConfigInput, ConfigLoadOptions, ConfigLoader, FluffConfig};
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 use wasm_bindgen::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
 fn load_config() -> Result<FluffConfig, SqruffError> {
-    FluffConfig::from_root(None, false, None)
+    ConfigLoader::new().load(ConfigLoadOptions {
+        input: ConfigInput::ProjectRoot(std::env::current_dir().unwrap_or_else(|_| ".".into())),
+        ..Default::default()
+    })
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -81,7 +84,13 @@ impl Wasm {
 
     #[wasm_bindgen(js_name = updateConfig)]
     pub fn update_config(&mut self, source: &str) {
-        let new_config = match FluffConfig::try_from_source(source, None) {
+        let new_config = match ConfigLoader::new().load(ConfigLoadOptions {
+            input: ConfigInput::Source {
+                text: source.to_string(),
+                path: None,
+            },
+            ..Default::default()
+        }) {
             Ok(config) => config,
             Err(error) => {
                 eprintln!("Invalid config, keeping previous configuration: {error}");

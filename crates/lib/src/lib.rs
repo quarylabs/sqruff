@@ -12,4 +12,6 @@ pub(crate) mod core;
 #[allow(dead_code, unreachable_pub)]
 pub(crate) mod utils;
 
-pub use config::{ConfigLoadOptions, ConfigLoader, ConfigOverrides, ConfigPatch, FluffConfig};
+pub use config::{
+    ConfigInput, ConfigLoadOptions, ConfigLoader, ConfigOverrides, ConfigPatch, FluffConfig,
+};

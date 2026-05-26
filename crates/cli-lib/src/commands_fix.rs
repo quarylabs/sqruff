@@ -37,6 +37,13 @@ pub(crate) fn run_fix(
             if !file.has_fixes() {
                 continue;
             }
+            if file
+                .violations()
+                .iter()
+                .any(|violation| violation.rule.is_none())
+            {
+                continue;
+            }
             let path = std::mem::take(&mut file.path);
             let fixed = file.fix_string();
             std::fs::write(path, fixed).unwrap();
@@ -111,5 +118,27 @@ mod tests {
 
         let after = std::fs::metadata(&path).unwrap().modified().unwrap();
         assert_eq!(before, after);
+    }
+
+    #[test]
+    fn run_fix_writes_file_when_changes_exist() {
+        let mut tmp = NamedTempFile::new().unwrap();
+        write!(tmp, "SELECT foo bar FROM tabs").unwrap();
+        tmp.flush().unwrap();
+        let tmp = tmp.into_temp_path();
+        let path = tmp.to_path_buf();
+
+        let args = FixArgs {
+            paths: vec![path.clone()],
+            format: Format::Human,
+        };
+        let config = FluffConfig::from_source("[sqruff]\nrules = AL02\n", None);
+        let exit_code = run_fix(args, config, ignore_none, true);
+
+        assert_eq!(exit_code, 0);
+        assert_eq!(
+            std::fs::read_to_string(&path).unwrap(),
+            "SELECT foo AS bar FROM tabs"
+        );
     }
 }

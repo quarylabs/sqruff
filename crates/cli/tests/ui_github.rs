@@ -55,8 +55,12 @@ fn main() {
             let exit_code_str = output.status.code().unwrap().to_string();
 
             let test_dir_str = lint_dir.to_string_lossy().to_string();
-            let stderr_normalized: String = stderr_str.replace(&test_dir_str, "tests/lint");
-            let stdout_normalized: String = stdout_str.replace(&test_dir_str, "tests/lint");
+            let stderr_normalized: String = stderr_str
+                .replace(&test_dir_str, "tests/lint")
+                .replace('\\', "/");
+            let stdout_normalized: String = stdout_str
+                .replace(&test_dir_str, "tests/lint")
+                .replace('\\', "/");
 
             expect_file![expected_output_path_stderr].assert_eq(&stderr_normalized);
             expect_file![expected_output_path_stdout].assert_eq(&stdout_normalized);

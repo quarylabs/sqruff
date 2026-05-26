@@ -10,8 +10,8 @@ use lsp_types::{
     Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
     DidOpenTextDocumentParams, DidSaveTextDocumentParams, DocumentFormattingParams,
     InitializeParams, InitializeResult, NumberOrString, OneOf, Position, PublishDiagnosticsParams,
-    Registration, ServerCapabilities, TextDocumentItem,
-    TextDocumentSyncCapability, TextDocumentSyncKind, Uri, VersionedTextDocumentIdentifier,
+    Registration, ServerCapabilities, TextDocumentItem, TextDocumentSyncCapability,
+    TextDocumentSyncKind, Uri, VersionedTextDocumentIdentifier,
 };
 use serde_json::Value;
 use sqruff_lib::api::{
@@ -60,18 +60,17 @@ impl Wasm {
 
         let send_diagnostics_callback = Box::leak(Box::new(send_diagnostics_callback));
 
-        Self(LanguageServer::new(|diagnostics| {
-            match serde_wasm_bindgen::to_value(&diagnostics) {
+        Self(LanguageServer::new(
+            |diagnostics| match serde_wasm_bindgen::to_value(&diagnostics) {
                 Ok(diagnostics) => {
-                    if let Err(e) =
-                        send_diagnostics_callback.call1(&JsValue::null(), &diagnostics)
+                    if let Err(e) = send_diagnostics_callback.call1(&JsValue::null(), &diagnostics)
                     {
                         eprintln!("Failed to send diagnostics: {e:?}");
                     }
                 }
                 Err(e) => eprintln!("Failed to serialize diagnostics: {e:?}"),
-            }
-        }))
+            },
+        ))
     }
 
     #[wasm_bindgen(js_name = saveRegistrationOptions)]
@@ -201,8 +200,7 @@ impl LanguageServer {
     pub fn on_notification(&mut self, method: &str, params: Value) {
         match method {
             DidOpenTextDocument::METHOD => {
-                let Ok(params) = serde_json::from_value::<DidOpenTextDocumentParams>(params)
-                else {
+                let Ok(params) = serde_json::from_value::<DidOpenTextDocumentParams>(params) else {
                     return;
                 };
                 let TextDocumentItem {
@@ -216,8 +214,7 @@ impl LanguageServer {
                 self.documents.insert(uri, text);
             }
             DidChangeTextDocument::METHOD => {
-                let Ok(params) =
-                    serde_json::from_value::<DidChangeTextDocumentParams>(params)
+                let Ok(params) = serde_json::from_value::<DidChangeTextDocumentParams>(params)
                 else {
                     return;
                 };
@@ -229,17 +226,14 @@ impl LanguageServer {
                 self.documents.insert(uri, content);
             }
             DidCloseTextDocument::METHOD => {
-                let Ok(params) =
-                    serde_json::from_value::<DidCloseTextDocumentParams>(params)
+                let Ok(params) = serde_json::from_value::<DidCloseTextDocumentParams>(params)
                 else {
                     return;
                 };
                 self.documents.remove(&params.text_document.uri);
             }
             DidSaveTextDocument::METHOD => {
-                let Ok(params) =
-                    serde_json::from_value::<DidSaveTextDocumentParams>(params)
-                else {
+                let Ok(params) = serde_json::from_value::<DidSaveTextDocumentParams>(params) else {
                     return;
                 };
                 let uri = params.text_document.uri.as_str();

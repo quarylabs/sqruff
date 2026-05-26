@@ -39,4 +39,9 @@ impl HumanReporter {
 
         Ok(())
     }
+
+    pub(crate) fn emit_no_changes(&mut self, report: &RunReport) -> Result<(), CliError> {
+        println!("{} files processed, nothing to fix.", report.files.len());
+        Ok(())
+    }
 }

@@ -116,7 +116,6 @@ pub(crate) fn run_lint_command(
         }
     };
 
-    let files = report.files.len();
     let has_violations = report.files.iter().any(|file| !file.diagnostics.is_empty());
 
     match command.apply {
@@ -143,7 +142,10 @@ pub(crate) fn run_lint_command(
         }
         ApplyFixes::ToDisk => {
             if !has_violations {
-                println!("{files} files processed, nothing to fix.");
+                if let Err(error) = reporter.emit_no_changes(&report) {
+                    eprintln!("{error}");
+                    return 1;
+                }
                 return 0;
             }
 

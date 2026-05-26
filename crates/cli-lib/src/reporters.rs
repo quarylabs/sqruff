@@ -42,6 +42,14 @@ impl Reporter {
             Self::Github(r) => r.emit(report),
         }
     }
+
+    pub(crate) fn emit_no_changes(&mut self, report: &RunReport) -> Result<(), CliError> {
+        match self {
+            Self::Human(r) => r.emit_no_changes(report),
+            Self::Json(r) => r.emit(report),
+            Self::Github(r) => r.emit(report),
+        }
+    }
 }
 
 pub(crate) fn display_source_id(source_id: &SourceId) -> String {

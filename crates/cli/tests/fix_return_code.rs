@@ -157,6 +157,21 @@ fn file_fix_return_code_and_writes() {
         before
     );
 
+    let mut cmd = Command::new(&sqruff_path);
+    cmd.env("HOME", cargo_folder);
+    cmd.arg("fix")
+        .arg("-f")
+        .arg("json")
+        .arg("--config")
+        .arg(&config_file)
+        .arg(&unchanged);
+    let output = cmd.assert();
+    assert_eq!(output.get_output().status.code().unwrap(), 0);
+    let stdout = str::from_utf8(&output.get_output().stdout).unwrap();
+    assert!(stdout.trim_start().starts_with('{'));
+    assert!(stdout.contains("[]"));
+    assert!(!stdout.contains("nothing to fix"));
+
     let fixable = temp_dir.path().join("fixable.sql");
     fs::write(&fixable, "SELECT foo bar FROM tabs").unwrap();
     let mut cmd = Command::new(&sqruff_path);

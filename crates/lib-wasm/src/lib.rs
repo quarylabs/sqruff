@@ -2,7 +2,7 @@ use line_index::LineIndex;
 use lineage::{Lineage, Node};
 use serde::Serialize;
 use sqruff_lib::api::{
-    Engine, EngineOptions, LintDiagnostic, ParseErrors, Source, SourceId, SqruffError,
+    Engine, EngineOptions, LintDiagnostic, Mode, ParseErrors, Source, SourceId, SqruffError,
 };
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
@@ -88,14 +88,14 @@ impl Linter {
                 },
             )
             .unwrap(),
-            base: SqruffLinter::new(config, Some(templater), true).unwrap(),
+            base: SqruffLinter::new(config, Some(templater), ParseErrors::Include).unwrap(),
         }
     }
 
     #[wasm_bindgen]
     pub fn check(&self, sql: &str, tool: Tool) -> Result {
         match tool {
-            Tool::Format => self.check_with_engine(sql, true),
+            Tool::Format => self.check_with_engine(sql, Mode::Fix),
             Tool::Cst | Tool::Lineage | Tool::Templater | Tool::Lexer => {
                 self.check_developer_tool(sql, tool)
             }
@@ -106,8 +106,8 @@ impl Linter {
         }
     }
 
-    fn check_with_engine(&self, sql: &str, fix: bool) -> Result {
-        let report = match self.engine_report(sql, fix) {
+    fn check_with_engine(&self, sql: &str, mode: Mode) -> Result {
+        let report = match self.engine_report(sql, mode) {
             Ok(report) => report,
             Err(e) => return result_from_error(e),
         };
@@ -119,7 +119,7 @@ impl Linter {
     }
 
     fn check_developer_tool(&self, sql: &str, tool: Tool) -> Result {
-        let report = match self.engine_report(sql, false) {
+        let report = match self.engine_report(sql, Mode::Check) {
             Ok(report) => report,
             Err(e) => return result_from_error(e),
         };
@@ -168,17 +168,16 @@ impl Linter {
     fn engine_report(
         &self,
         sql: &str,
-        fix: bool,
+        mode: Mode,
     ) -> std::result::Result<sqruff_lib::api::FileReport, SqruffError> {
         let source = Source {
             id: SourceId::Stdin,
             text: Cow::Borrowed(sql),
         };
 
-        if fix {
-            self.engine.fix_source(source)
-        } else {
-            self.engine.check_source(source)
+        match mode {
+            Mode::Check => self.engine.check_source(source),
+            Mode::Fix => self.engine.fix_source(source),
         }
     }
 }

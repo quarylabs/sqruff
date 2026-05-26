@@ -1,4 +1,5 @@
 use clap::Parser as _;
+use sqruff_lib::api::ParseErrors;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
@@ -39,7 +40,11 @@ where
 {
     let _ = logger::init();
     let cli = Cli::parse_from(args);
-    let collect_parse_errors = cli.parsing_errors;
+    let parse_errors = if cli.parsing_errors {
+        ParseErrors::Include
+    } else {
+        ParseErrors::Suppress
+    };
 
     let mut config: FluffConfig = if let Some(config) = cli.config.as_ref() {
         if !Path::new(config).is_file() {
@@ -85,16 +90,16 @@ where
                 eprintln!("{e}");
                 1
             }
-            Ok(false) => commands_lint::run_lint(args, config, ignorer, collect_parse_errors),
-            Ok(true) => commands_lint::run_lint_stdin(config, args.format, collect_parse_errors),
+            Ok(false) => commands_lint::run_lint(args, config, ignorer, parse_errors),
+            Ok(true) => commands_lint::run_lint_stdin(config, args.format, parse_errors),
         },
         Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
             Err(e) => {
                 eprintln!("{e}");
                 1
             }
-            Ok(false) => commands_fix::run_fix(args, config, ignorer, collect_parse_errors),
-            Ok(true) => commands_fix::run_fix_stdin(config, args.format, collect_parse_errors),
+            Ok(false) => commands_fix::run_fix(args, config, ignorer, parse_errors),
+            Ok(true) => commands_fix::run_fix_stdin(config, args.format, parse_errors),
         },
         Commands::Lsp => {
             sqruff_lsp::run();

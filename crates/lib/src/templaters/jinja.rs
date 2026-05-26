@@ -174,7 +174,7 @@ FROM events
     [sqruff]
     templater = jinja
         ";
-        let config = FluffConfig::from_source(source, None);
+        let config = FluffConfig::try_from_source(source, None).unwrap();
         let templater = JinjaTemplater;
 
         let source_id = SourceId::Virtual("test.sql".into());
@@ -202,7 +202,7 @@ FROM events
     [sqruff]
     templater = jinja
         ";
-        let config = FluffConfig::from_source(source, None);
+        let config = FluffConfig::try_from_source(source, None).unwrap();
         let templater = JinjaTemplater;
         let instr = r#"{% if True %}
     {% set some_var %}1{% endset %}

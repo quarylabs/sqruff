@@ -26,7 +26,7 @@ fn main() {
     for templater_setup in &templaters_folders {
         println!("{:?}", templater_setup);
         let config = std::fs::read_to_string(templater_setup.join(".sqruff")).unwrap();
-        let config = FluffConfig::from_source(&config, None);
+        let config = FluffConfig::try_from_source(&config, None).unwrap();
 
         let templater = match Linter::get_templater(&config) {
             Ok(t) => t,

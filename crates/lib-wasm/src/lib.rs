@@ -90,7 +90,8 @@ impl Result {
 impl Linter {
     #[wasm_bindgen(constructor)]
     pub fn new(source: &str) -> std::result::Result<Self, JsValue> {
-        let config = FluffConfig::try_from_source(source, None).unwrap_or_default();
+        let config = FluffConfig::try_from_source(source, None)
+            .map_err(|e| JsValue::from_str(&e.to_string()))?;
         let engine = Engine::new(
             config.clone(),
             EngineOptions {

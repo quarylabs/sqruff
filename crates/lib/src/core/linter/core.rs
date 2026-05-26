@@ -9,7 +9,7 @@ use crate::core::rules::noqa::IgnoreMask;
 use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
 use crate::rules::get_ruleset;
 use crate::templaters::{
-    Templater, TemplaterError, TemplaterInput, TemplaterKind, TemplaterOutput, source_id_name,
+    TemplaterError, TemplaterInput, TemplaterOutput, TemplaterRuntime, source_id_name,
 };
 use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
@@ -26,7 +26,7 @@ use sqruff_lib_core::templaters::TemplatedFile;
 
 pub struct Linter {
     config: FluffConfig,
-    templater: &'static dyn Templater,
+    templater: TemplaterRuntime,
     rules: OnceLock<Vec<ErasedRule>>,
 
     parse_errors: ParseErrors,
@@ -35,12 +35,12 @@ pub struct Linter {
 impl Linter {
     pub fn new(
         config: FluffConfig,
-        templater: Option<&'static dyn Templater>,
+        templater: Option<TemplaterRuntime>,
         parse_errors: ParseErrors,
     ) -> Result<Linter, String> {
-        let templater: &'static dyn Templater = match templater {
+        let templater = match templater {
             Some(templater) => templater,
-            None => Linter::get_templater(&config)?,
+            None => Linter::get_templater(&config).map_err(|error| error.value)?,
         };
         Ok(Linter {
             config,
@@ -50,8 +50,8 @@ impl Linter {
         })
     }
 
-    pub fn get_templater(config: &FluffConfig) -> Result<&'static dyn Templater, String> {
-        config.templater_kind().map(TemplaterKind::templater)
+    pub fn get_templater(config: &FluffConfig) -> Result<TemplaterRuntime, SQLFluffUserError> {
+        TemplaterRuntime::from_config(config)
     }
 
     /// Lint strings directly.

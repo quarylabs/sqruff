@@ -1,7 +1,7 @@
 use crate::core::config::FluffConfig;
 use crate::core::linter::core::Linter;
 use crate::core::linter::linted_file::LintedFile;
-use sqruff_lib_core::errors::{SQLBaseError, SQLFluffUserError};
+use sqruff_lib_core::errors::SQLFluffUserError;
 
 use super::{
     EngineOptions, FileReport, LintDiagnostic, Mode, RunReport, RunRequest, Source, SourceId,
@@ -75,7 +75,7 @@ fn file_report_from_linted_file(
     let diagnostics = linted_file
         .violations()
         .iter()
-        .map(lint_diagnostic_from_error)
+        .map(|error| LintDiagnostic::from_sql_error(error, linted_file.source()))
         .collect();
     let fixed_source = matches!(mode, Mode::Fix).then(|| linted_file.fix_string());
 
@@ -84,17 +84,6 @@ fn file_report_from_linted_file(
         diagnostics,
         fixed_source,
         skipped: None,
-    }
-}
-
-fn lint_diagnostic_from_error(error: &SQLBaseError) -> LintDiagnostic {
-    LintDiagnostic {
-        message: error.desc().to_string(),
-        code: error.rule.as_ref().map(|rule| rule.code.to_string()),
-        line: error.line_no,
-        column: error.line_pos,
-        source_range: error.source_slice.clone(),
-        fixable: error.fixable,
     }
 }
 

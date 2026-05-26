@@ -1,4 +1,3 @@
-use line_index::LineIndex;
 use lineage::{Lineage, Node};
 use serde::Serialize;
 use sqruff_lib::api::{
@@ -113,7 +112,7 @@ impl Linter {
         };
 
         Result {
-            diagnostics: diagnostics_from_lint_diagnostics(sql, &report.diagnostics),
+            diagnostics: diagnostics_from_lint_diagnostics(&report.diagnostics),
             secondary: report.fixed_source.unwrap_or_default(),
         }
     }
@@ -160,7 +159,7 @@ impl Linter {
         };
 
         Result {
-            diagnostics: diagnostics_from_lint_diagnostics(sql, &report.diagnostics),
+            diagnostics: diagnostics_from_lint_diagnostics(&report.diagnostics),
             secondary,
         }
     }
@@ -182,37 +181,17 @@ impl Linter {
     }
 }
 
-fn diagnostics_from_lint_diagnostics(sql: &str, diagnostics: &[LintDiagnostic]) -> Vec<Diagnostic> {
-    let line_index = LineIndex::new(sql);
-    diagnostics
-        .iter()
-        .map(|diag| diagnostic_from_lint_diagnostic(diag, &line_index))
-        .collect()
+fn diagnostics_from_lint_diagnostics(diagnostics: &[LintDiagnostic]) -> Vec<Diagnostic> {
+    diagnostics.iter().map(to_wasm_diagnostic).collect()
 }
 
-fn diagnostic_from_lint_diagnostic(
-    diagnostic: &LintDiagnostic,
-    line_index: &LineIndex,
-) -> Diagnostic {
-    if diagnostic.source_range.is_empty() && diagnostic.line > 0 && diagnostic.column > 0 {
-        return Diagnostic {
-            message: diagnostic.message.clone(),
-            start_line_number: diagnostic.line as u32,
-            start_column: diagnostic.column as u32,
-            end_line_number: diagnostic.line as u32,
-            end_column: diagnostic.column as u32,
-        };
-    }
-
-    let start = line_index.line_col(diagnostic.source_range.start.try_into().unwrap());
-    let end = line_index.line_col(diagnostic.source_range.end.try_into().unwrap());
-
+fn to_wasm_diagnostic(diagnostic: &LintDiagnostic) -> Diagnostic {
     Diagnostic {
         message: diagnostic.message.clone(),
-        start_line_number: start.line + 1,
-        start_column: start.col + 1,
-        end_line_number: end.line + 1,
-        end_column: end.col + 1,
+        start_line_number: diagnostic.line as u32,
+        start_column: diagnostic.column as u32,
+        end_line_number: diagnostic.end_line as u32,
+        end_column: diagnostic.end_column as u32,
     }
 }
 

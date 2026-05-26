@@ -14,9 +14,11 @@ use lsp_types::{
     TextDocumentSyncCapability, TextDocumentSyncKind, Uri, VersionedTextDocumentIdentifier,
 };
 use serde_json::Value;
+use sqruff_lib::api::{
+    Engine, EngineOptions, LintDiagnostic, ParseErrors, Source, SourceId, SqruffError,
+};
 use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib::templaters::RAW_TEMPLATER;
+use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 use wasm_bindgen::prelude::*;
 
@@ -42,7 +44,7 @@ fn server_initialize_result() -> InitializeResult {
 }
 
 pub struct LanguageServer {
-    linter: Linter,
+    engine: Engine,
     send_diagnostics_callback: Box<dyn Fn(PublishDiagnosticsParams)>,
     documents: HashMap<Uri, String>,
 }
@@ -108,9 +110,8 @@ impl Wasm {
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
         let config = load_config();
-        let templater = Linter::get_templater(&config).unwrap_or(&RAW_TEMPLATER);
         Self {
-            linter: Linter::new(config, None, Some(templater), true).unwrap(),
+            engine: Self::new_engine(config).unwrap(),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: HashMap::new(),
         }
@@ -134,12 +135,15 @@ impl LanguageServer {
     fn format(&mut self, uri: Uri) -> Vec<lsp_types::TextEdit> {
         let text = self.documents.get(&uri).cloned().unwrap();
         let new_text = self.format_source(&text);
-        Self::build_edits(&text, new_text)
+        build_full_document_edit(&text, new_text)
     }
 
     fn format_source(&mut self, source: &str) -> String {
-        match self.linter.lint_string(source, None, true) {
-            Ok(tree) => tree.fix_string(),
+        match self.engine.fix_source(Source {
+            id: SourceId::Stdin,
+            text: Cow::Borrowed(source),
+        }) {
+            Ok(report) => report.fixed_source.unwrap_or_else(|| source.to_string()),
             Err(e) => {
                 eprintln!("Failed to format source: {}", e.value);
                 source.to_string()
@@ -147,34 +151,18 @@ impl LanguageServer {
         }
     }
 
-    fn build_edits(old_text: &str, new_text: String) -> Vec<lsp_types::TextEdit> {
-        let start_position = Position {
-            line: 0,
-            character: 0,
-        };
-        let end_position = Self::document_end_position(old_text);
-
-        vec![lsp_types::TextEdit {
-            range: lsp_types::Range::new(start_position, end_position),
-            new_text,
-        }]
-    }
-
-    fn document_end_position(text: &str) -> Position {
-        let line = text.bytes().filter(|byte| *byte == b'\n').count() as u32;
-        let character = if text.ends_with('\n') {
-            0
-        } else {
-            text.rsplit('\n').next().unwrap_or_default().chars().count() as u32
-        };
-
-        Position { line, character }
-    }
-
-    fn set_config(&mut self, new_config: FluffConfig) -> Result<(), String> {
-        let templater = Linter::get_templater(&new_config)?;
-        self.linter = Linter::new(new_config, None, Some(templater), true)?;
+    fn set_config(&mut self, new_config: FluffConfig) -> Result<(), SqruffError> {
+        self.engine.reload_config(new_config)?;
         Ok(())
+    }
+
+    fn new_engine(config: FluffConfig) -> Result<Engine, SqruffError> {
+        Engine::new(
+            config,
+            EngineOptions {
+                parse_errors: ParseErrors::Include,
+            },
+        )
     }
 
     pub fn on_notification(&mut self, method: &str, params: Value) {
@@ -234,40 +222,22 @@ impl LanguageServer {
             return;
         }
 
-        let result = match self.linter.lint_string(text, None, false) {
-            Ok(result) => result,
+        let report = match self.engine.check_source(Source {
+            id: source_id_from_uri(&uri),
+            text: Cow::Borrowed(text),
+        }) {
+            Ok(report) => report,
             Err(e) => {
                 eprintln!("Failed to check file: {}", e.value);
                 return;
             }
         };
 
-        let diagnostics = result
-            .into_violations()
-            .into_iter()
-            .map(|violation| {
-                let range = {
-                    let pos = Position::new(
-                        (violation.line_no as u32).saturating_sub(1),
-                        (violation.line_pos as u32).saturating_sub(1),
-                    );
-                    lsp_types::Range::new(pos, pos)
-                };
-
-                let code = violation
-                    .rule
-                    .map(|rule| NumberOrString::String(rule.code.to_string()));
-
-                Diagnostic::new(
-                    range,
-                    DiagnosticSeverity::WARNING.into(),
-                    code,
-                    Some("sqruff".to_string()),
-                    violation.description,
-                    None,
-                    None,
-                )
-            })
+        let line_index = LineIndex::new(text);
+        let diagnostics = report
+            .diagnostics
+            .iter()
+            .map(|diag| to_lsp_diagnostic(diag, &line_index))
             .collect();
 
         let diagnostics = PublishDiagnosticsParams::new(uri.clone(), diagnostics, None);
@@ -398,6 +368,89 @@ where
     lsp_server::Notification {
         method: T::METHOD.to_owned(),
         params: serde_json::to_value(&params).unwrap(),
+    }
+}
+
+fn to_lsp_diagnostic(diag: &LintDiagnostic, line_index: &LineIndex) -> Diagnostic {
+    let range = if diag.source_range.is_empty() && diag.line > 0 && diag.column > 0 {
+        let pos = Position::new((diag.line as u32) - 1, (diag.column as u32) - 1);
+        lsp_types::Range::new(pos, pos)
+    } else {
+        let start = line_index.position(diag.source_range.start);
+        let end = line_index.position(diag.source_range.end);
+        lsp_types::Range::new(start, end)
+    };
+
+    let code = diag.code.clone().map(NumberOrString::String);
+
+    Diagnostic::new(
+        range,
+        DiagnosticSeverity::WARNING.into(),
+        code,
+        Some("sqruff".to_string()),
+        diag.message.clone(),
+        None,
+        None,
+    )
+}
+
+fn source_id_from_uri(uri: &Uri) -> SourceId {
+    LanguageServer::uri_to_file_path(uri)
+        .map_or_else(|| SourceId::Virtual(uri.to_string()), SourceId::Path)
+}
+
+fn build_full_document_edit(old_text: &str, new_text: String) -> Vec<lsp_types::TextEdit> {
+    vec![lsp_types::TextEdit {
+        range: full_document_range(old_text),
+        new_text,
+    }]
+}
+
+fn full_document_range(text: &str) -> lsp_types::Range {
+    lsp_types::Range::new(Position::new(0, 0), LineIndex::new(text).end_position())
+}
+
+struct LineIndex {
+    line_starts: Vec<usize>,
+    text: String,
+}
+
+impl LineIndex {
+    fn new(text: &str) -> Self {
+        let mut line_starts = vec![0];
+        line_starts.extend(
+            text.bytes()
+                .enumerate()
+                .filter_map(|(idx, byte)| (byte == b'\n').then_some(idx + 1)),
+        );
+
+        Self {
+            line_starts,
+            text: text.to_string(),
+        }
+    }
+
+    fn position(&self, byte_offset: usize) -> Position {
+        let byte_offset = byte_offset.min(self.text.len());
+        let line = self.line_for_offset(byte_offset);
+        let line_start = self.line_starts[line];
+        let character = self.text[line_start..byte_offset]
+            .chars()
+            .map(char::len_utf16)
+            .sum::<usize>();
+
+        Position::new(line as u32, character as u32)
+    }
+
+    fn end_position(&self) -> Position {
+        self.position(self.text.len())
+    }
+
+    fn line_for_offset(&self, byte_offset: usize) -> usize {
+        match self.line_starts.binary_search(&byte_offset) {
+            Ok(line) => line,
+            Err(next_line) => next_line.saturating_sub(1),
+        }
     }
 }
 
@@ -673,9 +726,5 @@ mod tests {
 
         assert_eq!(before, 0);
         assert_eq!(after, 0);
-        assert_eq!(
-            server.linter.config().templater_kind().unwrap().as_str(),
-            "placeholder"
-        );
     }
 }

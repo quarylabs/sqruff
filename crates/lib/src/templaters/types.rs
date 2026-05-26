@@ -1,4 +1,5 @@
 use fancy_regex::Regex;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TemplaterKind {
@@ -64,6 +65,14 @@ impl TemplaterKind {
                 Self::available_names().join(", ")
             )),
         }
+    }
+}
+
+impl FromStr for TemplaterKind {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::from_name(s)
     }
 }
 

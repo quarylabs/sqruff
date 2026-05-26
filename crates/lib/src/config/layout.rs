@@ -2,12 +2,12 @@ use hashbrown::HashMap;
 use serde::Deserialize;
 
 use super::raw::{RawConfig, Value};
-use super::setting::Setting;
+use super::setting::{Merge, Setting};
 
 /// Typed patch for a single layout type entry
 /// (e.g. `[sqruff:layout:type:comma]`).
 #[derive(Debug, Clone, Default, Deserialize)]
-#[serde(default, rename_all = "snake_case")]
+#[serde(default, deny_unknown_fields, rename_all = "snake_case")]
 pub struct LayoutTypeConfigPatch {
     pub spacing_before: Setting<String>,
     pub spacing_after: Setting<String>,
@@ -15,6 +15,23 @@ pub struct LayoutTypeConfigPatch {
     pub line_position: Setting<String>,
     pub keyword_line_position: Setting<String>,
     pub keyword_line_position_exclusions: Setting<String>,
+    pub align_within: Setting<String>,
+    pub align_scope: Setting<String>,
+}
+
+impl Merge for LayoutTypeConfigPatch {
+    fn merge(&mut self, other: Self) {
+        self.spacing_before.merge(other.spacing_before);
+        self.spacing_after.merge(other.spacing_after);
+        self.spacing_within.merge(other.spacing_within);
+        self.line_position.merge(other.line_position);
+        self.keyword_line_position
+            .merge(other.keyword_line_position);
+        self.keyword_line_position_exclusions
+            .merge(other.keyword_line_position_exclusions);
+        self.align_within.merge(other.align_within);
+        self.align_scope.merge(other.align_scope);
+    }
 }
 
 /// Typed patch for the `[sqruff:layout]` section.
@@ -22,12 +39,12 @@ pub struct LayoutTypeConfigPatch {
 #[serde(default, rename_all = "snake_case")]
 pub struct LayoutConfigPatch {
     #[serde(rename = "type")]
-    pub type_configs: HashMap<String, LayoutTypeConfigPatch>,
+    pub types: HashMap<String, LayoutTypeConfigPatch>,
 }
 
 impl LayoutConfigPatch {
     pub(super) fn merge_into_raw(self, raw: &mut RawConfig) {
-        if self.type_configs.is_empty() {
+        if self.types.is_empty() {
             return;
         }
 
@@ -41,7 +58,7 @@ impl LayoutConfigPatch {
             .or_insert_with(|| Value::Map(HashMap::new()));
         let type_map = type_entry.as_map_mut().expect("layout.type must be a map");
 
-        for (type_name, tp) in self.type_configs {
+        for (type_name, tp) in self.types {
             let entry = type_map
                 .entry(type_name)
                 .or_insert_with(|| Value::Map(HashMap::new()));
@@ -70,6 +87,20 @@ impl LayoutConfigPatch {
                     Value::String(v.into()),
                 );
             }
+            if let Setting::Set(v) = tp.align_within {
+                entry_map.insert("align_within".into(), Value::String(v.into()));
+            }
+            if let Setting::Set(v) = tp.align_scope {
+                entry_map.insert("align_scope".into(), Value::String(v.into()));
+            }
+        }
+    }
+}
+
+impl Merge for LayoutConfigPatch {
+    fn merge(&mut self, other: Self) {
+        for (key, value) in other.types {
+            self.types.entry(key).or_default().merge(value);
         }
     }
 }

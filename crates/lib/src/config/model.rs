@@ -98,14 +98,10 @@ impl Default for FluffConfig {
 
 impl FluffConfig {
     pub(crate) fn build_from_raw(configs: RawConfig) -> Self {
-        let values = ConfigLoader::try_get_config_elems_from_file(
-            None,
-            include_str!("./default_config.cfg").into(),
-        )
-        .expect("built-in default config must be valid");
-
-        let mut defaults = HashMap::new();
-        ConfigLoader::incorporate_vals(&mut defaults, values);
+        let defaults: RawConfig =
+            ConfigLoader::try_from_source(include_str!("./default_config.cfg"), None)
+                .expect("built-in default config must be valid")
+                .into();
 
         let mut raw = merge_configs(defaults, configs);
         normalize_core_lists(&mut raw);
@@ -740,5 +736,75 @@ project_dir = 1
 
         assert!(matches!(err, SqruffError::Config(_)));
         assert!(err.to_string().contains("invalid path value"));
+    }
+
+    #[test]
+    fn try_from_source_rejects_unknown_section() {
+        let err = FluffConfig::try_from_source(
+            r#"
+[sqruff:unknown]
+value = true
+"#,
+            None,
+        )
+        .unwrap_err();
+
+        assert!(err.to_string().contains("unknown config section"));
+    }
+
+    #[test]
+    fn try_from_source_rejects_unknown_core_key() {
+        let err = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+not_a_real_key = true
+"#,
+            None,
+        )
+        .unwrap_err();
+
+        assert!(err.to_string().contains("unknown field"));
+    }
+
+    #[test]
+    fn try_from_source_rejects_invalid_bool() {
+        let err = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+nocolor = maybe
+"#,
+            None,
+        )
+        .unwrap_err();
+
+        assert!(err.to_string().contains("invalid bool"));
+    }
+
+    #[test]
+    fn try_from_source_rejects_invalid_layout_syntax_kind() {
+        let err = FluffConfig::try_from_source(
+            r#"
+[sqruff:layout:type:not_a_segment]
+spacing_before = touch
+"#,
+            None,
+        )
+        .unwrap_err();
+
+        assert!(err.to_string().contains("invalid layout syntax kind"));
+    }
+
+    #[test]
+    fn try_from_source_rejects_invalid_rule_option() {
+        let err = FluffConfig::try_from_source(
+            r#"
+[sqruff:rules:layout.long_lines]
+not_a_rule_option = true
+"#,
+            None,
+        )
+        .unwrap_err();
+
+        assert!(err.to_string().contains("invalid rule option"));
     }
 }

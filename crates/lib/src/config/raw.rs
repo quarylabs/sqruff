@@ -40,10 +40,6 @@ pub(crate) fn insert_config_path(ctx: &mut HashMap<String, Value>, path: &[Strin
     insert_config_path(child, rest, value);
 }
 
-pub(crate) fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, Value> {
-    config_stack.into_iter().fold(HashMap::new(), deep_merge)
-}
-
 fn deep_merge(mut a: HashMap<String, Value>, b: HashMap<String, Value>) -> HashMap<String, Value> {
     for (key, value_b) in b {
         match (a.get(&key), value_b) {

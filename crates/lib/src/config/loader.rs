@@ -1,13 +1,71 @@
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 use configparser::ini::Ini;
-use hashbrown::HashMap;
+use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
+use super::de;
+use super::error::ConfigError;
+use super::layout::LayoutTypeConfigPatch;
 use super::model::FluffConfig;
 use super::options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
-use super::raw::{RawConfig, Value, insert_config_path, nested_combine};
+use super::patch::ConfigPatch;
+use super::raw::Value;
+use super::setting::{Merge, Setting};
 use crate::api::SqruffError;
+
 pub struct ConfigLoader;
+
+enum SectionPath {
+    Core,
+    Indentation,
+    LayoutType(String),
+    Templater(Vec<String>),
+    RulesGlobal,
+    Rule(String),
+    Dialect(String),
+}
+
+impl SectionPath {
+    fn parse(section_name: &str) -> Result<Self, ConfigError> {
+        if section_name == "sqlfluff" || section_name == "sqruff" {
+            return Ok(Self::Core);
+        }
+
+        let Some(path) = section_name
+            .strip_prefix("sqlfluff:")
+            .or_else(|| section_name.strip_prefix("sqruff:"))
+        else {
+            return Err(ConfigError::UnknownSection(section_name.to_string()));
+        };
+
+        let parts = path.split(':').collect::<Vec<_>>();
+        match parts.as_slice() {
+            ["indentation"] => Ok(Self::Indentation),
+            ["layout", "type", kind] => {
+                kind.parse::<SyntaxKind>()
+                    .map_err(|_| ConfigError::InvalidSection {
+                        section: section_name.to_string(),
+                        reason: format!("invalid layout syntax kind '{kind}'"),
+                    })?;
+                Ok(Self::LayoutType((*kind).to_string()))
+            }
+            ["templater"] => Ok(Self::Templater(Vec::new())),
+            ["templater", rest @ ..] if !rest.is_empty() => Ok(Self::Templater(
+                rest.iter().map(|part| (*part).to_string()).collect(),
+            )),
+            ["rules"] => Ok(Self::RulesGlobal),
+            ["rules", rule_section] => Ok(Self::Rule((*rule_section).to_string())),
+            ["dialect", dialect] => {
+                let dialect = DialectKind::from_str(dialect)
+                    .map_err(|_| ConfigError::UnknownDialect((*dialect).to_string()))?;
+                Ok(Self::Dialect(dialect.as_ref().to_string()))
+            }
+            _ => Err(ConfigError::UnknownSection(section_name.to_string())),
+        }
+    }
+}
 
 impl Default for ConfigLoader {
     fn default() -> Self {
@@ -21,22 +79,18 @@ impl ConfigLoader {
     }
 
     pub fn load(&self, options: ConfigLoadOptions) -> Result<FluffConfig, SqruffError> {
-        let mut configs = match options.input {
+        let mut patch = match options.input {
             ConfigInput::ProjectRoot(path) => {
                 self.try_load_config_up_to_path(path, None, options.ignore_local_config)?
             }
-            ConfigInput::File(path) => {
-                let mut configs = HashMap::new();
-                Self::try_load_config_file(path, &mut configs)?;
-                configs
-            }
+            ConfigInput::File(path) => ConfigLoader::try_load_config_file(path)?,
             ConfigInput::Source { text, path } => Self::try_from_source(&text, path.as_deref())?,
-            ConfigInput::Default => HashMap::new(),
+            ConfigInput::Default => ConfigPatch::default(),
         };
 
-        apply_overrides(&mut configs, options.overrides)?;
+        apply_overrides(&mut patch, options.overrides);
 
-        Ok(FluffConfig::build_from_raw(configs))
+        Ok(FluffConfig::from_patch(patch))
     }
 
     #[allow(unused_variables)]
@@ -61,29 +115,18 @@ impl ConfigLoader {
                 let path = path_to_visit.canonicalize().unwrap();
 
                 let next_path_to_visit = {
-                    // Convert `path_to_visit` & `given_path` to `Path`
                     let path_to_visit_as_path = path_to_visit.as_path();
                     let given_path_as_path = given_path.as_path();
 
-                    // Attempt to create a relative path from `given_path` to `path_to_visit`
                     match given_path_as_path.strip_prefix(path_to_visit_as_path) {
                         Ok(relative_path) => {
-                            // Get the first component of the relative path
                             if let Some(first_part) = relative_path.components().next() {
-                                // Combine `path_to_visit` with the first part of the relative path
                                 path_to_visit.join(first_part.as_os_str())
                             } else {
-                                // If there are no components in the relative path, return
-                                // `path_to_visit`
                                 path_to_visit.clone()
                             }
                         }
-                        Err(_) => {
-                            // If `given_path` is not relative to `path_to_visit`, handle the error
-                            // (e.g., return `path_to_visit`)
-                            // This part depends on how you want to handle the error.
-                            path_to_visit.clone()
-                        }
+                        Err(_) => path_to_visit.clone(),
                     }
                 };
 
@@ -107,7 +150,7 @@ impl ConfigLoader {
         path: impl AsRef<Path>,
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-    ) -> Result<HashMap<String, Value>, SqruffError> {
+    ) -> Result<ConfigPatch, SqruffError> {
         let path = path.as_ref();
 
         let config_stack = if ignore_local_config {
@@ -122,61 +165,44 @@ impl ConfigLoader {
                 .collect::<Result<Vec<_>, _>>()?
         };
 
-        Ok(nested_combine(config_stack))
+        Ok(merge_patches(config_stack))
     }
 
     pub fn try_load_config_at_path(
         &self,
         path: impl AsRef<Path>,
-    ) -> Result<HashMap<String, Value>, SqruffError> {
+    ) -> Result<ConfigPatch, SqruffError> {
         let path = path.as_ref();
 
-        let filename_options = [
-            /* "setup.cfg", "tox.ini", "pep8.ini", */
-            ".sqlfluff",
-            ".sqruff", /* "pyproject.toml" */
-        ];
-
-        let mut configs = HashMap::new();
+        let filename_options = [".sqlfluff", ".sqruff"];
+        let mut patch = ConfigPatch::default();
 
         if path.is_dir() {
             for fname in filename_options {
                 let path = path.join(fname);
                 if path.exists() {
-                    ConfigLoader::try_load_config_file(path, &mut configs)?;
+                    patch.merge(ConfigLoader::try_load_config_file(path)?);
                 }
             }
         } else if path.is_file() {
-            ConfigLoader::try_load_config_file(path, &mut configs)?;
+            patch.merge(ConfigLoader::try_load_config_file(path)?);
         };
 
-        Ok(configs)
+        Ok(patch)
     }
 
-    pub fn try_from_source(
-        source: &str,
-        path: Option<&Path>,
-    ) -> Result<HashMap<String, Value>, SqruffError> {
-        let mut configs = HashMap::new();
-        let elems = ConfigLoader::try_get_config_elems_from_file(path, Some(source))?;
-        ConfigLoader::incorporate_vals(&mut configs, elems);
-        Ok(configs)
+    pub fn try_from_source(source: &str, path: Option<&Path>) -> Result<ConfigPatch, SqruffError> {
+        Self::patch_from_ini(path, Some(source))
     }
 
-    pub fn try_load_config_file(
-        path: impl AsRef<Path>,
-        configs: &mut HashMap<String, Value>,
-    ) -> Result<(), SqruffError> {
-        let elems = ConfigLoader::try_get_config_elems_from_file(path.as_ref().into(), None)?;
-        ConfigLoader::incorporate_vals(configs, elems);
-        Ok(())
+    pub fn try_load_config_file(path: impl AsRef<Path>) -> Result<ConfigPatch, SqruffError> {
+        Self::patch_from_ini(path.as_ref().into(), None)
     }
 
-    pub(crate) fn try_get_config_elems_from_file(
+    pub(crate) fn patch_from_ini(
         config_path: Option<&Path>,
         config_string: Option<&str>,
-    ) -> Result<Vec<(Vec<String>, Value)>, SqruffError> {
-        let mut buff = Vec::new();
+    ) -> Result<ConfigPatch, SqruffError> {
         let mut config = Ini::new();
 
         let content = match (config_path, config_string) {
@@ -194,105 +220,172 @@ impl ConfigLoader {
             }
         };
 
-        config.read(content).map_err(SqruffError::Config)?;
+        config
+            .read(join_ini_continuations(&content))
+            .map_err(SqruffError::Config)?;
+        let config_map = config.get_map_ref();
+        let mut patch = ConfigPatch::default();
 
-        for section in config.sections() {
-            let key = if section == "sqlfluff" || section == "sqruff" {
-                vec!["core".to_owned()]
-            } else if let Some(key) = section
-                .strip_prefix("sqlfluff:")
-                .or_else(|| section.strip_prefix("sqruff:"))
-            {
-                key.split(':').map(ToOwned::to_owned).collect()
-            } else {
+        let mut sections = Vec::new();
+        for section_name in config.sections() {
+            let section_path = SectionPath::parse(&section_name).map_err(config_error)?;
+            let Some(values) = config_map.get(&section_name) else {
                 continue;
             };
+            let values = normalize_section_values(config_path, &section_name, values)?;
+            sections.push((section_name, section_path, values));
+        }
 
-            let config_map = config.get_map_ref();
-            if let Some(section) = config_map.get(&section) {
-                for (name, value) in section {
-                    let mut value: Value = value.as_deref().unwrap_or_default().parse().unwrap();
-                    let name_lowercase = name.to_lowercase();
-
-                    if name_lowercase == "load_macros_from_path" {
-                        return Err(SqruffError::Unsupported(
-                            "load_macros_from_path config is not implemented",
-                        ));
-                    } else if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir")
-                    {
-                        // if absolute_path, just keep
-                        // if relative path, make it absolute
-                        let Some(path_value) = value.as_string() else {
-                            return Err(SqruffError::Config(format!(
-                                "invalid path value for config key '{name}'"
-                            )));
-                        };
-                        let path = PathBuf::from(path_value);
-                        if !path.is_absolute()
-                            && let Some(config_path) = config_path.and_then(Path::parent)
-                        {
-                            // make config path absolute
-                            if let Ok(current_dir) = std::env::current_dir()
-                                && let Ok(config_path) =
-                                    std::path::absolute(current_dir.join(config_path))
-                            {
-                                let path = config_path.join(path);
-                                let path: String = path.to_string_lossy().into();
-                                value = Value::String(path.into());
-                            }
-                        }
-                    }
-
-                    let mut key = key.clone();
-                    key.push(name.clone());
-                    buff.push((key, value));
+        for (section_name, section_path, values) in sections {
+            match section_path {
+                SectionPath::Core => {
+                    patch.core.merge(
+                        de::deserialize_section(&section_name, &values).map_err(config_error)?,
+                    );
+                }
+                SectionPath::Indentation => {
+                    patch.indentation.merge(
+                        de::deserialize_section(&section_name, &values).map_err(config_error)?,
+                    );
+                }
+                SectionPath::LayoutType(kind) => {
+                    let section: LayoutTypeConfigPatch =
+                        de::deserialize_section(&section_name, &values).map_err(config_error)?;
+                    patch.layout.types.entry(kind).or_default().merge(section);
+                }
+                SectionPath::Templater(path) => {
+                    patch
+                        .templater
+                        .merge_section(&path, &section_name, &values)
+                        .map_err(config_error)?;
+                }
+                SectionPath::RulesGlobal => {
+                    patch
+                        .rules
+                        .merge_global(&section_name, &values)
+                        .map_err(config_error)?;
+                }
+                SectionPath::Rule(rule_section) => {
+                    patch
+                        .rules
+                        .merge_rule_section(rule_section, &section_name, &values)
+                        .map_err(config_error)?;
+                }
+                SectionPath::Dialect(dialect) => {
+                    patch.dialects.dialects.insert(
+                        dialect,
+                        Value::Map(
+                            de::deserialize_value_map(&section_name, &values)
+                                .map_err(config_error)?,
+                        ),
+                    );
                 }
             }
         }
 
-        Ok(buff)
-    }
-
-    pub(crate) fn incorporate_vals(
-        ctx: &mut HashMap<String, Value>,
-        values: Vec<(Vec<String>, Value)>,
-    ) {
-        for (path, value) in values {
-            insert_config_path(ctx, &path, value);
-        }
+        Ok(patch)
     }
 }
 
-fn apply_overrides(config: &mut RawConfig, overrides: ConfigOverrides) -> Result<(), SqruffError> {
-    if overrides.dialect.is_none() && overrides.rules.is_none() && overrides.exclude_rules.is_none()
-    {
-        return Ok(());
+fn normalize_section_values(
+    config_path: Option<&Path>,
+    section_name: &str,
+    values: &std::collections::HashMap<String, Option<String>>,
+) -> Result<std::collections::HashMap<String, Option<String>>, SqruffError> {
+    let mut normalized = std::collections::HashMap::new();
+
+    for (name, value) in values {
+        let name_lowercase = name.to_lowercase();
+
+        if name_lowercase == "load_macros_from_path" {
+            return Err(SqruffError::Unsupported(
+                "load_macros_from_path config is not implemented",
+            ));
+        }
+
+        let mut value = value.clone();
+        if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir") {
+            let Some(path_value) = value.as_deref() else {
+                return Err(SqruffError::Config(format!(
+                    "invalid path value for config key '{name}' in section '{section_name}'"
+                )));
+            };
+            if path_value.trim().is_empty() || path_value.trim().eq_ignore_ascii_case("none") {
+                return Err(SqruffError::Config(format!(
+                    "invalid path value for config key '{name}' in section '{section_name}'"
+                )));
+            }
+            if path_value.trim().parse::<i32>().is_ok()
+                || path_value.trim().eq_ignore_ascii_case("true")
+                || path_value.trim().eq_ignore_ascii_case("false")
+            {
+                return Err(SqruffError::Config(format!(
+                    "invalid path value for config key '{name}' in section '{section_name}'"
+                )));
+            }
+            let path = PathBuf::from(path_value);
+            if !path.is_absolute()
+                && let Some(config_path) = config_path.and_then(Path::parent)
+                && let Ok(current_dir) = std::env::current_dir()
+                && let Ok(config_path) = std::path::absolute(current_dir.join(config_path))
+            {
+                let path = config_path.join(path);
+                value = Some(path.to_string_lossy().into());
+            }
+        }
+
+        normalized.insert(name.clone(), value);
     }
 
-    let core = config
-        .entry("core".into())
-        .or_insert_with(|| Value::Map(HashMap::new()));
+    Ok(normalized)
+}
 
-    let Some(core) = core.as_map_mut() else {
-        return Err(SqruffError::Config(
-            "core config section must be a table".to_string(),
-        ));
-    };
+fn join_ini_continuations(content: &str) -> String {
+    let mut lines: Vec<String> = Vec::new();
 
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if (line.starts_with(' ') || line.starts_with('\t'))
+            && !trimmed.is_empty()
+            && !trimmed.starts_with('#')
+            && !trimmed.starts_with(';')
+        {
+            if let Some(previous) = lines.last_mut() {
+                previous.push_str(trimmed);
+            } else {
+                lines.push(trimmed.to_string());
+            }
+        } else {
+            lines.push(line.to_string());
+        }
+    }
+
+    lines.join("\n")
+}
+
+fn merge_patches(config_stack: Vec<ConfigPatch>) -> ConfigPatch {
+    config_stack
+        .into_iter()
+        .fold(ConfigPatch::default(), |mut acc, patch| {
+            acc.merge(patch);
+            acc
+        })
+}
+
+fn apply_overrides(config: &mut ConfigPatch, overrides: ConfigOverrides) {
     if let Some(dialect) = overrides.dialect {
-        core.insert("dialect".into(), Value::String(dialect.as_ref().into()));
+        config.core.dialect = Setting::Set(Some(dialect));
     }
 
     if let Some(rules) = overrides.rules {
-        core.insert("rules".into(), Value::String(rules.join(",").into()));
+        config.core.rules = Setting::Set(Some(rules));
     }
 
     if let Some(exclude_rules) = overrides.exclude_rules {
-        core.insert(
-            "exclude_rules".into(),
-            Value::String(exclude_rules.join(",").into()),
-        );
+        config.core.exclude_rules = Setting::Set(Some(exclude_rules));
     }
+}
 
-    Ok(())
+fn config_error(error: ConfigError) -> SqruffError {
+    SqruffError::Config(error.to_string())
 }

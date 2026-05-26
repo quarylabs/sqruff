@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 use ignore::gitignore::Gitignore;
 use sqruff_lib_core::helpers;
@@ -8,7 +9,7 @@ use sqruff_lib_core::helpers;
 use super::{RunReport, Source, SourceId, SqruffError};
 
 const DEFAULT_IGNORE_FILE_NAME: &str = ".sqruffignore";
-const DEFAULT_SQL_FILE_EXTS: &[&str] = &[".sql"];
+const DEFAULT_SQL_FILE_EXTS: &[&str] = &[".sql", ".sql.j2", ".dml", ".ddl"];
 
 pub trait IgnoreMatcher: Send + Sync {
     fn is_ignored(&self, path: &Path) -> bool;
@@ -94,6 +95,7 @@ impl Workspace {
             ignore_non_existent_files: options.ignore_non_existent_files,
             ignore_files: options.ignore_files,
             working_dir: options.working_dir.clone(),
+            file_exts: options.file_exts,
             ignorer: Some(effective_ignorer),
         };
         let mut sources = Vec::new();
@@ -154,6 +156,7 @@ pub struct PathDiscoveryOptions<'a> {
     pub ignore_non_existent_files: bool,
     pub ignore_files: bool,
     pub working_dir: PathBuf,
+    pub file_exts: &'a [String],
     pub ignorer: Option<&'a dyn IgnoreMatcher>,
 }
 
@@ -164,6 +167,7 @@ impl<'a> PathDiscoveryOptions<'a> {
             ignore_non_existent_files: false,
             ignore_files: true,
             working_dir,
+            file_exts: default_sql_file_exts(),
             ignorer: None,
         }
     }
@@ -241,7 +245,7 @@ fn collect_paths(
         if file_type.is_dir() {
             collect_paths(&path, options, fallback_ignorer, paths)?;
         } else if file_type.is_file()
-            && is_lintable_file(&path)
+            && is_lintable_file(&path, options.file_exts)
             && !is_ignored(&path, options, fallback_ignorer)
         {
             paths.insert(helpers::normalize(&path));
@@ -262,15 +266,25 @@ fn is_ignored(
         || fallback_ignorer.is_some_and(|ignorer| ignorer.is_ignored(path))
 }
 
-fn is_lintable_file(path: &Path) -> bool {
+fn is_lintable_file(path: &Path, file_exts: &[String]) -> bool {
     let Some(file_name) = path.file_name().and_then(|name| name.to_str()) else {
         return false;
     };
     let file_name = file_name.to_lowercase();
 
-    DEFAULT_SQL_FILE_EXTS
+    file_exts
         .iter()
-        .any(|ext| file_name.ends_with(ext))
+        .any(|ext| file_name.ends_with(&ext.to_lowercase()))
+}
+
+fn default_sql_file_exts() -> &'static [String] {
+    static EXTS: OnceLock<Vec<String>> = OnceLock::new();
+    EXTS.get_or_init(|| {
+        DEFAULT_SQL_FILE_EXTS
+            .iter()
+            .map(|ext| (*ext).to_string())
+            .collect()
+    })
 }
 
 fn source_from_path(path: PathBuf) -> Result<Source<'static>, SqruffError> {

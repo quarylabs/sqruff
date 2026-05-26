@@ -204,13 +204,7 @@ fn test_workspace_discovery_prunes_ignored_directories() {
     fs::write(&sqruffignore_file, ".data\n").unwrap();
 
     let workspace = Workspace::new(project_root.to_path_buf()).unwrap();
-    let options = PathDiscoveryOptions {
-        ignore_file_name: ".sqruffignore",
-        ignore_non_existent_files: false,
-        ignore_files: true,
-        working_dir: project_root.to_path_buf(),
-        ignorer: None,
-    };
+    let options = PathDiscoveryOptions::new(project_root.to_path_buf());
     let files = workspace
         .discover_sources(&[project_root.to_path_buf()], &options)
         .unwrap();

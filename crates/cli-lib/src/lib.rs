@@ -23,6 +23,7 @@ mod formatters;
 mod github_action;
 mod ignore;
 mod logger;
+mod reporters;
 mod stdin;
 
 #[cfg(feature = "codegen-docs")]

@@ -20,8 +20,8 @@ impl From<SQLBaseError> for Diagnostic {
     }
 }
 
-impl From<&LintDiagnostic> for Diagnostic {
-    fn from(value: &LintDiagnostic) -> Self {
+impl Diagnostic {
+    pub(crate) fn from_lint_diagnostic(value: &LintDiagnostic) -> Self {
         Diagnostic {
             range: Range {
                 start: Position::new(value.line as u32, value.column as u32),
@@ -32,6 +32,12 @@ impl From<&LintDiagnostic> for Diagnostic {
             source: Some("sqruff".to_string()),
             code: value.code.clone(),
         }
+    }
+}
+
+impl From<&LintDiagnostic> for Diagnostic {
+    fn from(value: &LintDiagnostic) -> Self {
+        Self::from_lint_diagnostic(value)
     }
 }
 

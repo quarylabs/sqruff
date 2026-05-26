@@ -69,7 +69,6 @@ fn fix(c: &mut Criterion) {
     let linter = Linter::new(
         sqruff_lib::core::config::FluffConfig::default(),
         None,
-        None,
         false,
     )
     .unwrap();

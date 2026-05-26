@@ -34,14 +34,28 @@ pub struct Linter {
     base: SqruffLinter,
 }
 
-#[wasm_bindgen]
-#[derive(PartialEq, Eq)]
-pub enum Tool {
-    Format = "Format",
-    Cst = "Cst",
-    Lineage = "Lineage",
-    Templater = "Templater",
-    Lexer = "Lexer",
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Tool {
+    Format,
+    Cst,
+    Lineage,
+    Templater,
+    Lexer,
+}
+
+impl TryFrom<&str> for Tool {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> std::result::Result<Self, Self::Error> {
+        match value {
+            "Format" => Ok(Self::Format),
+            "Cst" => Ok(Self::Cst),
+            "Lineage" => Ok(Self::Lineage),
+            "Templater" => Ok(Self::Templater),
+            "Lexer" => Ok(Self::Lexer),
+            _ => Err("unsupported tool"),
+        }
+    }
 }
 
 #[wasm_bindgen]
@@ -90,16 +104,19 @@ impl Linter {
     }
 
     #[wasm_bindgen]
-    pub fn check(&self, sql: &str, tool: Tool) -> Result {
+    pub fn check(&self, sql: &str, tool: &str) -> Result {
+        let Ok(tool) = Tool::try_from(tool) else {
+            return Result {
+                diagnostics: Vec::new(),
+                secondary: format!("Error: unsupported tool: {tool}"),
+            };
+        };
+
         match tool {
             Tool::Format => self.check_with_engine(sql, Mode::Fix),
             Tool::Cst | Tool::Lineage | Tool::Templater | Tool::Lexer => {
                 self.check_developer_tool(sql, tool)
             }
-            Tool::__Invalid => Result {
-                diagnostics: Vec::new(),
-                secondary: String::from("Error: unsupported tool"),
-            },
         }
     }
 
@@ -162,7 +179,6 @@ impl Linter {
                 format_lexer_output(&segments)
             }
             Tool::Format => String::new(),
-            Tool::__Invalid => String::from("Error: unsupported tool"),
         };
 
         Result {

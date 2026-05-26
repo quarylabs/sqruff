@@ -1,9 +1,6 @@
-use std::sync::Arc;
-
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::TemplatedFile;
 
-use crate::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::raw::RawTemplater;
@@ -79,13 +76,10 @@ pub trait Templater: Send + Sync {
     /// Arguments:
     /// - files: Slice of (file_content, file_name) tuples
     /// - config: The configuration to use
-    /// - formatter: Optional formatter for output
-    ///
     /// Returns a vector of results in the same order as the input files.
     fn process(
         &self,
         files: &[(&str, &str)],
         config: &FluffConfig,
-        formatter: &Option<Arc<dyn Formatter>>,
     ) -> Vec<Result<TemplatedFile, SQLFluffUserError>>;
 }

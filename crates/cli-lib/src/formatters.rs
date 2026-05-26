@@ -1,5 +1,3 @@
-pub(crate) mod github_annotation_native_formatter;
-pub(crate) mod json;
 pub(crate) mod json_types;
 pub(crate) mod rules;
 pub(crate) mod utils;
@@ -11,8 +9,8 @@ use std::sync::OnceLock;
 
 use anstyle::{AnsiColor, Effects, Style};
 use sqruff_lib::api::LintDiagnostic;
-use sqruff_lib::core::linter::linted_file::LintedFile;
-use sqruff_lib::{Formatter, rules as sqruff_rules};
+use sqruff_lib::rules as sqruff_rules;
+#[cfg(test)]
 use sqruff_lib_core::errors::SQLBaseError;
 
 use crate::formatters::utils::{
@@ -41,36 +39,6 @@ pub(crate) struct OutputStreamFormatter {
     filter_empty: bool,
     verbosity: i32,
     output_line_length: usize,
-}
-
-impl Formatter for OutputStreamFormatter {
-    fn dispatch_file_violations(&self, linted_file: &LintedFile) {
-        if self.verbosity < 0 {
-            return;
-        }
-
-        let s = self.format_file_violations(linted_file.path(), linted_file.violations());
-
-        self.dispatch(&s);
-    }
-
-    fn dispatch_file_skip(&self, fname: &str, reason: &str) {
-        if self.verbosity < 0 {
-            return;
-        }
-        let filename = self.colorize(fname, LIGHT_GREY);
-        let skip = self.colorize("SKIP", AnsiColor::Yellow.on_default());
-        self.dispatch(&format!("== [{filename}] {skip}: {reason}\n"));
-    }
-
-    fn completion_message(&self, count: usize) {
-        self.dispatch(&format!("The linter processed {count} file(s).\n"));
-        self.dispatch(if self.plain_output {
-            "All Finished\n"
-        } else {
-            "All Finished 📜 🎉\n"
-        });
-    }
 }
 
 impl OutputStreamFormatter {
@@ -106,7 +74,12 @@ impl OutputStreamFormatter {
     }
 
     pub(crate) fn emit_completion(&self, count: usize) {
-        self.completion_message(count);
+        self.dispatch(&format!("The linter processed {count} file(s).\n"));
+        self.dispatch(if self.plain_output {
+            "All Finished\n"
+        } else {
+            "All Finished 📜 🎉\n"
+        });
     }
 
     fn format_file_diagnostics(&self, fname: &str, diagnostics: &[LintDiagnostic]) -> String {
@@ -123,28 +96,6 @@ impl OutputStreamFormatter {
         if show {
             for diagnostic in diagnostics {
                 let text = self.format_diagnostic(diagnostic, self.output_line_length);
-                text_buffer.push_str(&text);
-                text_buffer.push('\n');
-            }
-        }
-
-        text_buffer
-    }
-
-    fn format_file_violations(&self, fname: &str, violations: &[SQLBaseError]) -> String {
-        let mut text_buffer = String::new();
-
-        let show = !violations.is_empty();
-
-        if self.verbosity > 0 || show {
-            let text = self.format_filename(fname, !show);
-            text_buffer.push_str(&text);
-            text_buffer.push('\n');
-        }
-
-        if show {
-            for violation in violations {
-                let text = self.format_violation(violation, self.output_line_length);
                 text_buffer.push_str(&text);
                 text_buffer.push('\n');
             }
@@ -172,6 +123,7 @@ impl OutputStreamFormatter {
         format!("== [{filename}] {status}")
     }
 
+    #[cfg(test)]
     fn format_violation(&self, violation: &SQLBaseError, max_line_length: usize) -> String {
         let mut desc = violation.desc().to_string();
 

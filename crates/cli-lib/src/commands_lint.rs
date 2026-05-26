@@ -1,7 +1,5 @@
 use crate::commands::{Format, LintArgs};
-use crate::formatters::OutputStreamFormatter;
-use crate::formatters::github_annotation_native_formatter::GithubAnnotationNativeFormatter;
-use crate::formatters::json::JsonFormatter;
+use crate::reporters::Reporter;
 use sqruff_lib::api::{
     Engine, EngineOptions, FileReport, Mode, ParseErrors, RunRequest, Source, SourceId,
 };
@@ -32,12 +30,6 @@ pub(crate) enum ApplyFixes {
 struct LoadedSource {
     id: SourceId,
     text: String,
-}
-
-enum CliFormatter {
-    Human(OutputStreamFormatter),
-    GithubAnnotationNative(GithubAnnotationNativeFormatter),
-    Json(JsonFormatter),
 }
 
 pub(crate) fn run_lint(
@@ -86,7 +78,7 @@ pub(crate) fn run_lint_command(
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
     collect_parse_errors: bool,
 ) -> i32 {
-    let formatter = CliFormatter::new(command.format, &config);
+    let mut reporter = Reporter::new(command.format, &config);
     let loaded_sources = match load_sources(&command.input, &config, &ignorer) {
         Ok(sources) => sources,
         Err(e) => {
@@ -128,20 +120,23 @@ pub(crate) fn run_lint_command(
         }
     };
 
-    for file in &report.files {
-        formatter.dispatch_file_report(file);
-    }
-
     let files = report.files.len();
     let has_violations = report.files.iter().any(|file| !file.diagnostics.is_empty());
 
     match command.apply {
         ApplyFixes::Never => {
-            formatter.completion_message(files);
+            if let Err(error) = reporter.emit(&report) {
+                eprintln!("{error}");
+                return 1;
+            }
             has_violations as i32
         }
         ApplyFixes::Stdout => {
             let any_unfixable_errors = report.files.iter().any(has_unfixable_diagnostics);
+            if let Err(error) = reporter.emit_diagnostics(&report) {
+                eprintln!("{error}");
+                return 1;
+            }
             for file in report.files {
                 if let Some(fixed_source) = file.fixed_source {
                     println!("{fixed_source}");
@@ -162,7 +157,10 @@ pub(crate) fn run_lint_command(
                 write_fix_to_disk(file, loaded);
             }
 
-            formatter.completion_message(files);
+            if let Err(error) = reporter.emit(&report) {
+                eprintln!("{error}");
+                return 1;
+            }
             any_unfixable_errors as i32
         }
     }
@@ -309,51 +307,4 @@ fn has_unfixable_diagnostics(file: &FileReport) -> bool {
     file.diagnostics
         .iter()
         .any(|diagnostic| !diagnostic.fixable)
-}
-
-fn display_source_id(source_id: &SourceId) -> String {
-    match source_id {
-        SourceId::Stdin => "<string>".into(),
-        SourceId::Path(path) => path.to_string_lossy().into_owned(),
-        SourceId::Virtual(name) => name.clone(),
-    }
-}
-
-impl CliFormatter {
-    fn new(format: Format, config: &FluffConfig) -> Self {
-        match format {
-            Format::Human => Self::Human(OutputStreamFormatter::new(
-                std::io::stderr().into(),
-                config.get("nocolor", "core").as_bool().unwrap_or_default(),
-                config.get("verbose", "core").as_int().unwrap_or_default(),
-            )),
-            Format::GithubAnnotationNative => Self::GithubAnnotationNative(
-                GithubAnnotationNativeFormatter::new(std::io::stderr()),
-            ),
-            Format::Json => Self::Json(JsonFormatter::default()),
-        }
-    }
-
-    fn dispatch_file_report(&self, file: &FileReport) {
-        let filename = display_source_id(&file.source_id);
-        match self {
-            Self::Human(formatter) => {
-                formatter.dispatch_file_diagnostics(&filename, &file.diagnostics);
-            }
-            Self::GithubAnnotationNative(formatter) => {
-                formatter.dispatch_file_diagnostics(&filename, &file.diagnostics);
-            }
-            Self::Json(formatter) => {
-                formatter.dispatch_file_diagnostics(&filename, &file.diagnostics);
-            }
-        }
-    }
-
-    fn completion_message(&self, count: usize) {
-        match self {
-            Self::Human(formatter) => formatter.emit_completion(count),
-            Self::GithubAnnotationNative(formatter) => formatter.emit_completion(),
-            Self::Json(formatter) => formatter.emit_completion(),
-        }
-    }
 }

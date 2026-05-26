@@ -88,7 +88,7 @@ impl Linter {
                 },
             )
             .unwrap(),
-            base: SqruffLinter::new(config, None, Some(templater), true).unwrap(),
+            base: SqruffLinter::new(config, Some(templater), true).unwrap(),
         }
     }
 

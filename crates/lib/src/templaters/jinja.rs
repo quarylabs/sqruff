@@ -2,13 +2,11 @@ use super::Templater;
 use super::python::PythonTemplatedFile;
 use crate::core::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
-use crate::templaters::{Formatter, ProcessingMode, TemplaterKind};
+use crate::templaters::{ProcessingMode, TemplaterKind};
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::TemplatedFile;
-use std::sync::Arc;
-
 pub struct JinjaTemplater;
 
 impl JinjaTemplater {
@@ -136,7 +134,6 @@ When `apply_dbt_builtins` is enabled (the default), common dbt functions like `r
         &self,
         files: &[(&str, &str)],
         config: &FluffConfig,
-        _: &Option<Arc<dyn Formatter>>,
     ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
         files
             .iter()
@@ -171,7 +168,7 @@ FROM events
         let config = FluffConfig::from_source(source, None);
         let templater = JinjaTemplater;
 
-        let results = templater.process(&[(JINJA_STRING, "test.sql")], &config, &None);
+        let results = templater.process(&[(JINJA_STRING, "test.sql")], &config);
         let processed = results.into_iter().next().unwrap().unwrap();
 
         assert_eq!(
@@ -193,7 +190,7 @@ FROM events
     SELECT {{some_var}}
 {% endif %}
 "#;
-        let results = templater.process(&[(instr, "test.sql")], &config, &None);
+        let results = templater.process(&[(instr, "test.sql")], &config);
         let processed = results.into_iter().next().unwrap().unwrap();
 
         assert_eq!(processed.templated(), "\n    \n    SELECT 1\n\n");

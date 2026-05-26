@@ -1,4 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
+use sqruff_lib::api::{Mode, ParseErrors};
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib_core::parser::segments::Tables;
 use std::hint::black_box;
@@ -69,7 +70,7 @@ fn fix(c: &mut Criterion) {
     let linter = Linter::new(
         sqruff_lib::core::config::FluffConfig::default(),
         None,
-        false,
+        ParseErrors::Suppress,
     )
     .unwrap();
     for (name, source) in passes {
@@ -77,7 +78,7 @@ fn fix(c: &mut Criterion) {
         let parsed = linter.parse_string(&tables, &source, None).unwrap();
 
         c.bench_function(name, |b| {
-            b.iter(|| black_box(linter.lint_parsed(&tables, parsed.clone(), true)));
+            b.iter(|| black_box(linter.lint_parsed(&tables, parsed.clone(), Mode::Fix)));
         });
     }
 }

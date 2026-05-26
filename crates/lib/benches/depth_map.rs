@@ -1,4 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
+use sqruff_lib::api::ParseErrors;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::utils::reflow::depth_map::DepthMap;
@@ -71,7 +72,7 @@ SELECT construct_depth_info('uuid-2');
 SELECT construct_depth_info('uuid-3');"#;
 
 fn depth_map(c: &mut Criterion) {
-    let linter = Linter::new(FluffConfig::default(), None, false).unwrap();
+    let linter = Linter::new(FluffConfig::default(), None, ParseErrors::Suppress).unwrap();
     let tables = Tables::default();
     let tree = linter
         .parse_string(&tables, COMPLEX_QUERY, None)

@@ -53,7 +53,7 @@ fn main() {
 
                 let file_name = sql_file.to_string_lossy();
                 let templated_file = templater
-                    .process(&[(&sql, &file_name)], &config, &None)
+                    .process(&[(&sql, &file_name)], &config)
                     .into_iter()
                     .next()
                     .unwrap()

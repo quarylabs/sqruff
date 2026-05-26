@@ -602,7 +602,7 @@ mod tests {
 
     fn parse_string_with_config(sql: &str, config: &FluffConfig) -> ErasedSegment {
         let tables = Tables::default();
-        let linter = Linter::new(config.clone(), None, false).unwrap();
+        let linter = Linter::new(config.clone(), None, crate::api::ParseErrors::Suppress).unwrap();
         linter
             .parse_string(&tables, sql, None)
             .unwrap()

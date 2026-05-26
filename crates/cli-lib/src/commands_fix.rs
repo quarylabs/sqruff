@@ -1,7 +1,7 @@
 use crate::commands::FixArgs;
 use crate::commands::Format;
 use crate::commands_lint::{ApplyFixes, Input, LintCommand, run_lint_command};
-use sqruff_lib::api::Mode;
+use sqruff_lib::api::{Mode, ParseErrors};
 use sqruff_lib::core::config::FluffConfig;
 use std::path::Path;
 
@@ -9,7 +9,7 @@ pub(crate) fn run_fix(
     args: FixArgs,
     config: FluffConfig,
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
-    collect_parse_errors: bool,
+    parse_errors: ParseErrors,
 ) -> i32 {
     let FixArgs { paths, format } = args;
     run_lint_command(
@@ -21,15 +21,11 @@ pub(crate) fn run_fix(
         },
         config,
         ignorer,
-        collect_parse_errors,
+        parse_errors,
     )
 }
 
-pub(crate) fn run_fix_stdin(
-    config: FluffConfig,
-    format: Format,
-    collect_parse_errors: bool,
-) -> i32 {
+pub(crate) fn run_fix_stdin(config: FluffConfig, format: Format, parse_errors: ParseErrors) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
     run_lint_command(
@@ -41,7 +37,7 @@ pub(crate) fn run_fix_stdin(
         },
         config,
         |_| false,
-        collect_parse_errors,
+        parse_errors,
     )
 }
 
@@ -74,7 +70,7 @@ mod tests {
             format: Format::Human,
         };
         let config = FluffConfig::default();
-        run_fix(args, config, ignore_none, true);
+        run_fix(args, config, ignore_none, ParseErrors::Include);
 
         let after = std::fs::metadata(&path).unwrap().modified().unwrap();
         assert_eq!(before, after);
@@ -93,7 +89,7 @@ mod tests {
             format: Format::Human,
         };
         let config = FluffConfig::from_source("[sqruff]\nrules = AL02\n", None);
-        let exit_code = run_fix(args, config, ignore_none, true);
+        let exit_code = run_fix(args, config, ignore_none, ParseErrors::Include);
 
         assert_eq!(exit_code, 0);
         assert_eq!(

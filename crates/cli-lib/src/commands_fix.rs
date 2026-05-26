@@ -3,14 +3,8 @@ use crate::commands::Format;
 use crate::commands_lint::{ApplyFixes, Input, LintCommand, run_lint_command};
 use sqruff_lib::api::{Mode, ParseErrors};
 use sqruff_lib::core::config::FluffConfig;
-use std::path::Path;
 
-pub(crate) fn run_fix(
-    args: FixArgs,
-    config: FluffConfig,
-    ignorer: impl Fn(&Path) -> bool + Send + Sync,
-    parse_errors: ParseErrors,
-) -> i32 {
+pub(crate) fn run_fix(args: FixArgs, config: FluffConfig, parse_errors: ParseErrors) -> i32 {
     let FixArgs { paths, format } = args;
     run_lint_command(
         LintCommand {
@@ -20,7 +14,6 @@ pub(crate) fn run_fix(
             format,
         },
         config,
-        ignorer,
         parse_errors,
     )
 }
@@ -42,7 +35,6 @@ pub(crate) fn run_fix_stdin(config: FluffConfig, format: Format, parse_errors: P
             format,
         },
         config,
-        |_| false,
         parse_errors,
     )
 }
@@ -51,14 +43,9 @@ pub(crate) fn run_fix_stdin(config: FluffConfig, format: Format, parse_errors: P
 mod tests {
     use super::*;
     use std::io::Write;
-    use std::path::Path;
     use std::thread::sleep;
     use std::time::Duration;
     use tempfile::NamedTempFile;
-
-    fn ignore_none(_: &Path) -> bool {
-        false
-    }
 
     #[test]
     fn run_fix_does_not_update_mtime_when_no_changes() {
@@ -76,7 +63,7 @@ mod tests {
             format: Format::Human,
         };
         let config = FluffConfig::default();
-        run_fix(args, config, ignore_none, ParseErrors::Include);
+        run_fix(args, config, ParseErrors::Include);
 
         let after = std::fs::metadata(&path).unwrap().modified().unwrap();
         assert_eq!(before, after);
@@ -95,7 +82,7 @@ mod tests {
             format: Format::Human,
         };
         let config = FluffConfig::try_from_source("[sqruff]\nrules = AL02\n", None).unwrap();
-        let exit_code = run_fix(args, config, ignore_none, ParseErrors::Include);
+        let exit_code = run_fix(args, config, ParseErrors::Include);
 
         assert_eq!(exit_code, 0);
         assert_eq!(

@@ -3,7 +3,6 @@ use sqruff_lib::api::ParseErrors;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
-use std::sync::Arc;
 use stdin::is_std_in_flag_input;
 
 use crate::commands::{Cli, Commands};
@@ -22,7 +21,6 @@ mod commands_templaters;
 mod docs;
 mod formatters;
 mod github_action;
-mod ignore;
 mod logger;
 mod reporters;
 mod stdin;
@@ -88,21 +86,13 @@ where
         }
     }
 
-    let current_path = std::env::current_dir().unwrap();
-    let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();
-    let ignore_file = Arc::new(ignore_file);
-    let ignorer = {
-        let ignore_file = Arc::clone(&ignore_file);
-        move |path: &Path| ignore_file.is_ignored(path)
-    };
-
     match cli.command {
         Commands::Lint(args) => match is_std_in_flag_input(&args.paths) {
             Err(e) => {
                 eprintln!("{e}");
                 1
             }
-            Ok(false) => commands_lint::run_lint(args, config, ignorer, parse_errors),
+            Ok(false) => commands_lint::run_lint(args, config, parse_errors),
             Ok(true) => commands_lint::run_lint_stdin(config, args.format, parse_errors),
         },
         Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
@@ -110,7 +100,7 @@ where
                 eprintln!("{e}");
                 1
             }
-            Ok(false) => commands_fix::run_fix(args, config, ignorer, parse_errors),
+            Ok(false) => commands_fix::run_fix(args, config, parse_errors),
             Ok(true) => commands_fix::run_fix_stdin(config, args.format, parse_errors),
         },
         Commands::Lsp => {

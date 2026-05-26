@@ -89,14 +89,13 @@ impl Workspace {
         paths: &[PathBuf],
         options: &PathDiscoveryOptions<'_>,
     ) -> Result<Vec<Source<'static>>, SqruffError> {
-        let effective_ignorer = options.ignorer.unwrap_or(&self.ignore_file);
         let options = PathDiscoveryOptions {
             ignore_file_name: options.ignore_file_name,
             ignore_non_existent_files: options.ignore_non_existent_files,
             ignore_files: options.ignore_files,
             working_dir: options.working_dir.clone(),
             file_exts: options.file_exts,
-            ignorer: Some(effective_ignorer),
+            ignorer: options.ignore_files.then_some(&self.ignore_file),
         };
         let mut sources = Vec::new();
         let paths = if paths.is_empty() {
@@ -197,28 +196,27 @@ pub fn discover_paths(
     }
 
     let mut paths = BTreeSet::new();
-    let ignore_file = if options.ignore_files {
-        Some(IgnoreFile::from_root_with_name(
-            &options.working_dir,
-            options.ignore_file_name,
-        )?)
+    let ignore_file;
+    let ignorer = if let Some(ignorer) = options.ignorer {
+        Some(ignorer)
+    } else if options.ignore_files {
+        ignore_file =
+            IgnoreFile::from_root_with_name(&options.working_dir, options.ignore_file_name)?;
+        Some(&ignore_file as &dyn IgnoreMatcher)
     } else {
         None
     };
-    let fallback_ignorer = ignore_file
-        .as_ref()
-        .map(|ignore_file| ignore_file as &dyn IgnoreMatcher);
-    collect_paths(&path, options, fallback_ignorer, &mut paths)?;
+    collect_paths(&path, options, ignorer, &mut paths)?;
     Ok(paths.into_iter().collect())
 }
 
 fn collect_paths(
     dir: &Path,
     options: &PathDiscoveryOptions<'_>,
-    fallback_ignorer: Option<&dyn IgnoreMatcher>,
+    ignorer: Option<&dyn IgnoreMatcher>,
     paths: &mut BTreeSet<PathBuf>,
 ) -> Result<(), SqruffError> {
-    if is_ignored(dir, options, fallback_ignorer) {
+    if is_ignored(dir, ignorer) {
         log::debug!(
             "Skipping directory '{}' during file discovery traversal",
             dir.display()
@@ -243,10 +241,10 @@ fn collect_paths(
         })?;
 
         if file_type.is_dir() {
-            collect_paths(&path, options, fallback_ignorer, paths)?;
+            collect_paths(&path, options, ignorer, paths)?;
         } else if file_type.is_file()
             && is_lintable_file(&path, options.file_exts)
-            && !is_ignored(&path, options, fallback_ignorer)
+            && !is_ignored(&path, ignorer)
         {
             paths.insert(helpers::normalize(&path));
         }
@@ -255,15 +253,8 @@ fn collect_paths(
     Ok(())
 }
 
-fn is_ignored(
-    path: &Path,
-    options: &PathDiscoveryOptions<'_>,
-    fallback_ignorer: Option<&dyn IgnoreMatcher>,
-) -> bool {
-    options
-        .ignorer
-        .is_some_and(|ignorer| ignorer.is_ignored(path))
-        || fallback_ignorer.is_some_and(|ignorer| ignorer.is_ignored(path))
+fn is_ignored(path: &Path, ignorer: Option<&dyn IgnoreMatcher>) -> bool {
+    ignorer.is_some_and(|ignorer| ignorer.is_ignored(path))
 }
 
 fn is_lintable_file(path: &Path, file_exts: &[String]) -> bool {

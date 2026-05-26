@@ -1,8 +1,8 @@
 use crate::commands::{Format, LintArgs};
 use crate::reporters::Reporter;
 use sqruff_lib::api::{
-    Engine, EngineOptions, FileReport, IgnoreMatcher, Mode, ParseErrors, PathDiscoveryOptions,
-    RunRequest, Source, SourceId, Workspace,
+    Engine, EngineOptions, FileReport, Mode, ParseErrors, PathDiscoveryOptions, RunRequest, Source,
+    SourceId, Workspace,
 };
 use sqruff_lib::core::config::FluffConfig;
 use std::borrow::Cow;
@@ -26,12 +26,7 @@ pub(crate) enum ApplyFixes {
     Stdout,
 }
 
-pub(crate) fn run_lint(
-    args: LintArgs,
-    config: FluffConfig,
-    ignorer: impl Fn(&Path) -> bool + Send + Sync,
-    parse_errors: ParseErrors,
-) -> i32 {
+pub(crate) fn run_lint(args: LintArgs, config: FluffConfig, parse_errors: ParseErrors) -> i32 {
     let LintArgs { paths, format } = args;
     run_lint_command(
         LintCommand {
@@ -41,7 +36,6 @@ pub(crate) fn run_lint(
             format,
         },
         config,
-        ignorer,
         parse_errors,
     )
 }
@@ -67,7 +61,6 @@ pub(crate) fn run_lint_stdin(
             format,
         },
         config,
-        |_| false,
         parse_errors,
     )
 }
@@ -75,7 +68,6 @@ pub(crate) fn run_lint_stdin(
 pub(crate) fn run_lint_command(
     command: LintCommand,
     config: FluffConfig,
-    ignorer: impl Fn(&Path) -> bool + Send + Sync,
     parse_errors: ParseErrors,
 ) -> i32 {
     let mut reporter = Reporter::new(command.format, &config);
@@ -92,7 +84,6 @@ pub(crate) fn run_lint_command(
         &workspace,
         &workspace_root,
         config.sql_file_exts(),
-        &ignorer,
     ) {
         Ok(sources) => sources,
         Err(e) => {
@@ -177,7 +168,6 @@ fn load_sources(
     workspace: &Workspace,
     working_dir: &Path,
     file_exts: &[String],
-    ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
 ) -> Result<Vec<Source<'static>>, sqruff_lib::api::SqruffError> {
     match input {
         Input::Stdin(text) => Ok(vec![Source {
@@ -185,27 +175,10 @@ fn load_sources(
             text: Cow::Owned(text.clone()),
         }]),
         Input::Paths(paths) => {
-            let ignore_matcher = ClosureIgnoreMatcher { ignorer };
-            let options = PathDiscoveryOptions {
-                ignore_file_name: ".sqruffignore",
-                ignore_non_existent_files: false,
-                ignore_files: true,
-                working_dir: working_dir.to_path_buf(),
-                file_exts,
-                ignorer: Some(&ignore_matcher),
-            };
+            let mut options = PathDiscoveryOptions::new(working_dir.to_path_buf());
+            options.file_exts = file_exts;
             workspace.discover_sources(paths, &options)
         }
-    }
-}
-
-struct ClosureIgnoreMatcher<'a> {
-    ignorer: &'a (dyn Fn(&Path) -> bool + Send + Sync),
-}
-
-impl IgnoreMatcher for ClosureIgnoreMatcher<'_> {
-    fn is_ignored(&self, path: &Path) -> bool {
-        (self.ignorer)(path)
     }
 }
 

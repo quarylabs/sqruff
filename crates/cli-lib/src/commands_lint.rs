@@ -51,7 +51,13 @@ pub(crate) fn run_lint_stdin(
     format: Format,
     parse_errors: ParseErrors,
 ) -> i32 {
-    let read_in = crate::stdin::read_std_in().unwrap();
+    let read_in = match crate::stdin::read_std_in() {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("Failed to read stdin: {e}");
+            return 1;
+        }
+    };
 
     run_lint_command(
         LintCommand {
@@ -77,21 +83,21 @@ pub(crate) fn run_lint_command(
     let workspace = match Workspace::new(workspace_root.clone()) {
         Ok(workspace) => workspace,
         Err(e) => {
-            eprintln!("{}", e.value);
+            eprintln!("{}", e.message());
             return 1;
         }
     };
     let loaded_sources = match load_sources(&command.input, &workspace, &workspace_root, &ignorer) {
         Ok(sources) => sources,
         Err(e) => {
-            eprintln!("{}", e.value);
+            eprintln!("{}", e.message());
             return 1;
         }
     };
     let engine = match Engine::new(config, EngineOptions { parse_errors }) {
         Ok(engine) => engine,
         Err(e) => {
-            eprintln!("{}", e.value);
+            eprintln!("{}", e.message());
             return 1;
         }
     };
@@ -108,7 +114,7 @@ pub(crate) fn run_lint_command(
     }) {
         Ok(report) => report,
         Err(e) => {
-            eprintln!("{}", e.value);
+            eprintln!("{}", e.message());
             return 1;
         }
     };
@@ -147,7 +153,7 @@ pub(crate) fn run_lint_command(
             let any_unfixable_errors = report.files.iter().any(has_unfixable_diagnostics);
 
             if let Err(e) = workspace.apply_fixes(&report) {
-                eprintln!("{}", e.value);
+                eprintln!("{}", e.message());
                 return 1;
             }
 

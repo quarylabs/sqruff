@@ -55,9 +55,21 @@ where
 
             std::process::exit(1);
         };
-        FluffConfig::from_file(Path::new(config))
+        match FluffConfig::from_file(Path::new(config)) {
+            Ok(config) => config,
+            Err(error) => {
+                eprintln!("{}", error.message());
+                return 1;
+            }
+        }
     } else {
-        FluffConfig::from_root(None, false, None).unwrap()
+        match FluffConfig::from_root(None, false, None) {
+            Ok(config) => config,
+            Err(error) => {
+                eprintln!("{}", error.message());
+                return 1;
+            }
+        }
     };
 
     if let Some(dialect) = cli.dialect {
@@ -102,7 +114,10 @@ where
             Ok(true) => commands_fix::run_fix_stdin(config, args.format, parse_errors),
         },
         Commands::Lsp => {
-            sqruff_lsp::run();
+            if let Err(e) = sqruff_lsp::run() {
+                eprintln!("LSP error: {e}");
+                return 1;
+            }
             0
         }
         Commands::Info => {

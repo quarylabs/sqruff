@@ -37,10 +37,10 @@ impl Linter {
         config: FluffConfig,
         templater: Option<TemplaterRuntime>,
         parse_errors: ParseErrors,
-    ) -> Result<Linter, String> {
+    ) -> Result<Linter, crate::api::SqruffError> {
         let templater = match templater {
             Some(templater) => templater,
-            None => Linter::get_templater(&config).map_err(|error| error.value)?,
+            None => Linter::get_templater(&config)?,
         };
         Ok(Linter {
             config,
@@ -50,7 +50,9 @@ impl Linter {
         })
     }
 
-    pub fn get_templater(config: &FluffConfig) -> Result<TemplaterRuntime, SQLFluffUserError> {
+    pub fn get_templater(
+        config: &FluffConfig,
+    ) -> Result<TemplaterRuntime, crate::api::SqruffError> {
         TemplaterRuntime::from_config(config)
     }
 
@@ -372,9 +374,7 @@ impl Linter {
                 rendered.templated_file.clone(),
                 &self.config.dialect,
             );
-            if !lvs.is_empty() {
-                unimplemented!("violations.extend(lvs);")
-            }
+            violations.extend(lvs.into_iter().map_into());
             t
         } else {
             None
@@ -591,7 +591,7 @@ rules = all
         )
         .unwrap_err();
 
-        assert!(err.value.contains("Specified path does not exist"));
+        assert!(err.to_string().contains("Specified path does not exist"));
     }
 
     #[test]

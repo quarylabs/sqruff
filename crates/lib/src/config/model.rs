@@ -125,12 +125,18 @@ impl FluffConfig {
     }
 
     pub fn from_patch(patch: ConfigPatch) -> Self {
-        Self::build_from_raw(patch)
+        Self::build_from_raw(patch.into())
     }
 
     pub fn with_patch(&self, patch: ConfigPatch) -> Self {
-        let raw = nested_combine(self.raw.clone(), patch);
+        let raw = nested_combine(self.raw.clone(), patch.into());
         Self::build_from_raw(raw)
+    }
+
+    pub fn builder() -> FluffConfigBuilder {
+        FluffConfigBuilder {
+            patch: ConfigPatch::default(),
+        }
     }
 
     /// from_file creates a config object from a file path. The path is used both
@@ -498,6 +504,29 @@ fn string_list_value(map: &HashMap<String, Value>, key: &str) -> Option<Vec<Stri
             .filter_map(|value| value.as_string().map(ToOwned::to_owned))
             .collect()
     })
+}
+
+/// Builder for [`FluffConfig`].
+///
+/// Obtain via [`FluffConfig::builder()`].
+pub struct FluffConfigBuilder {
+    patch: ConfigPatch,
+}
+
+impl FluffConfigBuilder {
+    /// Apply a [`ConfigPatch`] to the builder.
+    pub fn patch(mut self, patch: ConfigPatch) -> Self {
+        self.patch = patch;
+        self
+    }
+
+    /// Build the [`FluffConfig`], returning an error if the config is invalid
+    /// (e.g. the requested templater is not supported in this build).
+    pub fn build(self) -> Result<FluffConfig, SqruffError> {
+        let config = FluffConfig::from_patch(self.patch);
+        config.try_templater_kind().map_err(SqruffError::Config)?;
+        Ok(config)
+    }
 }
 
 #[cfg(test)]

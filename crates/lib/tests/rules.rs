@@ -5,7 +5,7 @@ use glob::glob;
 use hashbrown::HashMap;
 use serde::Deserialize;
 use serde_with::{KeyValueMap, serde_as};
-use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
+use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId, SqruffError};
 use sqruff_lib::config::{ConfigPatch, FluffConfig, Value};
 use sqruff_lib_core::dialects::init::DialectKind;
 
@@ -50,38 +50,22 @@ enum TestCaseKind {
     Fail { fail_str: String },
 }
 
-fn case_patch(rule: &str, configs: &ConfigPatch) -> ConfigPatch {
-    let mut patch = configs.clone();
+fn config_for_rule_case(rule: &str, case: &TestCase) -> Result<FluffConfig, SqruffError> {
+    let mut patch = ConfigPatch::from_sections(case.configs.clone());
 
-    let core = patch
-        .entry("core".to_string())
-        .or_insert_with(|| Value::Map(HashMap::new()));
-    let core = core.as_map_mut().unwrap();
-    core.insert("rules".to_string(), Value::String(rule.into()));
+    // Set the rule under test using the public config spelling; normal config
+    // normalization will expand this into the internal allowlist representation.
+    patch.set_string(&["core", "rules"], rule);
 
-    let rule_configs = patch
-        .get("rules")
-        .cloned()
-        .unwrap_or_default()
-        .as_map()
-        .cloned()
-        .unwrap_or_default();
-    let indentation_updates = rule_configs
-        .into_iter()
-        .filter(|(config_name, _)| INDENT_CONFIG.contains(&config_name.as_str()))
-        .collect::<HashMap<_, _>>();
-
-    if !indentation_updates.is_empty() {
-        let indentation = patch
-            .entry("indentation".to_string())
-            .or_insert_with(|| Value::Map(HashMap::new()));
-        indentation
-            .as_map_mut()
-            .unwrap()
-            .extend(indentation_updates);
+    // SQLFluff rule fixtures sometimes put indentation options under `rules`;
+    // Sqruff's engine expects these under `indentation`.
+    for key in INDENT_CONFIG {
+        if let Some(value) = patch.value(&["rules", key]).cloned() {
+            patch.set_value(&["indentation", key], value);
+        }
     }
 
-    patch
+    FluffConfig::builder().patch(patch).build()
 }
 
 fn main() {
@@ -122,28 +106,24 @@ fn main() {
             }
 
             let rule = &file.rule;
-            let config = FluffConfig::from_patch(case_patch(&file.rule, &case.configs));
+            let config = match config_for_rule_case(rule, &case) {
+                Ok(config) => config,
+                Err(error) => {
+                    if std::env::var("SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS").is_ok() {
+                        println!("Skipping case '{}': {}", case.name, error);
+                        continue;
+                    }
+                    panic!("Invalid config in case '{}': {}", case.name, error);
+                }
+            };
 
-            let engine = match Engine::new(
+            let engine = Engine::new(
                 config,
                 EngineOptions {
                     parse_errors: ParseErrors::Include,
                 },
-            ) {
-                Ok(engine) => engine,
-                Err(e) => {
-                    if std::env::var("SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS").is_ok() {
-                        println!("Skipping case '{}': {}", case.name, e);
-                        continue;
-                    } else {
-                        panic!(
-                            "Unsupported templater in case '{}': {}. \
-                             Set SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS=1 to skip these tests.",
-                            case.name, e
-                        );
-                    }
-                }
-            };
+            )
+            .unwrap();
 
             match case.kind {
                 TestCaseKind::Pass { pass_str } => {

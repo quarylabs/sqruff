@@ -6,7 +6,8 @@ pub mod raw;
 
 pub use loader::ConfigLoader;
 pub use model::{
-    CoreConfig, FluffConfig, IndentationConfig, LayoutConfig, RuleConfigStore, TemplaterConfigStore,
+    CoreConfig, FluffConfig, FluffConfigBuilder, IndentationConfig, LayoutConfig, RuleConfigStore,
+    TemplaterConfigStore,
 };
 pub use options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 pub use patch::ConfigPatch;

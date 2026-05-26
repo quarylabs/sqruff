@@ -71,10 +71,11 @@ impl Default for FluffConfig {
 
 impl FluffConfig {
     pub(crate) fn build_from_raw(configs: RawConfig) -> Self {
-        let values = ConfigLoader::get_config_elems_from_file(
+        let values = ConfigLoader::try_get_config_elems_from_file(
             None,
             include_str!("./default_config.cfg").into(),
-        );
+        )
+        .expect("built-in default config must be valid");
 
         let mut defaults = HashMap::new();
         ConfigLoader::incorporate_vals(&mut defaults, values);
@@ -147,17 +148,6 @@ impl FluffConfig {
             input: ConfigInput::File(path.to_path_buf()),
             ..Default::default()
         })
-    }
-
-    /// Creates a config object from a source string, falling back to defaults on invalid input.
-    ///
-    /// Production code should use `try_from_source()` and surface the error.
-    #[cfg(test)]
-    pub fn from_source_or_default_for_tests(
-        source: &str,
-        optional_path_specification: Option<&Path>,
-    ) -> FluffConfig {
-        Self::try_from_source(source, optional_path_specification).unwrap_or_default()
     }
 
     pub fn try_from_source(

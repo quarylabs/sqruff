@@ -96,16 +96,6 @@ impl ConfigLoader {
         head.chain(tail)
     }
 
-    pub fn load_config_up_to_path_or_default(
-        &self,
-        path: impl AsRef<Path>,
-        extra_config_path: Option<String>,
-        ignore_local_config: bool,
-    ) -> HashMap<String, Value> {
-        self.try_load_config_up_to_path(path, extra_config_path, ignore_local_config)
-            .unwrap_or_default()
-    }
-
     pub fn try_load_config_up_to_path(
         &self,
         path: impl AsRef<Path>,
@@ -127,10 +117,6 @@ impl ConfigLoader {
         };
 
         Ok(nested_combine(config_stack))
-    }
-
-    pub fn load_config_at_path_or_default(&self, path: impl AsRef<Path>) -> HashMap<String, Value> {
-        self.try_load_config_at_path(path).unwrap_or_default()
     }
 
     pub fn try_load_config_at_path(
@@ -161,14 +147,6 @@ impl ConfigLoader {
         Ok(configs)
     }
 
-    #[cfg(test)]
-    pub fn from_source_or_default_for_tests(
-        source: &str,
-        path: Option<&Path>,
-    ) -> HashMap<String, Value> {
-        Self::try_from_source(source, path).unwrap_or_default()
-    }
-
     pub fn try_from_source(
         source: &str,
         path: Option<&Path>,
@@ -179,17 +157,6 @@ impl ConfigLoader {
         Ok(configs)
     }
 
-    pub fn load_config_file_or_default(
-        path: impl AsRef<Path>,
-        configs: &mut HashMap<String, Value>,
-    ) {
-        let Ok(elems) = ConfigLoader::try_get_config_elems_from_file(path.as_ref().into(), None)
-        else {
-            return;
-        };
-        ConfigLoader::incorporate_vals(configs, elems);
-    }
-
     pub fn try_load_config_file(
         path: impl AsRef<Path>,
         configs: &mut HashMap<String, Value>,
@@ -197,13 +164,6 @@ impl ConfigLoader {
         let elems = ConfigLoader::try_get_config_elems_from_file(path.as_ref().into(), None)?;
         ConfigLoader::incorporate_vals(configs, elems);
         Ok(())
-    }
-
-    pub(crate) fn get_config_elems_from_file(
-        config_path: Option<&Path>,
-        config_string: Option<&str>,
-    ) -> Vec<(Vec<String>, Value)> {
-        Self::try_get_config_elems_from_file(config_path, config_string).unwrap_or_default()
     }
 
     pub(crate) fn try_get_config_elems_from_file(

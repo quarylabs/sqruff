@@ -3,6 +3,7 @@ pub mod diagnostic;
 pub mod engine;
 pub mod error;
 pub mod options;
+pub mod path_config;
 pub mod report;
 pub mod source;
 pub mod workspace;

@@ -83,7 +83,7 @@ pub(crate) fn run_lint_command(
         &command.input,
         &workspace,
         &workspace_root,
-        config.sql_file_exts(),
+        &config,
     ) {
         Ok(sources) => sources,
         Err(e) => {
@@ -169,7 +169,7 @@ fn load_sources(
     input: &Input,
     workspace: &Workspace,
     working_dir: &Path,
-    file_exts: &[String],
+    config: &FluffConfig,
 ) -> Result<Vec<Source<'static>>, sqruff_lib::api::SqruffError> {
     match input {
         Input::Stdin(text) => Ok(vec![Source {
@@ -177,8 +177,7 @@ fn load_sources(
             text: Cow::Owned(text.clone()),
         }]),
         Input::Paths(paths) => {
-            let mut options = PathDiscoveryOptions::new(working_dir.to_path_buf());
-            options.file_exts = file_exts;
+            let options = PathDiscoveryOptions::from_config(working_dir.to_path_buf(), config);
             workspace.discover_sources(paths, &options)
         }
     }

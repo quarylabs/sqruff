@@ -5,7 +5,6 @@ use sqruff_lib::api::{
 };
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
-use sqruff_lib::templaters::RAW_TEMPLATER;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use std::borrow::Cow;
@@ -78,7 +77,6 @@ impl Linter {
     #[wasm_bindgen(constructor)]
     pub fn new(source: &str) -> Self {
         let config = FluffConfig::from_source(source, None);
-        let templater = SqruffLinter::get_templater(&config).unwrap_or(&RAW_TEMPLATER);
         Self {
             engine: Engine::new(
                 config.clone(),
@@ -87,7 +85,7 @@ impl Linter {
                 },
             )
             .unwrap(),
-            base: SqruffLinter::new(config, Some(templater), ParseErrors::Include).unwrap(),
+            base: SqruffLinter::new(config, None, ParseErrors::Include).unwrap(),
         }
     }
 

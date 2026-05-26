@@ -191,6 +191,19 @@ impl SQLLexError {
     }
 }
 
+impl From<SQLLexError> for SQLBaseError {
+    fn from(value: SQLLexError) -> Self {
+        SQLBaseError {
+            fixable: false,
+            line_no: value.position_marker.line_no(),
+            line_pos: value.position_marker.line_pos(),
+            description: value.message,
+            rule: None,
+            source_slice: value.position_marker.source_slice.clone(),
+        }
+    }
+}
+
 #[derive(Debug, Error)]
 #[error("{value}")]
 pub struct SQLFluffSkipFile {

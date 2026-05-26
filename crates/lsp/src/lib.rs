@@ -10,7 +10,7 @@ use lsp_types::{
     Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
     DidOpenTextDocumentParams, DidSaveTextDocumentParams, DocumentFormattingParams,
     InitializeParams, InitializeResult, NumberOrString, OneOf, Position, PublishDiagnosticsParams,
-    Registration, ServerCapabilities, TextDocumentIdentifier, TextDocumentItem,
+    Registration, ServerCapabilities, TextDocumentItem,
     TextDocumentSyncCapability, TextDocumentSyncKind, Uri, VersionedTextDocumentIdentifier,
 };
 use serde_json::Value;
@@ -61,21 +61,33 @@ impl Wasm {
         let send_diagnostics_callback = Box::leak(Box::new(send_diagnostics_callback));
 
         Self(LanguageServer::new(|diagnostics| {
-            let diagnostics = serde_wasm_bindgen::to_value(&diagnostics).unwrap();
-            send_diagnostics_callback
-                .call1(&JsValue::null(), &diagnostics)
-                .unwrap();
+            match serde_wasm_bindgen::to_value(&diagnostics) {
+                Ok(diagnostics) => {
+                    if let Err(e) =
+                        send_diagnostics_callback.call1(&JsValue::null(), &diagnostics)
+                    {
+                        eprintln!("Failed to send diagnostics: {e:?}");
+                    }
+                }
+                Err(e) => eprintln!("Failed to serialize diagnostics: {e:?}"),
+            }
         }))
     }
 
     #[wasm_bindgen(js_name = saveRegistrationOptions)]
     pub fn save_registration_options() -> JsValue {
-        serde_wasm_bindgen::to_value(&save_registration_options()).unwrap()
+        serde_wasm_bindgen::to_value(&save_registration_options()).unwrap_or(JsValue::NULL)
     }
 
     #[wasm_bindgen(js_name = updateConfig)]
     pub fn update_config(&mut self, source: &str) {
-        let new_config = FluffConfig::from_source(source, None);
+        let new_config = match FluffConfig::try_from_source(source, None) {
+            Ok(config) => config,
+            Err(error) => {
+                eprintln!("Invalid config, keeping previous configuration: {error}");
+                return;
+            }
+        };
         if self.0.set_config(new_config).is_ok() {
             self.0.recheck_files();
         } else {
@@ -85,20 +97,28 @@ impl Wasm {
 
     #[wasm_bindgen(js_name = onInitialize)]
     pub fn on_initialize(&self) -> JsValue {
-        serde_wasm_bindgen::to_value(&server_initialize_result()).unwrap()
+        serde_wasm_bindgen::to_value(&server_initialize_result()).unwrap_or(JsValue::NULL)
     }
 
     #[wasm_bindgen(js_name = onNotification)]
     pub fn on_notification(&mut self, method: &str, params: JsValue) {
-        self.0
-            .on_notification(method, serde_wasm_bindgen::from_value(params).unwrap())
+        match serde_wasm_bindgen::from_value(params) {
+            Ok(params) => self.0.on_notification(method, params),
+            Err(e) => eprintln!("Failed to deserialize notification params: {e:?}"),
+        }
     }
 
     #[wasm_bindgen]
     pub fn format(&mut self, uri: JsValue) -> JsValue {
-        let uri = serde_wasm_bindgen::from_value(uri).unwrap();
+        let uri = match serde_wasm_bindgen::from_value(uri) {
+            Ok(uri) => uri,
+            Err(e) => {
+                eprintln!("Failed to deserialize uri: {e:?}");
+                return JsValue::NULL;
+            }
+        };
         let edits = self.0.format(uri);
-        serde_wasm_bindgen::to_value(&edits).unwrap()
+        serde_wasm_bindgen::to_value(&edits).unwrap_or(JsValue::NULL)
     }
 
     #[wasm_bindgen(js_name = formatSource)]
@@ -110,8 +130,13 @@ impl Wasm {
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
         let config = load_config();
+        let engine = Self::new_engine(config).unwrap_or_else(|e| {
+            eprintln!("Failed to create engine from config, using defaults: {e}");
+            Self::new_engine(FluffConfig::default())
+                .expect("default config must produce a valid engine")
+        });
         Self {
-            engine: Self::new_engine(config).unwrap(),
+            engine,
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: HashMap::new(),
         }
@@ -120,12 +145,17 @@ impl LanguageServer {
     fn on_request(&mut self, id: RequestId, method: &str, params: Value) -> Option<Response> {
         match method {
             Formatting::METHOD => {
-                let DocumentFormattingParams {
-                    text_document: TextDocumentIdentifier { uri },
-                    ..
-                } = serde_json::from_value(params).unwrap();
-
-                let edits = self.format(uri);
+                let params: DocumentFormattingParams = match serde_json::from_value(params) {
+                    Ok(p) => p,
+                    Err(e) => {
+                        return Some(Response::new_err(
+                            id,
+                            lsp_server::ErrorCode::InvalidParams as i32,
+                            e.to_string(),
+                        ));
+                    }
+                };
+                let edits = self.format(params.text_document.uri);
                 Some(Response::new_ok(id, edits))
             }
             _ => None,
@@ -133,7 +163,10 @@ impl LanguageServer {
     }
 
     fn format(&mut self, uri: Uri) -> Vec<lsp_types::TextEdit> {
-        let text = self.documents.get(&uri).cloned().unwrap();
+        let text = match self.documents.get(&uri).cloned() {
+            Some(text) => text,
+            None => return Vec::new(),
+        };
         let new_text = self.format_source(&text);
         build_full_document_edit(&text, new_text)
     }
@@ -145,7 +178,7 @@ impl LanguageServer {
         }) {
             Ok(report) => report.fixed_source.unwrap_or_else(|| source.to_string()),
             Err(e) => {
-                eprintln!("Failed to format source: {}", e.value);
+                eprintln!("Failed to format source: {e}");
                 source.to_string()
             }
         }
@@ -168,7 +201,10 @@ impl LanguageServer {
     pub fn on_notification(&mut self, method: &str, params: Value) {
         match method {
             DidOpenTextDocument::METHOD => {
-                let params: DidOpenTextDocumentParams = serde_json::from_value(params).unwrap();
+                let Ok(params) = serde_json::from_value::<DidOpenTextDocumentParams>(params)
+                else {
+                    return;
+                };
                 let TextDocumentItem {
                     uri,
                     language_id: _,
@@ -180,7 +216,11 @@ impl LanguageServer {
                 self.documents.insert(uri, text);
             }
             DidChangeTextDocument::METHOD => {
-                let params: DidChangeTextDocumentParams = serde_json::from_value(params).unwrap();
+                let Ok(params) =
+                    serde_json::from_value::<DidChangeTextDocumentParams>(params)
+                else {
+                    return;
+                };
 
                 let content = params.content_changes[0].text.clone();
                 let VersionedTextDocumentIdentifier { uri, version: _ } = params.text_document;
@@ -189,11 +229,19 @@ impl LanguageServer {
                 self.documents.insert(uri, content);
             }
             DidCloseTextDocument::METHOD => {
-                let params: DidCloseTextDocumentParams = serde_json::from_value(params).unwrap();
+                let Ok(params) =
+                    serde_json::from_value::<DidCloseTextDocumentParams>(params)
+                else {
+                    return;
+                };
                 self.documents.remove(&params.text_document.uri);
             }
             DidSaveTextDocument::METHOD => {
-                let params: DidSaveTextDocumentParams = serde_json::from_value(params).unwrap();
+                let Ok(params) =
+                    serde_json::from_value::<DidSaveTextDocumentParams>(params)
+                else {
+                    return;
+                };
                 let uri = params.text_document.uri.as_str();
 
                 if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
@@ -228,7 +276,7 @@ impl LanguageServer {
         }) {
             Ok(report) => report,
             Err(e) => {
-                eprintln!("Failed to check file: {}", e.value);
+                eprintln!("Failed to check file: {e}");
                 return;
             }
         };
@@ -280,24 +328,27 @@ impl LanguageServer {
     }
 }
 
-pub fn run() {
+pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     let (connection, io_threads) = Connection::stdio();
-    let (id, params) = connection.initialize_start().unwrap();
+    let (id, params) = connection.initialize_start()?;
 
-    let init_param: InitializeParams = serde_json::from_value(params).unwrap();
-    let initialize_result = serde_json::to_value(server_initialize_result()).unwrap();
-    connection.initialize_finish(id, initialize_result).unwrap();
+    let init_param: InitializeParams = serde_json::from_value(params)?;
+    let initialize_result = serde_json::to_value(server_initialize_result())?;
+    connection.initialize_finish(id, initialize_result)?;
 
     main_loop(connection, init_param);
 
-    io_threads.join().unwrap();
+    io_threads.join()?;
+    Ok(())
 }
 
 fn main_loop(connection: Connection, _init_param: InitializeParams) {
     let sender = connection.sender.clone();
     let mut lsp = LanguageServer::new(move |diagnostics| {
         let notification = new_notification::<PublishDiagnostics>(diagnostics);
-        sender.send(Message::Notification(notification)).unwrap();
+        if let Err(e) = sender.send(Message::Notification(notification)) {
+            eprintln!("Failed to send diagnostics notification: {e}");
+        }
     });
 
     let params = save_registration_options();
@@ -308,18 +359,20 @@ fn main_loop(connection: Connection, _init_param: InitializeParams) {
             "client/registerCapability".to_owned(),
             params,
         )))
-        .unwrap();
+        .unwrap_or_else(|e| eprintln!("Failed to send registration request: {e}"));
 
     for message in &connection.receiver {
         match message {
             Message::Request(request) => {
-                if connection.handle_shutdown(&request).unwrap() {
+                if connection.handle_shutdown(&request).unwrap_or(false) {
                     return;
                 }
 
                 if let Some(response) = lsp.on_request(request.id, &request.method, request.params)
                 {
-                    connection.sender.send(Message::Response(response)).unwrap();
+                    if let Err(e) = connection.sender.send(Message::Response(response)) {
+                        eprintln!("Failed to send response: {e}");
+                    }
                 }
             }
             Message::Response(_) => {}
@@ -461,7 +514,7 @@ mod tests {
     };
     use lsp_types::{
         DidChangeTextDocumentParams, DidOpenTextDocumentParams, DidSaveTextDocumentParams,
-        TextDocumentContentChangeEvent,
+        TextDocumentContentChangeEvent, TextDocumentIdentifier,
     };
 
     use super::*;

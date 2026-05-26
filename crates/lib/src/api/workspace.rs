@@ -3,7 +3,6 @@ use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 use ignore::gitignore::Gitignore;
-use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::helpers;
 
 use super::{RunReport, Source, SourceId, SqruffError};
@@ -43,7 +42,7 @@ impl IgnoreFile {
 
         let (ignore, err) = Gitignore::new(ignore_path);
         if let Some(err) = err {
-            return Err(SQLFluffUserError::new(err.to_string()));
+            return Err(SqruffError::Config(err.to_string()));
         }
 
         Ok(Self { ignore })
@@ -140,8 +139,9 @@ impl Workspace {
                 continue;
             }
 
-            std::fs::write(path, fixed_source).map_err(|err| {
-                SQLFluffUserError::new(format!("Failed to write '{}': {err}", path.display()))
+            std::fs::write(path, fixed_source).map_err(|source| SqruffError::Io {
+                path: path.clone(),
+                source,
             })?;
         }
 
@@ -183,7 +183,7 @@ pub fn discover_paths(
         if options.ignore_non_existent_files {
             return Ok(Vec::new());
         }
-        return Err(SQLFluffUserError::new(format!(
+        return Err(SqruffError::Config(format!(
             "Specified path does not exist. Check it/they exist(s): {path:?}"
         )));
     };
@@ -222,23 +222,20 @@ fn collect_paths(
         return Ok(());
     }
 
-    let entries = std::fs::read_dir(dir).map_err(|err| {
-        SQLFluffUserError::new(format!(
-            "Failed to read directory '{}': {err}",
-            dir.display()
-        ))
+    let entries = std::fs::read_dir(dir).map_err(|source| SqruffError::Io {
+        path: dir.to_path_buf(),
+        source,
     })?;
 
     for entry in entries {
-        let entry = entry.map_err(|err| {
-            SQLFluffUserError::new(format!(
-                "Failed to read directory '{}': {err}",
-                dir.display()
-            ))
+        let entry = entry.map_err(|source| SqruffError::Io {
+            path: dir.to_path_buf(),
+            source,
         })?;
         let path = entry.path();
-        let file_type = entry.file_type().map_err(|err| {
-            SQLFluffUserError::new(format!("Failed to inspect '{}': {err}", path.display()))
+        let file_type = entry.file_type().map_err(|source| SqruffError::Io {
+            path: path.clone(),
+            source,
         })?;
 
         if file_type.is_dir() {
@@ -277,8 +274,9 @@ fn is_lintable_file(path: &Path) -> bool {
 }
 
 fn source_from_path(path: PathBuf) -> Result<Source<'static>, SqruffError> {
-    let text = std::fs::read_to_string(&path).map_err(|err| {
-        SQLFluffUserError::new(format!("Failed to read '{}': {err}", path.display()))
+    let text = std::fs::read_to_string(&path).map_err(|source| SqruffError::Io {
+        path: path.clone(),
+        source,
     })?;
 
     Ok(Source {

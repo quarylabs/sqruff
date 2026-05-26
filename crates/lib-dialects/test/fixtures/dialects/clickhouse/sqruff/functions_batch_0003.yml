@@ -1,0 +1,751 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayMax
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayMin
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayNormalizedGini
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayPartialReverseSort
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayPartialShuffle
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayPartialSort
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayPopBack
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayPopFront
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayProduct
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayPushBack
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayPushFront
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayRandomSample
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayReduce
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayReduceInRanges
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayResize
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayReverse
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayReverseFill
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayReverseSort
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayReverseSplit
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayAUC
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayROCAUC
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayRotateLeft
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayRotateRight
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayShiftLeft
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayShiftRight
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayShingles
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayShuffle
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arraySimilarity
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arraySlice
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arraySort
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arraySplit
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayStringConcat
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arraySum
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arraySymmetricDifference
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayUnion
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayUniq
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayWithConstant
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayZip
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: arrayZipUnaligned
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ascii
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: asin
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: asinh
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: assumeNotNull
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: atan
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: atan2
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: atanh
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: avg
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: avgWeighted
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: bar
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: base58Decode
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+- statement_terminator: ;

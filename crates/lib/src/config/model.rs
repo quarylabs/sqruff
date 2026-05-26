@@ -16,6 +16,7 @@ use super::raw::{RawConfig, Value, merge_configs, split_comma_separated_string};
 use super::rules::RuleConfigs;
 use super::templater::TemplaterConfig;
 use crate::api::SqruffError;
+use crate::templaters::TemplaterKind;
 use crate::utils::reflow::config::ReflowConfig;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -64,13 +65,94 @@ impl DialectConfigStore {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct CoreConfig {
-    no_color: bool,
-    verbosity: i32,
-    disable_noqa: bool,
-    max_line_length: usize,
-    rule_allowlist: Option<Vec<String>>,
-    rule_denylist: Vec<String>,
-    sql_file_exts: Vec<String>,
+    pub verbose: u8,
+    pub no_color: bool,
+    pub dialect: Option<DialectKind>,
+    pub templater: TemplaterKind,
+    pub rule_allowlist: Option<Vec<RuleSelector>>,
+    pub rule_denylist: Vec<RuleSelector>,
+    pub output_line_length: usize,
+    pub runaway_limit: usize,
+    pub ignore: Vec<ErrorCategory>,
+    pub warnings: Vec<WarningSelector>,
+    pub warn_unused_ignores: bool,
+    pub ignore_templated_areas: bool,
+    pub encoding: EncodingMode,
+    pub disable_noqa: bool,
+    pub sql_file_exts: Vec<String>,
+    pub fix_even_unparsable: bool,
+    pub large_file_skip_char_limit: usize,
+    pub large_file_skip_byte_limit: usize,
+    pub max_line_length: usize,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EncodingMode {
+    Autodetect,
+    Utf8,
+    Utf8Sig,
+    Other,
+}
+
+impl EncodingMode {
+    fn from_name(value: &str) -> Self {
+        match value.to_ascii_lowercase().as_str() {
+            "autodetect" => Self::Autodetect,
+            "utf-8" => Self::Utf8,
+            "utf-8-sig" => Self::Utf8Sig,
+            _ => Self::Other,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuleSelector(String);
+
+impl RuleSelector {
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<String> for RuleSelector {
+    fn from(value: String) -> Self {
+        Self(value)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WarningSelector(String);
+
+impl WarningSelector {
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<String> for WarningSelector {
+    fn from(value: String) -> Self {
+        Self(value)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ErrorCategory {
+    Lexing,
+    Linting,
+    Parsing,
+    Templating,
+}
+
+impl ErrorCategory {
+    fn from_name(value: &str) -> Result<Self, String> {
+        match value.to_ascii_lowercase().as_str() {
+            "lexing" => Ok(Self::Lexing),
+            "linting" => Ok(Self::Linting),
+            "parsing" => Ok(Self::Parsing),
+            "templating" => Ok(Self::Templating),
+            _ => Err(format!("unknown error category '{value}'")),
+        }
+    }
 }
 
 // ── IndentationConfig ────────────────────────────────────────────────────────
@@ -113,7 +195,7 @@ impl FluffConfig {
         let templater = TemplaterConfig::from_raw(&raw);
         let dialects = DialectConfigStore::from_raw(&raw);
 
-        let dialect_kind = configured_dialect_kind_from_raw(&raw);
+        let dialect_kind = core.dialect.unwrap_or_default();
         let dialect_config = dialects.section(dialect_kind);
         let dialect = kind_to_dialect(&dialect_kind, dialect_config)
             .expect("Dialect is disabled. Please enable the corresponding feature.");
@@ -213,11 +295,11 @@ impl FluffConfig {
         self.dialects.section(dialect_kind)
     }
 
-    pub fn templater_kind(&self) -> crate::templaters::TemplaterKind {
+    pub fn templater_kind(&self) -> TemplaterKind {
         self.templater.kind()
     }
 
-    pub(crate) fn try_templater_kind(&self) -> Result<crate::templaters::TemplaterKind, String> {
+    pub(crate) fn try_templater_kind(&self) -> Result<TemplaterKind, String> {
         Ok(self.templater.kind())
     }
 
@@ -237,15 +319,31 @@ impl FluffConfig {
         self.core.disable_noqa()
     }
 
+    pub fn ignore_templated_areas(&self) -> bool {
+        self.core.ignore_templated_areas
+    }
+
+    pub fn output_line_length(&self) -> usize {
+        self.core.output_line_length
+    }
+
+    pub fn runaway_limit(&self) -> usize {
+        self.core.runaway_limit
+    }
+
     pub fn max_line_length(&self) -> usize {
         self.core.max_line_length()
     }
 
-    pub fn rule_allowlist(&self) -> Option<&[String]> {
+    pub fn fix_even_unparsable(&self) -> bool {
+        self.core.fix_even_unparsable
+    }
+
+    pub fn rule_allowlist(&self) -> Option<&[RuleSelector]> {
         self.core.rule_allowlist()
     }
 
-    pub fn rule_denylist(&self) -> &[String] {
+    pub fn rule_denylist(&self) -> &[RuleSelector] {
         self.core.rule_denylist()
     }
 
@@ -253,25 +351,15 @@ impl FluffConfig {
         self.rules.config_map(rule_config_ref)
     }
 
-    pub fn templater_section(
-        &self,
-        templater: crate::templaters::TemplaterKind,
-    ) -> Option<&HashMap<String, Value>> {
+    pub fn templater_section(&self, templater: TemplaterKind) -> Option<&HashMap<String, Value>> {
         self.templater.section(templater)
     }
 
-    pub fn templater_value(
-        &self,
-        templater: crate::templaters::TemplaterKind,
-        key: &str,
-    ) -> Option<&Value> {
+    pub fn templater_value(&self, templater: TemplaterKind, key: &str) -> Option<&Value> {
         self.templater.value(templater, key)
     }
 
-    pub fn templater_context(
-        &self,
-        templater: crate::templaters::TemplaterKind,
-    ) -> Option<&HashMap<String, Value>> {
+    pub fn templater_context(&self, templater: TemplaterKind) -> Option<&HashMap<String, Value>> {
         self.templater_value(templater, "context")
             .and_then(Value::as_map)
     }
@@ -348,21 +436,26 @@ impl CoreConfig {
     fn from_raw(raw: &RawConfig) -> Self {
         let core = raw["core"].as_map().unwrap();
 
-        let sql_file_exts = raw["core"]["sql_file_exts"]
-            .as_array()
-            .unwrap_or_default()
-            .iter()
-            .filter_map(|it| it.as_string().map(ToOwned::to_owned))
-            .collect();
-
         Self {
+            verbose: u8_value(core, "verbose"),
             no_color: bool_value(core, "nocolor"),
-            verbosity: int_value(core, "verbose"),
+            dialect: dialect_value(core, "dialect"),
+            templater: templater_value(core, "templater"),
+            rule_allowlist: rule_selector_list_value(core, "rule_allowlist"),
+            rule_denylist: rule_selector_list_value(core, "rule_denylist").unwrap_or_default(),
+            output_line_length: usize_value(core, "output_line_length"),
+            runaway_limit: usize_value(core, "runaway_limit"),
+            ignore: error_category_list_value(core, "ignore").unwrap_or_default(),
+            warnings: warning_selector_list_value(core, "warnings").unwrap_or_default(),
+            warn_unused_ignores: bool_value(core, "warn_unused_ignores"),
+            ignore_templated_areas: bool_value(core, "ignore_templated_areas"),
+            encoding: encoding_value(core, "encoding"),
             disable_noqa: bool_value(core, "disable_noqa"),
-            max_line_length: int_value(core, "max_line_length").max(0) as usize,
-            rule_allowlist: string_list_value(core, "rule_allowlist"),
-            rule_denylist: string_list_value(core, "rule_denylist").unwrap_or_default(),
-            sql_file_exts,
+            sql_file_exts: string_vec_value(core, "sql_file_exts"),
+            fix_even_unparsable: bool_value(core, "fix_even_unparsable"),
+            large_file_skip_char_limit: usize_value(core, "large_file_skip_char_limit"),
+            large_file_skip_byte_limit: usize_value(core, "large_file_skip_byte_limit"),
+            max_line_length: usize_value(core, "max_line_length"),
         }
     }
 
@@ -371,7 +464,7 @@ impl CoreConfig {
     }
 
     pub fn verbosity(&self) -> i32 {
-        self.verbosity
+        i32::from(self.verbose)
     }
 
     pub fn disable_noqa(&self) -> bool {
@@ -382,11 +475,11 @@ impl CoreConfig {
         self.max_line_length
     }
 
-    pub fn rule_allowlist(&self) -> Option<&[String]> {
+    pub fn rule_allowlist(&self) -> Option<&[RuleSelector]> {
         self.rule_allowlist.as_deref()
     }
 
-    pub fn rule_denylist(&self) -> &[String] {
+    pub fn rule_denylist(&self) -> &[RuleSelector] {
         &self.rule_denylist
     }
 
@@ -441,17 +534,6 @@ impl<'a> From<&'a FluffConfig> for Parser<'a> {
     }
 }
 
-fn configured_dialect_kind_from_raw(configs: &RawConfig) -> DialectKind {
-    match configs
-        .get("core")
-        .and_then(|map| map.as_map().unwrap().get("dialect"))
-    {
-        None => DialectKind::default(),
-        Some(Value::String(std)) => DialectKind::from_str(std).unwrap(),
-        _value => DialectKind::default(),
-    }
-}
-
 fn normalize_core_lists(configs: &mut RawConfig) {
     for (in_key, out_key) in [
         ("ignore", "ignore"),
@@ -488,6 +570,14 @@ fn int_value(map: &HashMap<String, Value>, key: &str) -> i32 {
     map.get(key).and_then(Value::as_int).unwrap_or_default()
 }
 
+fn u8_value(map: &HashMap<String, Value>, key: &str) -> u8 {
+    int_value(map, key).clamp(0, i32::from(u8::MAX)) as u8
+}
+
+fn usize_value(map: &HashMap<String, Value>, key: &str) -> usize {
+    int_value(map, key).max(0) as usize
+}
+
 fn bool_value(map: &HashMap<String, Value>, key: &str) -> bool {
     map.get(key).and_then(Value::as_bool).unwrap_or_default()
 }
@@ -499,6 +589,59 @@ fn string_list_value(map: &HashMap<String, Value>, key: &str) -> Option<Vec<Stri
             .filter_map(|value| value.as_string().map(ToOwned::to_owned))
             .collect()
     })
+}
+
+fn string_vec_value(map: &HashMap<String, Value>, key: &str) -> Vec<String> {
+    string_list_value(map, key).unwrap_or_default()
+}
+
+fn dialect_value(map: &HashMap<String, Value>, key: &str) -> Option<DialectKind> {
+    map.get(key)
+        .and_then(Value::as_string)
+        .map(DialectKind::from_str)
+        .transpose()
+        .unwrap()
+}
+
+fn templater_value(map: &HashMap<String, Value>, key: &str) -> TemplaterKind {
+    map.get(key)
+        .and_then(Value::as_string)
+        .map(TemplaterKind::from_name)
+        .transpose()
+        .ok()
+        .flatten()
+        .unwrap_or(TemplaterKind::Raw)
+}
+
+fn rule_selector_list_value(map: &HashMap<String, Value>, key: &str) -> Option<Vec<RuleSelector>> {
+    string_list_value(map, key).map(|values| values.into_iter().map(RuleSelector::from).collect())
+}
+
+fn warning_selector_list_value(
+    map: &HashMap<String, Value>,
+    key: &str,
+) -> Option<Vec<WarningSelector>> {
+    string_list_value(map, key)
+        .map(|values| values.into_iter().map(WarningSelector::from).collect())
+}
+
+fn error_category_list_value(
+    map: &HashMap<String, Value>,
+    key: &str,
+) -> Option<Vec<ErrorCategory>> {
+    string_list_value(map, key).map(|values| {
+        values
+            .into_iter()
+            .map(|value| ErrorCategory::from_name(&value).unwrap())
+            .collect()
+    })
+}
+
+fn encoding_value(map: &HashMap<String, Value>, key: &str) -> EncodingMode {
+    map.get(key)
+        .and_then(Value::as_string)
+        .map(EncodingMode::from_name)
+        .unwrap_or(EncodingMode::Autodetect)
 }
 
 /// Builder for [`FluffConfig`].
@@ -602,10 +745,96 @@ dialect = postgres
 
         assert_eq!(config.dialect_kind(), DialectKind::Postgres);
         assert_eq!(
-            config.rule_allowlist().unwrap(),
-            &["AL02".to_string(), "LT02".to_string()]
+            config
+                .rule_allowlist()
+                .unwrap()
+                .iter()
+                .map(RuleSelector::as_str)
+                .collect::<Vec<_>>(),
+            vec!["AL02", "LT02"]
         );
-        assert_eq!(config.rule_denylist(), &["CP01".to_string()]);
+        assert_eq!(
+            config
+                .rule_denylist()
+                .iter()
+                .map(RuleSelector::as_str)
+                .collect::<Vec<_>>(),
+            vec!["CP01"]
+        );
+    }
+
+    #[test]
+    fn core_config_resolves_typed_values() {
+        let config = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+verbose = 2
+nocolor = True
+dialect = postgres
+templater = placeholder
+rules = AL01,LT02
+exclude_rules = CP01
+output_line_length = 120
+runaway_limit = 20
+ignore = lexing,parsing
+warnings = LT01,TMP
+warn_unused_ignores = True
+ignore_templated_areas = False
+encoding = utf-8-sig
+disable_noqa = True
+sql_file_exts = .sql,.ddl
+fix_even_unparsable = True
+large_file_skip_char_limit = 100
+large_file_skip_byte_limit = 200
+max_line_length = 90
+"#,
+            None,
+        )
+        .unwrap();
+
+        let core = config.core();
+        assert_eq!(core.verbose, 2);
+        assert!(core.no_color);
+        assert_eq!(core.dialect, Some(DialectKind::Postgres));
+        assert_eq!(core.templater, TemplaterKind::Placeholder);
+        assert_eq!(
+            core.rule_allowlist
+                .as_deref()
+                .unwrap()
+                .iter()
+                .map(RuleSelector::as_str)
+                .collect::<Vec<_>>(),
+            vec!["AL01", "LT02"]
+        );
+        assert_eq!(
+            core.rule_denylist
+                .iter()
+                .map(RuleSelector::as_str)
+                .collect::<Vec<_>>(),
+            vec!["CP01"]
+        );
+        assert_eq!(core.output_line_length, 120);
+        assert_eq!(core.runaway_limit, 20);
+        assert_eq!(
+            core.ignore,
+            vec![ErrorCategory::Lexing, ErrorCategory::Parsing]
+        );
+        assert_eq!(
+            core.warnings
+                .iter()
+                .map(WarningSelector::as_str)
+                .collect::<Vec<_>>(),
+            vec!["LT01", "TMP"]
+        );
+        assert!(core.warn_unused_ignores);
+        assert!(!core.ignore_templated_areas);
+        assert_eq!(core.encoding, EncodingMode::Utf8Sig);
+        assert!(core.disable_noqa);
+        assert_eq!(core.sql_file_exts, vec![".sql", ".ddl"]);
+        assert!(core.fix_even_unparsable);
+        assert_eq!(core.large_file_skip_char_limit, 100);
+        assert_eq!(core.large_file_skip_byte_limit, 200);
+        assert_eq!(core.max_line_length, 90);
     }
 
     #[test]
@@ -627,7 +856,15 @@ rules = AL01
         let config = base.with_patch(patch);
 
         assert_eq!(config.dialect_kind(), DialectKind::Postgres);
-        assert_eq!(config.rule_allowlist().unwrap(), &["AL01".to_string()]);
+        assert_eq!(
+            config
+                .rule_allowlist()
+                .unwrap()
+                .iter()
+                .map(RuleSelector::as_str)
+                .collect::<Vec<_>>(),
+            vec!["AL01"]
+        );
     }
 
     #[test]

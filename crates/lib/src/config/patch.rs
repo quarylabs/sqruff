@@ -19,7 +19,7 @@ pub struct CoreConfigPatch {
     pub dialect: NullableSetting<DialectKind>,
     pub max_line_length: Setting<usize>,
     pub nocolor: Setting<bool>,
-    pub verbose: Setting<i32>,
+    pub verbose: Setting<u8>,
     pub output_line_length: Setting<usize>,
     pub runaway_limit: Setting<usize>,
     pub disable_noqa: Setting<bool>,
@@ -66,7 +66,7 @@ impl CoreConfigPatch {
             map.insert("nocolor".into(), Value::Bool(v));
         }
         if let Setting::Set(v) = self.verbose {
-            map.insert("verbose".into(), Value::Int(v));
+            map.insert("verbose".into(), Value::Int(i32::from(v)));
         }
         if let Setting::Set(v) = self.output_line_length {
             map.insert("output_line_length".into(), Value::Int(v as i32));

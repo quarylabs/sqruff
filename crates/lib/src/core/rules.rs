@@ -371,10 +371,14 @@ impl RuleSet {
 
         let allowlist: Vec<String> = config
             .rule_allowlist()
-            .map(|rules| rules.to_vec())
+            .map(|rules| rules.iter().map(|rule| rule.as_str().to_owned()).collect())
             .unwrap_or_else(|| self.register.keys().map(|it| it.to_string()).collect());
 
-        let denylist: Vec<String> = config.rule_denylist().to_vec();
+        let denylist: Vec<String> = config
+            .rule_denylist()
+            .iter()
+            .map(|rule| rule.as_str().to_owned())
+            .collect();
 
         let expanded_allowlist = self.expand_rule_refs(allowlist, &reference_map)?;
         let expanded_denylist = self.expand_rule_refs(denylist, &reference_map)?;

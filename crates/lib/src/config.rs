@@ -14,7 +14,8 @@ pub use error::ConfigError;
 pub use layout::{LayoutConfig, LayoutConfigPatch, LayoutTypeConfigPatch};
 pub use loader::ConfigLoader;
 pub use model::{
-    CoreConfig, DialectConfigStore, FluffConfig, FluffConfigBuilder, IndentationConfig,
+    CoreConfig, DialectConfigStore, EncodingMode, ErrorCategory, FluffConfig, FluffConfigBuilder,
+    IndentationConfig, RuleSelector, WarningSelector,
 };
 pub use options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 pub use patch::{ConfigPatch, CoreConfigPatch, DialectConfigPatch, IndentationConfigPatch};

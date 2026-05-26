@@ -1,8 +1,8 @@
 use std::io::{Stderr, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use sqruff_lib::Formatter;
 use sqruff_lib::core::linter::linted_file::LintedFile;
+use sqruff_lib::{Formatter, api::LintDiagnostic};
 
 #[derive(Debug)]
 pub(crate) struct GithubAnnotationNativeFormatter {
@@ -51,4 +51,21 @@ impl Formatter for GithubAnnotationNativeFormatter {
     fn completion_message(&self, _count: usize) {
         // No-op
     }
+}
+
+impl GithubAnnotationNativeFormatter {
+    pub(crate) fn dispatch_file_diagnostics(&self, fname: &str, diagnostics: &[LintDiagnostic]) {
+        for diagnostic in diagnostics {
+            let code = diagnostic.code.as_deref().unwrap_or("????");
+            let message = format!(
+                "::error title=sqruff,file={},line={},col={}::{}: {}\n",
+                fname, diagnostic.line, diagnostic.column, code, diagnostic.message
+            );
+
+            self.dispatch(&message);
+            self.has_fail.store(true, Ordering::SeqCst);
+        }
+    }
+
+    pub(crate) fn emit_completion(&self) {}
 }

@@ -4,8 +4,7 @@ use sqruff_lib::api::{
     Engine, EngineOptions, LintDiagnostic, Mode, ParseErrors, Source, SourceId, SqruffError,
 };
 use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::linter::core::Linter as SqruffLinter;
-use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
+use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use std::borrow::Cow;
 use wasm_bindgen::prelude::*;
@@ -31,7 +30,7 @@ impl Diagnostic {
 #[wasm_bindgen]
 pub struct Linter {
     engine: Engine,
-    base: SqruffLinter,
+    config: FluffConfig,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -99,9 +98,7 @@ impl Linter {
             },
         )
         .map_err(|e| JsValue::from_str(&e.to_string()))?;
-        let base = SqruffLinter::new(config, None, ParseErrors::Include)
-            .map_err(|e| JsValue::from_str(&e.to_string()))?;
-        Ok(Self { engine, base })
+        Ok(Self { engine, config })
     }
 
     #[wasm_bindgen]
@@ -138,46 +135,45 @@ impl Linter {
             Ok(report) => report,
             Err(e) => return result_from_error(e),
         };
-        let tables = Tables::default();
-        let parsed = match self.base.parse_string(&tables, sql, None) {
-            Ok(parsed) => parsed,
-            Err(e) => return result_from_str(&e.value),
-        };
-
-        let templated = match self
-            .base
-            .render_string(sql, "".to_string(), self.base.config())
-        {
-            Ok(t) => t,
-            Err(e) => return result_from_str(&e.value),
-        };
-
-        let cst = if tool == Tool::Cst {
-            parsed.tree.clone()
-        } else {
-            None
-        };
-
         let secondary = match tool {
-            Tool::Cst => match cst {
-                Some(cst) => cst.stringify(false),
-                None => String::new(),
-            },
+            Tool::Cst => {
+                let parsed = match self.engine.parse_source(stdin_source(sql)) {
+                    Ok(parsed) => parsed,
+                    Err(e) => return result_from_error(e),
+                };
+                match parsed.tree {
+                    Some(cst) => cst.stringify(false),
+                    None => parsed
+                        .skipped
+                        .map(|reason| reason.message)
+                        .unwrap_or_default(),
+                }
+            }
             Tool::Lineage => {
-                let parser = Parser::new(
-                    self.base.config().get_dialect(),
-                    IndentationConfig::default(),
-                );
+                let parser = Parser::new(self.config.get_dialect(), IndentationConfig::default());
                 let (tables, node) = Lineage::new(parser, "", sql).build();
 
                 print_tree(&tables, node, "", "", "")
             }
-            Tool::Templater => templated.templated_file.to_yaml(),
+            Tool::Templater => {
+                let rendered = match self.engine.render_source_for_debug(stdin_source(sql)) {
+                    Ok(rendered) => rendered,
+                    Err(e) => return result_from_error(e),
+                };
+                match rendered.templated_file {
+                    Some(templated_file) => templated_file.to_yaml(),
+                    None => rendered
+                        .skipped
+                        .map(|reason| reason.message)
+                        .unwrap_or_default(),
+                }
+            }
             Tool::Lexer => {
-                let lexer = self.base.config().get_dialect().lexer();
-                let lex_tables = Tables::default();
-                let (segments, _errors) = lexer.lex(&lex_tables, sql);
-                format_lexer_output(&segments)
+                let lexed = match self.engine.lex_source_for_debug(stdin_source(sql)) {
+                    Ok(lexed) => lexed,
+                    Err(e) => return result_from_error(e),
+                };
+                format_lexer_output(&lexed.segments)
             }
             Tool::Format => String::new(),
         };
@@ -202,6 +198,13 @@ impl Linter {
             Mode::Check => self.engine.check_source(source),
             Mode::Fix => self.engine.fix_source(source),
         }
+    }
+}
+
+fn stdin_source(sql: &str) -> Source<'_> {
+    Source {
+        id: SourceId::Stdin,
+        text: Cow::Borrowed(sql),
     }
 }
 

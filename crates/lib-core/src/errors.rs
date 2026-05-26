@@ -154,6 +154,7 @@ impl SQLParseError {
 impl From<SQLParseError> for SQLBaseError {
     fn from(value: SQLParseError) -> Self {
         let (mut line_no, mut line_pos) = Default::default();
+        let mut source_slice = Default::default();
 
         let pos_marker = value
             .segment
@@ -162,11 +163,13 @@ impl From<SQLParseError> for SQLBaseError {
 
         if let Some(pos_marker) = pos_marker {
             (line_no, line_pos) = pos_marker.source_position();
+            source_slice = pos_marker.source_slice.clone();
         }
 
         Self::default().config(|this| {
             this.line_no = line_no;
             this.line_pos = line_pos;
+            this.source_slice = source_slice;
             this.description = value.description;
         })
     }

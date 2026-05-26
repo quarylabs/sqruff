@@ -100,6 +100,7 @@ mod tests {
     use crate::api::{ParseErrors, SkipReason};
     use crate::templaters::{
         ProcessingMode, Templater, TemplaterError, TemplaterInput, TemplaterOutput,
+        TemplaterRuntime,
     };
 
     use super::*;
@@ -205,7 +206,12 @@ dialect = ansi
             None,
         );
         let engine = Engine {
-            inner: Linter::new(config, Some(&SKIPPING_TEMPLATER), ParseErrors::Include).unwrap(),
+            inner: Linter::new(
+                config,
+                Some(TemplaterRuntime::custom(&SKIPPING_TEMPLATER)),
+                ParseErrors::Include,
+            )
+            .unwrap(),
         };
 
         let report = engine

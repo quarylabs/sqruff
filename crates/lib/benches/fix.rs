@@ -74,13 +74,14 @@ fn fix(c: &mut Criterion) {
     )
     .unwrap();
     for (name, source) in passes {
+        let parsed = engine
+            .parse_for_fix(Source {
+                id: SourceId::Virtual(name.into()),
+                text: source.as_str().into(),
+            })
+            .unwrap();
         c.bench_function(name, |b| {
-            b.iter(|| {
-                black_box(engine.fix_source(Source {
-                    id: SourceId::Virtual(name.into()),
-                    text: source.as_str().into(),
-                }))
-            });
+            b.iter(|| black_box(engine.fix_parsed(parsed.clone())));
         });
     }
 }

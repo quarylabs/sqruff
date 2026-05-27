@@ -7,7 +7,7 @@ use sqruff_lib_core::parser::segments::Tables;
 
 use super::{
     EngineOptions, FileReport, LexDebugReport, LintDiagnostic, Mode, ParsedDebugReport,
-    RenderDebugReport, RunReport, RunRequest, Source, SourceId, SqruffError,
+    ParsedSource, RenderDebugReport, RunReport, RunRequest, Source, SourceId, SqruffError,
 };
 
 pub struct Engine {
@@ -141,6 +141,52 @@ impl Engine {
         })
     }
 
+    /// Parse a source without running any lint rules.
+    ///
+    /// The returned [`ParsedSource`] can be passed directly to [`Engine::fix_parsed`]
+    /// or [`Engine::check_parsed`], which avoids re-parsing on every call — useful
+    /// for benchmarks and hot-path code that fix/check the same source multiple times.
+    pub fn parse_for_fix(&self, source: Source<'_>) -> Result<ParsedSource, SqruffError> {
+        let config = self.inner.config().for_source(source.text.as_ref())?;
+        let rendered = self
+            .inner
+            .render_source(source.text.as_ref(), &source.id, &config)
+            .map_err(SqruffError::from)?;
+        let (source_id, rendered_file) = match rendered {
+            RenderedSource::Rendered {
+                source_id,
+                rendered,
+            } => (source_id, rendered),
+            RenderedSource::Skipped { source_id, reason } => {
+                return Ok(ParsedSource {
+                    source_id,
+                    parsed: crate::core::linter::common::ParsedString {
+                        tree: None,
+                        violations: Vec::new(),
+                        templated_file: sqruff_lib_core::templaters::TemplatedFile::default(),
+                        filename: String::new(),
+                        source_str: String::new(),
+                    },
+                    skip_reason: Some(reason),
+                });
+            }
+        };
+        let parsed = self.inner.parse_rendered(&Tables::default(), rendered_file);
+        Ok(ParsedSource { source_id, parsed, skip_reason: None })
+    }
+
+    /// Fix a pre-parsed source. Use [`Engine::parse_for_fix`] to obtain the
+    /// [`ParsedSource`].
+    pub fn fix_parsed(&self, parsed: ParsedSource) -> Result<FileReport, SqruffError> {
+        self.lint_parsed_source(parsed, Mode::Fix)
+    }
+
+    /// Check a pre-parsed source. Use [`Engine::parse_for_fix`] to obtain the
+    /// [`ParsedSource`].
+    pub fn check_parsed(&self, parsed: ParsedSource) -> Result<FileReport, SqruffError> {
+        self.lint_parsed_source(parsed, Mode::Check)
+    }
+
     fn lint_source(&self, source: Source<'_>, mode: Mode) -> Result<FileReport, SqruffError> {
         let config = self.inner.config().for_source(source.text.as_ref())?;
         let rendered = self
@@ -148,6 +194,27 @@ impl Engine {
             .render_source(source.text.as_ref(), &source.id, &config)
             .map_err(SqruffError::from)?;
         self.lint_rendered_source(rendered, mode)
+    }
+
+    fn lint_parsed_source(
+        &self,
+        parsed: ParsedSource,
+        mode: Mode,
+    ) -> Result<FileReport, SqruffError> {
+        if let Some(reason) = parsed.skip_reason {
+            return Ok(FileReport {
+                source_id: parsed.source_id,
+                diagnostics: Vec::new(),
+                fixed_source: None,
+                skipped: Some(reason),
+            });
+        }
+        let tables = Tables::default();
+        let linted_file = self
+            .inner
+            .lint_parsed(&tables, parsed.parsed, mode)
+            .map_err(|error| SqruffError::Lint(error.value))?;
+        Ok(file_report_from_linted_file(linted_file, parsed.source_id, mode))
     }
 
     fn lint_rendered_source(

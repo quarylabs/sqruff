@@ -71,7 +71,7 @@ impl Linter {
         self.lint_parsed(&tables, parsed, mode)
     }
 
-    fn lint_parsed(
+    pub(crate) fn lint_parsed(
         &self,
         tables: &Tables,
         parsed_string: ParsedString,

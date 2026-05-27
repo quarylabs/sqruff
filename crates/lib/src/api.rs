@@ -14,5 +14,5 @@ pub use engine::Engine;
 pub use error::SqruffError;
 pub use options::{EngineOptions, Mode, ParseErrors, RunRequest};
 pub use report::{FileReport, RunReport, SkipReason};
-pub use source::{Source, SourceId};
+pub use source::{ParsedSource, Source, SourceId};
 pub use workspace::{IgnoreFile, IgnoreMatcher, PathDiscoveryOptions, Workspace, discover_paths};

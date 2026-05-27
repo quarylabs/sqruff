@@ -25,4 +25,3 @@ pub struct ParsedSource {
     pub(crate) parsed: ParsedString,
     pub(crate) skip_reason: Option<SkipReason>,
 }
-

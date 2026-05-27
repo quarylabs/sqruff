@@ -172,7 +172,11 @@ impl Engine {
             }
         };
         let parsed = self.inner.parse_rendered(&Tables::default(), rendered_file);
-        Ok(ParsedSource { source_id, parsed, skip_reason: None })
+        Ok(ParsedSource {
+            source_id,
+            parsed,
+            skip_reason: None,
+        })
     }
 
     /// Fix a pre-parsed source. Use [`Engine::parse_for_fix`] to obtain the
@@ -214,7 +218,11 @@ impl Engine {
             .inner
             .lint_parsed(&tables, parsed.parsed, mode)
             .map_err(|error| SqruffError::Lint(error.value))?;
-        Ok(file_report_from_linted_file(linted_file, parsed.source_id, mode))
+        Ok(file_report_from_linted_file(
+            linted_file,
+            parsed.source_id,
+            mode,
+        ))
     }
 
     fn lint_rendered_source(

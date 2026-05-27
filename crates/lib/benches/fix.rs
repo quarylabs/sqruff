@@ -1,8 +1,9 @@
-use criterion::{BatchSize, Criterion, criterion_group, criterion_main};
+use criterion::{Criterion, criterion_group, criterion_main};
 use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
 use sqruff_lib::config::FluffConfig;
 use std::hint::black_box;
 use std::path::Path;
+use std::time::Duration;
 
 include!("shims/global_alloc_overwrite.rs");
 
@@ -75,18 +76,25 @@ fn fix(c: &mut Criterion) {
     .unwrap();
     for (name, source) in passes {
         c.bench_function(name, |b| {
-            b.iter_batched(
-                || {
-                    engine
+            b.iter_custom(|iters| {
+                let mut elapsed = Duration::ZERO;
+
+                for _ in 0..iters {
+                    let parsed = engine
                         .parse_for_fix(Source {
                             id: SourceId::Virtual(name.into()),
                             text: source.as_str().into(),
                         })
-                        .unwrap()
-                },
-                |parsed| black_box(engine.fix_parsed(parsed)),
-                BatchSize::SmallInput,
-            );
+                        .unwrap();
+
+                    let start = std::time::Instant::now();
+                    let report = engine.fix_parsed(parsed).unwrap();
+                    black_box(report);
+                    elapsed += start.elapsed();
+                }
+
+                elapsed
+            });
         });
     }
 }

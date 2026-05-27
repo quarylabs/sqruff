@@ -193,7 +193,7 @@ impl FluffConfig {
         let indentation = IndentationConfig::from_raw(&raw);
         let layout = LayoutConfig::from_raw(&raw).map_err(config_error)?;
         let rules = RuleConfigs::from_raw(&raw);
-        let templater = TemplaterConfig::from_raw(&raw);
+        let templater = TemplaterConfig::from_raw(&raw).map_err(config_error)?;
         let dialects = DialectConfigStore::from_raw(&raw);
 
         let dialect_kind = core.dialect.unwrap_or_default();
@@ -361,22 +361,13 @@ impl FluffConfig {
         self.rules.config_map(rule_config_ref)
     }
 
-    pub fn templater_section(&self, templater: TemplaterKind) -> Option<&HashMap<String, Value>> {
-        self.templater.section(templater)
-    }
-
-    pub fn templater_value(&self, templater: TemplaterKind, key: &str) -> Option<&Value> {
-        self.templater.value(templater, key)
-    }
-
-    pub fn templater_context(&self, templater: TemplaterKind) -> Option<&HashMap<String, Value>> {
-        self.templater_value(templater, "context")
-            .and_then(Value::as_map)
+    pub fn templater(&self) -> &TemplaterConfig {
+        &self.templater
     }
 
     #[cfg(feature = "python")]
-    pub(crate) fn templater_root_value(&self, key: &str) -> Option<&Value> {
-        self.templater.root_value(key)
+    pub fn templater_context(&self, templater: TemplaterKind) -> Option<&HashMap<String, String>> {
+        self.templater.context(templater)
     }
 
     pub fn reflow(&self) -> &ReflowConfig {
@@ -930,7 +921,7 @@ templater = placeholder
     }
 
     #[test]
-    fn test_templater_section_uses_typed_kind() {
+    fn test_templater_config_uses_typed_fields() {
         let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
@@ -943,12 +934,9 @@ param_style = colon
         )
         .unwrap();
 
-        let section = config
-            .templater_section(TemplaterKind::Placeholder)
-            .unwrap();
         assert_eq!(
-            section.get("param_style").unwrap().as_string(),
-            Some("colon")
+            config.templater().placeholder.param_style,
+            Some(crate::templaters::PlaceholderStyle::Colon)
         );
     }
 
@@ -968,16 +956,13 @@ blah = foo
         .unwrap();
 
         let context = config.templater_context(TemplaterKind::Python).unwrap();
-        assert_eq!(context.get("blah").unwrap().as_string(), Some("foo"));
+        assert_eq!(context.get("blah").unwrap(), "foo");
     }
 
     #[test]
     fn try_from_source_returns_config_error_for_invalid_path_value() {
         let err = FluffConfig::try_from_source(
             r#"
-[sqruff]
-templater = dbt
-
 [sqruff:templater:dbt]
 project_dir = 1
 "#,

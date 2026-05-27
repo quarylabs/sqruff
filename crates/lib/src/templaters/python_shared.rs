@@ -33,56 +33,46 @@ impl PythonFluffConfig {
 
 impl From<&FluffConfig> for PythonFluffConfig {
     fn from(value: &FluffConfig) -> Self {
+        let templater = value.templater();
         Self {
-            templater_unwrap_wrapped_queries: value
-                .templater_root_value("unwrap_wrapped_queries")
-                .and_then(|value| value.as_bool())
-                .unwrap_or(false),
-            jinja_templater_paths: value
-                .templater_value(TemplaterKind::Jinja, "templater_paths")
-                .map(|value| {
-                    value
-                        .as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|v| v.as_string().unwrap().to_string())
-                        .collect::<Vec<_>>()
-                })
-                .unwrap_or_default(),
-            jinja_loader_search_path: value
-                .templater_value(TemplaterKind::Jinja, "loader_search_path")
-                .and_then(|value| value.as_string())
-                .map(ToString::to_string),
-            jinja_apply_dbt_builtins: value
-                .templater_value(TemplaterKind::Jinja, "apply_dbt_builtins")
-                .and_then(|value| value.as_bool())
-                .unwrap_or(false),
-            jinja_ignore_templating: value
-                .templater_value(TemplaterKind::Jinja, "ignore_templating")
-                .and_then(|value| value.as_bool()),
-            jinja_library_paths: value
-                .templater_value(TemplaterKind::Jinja, "library_paths")
-                .map(|value| {
-                    value
-                        .as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|v| v.as_string().unwrap().to_string())
-                        .collect::<Vec<_>>()
-                })
-                .unwrap_or_default(),
-            dbt_profile: None,
-            dbt_profiles_dir: value
-                .templater_value(TemplaterKind::Dbt, "profiles_dir")
-                .and_then(|value| value.as_string())
-                .map(ToString::to_string),
-            dbt_target: None,
-            dbt_target_path: None,
-            dbt_context: None,
-            dbt_project_dir: value
-                .templater_value(TemplaterKind::Dbt, "project_dir")
-                .and_then(|value| value.as_string())
-                .map(ToString::to_string),
+            templater_unwrap_wrapped_queries: templater.unwrap_wrapped_queries,
+            jinja_templater_paths: templater
+                .jinja
+                .templater_paths
+                .iter()
+                .map(|value| value.to_string_lossy().into_owned())
+                .collect(),
+            jinja_loader_search_path: templater
+                .jinja
+                .loader_search_path
+                .as_ref()
+                .map(|value| value.to_string_lossy().into_owned()),
+            jinja_apply_dbt_builtins: templater.jinja.apply_dbt_builtins,
+            jinja_ignore_templating: templater.jinja.ignore_templating,
+            jinja_library_paths: templater
+                .jinja
+                .library_paths
+                .iter()
+                .map(|value| value.to_string_lossy().into_owned())
+                .collect(),
+            dbt_profile: templater.dbt.profile.clone(),
+            dbt_profiles_dir: templater
+                .dbt
+                .profiles_dir
+                .as_ref()
+                .map(|value| value.to_string_lossy().into_owned()),
+            dbt_target: templater.dbt.target.clone(),
+            dbt_target_path: templater
+                .dbt
+                .target_path
+                .as_ref()
+                .map(|value| value.to_string_lossy().into_owned()),
+            dbt_context: templater.dbt.context.clone(),
+            dbt_project_dir: templater
+                .dbt
+                .project_dir
+                .as_ref()
+                .map(|value| value.to_string_lossy().into_owned()),
         }
     }
 }
@@ -104,12 +94,7 @@ impl<'py> FluffConfig {
             .templater_context(templater)
             .unwrap_or(&empty)
             .iter()
-            .map(|(k, v)| {
-                let value = v.as_string().ok_or(SQLFluffUserError::new(
-                    "Python templater context values must be strings".to_string(),
-                ))?;
-                Ok((k.to_string(), value.to_string()))
-            })
+            .map(|(k, v)| Ok((k.to_string(), v.to_string())))
             .collect::<Result<HashMap<String, String>, SQLFluffUserError>>()?;
         // pass object with Rust tuple of positional arguments
         let py_dict = PyDict::new(py);

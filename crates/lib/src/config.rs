@@ -22,4 +22,7 @@ pub use patch::{ConfigPatch, CoreConfigPatch, DialectConfigPatch, IndentationCon
 pub use raw::{Value, split_comma_separated_string};
 pub use rules::{RuleConfigs, RuleConfigsPatch};
 pub use setting::{Merge, NullableSetting, Setting};
-pub use templater::{TemplaterConfig, TemplaterConfigPatch};
+pub use templater::{
+    DbtTemplaterConfig, JinjaTemplaterConfig, PlaceholderParamValue, PlaceholderTemplaterConfig,
+    PythonTemplaterConfig, TemplaterConfig, TemplaterConfigPatch,
+};

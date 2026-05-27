@@ -232,7 +232,7 @@ impl ConfigLoader {
             let Some(values) = config_map.get(&section_name) else {
                 continue;
             };
-            let values = normalize_section_values(config_path, &section_name, values)?;
+            let values = normalize_section_values(values)?;
             sections.push((section_name, section_path, values));
         }
 
@@ -256,7 +256,7 @@ impl ConfigLoader {
                 SectionPath::Templater(path) => {
                     patch
                         .templater
-                        .merge_section(&path, &section_name, &values)
+                        .merge_section(config_path, &path, &section_name, &values)
                         .map_err(config_error)?;
                 }
                 SectionPath::RulesGlobal => {
@@ -288,8 +288,6 @@ impl ConfigLoader {
 }
 
 fn normalize_section_values(
-    config_path: Option<&Path>,
-    section_name: &str,
     values: &std::collections::HashMap<String, Option<String>>,
 ) -> Result<std::collections::HashMap<String, Option<String>>, SqruffError> {
     let mut normalized = std::collections::HashMap::new();
@@ -302,39 +300,7 @@ fn normalize_section_values(
                 "load_macros_from_path config is not implemented",
             ));
         }
-
-        let mut value = value.clone();
-        if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir") {
-            let Some(path_value) = value.as_deref() else {
-                return Err(SqruffError::Config(format!(
-                    "invalid path value for config key '{name}' in section '{section_name}'"
-                )));
-            };
-            if path_value.trim().is_empty() || path_value.trim().eq_ignore_ascii_case("none") {
-                return Err(SqruffError::Config(format!(
-                    "invalid path value for config key '{name}' in section '{section_name}'"
-                )));
-            }
-            if path_value.trim().parse::<i32>().is_ok()
-                || path_value.trim().eq_ignore_ascii_case("true")
-                || path_value.trim().eq_ignore_ascii_case("false")
-            {
-                return Err(SqruffError::Config(format!(
-                    "invalid path value for config key '{name}' in section '{section_name}'"
-                )));
-            }
-            let path = PathBuf::from(path_value);
-            if !path.is_absolute()
-                && let Some(config_path) = config_path.and_then(Path::parent)
-                && let Ok(current_dir) = std::env::current_dir()
-                && let Ok(config_path) = std::path::absolute(current_dir.join(config_path))
-            {
-                let path = config_path.join(path);
-                value = Some(path.to_string_lossy().into());
-            }
-        }
-
-        normalized.insert(name.clone(), value);
+        normalized.insert(name.clone(), value.clone());
     }
 
     Ok(normalized)

@@ -26,35 +26,20 @@ const NO_PARAM_OR_STYLE: &str =
 
 impl PlaceholderTemplater {
     fn derive_style(&self, config: &FluffConfig) -> Result<Regex, SQLFluffUserError> {
-        let config = config
-            .templater_section(crate::templaters::TemplaterKind::Placeholder)
-            .ok_or(SQLFluffUserError::new(NO_PARAM_OR_STYLE.to_string()))?;
-        match (config.get("param_regex"), config.get("param_style")) {
+        let config = &config.templater().placeholder;
+        match (&config.param_regex, config.param_style) {
             (Some(_), Some(_)) => Err(SQLFluffUserError::new(
                 "Both param_regex and param_style were provided to the placeholder templater."
                     .to_string(),
             )),
             (None, None) => Err(SQLFluffUserError::new(NO_PARAM_OR_STYLE.to_string())),
             (Some(param_regex), None) => {
-                let param_regex = param_regex.as_string().ok_or(SQLFluffUserError::new(
-                    "Invalid param_regex for templater 'placeholder'".to_string(),
-                ))?;
                 let regex = Regex::new(param_regex).map_err(|e| {
                     SQLFluffUserError::new(format!("Invalid regex for param_regex: {e}"))
                 })?;
                 Ok(regex)
             }
-            (None, Some(param_style)) => {
-                let param_style = param_style.as_string().ok_or(SQLFluffUserError::new(
-                    "Invalid param_style for templater 'placeholder'".to_string(),
-                ))?;
-                let style = PlaceholderStyle::from_name(param_style).map_err(|_| {
-                    SQLFluffUserError::new(format!(
-                        "Unknown param_style '{param_style}' for templater 'placeholder'"
-                    ))
-                })?;
-                Ok(style.regex())
-            }
+            (None, Some(style)) => Ok(style.regex()),
         }
     }
 
@@ -74,8 +59,7 @@ impl PlaceholderTemplater {
         let mut param_counter = 1;
         let regex = self.derive_style(config)?;
 
-        let template_config =
-            config.templater_section(crate::templaters::TemplaterKind::Placeholder);
+        let template_config = &config.templater().placeholder;
 
         for cap in regex.captures_iter(in_str) {
             let cap = cap.unwrap();
@@ -91,21 +75,9 @@ impl PlaceholderTemplater {
 
             let last_literal_length = span.start - last_pos_raw;
             let replacement = template_config
-                .and_then(|config| config.get(&param_name))
-                .map_or(Ok(param_name.clone()), |v| {
-                    match (v.as_string(), v.as_int(), v.as_bool()) {
-                        (Some(s), None, None) => Ok(s.to_string()),
-                        (None, Some(i), None) => Ok(i.to_string()),
-                        (None, None, Some(b)) => Ok(if b {
-                            "true".to_string()
-                        } else {
-                            "false".to_string()
-                        }),
-                        _ => Err(SQLFluffUserError::new(format!(
-                            "Invalid value for parameter replacement: {param_name}"
-                        ))),
-                    }
-                })?;
+                .values
+                .get(&param_name)
+                .map_or_else(|| param_name.clone(), |value| value.as_replacement());
 
             // Add the literal to the slices
             template_slices.push(TemplatedFileSlice::new(
@@ -736,22 +708,18 @@ my_name = john
     #[test]
     /// Test the exception raised when parameter styles is unknown.
     fn test_templater_styles_not_existing() {
-        let config = FluffConfig::try_from_source(
+        let err = FluffConfig::try_from_source(
             r#"
 [sqruff:templater:placeholder]
 param_style = unknown
             "#,
             None,
         )
-        .unwrap();
-        let templater = PlaceholderTemplater {};
-        let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
-        let out_str = process_one(&templater, in_str, "test.sql", &config);
+        .unwrap_err();
 
-        assert!(out_str.is_err());
-        assert_eq!(
-            out_str.err().unwrap().value,
-            "Unknown param_style 'unknown' for templater 'placeholder'"
+        assert!(
+            err.to_string()
+                .contains("Unknown placeholder style 'unknown'")
         );
     }
 

@@ -167,6 +167,14 @@ impl PlaceholderStyle {
     }
 }
 
+impl FromStr for PlaceholderStyle {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::from_name(s)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{PlaceholderStyle, TemplaterKind};

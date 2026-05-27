@@ -3,7 +3,6 @@ use serde::{Deserialize, Deserializer, de};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::error::ConfigError;
-use super::raw::{RawConfig, Value};
 use super::setting::{Merge, NullableSetting, Setting};
 use crate::utils::reflow::config::{LinePositionConfig, Spacing, SpacingSpec};
 use crate::utils::reflow::rebreak::LinePosition;
@@ -60,99 +59,6 @@ impl LayoutTypeConfigPatch {
                 .unwrap_or(SyntaxSet::EMPTY),
         })
     }
-
-    fn from_value(seg_type: SyntaxKind, value: Value) -> Result<Self, ConfigError> {
-        let map = value.as_map().ok_or_else(|| ConfigError::InvalidField {
-            field: "layout.type",
-            reason: format!(
-                "expected map for layout type '{}'",
-                syntax_kind_name(seg_type)
-            ),
-        })?;
-
-        let mut patch = Self::default();
-        for (key, value) in map {
-            let string = value
-                .as_string()
-                .or_else(|| value.is_none().then_some("none"))
-                .ok_or_else(|| ConfigError::InvalidField {
-                    field: "layout.type",
-                    reason: format!(
-                        "expected string for layout option '{}' on '{}'",
-                        key,
-                        syntax_kind_name(seg_type)
-                    ),
-                })?;
-            patch.apply_raw_value(seg_type, key, string)?;
-        }
-        Ok(patch)
-    }
-
-    fn apply_raw_value(
-        &mut self,
-        seg_type: SyntaxKind,
-        key: &str,
-        value: &str,
-    ) -> Result<(), ConfigError> {
-        match key {
-            "spacing_before" => {
-                self.spacing_before = Setting::Set(parse_spacing_spec("spacing_before", value)?)
-            }
-            "spacing_after" => {
-                self.spacing_after = Setting::Set(parse_spacing_spec("spacing_after", value)?)
-            }
-            "spacing_within" => {
-                self.spacing_within = Setting::Set(parse_spacing_spec("spacing_within", value)?)
-            }
-            "line_position" => {
-                self.line_position =
-                    Setting::Set(value.parse().map_err(|reason| ConfigError::InvalidField {
-                        field: "line_position",
-                        reason,
-                    })?)
-            }
-            "keyword_line_position" => {
-                self.keyword_line_position =
-                    Setting::Set(parse_nullable_line_position(value).map_err(|err| {
-                        ConfigError::InvalidField {
-                            field: "keyword_line_position",
-                            reason: err,
-                        }
-                    })?)
-            }
-            "keyword_line_position_exclusions" => {
-                self.keyword_line_position_exclusions =
-                    Setting::Set(parse_configured_syntax_set(value)?)
-            }
-            "align_within" => {
-                self.align_within = Setting::Set(syntax_kind_from_name(value).ok_or_else(|| {
-                    ConfigError::InvalidField {
-                        field: "align_within",
-                        reason: format!("invalid layout syntax kind '{value}'"),
-                    }
-                })?)
-            }
-            "align_scope" => {
-                self.align_scope = Setting::Set(syntax_kind_from_name(value).ok_or_else(|| {
-                    ConfigError::InvalidField {
-                        field: "align_scope",
-                        reason: format!("invalid layout syntax kind '{value}'"),
-                    }
-                })?)
-            }
-            _ => {
-                return Err(ConfigError::InvalidField {
-                    field: "layout.type",
-                    reason: format!(
-                        "unknown layout option '{}' on '{}'",
-                        key,
-                        syntax_kind_name(seg_type)
-                    ),
-                });
-            }
-        }
-        Ok(())
-    }
 }
 
 impl Merge for LayoutTypeConfigPatch {
@@ -178,75 +84,7 @@ pub struct LayoutConfigPatch {
     pub types: HashMap<String, LayoutTypeConfigPatch>,
 }
 
-impl LayoutConfigPatch {
-    pub(super) fn merge_into_raw(self, raw: &mut RawConfig) {
-        if self.types.is_empty() {
-            return;
-        }
-
-        let layout = raw
-            .entry("layout".into())
-            .or_insert_with(|| Value::Map(HashMap::new()));
-        let layout_map = layout.as_map_mut().expect("layout must be a map");
-
-        let type_entry = layout_map
-            .entry("type".into())
-            .or_insert_with(|| Value::Map(HashMap::new()));
-        let type_map = type_entry.as_map_mut().expect("layout.type must be a map");
-
-        for (type_name, tp) in self.types {
-            let entry = type_map
-                .entry(type_name)
-                .or_insert_with(|| Value::Map(HashMap::new()));
-            let entry_map = entry
-                .as_map_mut()
-                .expect("layout type config must be a map");
-
-            if let Setting::Set(v) = tp.spacing_before {
-                entry_map.insert("spacing_before".into(), Value::String(v.as_str().into()));
-            }
-            if let Setting::Set(v) = tp.spacing_after {
-                entry_map.insert("spacing_after".into(), Value::String(v.as_str().into()));
-            }
-            if let Setting::Set(v) = tp.spacing_within {
-                entry_map.insert("spacing_within".into(), Value::String(v.as_str().into()));
-            }
-            if let Setting::Set(v) = tp.line_position {
-                entry_map.insert(
-                    "line_position".into(),
-                    Value::String(v.to_config_string().into()),
-                );
-            }
-            if let Setting::Set(Some(v)) = tp.keyword_line_position {
-                entry_map.insert(
-                    "keyword_line_position".into(),
-                    Value::String(line_position_name(v).into()),
-                );
-            }
-            if let Setting::Set(None) = tp.keyword_line_position {
-                entry_map.insert("keyword_line_position".into(), Value::None);
-            }
-            if let Setting::Set(v) = tp.keyword_line_position_exclusions {
-                entry_map.insert(
-                    "keyword_line_position_exclusions".into(),
-                    Value::String(syntax_set_to_string(&v).into()),
-                );
-            }
-            if let Setting::Set(v) = tp.align_within {
-                entry_map.insert(
-                    "align_within".into(),
-                    Value::String(syntax_kind_name(v).into()),
-                );
-            }
-            if let Setting::Set(v) = tp.align_scope {
-                entry_map.insert(
-                    "align_scope".into(),
-                    Value::String(syntax_kind_name(v).into()),
-                );
-            }
-        }
-    }
-}
+impl LayoutConfigPatch {}
 
 impl Merge for LayoutConfigPatch {
     fn merge(&mut self, other: Self) {
@@ -273,28 +111,20 @@ pub struct LayoutTypeConfig {
 }
 
 impl LayoutConfig {
-    pub(crate) fn from_raw(raw: &RawConfig) -> Result<Self, ConfigError> {
-        let values = raw["layout"]["type"].as_map().cloned().unwrap_or_default();
+    pub(crate) fn from_patch(patch: &LayoutConfigPatch) -> Result<Self, ConfigError> {
         let mut types = HashMap::new();
 
-        for (name, value) in values {
+        for (name, value) in &patch.types {
             let seg_type =
-                syntax_kind_from_name(&name).ok_or_else(|| ConfigError::InvalidField {
+                syntax_kind_from_name(name).ok_or_else(|| ConfigError::InvalidField {
                     field: "layout.type",
                     reason: format!("invalid layout syntax kind '{name}'"),
                 })?;
-            let patch = LayoutTypeConfigPatch::from_value(seg_type, value)?;
-            types.insert(seg_type, patch.resolve(seg_type)?);
+            types.insert(seg_type, value.clone().resolve(seg_type)?);
         }
 
         Ok(Self { types })
     }
-}
-
-fn parse_spacing_spec(field: &'static str, value: &str) -> Result<SpacingSpec, ConfigError> {
-    value
-        .parse()
-        .map_err(|reason| ConfigError::InvalidField { field, reason })
 }
 
 fn setting_syntax_set<'de, D>(d: D) -> Result<Setting<SyntaxSet>, D::Error>
@@ -341,20 +171,6 @@ fn parse_nullable_line_position(value: &str) -> Result<Option<LinePosition>, Str
     }
 }
 
-fn parse_configured_syntax_set(raw: &str) -> Result<SyntaxSet, ConfigError> {
-    parse_syntax_set_values(
-        raw.split(',')
-            .map(str::trim)
-            .filter(|value| !value.is_empty())
-            .map(ToOwned::to_owned)
-            .collect(),
-    )
-    .map_err(|reason| ConfigError::InvalidField {
-        field: "keyword_line_position_exclusions",
-        reason,
-    })
-}
-
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum StringOrVec {
@@ -394,25 +210,4 @@ fn syntax_kind_from_name(seg_type: &str) -> Option<SyntaxKind> {
         "aggregate_order_by" => Some(SyntaxKind::AggregateOrderByClause),
         _ => seg_type.parse().ok(),
     }
-}
-
-fn syntax_kind_name(kind: SyntaxKind) -> &'static str {
-    kind.into()
-}
-
-fn line_position_name(position: LinePosition) -> &'static str {
-    match position {
-        LinePosition::Leading => "leading",
-        LinePosition::Trailing => "trailing",
-        LinePosition::Alone => "alone",
-        LinePosition::Strict => "strict",
-    }
-}
-
-fn syntax_set_to_string(value: &SyntaxSet) -> String {
-    value
-        .into_iter()
-        .map(syntax_kind_name)
-        .collect::<Vec<_>>()
-        .join(",")
 }

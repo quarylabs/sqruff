@@ -2,13 +2,12 @@ use std::collections::HashMap as StdHashMap;
 use std::fmt;
 use std::str::FromStr;
 
-use hashbrown::HashMap;
 use serde::de::{
     self, DeserializeOwned, DeserializeSeed, IntoDeserializer, MapAccess, SeqAccess, Visitor,
 };
 use serde::{Deserialize, Deserializer};
 
-use super::{ConfigError, NullableSetting, Setting, Value};
+use super::{ConfigError, NullableSetting, Setting};
 
 #[derive(Debug)]
 struct Error(String);
@@ -47,42 +46,6 @@ where
         section: section_name.to_string(),
         reason: err.to_string(),
     })
-}
-
-pub(crate) fn deserialize_value_map(
-    section_name: &str,
-    values: &StdHashMap<String, Option<String>>,
-) -> std::result::Result<HashMap<String, Value>, ConfigError> {
-    values
-        .iter()
-        .map(|(key, value)| Ok((key.clone(), value_from_scalar(section_name, key, value)?)))
-        .collect()
-}
-
-fn value_from_scalar(
-    section_name: &str,
-    key: &str,
-    value: &Option<String>,
-) -> std::result::Result<Value, ConfigError> {
-    let Some(raw) = value.as_deref() else {
-        return Ok(Value::None);
-    };
-    let trimmed = raw.trim();
-
-    if trimmed.is_empty() || trimmed.eq_ignore_ascii_case("none") {
-        Ok(Value::None)
-    } else if trimmed.eq_ignore_ascii_case("true") {
-        Ok(Value::Bool(true))
-    } else if trimmed.eq_ignore_ascii_case("false") {
-        Ok(Value::Bool(false))
-    } else if let Ok(value) = trimmed.parse::<i32>() {
-        Ok(Value::Int(value))
-    } else if let Ok(value) = trimmed.parse::<f64>() {
-        Ok(Value::Float(value))
-    } else {
-        let _ = (section_name, key);
-        Ok(Value::String(raw.into()))
-    }
 }
 
 struct SectionDeserializer<'a> {
@@ -472,9 +435,12 @@ impl StringOrVec {
             StringOrVec::Str(s) => s
                 .split(',')
                 .map(|x| x.trim().to_string())
-                .filter(|s| !s.is_empty())
+                .filter(|s| !s.is_empty() && !s.eq_ignore_ascii_case("none"))
                 .collect(),
-            StringOrVec::Vec(v) => v,
+            StringOrVec::Vec(v) => v
+                .into_iter()
+                .filter(|s| !s.eq_ignore_ascii_case("none"))
+                .collect(),
         }
     }
 }
@@ -517,5 +483,6 @@ pub(super) fn setting_csv<'de, D>(d: D) -> std::result::Result<Setting<Vec<Strin
 where
     D: Deserializer<'de>,
 {
-    StringOrVec::deserialize(d).map(|value| Setting::Set(value.into_vec()))
+    Option::<StringOrVec>::deserialize(d)
+        .map(|value| Setting::Set(value.map(StringOrVec::into_vec).unwrap_or_default()))
 }

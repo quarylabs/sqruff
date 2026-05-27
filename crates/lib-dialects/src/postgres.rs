@@ -20,8 +20,6 @@ use sqruff_lib_core::parser::types::ParseMode;
 use super::ansi;
 use super::postgres_keywords::POSTGRES_POSTGIS_DATATYPE_KEYWORDS;
 use crate::postgres_keywords::{get_keywords, postgres_keywords};
-use sqruff_lib_core::dialects::init::DialectConfig;
-use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(PostgresDialectConfig {
     /// Enable parsing of pg_trgm trigram operators
@@ -30,12 +28,7 @@ sqruff_lib_core::dialect_config!(PostgresDialectConfig {
     pgvector: "Enable parsing of pgvector data types (VECTOR, HALFVEC, SPARSEVEC)."
 });
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    // Parse and validate dialect configuration, falling back to defaults on failure
-    let dialect_config: PostgresDialectConfig = config
-        .map(PostgresDialectConfig::from_value)
-        .unwrap_or_default();
-
+pub fn dialect(dialect_config: &PostgresDialectConfig) -> Dialect {
     let mut postgres = raw_dialect();
 
     if dialect_config.pg_trgm {

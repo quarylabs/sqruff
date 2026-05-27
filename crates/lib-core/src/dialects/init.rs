@@ -1,18 +1,9 @@
 use strum::IntoEnumIterator;
 use strum_macros::AsRefStr;
 
-use crate::value::Value;
-
 /// Trait for dialect-specific configuration.
-/// Each dialect implements this to parse and validate its configuration from raw config values.
-pub trait DialectConfig: Default + Clone + std::fmt::Debug {
-    /// Parse configuration from a Value (typically a Map from the config file's dialect section).
-    /// Returns the default configuration if parsing fails or if the input is None.
-    fn from_value(value: &Value) -> Self {
-        let _ = value;
-        Self::default()
-    }
-}
+/// Each dialect implements this for its typed configuration struct.
+pub trait DialectConfig: Default + Clone + std::fmt::Debug {}
 
 /// Macro to generate a dialect config struct with `DialectConfig` impl and `config_options()`.
 ///
@@ -35,7 +26,8 @@ macro_rules! dialect_config {
         $(#[doc = $doc:expr])*
         $field:ident : $desc:expr
     ),* $(,)? }) => {
-        #[derive(Debug, Clone)]
+        #[derive(Debug, Clone, serde::Deserialize)]
+        #[serde(default, deny_unknown_fields)]
         pub struct $name {
             $($(#[doc = $doc])* pub $field: bool,)*
         }
@@ -46,13 +38,7 @@ macro_rules! dialect_config {
             }
         }
 
-        impl $crate::dialects::init::DialectConfig for $name {
-            fn from_value(value: &$crate::value::Value) -> Self {
-                Self {
-                    $($field: value[stringify!($field)].to_bool(),)*
-                }
-            }
-        }
+        impl $crate::dialects::init::DialectConfig for $name {}
 
         impl $name {
             pub fn config_options() -> Vec<(&'static str, &'static str, &'static str)> {
@@ -64,7 +50,8 @@ macro_rules! dialect_config {
     };
     // No fields
     ($name:ident {}) => {
-        #[derive(Debug, Clone, Default)]
+        #[derive(Debug, Clone, Default, serde::Deserialize)]
+        #[serde(deny_unknown_fields)]
         pub struct $name;
 
         impl $crate::dialects::init::DialectConfig for $name {}

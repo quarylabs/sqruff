@@ -1626,6 +1626,7 @@ dependencies = [
  "hashbrown 0.17.1",
  "itertools 0.14.0",
  "rayon",
+ "serde",
  "serde_yaml",
  "sqruff-lib-core",
  "strum",

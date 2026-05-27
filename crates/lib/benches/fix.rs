@@ -1,4 +1,4 @@
-use criterion::{Criterion, criterion_group, criterion_main};
+use criterion::{BatchSize, Criterion, criterion_group, criterion_main};
 use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
 use sqruff_lib::config::FluffConfig;
 use std::hint::black_box;
@@ -74,14 +74,19 @@ fn fix(c: &mut Criterion) {
     )
     .unwrap();
     for (name, source) in passes {
-        let parsed = engine
-            .parse_for_fix(Source {
-                id: SourceId::Virtual(name.into()),
-                text: source.as_str().into(),
-            })
-            .unwrap();
         c.bench_function(name, |b| {
-            b.iter(|| black_box(engine.fix_parsed(parsed.clone())));
+            b.iter_batched(
+                || {
+                    engine
+                        .parse_for_fix(Source {
+                            id: SourceId::Virtual(name.into()),
+                            text: source.as_str().into(),
+                        })
+                        .unwrap()
+                },
+                |parsed| black_box(engine.fix_parsed(parsed)),
+                BatchSize::SmallInput,
+            );
         });
     }
 }

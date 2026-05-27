@@ -121,7 +121,7 @@ impl SegmentBuilder {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Tables {
     counter: Cell<u32>,
 }

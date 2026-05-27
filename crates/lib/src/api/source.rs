@@ -3,6 +3,7 @@ use std::path::PathBuf;
 
 use crate::api::SkipReason;
 use crate::core::linter::common::ParsedString;
+use sqruff_lib_core::parser::segments::Tables;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SourceId {
@@ -23,5 +24,6 @@ pub struct Source<'a> {
 pub struct ParsedSource {
     pub(crate) source_id: SourceId,
     pub(crate) parsed: ParsedString,
+    pub(crate) tables: Tables,
     pub(crate) skip_reason: Option<SkipReason>,
 }

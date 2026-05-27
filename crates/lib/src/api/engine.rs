@@ -167,14 +167,17 @@ impl Engine {
                         filename: String::new(),
                         source_str: String::new(),
                     },
+                    tables: Tables::default(),
                     skip_reason: Some(reason),
                 });
             }
         };
-        let parsed = self.inner.parse_rendered(&Tables::default(), rendered_file);
+        let tables = Tables::default();
+        let parsed = self.inner.parse_rendered(&tables, rendered_file);
         Ok(ParsedSource {
             source_id,
             parsed,
+            tables,
             skip_reason: None,
         })
     }
@@ -213,10 +216,9 @@ impl Engine {
                 skipped: Some(reason),
             });
         }
-        let tables = Tables::default();
         let linted_file = self
             .inner
-            .lint_parsed(&tables, parsed.parsed, mode)
+            .lint_parsed(&parsed.tables, parsed.parsed, mode)
             .map_err(|error| SqruffError::Lint(error.value))?;
         Ok(file_report_from_linted_file(
             linted_file,

@@ -6,7 +6,6 @@ use serde::{Deserialize, Deserializer};
 
 use super::de as config_de;
 use super::error::ConfigError;
-use super::raw::{RawConfig, Value};
 use super::setting::{Merge, NullableSetting, Setting};
 use crate::templaters::{PlaceholderStyle, TemplaterKind};
 
@@ -188,21 +187,6 @@ impl TemplaterConfigPatch {
         }
         Ok(())
     }
-
-    pub(super) fn merge_into_raw(self, raw: &mut RawConfig) {
-        let templater = raw
-            .entry("templater".into())
-            .or_insert_with(|| Value::Map(HashMap::new()));
-        let templater_map = templater.as_map_mut().expect("templater must be a map");
-
-        if let Setting::Set(value) = self.unwrap_wrapped_queries {
-            templater_map.insert("unwrap_wrapped_queries".into(), Value::Bool(value));
-        }
-        self.placeholder.merge_into_raw(templater_map);
-        self.jinja.merge_into_raw(templater_map);
-        self.dbt.merge_into_raw(templater_map);
-        self.python.merge_into_raw(templater_map);
-    }
 }
 
 impl Merge for TemplaterConfigPatch {
@@ -227,48 +211,6 @@ impl Merge for PlaceholderTemplaterConfigPatch {
         self.param_regex.merge(other.param_regex);
         self.param_style.merge(other.param_style);
         self.values.extend(other.values);
-    }
-}
-
-impl PlaceholderTemplaterConfigPatch {
-    fn merge_into_raw(self, templater_map: &mut HashMap<String, Value>) {
-        if !self.has_values() {
-            return;
-        }
-
-        let map = templater_map
-            .entry("placeholder".into())
-            .or_insert_with(|| Value::Map(HashMap::new()))
-            .as_map_mut()
-            .expect("placeholder templater config must be a map");
-
-        merge_nullable_string(map, "param_regex", self.param_regex);
-        match self.param_style {
-            Setting::Unset => {}
-            Setting::Set(Some(value)) => {
-                map.insert("param_style".into(), Value::String(value.as_str().into()));
-            }
-            Setting::Set(None) => {
-                map.insert("param_style".into(), Value::None);
-            }
-        }
-        for (key, value) in self.values {
-            map.insert(key, value.into_value());
-        }
-    }
-
-    fn has_values(&self) -> bool {
-        self.param_regex.is_set() || self.param_style.is_set() || !self.values.is_empty()
-    }
-}
-
-impl PlaceholderParamValue {
-    fn into_value(self) -> Value {
-        match self {
-            Self::String(value) => Value::String(value.into()),
-            Self::Int(value) => Value::Int(value),
-            Self::Bool(value) => Value::Bool(value),
-        }
     }
 }
 
@@ -309,46 +251,6 @@ impl JinjaTemplaterConfigPatch {
         )?;
         Ok(())
     }
-
-    fn merge_into_raw(self, templater_map: &mut HashMap<String, Value>) {
-        if !self.has_values() {
-            return;
-        }
-
-        let map = templater_map
-            .entry("jinja".into())
-            .or_insert_with(|| Value::Map(HashMap::new()))
-            .as_map_mut()
-            .expect("jinja templater config must be a map");
-
-        merge_path_list(map, "templater_paths", self.templater_paths);
-        merge_nullable_path(map, "loader_search_path", self.loader_search_path);
-        if let Setting::Set(value) = self.apply_dbt_builtins {
-            map.insert("apply_dbt_builtins".into(), Value::Bool(value));
-        }
-        match self.ignore_templating {
-            Setting::Unset => {}
-            Setting::Set(Some(value)) => {
-                map.insert("ignore_templating".into(), Value::Bool(value));
-            }
-            Setting::Set(None) => {
-                map.insert("ignore_templating".into(), Value::None);
-            }
-        }
-        merge_path_list(map, "library_paths", self.library_paths);
-        if !self.context.is_empty() {
-            map.insert("context".into(), string_map_value(self.context));
-        }
-    }
-
-    fn has_values(&self) -> bool {
-        self.templater_paths.is_set()
-            || self.loader_search_path.is_set()
-            || self.apply_dbt_builtins.is_set()
-            || self.ignore_templating.is_set()
-            || self.library_paths.is_set()
-            || !self.context.is_empty()
-    }
 }
 
 impl Merge for DbtTemplaterConfigPatch {
@@ -388,34 +290,6 @@ impl DbtTemplaterConfigPatch {
         )?;
         Ok(())
     }
-
-    fn merge_into_raw(self, templater_map: &mut HashMap<String, Value>) {
-        if !self.has_values() {
-            return;
-        }
-
-        let map = templater_map
-            .entry("dbt".into())
-            .or_insert_with(|| Value::Map(HashMap::new()))
-            .as_map_mut()
-            .expect("dbt templater config must be a map");
-
-        merge_nullable_path(map, "profiles_dir", self.profiles_dir);
-        merge_nullable_path(map, "project_dir", self.project_dir);
-        merge_nullable_string(map, "profile", self.profile);
-        merge_nullable_string(map, "target", self.target);
-        merge_nullable_path(map, "target_path", self.target_path);
-        merge_nullable_string(map, "context", self.context);
-    }
-
-    fn has_values(&self) -> bool {
-        self.profiles_dir.is_set()
-            || self.project_dir.is_set()
-            || self.profile.is_set()
-            || self.target.is_set()
-            || self.target_path.is_set()
-            || self.context.is_set()
-    }
 }
 
 impl Merge for PythonTemplaterConfigPatch {
@@ -424,20 +298,7 @@ impl Merge for PythonTemplaterConfigPatch {
     }
 }
 
-impl PythonTemplaterConfigPatch {
-    fn merge_into_raw(self, templater_map: &mut HashMap<String, Value>) {
-        if self.context.is_empty() {
-            return;
-        }
-
-        let map = templater_map
-            .entry("python".into())
-            .or_insert_with(|| Value::Map(HashMap::new()))
-            .as_map_mut()
-            .expect("python templater config must be a map");
-        map.insert("context".into(), string_map_value(self.context));
-    }
-}
+impl PythonTemplaterConfigPatch {}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TemplaterConfig {
@@ -482,22 +343,20 @@ pub struct PythonTemplaterConfig {
 }
 
 impl TemplaterConfig {
-    pub(crate) fn from_raw(raw: &RawConfig) -> Result<Self, ConfigError> {
-        let kind = raw["core"]["templater"]
-            .as_string()
-            .map(TemplaterKind::from_name)
-            .transpose()
-            .map_err(ConfigError::UnsupportedTemplater)?
-            .unwrap_or(TemplaterKind::Raw);
-
-        let values = raw["templater"].as_map().cloned().unwrap_or_default();
-
+    pub(crate) fn from_patch(
+        kind: TemplaterKind,
+        patch: &TemplaterConfigPatch,
+    ) -> Result<Self, ConfigError> {
         Ok(Self {
-            unwrap_wrapped_queries: bool_value(&values, "unwrap_wrapped_queries", false)?,
-            placeholder: PlaceholderTemplaterConfig::from_value(values.get("placeholder"))?,
-            jinja: JinjaTemplaterConfig::from_value(values.get("jinja"))?,
-            dbt: DbtTemplaterConfig::from_value(values.get("dbt"))?,
-            python: PythonTemplaterConfig::from_value(values.get("python"))?,
+            unwrap_wrapped_queries: patch
+                .unwrap_wrapped_queries
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            placeholder: PlaceholderTemplaterConfig::from_patch(&patch.placeholder)?,
+            jinja: JinjaTemplaterConfig::from_patch(&patch.jinja),
+            dbt: DbtTemplaterConfig::from_patch(&patch.dbt),
+            python: PythonTemplaterConfig::from_patch(&patch.python),
             kind,
         })
     }
@@ -520,211 +379,58 @@ impl TemplaterConfig {
 }
 
 impl PlaceholderTemplaterConfig {
-    fn from_value(value: Option<&Value>) -> Result<Self, ConfigError> {
-        let map = optional_map(value, "placeholder")?;
-        let mut cfg = Self::default();
-
-        for (key, value) in map {
-            match key.as_str() {
-                "param_regex" => cfg.param_regex = nullable_string_value(value, "param_regex")?,
-                "param_style" => {
-                    cfg.param_style = nullable_string_value(value, "param_style")?
-                        .map(|value| PlaceholderStyle::from_name(&value))
-                        .transpose()
-                        .map_err(|reason| ConfigError::InvalidField {
-                            field: "param_style",
-                            reason,
-                        })?;
-                }
-                _ => {
-                    cfg.values
-                        .insert(key.clone(), placeholder_param_value(key, value)?);
-                }
-            }
-        }
-
-        Ok(cfg)
+    fn from_patch(patch: &PlaceholderTemplaterConfigPatch) -> Result<Self, ConfigError> {
+        Ok(Self {
+            param_regex: patch.param_regex.clone().into_option().flatten(),
+            param_style: patch.param_style.clone().into_option().flatten(),
+            values: patch.values.clone(),
+        })
     }
 }
 
 impl JinjaTemplaterConfig {
-    fn from_value(value: Option<&Value>) -> Result<Self, ConfigError> {
-        let map = optional_map(value, "jinja")?;
-        Ok(Self {
-            templater_paths: path_list_value(map, "templater_paths")?,
-            loader_search_path: nullable_path_value(map, "loader_search_path")?,
-            apply_dbt_builtins: bool_value(map, "apply_dbt_builtins", false)?,
-            ignore_templating: nullable_bool_value(map, "ignore_templating")?,
-            library_paths: path_list_value(map, "library_paths")?,
-            context: context_value(map, "context")?,
-        })
+    fn from_patch(patch: &JinjaTemplaterConfigPatch) -> Self {
+        Self {
+            templater_paths: patch
+                .templater_paths
+                .clone()
+                .into_option()
+                .unwrap_or_default(),
+            loader_search_path: patch.loader_search_path.clone().into_option().flatten(),
+            apply_dbt_builtins: patch
+                .apply_dbt_builtins
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            ignore_templating: patch.ignore_templating.clone().into_option().flatten(),
+            library_paths: patch
+                .library_paths
+                .clone()
+                .into_option()
+                .unwrap_or_default(),
+            context: patch.context.clone(),
+        }
     }
 }
 
 impl DbtTemplaterConfig {
-    fn from_value(value: Option<&Value>) -> Result<Self, ConfigError> {
-        let map = optional_map(value, "dbt")?;
-        Ok(Self {
-            profiles_dir: nullable_path_value(map, "profiles_dir")?,
-            project_dir: nullable_path_value(map, "project_dir")?,
-            profile: nullable_string_value_from_map(map, "profile")?,
-            target: nullable_string_value_from_map(map, "target")?,
-            target_path: nullable_path_value(map, "target_path")?,
-            context: nullable_string_value_from_map(map, "context")?,
-        })
+    fn from_patch(patch: &DbtTemplaterConfigPatch) -> Self {
+        Self {
+            profiles_dir: patch.profiles_dir.clone().into_option().flatten(),
+            project_dir: patch.project_dir.clone().into_option().flatten(),
+            profile: patch.profile.clone().into_option().flatten(),
+            target: patch.target.clone().into_option().flatten(),
+            target_path: patch.target_path.clone().into_option().flatten(),
+            context: patch.context.clone().into_option().flatten(),
+        }
     }
 }
 
 impl PythonTemplaterConfig {
-    fn from_value(value: Option<&Value>) -> Result<Self, ConfigError> {
-        let map = optional_map(value, "python")?;
-        Ok(Self {
-            context: context_value(map, "context")?,
-        })
-    }
-}
-
-fn optional_map<'a>(
-    value: Option<&'a Value>,
-    field: &'static str,
-) -> Result<&'a HashMap<String, Value>, ConfigError> {
-    match value {
-        Some(value) => value.as_map().ok_or_else(|| ConfigError::InvalidField {
-            field,
-            reason: "expected map".to_string(),
-        }),
-        None => Ok(empty_map()),
-    }
-}
-
-fn empty_map() -> &'static HashMap<String, Value> {
-    static EMPTY: std::sync::LazyLock<HashMap<String, Value>> =
-        std::sync::LazyLock::new(HashMap::new);
-    &EMPTY
-}
-
-fn bool_value(
-    map: &HashMap<String, Value>,
-    key: &'static str,
-    default: bool,
-) -> Result<bool, ConfigError> {
-    match map.get(key) {
-        Some(Value::Bool(value)) => Ok(*value),
-        Some(Value::None) | None => Ok(default),
-        Some(_) => Err(ConfigError::InvalidField {
-            field: key,
-            reason: "expected bool".to_string(),
-        }),
-    }
-}
-
-fn nullable_bool_value(
-    map: &HashMap<String, Value>,
-    key: &'static str,
-) -> Result<Option<bool>, ConfigError> {
-    match map.get(key) {
-        Some(Value::Bool(value)) => Ok(Some(*value)),
-        Some(Value::None) | None => Ok(None),
-        Some(_) => Err(ConfigError::InvalidField {
-            field: key,
-            reason: "expected bool or None".to_string(),
-        }),
-    }
-}
-
-fn nullable_string_value_from_map(
-    map: &HashMap<String, Value>,
-    key: &'static str,
-) -> Result<Option<String>, ConfigError> {
-    match map.get(key) {
-        Some(value) => nullable_string_value(value, key),
-        None => Ok(None),
-    }
-}
-
-fn nullable_string_value(
-    value: &Value,
-    field: &'static str,
-) -> Result<Option<String>, ConfigError> {
-    match value {
-        Value::String(value) => Ok(Some(value.to_string())),
-        Value::None => Ok(None),
-        _ => Err(ConfigError::InvalidField {
-            field,
-            reason: "expected string or None".to_string(),
-        }),
-    }
-}
-
-fn nullable_path_value(
-    map: &HashMap<String, Value>,
-    key: &'static str,
-) -> Result<Option<PathBuf>, ConfigError> {
-    nullable_string_value_from_map(map, key)?
-        .map(|value| valid_path(key, &value).map(PathBuf::from))
-        .transpose()
-}
-
-fn path_list_value(
-    map: &HashMap<String, Value>,
-    key: &'static str,
-) -> Result<Vec<PathBuf>, ConfigError> {
-    match map.get(key) {
-        Some(Value::Array(values)) => values
-            .iter()
-            .map(|value| match value {
-                Value::String(value) => valid_path(key, value).map(PathBuf::from),
-                _ => Err(ConfigError::InvalidField {
-                    field: key,
-                    reason: "expected string path".to_string(),
-                }),
-            })
-            .collect(),
-        Some(Value::String(value)) => value
-            .split(',')
-            .map(str::trim)
-            .filter(|value| !value.is_empty())
-            .map(|value| valid_path(key, value).map(PathBuf::from))
-            .collect(),
-        Some(Value::None) | None => Ok(Vec::new()),
-        Some(_) => Err(ConfigError::InvalidField {
-            field: key,
-            reason: "expected string path list".to_string(),
-        }),
-    }
-}
-
-fn context_value(
-    map: &HashMap<String, Value>,
-    key: &'static str,
-) -> Result<HashMap<String, String>, ConfigError> {
-    let Some(value) = map.get(key) else {
-        return Ok(HashMap::new());
-    };
-    let map = value.as_map().ok_or_else(|| ConfigError::InvalidField {
-        field: key,
-        reason: "expected map".to_string(),
-    })?;
-    map.iter()
-        .map(|(key, value)| {
-            let value = value.as_string().ok_or_else(|| ConfigError::InvalidField {
-                field: "context",
-                reason: format!("context value '{key}' must be a string"),
-            })?;
-            Ok((key.clone(), value.to_string()))
-        })
-        .collect()
-}
-
-fn placeholder_param_value(key: &str, value: &Value) -> Result<PlaceholderParamValue, ConfigError> {
-    match value {
-        Value::String(value) => Ok(PlaceholderParamValue::String(value.to_string())),
-        Value::Int(value) => Ok(PlaceholderParamValue::Int(*value)),
-        Value::Bool(value) => Ok(PlaceholderParamValue::Bool(*value)),
-        _ => Err(ConfigError::InvalidField {
-            field: "placeholder",
-            reason: format!("invalid value for placeholder parameter '{key}'"),
-        }),
+    fn from_patch(patch: &PythonTemplaterConfigPatch) -> Self {
+        Self {
+            context: patch.context.clone(),
+        }
     }
 }
 
@@ -792,21 +498,6 @@ fn validate_path(section_name: &str, key: &'static str, path: &Path) -> Result<(
     Ok(())
 }
 
-fn valid_path<'a>(key: &'static str, value: &'a str) -> Result<&'a str, ConfigError> {
-    if value.trim().is_empty()
-        || value.trim().eq_ignore_ascii_case("none")
-        || value.trim().parse::<i32>().is_ok()
-        || value.trim().eq_ignore_ascii_case("true")
-        || value.trim().eq_ignore_ascii_case("false")
-    {
-        return Err(ConfigError::InvalidField {
-            field: key,
-            reason: "invalid path value".to_string(),
-        });
-    }
-    Ok(value)
-}
-
 fn resolve_path(config_path: Option<&Path>, path: &Path) -> PathBuf {
     if path.is_absolute() {
         return path.to_path_buf();
@@ -820,63 +511,4 @@ fn resolve_path(config_path: Option<&Path>, path: &Path) -> PathBuf {
     }
 
     path.to_path_buf()
-}
-
-fn merge_nullable_string(
-    map: &mut HashMap<String, Value>,
-    key: &'static str,
-    value: NullableSetting<String>,
-) {
-    match value {
-        Setting::Unset => {}
-        Setting::Set(Some(value)) => {
-            map.insert(key.into(), Value::String(value.into()));
-        }
-        Setting::Set(None) => {
-            map.insert(key.into(), Value::None);
-        }
-    }
-}
-
-fn merge_nullable_path(
-    map: &mut HashMap<String, Value>,
-    key: &'static str,
-    value: NullableSetting<PathBuf>,
-) {
-    match value {
-        Setting::Unset => {}
-        Setting::Set(Some(value)) => {
-            map.insert(key.into(), Value::String(value.to_string_lossy().into()));
-        }
-        Setting::Set(None) => {
-            map.insert(key.into(), Value::None);
-        }
-    }
-}
-
-fn merge_path_list(
-    map: &mut HashMap<String, Value>,
-    key: &'static str,
-    value: Setting<Vec<PathBuf>>,
-) {
-    if let Setting::Set(values) = value {
-        map.insert(
-            key.into(),
-            Value::Array(
-                values
-                    .into_iter()
-                    .map(|value| Value::String(value.to_string_lossy().into()))
-                    .collect(),
-            ),
-        );
-    }
-}
-
-fn string_map_value(values: HashMap<String, String>) -> Value {
-    Value::Map(
-        values
-            .into_iter()
-            .map(|(key, value)| (key, Value::String(value.into())))
-            .collect(),
-    )
 }

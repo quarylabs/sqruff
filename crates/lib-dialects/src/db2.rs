@@ -13,20 +13,14 @@ use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 
 use crate::db2_keywords::UNRESERVED_KEYWORDS;
 
-use sqruff_lib_core::dialects::init::DialectConfig;
-use sqruff_lib_core::value::Value;
-
 sqruff_lib_core::dialect_config!(Db2DialectConfig {});
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    let _dialect_config: Db2DialectConfig =
-        config.map(Db2DialectConfig::from_value).unwrap_or_default();
-
+pub fn dialect(_config: &Db2DialectConfig) -> Dialect {
     raw_dialect().config(|dialect| dialect.expand())
 }
 
 pub fn raw_dialect() -> Dialect {
-    let mut db2_dialect = super::ansi::dialect(None);
+    let mut db2_dialect = super::ansi::dialect(&super::ansi::AnsiDialectConfig::default());
     db2_dialect.name = DialectKind::Db2;
 
     for kw in UNRESERVED_KEYWORDS {

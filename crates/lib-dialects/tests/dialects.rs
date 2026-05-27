@@ -11,7 +11,7 @@ use sqruff_lib_core::helpers;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
-use sqruff_lib_dialects::kind_to_dialect;
+use sqruff_lib_dialects::{DialectConfigs, kind_to_dialect};
 use strum::IntoEnumIterator;
 
 fn check_no_unparsable_segments(tree: &ErasedSegment) -> Vec<String> {
@@ -78,7 +78,7 @@ fn main() {
     // Go through each of the dialects and check if the files are present
     for dialect_name in &dialects {
         let dialect_kind = DialectKind::from_str(dialect_name).unwrap();
-        let Some(dialect) = kind_to_dialect(&dialect_kind, None) else {
+        let Some(dialect) = kind_to_dialect(&dialect_kind, &DialectConfigs::default()) else {
             println!("{dialect_name} disabled");
             continue;
         };

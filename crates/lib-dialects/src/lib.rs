@@ -1,6 +1,5 @@
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::value::Value;
 
 pub mod ansi;
 mod ansi_keywords;
@@ -63,6 +62,41 @@ pub mod tsql;
 #[cfg(feature = "tsql")]
 mod tsql_keywords;
 
+#[derive(Debug, Clone, Default)]
+pub struct DialectConfigs {
+    pub ansi: ansi::AnsiDialectConfig,
+    #[cfg(feature = "athena")]
+    pub athena: athena::AthenaDialectConfig,
+    #[cfg(feature = "bigquery")]
+    pub bigquery: bigquery::BigQueryDialectConfig,
+    #[cfg(feature = "clickhouse")]
+    pub clickhouse: clickhouse::ClickHouseDialectConfig,
+    #[cfg(feature = "databricks")]
+    pub databricks: databricks::DatabricksDialectConfig,
+    #[cfg(feature = "db2")]
+    pub db2: db2::Db2DialectConfig,
+    #[cfg(feature = "duckdb")]
+    pub duckdb: duckdb::DuckDBDialectConfig,
+    #[cfg(feature = "mysql")]
+    pub mysql: mysql::MySQLDialectConfig,
+    #[cfg(feature = "oracle")]
+    pub oracle: oracle::OracleDialectConfig,
+    #[cfg(feature = "postgres")]
+    pub postgres: postgres::PostgresDialectConfig,
+    #[cfg(feature = "redshift")]
+    pub redshift: redshift::RedshiftDialectConfig,
+    #[cfg(feature = "snowflake")]
+    pub snowflake: snowflake::SnowflakeDialectConfig,
+    #[cfg(feature = "sparksql")]
+    pub sparksql: sparksql::SparkSQLDialectConfig,
+    #[cfg(feature = "sqlite")]
+    pub sqlite: sqlite::SQLiteDialectConfig,
+    #[cfg(feature = "trino")]
+    pub trino: trino::TrinoDialectConfig,
+    #[cfg(feature = "tsql")]
+    pub tsql: tsql::TSQLDialectConfig,
+}
+
 /// Returns dialect-specific configuration options for the given dialect kind.
 /// Each entry is (option_name, description, default_value).
 pub fn dialect_config_options(
@@ -105,40 +139,40 @@ pub fn dialect_config_options(
     }
 }
 
-pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dialect> {
+pub fn kind_to_dialect(kind: &DialectKind, configs: &DialectConfigs) -> Option<Dialect> {
     #[allow(unreachable_patterns)]
     Some(match kind {
-        DialectKind::Ansi => ansi::dialect(config),
+        DialectKind::Ansi => ansi::dialect(&configs.ansi),
         #[cfg(feature = "athena")]
-        DialectKind::Athena => athena::dialect(config),
+        DialectKind::Athena => athena::dialect(&configs.athena),
         #[cfg(feature = "bigquery")]
-        DialectKind::Bigquery => bigquery::dialect(config),
+        DialectKind::Bigquery => bigquery::dialect(&configs.bigquery),
         #[cfg(feature = "clickhouse")]
-        DialectKind::Clickhouse => clickhouse::dialect(config),
+        DialectKind::Clickhouse => clickhouse::dialect(&configs.clickhouse),
         #[cfg(feature = "databricks")]
-        DialectKind::Databricks => databricks::dialect(config),
+        DialectKind::Databricks => databricks::dialect(&configs.databricks),
         #[cfg(feature = "db2")]
-        DialectKind::Db2 => db2::dialect(config),
+        DialectKind::Db2 => db2::dialect(&configs.db2),
         #[cfg(feature = "duckdb")]
-        DialectKind::Duckdb => duckdb::dialect(config),
+        DialectKind::Duckdb => duckdb::dialect(&configs.duckdb),
         #[cfg(feature = "mysql")]
-        DialectKind::Mysql => mysql::dialect(config),
+        DialectKind::Mysql => mysql::dialect(&configs.mysql),
         #[cfg(feature = "oracle")]
-        DialectKind::Oracle => oracle::dialect(config),
+        DialectKind::Oracle => oracle::dialect(&configs.oracle),
         #[cfg(feature = "postgres")]
-        DialectKind::Postgres => postgres::dialect(config),
+        DialectKind::Postgres => postgres::dialect(&configs.postgres),
         #[cfg(feature = "redshift")]
-        DialectKind::Redshift => redshift::dialect(config),
+        DialectKind::Redshift => redshift::dialect(&configs.redshift),
         #[cfg(feature = "snowflake")]
-        DialectKind::Snowflake => snowflake::dialect(config),
+        DialectKind::Snowflake => snowflake::dialect(&configs.snowflake),
         #[cfg(feature = "sparksql")]
-        DialectKind::Sparksql => sparksql::dialect(config),
+        DialectKind::Sparksql => sparksql::dialect(&configs.sparksql),
         #[cfg(feature = "sqlite")]
-        DialectKind::Sqlite => sqlite::dialect(config),
+        DialectKind::Sqlite => sqlite::dialect(&configs.sqlite),
         #[cfg(feature = "trino")]
-        DialectKind::Trino => trino::dialect(config),
+        DialectKind::Trino => trino::dialect(&configs.trino),
         #[cfg(feature = "tsql")]
-        DialectKind::Tsql => tsql::dialect(config),
+        DialectKind::Tsql => tsql::dialect(&configs.tsql),
         _ => return None,
     })
 }

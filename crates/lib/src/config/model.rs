@@ -2,19 +2,18 @@ use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::parser::{IndentationConfig as ParserIndentationConfig, Parser};
-use sqruff_lib_dialects::kind_to_dialect;
+use sqruff_lib_dialects::{DialectConfigs, kind_to_dialect};
 
 use super::error::ConfigError;
 use super::layout::LayoutConfig;
 use super::loader::ConfigLoader;
 use super::options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 use super::patch::ConfigPatch;
-use super::raw::{RawConfig, Value, merge_configs, split_comma_separated_string};
 use super::rules::RuleConfigs;
+use super::setting::Merge;
 use super::templater::TemplaterConfig;
 use crate::api::SqruffError;
 use crate::templaters::TemplaterKind;
@@ -22,45 +21,21 @@ use crate::utils::reflow::config::ReflowConfig;
 
 #[derive(Debug, Clone)]
 pub struct FluffConfig {
-    /// Kept for internal operations that still require the raw map
-    /// (e.g. `with_patch`, `for_source`).
-    raw: RawConfig,
+    patch: ConfigPatch,
 
     core: CoreConfig,
     indentation: IndentationConfig,
     layout: LayoutConfig,
     templater: TemplaterConfig,
     rules: RuleConfigs,
-    dialects: DialectConfigStore,
+    dialects: DialectConfigs,
 
     dialect_kind: DialectKind,
     dialect: Dialect,
     reflow: ReflowConfig,
 }
 
-// ── DialectConfigStore ───────────────────────────────────────────────────────
-
-/// Resolved per-dialect configuration.
-#[derive(Debug, Clone, PartialEq)]
-pub struct DialectConfigStore {
-    values: HashMap<String, Value>,
-}
-
-impl DialectConfigStore {
-    fn from_raw(raw: &RawConfig) -> Self {
-        Self {
-            values: raw
-                .get("dialect")
-                .and_then(Value::as_map)
-                .cloned()
-                .unwrap_or_default(),
-        }
-    }
-
-    pub fn section(&self, dialect_kind: DialectKind) -> Option<&Value> {
-        self.values.get(dialect_kind.as_ref())
-    }
-}
+pub type DialectConfigStore = DialectConfigs;
 
 // ── CoreConfig ───────────────────────────────────────────────────────────────
 
@@ -160,7 +135,20 @@ impl ErrorCategory {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IndentationConfig {
-    values: HashMap<String, Value>,
+    pub indent_unit: String,
+    pub tab_space_size: usize,
+    pub indented_joins: bool,
+    pub indented_ctes: bool,
+    pub indented_using_on: bool,
+    pub indented_on_contents: bool,
+    pub indented_then: bool,
+    pub indented_then_contents: bool,
+    pub indented_joins_on: bool,
+    pub hanging_indents: bool,
+    pub allow_implicit_indents: bool,
+    pub template_blocks_indent: bool,
+    pub skip_indentation_in: Vec<String>,
+    pub trailing_comments: String,
 }
 
 // ── Backward-compatible type aliases ─────────────────────────────────────────
@@ -180,32 +168,28 @@ impl Default for FluffConfig {
 }
 
 impl FluffConfig {
-    pub(crate) fn try_build_from_raw(configs: RawConfig) -> Result<Self, SqruffError> {
-        let defaults: RawConfig =
-            ConfigLoader::try_from_source(include_str!("./default_config.cfg"), None)
-                .expect("built-in default config must be valid")
-                .into();
+    pub(crate) fn try_build_from_patch(configs: ConfigPatch) -> Result<Self, SqruffError> {
+        let mut patch = ConfigLoader::try_from_source(include_str!("./default_config.cfg"), None)
+            .expect("built-in default config must be valid");
+        patch.merge(configs);
 
-        let mut raw = merge_configs(defaults, configs);
-        normalize_core_lists(&mut raw);
-
-        let core = CoreConfig::from_raw(&raw).map_err(config_error)?;
-        let indentation = IndentationConfig::from_raw(&raw);
-        let layout = LayoutConfig::from_raw(&raw).map_err(config_error)?;
-        let rules = RuleConfigs::from_raw(&raw).map_err(config_error)?;
-        let templater = TemplaterConfig::from_raw(&raw).map_err(config_error)?;
-        let dialects = DialectConfigStore::from_raw(&raw);
+        let core = CoreConfig::from_patch(&patch).map_err(config_error)?;
+        let indentation = IndentationConfig::from_patch(&patch);
+        let layout = LayoutConfig::from_patch(&patch.layout).map_err(config_error)?;
+        let rules = RuleConfigs::from_patch(&patch.rules).map_err(config_error)?;
+        let templater =
+            TemplaterConfig::from_patch(core.templater, &patch.templater).map_err(config_error)?;
+        let dialects = patch.dialects.resolve();
 
         let dialect_kind = core.dialect.unwrap_or_default();
-        let dialect_config = dialects.section(dialect_kind);
-        let dialect = kind_to_dialect(&dialect_kind, dialect_config)
+        let dialect = kind_to_dialect(&dialect_kind, &dialects)
             .expect("Dialect is disabled. Please enable the corresponding feature.");
 
         let reflow =
             ReflowConfig::from_config_parts(&layout, &indentation, &core).map_err(config_error)?;
 
         Ok(Self {
-            raw,
+            patch,
             core,
             indentation,
             layout,
@@ -218,21 +202,22 @@ impl FluffConfig {
         })
     }
 
-    pub(crate) fn build_from_raw(configs: RawConfig) -> Self {
-        Self::try_build_from_raw(configs).expect("config must be valid")
+    pub(crate) fn build_from_patch(patch: ConfigPatch) -> Self {
+        Self::try_build_from_patch(patch).expect("config must be valid")
     }
 
     pub fn from_patch(patch: ConfigPatch) -> Self {
-        Self::build_from_raw(patch.into())
+        Self::build_from_patch(patch)
     }
 
     pub fn try_from_patch(patch: ConfigPatch) -> Result<Self, SqruffError> {
-        Self::try_build_from_raw(patch.into())
+        Self::try_build_from_patch(patch)
     }
 
     pub fn with_patch(&self, patch: ConfigPatch) -> Self {
-        let raw = merge_configs(self.raw.clone(), patch.into());
-        Self::build_from_raw(raw)
+        let mut merged = self.patch.clone();
+        merged.merge(patch);
+        Self::build_from_patch(merged)
     }
 
     pub fn builder() -> FluffConfigBuilder {
@@ -301,8 +286,8 @@ impl FluffConfig {
         &self.dialect
     }
 
-    pub fn dialect_section(&self, dialect_kind: DialectKind) -> Option<&Value> {
-        self.dialects.section(dialect_kind)
+    pub fn dialect_configs(&self) -> &DialectConfigs {
+        &self.dialects
     }
 
     pub fn templater_kind(&self) -> TemplaterKind {
@@ -366,7 +351,10 @@ impl FluffConfig {
     }
 
     #[cfg(feature = "python")]
-    pub fn templater_context(&self, templater: TemplaterKind) -> Option<&HashMap<String, String>> {
+    pub fn templater_context(
+        &self,
+        templater: TemplaterKind,
+    ) -> Option<&hashbrown::HashMap<String, String>> {
         self.templater.context(templater)
     }
 
@@ -402,10 +390,7 @@ impl FluffConfig {
                 vec!["core", key]
             };
 
-            let value: Value = raw_value
-                .parse()
-                .unwrap_or_else(|_| Value::String(raw_value.into()));
-            patch.set_value(&path, value);
+            patch.set_inline(&path, raw_value).map_err(config_error)?;
             found = true;
         }
 
@@ -434,29 +419,107 @@ fn extract_inline_config_directive(line: &str) -> Option<&str> {
 }
 
 impl CoreConfig {
-    fn from_raw(raw: &RawConfig) -> Result<Self, ConfigError> {
-        let core = raw["core"].as_map().unwrap();
-
+    fn from_patch(patch: &ConfigPatch) -> Result<Self, ConfigError> {
+        let core = &patch.core;
         Ok(Self {
-            verbose: u8_value(core, "verbose"),
-            no_color: bool_value(core, "nocolor"),
-            dialect: dialect_value(core, "dialect")?,
-            templater: templater_value(core, "templater"),
-            rule_allowlist: rule_selector_list_value(core, "rule_allowlist"),
-            rule_denylist: rule_selector_list_value(core, "rule_denylist").unwrap_or_default(),
-            output_line_length: usize_value(core, "output_line_length"),
-            runaway_limit: usize_value(core, "runaway_limit"),
-            ignore: error_category_list_value(core, "ignore").unwrap_or_default(),
-            warnings: warning_selector_list_value(core, "warnings").unwrap_or_default(),
-            warn_unused_ignores: bool_value(core, "warn_unused_ignores"),
-            ignore_templated_areas: bool_value(core, "ignore_templated_areas"),
-            encoding: encoding_value(core, "encoding"),
-            disable_noqa: bool_value(core, "disable_noqa"),
-            sql_file_exts: string_vec_value(core, "sql_file_exts"),
-            fix_even_unparsable: bool_value(core, "fix_even_unparsable"),
-            large_file_skip_char_limit: usize_value(core, "large_file_skip_char_limit"),
-            large_file_skip_byte_limit: usize_value(core, "large_file_skip_byte_limit"),
-            max_line_length: usize_value(core, "max_line_length"),
+            verbose: core.verbose.clone().into_option().unwrap_or_default(),
+            no_color: core.nocolor.clone().into_option().unwrap_or_default(),
+            dialect: core
+                .dialect
+                .clone()
+                .into_option()
+                .flatten()
+                .map(|value| {
+                    DialectKind::from_str(&value)
+                        .map_err(|_| ConfigError::UnknownDialect(value.to_string()))
+                })
+                .transpose()?,
+            templater: core
+                .templater
+                .clone()
+                .into_option()
+                .map(|value| TemplaterKind::from_name(&value))
+                .transpose()
+                .map_err(ConfigError::UnsupportedTemplater)?
+                .unwrap_or(TemplaterKind::Raw),
+            rule_allowlist: core
+                .rules
+                .clone()
+                .into_option()
+                .flatten()
+                .map(|values| values.into_iter().map(RuleSelector::from).collect()),
+            rule_denylist: core
+                .exclude_rules
+                .clone()
+                .into_option()
+                .flatten()
+                .unwrap_or_default()
+                .into_iter()
+                .map(RuleSelector::from)
+                .collect(),
+            output_line_length: core
+                .output_line_length
+                .clone()
+                .into_option()
+                .unwrap_or_default(),
+            runaway_limit: core.runaway_limit.clone().into_option().unwrap_or_default(),
+            ignore: core
+                .ignore
+                .clone()
+                .into_option()
+                .flatten()
+                .unwrap_or_default()
+                .into_iter()
+                .map(|value| ErrorCategory::from_name(&value).unwrap())
+                .collect(),
+            warnings: core
+                .warnings
+                .clone()
+                .into_option()
+                .flatten()
+                .unwrap_or_default()
+                .into_iter()
+                .map(WarningSelector::from)
+                .collect(),
+            warn_unused_ignores: core
+                .warn_unused_ignores
+                .clone()
+                .into_option()
+                .unwrap_or_default(),
+            ignore_templated_areas: core
+                .ignore_templated_areas
+                .clone()
+                .into_option()
+                .unwrap_or_default(),
+            encoding: core
+                .encoding
+                .clone()
+                .into_option()
+                .as_deref()
+                .map(EncodingMode::from_name)
+                .unwrap_or(EncodingMode::Autodetect),
+            disable_noqa: core.disable_noqa.clone().into_option().unwrap_or_default(),
+            sql_file_exts: core.sql_file_exts.clone().into_option().unwrap_or_default(),
+            fix_even_unparsable: core
+                .fix_even_unparsable
+                .clone()
+                .into_option()
+                .unwrap_or_default(),
+            large_file_skip_char_limit: core
+                .large_file_skip_char_limit
+                .clone()
+                .into_option()
+                .unwrap_or_default(),
+            large_file_skip_byte_limit: core
+                .large_file_skip_byte_limit
+                .clone()
+                .into_option()
+                .unwrap_or_default(),
+            max_line_length: core
+                .max_line_length
+                .clone()
+                .into_option()
+                .unwrap_or_default(),
         })
     }
 
@@ -490,168 +553,127 @@ impl CoreConfig {
 }
 
 impl IndentationConfig {
-    fn from_raw(raw: &RawConfig) -> Self {
+    fn from_patch(patch: &ConfigPatch) -> Self {
+        let indentation = &patch.indentation;
         Self {
-            values: raw["indentation"].as_map().unwrap().clone(),
+            indent_unit: indentation
+                .indent_unit
+                .clone()
+                .into_option()
+                .unwrap_or_else(|| "space".to_string()),
+            tab_space_size: indentation
+                .tab_space_size
+                .clone()
+                .into_option()
+                .unwrap_or(4),
+            indented_joins: indentation
+                .indented_joins
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            indented_ctes: indentation
+                .indented_ctes
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            indented_using_on: indentation
+                .indented_using_on
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            indented_on_contents: indentation
+                .indented_on_contents
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            indented_then: indentation
+                .indented_then
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            indented_then_contents: indentation
+                .indented_then_contents
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            indented_joins_on: indentation
+                .indented_joins_on
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            hanging_indents: indentation
+                .hanging_indents
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            allow_implicit_indents: indentation
+                .allow_implicit_indents
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            template_blocks_indent: indentation
+                .template_blocks_indent
+                .clone()
+                .into_option()
+                .unwrap_or(false),
+            skip_indentation_in: indentation
+                .skip_indentation_in
+                .clone()
+                .into_option()
+                .unwrap_or_default(),
+            trailing_comments: indentation
+                .trailing_comments
+                .clone()
+                .into_option()
+                .unwrap_or_else(|| "before".to_string()),
         }
     }
 
-    pub(crate) fn value(&self, key: &str) -> &Value {
-        self.values.get(key).unwrap_or(&Value::None)
+    pub(crate) fn bool_value(&self, key: &str) -> bool {
+        match key {
+            "indented_joins" => self.indented_joins,
+            "indented_ctes" => self.indented_ctes,
+            "indented_using_on" => self.indented_using_on,
+            "indented_on_contents" => self.indented_on_contents,
+            "indented_then" => self.indented_then,
+            "indented_then_contents" => self.indented_then_contents,
+            "indented_joins_on" => self.indented_joins_on,
+            _ => false,
+        }
     }
 
     pub fn indent_unit(&self) -> &str {
-        self.value("indent_unit").as_string().unwrap_or("space")
+        &self.indent_unit
     }
 
     pub fn tab_space_size(&self) -> usize {
-        self.value("tab_space_size").as_int().unwrap_or(4) as usize
+        self.tab_space_size
     }
 
     pub fn hanging_indents(&self) -> bool {
-        self.value("hanging_indents").as_bool().unwrap_or_default()
+        self.hanging_indents
     }
 
     pub fn allow_implicit_indents(&self) -> bool {
-        self.value("allow_implicit_indents")
-            .as_bool()
-            .unwrap_or_default()
+        self.allow_implicit_indents
     }
 
     pub fn trailing_comments(&self) -> &str {
-        self.value("trailing_comments")
-            .as_string()
-            .unwrap_or("before")
+        &self.trailing_comments
     }
 }
 
 impl<'a> From<&'a FluffConfig> for Parser<'a> {
     fn from(config: &'a FluffConfig) -> Self {
         let dialect = config.dialect();
-        let indentation_config = ParserIndentationConfig::from_bool_lookup(|key| {
-            config.indentation.value(key).to_bool()
-        });
+        let indentation_config =
+            ParserIndentationConfig::from_bool_lookup(|key| config.indentation.bool_value(key));
         Self::new(dialect, indentation_config)
-    }
-}
-
-fn normalize_core_lists(configs: &mut RawConfig) {
-    for (in_key, out_key) in [
-        ("ignore", "ignore"),
-        ("warnings", "warnings"),
-        ("rules", "rule_allowlist"),
-        ("exclude_rules", "rule_denylist"),
-    ] {
-        match configs["core"].as_map().unwrap().get(in_key) {
-            Some(value) if !value.is_none() => {
-                let string = value.as_string().unwrap();
-                let values = split_comma_separated_string(string);
-
-                configs
-                    .get_mut("core")
-                    .unwrap()
-                    .as_map_mut()
-                    .unwrap()
-                    .insert(out_key.into(), values);
-            }
-            Some(_) => {
-                configs
-                    .get_mut("core")
-                    .unwrap()
-                    .as_map_mut()
-                    .unwrap()
-                    .insert(out_key.into(), Value::None);
-            }
-            _ => {}
-        }
     }
 }
 
 fn config_error(err: ConfigError) -> SqruffError {
     SqruffError::Config(err.to_string())
-}
-
-fn int_value(map: &HashMap<String, Value>, key: &str) -> i32 {
-    map.get(key).and_then(Value::as_int).unwrap_or_default()
-}
-
-fn u8_value(map: &HashMap<String, Value>, key: &str) -> u8 {
-    int_value(map, key).clamp(0, i32::from(u8::MAX)) as u8
-}
-
-fn usize_value(map: &HashMap<String, Value>, key: &str) -> usize {
-    int_value(map, key).max(0) as usize
-}
-
-fn bool_value(map: &HashMap<String, Value>, key: &str) -> bool {
-    map.get(key).and_then(Value::as_bool).unwrap_or_default()
-}
-
-fn string_list_value(map: &HashMap<String, Value>, key: &str) -> Option<Vec<String>> {
-    map.get(key).and_then(Value::as_array).map(|values| {
-        values
-            .iter()
-            .filter_map(|value| value.as_string().map(ToOwned::to_owned))
-            .collect()
-    })
-}
-
-fn string_vec_value(map: &HashMap<String, Value>, key: &str) -> Vec<String> {
-    string_list_value(map, key).unwrap_or_default()
-}
-
-fn dialect_value(
-    map: &HashMap<String, Value>,
-    key: &str,
-) -> Result<Option<DialectKind>, ConfigError> {
-    let Some(value) = map.get(key).and_then(Value::as_string) else {
-        return Ok(None);
-    };
-
-    DialectKind::from_str(value)
-        .map(Some)
-        .map_err(|_| ConfigError::UnknownDialect(value.to_string()))
-}
-
-fn templater_value(map: &HashMap<String, Value>, key: &str) -> TemplaterKind {
-    map.get(key)
-        .and_then(Value::as_string)
-        .map(TemplaterKind::from_name)
-        .transpose()
-        .ok()
-        .flatten()
-        .unwrap_or(TemplaterKind::Raw)
-}
-
-fn rule_selector_list_value(map: &HashMap<String, Value>, key: &str) -> Option<Vec<RuleSelector>> {
-    string_list_value(map, key).map(|values| values.into_iter().map(RuleSelector::from).collect())
-}
-
-fn warning_selector_list_value(
-    map: &HashMap<String, Value>,
-    key: &str,
-) -> Option<Vec<WarningSelector>> {
-    string_list_value(map, key)
-        .map(|values| values.into_iter().map(WarningSelector::from).collect())
-}
-
-fn error_category_list_value(
-    map: &HashMap<String, Value>,
-    key: &str,
-) -> Option<Vec<ErrorCategory>> {
-    string_list_value(map, key).map(|values| {
-        values
-            .into_iter()
-            .map(|value| ErrorCategory::from_name(&value).unwrap())
-            .collect()
-    })
-}
-
-fn encoding_value(map: &HashMap<String, Value>, key: &str) -> EncodingMode {
-    map.get(key)
-        .and_then(Value::as_string)
-        .map(EncodingMode::from_name)
-        .unwrap_or(EncodingMode::Autodetect)
 }
 
 /// Builder for [`FluffConfig`].
@@ -689,21 +711,16 @@ mod tests {
         let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
-dialect = snowflake
+dialect = postgres
 
-[sqruff:dialect:snowflake]
-some_option = value
+[sqruff:dialect:postgres]
+pgvector = true
 "#,
             None,
         )
         .unwrap();
 
-        let dialect_section = config.dialect_section(DialectKind::Snowflake).unwrap();
-        let snowflake_map = dialect_section.as_map().unwrap();
-        assert_eq!(
-            snowflake_map.get("some_option").unwrap().as_string(),
-            Some("value")
-        );
+        assert!(config.dialect_configs().postgres.pgvector);
     }
 
     #[test]

@@ -1,12 +1,14 @@
 use std::fmt;
+use std::str::FromStr;
 
-use hashbrown::HashMap;
 use serde::de::{IgnoredAny, MapAccess, Visitor};
 use serde::{Deserialize, Deserializer};
+use sqruff_lib_core::dialects::init::DialectKind;
+use sqruff_lib_dialects::DialectConfigs;
 
+use super::ConfigError;
 use super::de;
 use super::layout::LayoutConfigPatch;
-use super::raw::{RawConfig, Value, insert_config_path, merge_configs};
 use super::rules::RuleConfigsPatch;
 use super::setting::{Merge, NullableSetting, Setting};
 use super::templater::TemplaterConfigPatch;
@@ -137,89 +139,7 @@ enum OptionalString {
     Ignored(IgnoredAny),
 }
 
-impl CoreConfigPatch {
-    pub(super) fn merge_into_raw(self, raw: &mut RawConfig) {
-        let core = raw
-            .entry("core".into())
-            .or_insert_with(|| Value::Map(HashMap::new()));
-        let map = core.as_map_mut().expect("core must be a map");
-
-        match self.dialect {
-            Setting::Unset => {}
-            Setting::Set(Some(v)) => {
-                map.insert("dialect".into(), Value::String(v.into()));
-            }
-            Setting::Set(None) => {
-                map.insert("dialect".into(), Value::None);
-            }
-        }
-        if let Setting::Set(v) = self.max_line_length {
-            map.insert("max_line_length".into(), Value::Int(v as i32));
-        }
-        if let Setting::Set(v) = self.nocolor {
-            map.insert("nocolor".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.verbose {
-            map.insert("verbose".into(), Value::Int(i32::from(v)));
-        }
-        if let Setting::Set(v) = self.output_line_length {
-            map.insert("output_line_length".into(), Value::Int(v as i32));
-        }
-        if let Setting::Set(v) = self.runaway_limit {
-            map.insert("runaway_limit".into(), Value::Int(v as i32));
-        }
-        if let Setting::Set(v) = self.disable_noqa {
-            map.insert("disable_noqa".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.warn_unused_ignores {
-            map.insert("warn_unused_ignores".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.ignore_templated_areas {
-            map.insert("ignore_templated_areas".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.fix_even_unparsable {
-            map.insert("fix_even_unparsable".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.large_file_skip_char_limit {
-            map.insert("large_file_skip_char_limit".into(), Value::Int(v as i32));
-        }
-        if let Setting::Set(v) = self.large_file_skip_byte_limit {
-            map.insert("large_file_skip_byte_limit".into(), Value::Int(v as i32));
-        }
-        if let Setting::Set(v) = self.encoding {
-            map.insert("encoding".into(), Value::String(v.into()));
-        }
-        merge_nullable_csv(map, "ignore", self.ignore);
-        merge_nullable_csv(map, "warnings", self.warnings);
-        match self.rules {
-            Setting::Unset => {}
-            Setting::Set(Some(rules)) => {
-                map.insert("rules".into(), Value::String(rules.join(",").into()));
-            }
-            Setting::Set(None) => {
-                map.insert("rules".into(), Value::None);
-            }
-        }
-        match self.exclude_rules {
-            Setting::Unset => {}
-            Setting::Set(Some(exclude)) => {
-                map.insert(
-                    "exclude_rules".into(),
-                    Value::String(exclude.join(",").into()),
-                );
-            }
-            Setting::Set(None) => {
-                map.insert("exclude_rules".into(), Value::None);
-            }
-        }
-        if let Setting::Set(v) = self.templater {
-            map.insert("templater".into(), Value::String(v.into()));
-        }
-        if let Setting::Set(exts) = self.sql_file_exts {
-            map.insert("sql_file_exts".into(), Value::String(exts.join(",").into()));
-        }
-    }
-}
+impl CoreConfigPatch {}
 
 impl Merge for CoreConfigPatch {
     fn merge(&mut self, other: Self) {
@@ -248,22 +168,6 @@ impl Merge for CoreConfigPatch {
     }
 }
 
-fn merge_nullable_csv(
-    map: &mut HashMap<String, Value>,
-    key: &'static str,
-    value: NullableSetting<Vec<String>>,
-) {
-    match value {
-        Setting::Unset => {}
-        Setting::Set(Some(values)) => {
-            map.insert(key.into(), Value::String(values.join(",").into()));
-        }
-        Setting::Set(None) => {
-            map.insert(key.into(), Value::None);
-        }
-    }
-}
-
 // ── IndentationConfigPatch ───────────────────────────────────────────────────
 
 /// Typed patch for the `[sqruff:indentation]` section.
@@ -278,6 +182,7 @@ pub struct IndentationConfigPatch {
     pub indented_on_contents: Setting<bool>,
     pub indented_then: Setting<bool>,
     pub indented_then_contents: Setting<bool>,
+    pub indented_joins_on: Setting<bool>,
     pub hanging_indents: Setting<bool>,
     pub allow_implicit_indents: Setting<bool>,
     pub template_blocks_indent: Setting<bool>,
@@ -286,57 +191,7 @@ pub struct IndentationConfigPatch {
     pub trailing_comments: Setting<String>,
 }
 
-impl IndentationConfigPatch {
-    pub(super) fn merge_into_raw(self, raw: &mut RawConfig) {
-        let indentation = raw
-            .entry("indentation".into())
-            .or_insert_with(|| Value::Map(HashMap::new()));
-        let map = indentation.as_map_mut().expect("indentation must be a map");
-
-        if let Setting::Set(v) = self.indent_unit {
-            map.insert("indent_unit".into(), Value::String(v.into()));
-        }
-        if let Setting::Set(v) = self.tab_space_size {
-            map.insert("tab_space_size".into(), Value::Int(v as i32));
-        }
-        if let Setting::Set(v) = self.indented_joins {
-            map.insert("indented_joins".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.indented_ctes {
-            map.insert("indented_ctes".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.indented_using_on {
-            map.insert("indented_using_on".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.indented_on_contents {
-            map.insert("indented_on_contents".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.indented_then {
-            map.insert("indented_then".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.indented_then_contents {
-            map.insert("indented_then_contents".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.hanging_indents {
-            map.insert("hanging_indents".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.allow_implicit_indents {
-            map.insert("allow_implicit_indents".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.template_blocks_indent {
-            map.insert("template_blocks_indent".into(), Value::Bool(v));
-        }
-        if let Setting::Set(v) = self.skip_indentation_in {
-            map.insert(
-                "skip_indentation_in".into(),
-                Value::String(v.join(",").into()),
-            );
-        }
-        if let Setting::Set(v) = self.trailing_comments {
-            map.insert("trailing_comments".into(), Value::String(v.into()));
-        }
-    }
-}
+impl IndentationConfigPatch {}
 
 impl Merge for IndentationConfigPatch {
     fn merge(&mut self, other: Self) {
@@ -349,6 +204,7 @@ impl Merge for IndentationConfigPatch {
         self.indented_then.merge(other.indented_then);
         self.indented_then_contents
             .merge(other.indented_then_contents);
+        self.indented_joins_on.merge(other.indented_joins_on);
         self.hanging_indents.merge(other.hanging_indents);
         self.allow_implicit_indents
             .merge(other.allow_implicit_indents);
@@ -363,28 +219,58 @@ impl Merge for IndentationConfigPatch {
 
 /// Typed patch for `[sqruff:dialect:<name>]` sections.
 #[derive(Debug, Clone, Default, serde::Deserialize)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 pub struct DialectConfigPatch {
-    #[serde(flatten)]
-    pub dialects: HashMap<String, Value>,
+    pub postgres: PostgresDialectConfigPatch,
 }
 
 impl DialectConfigPatch {
-    pub(super) fn merge_into_raw(self, raw: &mut RawConfig) {
-        if self.dialects.is_empty() {
-            return;
+    pub(crate) fn merge_section(
+        &mut self,
+        dialect: String,
+        section_name: &str,
+        values: &std::collections::HashMap<String, Option<String>>,
+    ) -> Result<(), ConfigError> {
+        match dialect.as_str() {
+            "postgres" => self
+                .postgres
+                .merge(de::deserialize_section(section_name, values)?),
+            _ if values.is_empty() => {}
+            _ => return Err(ConfigError::UnknownSection(section_name.to_string())),
         }
-        let dialect = raw
-            .entry("dialect".into())
-            .or_insert_with(|| Value::Map(HashMap::new()));
-        let dialect_map = dialect.as_map_mut().expect("dialect must be a map");
-        dialect_map.extend(self.dialects);
+        Ok(())
+    }
+
+    pub(crate) fn resolve(&self) -> DialectConfigs {
+        let mut configs = DialectConfigs::default();
+        configs.postgres.pg_trgm = self.postgres.pg_trgm.clone().into_option().unwrap_or(false);
+        configs.postgres.pgvector = self
+            .postgres
+            .pgvector
+            .clone()
+            .into_option()
+            .unwrap_or(false);
+        configs
     }
 }
 
 impl Merge for DialectConfigPatch {
     fn merge(&mut self, other: Self) {
-        self.dialects.extend(other.dialects);
+        self.postgres.merge(other.postgres);
+    }
+}
+
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct PostgresDialectConfigPatch {
+    pub pg_trgm: Setting<bool>,
+    pub pgvector: Setting<bool>,
+}
+
+impl Merge for PostgresDialectConfigPatch {
+    fn merge(&mut self, other: Self) {
+        self.pg_trgm.merge(other.pg_trgm);
+        self.pgvector.merge(other.pgvector);
     }
 }
 
@@ -393,14 +279,7 @@ impl Merge for DialectConfigPatch {
 /// Top-level typed config patch.
 ///
 /// Implements [`serde::Deserialize`] so it can be constructed from structured
-/// formats (JSON, YAML, …) as well as programmatically.  The `raw` escape
-/// hatch (populated via [`set_value`] / [`set_string`] / [`from_sections`])
-/// is applied last and overrides the typed fields, preserving full backward
-/// compatibility with callers that build patches using the old key-path API.
-///
-/// [`set_value`]: ConfigPatch::set_value
-/// [`set_string`]: ConfigPatch::set_string
-/// [`from_sections`]: ConfigPatch::from_sections
+/// formats (JSON, YAML, …) as well as programmatically.
 #[derive(Debug, Clone, Default, serde::Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct ConfigPatch {
@@ -411,63 +290,92 @@ pub struct ConfigPatch {
     pub rules: RuleConfigsPatch,
     #[serde(rename = "dialect")]
     pub dialects: DialectConfigPatch,
-
-    /// Untyped overrides written via the key-path API.  Applied on top of the
-    /// typed fields so that `set_value` always takes precedence.
-    #[serde(skip)]
-    raw: RawConfig,
 }
 
 impl ConfigPatch {
-    /// Construct a patch from an existing map of top-level config sections.
-    ///
-    /// Backward-compatible entry point for callers that build raw config maps
-    /// directly (e.g. test helpers).
-    pub fn from_sections(sections: HashMap<String, Value>) -> Self {
-        Self {
-            raw: sections,
-            ..Default::default()
-        }
+    pub fn set_dialect(&mut self, dialect: Option<DialectKind>) {
+        self.core.dialect = Setting::Set(dialect.map(|dialect| dialect.as_ref().to_string()));
     }
 
-    /// Set a string value at the given nested path, creating intermediate maps
-    /// as needed.
-    pub fn set_string(&mut self, path: &[&str], value: &str) {
-        self.set_value(path, Value::String(value.into()));
+    pub fn set_rules(&mut self, rules: Option<Vec<String>>) {
+        self.core.rules = Setting::Set(rules);
     }
 
-    /// Set an arbitrary value at the given nested path, creating intermediate
-    /// maps as needed.
-    pub fn set_value(&mut self, path: &[&str], value: Value) {
-        let path: Vec<String> = path.iter().map(|s| s.to_string()).collect();
-        insert_config_path(&mut self.raw, &path, value);
+    pub fn set_exclude_rules(&mut self, exclude_rules: Option<Vec<String>>) {
+        self.core.exclude_rules = Setting::Set(exclude_rules);
     }
 
-    /// Return the value at the given nested path from the untyped `raw` map,
-    /// if it exists.
-    pub fn value(&self, path: &[&str]) -> Option<&Value> {
-        let (first, rest) = path.split_first()?;
-        let mut current = self.raw.get(*first)?;
-        for key in rest {
-            current = current.as_map()?.get(*key)?;
-        }
-        Some(current)
+    pub fn set_core_templater(&mut self, templater: impl Into<String>) {
+        self.core.templater = Setting::Set(templater.into());
     }
 
     /// SQLFluff rule fixtures historically place some indentation options
     /// under `rules`; move those into the typed indentation patch.
     pub fn move_fixture_indentation_options(&mut self) {
-        if let Some(value) = self.rules.configs.remove("indent_unit") {
-            if let Some(value) = value.as_string() {
-                self.indentation.indent_unit = Setting::Set(value.to_string());
-            }
+        if let Setting::Set(value) = std::mem::take(&mut self.rules.indent_unit) {
+            self.indentation.indent_unit = Setting::Set(value);
         }
 
-        if let Some(value) = self.rules.configs.remove("tab_space_size") {
-            if let Some(value) = value.as_int() {
-                self.indentation.tab_space_size = Setting::Set(value.max(0) as usize);
+        if let Setting::Set(value) = std::mem::take(&mut self.rules.tab_space_size) {
+            self.indentation.tab_space_size = Setting::Set(value);
+        }
+    }
+
+    pub(crate) fn set_inline(&mut self, path: &[&str], raw_value: &str) -> Result<(), ConfigError> {
+        match path {
+            ["core", key] => self.set_core_inline(key, raw_value),
+            ["rules", section, key] => self.rules.merge_rule_section(
+                (*section).to_string(),
+                &format!("inline rules section '{section}'"),
+                &one_value_map(key, raw_value),
+            ),
+            _ => Err(ConfigError::UnknownSection(path.join(":"))),
+        }
+    }
+
+    fn set_core_inline(&mut self, key: &str, raw_value: &str) -> Result<(), ConfigError> {
+        match key {
+            "dialect" => {
+                self.core.dialect = Setting::Set(optional_string(raw_value));
+            }
+            "rules" => self.core.rules = Setting::Set(optional_csv(raw_value)),
+            "exclude_rules" => self.core.exclude_rules = Setting::Set(optional_csv(raw_value)),
+            "templater" => self.core.templater = Setting::Set(raw_value.to_string()),
+            "nocolor" => self.core.nocolor = Setting::Set(parse_bool(raw_value)?),
+            "verbose" => self.core.verbose = Setting::Set(parse_u8(raw_value)?),
+            "output_line_length" => {
+                self.core.output_line_length = Setting::Set(parse_usize(raw_value)?)
+            }
+            "runaway_limit" => self.core.runaway_limit = Setting::Set(parse_usize(raw_value)?),
+            "disable_noqa" => self.core.disable_noqa = Setting::Set(parse_bool(raw_value)?),
+            "warn_unused_ignores" => {
+                self.core.warn_unused_ignores = Setting::Set(parse_bool(raw_value)?)
+            }
+            "ignore_templated_areas" => {
+                self.core.ignore_templated_areas = Setting::Set(parse_bool(raw_value)?)
+            }
+            "fix_even_unparsable" => {
+                self.core.fix_even_unparsable = Setting::Set(parse_bool(raw_value)?)
+            }
+            "large_file_skip_char_limit" => {
+                self.core.large_file_skip_char_limit = Setting::Set(parse_usize(raw_value)?)
+            }
+            "large_file_skip_byte_limit" => {
+                self.core.large_file_skip_byte_limit = Setting::Set(parse_usize(raw_value)?)
+            }
+            "encoding" => self.core.encoding = Setting::Set(raw_value.to_string()),
+            "ignore" => self.core.ignore = Setting::Set(optional_csv(raw_value)),
+            "warnings" => self.core.warnings = Setting::Set(optional_csv(raw_value)),
+            "sql_file_exts" => self.core.sql_file_exts = Setting::Set(csv(raw_value)),
+            "max_line_length" => self.core.max_line_length = Setting::Set(parse_usize(raw_value)?),
+            _ => {
+                return Err(ConfigError::InvalidField {
+                    field: "core",
+                    reason: format!("unknown core option '{key}'"),
+                });
             }
         }
+        Ok(())
     }
 }
 
@@ -479,22 +387,51 @@ impl Merge for ConfigPatch {
         self.templater.merge(other.templater);
         self.rules.merge(other.rules);
         self.dialects.merge(other.dialects);
-        self.raw = merge_configs(std::mem::take(&mut self.raw), other.raw);
     }
 }
 
-impl From<ConfigPatch> for RawConfig {
-    fn from(patch: ConfigPatch) -> Self {
-        // 1. Convert typed fields to raw representation.
-        let mut typed_raw = RawConfig::new();
-        patch.core.merge_into_raw(&mut typed_raw);
-        patch.indentation.merge_into_raw(&mut typed_raw);
-        patch.layout.merge_into_raw(&mut typed_raw);
-        patch.templater.merge_into_raw(&mut typed_raw);
-        patch.rules.merge_into_raw(&mut typed_raw);
-        patch.dialects.merge_into_raw(&mut typed_raw);
+fn one_value_map(key: &str, value: &str) -> std::collections::HashMap<String, Option<String>> {
+    std::iter::once((key.to_string(), Some(value.to_string()))).collect()
+}
 
-        // 2. Apply untyped overrides on top (they take precedence).
-        merge_configs(typed_raw, patch.raw)
+fn optional_string(value: &str) -> Option<String> {
+    let trimmed = value.trim();
+    (!trimmed.is_empty() && !trimmed.eq_ignore_ascii_case("none")).then(|| value.to_string())
+}
+
+fn optional_csv(value: &str) -> Option<Vec<String>> {
+    optional_string(value).map(|value| csv(&value))
+}
+
+fn csv(value: &str) -> Vec<String> {
+    value
+        .split(',')
+        .map(str::trim)
+        .filter(|value| !value.is_empty() && !value.eq_ignore_ascii_case("none"))
+        .map(ToOwned::to_owned)
+        .collect()
+}
+
+fn parse_bool(value: &str) -> Result<bool, ConfigError> {
+    match value.trim().to_ascii_lowercase().as_str() {
+        "true" => Ok(true),
+        "false" => Ok(false),
+        _ => Err(ConfigError::InvalidField {
+            field: "core",
+            reason: format!("invalid bool '{value}'"),
+        }),
     }
+}
+
+fn parse_usize(value: &str) -> Result<usize, ConfigError> {
+    i64::from_str(value.trim())
+        .map(|value| value.max(0) as usize)
+        .map_err(|_| ConfigError::InvalidField {
+            field: "core",
+            reason: format!("invalid integer '{value}'"),
+        })
+}
+
+fn parse_u8(value: &str) -> Result<u8, ConfigError> {
+    Ok(parse_usize(value)?.min(usize::from(u8::MAX)) as u8)
 }

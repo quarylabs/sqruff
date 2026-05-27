@@ -18,6 +18,13 @@ impl<T> Setting<T> {
             Self::Set(value) => Some(value),
         }
     }
+
+    pub fn as_ref(&self) -> Setting<&T> {
+        match self {
+            Self::Unset => Setting::Unset,
+            Self::Set(value) => Setting::Set(value),
+        }
+    }
 }
 
 impl<'de, T> Deserialize<'de> for Setting<T>

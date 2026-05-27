@@ -11,7 +11,6 @@ use super::layout::LayoutTypeConfigPatch;
 use super::model::FluffConfig;
 use super::options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 use super::patch::ConfigPatch;
-use super::raw::Value;
 use super::setting::{Merge, Setting};
 use crate::api::SqruffError;
 
@@ -276,13 +275,10 @@ impl ConfigLoader {
                         .map_err(config_error)?;
                 }
                 SectionPath::Dialect(dialect) => {
-                    patch.dialects.dialects.insert(
-                        dialect,
-                        Value::Map(
-                            de::deserialize_value_map(&section_name, &values)
-                                .map_err(config_error)?,
-                        ),
-                    );
+                    patch
+                        .dialects
+                        .merge_section(dialect, &section_name, &values)
+                        .map_err(config_error)?;
                 }
             }
         }

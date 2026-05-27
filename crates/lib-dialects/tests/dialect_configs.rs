@@ -3,10 +3,8 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
-use sqruff_lib_core::value::Value;
 use sqruff_lib_dialects::postgres;
-
-use hashbrown::HashMap;
+use sqruff_lib_dialects::postgres::PostgresDialectConfig;
 
 fn check_no_unparsable_segments(tree: &ErasedSegment) -> Vec<String> {
     tree.recursive_crawl_all(false)
@@ -22,8 +20,8 @@ fn check_no_unparsable_segments(tree: &ErasedSegment) -> Vec<String> {
         .collect()
 }
 
-fn parse_with_config(sql_path: &str, config: &Value) {
-    let dialect = postgres::dialect(Some(config));
+fn parse_with_config(sql_path: &str, config: &PostgresDialectConfig) {
+    let dialect = postgres::dialect(config);
 
     let yaml_path = std::path::PathBuf::from(sql_path).with_extension("yml");
     let yaml_path = std::path::absolute(&yaml_path).unwrap();
@@ -55,9 +53,10 @@ fn parse_with_config(sql_path: &str, config: &Value) {
 
 #[test]
 fn postgres_pg_trgm() {
-    let mut config_map = HashMap::new();
-    config_map.insert("pg_trgm".to_string(), Value::Bool(true));
-    let config = Value::Map(config_map);
+    let config = PostgresDialectConfig {
+        pg_trgm: true,
+        ..Default::default()
+    };
 
     parse_with_config(
         "test/fixtures/dialect_configs/postgres_pg_trgm/pgtrgm.sql",
@@ -67,9 +66,10 @@ fn postgres_pg_trgm() {
 
 #[test]
 fn postgres_pgvector() {
-    let mut config_map = HashMap::new();
-    config_map.insert("pgvector".to_string(), Value::Bool(true));
-    let config = Value::Map(config_map);
+    let config = PostgresDialectConfig {
+        pgvector: true,
+        ..Default::default()
+    };
 
     parse_with_config(
         "test/fixtures/dialect_configs/postgres_pgvector/pgvector.sql",
@@ -79,9 +79,10 @@ fn postgres_pgvector() {
 
 #[test]
 fn postgres_pgvector_operators() {
-    let mut config_map = HashMap::new();
-    config_map.insert("pgvector".to_string(), Value::Bool(true));
-    let config = Value::Map(config_map);
+    let config = PostgresDialectConfig {
+        pgvector: true,
+        ..Default::default()
+    };
 
     parse_with_config(
         "test/fixtures/dialect_configs/postgres_pgvector/pgvector_operators.sql",

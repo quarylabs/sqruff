@@ -17,16 +17,10 @@ use super::ansi;
 use crate::mysql_keywords::{
     MYSQL_RESERVED_KEYWORDS, MYSQL_RESERVED_KEYWORDS_REMOVE, MYSQL_UNRESERVED_KEYWORDS,
 };
-use sqruff_lib_core::dialects::init::DialectConfig;
-use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(MySQLDialectConfig {});
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    let _dialect_config: MySQLDialectConfig = config
-        .map(MySQLDialectConfig::from_value)
-        .unwrap_or_default();
-
+pub fn dialect(_config: &MySQLDialectConfig) -> Dialect {
     raw_dialect().config(|dialect| dialect.expand())
 }
 

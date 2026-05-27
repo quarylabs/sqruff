@@ -1,9 +1,9 @@
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -13,7 +13,7 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleLT07;
 
 impl Rule for RuleLT07 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleLT07.erased())
     }
     fn name(&self) -> &'static str {

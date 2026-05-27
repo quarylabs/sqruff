@@ -14,7 +14,7 @@ use sqruff_lib_core::utils::analysis::select::{
     SelectStatementColumnsAndTables, get_select_statement_info,
 };
 
-use crate::config::Value;
+use crate::config::{AliasCaseCheckPolicy, RuleConfigs};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -38,32 +38,25 @@ enum AliasCaseCheck {
     CaseSensitive,
 }
 
-impl AliasCaseCheck {
-    fn from_config(value: &str) -> Result<Self, String> {
-        match value {
-            "dialect" => Ok(Self::Dialect),
-            "case_insensitive" => Ok(Self::CaseInsensitive),
-            "quoted_cs_naked_upper" => Ok(Self::QuotedCaseSensitiveNakedUpper),
-            "quoted_cs_naked_lower" => Ok(Self::QuotedCaseSensitiveNakedLower),
-            "case_sensitive" => Ok(Self::CaseSensitive),
-            other => Err(format!("Invalid alias_case_check value: {other}")),
-        }
-    }
-}
-
 #[derive(Debug, Default, Clone)]
 pub struct RuleAL05 {
     alias_case_check: AliasCaseCheck,
 }
 
 impl Rule for RuleAL05 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL05 {
-            alias_case_check: AliasCaseCheck::from_config(
-                config["alias_case_check"].as_string().unwrap(),
-            )?,
-        }
-        .erased())
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
+        let alias_case_check = match config.aliasing.unused.alias_case_check {
+            AliasCaseCheckPolicy::Dialect => AliasCaseCheck::Dialect,
+            AliasCaseCheckPolicy::CaseInsensitive => AliasCaseCheck::CaseInsensitive,
+            AliasCaseCheckPolicy::QuotedCaseSensitiveNakedUpper => {
+                AliasCaseCheck::QuotedCaseSensitiveNakedUpper
+            }
+            AliasCaseCheckPolicy::QuotedCaseSensitiveNakedLower => {
+                AliasCaseCheck::QuotedCaseSensitiveNakedLower
+            }
+            AliasCaseCheckPolicy::CaseSensitive => AliasCaseCheck::CaseSensitive,
+        };
+        Ok(RuleAL05 { alias_case_check }.erased())
     }
 
     fn name(&self) -> &'static str {

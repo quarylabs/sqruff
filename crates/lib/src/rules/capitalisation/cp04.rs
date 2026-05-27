@@ -1,9 +1,7 @@
-use hashbrown::HashMap;
-use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::cp01::RuleCP01;
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
@@ -27,28 +25,17 @@ impl Default for RuleCP04 {
 }
 
 impl Rule for RuleCP04 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleCP04 {
             base: RuleCP01 {
-                capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),
-                ignore_words: config["ignore_words"]
-                    .map(|it| {
-                        it.as_array()
-                            .unwrap_or_default()
-                            .iter()
-                            .map(|it| it.as_string().unwrap().to_lowercase())
-                            .collect()
-                    })
-                    .unwrap_or_default(),
-                ignore_words_regex: config["ignore_words_regex"]
-                    .map(|it| {
-                        it.as_array()
-                            .unwrap_or_default()
-                            .iter()
-                            .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                            .collect()
-                    })
-                    .unwrap_or_default(),
+                capitalisation_policy: config
+                    .capitalisation
+                    .literals
+                    .capitalisation_policy
+                    .as_str()
+                    .into(),
+                ignore_words: config.capitalisation.literals.ignore_words.clone(),
+                ignore_words_regex: config.capitalisation.literals.ignore_words_regex.clone(),
                 ..Default::default()
             },
         }

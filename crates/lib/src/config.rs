@@ -20,7 +20,7 @@ pub use model::{
 pub use options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 pub use patch::{ConfigPatch, CoreConfigPatch, DialectConfigPatch, IndentationConfigPatch};
 pub use raw::{Value, split_comma_separated_string};
-pub use rules::{RuleConfigs, RuleConfigsPatch};
+pub use rules::*;
 pub use setting::{Merge, NullableSetting, Setting};
 pub use templater::{
     DbtTemplaterConfig, JinjaTemplaterConfig, PlaceholderParamValue, PlaceholderTemplaterConfig,

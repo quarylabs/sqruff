@@ -1,11 +1,11 @@
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnly};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -17,9 +17,10 @@ pub struct RuleCV06 {
 }
 
 impl Rule for RuleCV06 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let multiline_newline = config["multiline_newline"].as_bool().unwrap();
-        let require_final_semicolon = config["require_final_semicolon"].as_bool().unwrap();
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
+        let cfg = &config.convention.terminator;
+        let multiline_newline = cfg.multiline_newline;
+        let require_final_semicolon = cfg.require_final_semicolon;
         Ok(Self {
             multiline_newline,
             require_final_semicolon,

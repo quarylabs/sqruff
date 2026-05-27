@@ -1,10 +1,9 @@
 use std::ops::Deref;
 
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::lt03::RuleLT03;
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -16,7 +15,7 @@ pub struct RuleLT04 {
 }
 
 impl Rule for RuleLT04 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleLT04::default().erased())
     }
     fn name(&self) -> &'static str {

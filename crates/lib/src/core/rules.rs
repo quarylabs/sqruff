@@ -19,7 +19,7 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
 use strum_macros::AsRefStr;
 
-use crate::config::{FluffConfig, Value};
+use crate::config::{FluffConfig, RuleConfigs};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{BaseCrawler as _, Crawler};
 
@@ -120,7 +120,7 @@ pub enum LintPhase {
 }
 
 pub trait Rule: Debug + 'static + Send + Sync {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String>;
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String>;
 
     fn lint_phase(&self) -> LintPhase {
         LintPhase::Main
@@ -390,12 +390,9 @@ impl RuleSet {
 
         for code in keylist {
             let rule = self.register[code].rule_class.clone();
-            let rule_config_ref = rule.config_ref();
-
-            let specific_rule_config = config.rule_config_map(rule_config_ref);
 
             instantiated_rules.push(
-                rule.load_from_config(&specific_rule_config)
+                rule.load_from_config(config.rules())
                     .map_err(SQLFluffUserError::new)?,
             );
         }

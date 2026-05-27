@@ -1,13 +1,10 @@
-use std::str::FromStr;
-
-use hashbrown::HashMap;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 use strum_macros::{AsRefStr, EnumString};
 
-use crate::config::Value;
+use crate::config::{JoinQualificationPolicy, RuleConfigs};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -34,24 +31,16 @@ impl Default for RuleAM05 {
 }
 
 impl Rule for RuleAM05 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let fully_qualify_join_types = config["fully_qualify_join_types"].as_string();
-        // TODO We will need a more complete story for all the config parsing
-        match fully_qualify_join_types {
-            None => Err("Rule AM05 expects a `fully_qualify_join_types` array".to_string()),
-            Some(join_type) => {
-                let join_type = JoinType::from_str(join_type).map_err(|_| {
-                    format!(
-                        "Rule AM05 expects a `fully_qualify_join_types` array of valid join \
-                         types. Got: {join_type}"
-                    )
-                })?;
-                Ok(RuleAM05 {
-                    fully_qualify_join_types: join_type,
-                }
-                .erased())
-            }
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
+        let join_type = match config.ambiguous.join.fully_qualify_join_types {
+            JoinQualificationPolicy::Inner => JoinType::Inner,
+            JoinQualificationPolicy::Outer => JoinType::Outer,
+            JoinQualificationPolicy::Both => JoinType::Both,
+        };
+        Ok(RuleAM05 {
+            fully_qualify_join_types: join_type,
         }
+        .erased())
     }
 
     fn name(&self) -> &'static str {

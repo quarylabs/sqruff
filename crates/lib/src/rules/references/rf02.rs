@@ -1,4 +1,3 @@
-use hashbrown::HashMap;
 use itertools::Itertools;
 use regex::Regex;
 use smol_str::SmolStr;
@@ -6,7 +5,7 @@ use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
 
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
@@ -29,26 +28,9 @@ impl Default for RuleRF02 {
 }
 
 impl Rule for RuleRF02 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let ignore_words = config["ignore_words"]
-            .map(|it| {
-                it.as_array()
-                    .unwrap()
-                    .iter()
-                    .map(|it| it.as_string().unwrap().to_lowercase())
-                    .collect()
-            })
-            .unwrap_or_default();
-
-        let ignore_words_regex = config["ignore_words_regex"]
-            .map(|it| {
-                it.as_array()
-                    .unwrap()
-                    .iter()
-                    .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                    .collect()
-            })
-            .unwrap_or_default();
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
+        let ignore_words = config.references.qualification.ignore_words.clone();
+        let ignore_words_regex = config.references.qualification.ignore_words_regex.clone();
 
         Ok(Self {
             base: RuleAL04 {

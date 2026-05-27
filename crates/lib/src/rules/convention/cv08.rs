@@ -1,8 +1,8 @@
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use smol_str::{SmolStr, StrExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -11,7 +11,7 @@ use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 pub struct RuleCV08;
 
 impl Rule for RuleCV08 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleCV08.erased())
     }
 

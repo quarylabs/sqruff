@@ -1,10 +1,8 @@
-use hashbrown::HashMap;
-use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::cp01::RuleCP01;
-use crate::config::Value;
+use crate::config::{IdentifierPolicy, RuleConfigs};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -13,7 +11,7 @@ use crate::utils::identifers::identifiers_policy_applicable;
 #[derive(Clone, Debug)]
 pub struct RuleCP02 {
     base: RuleCP01,
-    unquoted_identifiers_policy: Option<String>,
+    unquoted_identifiers_policy: IdentifierPolicy,
 }
 
 impl Default for RuleCP02 {
@@ -24,46 +22,32 @@ impl Default for RuleCP02 {
                 description_elem: "Unquoted identifiers",
                 ..Default::default()
             },
-            unquoted_identifiers_policy: None,
+            unquoted_identifiers_policy: IdentifierPolicy::All,
         }
     }
 }
 
 impl Rule for RuleCP02 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleCP02 {
             base: RuleCP01 {
-                capitalisation_policy: config["extended_capitalisation_policy"]
-                    .as_string()
-                    .unwrap()
+                capitalisation_policy: config
+                    .capitalisation
+                    .identifiers
+                    .extended_capitalisation_policy
+                    .as_str()
                     .into(),
                 cap_policy_name: "extended_capitalisation_policy".into(),
                 description_elem: "Unquoted identifiers",
-                ignore_words: config["ignore_words"]
-                    .map(|it| {
-                        it.as_array()
-                            .unwrap()
-                            .iter()
-                            .map(|it| it.as_string().unwrap().to_lowercase())
-                            .collect()
-                    })
-                    .unwrap_or_default(),
-                ignore_words_regex: config["ignore_words_regex"]
-                    .map(|it| {
-                        it.as_array()
-                            .unwrap()
-                            .iter()
-                            .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                            .collect()
-                    })
-                    .unwrap_or_default(),
+                ignore_words: config.capitalisation.identifiers.ignore_words.clone(),
+                ignore_words_regex: config.capitalisation.identifiers.ignore_words_regex.clone(),
 
                 ..Default::default()
             },
             unquoted_identifiers_policy: config
-                .get("unquoted_identifiers_policy")
-                .and_then(|it| it.as_string())
-                .map(ToString::to_string),
+                .capitalisation
+                .identifiers
+                .unquoted_identifiers_policy,
         }
         .erased())
     }
@@ -129,8 +113,10 @@ from foo
             return Vec::new();
         }
 
-        let policy = self.unquoted_identifiers_policy.as_deref().unwrap_or("all");
-        if identifiers_policy_applicable(policy, &context.parent_stack) {
+        if identifiers_policy_applicable(
+            self.unquoted_identifiers_policy.as_str(),
+            &context.parent_stack,
+        ) {
             self.base.eval(context)
         } else {
             vec![LintResult::new(None, Vec::new(), None, None)]

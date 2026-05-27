@@ -1,8 +1,7 @@
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::al01::{Aliasing, RuleAL01};
-use crate::config::Value;
+use crate::config::{AliasingStyle, RuleConfigs};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -29,11 +28,10 @@ impl RuleAL02 {
 }
 
 impl Rule for RuleAL02 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let aliasing = match config.get("aliasing").unwrap().as_string().unwrap() {
-            "explicit" => Aliasing::Explicit,
-            "implicit" => Aliasing::Implicit,
-            _ => unreachable!(),
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
+        let aliasing = match config.aliasing.column.aliasing {
+            AliasingStyle::Explicit => Aliasing::Explicit,
+            AliasingStyle::Implicit => Aliasing::Implicit,
         };
 
         let mut rule = RuleAL02::default();

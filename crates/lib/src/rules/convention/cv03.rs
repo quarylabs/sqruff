@@ -1,9 +1,8 @@
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -23,13 +22,13 @@ impl Default for RuleCV03 {
 }
 
 impl Rule for RuleCV03 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleCV03 {
             select_clause_trailing_comma: _config
-                .get("select_clause_trailing_comma")
-                .unwrap()
-                .as_string()
-                .unwrap()
+                .convention
+                .select_trailing_comma
+                .select_clause_trailing_comma
+                .as_str()
                 .to_owned(),
         }
         .erased())

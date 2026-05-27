@@ -20,7 +20,7 @@ use crate::api::SqruffError;
 use crate::templaters::TemplaterKind;
 use crate::utils::reflow::config::ReflowConfig;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct FluffConfig {
     /// Kept for internal operations that still require the raw map
     /// (e.g. `with_patch`, `for_source`).
@@ -192,7 +192,7 @@ impl FluffConfig {
         let core = CoreConfig::from_raw(&raw);
         let indentation = IndentationConfig::from_raw(&raw);
         let layout = LayoutConfig::from_raw(&raw).map_err(config_error)?;
-        let rules = RuleConfigs::from_raw(&raw);
+        let rules = RuleConfigs::from_raw(&raw).map_err(config_error)?;
         let templater = TemplaterConfig::from_raw(&raw).map_err(config_error)?;
         let dialects = DialectConfigStore::from_raw(&raw);
 
@@ -357,8 +357,8 @@ impl FluffConfig {
         self.core.rule_denylist()
     }
 
-    pub fn rule_config_map(&self, rule_config_ref: &str) -> HashMap<String, Value> {
-        self.rules.config_map(rule_config_ref)
+    pub fn rules(&self) -> &RuleConfigs {
+        &self.rules
     }
 
     pub fn templater(&self) -> &TemplaterConfig {

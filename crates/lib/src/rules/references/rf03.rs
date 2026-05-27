@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use itertools::Itertools;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
@@ -12,7 +12,7 @@ use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::analysis::query::Query;
 
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -299,12 +299,17 @@ fn validate_one_reference(
 }
 
 impl Rule for RuleRF03 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleRF03 {
-            single_table_references: config
-                .get("single_table_references")
-                .and_then(|it| it.as_string().map(ToString::to_string)),
-            force_enable: config["force_enable"].as_bool().unwrap(),
+            single_table_references: Some(
+                config
+                    .references
+                    .consistent
+                    .single_table_references
+                    .as_str()
+                    .to_owned(),
+            ),
+            force_enable: config.references.consistent.force_enable,
         }
         .erased())
     }

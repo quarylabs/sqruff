@@ -1,7 +1,7 @@
 use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::config::Value;
+use crate::config::{GroupByAndOrderByStyle, RuleConfigs};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
@@ -32,13 +32,17 @@ enum GroupByAndOrderByConvention {
 }
 
 impl Rule for RuleAM06 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleAM06 {
-            group_by_and_order_by_style: config["group_by_and_order_by_style"]
-                .as_string()
-                .unwrap()
-                .parse()
-                .unwrap(),
+            group_by_and_order_by_style: match config
+                .ambiguous
+                .column_references
+                .group_by_and_order_by_style
+            {
+                GroupByAndOrderByStyle::Consistent => GroupByAndOrderByConvention::Consistent,
+                GroupByAndOrderByStyle::Explicit => GroupByAndOrderByConvention::Explicit,
+                GroupByAndOrderByStyle::Implicit => GroupByAndOrderByConvention::Implicit,
+            },
         }
         .erased())
     }

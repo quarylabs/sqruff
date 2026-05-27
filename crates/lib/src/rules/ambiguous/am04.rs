@@ -1,10 +1,9 @@
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::common::AliasInfo;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source};
 
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -19,7 +18,7 @@ const START_TYPES: [SyntaxKind; 3] = [
 ];
 
 impl Rule for RuleAM04 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleAM04.erased())
     }
 

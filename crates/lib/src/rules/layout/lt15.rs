@@ -1,8 +1,7 @@
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -23,18 +22,16 @@ impl Default for RuleLT15 {
 }
 
 impl Rule for RuleLT15 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleLT15 {
             maximum_empty_lines_between_statements: config
-                .get("maximum_empty_lines_between_statements")
-                .and_then(Value::as_int)
-                .map(|v| v as usize)
-                .unwrap_or(self.maximum_empty_lines_between_statements),
+                .layout
+                .newlines
+                .maximum_empty_lines_between_statements,
             maximum_empty_lines_inside_statements: config
-                .get("maximum_empty_lines_inside_statements")
-                .and_then(Value::as_int)
-                .map(|v| v as usize)
-                .unwrap_or(self.maximum_empty_lines_inside_statements),
+                .layout
+                .newlines
+                .maximum_empty_lines_inside_statements,
         }
         .erased())
     }

@@ -1,8 +1,8 @@
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, TokenSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -15,28 +15,11 @@ pub struct RuleCV09 {
 }
 
 impl Rule for RuleCV09 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let blocked_words = config["blocked_words"]
-            .as_string()
-            .map_or(Default::default(), |it| {
-                it.split(',')
-                    .map(|s| s.to_string().to_uppercase())
-                    .collect::<HashSet<_>>()
-            });
-        let blocked_regex = config["blocked_regex"]
-            .as_array()
-            .unwrap_or_default()
-            .into_iter()
-            .map(|regex| {
-                let regex = regex.as_string();
-                if let Some(regex) = regex {
-                    Ok(regex::Regex::new(regex).map_err(|e| e.to_string())?)
-                } else {
-                    Err("blocked_regex must be an array of strings".to_string())
-                }
-            })
-            .collect::<Result<Vec<_>, _>>()?;
-        let match_source = config["match_source"].as_bool().unwrap_or_default();
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
+        let cfg = &config.convention.blocked_words;
+        let blocked_words = cfg.blocked_words.iter().cloned().collect::<HashSet<_>>();
+        let blocked_regex = cfg.blocked_regex.clone();
+        let match_source = cfg.match_source;
         Ok(RuleCV09 {
             blocked_words,
             blocked_regex,

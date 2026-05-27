@@ -1,4 +1,3 @@
-use hashbrown::HashMap;
 use itertools::chain;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
@@ -6,7 +5,7 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
 use strum_macros::{AsRefStr, EnumString};
 
-use crate::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -72,11 +71,13 @@ pub struct RuleCV11 {
 }
 
 impl Rule for RuleCV11 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleCV11 {
-            preferred_type_casting_style: config["preferred_type_casting_style"]
-                .as_string()
-                .unwrap()
+            preferred_type_casting_style: config
+                .convention
+                .casting_style
+                .preferred_type_casting_style
+                .as_str()
                 .parse()
                 .unwrap(),
         }

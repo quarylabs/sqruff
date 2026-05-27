@@ -1,7 +1,7 @@
-use itertools::Itertools;
 use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
@@ -16,35 +16,21 @@ pub struct RuleRF04 {
 }
 
 impl Rule for RuleRF04 {
-    fn load_from_config(
-        &self,
-        config: &hashbrown::HashMap<String, crate::config::Value>,
-    ) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleRF04 {
-            unquoted_identifiers_policy: config["unquoted_identifiers_policy"]
-                .as_string()
-                .unwrap()
+            unquoted_identifiers_policy: config
+                .references
+                .keywords
+                .unquoted_identifiers_policy
+                .as_str()
                 .to_owned(),
-            quoted_identifiers_policy: config["quoted_identifiers_policy"]
-                .map(|it| it.as_string().unwrap().to_string()),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect_vec()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect_vec()
-                })
-                .unwrap_or_default(),
+            quoted_identifiers_policy: config
+                .references
+                .keywords
+                .quoted_identifiers_policy
+                .map(|policy| policy.as_str().to_owned()),
+            ignore_words: config.references.keywords.ignore_words.clone(),
+            ignore_words_regex: config.references.keywords.ignore_words_regex.clone(),
         }
         .erased())
     }

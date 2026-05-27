@@ -189,7 +189,7 @@ impl FluffConfig {
         let mut raw = merge_configs(defaults, configs);
         normalize_core_lists(&mut raw);
 
-        let core = CoreConfig::from_raw(&raw);
+        let core = CoreConfig::from_raw(&raw).map_err(config_error)?;
         let indentation = IndentationConfig::from_raw(&raw);
         let layout = LayoutConfig::from_raw(&raw).map_err(config_error)?;
         let rules = RuleConfigs::from_raw(&raw).map_err(config_error)?;
@@ -434,13 +434,13 @@ fn extract_inline_config_directive(line: &str) -> Option<&str> {
 }
 
 impl CoreConfig {
-    fn from_raw(raw: &RawConfig) -> Self {
+    fn from_raw(raw: &RawConfig) -> Result<Self, ConfigError> {
         let core = raw["core"].as_map().unwrap();
 
-        Self {
+        Ok(Self {
             verbose: u8_value(core, "verbose"),
             no_color: bool_value(core, "nocolor"),
-            dialect: dialect_value(core, "dialect"),
+            dialect: dialect_value(core, "dialect")?,
             templater: templater_value(core, "templater"),
             rule_allowlist: rule_selector_list_value(core, "rule_allowlist"),
             rule_denylist: rule_selector_list_value(core, "rule_denylist").unwrap_or_default(),
@@ -457,7 +457,7 @@ impl CoreConfig {
             large_file_skip_char_limit: usize_value(core, "large_file_skip_char_limit"),
             large_file_skip_byte_limit: usize_value(core, "large_file_skip_byte_limit"),
             max_line_length: usize_value(core, "max_line_length"),
-        }
+        })
     }
 
     pub fn no_color(&self) -> bool {
@@ -600,12 +600,17 @@ fn string_vec_value(map: &HashMap<String, Value>, key: &str) -> Vec<String> {
     string_list_value(map, key).unwrap_or_default()
 }
 
-fn dialect_value(map: &HashMap<String, Value>, key: &str) -> Option<DialectKind> {
-    map.get(key)
-        .and_then(Value::as_string)
-        .map(DialectKind::from_str)
-        .transpose()
-        .unwrap()
+fn dialect_value(
+    map: &HashMap<String, Value>,
+    key: &str,
+) -> Result<Option<DialectKind>, ConfigError> {
+    let Some(value) = map.get(key).and_then(Value::as_string) else {
+        return Ok(None);
+    };
+
+    DialectKind::from_str(value)
+        .map(Some)
+        .map_err(|_| ConfigError::UnknownDialect(value.to_string()))
 }
 
 fn templater_value(map: &HashMap<String, Value>, key: &str) -> TemplaterKind {

@@ -519,15 +519,3 @@ where
 {
     StringOrVec::deserialize(d).map(|value| Setting::Set(value.into_vec()))
 }
-
-/// Deserialize a nullable patch setting from either a comma-separated string,
-/// a YAML/JSON sequence, or an explicit null.
-pub(super) fn nullable_setting_csv<'de, D>(
-    d: D,
-) -> std::result::Result<NullableSetting<Vec<String>>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let opt = Option::<StringOrVec>::deserialize(d)?;
-    Ok(Setting::Set(opt.map(StringOrVec::into_vec)))
-}

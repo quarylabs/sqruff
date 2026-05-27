@@ -1,5 +1,8 @@
+use std::fmt;
+
 use hashbrown::HashMap;
-use sqruff_lib_core::dialects::init::DialectKind;
+use serde::de::{IgnoredAny, MapAccess, Visitor};
+use serde::{Deserialize, Deserializer};
 
 use super::de;
 use super::layout::LayoutConfigPatch;
@@ -7,16 +10,13 @@ use super::raw::{RawConfig, Value, insert_config_path, merge_configs};
 use super::rules::RuleConfigsPatch;
 use super::setting::{Merge, NullableSetting, Setting};
 use super::templater::TemplaterConfigPatch;
-use crate::templaters::TemplaterKind;
 
 // ── CoreConfigPatch ──────────────────────────────────────────────────────────
 
 /// Typed patch for the `[sqruff]` / core section.
-#[derive(Debug, Clone, Default, serde::Deserialize)]
-#[serde(default, deny_unknown_fields, rename_all = "snake_case")]
+#[derive(Debug, Clone, Default)]
 pub struct CoreConfigPatch {
-    #[serde(default, deserialize_with = "de::nullable_setting_from_str")]
-    pub dialect: NullableSetting<DialectKind>,
+    pub dialect: NullableSetting<String>,
     pub max_line_length: Setting<usize>,
     pub nocolor: Setting<bool>,
     pub verbose: Setting<u8>,
@@ -29,18 +29,112 @@ pub struct CoreConfigPatch {
     pub large_file_skip_char_limit: Setting<usize>,
     pub large_file_skip_byte_limit: Setting<usize>,
     pub encoding: Setting<String>,
-    #[serde(default, deserialize_with = "de::nullable_setting_csv")]
     pub ignore: NullableSetting<Vec<String>>,
-    #[serde(default, deserialize_with = "de::nullable_setting_csv")]
     pub warnings: NullableSetting<Vec<String>>,
-    #[serde(default, deserialize_with = "de::nullable_setting_csv")]
     pub rules: NullableSetting<Vec<String>>,
-    #[serde(default, deserialize_with = "de::nullable_setting_csv")]
     pub exclude_rules: NullableSetting<Vec<String>>,
-    #[serde(default, deserialize_with = "de::setting_from_str")]
-    pub templater: Setting<TemplaterKind>,
-    #[serde(default, deserialize_with = "de::setting_csv")]
+    pub templater: Setting<String>,
     pub sql_file_exts: Setting<Vec<String>>,
+}
+
+impl<'de> Deserialize<'de> for CoreConfigPatch {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_map(CoreConfigPatchVisitor)
+    }
+}
+
+struct CoreConfigPatchVisitor;
+
+impl<'de> Visitor<'de> for CoreConfigPatchVisitor {
+    type Value = CoreConfigPatch;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str("a core config patch")
+    }
+
+    fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
+    where
+        M: MapAccess<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "dialect",
+            "max_line_length",
+            "nocolor",
+            "verbose",
+            "output_line_length",
+            "runaway_limit",
+            "disable_noqa",
+            "warn_unused_ignores",
+            "ignore_templated_areas",
+            "fix_even_unparsable",
+            "large_file_skip_char_limit",
+            "large_file_skip_byte_limit",
+            "encoding",
+            "ignore",
+            "warnings",
+            "rules",
+            "exclude_rules",
+            "templater",
+            "sql_file_exts",
+        ];
+
+        let mut patch = CoreConfigPatch::default();
+
+        while let Some(key) = map.next_key::<String>()? {
+            match key.as_str() {
+                "dialect" => patch.dialect = Setting::Set(map.next_value()?),
+                "max_line_length" => patch.max_line_length = next_usize_setting(&mut map)?,
+                "nocolor" => patch.nocolor = map.next_value()?,
+                "verbose" => patch.verbose = map.next_value()?,
+                "output_line_length" => patch.output_line_length = next_usize_setting(&mut map)?,
+                "runaway_limit" => patch.runaway_limit = next_usize_setting(&mut map)?,
+                "disable_noqa" => patch.disable_noqa = map.next_value()?,
+                "warn_unused_ignores" => patch.warn_unused_ignores = map.next_value()?,
+                "ignore_templated_areas" => {
+                    patch.ignore_templated_areas = map.next_value()?;
+                }
+                "fix_even_unparsable" => patch.fix_even_unparsable = map.next_value()?,
+                "large_file_skip_char_limit" => {
+                    patch.large_file_skip_char_limit = next_usize_setting(&mut map)?;
+                }
+                "large_file_skip_byte_limit" => {
+                    patch.large_file_skip_byte_limit = next_usize_setting(&mut map)?;
+                }
+                "encoding" => patch.encoding = map.next_value()?,
+                "ignore" => patch.ignore = map.next_value()?,
+                "warnings" => patch.warnings = map.next_value()?,
+                "rules" => patch.rules = map.next_value()?,
+                "exclude_rules" => patch.exclude_rules = map.next_value()?,
+                "templater" => {
+                    if let OptionalString::Some(value) = map.next_value()? {
+                        patch.templater = Setting::Set(value);
+                    }
+                }
+                "sql_file_exts" => patch.sql_file_exts = map.next_value()?,
+                _ => return Err(serde::de::Error::unknown_field(&key, FIELDS)),
+            }
+        }
+
+        Ok(patch)
+    }
+}
+
+fn next_usize_setting<'de, M>(map: &mut M) -> Result<Setting<usize>, M::Error>
+where
+    M: MapAccess<'de>,
+{
+    let value = map.next_value::<i64>()?;
+    Ok(Setting::Set(value.max(0) as usize))
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum OptionalString {
+    Some(String),
+    Ignored(IgnoredAny),
 }
 
 impl CoreConfigPatch {
@@ -53,7 +147,7 @@ impl CoreConfigPatch {
         match self.dialect {
             Setting::Unset => {}
             Setting::Set(Some(v)) => {
-                map.insert("dialect".into(), Value::String(v.as_ref().into()));
+                map.insert("dialect".into(), Value::String(v.into()));
             }
             Setting::Set(None) => {
                 map.insert("dialect".into(), Value::None);
@@ -119,7 +213,7 @@ impl CoreConfigPatch {
             }
         }
         if let Setting::Set(v) = self.templater {
-            map.insert("templater".into(), Value::String(v.as_str().into()));
+            map.insert("templater".into(), Value::String(v.into()));
         }
         if let Setting::Set(exts) = self.sql_file_exts {
             map.insert("sql_file_exts".into(), Value::String(exts.join(",").into()));
@@ -358,6 +452,22 @@ impl ConfigPatch {
             current = current.as_map()?.get(*key)?;
         }
         Some(current)
+    }
+
+    /// SQLFluff rule fixtures historically place some indentation options
+    /// under `rules`; move those into the typed indentation patch.
+    pub fn move_fixture_indentation_options(&mut self) {
+        if let Some(value) = self.rules.configs.remove("indent_unit") {
+            if let Some(value) = value.as_string() {
+                self.indentation.indent_unit = Setting::Set(value.to_string());
+            }
+        }
+
+        if let Some(value) = self.rules.configs.remove("tab_space_size") {
+            if let Some(value) = value.as_int() {
+                self.indentation.tab_space_size = Setting::Set(value.max(0) as usize);
+            }
+        }
     }
 }
 

@@ -4,9 +4,8 @@ use std::str::FromStr;
 use glob::glob;
 use hashbrown::HashMap;
 use serde::Deserialize;
-use serde_with::{KeyValueMap, serde_as};
 use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId, SqruffError};
-use sqruff_lib::config::{ConfigPatch, FluffConfig, Value};
+use sqruff_lib::config::{ConfigLoader, ConfigPatch, FluffConfig, Setting};
 use sqruff_lib::templaters::TemplaterKind;
 use sqruff_lib_core::dialects::init::DialectKind;
 
@@ -21,26 +20,20 @@ impl Args {
     }
 }
 
-static INDENT_CONFIG: &[&str] = &["indent_unit", "tab_space_size"];
-
-#[serde_as]
 #[derive(Debug, Deserialize)]
 struct TestFile {
     rule: String,
-    #[serde_as(as = "KeyValueMap<_>")]
     #[serde(flatten)]
-    cases: Vec<TestCase>,
+    cases: HashMap<String, TestCase>,
 }
 
 #[derive(Debug, Deserialize)]
 struct TestCase {
-    #[serde(rename = "$key$")]
-    name: String,
     ignored: Option<String>,
     #[serde(flatten)]
     kind: TestCaseKind,
     #[serde(default)]
-    configs: HashMap<String, Value>,
+    configs: ConfigPatch,
 }
 
 #[derive(Debug, Deserialize)]
@@ -52,30 +45,31 @@ enum TestCaseKind {
 }
 
 fn config_for_rule_case(rule: &str, case: &TestCase) -> Result<FluffConfig, SqruffError> {
-    let mut patch = ConfigPatch::from_sections(case.configs.clone());
+    let mut patch = case.configs.clone();
 
-    // Set the rule under test using the public config spelling; normal config
-    // normalization will expand this into the internal allowlist representation.
-    patch.set_string(&["core", "rules"], rule);
+    patch.core.rules = Setting::Set(Some(
+        rule.split(',')
+            .map(|rule| rule.trim().to_string())
+            .filter(|rule| !rule.is_empty())
+            .collect(),
+    ));
 
-    // SQLFluff rule fixtures sometimes put indentation options under `rules`;
-    // Sqruff's engine expects these under `indentation`.
-    for key in INDENT_CONFIG {
-        if let Some(value) = patch.value(&["rules", key]).cloned() {
-            patch.set_value(&["indentation", key], value);
-        }
+    patch.move_fixture_indentation_options();
+
+    ConfigLoader::new().load_patch(patch)
+}
+
+fn dialect_name(case: &TestCase) -> &str {
+    match &case.configs.core.dialect {
+        Setting::Set(Some(dialect)) => dialect,
+        Setting::Set(None) | Setting::Unset => "ansi",
     }
-
-    FluffConfig::builder().patch(patch).build()
 }
 
 fn unsupported_templater(case: &TestCase) -> Option<String> {
-    let templater = case
-        .configs
-        .get("core")
-        .and_then(Value::as_map)
-        .and_then(|core| core.get("templater"))
-        .and_then(Value::as_string)?;
+    let Setting::Set(templater) = &case.configs.core.templater else {
+        return None;
+    };
 
     TemplaterKind::from_name(templater)
         .err()
@@ -98,17 +92,11 @@ fn main() {
         let input = std::fs::read_to_string(path).unwrap();
 
         let file: TestFile = serde_yaml::from_str(&input).unwrap();
-        for case in file.cases {
-            println!("Processing case: {}", case.name);
-            let dialect_name = case
-                .configs
-                .get("core")
-                .and_then(|it| it.as_map())
-                .and_then(|it| it.get("dialect"))
-                .and_then(|it| it.as_string())
-                .unwrap_or("ansi");
+        for (case_name, case) in file.cases {
+            println!("Processing case: {}", case_name);
+            let dialect_name = dialect_name(&case).to_string();
 
-            let dialect = DialectKind::from_str(dialect_name);
+            let dialect = DialectKind::from_str(&dialect_name);
 
             if dialect.is_err() || case.ignored.is_some() {
                 let message = case
@@ -129,10 +117,10 @@ fn main() {
                 Ok(config) => config,
                 Err(error) => {
                     if std::env::var("SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS").is_ok() {
-                        println!("Skipping case '{}': {}", case.name, error);
+                        println!("Skipping case '{}': {}", case_name, error);
                         continue;
                     }
-                    panic!("Invalid config in case '{}': {}", case.name, error);
+                    panic!("Invalid config in case '{}': {}", case_name, error);
                 }
             };
 
@@ -148,7 +136,7 @@ fn main() {
                 TestCaseKind::Pass { pass_str } => {
                     let result = engine
                         .check_source(Source {
-                            id: SourceId::Virtual(case.name.clone()),
+                            id: SourceId::Virtual(case_name.clone()),
                             text: Cow::Borrowed(&pass_str),
                         })
                         .unwrap();
@@ -191,7 +179,7 @@ dialect = {dialect}
                 TestCaseKind::Fail { fail_str } => {
                     let file = engine
                         .check_source(Source {
-                            id: SourceId::Virtual(case.name.clone()),
+                            id: SourceId::Virtual(case_name.clone()),
                             text: Cow::Borrowed(&fail_str),
                         })
                         .unwrap();
@@ -205,7 +193,7 @@ dialect = {dialect}
 
                     let linted = engine
                         .fix_source(Source {
-                            id: SourceId::Virtual(case.name.clone()),
+                            id: SourceId::Virtual(case_name.clone()),
                             text: Cow::Borrowed(&fail_str),
                         })
                         .unwrap();

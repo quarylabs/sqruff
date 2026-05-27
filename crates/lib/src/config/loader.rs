@@ -93,6 +93,10 @@ impl ConfigLoader {
         FluffConfig::try_from_patch(patch)
     }
 
+    pub fn load_patch(&self, patch: ConfigPatch) -> Result<FluffConfig, SqruffError> {
+        FluffConfig::try_from_patch(patch)
+    }
+
     #[allow(unused_variables)]
     fn iter_config_locations_up_to_path(
         path: &Path,
@@ -340,7 +344,7 @@ fn merge_patches(config_stack: Vec<ConfigPatch>) -> ConfigPatch {
 
 fn apply_overrides(config: &mut ConfigPatch, overrides: ConfigOverrides) {
     if let Some(dialect) = overrides.dialect {
-        config.core.dialect = Setting::Set(Some(dialect));
+        config.core.dialect = Setting::Set(Some(dialect.as_ref().to_string()));
     }
 
     if let Some(rules) = overrides.rules {

@@ -296,7 +296,7 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // DuckDB allows trailing commas in function argument lists, e.g.
-    // `struct_pack(a := 1, b := 2,)`. Mirror the ansi `FunctionContentsGrammar`
+    // `list_value(1, 2, 3,)`. Mirror the ansi `FunctionContentsGrammar`
     // but enable `allow_trailing` on the inner argument `Delimited`.
     duckdb_dialect.replace_grammar(
         "FunctionContentsGrammar",

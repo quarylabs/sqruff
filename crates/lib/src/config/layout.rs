@@ -80,11 +80,10 @@ impl Merge for LayoutTypeConfigPatch {
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default, rename_all = "snake_case")]
 pub struct LayoutConfigPatch {
+    #[serde(default, deserialize_with = "layout_type_map")]
     #[serde(rename = "type")]
-    pub types: HashMap<String, LayoutTypeConfigPatch>,
+    pub types: HashMap<SyntaxKind, LayoutTypeConfigPatch>,
 }
-
-impl LayoutConfigPatch {}
 
 impl Merge for LayoutConfigPatch {
     fn merge(&mut self, other: Self) {
@@ -114,27 +113,40 @@ impl LayoutConfig {
     pub(crate) fn from_patch(patch: &LayoutConfigPatch) -> Result<Self, ConfigError> {
         let mut types = HashMap::new();
 
-        for (name, value) in &patch.types {
-            let seg_type =
-                syntax_kind_from_name(name).ok_or_else(|| ConfigError::InvalidField {
-                    field: "layout.type",
-                    reason: format!("invalid layout syntax kind '{name}'"),
-                })?;
-            types.insert(seg_type, value.clone().resolve(seg_type)?);
+        for (seg_type, value) in &patch.types {
+            types.insert(*seg_type, value.clone().resolve(*seg_type)?);
         }
 
         Ok(Self { types })
     }
 }
 
+fn layout_type_map<'de, D>(d: D) -> Result<HashMap<SyntaxKind, LayoutTypeConfigPatch>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let raw = HashMap::<String, LayoutTypeConfigPatch>::deserialize(d)?;
+    raw.into_iter()
+        .map(|(name, value)| {
+            let kind = syntax_kind_from_name(&name)
+                .ok_or_else(|| de::Error::custom(format!("invalid layout syntax kind '{name}'")))?;
+            Ok((kind, value))
+        })
+        .collect()
+}
+
 fn setting_syntax_set<'de, D>(d: D) -> Result<Setting<SyntaxSet>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let values = Option::<StringOrVec>::deserialize(d)?;
-    parse_syntax_set_values(values.map(StringOrVec::into_vec).unwrap_or_default())
-        .map(Setting::Set)
-        .map_err(de::Error::custom)
+    let values = Option::<super::de::StringOrVec>::deserialize(d)?;
+    parse_syntax_set_values(
+        values
+            .map(super::de::StringOrVec::into_vec)
+            .unwrap_or_default(),
+    )
+    .map(Setting::Set)
+    .map_err(de::Error::custom)
 }
 
 fn setting_syntax_kind<'de, D>(d: D) -> Result<Setting<SyntaxKind>, D::Error>
@@ -171,27 +183,6 @@ fn parse_nullable_line_position(value: &str) -> Result<Option<LinePosition>, Str
     }
 }
 
-#[derive(Deserialize)]
-#[serde(untagged)]
-enum StringOrVec {
-    Str(String),
-    Vec(Vec<String>),
-}
-
-impl StringOrVec {
-    fn into_vec(self) -> Vec<String> {
-        match self {
-            StringOrVec::Str(value) => value
-                .split(',')
-                .map(str::trim)
-                .filter(|value| !value.is_empty())
-                .map(ToOwned::to_owned)
-                .collect(),
-            StringOrVec::Vec(values) => values,
-        }
-    }
-}
-
 fn parse_syntax_set_values(values: Vec<String>) -> Result<SyntaxSet, String> {
     let mut syntax_set = SyntaxSet::EMPTY;
     for value in values {
@@ -210,4 +201,8 @@ fn syntax_kind_from_name(seg_type: &str) -> Option<SyntaxKind> {
         "aggregate_order_by" => Some(SyntaxKind::AggregateOrderByClause),
         _ => seg_type.parse().ok(),
     }
+}
+
+pub(crate) fn parse_layout_syntax_kind(seg_type: &str) -> Option<SyntaxKind> {
+    syntax_kind_from_name(seg_type)
 }

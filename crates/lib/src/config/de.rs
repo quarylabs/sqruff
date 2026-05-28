@@ -48,6 +48,21 @@ where
     })
 }
 
+pub(crate) fn deserialize_toml_table<T>(
+    section_name: &str,
+    table: &toml::value::Table,
+) -> std::result::Result<T, ConfigError>
+where
+    T: DeserializeOwned,
+{
+    toml::Value::Table(table.clone())
+        .try_into()
+        .map_err(|err| ConfigError::InvalidSection {
+            section: section_name.to_string(),
+            reason: err.to_string(),
+        })
+}
+
 struct SectionDeserializer<'a> {
     values: &'a StdHashMap<String, Option<String>>,
     section_name: &'a str,
@@ -424,25 +439,52 @@ impl<'de> SeqAccess<'de> for CsvSeqAccess<'de> {
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-enum StringOrVec {
+pub(crate) enum StringOrVec {
     Str(String),
     Vec(Vec<String>),
 }
 
 impl StringOrVec {
-    fn into_vec(self) -> Vec<String> {
+    pub(crate) fn into_vec(self) -> Vec<String> {
         match self {
             StringOrVec::Str(s) => s
                 .split(',')
                 .map(|x| x.trim().to_string())
                 .filter(|s| !s.is_empty() && !s.eq_ignore_ascii_case("none"))
                 .collect(),
-            StringOrVec::Vec(v) => v
-                .into_iter()
-                .filter(|s| !s.eq_ignore_ascii_case("none"))
-                .collect(),
+            StringOrVec::Vec(v) => v.into_iter().filter(|s| !is_none_value(s)).collect(),
         }
     }
+
+    pub(crate) fn into_optional_vec(self) -> Option<Vec<String>> {
+        match self {
+            StringOrVec::Str(s) => optional_csv(&s),
+            StringOrVec::Vec(v) => Some(v.into_iter().filter(|s| !is_none_value(s)).collect()),
+        }
+    }
+}
+
+pub(crate) fn optional_string(value: &str) -> Option<String> {
+    let trimmed = value.trim();
+    (!is_none_value(trimmed)).then(|| value.to_string())
+}
+
+pub(crate) fn csv(value: &str) -> Vec<String> {
+    value
+        .split(',')
+        .map(str::trim)
+        .filter(|value| !value.is_empty() && !value.eq_ignore_ascii_case("none"))
+        .map(ToOwned::to_owned)
+        .collect()
+}
+
+pub(crate) fn optional_csv(value: &str) -> Option<Vec<String>> {
+    optional_string(value).map(|value| csv(&value))
+}
+
+fn is_none_value(value: &str) -> bool {
+    let trimmed = value.trim();
+    trimmed.is_empty() || trimmed.eq_ignore_ascii_case("none")
 }
 
 pub(super) fn setting_from_str<'de, D, T>(d: D) -> std::result::Result<Setting<T>, D::Error>
@@ -456,6 +498,17 @@ where
         .parse()
         .map(Setting::Set)
         .map_err(|err: T::Err| de::Error::custom(err.to_string()))
+}
+
+pub(super) fn setting_optional_string<'de, D>(
+    d: D,
+) -> std::result::Result<Setting<String>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    Ok(Option::<String>::deserialize(d)?
+        .map(Setting::Set)
+        .unwrap_or(Setting::Unset))
 }
 
 pub(super) fn nullable_setting_from_str<'de, D, T>(
@@ -485,4 +538,30 @@ where
 {
     Option::<StringOrVec>::deserialize(d)
         .map(|value| Setting::Set(value.map(StringOrVec::into_vec).unwrap_or_default()))
+}
+
+pub(super) fn nullable_setting_csv<'de, D>(
+    d: D,
+) -> std::result::Result<NullableSetting<Vec<String>>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    Option::<StringOrVec>::deserialize(d)
+        .map(|value| Setting::Set(value.and_then(StringOrVec::into_optional_vec)))
+}
+
+pub(super) fn nonnegative_usize_setting<'de, D>(
+    d: D,
+) -> std::result::Result<Setting<usize>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    i64::deserialize(d).map(|value| Setting::Set(value.max(0) as usize))
+}
+
+pub(super) fn saturated_u8_setting<'de, D>(d: D) -> std::result::Result<Setting<u8>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    i64::deserialize(d).map(|value| Setting::Set(value.clamp(0, i64::from(u8::MAX)) as u8))
 }

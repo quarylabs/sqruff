@@ -1,51 +1,12 @@
 use std::str::FromStr;
 
 use regex::Regex;
-use serde::Deserialize;
+use serde::de as serde_de;
+use serde::{Deserialize, Deserializer};
 
 use super::de;
 use super::error::ConfigError;
 use super::setting::{Merge, NullableSetting, Setting};
-
-const KNOWN_RULE_OPTIONS: &[&str] = &[
-    "additional_allowed_characters",
-    "alias_case_check",
-    "aliasing",
-    "allow_scalar",
-    "allow_space_in_identifier",
-    "blocked_regex",
-    "blocked_words",
-    "capitalisation_policy",
-    "extended_capitalisation_policy",
-    "forbid_subquery_in",
-    "force_enable",
-    "fully_qualify_join_types",
-    "group_by_and_order_by_style",
-    "ignore_comment_clauses",
-    "ignore_comment_lines",
-    "ignore_words",
-    "ignore_words_regex",
-    "match_source",
-    "max_alias_length",
-    "maximum_empty_lines_between_statements",
-    "maximum_empty_lines_inside_statements",
-    "min_alias_length",
-    "multiline_newline",
-    "prefer_count_0",
-    "prefer_count_1",
-    "prefer_quoted_identifiers",
-    "prefer_quoted_keywords",
-    "preferred_first_table_in_join_clause",
-    "preferred_not_equal_style",
-    "preferred_quoted_literal_style",
-    "preferred_type_casting_style",
-    "quoted_identifiers_policy",
-    "require_final_semicolon",
-    "select_clause_trailing_comma",
-    "single_table_references",
-    "unquoted_identifiers_policy",
-    "wildcard_policy",
-];
 
 macro_rules! string_enum {
     (
@@ -79,6 +40,81 @@ macro_rules! string_enum {
             }
         }
     };
+}
+
+macro_rules! rule_config_sections {
+    ($($variant:ident => $name:literal, $field:ident),+ $(,)?) => {
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+        pub(crate) enum RuleConfigSection {
+            $($variant),+
+        }
+
+        impl RuleConfigSection {
+            pub(crate) fn as_str(self) -> &'static str {
+                match self {
+                    $(Self::$variant => $name,)+
+                }
+            }
+
+            fn merge_into(
+                self,
+                configs: &mut RuleConfigsPatch,
+                section_name: &str,
+                values: &std::collections::HashMap<String, Option<String>>,
+            ) -> Result<(), ConfigError> {
+                match self {
+                    $(Self::$variant => configs
+                        .$field
+                        .merge(de::deserialize_section(section_name, values)?),)+
+                }
+                Ok(())
+            }
+        }
+
+        impl FromStr for RuleConfigSection {
+            type Err = String;
+
+            fn from_str(value: &str) -> Result<Self, Self::Err> {
+                match value {
+                    $($name => Ok(Self::$variant),)+
+                    other => Err(format!("unknown rule config section '{other}'")),
+                }
+            }
+        }
+    };
+}
+
+rule_config_sections! {
+    AliasingTable => "aliasing.table", aliasing_table,
+    AliasingColumn => "aliasing.column", aliasing_column,
+    AliasingUnused => "aliasing.unused", aliasing_unused,
+    AliasingLength => "aliasing.length", aliasing_length,
+    AliasingForbid => "aliasing.forbid", aliasing_forbid,
+    AmbiguousJoin => "ambiguous.join", ambiguous_join,
+    AmbiguousColumnReferences => "ambiguous.column_references", ambiguous_column_references,
+    CapitalisationKeywords => "capitalisation.keywords", capitalisation_keywords,
+    CapitalisationIdentifiers => "capitalisation.identifiers", capitalisation_identifiers,
+    CapitalisationFunctions => "capitalisation.functions", capitalisation_functions,
+    CapitalisationLiterals => "capitalisation.literals", capitalisation_literals,
+    CapitalisationTypes => "capitalisation.types", capitalisation_types,
+    ConventionSelectTrailingComma => "convention.select_trailing_comma", convention_select_trailing_comma,
+    ConventionCountRows => "convention.count_rows", convention_count_rows,
+    ConventionTerminator => "convention.terminator", convention_terminator,
+    ConventionBlockedWords => "convention.blocked_words", convention_blocked_words,
+    ConventionQuotedLiterals => "convention.quoted_literals", convention_quoted_literals,
+    ConventionCastingStyle => "convention.casting_style", convention_casting_style,
+    ConventionNotEqual => "convention.not_equal", convention_not_equal,
+    ReferencesFrom => "references.from", references_from,
+    ReferencesQualification => "references.qualification", references_qualification,
+    ReferencesConsistent => "references.consistent", references_consistent,
+    ReferencesKeywords => "references.keywords", references_keywords,
+    ReferencesSpecialChars => "references.special_chars", references_special_chars,
+    ReferencesQuoting => "references.quoting", references_quoting,
+    LayoutLongLines => "layout.long_lines", layout_long_lines,
+    LayoutSelectTargets => "layout.select_targets", layout_select_targets,
+    LayoutNewlines => "layout.newlines", layout_newlines,
+    StructureSubquery => "structure.subquery", structure_subquery,
+    StructureJoinConditionOrder => "structure.join_condition_order", structure_join_condition_order,
 }
 
 string_enum! {
@@ -281,105 +317,124 @@ impl RuleConfigsPatch {
         Ok(())
     }
 
+    pub(crate) fn merge_global_toml(
+        &mut self,
+        section_name: &str,
+        table: &toml::value::Table,
+    ) -> Result<(), ConfigError> {
+        validate_toml_rule_options(section_name, table)?;
+        self.merge(de::deserialize_toml_table(section_name, table)?);
+        Ok(())
+    }
+
     pub(crate) fn merge_rule_section(
         &mut self,
-        rule_section: String,
+        rule_section: RuleConfigSection,
         section_name: &str,
         values: &std::collections::HashMap<String, Option<String>>,
     ) -> Result<(), ConfigError> {
         validate_rule_options(section_name, values)?;
-        match rule_section.as_str() {
-            "aliasing.table" => self
+        rule_section.merge_into(self, section_name, values)
+    }
+
+    pub(crate) fn merge_rule_section_toml(
+        &mut self,
+        rule_section: RuleConfigSection,
+        section_name: &str,
+        table: &toml::value::Table,
+    ) -> Result<(), ConfigError> {
+        validate_toml_rule_options(section_name, table)?;
+        match rule_section {
+            RuleConfigSection::AliasingTable => self
                 .aliasing_table
-                .merge(de::deserialize_section(section_name, values)?),
-            "aliasing.column" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::AliasingColumn => self
                 .aliasing_column
-                .merge(de::deserialize_section(section_name, values)?),
-            "aliasing.unused" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::AliasingUnused => self
                 .aliasing_unused
-                .merge(de::deserialize_section(section_name, values)?),
-            "aliasing.length" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::AliasingLength => self
                 .aliasing_length
-                .merge(de::deserialize_section(section_name, values)?),
-            "aliasing.forbid" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::AliasingForbid => self
                 .aliasing_forbid
-                .merge(de::deserialize_section(section_name, values)?),
-            "ambiguous.join" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::AmbiguousJoin => self
                 .ambiguous_join
-                .merge(de::deserialize_section(section_name, values)?),
-            "ambiguous.column_references" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::AmbiguousColumnReferences => self
                 .ambiguous_column_references
-                .merge(de::deserialize_section(section_name, values)?),
-            "capitalisation.keywords" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::CapitalisationKeywords => self
                 .capitalisation_keywords
-                .merge(de::deserialize_section(section_name, values)?),
-            "capitalisation.identifiers" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::CapitalisationIdentifiers => self
                 .capitalisation_identifiers
-                .merge(de::deserialize_section(section_name, values)?),
-            "capitalisation.functions" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::CapitalisationFunctions => self
                 .capitalisation_functions
-                .merge(de::deserialize_section(section_name, values)?),
-            "capitalisation.literals" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::CapitalisationLiterals => self
                 .capitalisation_literals
-                .merge(de::deserialize_section(section_name, values)?),
-            "capitalisation.types" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::CapitalisationTypes => self
                 .capitalisation_types
-                .merge(de::deserialize_section(section_name, values)?),
-            "convention.select_trailing_comma" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ConventionSelectTrailingComma => self
                 .convention_select_trailing_comma
-                .merge(de::deserialize_section(section_name, values)?),
-            "convention.count_rows" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ConventionCountRows => self
                 .convention_count_rows
-                .merge(de::deserialize_section(section_name, values)?),
-            "convention.terminator" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ConventionTerminator => self
                 .convention_terminator
-                .merge(de::deserialize_section(section_name, values)?),
-            "convention.blocked_words" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ConventionBlockedWords => self
                 .convention_blocked_words
-                .merge(de::deserialize_section(section_name, values)?),
-            "convention.quoted_literals" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ConventionQuotedLiterals => self
                 .convention_quoted_literals
-                .merge(de::deserialize_section(section_name, values)?),
-            "convention.casting_style" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ConventionCastingStyle => self
                 .convention_casting_style
-                .merge(de::deserialize_section(section_name, values)?),
-            "convention.not_equal" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ConventionNotEqual => self
                 .convention_not_equal
-                .merge(de::deserialize_section(section_name, values)?),
-            "references.from" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ReferencesFrom => self
                 .references_from
-                .merge(de::deserialize_section(section_name, values)?),
-            "references.qualification" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ReferencesQualification => self
                 .references_qualification
-                .merge(de::deserialize_section(section_name, values)?),
-            "references.consistent" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ReferencesConsistent => self
                 .references_consistent
-                .merge(de::deserialize_section(section_name, values)?),
-            "references.keywords" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ReferencesKeywords => self
                 .references_keywords
-                .merge(de::deserialize_section(section_name, values)?),
-            "references.special_chars" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ReferencesSpecialChars => self
                 .references_special_chars
-                .merge(de::deserialize_section(section_name, values)?),
-            "references.quoting" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::ReferencesQuoting => self
                 .references_quoting
-                .merge(de::deserialize_section(section_name, values)?),
-            "layout.long_lines" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::LayoutLongLines => self
                 .layout_long_lines
-                .merge(de::deserialize_section(section_name, values)?),
-            "layout.select_targets" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::LayoutSelectTargets => self
                 .layout_select_targets
-                .merge(de::deserialize_section(section_name, values)?),
-            "layout.newlines" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::LayoutNewlines => self
                 .layout_newlines
-                .merge(de::deserialize_section(section_name, values)?),
-            "structure.subquery" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::StructureSubquery => self
                 .structure_subquery
-                .merge(de::deserialize_section(section_name, values)?),
-            "structure.join_condition_order" => self
+                .merge(de::deserialize_toml_table(section_name, table)?),
+            RuleConfigSection::StructureJoinConditionOrder => self
                 .structure_join_condition_order
-                .merge(de::deserialize_section(section_name, values)?),
-            _ => return Err(ConfigError::UnknownSection(section_name.to_string())),
+                .merge(de::deserialize_toml_table(section_name, table)?),
         }
         Ok(())
     }
@@ -390,7 +445,7 @@ fn validate_rule_options(
     values: &std::collections::HashMap<String, Option<String>>,
 ) -> Result<(), ConfigError> {
     for key in values.keys() {
-        if !KNOWN_RULE_OPTIONS.contains(&key.as_str()) {
+        if !is_known_rule_option(key) {
             return Err(ConfigError::InvalidSection {
                 section: section_name.to_string(),
                 reason: format!("invalid rule option '{key}'"),
@@ -398,6 +453,64 @@ fn validate_rule_options(
         }
     }
     Ok(())
+}
+
+fn validate_toml_rule_options(
+    section_name: &str,
+    table: &toml::value::Table,
+) -> Result<(), ConfigError> {
+    for key in table.keys() {
+        if !is_known_rule_option(key) {
+            return Err(ConfigError::InvalidSection {
+                section: section_name.to_string(),
+                reason: format!("invalid rule option '{key}'"),
+            });
+        }
+    }
+    Ok(())
+}
+
+fn is_known_rule_option(key: &str) -> bool {
+    matches!(
+        key,
+        "additional_allowed_characters"
+            | "alias_case_check"
+            | "aliasing"
+            | "allow_scalar"
+            | "allow_space_in_identifier"
+            | "blocked_regex"
+            | "blocked_words"
+            | "capitalisation_policy"
+            | "extended_capitalisation_policy"
+            | "forbid_subquery_in"
+            | "force_enable"
+            | "fully_qualify_join_types"
+            | "group_by_and_order_by_style"
+            | "ignore_comment_clauses"
+            | "ignore_comment_lines"
+            | "ignore_words"
+            | "ignore_words_regex"
+            | "match_source"
+            | "max_alias_length"
+            | "maximum_empty_lines_between_statements"
+            | "maximum_empty_lines_inside_statements"
+            | "min_alias_length"
+            | "multiline_newline"
+            | "prefer_count_0"
+            | "prefer_count_1"
+            | "prefer_quoted_identifiers"
+            | "prefer_quoted_keywords"
+            | "preferred_first_table_in_join_clause"
+            | "preferred_not_equal_style"
+            | "preferred_quoted_literal_style"
+            | "preferred_type_casting_style"
+            | "quoted_identifiers_policy"
+            | "require_final_semicolon"
+            | "select_clause_trailing_comma"
+            | "single_table_references"
+            | "unquoted_identifiers_policy"
+            | "wildcard_policy"
+    )
 }
 
 impl Merge for RuleConfigsPatch {
@@ -811,12 +924,24 @@ impl_merge!(StructureSubqueryConfigPatch { forbid_subquery_in });
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default, deny_unknown_fields, rename_all = "snake_case")]
 pub struct StructureJoinConditionOrderConfigPatch {
-    #[serde(default, deserialize_with = "de::setting_from_str")]
+    #[serde(default, deserialize_with = "setting_join_condition_order_policy")]
     pub preferred_first_table_in_join_clause: Setting<JoinConditionOrderPolicy>,
 }
 impl_merge!(StructureJoinConditionOrderConfigPatch {
     preferred_first_table_in_join_clause
 });
+
+fn setting_join_condition_order_policy<'de, D>(
+    d: D,
+) -> Result<Setting<JoinConditionOrderPolicy>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = String::deserialize(d)?;
+    value.parse().map(Setting::Set).map_err(|err| {
+        serde_de::Error::custom(format!("preferred_first_table_in_join_clause: {err}"))
+    })
+}
 
 #[derive(Debug, Clone)]
 pub struct RuleConfigs {

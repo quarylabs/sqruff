@@ -11,5 +11,6 @@ pub(crate) mod core;
 pub(crate) mod utils;
 
 pub use config::{
-    ConfigInput, ConfigLoadOptions, ConfigLoader, ConfigOverrides, ConfigPatch, FluffConfig,
+    ConfigFormat, ConfigInput, ConfigLoadOptions, ConfigLoader, ConfigOverrides, ConfigPatch,
+    FluffConfig,
 };

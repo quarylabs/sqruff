@@ -1,145 +1,53 @@
-use std::fmt;
 use std::str::FromStr;
 
-use serde::de::{IgnoredAny, MapAccess, Visitor};
-use serde::{Deserialize, Deserializer};
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_dialects::DialectConfigs;
 
 use super::ConfigError;
 use super::de;
 use super::layout::LayoutConfigPatch;
-use super::rules::RuleConfigsPatch;
+use super::rules::{RuleConfigSection, RuleConfigsPatch};
 use super::setting::{Merge, NullableSetting, Setting};
 use super::templater::TemplaterConfigPatch;
 
 // ── CoreConfigPatch ──────────────────────────────────────────────────────────
 
 /// Typed patch for the `[sqruff]` / core section.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct CoreConfigPatch {
     pub dialect: NullableSetting<String>,
+    #[serde(default, deserialize_with = "de::nonnegative_usize_setting")]
     pub max_line_length: Setting<usize>,
     pub nocolor: Setting<bool>,
+    #[serde(default, deserialize_with = "de::saturated_u8_setting")]
     pub verbose: Setting<u8>,
+    #[serde(default, deserialize_with = "de::nonnegative_usize_setting")]
     pub output_line_length: Setting<usize>,
+    #[serde(default, deserialize_with = "de::nonnegative_usize_setting")]
     pub runaway_limit: Setting<usize>,
     pub disable_noqa: Setting<bool>,
     pub warn_unused_ignores: Setting<bool>,
     pub ignore_templated_areas: Setting<bool>,
     pub fix_even_unparsable: Setting<bool>,
+    #[serde(default, deserialize_with = "de::nonnegative_usize_setting")]
     pub large_file_skip_char_limit: Setting<usize>,
+    #[serde(default, deserialize_with = "de::nonnegative_usize_setting")]
     pub large_file_skip_byte_limit: Setting<usize>,
     pub encoding: Setting<String>,
+    #[serde(default, deserialize_with = "de::nullable_setting_csv")]
     pub ignore: NullableSetting<Vec<String>>,
+    #[serde(default, deserialize_with = "de::nullable_setting_csv")]
     pub warnings: NullableSetting<Vec<String>>,
+    #[serde(default, deserialize_with = "de::nullable_setting_csv")]
     pub rules: NullableSetting<Vec<String>>,
+    #[serde(default, deserialize_with = "de::nullable_setting_csv")]
     pub exclude_rules: NullableSetting<Vec<String>>,
+    #[serde(default, deserialize_with = "de::setting_optional_string")]
     pub templater: Setting<String>,
+    #[serde(default, deserialize_with = "de::setting_csv")]
     pub sql_file_exts: Setting<Vec<String>>,
 }
-
-impl<'de> Deserialize<'de> for CoreConfigPatch {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_map(CoreConfigPatchVisitor)
-    }
-}
-
-struct CoreConfigPatchVisitor;
-
-impl<'de> Visitor<'de> for CoreConfigPatchVisitor {
-    type Value = CoreConfigPatch;
-
-    fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str("a core config patch")
-    }
-
-    fn visit_map<M>(self, mut map: M) -> Result<Self::Value, M::Error>
-    where
-        M: MapAccess<'de>,
-    {
-        const FIELDS: &[&str] = &[
-            "dialect",
-            "max_line_length",
-            "nocolor",
-            "verbose",
-            "output_line_length",
-            "runaway_limit",
-            "disable_noqa",
-            "warn_unused_ignores",
-            "ignore_templated_areas",
-            "fix_even_unparsable",
-            "large_file_skip_char_limit",
-            "large_file_skip_byte_limit",
-            "encoding",
-            "ignore",
-            "warnings",
-            "rules",
-            "exclude_rules",
-            "templater",
-            "sql_file_exts",
-        ];
-
-        let mut patch = CoreConfigPatch::default();
-
-        while let Some(key) = map.next_key::<String>()? {
-            match key.as_str() {
-                "dialect" => patch.dialect = Setting::Set(map.next_value()?),
-                "max_line_length" => patch.max_line_length = next_usize_setting(&mut map)?,
-                "nocolor" => patch.nocolor = map.next_value()?,
-                "verbose" => patch.verbose = map.next_value()?,
-                "output_line_length" => patch.output_line_length = next_usize_setting(&mut map)?,
-                "runaway_limit" => patch.runaway_limit = next_usize_setting(&mut map)?,
-                "disable_noqa" => patch.disable_noqa = map.next_value()?,
-                "warn_unused_ignores" => patch.warn_unused_ignores = map.next_value()?,
-                "ignore_templated_areas" => {
-                    patch.ignore_templated_areas = map.next_value()?;
-                }
-                "fix_even_unparsable" => patch.fix_even_unparsable = map.next_value()?,
-                "large_file_skip_char_limit" => {
-                    patch.large_file_skip_char_limit = next_usize_setting(&mut map)?;
-                }
-                "large_file_skip_byte_limit" => {
-                    patch.large_file_skip_byte_limit = next_usize_setting(&mut map)?;
-                }
-                "encoding" => patch.encoding = map.next_value()?,
-                "ignore" => patch.ignore = map.next_value()?,
-                "warnings" => patch.warnings = map.next_value()?,
-                "rules" => patch.rules = map.next_value()?,
-                "exclude_rules" => patch.exclude_rules = map.next_value()?,
-                "templater" => {
-                    if let OptionalString::Some(value) = map.next_value()? {
-                        patch.templater = Setting::Set(value);
-                    }
-                }
-                "sql_file_exts" => patch.sql_file_exts = map.next_value()?,
-                _ => return Err(serde::de::Error::unknown_field(&key, FIELDS)),
-            }
-        }
-
-        Ok(patch)
-    }
-}
-
-fn next_usize_setting<'de, M>(map: &mut M) -> Result<Setting<usize>, M::Error>
-where
-    M: MapAccess<'de>,
-{
-    let value = map.next_value::<i64>()?;
-    Ok(Setting::Set(value.max(0) as usize))
-}
-
-#[derive(Deserialize)]
-#[serde(untagged)]
-enum OptionalString {
-    Some(String),
-    Ignored(IgnoredAny),
-}
-
-impl CoreConfigPatch {}
 
 impl Merge for CoreConfigPatch {
     fn merge(&mut self, other: Self) {
@@ -191,8 +99,6 @@ pub struct IndentationConfigPatch {
     pub trailing_comments: Setting<String>,
 }
 
-impl IndentationConfigPatch {}
-
 impl Merge for IndentationConfigPatch {
     fn merge(&mut self, other: Self) {
         self.indent_unit.merge(other.indent_unit);
@@ -227,12 +133,12 @@ pub struct DialectConfigPatch {
 impl DialectConfigPatch {
     pub(crate) fn merge_section(
         &mut self,
-        dialect: String,
+        dialect: DialectKind,
         section_name: &str,
         values: &std::collections::HashMap<String, Option<String>>,
     ) -> Result<(), ConfigError> {
-        match dialect.as_str() {
-            "postgres" => self
+        match dialect {
+            DialectKind::Postgres => self
                 .postgres
                 .merge(de::deserialize_section(section_name, values)?),
             _ if values.is_empty() => {}
@@ -324,11 +230,15 @@ impl ConfigPatch {
     pub(crate) fn set_inline(&mut self, path: &[&str], raw_value: &str) -> Result<(), ConfigError> {
         match path {
             ["core", key] => self.set_core_inline(key, raw_value),
-            ["rules", section, key] => self.rules.merge_rule_section(
-                (*section).to_string(),
-                &format!("inline rules section '{section}'"),
-                &one_value_map(key, raw_value),
-            ),
+            ["rules", section, key] => {
+                let section = RuleConfigSection::from_str(section)
+                    .map_err(|_| ConfigError::UnknownSection(format!("rules:{section}")))?;
+                self.rules.merge_rule_section(
+                    section,
+                    &format!("inline rules section '{}'", section.as_str()),
+                    &one_value_map(key, raw_value),
+                )
+            }
             _ => Err(ConfigError::UnknownSection(path.join(":"))),
         }
     }
@@ -336,10 +246,10 @@ impl ConfigPatch {
     fn set_core_inline(&mut self, key: &str, raw_value: &str) -> Result<(), ConfigError> {
         match key {
             "dialect" => {
-                self.core.dialect = Setting::Set(optional_string(raw_value));
+                self.core.dialect = Setting::Set(de::optional_string(raw_value));
             }
-            "rules" => self.core.rules = Setting::Set(optional_csv(raw_value)),
-            "exclude_rules" => self.core.exclude_rules = Setting::Set(optional_csv(raw_value)),
+            "rules" => self.core.rules = Setting::Set(de::optional_csv(raw_value)),
+            "exclude_rules" => self.core.exclude_rules = Setting::Set(de::optional_csv(raw_value)),
             "templater" => self.core.templater = Setting::Set(raw_value.to_string()),
             "nocolor" => self.core.nocolor = Setting::Set(parse_bool(raw_value)?),
             "verbose" => self.core.verbose = Setting::Set(parse_u8(raw_value)?),
@@ -364,9 +274,9 @@ impl ConfigPatch {
                 self.core.large_file_skip_byte_limit = Setting::Set(parse_usize(raw_value)?)
             }
             "encoding" => self.core.encoding = Setting::Set(raw_value.to_string()),
-            "ignore" => self.core.ignore = Setting::Set(optional_csv(raw_value)),
-            "warnings" => self.core.warnings = Setting::Set(optional_csv(raw_value)),
-            "sql_file_exts" => self.core.sql_file_exts = Setting::Set(csv(raw_value)),
+            "ignore" => self.core.ignore = Setting::Set(de::optional_csv(raw_value)),
+            "warnings" => self.core.warnings = Setting::Set(de::optional_csv(raw_value)),
+            "sql_file_exts" => self.core.sql_file_exts = Setting::Set(de::csv(raw_value)),
             "max_line_length" => self.core.max_line_length = Setting::Set(parse_usize(raw_value)?),
             _ => {
                 return Err(ConfigError::InvalidField {
@@ -392,24 +302,6 @@ impl Merge for ConfigPatch {
 
 fn one_value_map(key: &str, value: &str) -> std::collections::HashMap<String, Option<String>> {
     std::iter::once((key.to_string(), Some(value.to_string()))).collect()
-}
-
-fn optional_string(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    (!trimmed.is_empty() && !trimmed.eq_ignore_ascii_case("none")).then(|| value.to_string())
-}
-
-fn optional_csv(value: &str) -> Option<Vec<String>> {
-    optional_string(value).map(|value| csv(&value))
-}
-
-fn csv(value: &str) -> Vec<String> {
-    value
-        .split(',')
-        .map(str::trim)
-        .filter(|value| !value.is_empty() && !value.eq_ignore_ascii_case("none"))
-        .map(ToOwned::to_owned)
-        .collect()
 }
 
 fn parse_bool(value: &str) -> Result<bool, ConfigError> {

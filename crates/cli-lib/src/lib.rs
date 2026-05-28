@@ -1,8 +1,6 @@
 use clap::Parser as _;
 use sqruff_lib::api::ParseErrors;
 use sqruff_lib::config::{ConfigInput, ConfigLoadOptions, ConfigLoader, ConfigOverrides};
-use sqruff_lib_core::dialects::init::DialectKind;
-use std::path::PathBuf;
 use stdin::is_std_in_flag_input;
 
 use crate::commands::{Cli, Commands};
@@ -44,31 +42,17 @@ where
         ParseErrors::Suppress
     };
 
-    let dialect = match cli
-        .dialect
-        .as_deref()
-        .map(DialectKind::try_from)
-        .transpose()
-    {
-        Ok(dialect) => dialect,
-        Err(error) => {
-            eprintln!("{error}");
-            return 1;
-        }
-    };
-
     let input = if let Some(config) = cli.config.as_ref() {
-        let path = PathBuf::from(config);
-        if !path.is_file() {
+        if !config.is_file() {
             eprintln!(
                 "The specified config file '{}' does not exist.",
-                cli.config.as_ref().unwrap()
+                config.display()
             );
 
             return 1;
         };
 
-        ConfigInput::File(path)
+        ConfigInput::File(config.clone())
     } else {
         ConfigInput::ProjectRoot(std::env::current_dir().unwrap_or_else(|_| ".".into()))
     };
@@ -77,7 +61,7 @@ where
         input,
         ignore_local_config: false,
         overrides: ConfigOverrides {
-            dialect,
+            dialect: cli.dialect,
             ..Default::default()
         },
     }) {

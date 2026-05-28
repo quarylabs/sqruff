@@ -7,23 +7,40 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
 use super::de;
 use super::error::ConfigError;
-use super::layout::LayoutTypeConfigPatch;
+use super::layout::{LayoutTypeConfigPatch, parse_layout_syntax_kind};
 use super::model::FluffConfig;
 use super::options::{ConfigInput, ConfigLoadOptions, ConfigOverrides};
 use super::patch::ConfigPatch;
-use super::setting::{Merge, Setting};
+use super::rules::RuleConfigSection;
+use super::setting::Merge;
+use super::templater::TemplaterConfigSection;
 use crate::api::SqruffError;
 
 pub struct ConfigLoader;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConfigFormat {
+    Ini,
+    Toml,
+}
+
+impl ConfigFormat {
+    pub fn from_path(path: &Path) -> Result<Self, SqruffError> {
+        match path.extension().and_then(|extension| extension.to_str()) {
+            Some("toml") => Ok(Self::Toml),
+            _ => Ok(Self::Ini),
+        }
+    }
+}
+
 enum SectionPath {
     Core,
     Indentation,
-    LayoutType(String),
-    Templater(Vec<String>),
+    LayoutType(SyntaxKind),
+    Templater(TemplaterConfigSection),
     RulesGlobal,
-    Rule(String),
-    Dialect(String),
+    Rule(RuleConfigSection),
+    Dialect(DialectKind),
 }
 
 impl SectionPath {
@@ -43,25 +60,59 @@ impl SectionPath {
         match parts.as_slice() {
             ["indentation"] => Ok(Self::Indentation),
             ["layout", "type", kind] => {
-                kind.parse::<SyntaxKind>()
-                    .map_err(|_| ConfigError::InvalidSection {
+                let kind =
+                    parse_layout_syntax_kind(kind).ok_or_else(|| ConfigError::InvalidSection {
                         section: section_name.to_string(),
                         reason: format!("invalid layout syntax kind '{kind}'"),
                     })?;
-                Ok(Self::LayoutType((*kind).to_string()))
+                Ok(Self::LayoutType(kind))
             }
-            ["templater"] => Ok(Self::Templater(Vec::new())),
-            ["templater", rest @ ..] if !rest.is_empty() => Ok(Self::Templater(
-                rest.iter().map(|part| (*part).to_string()).collect(),
-            )),
+            ["templater"] => Ok(Self::Templater(TemplaterConfigSection::Root)),
+            ["templater", rest @ ..] if !rest.is_empty() => TemplaterConfigSection::parse(rest)
+                .map(Self::Templater)
+                .ok_or_else(|| ConfigError::UnknownSection(section_name.to_string())),
             ["rules"] => Ok(Self::RulesGlobal),
-            ["rules", rule_section] => Ok(Self::Rule((*rule_section).to_string())),
+            ["rules", rule_section] => RuleConfigSection::from_str(rule_section)
+                .map(Self::Rule)
+                .map_err(|_| ConfigError::UnknownSection(section_name.to_string())),
             ["dialect", dialect] => {
                 let dialect = DialectKind::from_str(dialect)
                     .map_err(|_| ConfigError::UnknownDialect((*dialect).to_string()))?;
-                Ok(Self::Dialect(dialect.as_ref().to_string()))
+                Ok(Self::Dialect(dialect))
             }
             _ => Err(ConfigError::UnknownSection(section_name.to_string())),
+        }
+    }
+
+    fn parse_toml(path: &[&str]) -> Result<Self, ConfigError> {
+        match path {
+            [] | ["core"] => Ok(Self::Core),
+            ["indentation"] => Ok(Self::Indentation),
+            ["layout", "type", kind] => {
+                let kind =
+                    parse_layout_syntax_kind(kind).ok_or_else(|| ConfigError::InvalidSection {
+                        section: toml_section_name(path),
+                        reason: format!("invalid layout syntax kind '{kind}'"),
+                    })?;
+                Ok(Self::LayoutType(kind))
+            }
+            ["templater"] => Ok(Self::Templater(TemplaterConfigSection::Root)),
+            ["templater", rest @ ..] if !rest.is_empty() => TemplaterConfigSection::parse(rest)
+                .map(Self::Templater)
+                .ok_or_else(|| ConfigError::UnknownSection(toml_section_name(path))),
+            ["rules"] => Ok(Self::RulesGlobal),
+            ["rules", rest @ ..] if !rest.is_empty() => {
+                let rule_section = rest.join(".");
+                RuleConfigSection::from_str(&rule_section)
+                    .map(Self::Rule)
+                    .map_err(|_| ConfigError::UnknownSection(toml_section_name(path)))
+            }
+            ["dialect", dialect] => {
+                let dialect = DialectKind::from_str(dialect)
+                    .map_err(|_| ConfigError::UnknownDialect((*dialect).to_string()))?;
+                Ok(Self::Dialect(dialect))
+            }
+            _ => Err(ConfigError::UnknownSection(toml_section_name(path))),
         }
     }
 }
@@ -96,14 +147,15 @@ impl ConfigLoader {
         FluffConfig::try_from_patch(patch)
     }
 
-    #[allow(unused_variables)]
     fn iter_config_locations_up_to_path(
         path: &Path,
         working_path: Option<&Path>,
         ignore_local_config: bool,
     ) -> impl Iterator<Item = PathBuf> {
         let mut given_path = std::path::absolute(path).unwrap();
-        let working_path = std::env::current_dir().unwrap();
+        let working_path = working_path
+            .map(|path| std::path::absolute(path).unwrap())
+            .unwrap_or_else(|| std::env::current_dir().unwrap());
 
         if !given_path.is_dir() {
             given_path = given_path.parent().unwrap().into();
@@ -111,41 +163,37 @@ impl ConfigLoader {
 
         let common_path = common_path::common_path(&given_path, working_path).unwrap();
         let mut path_to_visit = common_path;
+        let mut locations = Vec::new();
 
-        let head = Some(given_path.canonicalize().unwrap()).into_iter();
-        let tail = std::iter::from_fn(move || {
-            if path_to_visit != given_path {
-                let path = path_to_visit.canonicalize().unwrap();
-
-                let next_path_to_visit = {
-                    let path_to_visit_as_path = path_to_visit.as_path();
-                    let given_path_as_path = given_path.as_path();
-
-                    match given_path_as_path.strip_prefix(path_to_visit_as_path) {
-                        Ok(relative_path) => {
-                            if let Some(first_part) = relative_path.components().next() {
-                                path_to_visit.join(first_part.as_os_str())
-                            } else {
-                                path_to_visit.clone()
-                            }
-                        }
-                        Err(_) => path_to_visit.clone(),
-                    }
-                };
-
-                if next_path_to_visit == path_to_visit {
-                    return None;
-                }
-
-                path_to_visit = next_path_to_visit;
-
-                Some(path)
-            } else {
-                None
+        loop {
+            locations.push(path_to_visit.clone());
+            if path_to_visit == given_path || ignore_local_config {
+                break;
             }
-        });
 
-        head.chain(tail)
+            let next_path_to_visit = {
+                let path_to_visit_as_path = path_to_visit.as_path();
+                let given_path_as_path = given_path.as_path();
+
+                match given_path_as_path.strip_prefix(path_to_visit_as_path) {
+                    Ok(relative_path) => {
+                        if let Some(first_part) = relative_path.components().next() {
+                            path_to_visit.join(first_part.as_os_str())
+                        } else {
+                            path_to_visit.clone()
+                        }
+                    }
+                    Err(_) => path_to_visit.clone(),
+                }
+            };
+
+            if next_path_to_visit == path_to_visit {
+                break;
+            }
+            path_to_visit = next_path_to_visit;
+        }
+
+        locations.into_iter()
     }
 
     pub fn try_load_config_up_to_path(
@@ -177,7 +225,14 @@ impl ConfigLoader {
     ) -> Result<ConfigPatch, SqruffError> {
         let path = path.as_ref();
 
-        let filename_options = [".sqlfluff", ".sqruff"];
+        let filename_options = [
+            "setup.cfg",
+            "tox.ini",
+            "pep8.ini",
+            ".sqlfluff",
+            ".sqruff",
+            "pyproject.toml",
+        ];
         let mut patch = ConfigPatch::default();
 
         if path.is_dir() {
@@ -195,11 +250,32 @@ impl ConfigLoader {
     }
 
     pub fn try_from_source(source: &str, path: Option<&Path>) -> Result<ConfigPatch, SqruffError> {
-        Self::patch_from_ini(path, Some(source))
+        let format = path
+            .map(ConfigFormat::from_path)
+            .transpose()?
+            .unwrap_or(ConfigFormat::Ini);
+        Self::patch_from_source(source, path, format)
     }
 
     pub fn try_load_config_file(path: impl AsRef<Path>) -> Result<ConfigPatch, SqruffError> {
-        Self::patch_from_ini(path.as_ref().into(), None)
+        let path = path.as_ref();
+        let content = std::fs::read_to_string(path).map_err(|source| SqruffError::Io {
+            path: path.to_path_buf(),
+            source,
+        })?;
+        let format = ConfigFormat::from_path(path)?;
+        Self::patch_from_source(&content, Some(path), format)
+    }
+
+    pub(crate) fn patch_from_source(
+        source: &str,
+        path: Option<&Path>,
+        format: ConfigFormat,
+    ) -> Result<ConfigPatch, SqruffError> {
+        match format {
+            ConfigFormat::Ini => Self::patch_from_ini(path, Some(source)),
+            ConfigFormat::Toml => Self::patch_from_toml(path, source),
+        }
     }
 
     pub(crate) fn patch_from_ini(
@@ -259,7 +335,7 @@ impl ConfigLoader {
                 SectionPath::Templater(path) => {
                     patch
                         .templater
-                        .merge_section(config_path, &path, &section_name, &values)
+                        .merge_section(config_path, path, &section_name, &values)
                         .map_err(config_error)?;
                 }
                 SectionPath::RulesGlobal => {
@@ -284,6 +360,113 @@ impl ConfigLoader {
         }
 
         Ok(patch)
+    }
+
+    pub(crate) fn patch_from_toml(
+        config_path: Option<&Path>,
+        source: &str,
+    ) -> Result<ConfigPatch, SqruffError> {
+        let value: toml::Value =
+            toml::from_str(source).map_err(|err| SqruffError::Config(err.to_string()))?;
+        let Some(root) = find_toml_root(&value) else {
+            return Ok(ConfigPatch::default());
+        };
+
+        let mut patch = ConfigPatch::default();
+        merge_toml_table(config_path, &mut patch, &[], root).map_err(config_error)?;
+        Ok(patch)
+    }
+}
+
+fn find_toml_root(value: &toml::Value) -> Option<&toml::value::Table> {
+    let tool = value.get("tool")?;
+    tool.get("sqruff")
+        .or_else(|| tool.get("sqlfluff"))?
+        .as_table()
+}
+
+fn merge_toml_table(
+    config_path: Option<&Path>,
+    patch: &mut ConfigPatch,
+    path: &[&str],
+    table: &toml::value::Table,
+) -> Result<(), ConfigError> {
+    let leaf_table = table
+        .iter()
+        .filter(|(_, value)| !value.is_table())
+        .map(|(key, value)| (key.clone(), value.clone()))
+        .collect::<toml::value::Table>();
+
+    if !leaf_table.is_empty() {
+        merge_toml_leaf(config_path, patch, path, &leaf_table)?;
+    }
+
+    for (key, value) in table {
+        let Some(table) = value.as_table() else {
+            continue;
+        };
+        let mut next_path = path.to_vec();
+        next_path.push(key);
+        merge_toml_table(config_path, patch, &next_path, table)?;
+    }
+
+    Ok(())
+}
+
+fn merge_toml_leaf(
+    config_path: Option<&Path>,
+    patch: &mut ConfigPatch,
+    path: &[&str],
+    table: &toml::value::Table,
+) -> Result<(), ConfigError> {
+    let section_name = toml_section_name(path);
+
+    match SectionPath::parse_toml(path)? {
+        SectionPath::Core => {
+            patch
+                .core
+                .merge(de::deserialize_toml_table(&section_name, table)?);
+        }
+        SectionPath::Indentation => {
+            patch
+                .indentation
+                .merge(de::deserialize_toml_table(&section_name, table)?);
+        }
+        SectionPath::LayoutType(kind) => {
+            let section: LayoutTypeConfigPatch = de::deserialize_toml_table(&section_name, table)?;
+            patch.layout.types.entry(kind).or_default().merge(section);
+        }
+        SectionPath::Templater(section) => {
+            patch
+                .templater
+                .merge_toml_section(config_path, section, &section_name, table)?;
+        }
+        SectionPath::RulesGlobal => {
+            patch.rules.merge_global_toml(&section_name, table)?;
+        }
+        SectionPath::Rule(rule_section) => {
+            patch
+                .rules
+                .merge_rule_section_toml(rule_section, &section_name, table)?;
+        }
+        SectionPath::Dialect(dialect) => match dialect {
+            DialectKind::Postgres => patch
+                .dialects
+                .postgres
+                .merge(de::deserialize_toml_table(&section_name, table)?),
+            _ if table.is_empty() => {}
+            _ => return Err(ConfigError::UnknownSection(section_name)),
+        },
+    }
+
+    Ok(())
+}
+
+fn toml_section_name(path: &[&str]) -> String {
+    if path.is_empty() {
+        "tool.sqruff".to_string()
+    } else {
+        format!("tool.sqruff.{}", path.join("."))
     }
 }
 
@@ -339,19 +522,28 @@ fn merge_patches(config_stack: Vec<ConfigPatch>) -> ConfigPatch {
 }
 
 fn apply_overrides(config: &mut ConfigPatch, overrides: ConfigOverrides) {
-    if let Some(dialect) = overrides.dialect {
-        config.core.dialect = Setting::Set(Some(dialect.as_ref().to_string()));
-    }
-
-    if let Some(rules) = overrides.rules {
-        config.core.rules = Setting::Set(Some(rules));
-    }
-
-    if let Some(exclude_rules) = overrides.exclude_rules {
-        config.core.exclude_rules = Setting::Set(Some(exclude_rules));
-    }
+    config.merge(overrides.into());
 }
 
 fn config_error(error: ConfigError) -> SqruffError {
     SqruffError::Config(error.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn config_locations_are_parent_before_child() {
+        let root = std::path::absolute("target/config-location-test").unwrap();
+        let nested = root.join("a").join("b").join("query.sql");
+
+        let locations = ConfigLoader::iter_config_locations_up_to_path(&nested, Some(&root), false)
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            locations,
+            vec![root.clone(), root.join("a"), root.join("a").join("b")]
+        );
+    }
 }

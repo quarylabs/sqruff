@@ -44,7 +44,7 @@ enum TestCaseKind {
     Fail { fail_str: String },
 }
 
-fn config_for_rule_case(rule: &str, case: &TestCase) -> Result<FluffConfig, SqruffError> {
+fn patch_for_rule_case(rule: &str, case: &TestCase) -> ConfigPatch {
     let mut patch = case.configs.clone();
 
     patch.core.rules = Setting::Set(Some(
@@ -55,8 +55,11 @@ fn config_for_rule_case(rule: &str, case: &TestCase) -> Result<FluffConfig, Sqru
     ));
 
     patch.move_fixture_indentation_options();
+    patch
+}
 
-    ConfigLoader::new().load_patch(patch)
+fn config_for_rule_case(rule: &str, case: &TestCase) -> Result<FluffConfig, SqruffError> {
+    ConfigLoader::new().load_patch(patch_for_rule_case(rule, case))
 }
 
 fn dialect_name(case: &TestCase) -> &str {
@@ -74,6 +77,33 @@ fn unsupported_templater(case: &TestCase) -> Option<String> {
     TemplaterKind::from_name(templater)
         .err()
         .map(|error| format!("unsupported templater for this build: {error}"))
+}
+
+fn fixture_configs_yaml(input: &str, case_name: &str) -> String {
+    let Ok(value) = serde_yaml::from_str::<serde_yaml::Value>(input) else {
+        return "{}\n".to_string();
+    };
+
+    let Some(configs) = value
+        .get(case_name)
+        .and_then(|case| case.get("configs"))
+        .cloned()
+    else {
+        return "{}\n".to_string();
+    };
+
+    serde_yaml::to_string(&configs).unwrap_or_else(|_| "{}\n".to_string())
+}
+
+fn raw_string_literal(value: &str) -> String {
+    for hashes in 0..10 {
+        let hashes = "#".repeat(hashes);
+        if !value.contains(&format!("\"{hashes}")) {
+            return format!("r{hashes}\"{value}\"{hashes}");
+        }
+    }
+
+    format!("{value:?}")
 }
 
 fn main() {
@@ -140,26 +170,38 @@ fn main() {
                             text: Cow::Borrowed(&pass_str),
                         })
                         .unwrap();
+                    let configs_yaml =
+                        raw_string_literal(&fixture_configs_yaml(&input, &case_name));
+                    let pass_str_literal = raw_string_literal(&pass_str);
                     let error_string = format!(
                         r#"
 The following test test can be used to recreate the issue:
 
 #[cfg(test)]
 mod tests {{
-    use sqruff_lib::{{api::{{Engine, EngineOptions, ParseErrors, Source, SourceId}}, config::FluffConfig}};
+    use sqruff_lib::{{
+        api::{{Engine, EngineOptions, ParseErrors, Source, SourceId}},
+        config::{{ConfigLoader, ConfigPatch, Setting}},
+    }};
 
     #[test]
     fn test_example() {{
-        let config = FluffConfig::try_from_source("
-[sqruff]
-rules = {rule}
-dialect = {dialect}
-",
- None).unwrap();
+        let mut patch: ConfigPatch = serde_yaml::from_str({configs_yaml}).unwrap();
+        patch.core.rules = Setting::Set(Some(
+            {rule_literal}
+                .split(',')
+                .map(str::trim)
+                .filter(|rule| !rule.is_empty())
+                .map(ToOwned::to_owned)
+                .collect(),
+        ));
+        patch.move_fixture_indentation_options();
+
+        let config = ConfigLoader::new().load_patch(patch).unwrap();
 
         let engine = Engine::new(config, EngineOptions {{ parse_errors: ParseErrors::Include }}).unwrap();
 
-        let pass_str = r"{pass_str}";
+        let pass_str = {pass_str_literal};
 
         let f = engine.check_source(Source {{
             id: SourceId::Virtual("test_example".into()),
@@ -169,9 +211,9 @@ dialect = {dialect}
     }}
 }}
 "#,
-                        rule = rule,
-                        dialect = dialect_name,
-                        pass_str = pass_str
+                        configs_yaml = configs_yaml,
+                        rule_literal = raw_string_literal(rule),
+                        pass_str_literal = pass_str_literal
                     );
 
                     assert_eq!(&result.diagnostics, &[], "{}", error_string);

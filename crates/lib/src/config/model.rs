@@ -81,6 +81,14 @@ impl EncodingMode {
     }
 }
 
+impl FromStr for EncodingMode {
+    type Err = std::convert::Infallible;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Ok(Self::from_name(value))
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RuleSelector(String);
 
@@ -128,6 +136,14 @@ impl ErrorCategory {
             "templating" => Ok(Self::Templating),
             _ => Err(format!("unknown error category '{value}'")),
         }
+    }
+}
+
+impl FromStr for ErrorCategory {
+    type Err = String;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        Self::from_name(value)
     }
 }
 
@@ -470,8 +486,13 @@ impl CoreConfig {
                 .flatten()
                 .unwrap_or_default()
                 .into_iter()
-                .map(|value| ErrorCategory::from_name(&value).unwrap())
-                .collect(),
+                .map(|value| {
+                    value.parse().map_err(|err| ConfigError::InvalidField {
+                        field: "ignore",
+                        reason: err,
+                    })
+                })
+                .collect::<Result<Vec<_>, _>>()?,
             warnings: core
                 .warnings
                 .clone()
@@ -1039,6 +1060,76 @@ nocolor = maybe
     }
 
     #[test]
+    fn try_from_source_rejects_invalid_ignore_category() {
+        let err = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+ignore = parsing,not_a_category
+"#,
+            None,
+        )
+        .unwrap_err();
+
+        assert!(err.to_string().contains("unknown error category"));
+    }
+
+    #[test]
+    fn unknown_encoding_resolves_to_other_for_compatibility() {
+        let config = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+encoding = made-up-encoding
+"#,
+            None,
+        )
+        .unwrap();
+
+        assert_eq!(config.core().encoding, EncodingMode::Other);
+    }
+
+    #[test]
+    fn core_numeric_values_are_clamped_like_legacy_config() {
+        let config = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+verbose = 999
+max_line_length = -1
+output_line_length = -1
+runaway_limit = -1
+large_file_skip_char_limit = -1
+large_file_skip_byte_limit = -1
+"#,
+            None,
+        )
+        .unwrap();
+
+        assert_eq!(config.core().verbose, u8::MAX);
+        assert_eq!(config.core().max_line_length, 0);
+        assert_eq!(config.core().output_line_length, 0);
+        assert_eq!(config.core().runaway_limit, 0);
+        assert_eq!(config.core().large_file_skip_char_limit, 0);
+        assert_eq!(config.core().large_file_skip_byte_limit, 0);
+    }
+
+    #[test]
+    fn core_none_values_clear_nullable_config() {
+        let config = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+dialect = postgres
+rules = None
+exclude_rules = None
+"#,
+            None,
+        )
+        .unwrap();
+
+        assert_eq!(config.dialect_kind(), DialectKind::Postgres);
+        assert_eq!(config.rule_allowlist(), None);
+        assert!(config.rule_denylist().is_empty());
+    }
+
+    #[test]
     fn try_from_source_rejects_invalid_layout_syntax_kind() {
         let err = FluffConfig::try_from_source(
             r#"
@@ -1053,6 +1144,24 @@ spacing_before = touch
     }
 
     #[test]
+    fn layout_type_alias_is_parsed_once_into_typed_key() {
+        let config = FluffConfig::try_from_source(
+            r#"
+[sqruff:layout:type:aggregate_order_by]
+line_position = leading
+"#,
+            None,
+        )
+        .unwrap();
+
+        assert!(
+            config.layout().types.contains_key(
+                &sqruff_lib_core::dialects::syntax::SyntaxKind::AggregateOrderByClause
+            )
+        );
+    }
+
+    #[test]
     fn try_from_source_rejects_invalid_rule_option() {
         let err = FluffConfig::try_from_source(
             r#"
@@ -1064,5 +1173,134 @@ not_a_rule_option = true
         .unwrap_err();
 
         assert!(err.to_string().contains("invalid rule option"));
+    }
+
+    #[test]
+    fn sqruff_and_sqlfluff_section_prefixes_parse_identically() {
+        let sqruff = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+dialect = postgres
+rules = AL01
+
+[sqruff:indentation]
+tab_space_size = 2
+
+[sqruff:rules:aliasing.table]
+aliasing = implicit
+"#,
+            None,
+        )
+        .unwrap();
+
+        let sqlfluff = FluffConfig::try_from_source(
+            r#"
+[sqlfluff]
+dialect = postgres
+rules = AL01
+
+[sqlfluff:indentation]
+tab_space_size = 2
+
+[sqlfluff:rules:aliasing.table]
+aliasing = implicit
+"#,
+            None,
+        )
+        .unwrap();
+
+        assert_eq!(sqruff.dialect_kind(), sqlfluff.dialect_kind());
+        assert_eq!(
+            sqruff
+                .rule_allowlist()
+                .unwrap()
+                .iter()
+                .map(RuleSelector::as_str)
+                .collect::<Vec<_>>(),
+            sqlfluff
+                .rule_allowlist()
+                .unwrap()
+                .iter()
+                .map(RuleSelector::as_str)
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(
+            sqruff.indentation().tab_space_size(),
+            sqlfluff.indentation().tab_space_size()
+        );
+        assert_eq!(
+            sqruff.rules().aliasing.table.aliasing,
+            sqlfluff.rules().aliasing.table.aliasing
+        );
+    }
+
+    #[test]
+    fn toml_config_normalizes_to_typed_patch_sections() {
+        let patch = ConfigLoader::patch_from_source(
+            r#"
+[tool.sqruff.core]
+dialect = "postgres"
+rules = "AL01,LT02"
+
+[tool.sqruff.indentation]
+tab_space_size = 2
+
+[tool.sqruff.layout.type.comma]
+line_position = "leading"
+
+[tool.sqruff.rules.aliasing.table]
+aliasing = "implicit"
+
+[tool.sqruff.dialect.postgres]
+pgvector = true
+"#,
+            None,
+            crate::config::ConfigFormat::Toml,
+        )
+        .unwrap();
+
+        let config = ConfigLoader::new().load_patch(patch).unwrap();
+
+        assert_eq!(config.dialect_kind(), DialectKind::Postgres);
+        assert_eq!(
+            config
+                .rule_allowlist()
+                .unwrap()
+                .iter()
+                .map(RuleSelector::as_str)
+                .collect::<Vec<_>>(),
+            vec!["AL01", "LT02"]
+        );
+        assert_eq!(config.indentation().tab_space_size(), 2);
+        assert!(
+            config
+                .layout()
+                .types
+                .contains_key(&sqruff_lib_core::dialects::syntax::SyntaxKind::Comma)
+        );
+        assert_eq!(
+            config.rules().aliasing.table.aliasing,
+            crate::config::AliasingStyle::Implicit
+        );
+        assert!(config.dialect_configs().postgres.pgvector);
+    }
+
+    #[test]
+    fn toml_none_string_clears_nullable_csv_config() {
+        let patch = ConfigLoader::patch_from_source(
+            r#"
+[tool.sqlfluff.core]
+rules = "None"
+exclude_rules = "None"
+"#,
+            None,
+            crate::config::ConfigFormat::Toml,
+        )
+        .unwrap();
+
+        let config = ConfigLoader::new().load_patch(patch).unwrap();
+
+        assert_eq!(config.rule_allowlist(), None);
+        assert!(config.rule_denylist().is_empty());
     }
 }

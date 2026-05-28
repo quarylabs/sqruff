@@ -9,6 +9,34 @@ use super::error::ConfigError;
 use super::setting::{Merge, NullableSetting, Setting};
 use crate::templaters::{PlaceholderStyle, TemplaterKind};
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum TemplaterConfigSection {
+    Root,
+    Placeholder,
+    Jinja,
+    Dbt,
+    Python,
+    JinjaContext,
+    DbtContext,
+    PythonContext,
+}
+
+impl TemplaterConfigSection {
+    pub(crate) fn parse(path: &[&str]) -> Option<Self> {
+        match path {
+            [] => Some(Self::Root),
+            ["placeholder"] => Some(Self::Placeholder),
+            ["jinja"] => Some(Self::Jinja),
+            ["dbt"] => Some(Self::Dbt),
+            ["python"] => Some(Self::Python),
+            ["jinja", "context"] => Some(Self::JinjaContext),
+            ["dbt", "context"] => Some(Self::DbtContext),
+            ["python", "context"] => Some(Self::PythonContext),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default, deny_unknown_fields, rename_all = "snake_case")]
 pub struct TemplaterConfigPatch {
@@ -130,48 +158,48 @@ impl TemplaterConfigPatch {
     pub(crate) fn merge_section(
         &mut self,
         config_path: Option<&Path>,
-        path: &[String],
+        section: TemplaterConfigSection,
         section_name: &str,
         values: &std::collections::HashMap<String, Option<String>>,
     ) -> Result<(), ConfigError> {
-        match path {
-            [] => {
+        match section {
+            TemplaterConfigSection::Root => {
                 let section: TemplaterConfigRootPatch =
                     config_de::deserialize_section(section_name, values)?;
                 self.unwrap_wrapped_queries
                     .merge(section.unwrap_wrapped_queries);
             }
-            [name] if name == "placeholder" => {
+            TemplaterConfigSection::Placeholder => {
                 self.placeholder
                     .merge(config_de::deserialize_section(section_name, values)?);
             }
-            [name] if name == "jinja" => {
+            TemplaterConfigSection::Jinja => {
                 let mut section: JinjaTemplaterConfigPatch =
                     config_de::deserialize_section(section_name, values)?;
                 section.resolve_paths(config_path, section_name)?;
                 self.jinja.merge(section);
             }
-            [name] if name == "dbt" => {
+            TemplaterConfigSection::Dbt => {
                 let mut section: DbtTemplaterConfigPatch =
                     config_de::deserialize_section(section_name, values)?;
                 section.resolve_paths(config_path, section_name)?;
                 self.dbt.merge(section);
             }
-            [name] if name == "python" => {
+            TemplaterConfigSection::Python => {
                 self.python
                     .merge(config_de::deserialize_section(section_name, values)?);
             }
-            [name, child] if name == "jinja" && child == "context" => {
+            TemplaterConfigSection::JinjaContext => {
                 self.jinja
                     .context
                     .extend(string_context(section_name, values)?);
             }
-            [name, child] if name == "python" && child == "context" => {
+            TemplaterConfigSection::PythonContext => {
                 self.python
                     .context
                     .extend(string_context(section_name, values)?);
             }
-            [name, child] if name == "dbt" && child == "context" => {
+            TemplaterConfigSection::DbtContext => {
                 let context = string_context(section_name, values)?;
                 self.dbt.context =
                     Setting::Set(Some(serde_json::to_string(&context).map_err(|err| {
@@ -181,8 +209,64 @@ impl TemplaterConfigPatch {
                         }
                     })?));
             }
-            _ => {
-                return Err(ConfigError::UnknownSection(section_name.to_string()));
+        }
+        Ok(())
+    }
+
+    pub(crate) fn merge_toml_section(
+        &mut self,
+        config_path: Option<&Path>,
+        section: TemplaterConfigSection,
+        section_name: &str,
+        table: &toml::value::Table,
+    ) -> Result<(), ConfigError> {
+        match section {
+            TemplaterConfigSection::Root => {
+                let section: TemplaterConfigRootPatch =
+                    config_de::deserialize_toml_table(section_name, table)?;
+                self.unwrap_wrapped_queries
+                    .merge(section.unwrap_wrapped_queries);
+            }
+            TemplaterConfigSection::Placeholder => {
+                self.placeholder
+                    .merge(config_de::deserialize_toml_table(section_name, table)?);
+            }
+            TemplaterConfigSection::Jinja => {
+                let mut section: JinjaTemplaterConfigPatch =
+                    config_de::deserialize_toml_table(section_name, table)?;
+                section.resolve_paths(config_path, section_name)?;
+                self.jinja.merge(section);
+            }
+            TemplaterConfigSection::Dbt => {
+                let mut section: DbtTemplaterConfigPatch =
+                    config_de::deserialize_toml_table(section_name, table)?;
+                section.resolve_paths(config_path, section_name)?;
+                self.dbt.merge(section);
+            }
+            TemplaterConfigSection::Python => {
+                self.python
+                    .merge(config_de::deserialize_toml_table(section_name, table)?);
+            }
+            TemplaterConfigSection::JinjaContext => {
+                let context: HashMap<String, String> =
+                    config_de::deserialize_toml_table(section_name, table)?;
+                self.jinja.context.extend(context);
+            }
+            TemplaterConfigSection::PythonContext => {
+                let context: HashMap<String, String> =
+                    config_de::deserialize_toml_table(section_name, table)?;
+                self.python.context.extend(context);
+            }
+            TemplaterConfigSection::DbtContext => {
+                let context: HashMap<String, String> =
+                    config_de::deserialize_toml_table(section_name, table)?;
+                self.dbt.context =
+                    Setting::Set(Some(serde_json::to_string(&context).map_err(|err| {
+                        ConfigError::InvalidSection {
+                            section: section_name.to_string(),
+                            reason: err.to_string(),
+                        }
+                    })?));
             }
         }
         Ok(())
@@ -297,8 +381,6 @@ impl Merge for PythonTemplaterConfigPatch {
         self.context.extend(other.context);
     }
 }
-
-impl PythonTemplaterConfigPatch {}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TemplaterConfig {

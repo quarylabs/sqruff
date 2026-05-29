@@ -3,7 +3,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
-use sqruff_lib_core::parser::grammar::anyof::one_of;
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -291,6 +291,83 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Ref::new("ColonSegment").to_matchable(),
             Ref::new("BaseExpressionElementGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // DuckDB allows trailing commas in function argument lists, e.g.
+    // `list_value(1, 2, 3,)`. Mirror the ansi `FunctionContentsGrammar`
+    // but enable `allow_trailing` on the inner argument `Delimited`.
+    duckdb_dialect.replace_grammar(
+        "FunctionContentsGrammar",
+        AnyNumberOf::new(vec![
+            Ref::new("ExpressionSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("ExpressionSegment").to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::new("DatatypeSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::new("TrimParametersGrammar").to_matchable(),
+                Ref::new("ExpressionSegment")
+                    .optional()
+                    .exclude(Ref::keyword("FROM"))
+                    .to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("DatetimeUnitSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("DISTINCT").optional().to_matchable(),
+                one_of(vec![
+                    Ref::new("StarSegment").to_matchable(),
+                    Delimited::new(vec![
+                        Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.allow_trailing = true;
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("AggregateOrderByClause").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("SEPARATOR").to_matchable(),
+                Ref::new("LiteralGrammar").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("IN").to_matchable(),
+                one_of(vec![
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("IgnoreRespectNullsGrammar").to_matchable(),
+            Ref::new("IndexColumnDefinitionSegment").to_matchable(),
+            Ref::new("EmptyStructLiteralSegment").to_matchable(),
         ])
         .to_matchable(),
     );

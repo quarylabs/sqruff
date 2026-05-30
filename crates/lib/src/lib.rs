@@ -1,7 +1,17 @@
 pub mod core;
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))]
 pub mod ignore;
 pub mod rules;
+pub mod templaters;
+#[cfg(test)]
+mod tests;
+pub mod utils;
+
+pub trait Formatter: Send + Sync {
+    fn dispatch_file_violations(&self, linted_file: &core::linter::linted_file::LintedFile);
+    fn dispatch_file_skip(&self, fname: &str, reason: &str);
+    fn completion_message(&self, count: usize);
+}
 pub mod templaters;
 #[cfg(test)]
 mod tests;

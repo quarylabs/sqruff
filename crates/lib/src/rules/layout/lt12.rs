@@ -1,12 +1,11 @@
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::core::rules::crawlers::{Crawler, RootOnly};
 use crate::core::rules::{Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -46,7 +45,7 @@ fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
 pub struct RuleLT12;
 
 impl Rule for RuleLT12 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleLT12.erased())
     }
     fn lint_phase(&self) -> LintPhase {
@@ -178,6 +177,6 @@ Add trailing newline to the end. The $ character represents end of file.
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler.into()
+        RootOnly.into()
     }
 }

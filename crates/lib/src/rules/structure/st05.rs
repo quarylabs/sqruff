@@ -16,9 +16,9 @@ use sqruff_lib_core::utils::analysis::query::{Query, Selectable};
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -51,9 +51,9 @@ pub(crate) struct RuleST05 {
 }
 
 impl Rule for RuleST05 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleST05 {
-            forbid_subquery_in: config["forbid_subquery_in"].as_string().unwrap().into(),
+            forbid_subquery_in: config.structure.subquery.forbid_subquery_in.as_str().into(),
         }
         .erased())
     }
@@ -256,7 +256,7 @@ join c using(x)
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(SELECT_TYPES).into()
+        SegmentSeeker::new(SELECT_TYPES).into()
     }
 }
 

@@ -1,21 +1,20 @@
 use std::cell::RefCell;
 
-use hashbrown::HashMap;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::IndexMap;
 use sqruff_lib_core::utils::analysis::query::Query;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleST03;
 
 impl Rule for RuleST03 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleST03.erased())
     }
 
@@ -104,7 +103,6 @@ FROM cte1
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::WithCompoundStatement]) })
-            .into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::WithCompoundStatement]) }).into()
     }
 }

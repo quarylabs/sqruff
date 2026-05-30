@@ -612,7 +612,7 @@ pub struct ReflowBlockData {
     stack_spacing_configs: IntMap<u64, Spacing>,
     line_position_configs: IntMap<u64, LinePositionConfig>,
     keyword_line_position: Option<Vec<LinePosition>>,
-    keyword_line_position_configs: IntMap<u64, String>,
+    keyword_line_position_configs: IntMap<u64, LinePosition>,
     keyword_line_position_exclusions: SyntaxSet,
     keyword_line_position_exclusions_configs: IntMap<u64, SyntaxSet>,
 }
@@ -667,7 +667,7 @@ impl ReflowBlock {
         self.keyword_line_position.as_deref()
     }
 
-    pub fn keyword_line_position_configs(&self) -> &IntMap<u64, String> {
+    pub fn keyword_line_position_configs(&self) -> &IntMap<u64, LinePosition> {
         &self.keyword_line_position_configs
     }
 
@@ -716,8 +716,7 @@ impl ReflowBlock {
 
         let keyword_line_position = block_config
             .keyword_line_position
-            .as_deref()
-            .map(parse_line_position_config);
+            .map(|line_position| vec![line_position]);
 
         Self {
             value: Rc::new(ReflowBlockData {
@@ -735,13 +734,6 @@ impl ReflowBlock {
             }),
         }
     }
-}
-
-fn parse_line_position_config(line_position: &str) -> Vec<LinePosition> {
-    line_position
-        .split(':')
-        .map(|it| it.parse().unwrap())
-        .collect()
 }
 
 impl From<ReflowBlock> for ReflowElement {

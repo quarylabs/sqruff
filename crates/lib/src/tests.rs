@@ -1,7 +1,9 @@
+use std::borrow::Cow;
+
+use crate::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
+use crate::config::FluffConfig;
+use crate::core::test_functions::fresh_ansi_dialect;
 use itertools::Itertools;
-use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib::core::test_functions::fresh_ansi_dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::Parser;
@@ -9,6 +11,21 @@ use sqruff_lib_core::parser::context::ParseContext;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::segments::Tables;
 use sqruff_lib_core::parser::segments::test_functions::lex;
+
+fn parse_ansi_source(sql: &str) -> crate::api::ParsedDebugReport {
+    Engine::new(
+        FluffConfig::default(),
+        EngineOptions {
+            parse_errors: ParseErrors::Suppress,
+        },
+    )
+    .unwrap()
+    .parse_source(Source {
+        id: SourceId::Virtual("test.sql".into()),
+        text: Cow::Borrowed(sql),
+    })
+    .unwrap()
+}
 
 #[test]
 fn test_dialect_ansi_file_lex() {
@@ -149,7 +166,7 @@ fn test_dialect_ansi_specific_segment_parses() {
     ];
 
     let dialect = fresh_ansi_dialect();
-    let config: FluffConfig = FluffConfig::new(<_>::default(), None, None);
+    let config: FluffConfig = FluffConfig::default();
 
     for (segment_ref, sql_string) in cases {
         let config = config.clone();
@@ -190,21 +207,13 @@ fn test_dialect_ansi_specific_segment_not_parse() {
     ];
 
     for (raw, err_locations) in tests {
-        let lnt = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
-        let tables = Tables::default();
-        let parsed = lnt.parse_string(&tables, raw, None).unwrap();
-        assert!(!parsed.violations.is_empty());
+        let parsed = parse_ansi_source(raw);
+        assert!(!parsed.diagnostics.is_empty());
 
         let locs: Vec<(usize, usize)> = parsed
-            .violations
+            .diagnostics
             .iter()
-            .map(|v| (v.line_no, v.line_pos))
+            .map(|v| (v.line, v.column))
             .collect();
         assert_eq!(locs, err_locations);
     }
@@ -212,20 +221,12 @@ fn test_dialect_ansi_specific_segment_not_parse() {
 
 #[test]
 fn test_dialect_ansi_is_whitespace() {
-    let lnt = Linter::new(
-        FluffConfig::new(<_>::default(), None, None),
-        None,
-        None,
-        false,
-    )
-    .unwrap();
     let file_content = std::fs::read_to_string(
         "../lib-dialects/test/fixtures/dialects/ansi/sqlfluff/select_in_multiline_comment.sql",
     )
     .expect("Unable to read file");
 
-    let tables = Tables::default();
-    let parsed = lnt.parse_string(&tables, &file_content, None).unwrap();
+    let parsed = parse_ansi_source(&file_content);
 
     for raw_seg in parsed.tree.unwrap().get_raw_segments() {
         if raw_seg.is_type(SyntaxKind::Whitespace) || raw_seg.is_type(SyntaxKind::Newline) {
@@ -246,17 +247,9 @@ fn test_dialect_ansi_parse_indented_joins() {
             [1, 5, 8, 11, 15, 17, 19, 23, 24, 26, 29, 31, 33, 34, 35].as_slice(),
         ),
     ];
-    let lnt = Linter::new(
-        FluffConfig::new(<_>::default(), None, None),
-        None,
-        None,
-        false,
-    )
-    .unwrap();
 
     for (sql_string, meta_loc) in cases {
-        let tables = Tables::default();
-        let parsed = lnt.parse_string(&tables, sql_string, None).unwrap();
+        let parsed = parse_ansi_source(sql_string);
         let tree = parsed.tree.unwrap();
 
         let res_meta_locs = tree

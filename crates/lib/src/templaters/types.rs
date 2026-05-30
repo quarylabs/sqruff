@@ -1,8 +1,5 @@
 use fancy_regex::Regex;
-
-#[cfg(feature = "python")]
-use super::{DBT_TEMPLATER, JINJA_TEMPLATER, PYTHON_TEMPLATER};
-use super::{PLACEHOLDER_TEMPLATER, RAW_TEMPLATER, Templater};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TemplaterKind {
@@ -27,19 +24,6 @@ impl TemplaterKind {
             Self::Jinja => "jinja",
             #[cfg(feature = "python")]
             Self::Dbt => "dbt",
-        }
-    }
-
-    pub fn templater(self) -> &'static dyn Templater {
-        match self {
-            Self::Raw => &RAW_TEMPLATER,
-            Self::Placeholder => &PLACEHOLDER_TEMPLATER,
-            #[cfg(feature = "python")]
-            Self::Python => &PYTHON_TEMPLATER,
-            #[cfg(feature = "python")]
-            Self::Jinja => &JINJA_TEMPLATER,
-            #[cfg(feature = "python")]
-            Self::Dbt => &DBT_TEMPLATER,
         }
     }
 
@@ -81,6 +65,14 @@ impl TemplaterKind {
                 Self::available_names().join(", ")
             )),
         }
+    }
+}
+
+impl FromStr for TemplaterKind {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::from_name(s)
     }
 }
 
@@ -172,6 +164,14 @@ impl PlaceholderStyle {
             "apache_camel" => Ok(Self::ApacheCamel),
             _ => Err(format!("Unknown placeholder style '{s}'")),
         }
+    }
+}
+
+impl FromStr for PlaceholderStyle {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::from_name(s)
     }
 }
 

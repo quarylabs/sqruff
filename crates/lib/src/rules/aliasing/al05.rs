@@ -14,9 +14,9 @@ use sqruff_lib_core::utils::analysis::select::{
     SelectStatementColumnsAndTables, get_select_statement_info,
 };
 
-use crate::core::config::Value;
+use crate::config::{AliasCaseCheckPolicy, RuleConfigs};
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Default, Clone)]
@@ -38,32 +38,25 @@ enum AliasCaseCheck {
     CaseSensitive,
 }
 
-impl AliasCaseCheck {
-    fn from_config(value: &str) -> Result<Self, String> {
-        match value {
-            "dialect" => Ok(Self::Dialect),
-            "case_insensitive" => Ok(Self::CaseInsensitive),
-            "quoted_cs_naked_upper" => Ok(Self::QuotedCaseSensitiveNakedUpper),
-            "quoted_cs_naked_lower" => Ok(Self::QuotedCaseSensitiveNakedLower),
-            "case_sensitive" => Ok(Self::CaseSensitive),
-            other => Err(format!("Invalid alias_case_check value: {other}")),
-        }
-    }
-}
-
 #[derive(Debug, Default, Clone)]
 pub struct RuleAL05 {
     alias_case_check: AliasCaseCheck,
 }
 
 impl Rule for RuleAL05 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL05 {
-            alias_case_check: AliasCaseCheck::from_config(
-                config["alias_case_check"].as_string().unwrap(),
-            )?,
-        }
-        .erased())
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
+        let alias_case_check = match config.aliasing.unused.alias_case_check {
+            AliasCaseCheckPolicy::Dialect => AliasCaseCheck::Dialect,
+            AliasCaseCheckPolicy::CaseInsensitive => AliasCaseCheck::CaseInsensitive,
+            AliasCaseCheckPolicy::QuotedCaseSensitiveNakedUpper => {
+                AliasCaseCheck::QuotedCaseSensitiveNakedUpper
+            }
+            AliasCaseCheckPolicy::QuotedCaseSensitiveNakedLower => {
+                AliasCaseCheck::QuotedCaseSensitiveNakedLower
+            }
+            AliasCaseCheckPolicy::CaseSensitive => AliasCaseCheck::CaseSensitive,
+        };
+        Ok(RuleAL05 { alias_case_check }.erased())
     }
 
     fn name(&self) -> &'static str {
@@ -223,7 +216,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
     }
 }
 
@@ -571,8 +564,10 @@ impl RuleAL05 {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::config::FluffConfig;
-    use crate::core::linter::core::Linter;
+    use std::borrow::Cow;
+
+    use crate::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
+    use crate::config::FluffConfig;
 
     const POSTGRES_JSON_ALIAS_REPRODUCER: &str = r#"with stanza as (
     select
@@ -595,36 +590,51 @@ select
 from stanza;
 "#;
 
-    fn postgres_al05_linter() -> Linter {
-        let config = FluffConfig::from_source(
+    fn postgres_al05_engine() -> Engine {
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 rules = AL05
 dialect = postgres
 "#,
             None,
-        );
+        )
+        .unwrap();
 
-        Linter::new(config, None, None, true).unwrap()
+        Engine::new(
+            config,
+            EngineOptions {
+                parse_errors: ParseErrors::Include,
+            },
+        )
+        .unwrap()
+    }
+
+    fn source(sql: &str) -> Source<'_> {
+        Source {
+            id: SourceId::Virtual("test.sql".into()),
+            text: Cow::Borrowed(sql),
+        }
     }
 
     #[test]
     fn test_al05_postgres_json_operator_alias_is_used() {
-        let mut linter = postgres_al05_linter();
-        let linted = linter
-            .lint_string_wrapped(POSTGRES_JSON_ALIAS_REPRODUCER, false)
+        let report = postgres_al05_engine()
+            .check_source(source(POSTGRES_JSON_ALIAS_REPRODUCER))
             .unwrap();
 
-        assert_eq!(linted.violations(), &[]);
+        assert_eq!(report.diagnostics, []);
     }
 
     #[test]
     fn test_al05_postgres_json_operator_fix_preserves_alias() {
-        let mut linter = postgres_al05_linter();
-        let linted = linter
-            .lint_string_wrapped(POSTGRES_JSON_ALIAS_REPRODUCER, true)
+        let report = postgres_al05_engine()
+            .fix_source(source(POSTGRES_JSON_ALIAS_REPRODUCER))
             .unwrap();
 
-        assert_eq!(linted.fix_string(), POSTGRES_JSON_ALIAS_REPRODUCER);
+        assert_eq!(
+            report.fixed_source.as_deref(),
+            Some(POSTGRES_JSON_ALIAS_REPRODUCER)
+        );
     }
 }

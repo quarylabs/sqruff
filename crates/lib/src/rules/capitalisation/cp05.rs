@@ -1,10 +1,9 @@
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::cp01::handle_segment;
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
@@ -13,11 +12,13 @@ pub struct RuleCP05 {
 }
 
 impl Rule for RuleCP05 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleCP05 {
-            extended_capitalisation_policy: config["extended_capitalisation_policy"]
-                .as_string()
-                .unwrap()
+            extended_capitalisation_policy: config
+                .capitalisation
+                .types
+                .extended_capitalisation_policy
+                .as_str()
                 .to_string(),
         }
         .erased())
@@ -99,7 +100,7 @@ CREATE TABLE t (
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(
+        SegmentSeeker::new(
             const {
                 SyntaxSet::new(&[
                     SyntaxKind::DataTypeIdentifier,

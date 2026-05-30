@@ -2,8 +2,9 @@ use hashbrown::HashSet;
 
 use expect_test::expect_file;
 use glob::glob;
-use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::linter::core::Linter;
+use sqruff_lib::api::SourceId;
+use sqruff_lib::config::FluffConfig;
+use sqruff_lib::templaters::{TemplaterInput, TemplaterOutput, TemplaterRuntime};
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::Tables;
@@ -24,9 +25,19 @@ fn main() {
     for templater_setup in &templaters_folders {
         println!("{:?}", templater_setup);
         let config = std::fs::read_to_string(templater_setup.join(".sqruff")).unwrap();
-        let config = FluffConfig::from_source(&config, None);
+        let config = match FluffConfig::try_from_source(&config, None) {
+            Ok(config) => config,
+            Err(error) => {
+                println!(
+                    "Skipping templater test for {:?}: {}",
+                    templater_setup.file_name().unwrap(),
+                    error
+                );
+                continue;
+            }
+        };
 
-        let templater = match Linter::get_templater(&config) {
+        let templater = match TemplaterRuntime::from_config(&config) {
             Ok(t) => t,
             Err(e) => {
                 println!(
@@ -45,19 +56,28 @@ fn main() {
             let yaml_file = std::path::absolute(yaml_file).unwrap();
 
             let actual = {
-                let dialect = config.get_dialect();
+                let dialect = config.dialect();
                 let sql = std::fs::read_to_string(&sql_file).unwrap();
                 let tables = Tables::default();
                 let lexer = Lexer::from(dialect);
                 let parser = Parser::from(dialect);
 
-                let file_name = sql_file.to_string_lossy();
+                let source_id = SourceId::Path(sql_file.clone());
                 let templated_file = templater
-                    .process(&[(&sql, &file_name)], &config, &None)
+                    .process(
+                        &[TemplaterInput {
+                            source: &sql,
+                            source_id: &source_id,
+                        }],
+                        &config,
+                    )
                     .into_iter()
                     .next()
                     .unwrap()
                     .unwrap();
+                let TemplaterOutput::Rendered(templated_file) = templated_file else {
+                    panic!("templater fixture was skipped");
+                };
 
                 let (tokens, errors) = lexer.lex(&tables, templated_file);
                 assert!(errors.is_empty());

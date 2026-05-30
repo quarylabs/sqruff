@@ -1,4 +1,4 @@
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use itertools::{Itertools, chain};
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -6,9 +6,9 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -16,7 +16,7 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleST02;
 
 impl Rule for RuleST02 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleST02.erased())
     }
 
@@ -251,7 +251,7 @@ from fancy_table
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::CaseExpression]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::CaseExpression]) }).into()
     }
 }
 

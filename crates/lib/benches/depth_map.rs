@@ -1,11 +1,15 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use sqruff_lib::core::config::FluffConfig;
-use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib::utils::reflow::depth_map::DepthMap;
-use sqruff_lib_core::parser::segments::Tables;
+use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
+use sqruff_lib::config::FluffConfig;
 use std::hint::black_box;
 
 include!("shims/global_alloc_overwrite.rs");
+
+#[allow(dead_code, unreachable_pub)]
+#[path = "../src/utils/reflow/depth_map.rs"]
+mod depth_map;
+
+use depth_map::DepthMap;
 
 const COMPLEX_QUERY: &str = r#"-- Insert segments
 INSERT INTO segments (id, name) VALUES
@@ -71,10 +75,18 @@ SELECT construct_depth_info('uuid-2');
 SELECT construct_depth_info('uuid-3');"#;
 
 fn depth_map(c: &mut Criterion) {
-    let linter = Linter::new(FluffConfig::default(), None, None, false).unwrap();
-    let tables = Tables::default();
-    let tree = linter
-        .parse_string(&tables, COMPLEX_QUERY, None)
+    let engine = Engine::new(
+        FluffConfig::default(),
+        EngineOptions {
+            parse_errors: ParseErrors::Suppress,
+        },
+    )
+    .unwrap();
+    let tree = engine
+        .parse_source(Source {
+            id: SourceId::Virtual("depth_map".into()),
+            text: COMPLEX_QUERY.into(),
+        })
         .unwrap()
         .tree
         .unwrap();

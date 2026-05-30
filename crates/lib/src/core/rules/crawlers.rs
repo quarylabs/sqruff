@@ -19,9 +19,9 @@ pub trait BaseCrawler {
 
 #[enum_dispatch(BaseCrawler)]
 pub enum Crawler {
-    RootOnlyCrawler,
-    SegmentSeekerCrawler,
-    TokenSeekerCrawler,
+    RootOnly,
+    SegmentSeeker,
+    TokenSeeker,
 }
 
 /// A crawler that doesn't crawl.
@@ -29,9 +29,9 @@ pub enum Crawler {
 /// This just yields one context on the root-level (topmost) segment of the
 /// file.
 #[derive(Debug, Default, Clone)]
-pub struct RootOnlyCrawler;
+pub struct RootOnly;
 
-impl BaseCrawler for RootOnlyCrawler {
+impl BaseCrawler for RootOnly {
     fn crawl<'a>(&self, context: &mut RuleContext<'a>, f: &mut impl FnMut(&RuleContext<'a>)) {
         if self.passes_filter(&context.segment) {
             f(context);
@@ -39,13 +39,13 @@ impl BaseCrawler for RootOnlyCrawler {
     }
 }
 
-pub struct SegmentSeekerCrawler {
+pub struct SegmentSeeker {
     types: SyntaxSet,
     provide_raw_stack: bool,
     allow_recurse: bool,
 }
 
-impl SegmentSeekerCrawler {
+impl SegmentSeeker {
     pub fn new(types: SyntaxSet) -> Self {
         Self {
             types,
@@ -69,7 +69,7 @@ impl SegmentSeekerCrawler {
     }
 }
 
-impl BaseCrawler for SegmentSeekerCrawler {
+impl BaseCrawler for SegmentSeeker {
     fn crawl<'a>(&self, context: &mut RuleContext<'a>, f: &mut impl FnMut(&RuleContext<'a>)) {
         let mut self_match = false;
 
@@ -103,9 +103,9 @@ impl BaseCrawler for SegmentSeekerCrawler {
     }
 }
 
-pub struct TokenSeekerCrawler;
+pub struct TokenSeeker;
 
-impl BaseCrawler for TokenSeekerCrawler {
+impl BaseCrawler for TokenSeeker {
     fn crawl<'a>(&self, context: &mut RuleContext<'a>, f: &mut impl FnMut(&RuleContext<'a>)) {
         if context.segment.segments().is_empty() {
             f(context);

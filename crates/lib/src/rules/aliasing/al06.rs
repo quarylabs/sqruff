@@ -1,10 +1,9 @@
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -87,10 +86,10 @@ impl RuleAL06 {
 }
 
 impl Rule for RuleAL06 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleAL06 {
-            min_alias_length: config["min_alias_length"].as_int().map(|it| it as usize),
-            max_alias_length: config["max_alias_length"].as_int().map(|it| it as usize),
+            min_alias_length: config.aliasing.length.min_alias_length,
+            max_alias_length: config.aliasing.length.max_alias_length,
         }
         .erased())
     }
@@ -152,6 +151,6 @@ JOIN
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
     }
 }

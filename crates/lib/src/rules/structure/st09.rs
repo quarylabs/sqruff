@@ -1,4 +1,3 @@
-use hashbrown::HashMap;
 use itertools::Itertools;
 use smol_str::{SmolStr, StrExt};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -8,9 +7,9 @@ use sqruff_lib_core::parser::segments::join::JoinClauseSegment;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -35,24 +34,16 @@ pub struct RuleST09 {
 }
 
 impl Rule for RuleST09 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        match config["preferred_first_table_in_join_clause"].as_string() {
-            Some("earlier" | "later") => Ok(RuleST09 {
-                preferred_first_table_in_join_clause:
-                    config["preferred_first_table_in_join_clause"]
-                        .as_string()
-                        .unwrap()
-                        .to_owned(),
-            }
-            .erased()),
-            Some(value) => Err(format!(
-                "Invalid value for preferred_first_table_in_join_clause: {value}. Must be one of \
-                 [earlier, later]"
-            )),
-            None => {
-                Err("Rule ST09 expects a string for `preferred_first_table_in_join_clause`".into())
-            }
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
+        Ok(RuleST09 {
+            preferred_first_table_in_join_clause: config
+                .structure
+                .join_condition_order
+                .preferred_first_table_in_join_clause
+                .as_str()
+                .to_owned(),
         }
+        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -325,7 +316,7 @@ left join bar
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::FromExpression]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::FromExpression]) }).into()
     }
 }
 
@@ -382,9 +373,8 @@ fn is_qualified_column_operator_qualified_column_sequence(segment_list: &[Erased
 #[cfg(test)]
 mod tests {
     use super::*;
-    use hashbrown::HashMap;
 
-    use crate::core::config::Value;
+    use crate::config::FluffConfig;
 
     #[test]
     fn st09_is_fix_compatible() {
@@ -409,26 +399,25 @@ mod tests {
 
     #[test]
     fn st09_load_from_config_rejects_invalid_value() {
-        let config = HashMap::from_iter([(
-            "preferred_first_table_in_join_clause".into(),
-            Value::String("middle".into()),
-        )]);
-
-        let err = RuleST09::default().load_from_config(&config).unwrap_err();
-        assert_eq!(
-            err,
-            "Invalid value for preferred_first_table_in_join_clause: middle. Must be one of \
-             [earlier, later]"
+        let err = FluffConfig::try_from_source(
+            "[sqruff:rules:structure.join_condition_order]\npreferred_first_table_in_join_clause = middle\n",
+            None,
+        )
+        .unwrap_err();
+        assert!(
+            err.to_string()
+                .contains("preferred_first_table_in_join_clause")
         );
     }
 
     #[test]
     fn st09_load_from_config_accepts_valid_value() {
-        let config = HashMap::from_iter([(
-            "preferred_first_table_in_join_clause".into(),
-            Value::String("later".into()),
-        )]);
+        let config = FluffConfig::try_from_source(
+            "[sqruff:rules:structure.join_condition_order]\npreferred_first_table_in_join_clause = later\n",
+            None,
+        )
+        .unwrap();
 
-        assert!(RuleST09::default().load_from_config(&config).is_ok());
+        assert!(RuleST09::default().load_from_config(config.rules()).is_ok());
     }
 }

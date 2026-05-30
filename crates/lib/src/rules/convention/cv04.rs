@@ -1,12 +1,11 @@
-use hashbrown::HashMap;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -17,18 +16,10 @@ pub struct RuleCV04 {
 }
 
 impl Rule for RuleCV04 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleCV04 {
-            prefer_count_1: _config
-                .get("prefer_count_1")
-                .unwrap_or(&Value::Bool(false))
-                .as_bool()
-                .unwrap(),
-            prefer_count_0: _config
-                .get("prefer_count_0")
-                .unwrap_or(&Value::Bool(false))
-                .as_bool()
-                .unwrap(),
+            prefer_count_1: _config.convention.count_rows.prefer_count_1,
+            prefer_count_0: _config.convention.count_rows.prefer_count_0,
         }
         .erased())
     }
@@ -169,6 +160,6 @@ from table_a
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::Function]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::Function]) }).into()
     }
 }

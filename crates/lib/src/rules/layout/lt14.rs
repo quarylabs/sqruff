@@ -1,8 +1,6 @@
-use hashbrown::HashMap;
-
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::core::rules::crawlers::{Crawler, RootOnly};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::{RebreakType, ReflowSequence};
 
@@ -10,7 +8,7 @@ use crate::utils::reflow::sequence::{RebreakType, ReflowSequence};
 pub struct RuleLT14;
 
 impl Rule for RuleLT14 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleLT14.erased())
     }
 
@@ -72,6 +70,6 @@ WHERE a = 1
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler.into()
+        RootOnly.into()
     }
 }

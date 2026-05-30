@@ -1444,7 +1444,7 @@ mod tests {
             },
         ];
 
-        let dialect = ansi::dialect(None);
+        let dialect = ansi::dialect(&ansi::AnsiDialectConfig::default());
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -1564,7 +1564,7 @@ mod tests {
             },
         ];
 
-        let dialect = ansi::dialect(None);
+        let dialect = ansi::dialect(&ansi::AnsiDialectConfig::default());
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -2165,7 +2165,7 @@ FROM q.stg_employees e) SELECT * FROM data",
             },
         ];
 
-        let dialect = ansi::dialect(None);
+        let dialect = ansi::dialect(&ansi::AnsiDialectConfig::default());
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -2344,7 +2344,7 @@ GROUP BY department",
             ]),
         }];
 
-        let dialect = ansi::dialect(None);
+        let dialect = ansi::dialect(&ansi::AnsiDialectConfig::default());
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -2439,7 +2439,7 @@ LEFT JOIN q.shift_last sl
             ]),
         }];
 
-        let dialect = ansi::dialect(None);
+        let dialect = ansi::dialect(&ansi::AnsiDialectConfig::default());
         let parser = Parser::from(&dialect);
 
         for test in tests {
@@ -2483,7 +2483,7 @@ LEFT JOIN q.shift_last sl
             ),
         ];
 
-        let dialect = ansi::dialect(None);
+        let dialect = ansi::dialect(&ansi::AnsiDialectConfig::default());
         let parser = Parser::from(&dialect);
 
         for (sql, want) in tests {
@@ -2494,7 +2494,13 @@ LEFT JOIN q.shift_last sl
 
     #[test]
     fn test_get_column_with_source() {
-        let tests: Vec<(&str, Vec<(&str, (&str, &str))>, Vec<&str>, Vec<&str>)> = vec![
+        type TestCase = (
+            &'static str,
+            Vec<(&'static str, (&'static str, &'static str))>,
+            Vec<&'static str>,
+            Vec<&'static str>,
+        );
+        let tests: Vec<TestCase> = vec![
             (
                 "SELECT a FROM q.model_a",
                 vec![("a", ("q.model_a", "a"))],
@@ -2661,7 +2667,7 @@ from final",
             ),
         ];
 
-        let dialect = ansi::dialect(None);
+        let dialect = ansi::dialect(&ansi::AnsiDialectConfig::default());
         let parser = Parser::from(&dialect);
 
         for (sql, expected_map_entries, expected_not_parseable, expected_count) in tests {

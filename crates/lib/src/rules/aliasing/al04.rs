@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -8,9 +8,9 @@ use sqruff_lib_core::helpers::IndexSet;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 type Handle<T> = fn(
@@ -38,7 +38,7 @@ impl Default for RuleAL04 {
 }
 
 impl<T: Clone + Debug + Send + Sync + 'static> Rule for RuleAL04<T> {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleAL04::default().erased())
     }
 
@@ -124,7 +124,7 @@ FROM
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
     }
 }
 

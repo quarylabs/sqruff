@@ -1,17 +1,17 @@
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::utils::analysis::query::{Query, Selectable, Source, WildcardInfo};
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Clone)]
 pub struct RuleAM07;
 
 impl Rule for RuleAM07 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleAM07.erased())
     }
 
@@ -102,7 +102,7 @@ FROM t
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SetExpression]) })
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::SetExpression]) })
             .provide_raw_stack()
             .into()
     }

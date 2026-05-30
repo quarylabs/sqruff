@@ -473,12 +473,33 @@ impl IgnoreMask {
 
 #[cfg(test)]
 mod tests {
+    use std::borrow::Cow;
+
     use super::*;
-    use crate::core::config::FluffConfig;
-    use crate::core::linter::core::Linter;
+    use crate::api::{Engine, EngineOptions, FileReport, ParseErrors, Source, SourceId};
+    use crate::config::FluffConfig;
     use crate::core::rules::Erased;
     use crate::core::rules::noqa::NoQADirective;
     use itertools::Itertools;
+
+    fn engine_from_config(config: &str) -> Engine {
+        Engine::new(
+            FluffConfig::try_from_source(config, None).unwrap(),
+            EngineOptions {
+                parse_errors: ParseErrors::Suppress,
+            },
+        )
+        .unwrap()
+    }
+
+    fn check_source(engine: &Engine, sql: &str) -> FileReport {
+        engine
+            .check_source(Source {
+                id: SourceId::Virtual("test.sql".into()),
+                text: Cow::Borrowed(sql),
+            })
+            .unwrap()
+    }
 
     #[test]
     fn test_is_masked_single_line() {
@@ -621,20 +642,13 @@ mod tests {
     #[test]
     /// Test "noqa" feature at the higher "Linter" level.
     fn test_linter_single_noqa() {
-        let linter = Linter::new(
-            FluffConfig::from_source(
-                r#"
+        let engine = engine_from_config(
+            r#"
 [sqruff]
 dialect = bigquery
 rules = AL02
-    "#,
-                None,
-            ),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
+"#,
+        );
 
         let sql = r#"SELECT
     col_a a,
@@ -642,12 +656,12 @@ rules = AL02
 FROM foo
 "#;
 
-        let result = linter.lint_string(sql, None, false).unwrap();
-        let violations = result.violations();
+        let result = check_source(&engine, sql);
+        let violations = result.diagnostics;
 
         assert_eq!(violations.len(), 1);
         assert_eq!(
-            violations.iter().map(|v| v.line_no).collect::<Vec<_>>(),
+            violations.iter().map(|v| v.line).collect::<Vec<_>>(),
             [2].to_vec()
         );
     }
@@ -655,66 +669,43 @@ FROM foo
     #[test]
     /// Test "noqa" feature at the higher "Linter" level and turn off noqa
     fn test_linter_noqa_but_disabled() {
-        let linter_without_disabled = Linter::new(
-            FluffConfig::from_source(
-                r#"
+        let engine_without_disabled = engine_from_config(
+            r#"
 [sqruff]
 dialect = bigquery
 rules = AL02
-    "#,
-                None,
-            ),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
-        let linter_with_disabled = Linter::new(
-            FluffConfig::from_source(
-                r#"
+"#,
+        );
+        let engine_with_disabled = engine_from_config(
+            r#"
 [sqruff]
 dialect = bigquery
 rules = AL02
 disable_noqa = True
-    "#,
-                None,
-            ),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
+"#,
+        );
 
         let sql = r#"SELECT
     col_a a,
     col_b b --noqa
 FROM foo
     "#;
-        let result_with_disabled = linter_with_disabled.lint_string(sql, None, false).unwrap();
-        let result_without_disabled = linter_without_disabled
-            .lint_string(sql, None, false)
-            .unwrap();
+        let result_with_disabled = check_source(&engine_with_disabled, sql);
+        let result_without_disabled = check_source(&engine_without_disabled, sql);
 
-        assert_eq!(result_without_disabled.violations().len(), 1);
-        assert_eq!(result_with_disabled.violations().len(), 2);
+        assert_eq!(result_without_disabled.diagnostics.len(), 1);
+        assert_eq!(result_with_disabled.diagnostics.len(), 2);
     }
 
     #[test]
     fn test_range_code() {
-        let linter_without_disabled = Linter::new(
-            FluffConfig::from_source(
-                r#"
+        let engine_without_disabled = engine_from_config(
+            r#"
 [sqruff]
 dialect = bigquery
 rules = AL02
-    "#,
-                None,
-            ),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
+"#,
+        );
         let sql_disable_rule = r#"SELECT
     col_a a,
     col_c c, --noqa: disable=AL02
@@ -732,14 +723,10 @@ FROM foo
     col_f f
 FROM foo
 "#;
-        let result_rule = linter_without_disabled
-            .lint_string(sql_disable_rule, None, false)
-            .unwrap();
-        let result_all = linter_without_disabled
-            .lint_string(sql_disable_all, None, false)
-            .unwrap();
+        let result_rule = check_source(&engine_without_disabled, sql_disable_rule);
+        let result_all = check_source(&engine_without_disabled, sql_disable_all);
 
-        assert_eq!(result_rule.violations().len(), 3);
-        assert_eq!(result_all.violations().len(), 3);
+        assert_eq!(result_rule.diagnostics.len(), 3);
+        assert_eq!(result_all.diagnostics.len(), 3);
     }
 }

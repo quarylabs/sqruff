@@ -4,9 +4,9 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -20,32 +20,13 @@ pub struct RuleRF06 {
 }
 
 impl Rule for RuleRF06 {
-    fn load_from_config(
-        &self,
-        config: &hashbrown::HashMap<String, Value>,
-    ) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(Self {
-            prefer_quoted_identifiers: config["prefer_quoted_identifiers"].as_bool().unwrap(),
-            prefer_quoted_keywords: config["prefer_quoted_keywords"].as_bool().unwrap(),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            force_enable: config["force_enable"].as_bool().unwrap(),
+            prefer_quoted_identifiers: config.references.quoting.prefer_quoted_identifiers,
+            prefer_quoted_keywords: config.references.quoting.prefer_quoted_keywords,
+            ignore_words: config.references.quoting.ignore_words.clone(),
+            ignore_words_regex: config.references.quoting.ignore_words_regex.clone(),
+            force_enable: config.references.quoting.force_enable,
         }
         .erased())
     }
@@ -248,7 +229,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(
+        SegmentSeeker::new(
             const { SyntaxSet::new(&[SyntaxKind::QuotedIdentifier, SyntaxKind::NakedIdentifier]) },
         )
         .into()

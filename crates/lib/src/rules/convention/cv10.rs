@@ -1,4 +1,3 @@
-use hashbrown::HashMap;
 use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -6,9 +5,9 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 use strum_macros::{AsRefStr, EnumString};
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq, Default)]
@@ -48,15 +47,16 @@ pub struct RuleCV10 {
 }
 
 impl Rule for RuleCV10 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleCV10 {
-            preferred_quoted_literal_style: config["preferred_quoted_literal_style"]
-                .as_string()
-                .unwrap()
-                .to_owned()
+            preferred_quoted_literal_style: config
+                .convention
+                .quoted_literals
+                .preferred_quoted_literal_style
+                .as_str()
                 .parse()
                 .unwrap(),
-            force_enable: config["force_enable"].as_bool().unwrap(),
+            force_enable: config.convention.quoted_literals.force_enable,
         }
         .erased())
     }
@@ -165,7 +165,7 @@ from foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::QuotedLiteral]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::QuotedLiteral]) }).into()
     }
 }
 

@@ -1,7 +1,8 @@
 use std::io::{self, BufRead};
 
-use sqruff_lib::core::{config::FluffConfig, linter::core::Linter};
-use sqruff_lib_core::parser::segments::Tables;
+use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
+use sqruff_lib::config::FluffConfig;
+use std::borrow::Cow;
 
 use crate::commands::{ParseArgs, ParseFormat};
 
@@ -65,17 +66,24 @@ fn parse_and_output_tree(
     config: &FluffConfig,
     format: ParseFormat,
 ) -> i32 {
-    // Create a linter and parse the SQL
-    let linter = match Linter::new(config.clone(), None, None, true) {
-        Ok(l) => l,
+    let engine = match Engine::new(
+        config.clone(),
+        EngineOptions {
+            parse_errors: ParseErrors::Include,
+        },
+    ) {
+        Ok(engine) => engine,
         Err(e) => {
             eprintln!("{}", e);
             return 1;
         }
     };
-    let tables = Tables::default();
+    let source = Source {
+        id: SourceId::Virtual(filename.to_string()),
+        text: Cow::Borrowed(sql),
+    };
 
-    match linter.parse_string(&tables, sql, Some(filename.to_string())) {
+    match engine.parse_source(source) {
         Ok(parsed) => {
             if let Some(tree) = &parsed.tree {
                 match format {
@@ -96,20 +104,23 @@ fn parse_and_output_tree(
                 }
 
                 // Also print any parsing violations if they exist
-                if !parsed.violations.is_empty() {
+                if !parsed.diagnostics.is_empty() {
                     eprintln!("\nParse violations:");
-                    for violation in &parsed.violations {
-                        eprintln!("  {}", violation);
+                    for diagnostic in &parsed.diagnostics {
+                        eprintln!("  {}", diagnostic.message);
                     }
                 }
 
                 0
             } else {
                 eprintln!("Error: Failed to parse {}", filename);
-                if !parsed.violations.is_empty() {
+                if let Some(reason) = &parsed.skipped {
+                    eprintln!("Skipped: {}", reason.message);
+                }
+                if !parsed.diagnostics.is_empty() {
                     eprintln!("Parse violations:");
-                    for violation in &parsed.violations {
-                        eprintln!("  {}", violation);
+                    for diagnostic in &parsed.diagnostics {
+                        eprintln!("  {}", diagnostic.message);
                     }
                 }
                 1

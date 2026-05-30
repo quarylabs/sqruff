@@ -8,13 +8,12 @@ use sqruff_lib_core::templaters::{
 };
 
 use super::Templater;
-use crate::Formatter;
-use crate::core::config::FluffConfig;
-use crate::templaters::ProcessingMode;
+use crate::config::FluffConfig;
 use crate::templaters::TemplaterKind;
 use crate::templaters::python_shared::PythonFluffConfig;
-use std::sync::Arc;
-
+use crate::templaters::{
+    ProcessingMode, TemplaterError, TemplaterInput, TemplaterOutput, source_id_name,
+};
 #[derive(Default)]
 pub struct PythonTemplater;
 
@@ -90,13 +89,17 @@ At the moment, dot notation is not supported in the templater."
 
     fn process(
         &self,
-        files: &[(&str, &str)],
+        files: &[TemplaterInput<'_>],
         config: &FluffConfig,
-        _formatter: &Option<Arc<dyn Formatter>>,
-    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+    ) -> Vec<Result<TemplaterOutput, TemplaterError>> {
         files
             .iter()
-            .map(|(content, fname)| self.process_single(content, fname, config))
+            .map(|file| {
+                let fname = source_id_name(file.source_id);
+                self.process_single(file.source, &fname, config)
+                    .map(TemplaterOutput::Rendered)
+                    .map_err(TemplaterError::Failed)
+            })
             .collect()
     }
 }
@@ -260,6 +263,9 @@ impl PythonTemplatedFile {
 // Working on tests
 #[cfg(test)]
 mod tests {
+    use crate::api::SourceId;
+    use crate::templaters::{TemplaterInput, TemplaterOutput};
+
     use super::*;
 
     const PYTHON_STRING: &str = "SELECT * FROM {blah}";
@@ -274,12 +280,22 @@ templater = python
 [sqruff:templater:python:context]
 blah = foo
 ";
-        let config = FluffConfig::from_source(source, None);
+        let config = FluffConfig::try_from_source(source, None).unwrap();
 
         let templater = PythonTemplater;
 
-        let results = templater.process(&[(PYTHON_STRING, "test.sql")], &config, &None);
-        let templated_file = results.into_iter().next().unwrap().unwrap();
+        let source_id = SourceId::Virtual("test.sql".into());
+        let results = templater.process(
+            &[TemplaterInput {
+                source: PYTHON_STRING,
+                source_id: &source_id,
+            }],
+            &config,
+        );
+        let templated_file = match results.into_iter().next().unwrap().unwrap() {
+            TemplaterOutput::Rendered(file) => file,
+            TemplaterOutput::Skipped(reason) => panic!("python skipped: {}", reason.message),
+        };
 
         assert_eq!(templated_file.templated(), "SELECT * FROM foo");
     }
@@ -371,11 +387,18 @@ templater = python
 [sqruff:templater:python:context]
 noblah = foo
 ";
-        let config = FluffConfig::from_source(source, None);
+        let config = FluffConfig::try_from_source(source, None).unwrap();
 
         let templater = PythonTemplater;
 
-        let results = templater.process(&[(PYTHON_STRING, "test.sql")], &config, &None);
+        let source_id = SourceId::Virtual("test.sql".into());
+        let results = templater.process(
+            &[TemplaterInput {
+                source: PYTHON_STRING,
+                source_id: &source_id,
+            }],
+            &config,
+        );
         let templated_file = results.into_iter().next().unwrap();
 
         assert!(templated_file.is_err())

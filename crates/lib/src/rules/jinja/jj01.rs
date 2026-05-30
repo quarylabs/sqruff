@@ -1,4 +1,3 @@
-use hashbrown::HashMap;
 use regex::Regex;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -8,9 +7,9 @@ use sqruff_lib_core::parser::segments::SegmentBuilder;
 use sqruff_lib_core::parser::segments::fix::SourceFix;
 use sqruff_lib_core::templaters::TemplateSliceKind;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::core::rules::crawlers::{Crawler, RootOnly};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 /// Represents the parsed components of a Jinja tag.
@@ -75,7 +74,7 @@ fn is_acceptable_whitespace(ws: &str) -> bool {
 pub struct RuleJJ01;
 
 impl Rule for RuleJJ01 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleJJ01.erased())
     }
 
@@ -268,7 +267,7 @@ SELECT {{ a }} from {{ ref('foo') }};
 
     fn crawl_behaviour(&self) -> Crawler {
         // Run once per file at the root level
-        RootOnlyCrawler.into()
+        RootOnly.into()
     }
 }
 

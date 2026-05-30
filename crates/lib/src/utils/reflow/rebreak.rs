@@ -1,5 +1,4 @@
 use std::cmp::PartialEq;
-use std::str::FromStr;
 
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::capitalize;
@@ -252,10 +251,7 @@ pub fn identify_keyword_rebreak_spans(element_buffer: &ReflowSequenceType) -> Ve
         };
 
         for key in block.keyword_line_position_configs().keys() {
-            let line_position_config = &block.keyword_line_position_configs()[key];
-            if line_position_config.eq_ignore_ascii_case("none") {
-                continue;
-            }
+            let line_position = block.keyword_line_position_configs()[key];
 
             if block.depth_info().stack_positions[key].idx > 1 {
                 continue;
@@ -312,16 +308,12 @@ pub fn identify_keyword_rebreak_spans(element_buffer: &ReflowSequenceType) -> Ve
                         break;
                     }
 
-                    let line_position =
-                        LinePosition::from_str(line_position_config.split(':').next().unwrap())
-                            .unwrap();
-
                     spans.push(RebreakSpan {
                         target: element_buffer[idx].segments()[0].clone(),
                         start_idx: idx,
                         end_idx: final_idx,
                         line_position,
-                        strict: line_position_config.ends_with("strict"),
+                        strict: false,
                     });
                     break;
                 }
@@ -851,7 +843,7 @@ fn reorder_and_insert(
 
 #[cfg(test)]
 mod tests {
-    use sqruff_lib::core::test_functions::parse_ansi_string;
+    use crate::core::test_functions::parse_ansi_string;
     use sqruff_lib_core::helpers::enter_panic;
     use sqruff_lib_core::parser::segments::Tables;
 

@@ -1,10 +1,10 @@
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use itertools::enumerate;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::core::rules::crawlers::{Crawler, RootOnly};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::ReflowSequence;
 
@@ -15,10 +15,10 @@ pub struct RuleLT05 {
 }
 
 impl Rule for RuleLT05 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleLT05 {
-            ignore_comment_lines: config["ignore_comment_lines"].as_bool().unwrap(),
-            ignore_comment_clauses: config["ignore_comment_clauses"].as_bool().unwrap(),
+            ignore_comment_lines: config.layout.long_lines.ignore_comment_lines,
+            ignore_comment_clauses: config.layout.long_lines.ignore_comment_clauses,
         }
         .erased())
     }
@@ -140,13 +140,7 @@ FROM my_table
                         {
                             let line_pos =
                                 ps.segment.get_position_marker().unwrap().working_line_pos;
-                            if (line_pos as i32)
-                                < context
-                                    .config
-                                    .get("max_line_length", "core")
-                                    .as_int()
-                                    .unwrap()
-                            {
+                            if line_pos < context.config.max_line_length() {
                                 to_remove.insert(res_idx);
                                 is_break = true;
                                 break;
@@ -179,6 +173,6 @@ FROM my_table
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler.into()
+        RootOnly.into()
     }
 }

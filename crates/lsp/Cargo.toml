@@ -16,6 +16,7 @@ bench = false
 [dependencies]
 hashbrown.workspace = true
 console_error_panic_hook = "0.1.7"
+ignore = "0.4.23"
 js-sys = "0.3.74"
 lsp-server = "0.7.9"
 lsp-types = "0.97"

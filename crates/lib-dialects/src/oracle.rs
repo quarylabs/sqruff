@@ -15,16 +15,10 @@ use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 
 use super::ansi;
-use sqruff_lib_core::dialects::init::DialectConfig;
-use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(OracleDialectConfig {});
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    let _dialect_config: OracleDialectConfig = config
-        .map(OracleDialectConfig::from_value)
-        .unwrap_or_default();
-
+pub fn dialect(_config: &OracleDialectConfig) -> Dialect {
     raw_dialect().config(|dialect| dialect.expand())
 }
 

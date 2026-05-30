@@ -1,4 +1,3 @@
-use hashbrown::HashMap;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
@@ -8,16 +7,16 @@ use sqruff_lib_core::parser::segments::object_reference::{
 };
 use sqruff_lib_core::utils::analysis::query::Query;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleST11;
 
 impl Rule for RuleST11 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleST11.erased())
     }
 
@@ -156,7 +155,7 @@ LEFT JOIN bar ON foo.a = bar.a
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::SelectStatement]) }).into()
     }
 }
 

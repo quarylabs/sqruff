@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use strum_macros::Display;
 
 use clap::{Parser, Subcommand, ValueEnum};
+use sqruff_lib_core::dialects::init::DialectKind;
 
 use crate::github_action::is_in_github_action;
 
@@ -14,13 +15,17 @@ pub struct Cli {
     pub command: Commands,
     /// Path to a configuration file.
     #[arg(long, global = true)]
-    pub config: Option<String>,
+    pub config: Option<PathBuf>,
     /// Override the dialect (e.g., bigquery, clickhouse, ansi).
-    #[arg(long, global = true)]
-    pub dialect: Option<String>,
+    #[arg(long, global = true, value_parser = parse_dialect)]
+    pub dialect: Option<DialectKind>,
     /// Show parse errors.
     #[arg(long, global = true, default_value = "false")]
-    pub parsing_errors: bool,
+    pub(crate) parsing_errors: bool,
+}
+
+fn parse_dialect(value: &str) -> Result<DialectKind, String> {
+    value.parse::<DialectKind>().map_err(|err| err.to_string())
 }
 
 #[derive(Debug, Subcommand)]

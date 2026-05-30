@@ -1,11 +1,10 @@
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -13,7 +12,7 @@ use crate::utils::functional::context::FunctionalContext;
 pub struct RuleAL03;
 
 impl Rule for RuleAL03 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleAL03.erased())
     }
 
@@ -103,12 +102,7 @@ FROM foo
             return Vec::new();
         }
 
-        if context
-            .config
-            .get("allow_scalar", "rules")
-            .as_bool()
-            .unwrap()
-        {
+        if context.config.rules().global.allow_scalar {
             let immediate_parent = parent_stack.last().unwrap().clone();
             let elements = Segments::new(immediate_parent, None)
                 .children_where(|it| it.is_type(SyntaxKind::SelectClauseElement));
@@ -134,8 +128,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) })
-            .into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) }).into()
     }
 }
 

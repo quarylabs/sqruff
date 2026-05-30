@@ -6,6 +6,17 @@ license = "Apache-2.0"
 
 [workspace]
 members = ["crates/*"]
+default-members = [
+    "crates/cli",
+    "crates/cli-lib",
+    "crates/lib",
+    "crates/lib-core",
+    "crates/lib-dialects",
+    "crates/lib-wasm",
+    "crates/lineage",
+    "crates/lsp",
+    "crates/sqlinference",
+]
 resolver = "2"
 
 [workspace.lints.rust]

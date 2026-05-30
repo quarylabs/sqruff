@@ -19,16 +19,10 @@ use sqruff_lib_core::parser::types::ParseMode;
 
 use super::ansi::{self, raw_dialect};
 use crate::clickhouse_keywords::UNRESERVED_KEYWORDS;
-use sqruff_lib_core::dialects::init::DialectConfig;
-use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(ClickHouseDialectConfig {});
 
-pub fn dialect(config: Option<&Value>) -> Dialect {
-    // Parse and validate dialect configuration, falling back to defaults on failure
-    let _dialect_config: ClickHouseDialectConfig = config
-        .map(ClickHouseDialectConfig::from_value)
-        .unwrap_or_default();
+pub fn dialect(_config: &ClickHouseDialectConfig) -> Dialect {
     let ansi_dialect = raw_dialect();
 
     let mut clickhouse_dialect = raw_dialect();

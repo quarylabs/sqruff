@@ -1,11 +1,11 @@
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::identifers::identifiers_policy_applicable;
 
@@ -20,38 +20,28 @@ pub struct RuleRF05 {
 }
 
 impl Rule for RuleRF05 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleRF05 {
-            unquoted_identifiers_policy: config["unquoted_identifiers_policy"]
-                .as_string()
-                .unwrap()
+            unquoted_identifiers_policy: config
+                .references
+                .special_chars
+                .unquoted_identifiers_policy
+                .as_str()
                 .to_owned(),
-            quoted_identifiers_policy: config["quoted_identifiers_policy"]
-                .as_string()
-                .unwrap()
+            quoted_identifiers_policy: config
+                .references
+                .special_chars
+                .quoted_identifiers_policy
+                .as_str()
                 .to_owned(),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            allow_space_in_identifier: config["allow_space_in_identifier"].as_bool().unwrap(),
-            additional_allowed_characters: config["additional_allowed_characters"]
-                .map(|it| it.as_string().unwrap().to_owned())
-                .unwrap_or_default(),
+            ignore_words: config.references.special_chars.ignore_words.clone(),
+            ignore_words_regex: config.references.special_chars.ignore_words_regex.clone(),
+            allow_space_in_identifier: config.references.special_chars.allow_space_in_identifier,
+            additional_allowed_characters: config
+                .references
+                .special_chars
+                .additional_allowed_characters
+                .clone(),
         }
         .erased())
     }
@@ -204,7 +194,7 @@ CREATE TABLE DBO.ColumnNames
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(
+        SegmentSeeker::new(
             const { SyntaxSet::new(&[SyntaxKind::QuotedIdentifier, SyntaxKind::NakedIdentifier]) },
         )
         .into()

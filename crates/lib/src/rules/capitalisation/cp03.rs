@@ -1,11 +1,9 @@
-use hashbrown::HashMap;
-use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::cp01::RuleCP01;
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Clone)]
@@ -26,32 +24,18 @@ impl Default for RuleCP03 {
 }
 
 impl Rule for RuleCP03 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleCP03 {
             base: RuleCP01 {
-                capitalisation_policy: config["extended_capitalisation_policy"]
-                    .as_string()
-                    .unwrap()
+                capitalisation_policy: config
+                    .capitalisation
+                    .functions
+                    .extended_capitalisation_policy
+                    .as_str()
                     .into(),
                 description_elem: "Function names",
-                ignore_words: config["ignore_words"]
-                    .map(|it| {
-                        it.as_array()
-                            .unwrap()
-                            .iter()
-                            .map(|it| it.as_string().unwrap().to_lowercase())
-                            .collect()
-                    })
-                    .unwrap_or_default(),
-                ignore_words_regex: config["ignore_words_regex"]
-                    .map(|it| {
-                        it.as_array()
-                            .unwrap()
-                            .iter()
-                            .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                            .collect()
-                    })
-                    .unwrap_or_default(),
+                ignore_words: config.capitalisation.functions.ignore_words.clone(),
+                ignore_words_regex: config.capitalisation.functions.ignore_words_regex.clone(),
 
                 ..Default::default()
             },
@@ -111,7 +95,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const {SyntaxSet::new(&[
+        SegmentSeeker::new(const {SyntaxSet::new(&[
             SyntaxKind::FunctionNameIdentifier,
             SyntaxKind::BareFunction,
         ]) })

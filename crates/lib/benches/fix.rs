@@ -1,8 +1,9 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib_core::parser::segments::Tables;
+use sqruff_lib::api::{Engine, EngineOptions, ParseErrors, Source, SourceId};
+use sqruff_lib::config::FluffConfig;
 use std::hint::black_box;
 use std::path::Path;
+use std::time::Duration;
 
 include!("shims/global_alloc_overwrite.rs");
 
@@ -66,19 +67,34 @@ fn fix(c: &mut Criterion) {
         ("fix_superlong", superlong),
     ];
 
-    let linter = Linter::new(
-        sqruff_lib::core::config::FluffConfig::default(),
-        None,
-        None,
-        false,
+    let engine = Engine::new(
+        FluffConfig::default(),
+        EngineOptions {
+            parse_errors: ParseErrors::Suppress,
+        },
     )
     .unwrap();
     for (name, source) in passes {
-        let tables = Tables::default();
-        let parsed = linter.parse_string(&tables, &source, None).unwrap();
-
         c.bench_function(name, |b| {
-            b.iter(|| black_box(linter.lint_parsed(&tables, parsed.clone(), true)));
+            b.iter_custom(|iters| {
+                let mut elapsed = Duration::ZERO;
+
+                for _ in 0..iters {
+                    let parsed = engine
+                        .parse_for_fix(Source {
+                            id: SourceId::Virtual(name.into()),
+                            text: source.as_str().into(),
+                        })
+                        .unwrap();
+
+                    let start = std::time::Instant::now();
+                    let report = engine.fix_parsed(parsed).unwrap();
+                    black_box(report);
+                    elapsed += start.elapsed();
+                }
+
+                elapsed
+            });
         });
     }
 }

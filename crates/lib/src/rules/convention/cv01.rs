@@ -1,11 +1,10 @@
-use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
@@ -23,25 +22,26 @@ enum PreferredNotEqualStyle {
 }
 
 impl Rule for RuleCV01 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        if let Some(value) = config["preferred_not_equal_style"].as_string() {
-            let preferred_not_equal_style = match value {
-                "consistent" => PreferredNotEqualStyle::Consistent,
-                "c_style" => PreferredNotEqualStyle::CStyle,
-                "ansi" => PreferredNotEqualStyle::Ansi,
-                _ => {
-                    return Err(format!(
-                        "Invalid value for preferred_not_equal_style: {value}"
-                    ));
-                }
-            };
-            Ok(RuleCV01 {
-                preferred_not_equal_style,
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
+        let preferred_not_equal_style = match config
+            .convention
+            .not_equal
+            .preferred_not_equal_style
+            .as_str()
+        {
+            "consistent" => PreferredNotEqualStyle::Consistent,
+            "c_style" => PreferredNotEqualStyle::CStyle,
+            "ansi" => PreferredNotEqualStyle::Ansi,
+            value => {
+                return Err(format!(
+                    "Invalid value for preferred_not_equal_style: {value}"
+                ));
             }
-            .erased())
-        } else {
-            Err("Missing value for preferred_not_equal_style".to_string())
+        };
+        Ok(RuleCV01 {
+            preferred_not_equal_style,
         }
+        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -171,7 +171,6 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::ComparisonOperator]) })
-            .into()
+        SegmentSeeker::new(const { SyntaxSet::new(&[SyntaxKind::ComparisonOperator]) }).into()
     }
 }

@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use itertools::Itertools;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
@@ -12,9 +12,9 @@ use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::analysis::query::Query;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Clone, Default)]
@@ -299,12 +299,17 @@ fn validate_one_reference(
 }
 
 impl Rule for RuleRF03 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleRF03 {
-            single_table_references: config
-                .get("single_table_references")
-                .and_then(|it| it.as_string().map(ToString::to_string)),
-            force_enable: config["force_enable"].as_bool().unwrap(),
+            single_table_references: Some(
+                config
+                    .references
+                    .consistent
+                    .single_table_references
+                    .as_str()
+                    .to_owned(),
+            ),
+            force_enable: config.references.consistent.force_enable,
         }
         .erased())
     }
@@ -363,12 +368,10 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let single_table_references =
-            self.single_table_references.as_deref().unwrap_or_else(|| {
-                context.config.raw["rules"]["single_table_references"]
-                    .as_string()
-                    .unwrap()
-            });
+        let single_table_references = self
+            .single_table_references
+            .as_deref()
+            .unwrap_or("consistent");
 
         let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
         let mut visited: HashSet<ErasedSegment> = HashSet::new();
@@ -388,7 +391,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(
+        SegmentSeeker::new(
             const {
                 SyntaxSet::new(&[
                     SyntaxKind::SelectStatement,

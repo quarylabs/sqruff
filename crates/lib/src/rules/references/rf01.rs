@@ -12,9 +12,9 @@ use sqruff_lib_core::parser::segments::object_reference::{
 };
 use sqruff_lib_core::utils::analysis::query::{Query, QueryInner, Selectable};
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
+use crate::core::rules::crawlers::{Crawler, SegmentSeeker};
 use crate::core::rules::reference::object_ref_matches_table;
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
@@ -192,9 +192,9 @@ impl RuleRF01 {
 }
 
 impl Rule for RuleRF01 {
-    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleRF01 {
-            force_enable: config["force_enable"].as_bool().unwrap(),
+            force_enable: config.references.from.force_enable,
         }
         .erased())
     }
@@ -286,7 +286,7 @@ FROM foo
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(
+        SegmentSeeker::new(
             const {
                 SyntaxSet::new(&[
                     SyntaxKind::DeleteStatement,

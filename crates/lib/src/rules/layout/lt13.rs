@@ -1,19 +1,18 @@
-use hashbrown::HashMap;
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
-use crate::core::config::Value;
+use crate::config::RuleConfigs;
 use crate::core::rules::context::RuleContext;
-use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
+use crate::core::rules::crawlers::{Crawler, RootOnly};
 use crate::core::rules::{Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups};
 
 #[derive(Debug, Default, Clone)]
 pub struct RuleLT13;
 
 impl Rule for RuleLT13 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn load_from_config(&self, _config: &RuleConfigs) -> Result<ErasedRule, String> {
         Ok(RuleLT13.erased())
     }
 
@@ -127,6 +126,6 @@ Start file on either code or comment. (The ^ represents the beginning of the fil
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        RootOnlyCrawler.into()
+        RootOnly.into()
     }
 }

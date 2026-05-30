@@ -8,7 +8,7 @@ use tempfile::TempDir;
 /// These tests verify that sqruff properly logs ignore behavior when verbose mode is enabled.
 /// The tests check different verbosity levels and ensure that ignored directories and files
 /// are logged appropriately with the specific patterns that caused the exclusion.
-
+///
 /// Test that ignored directories are logged when verbose mode is enabled
 #[test]
 fn test_verbose_logging_ignored_directories() {

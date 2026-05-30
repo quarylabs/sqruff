@@ -454,12 +454,18 @@ fn file_uri_to_path(uri: &Uri) -> Option<PathBuf> {
             return Some(PathBuf::from(path.replace('/', "\\")));
         }
 
-        #[cfg(not(target_os = "windows"))]
+        #[cfg(target_family = "unix")]
         {
             use std::ffi::OsStr;
             use std::os::unix::ffi::OsStrExt;
 
             return Some(PathBuf::from(OsStr::from_bytes(path.as_ref())));
+        }
+
+        #[cfg(not(any(target_os = "windows", target_family = "unix")))]
+        {
+            let path = String::from_utf8(path.into_owned()).ok()?;
+            return Some(PathBuf::from(path));
         }
     }
 

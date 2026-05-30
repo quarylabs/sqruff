@@ -128,9 +128,8 @@ impl LanguageServer {
         let config = load_config(workspace_root.as_deref());
 
         #[cfg(not(target_arch = "wasm32"))]
-        let workspace_root = workspace_root.unwrap_or_else(|| {
-            std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
-        });
+        let workspace_root = workspace_root
+            .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
 
         #[cfg(target_arch = "wasm32")]
         let _ = workspace_root;

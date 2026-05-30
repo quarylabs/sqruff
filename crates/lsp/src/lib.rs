@@ -424,6 +424,44 @@ fn workspace_root_from_initialize(_params: &InitializeParams) -> Option<PathBuf>
 }
 
 fn file_uri_to_path(uri: &Uri) -> Option<PathBuf> {
+    if uri
+        .scheme()
+        .is_some_and(|scheme| scheme.eq_lowercase("file"))
+    {
+        if let Some(authority) = uri.authority() {
+            let host = authority.host().as_str();
+            if !host.is_empty() && !host.eq_ignore_ascii_case("localhost") {
+                return None;
+            }
+        }
+
+        let path = uri.path().as_estr().decode().into_bytes();
+
+        #[cfg(target_os = "windows")]
+        {
+            let path = String::from_utf8(path.into_owned()).ok()?;
+            let path = if path.starts_with('/')
+                && path
+                    .as_bytes()
+                    .get(2)
+                    .is_some_and(|character| *character == b':')
+            {
+                &path[1..]
+            } else {
+                path.as_str()
+            };
+            return Some(PathBuf::from(path.replace('/', "\\")));
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            use std::ffi::OsStr;
+            use std::os::unix::ffi::OsStrExt;
+
+            return Some(PathBuf::from(OsStr::from_bytes(path.as_ref())));
+        }
+    }
+
     let uri = uri.as_str();
     let path = uri.strip_prefix("file://")?;
     let path = percent_decode(path)?;
@@ -647,5 +685,23 @@ mod tests {
             lsp.format(uri).is_empty(),
             "ignored files should not receive formatting edits",
         );
+    }
+
+    #[test]
+    fn file_uri_with_localhost_authority_is_supported() {
+        let uri: Uri = if cfg!(windows) {
+            "file://localhost/C:/tmp/sqruff.sql".parse().unwrap()
+        } else {
+            "file://localhost/tmp/sqruff.sql".parse().unwrap()
+        };
+
+        let path = file_uri_to_path(&uri).unwrap();
+        assert!(path.ends_with("sqruff.sql"));
+    }
+
+    #[test]
+    fn file_uri_with_non_local_authority_is_rejected() {
+        let uri: Uri = "file://example.com/tmp/sqruff.sql".parse().unwrap();
+        assert!(file_uri_to_path(&uri).is_none());
     }
 }

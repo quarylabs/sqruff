@@ -40,7 +40,6 @@ WASM_CRATE_NAMES = [
     "configparser",
     "fancy-regex",
     "hashbrown",
-    "ignore",
     "indexmap",
     "itertools",
     "lazy-regex",

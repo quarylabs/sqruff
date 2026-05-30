@@ -434,7 +434,7 @@ cargo_test(
     srcs = [":cargo_srcs"],
     tools = ["@cargo_hack//:cargo-hack"],
     vendor = ":cargo_deps",
-    script = "cargo hack check --each-feature --exclude-features=codegen-docs --offline",
+    script = "cargo hack check --each-feature --exclude-features=codegen-docs --ignore-unknown-features --offline",
 )
 
 # Zensical docs build - verify documentation builds successfully

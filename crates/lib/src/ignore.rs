@@ -5,13 +5,13 @@ use std::path::Path;
 /// determine which files to ignore.
 const IGNORE_FILE_NAME: &str = ".sqruffignore";
 
-pub(crate) struct IgnoreFile {
+pub struct IgnoreFile {
     ignore: Gitignore,
 }
 
 impl IgnoreFile {
     /// Create a new instance of `IgnoreFile` from the root of the project.
-    pub(crate) fn new_from_root(root: &Path) -> Result<Self, String> {
+    pub fn new_from_root(root: &Path) -> Result<Self, String> {
         let ignore_file = root.join(IGNORE_FILE_NAME);
         if ignore_file.exists() {
             let ignore = Gitignore::new(ignore_file);
@@ -20,14 +20,18 @@ impl IgnoreFile {
                 (_, Some(err)) => Err(err.to_string()),
             }
         } else {
-            Ok(IgnoreFile {
-                ignore: Gitignore::empty(),
-            })
+            Ok(Self::empty())
+        }
+    }
+
+    pub fn empty() -> Self {
+        Self {
+            ignore: Gitignore::empty(),
         }
     }
 
     /// Check if the given path should be ignored.
-    pub(crate) fn is_ignored(&self, path: &Path) -> bool {
+    pub fn is_ignored(&self, path: &Path) -> bool {
         let is_dir = path.is_dir();
         let match_result = self.ignore.matched(path, is_dir);
         let is_ignored = match_result.is_ignore();
@@ -40,7 +44,6 @@ impl IgnoreFile {
                 path.display()
             );
 
-            // Log the specific pattern that caused the ignore if available
             if let Some(pattern) = match_result.inner() {
                 log::debug!("Matched ignore pattern: '{}'", pattern.original());
             }

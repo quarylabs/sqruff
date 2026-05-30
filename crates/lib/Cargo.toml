@@ -72,6 +72,9 @@ pyo3 = { version = "0.28.2", optional = true }
 [target.'cfg(all(any(target_arch = "wasm32", target_arch = "wasm64"), target_os = "unknown"))'.dependencies]
 getrandom = { version = "0.2", features = ["js"] }
 
+[target.'cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))'.dependencies]
+ignore = "0.4.23"
+
 [dev-dependencies]
 sqruff-lib = { path = "." }
 serde_yaml = "0.9.34"

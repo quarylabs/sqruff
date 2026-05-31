@@ -20,13 +20,22 @@ export PROJECT_ROOT="$WORKDIR"
 
 PYTHON_BIN="$VENV_DIR/bin/python3"
 
-# Dependencies were installed into this interpreter's sysconfig purelib via
-# `uv pip install --prefix`. Some relocated standalone Python builds (notably
+# Dependencies were installed via `uv pip install --prefix` into the standalone
+# interpreter's site-packages. Some relocated standalone Python builds (notably
 # on Linux) do not auto-add that directory to sys.path, which manifests as
-# "No module named pytest". Ask the interpreter where purelib lives and put it
-# on PYTHONPATH so imports resolve consistently across platforms.
-SITE_PACKAGES="$("$PYTHON_BIN" -c 'import sysconfig; print(sysconfig.get_path("purelib"))')"
-export PYTHONPATH="$SITE_PACKAGES${PYTHONPATH:+:$PYTHONPATH}"
+# "No module named pytest". Locate the installed packages directly and force
+# them onto PYTHONPATH so imports resolve consistently across platforms.
+for sp in $(find "$VENV_DIR" -type d \( -name site-packages -o -name dist-packages \) 2>/dev/null); do
+    PYTHONPATH="$sp${PYTHONPATH:+:$PYTHONPATH}"
+done
+export PYTHONPATH
+
+echo "Diagnostics: PYTHONPATH=$PYTHONPATH"
+if ! "$PYTHON_BIN" -c 'import pytest' 2>/dev/null; then
+    echo "ERROR: pytest not importable. Dumping venv layout for diagnosis:" >&2
+    find "$VENV_DIR" -maxdepth 4 -name 'pytest' -o -name '_pytest' 2>/dev/null | head >&2 || true
+    "$PYTHON_BIN" -c 'import sys, sysconfig; print("sys.prefix=", sys.prefix); print("purelib=", sysconfig.get_path("purelib")); print("sys.path=", sys.path)' >&2 || true
+fi
 
 # Run pytest using the cached venv's Python
 echo "Running pytest..."

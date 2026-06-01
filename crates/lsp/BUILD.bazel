@@ -16,7 +16,6 @@ rust_library(
 LSP_WASM_CRATE_NAMES = [
     "console_error_panic_hook",
     "hashbrown",
-    "ignore",
     "js-sys",
     "lsp-server",
     "lsp-types",

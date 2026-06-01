@@ -16,7 +16,7 @@ impl RawTemplater {
         source_id: &SourceId,
     ) -> Result<TemplatedFile, TemplaterError> {
         let f_name = source_id_name(source_id);
-        TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None).map_err(|e| {
+        TemplatedFile::new(in_str.to_string(), f_name, None, None, None).map_err(|e| {
             TemplaterError::Failed(sqruff_lib_core::errors::SQLFluffUserError::new(format!(
                 "Raw templater error: {e}"
             )))

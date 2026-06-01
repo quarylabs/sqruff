@@ -96,6 +96,7 @@ pub trait Templater: Send + Sync {
     /// Arguments:
     /// - files: Input files with source text and identity.
     /// - config: The configuration to use
+    ///
     /// Returns a vector of results in the same order as the input files.
     fn process(
         &self,

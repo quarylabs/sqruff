@@ -101,10 +101,11 @@ impl Wasm {
                 return;
             }
         };
-        if self.0.set_config(new_config).is_ok() {
-            self.0.recheck_files();
-        } else {
-            eprintln!("Invalid templater in config, keeping previous configuration");
+        match self.0.set_config(new_config) {
+            Ok(()) => self.0.recheck_files(),
+            Err(error) => {
+                eprintln!("Invalid config, keeping previous configuration: {error}");
+            }
         }
     }
 
@@ -305,10 +306,11 @@ impl LanguageServer {
                             return;
                         }
                     };
-                    if self.set_config(new_config).is_ok() {
-                        self.recheck_files();
-                    } else {
-                        eprintln!("Invalid templater in config, keeping previous configuration");
+                    match self.set_config(new_config) {
+                        Ok(()) => self.recheck_files(),
+                        Err(error) => {
+                            eprintln!("Invalid config, keeping previous configuration: {error}");
+                        }
                     }
                 } else if uri.ends_with(".sqruffignore") {
                     self.reload_ignore_file();

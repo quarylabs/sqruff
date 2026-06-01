@@ -78,10 +78,9 @@ impl OutputStreamFormatter {
             return;
         }
 
-        let mut text = self.format_filename(fname, true);
-        text.push('\n');
-        text.push_str(&format!("    SKIP | {}\n", reason.message));
-        self.dispatch(&text);
+        let filename = self.colorize(fname, LIGHT_GREY);
+        let skip = self.colorize("SKIP", AnsiColor::Yellow.on_default());
+        self.dispatch(&format!("== [{filename}] {skip}: {}\n", reason.message));
     }
 
     pub(crate) fn emit_completion(&self, count: usize) {

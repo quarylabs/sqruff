@@ -48,7 +48,6 @@ sqruff-lib-dialects.workspace = true
 fancy-regex = "0.18.0"
 itertools = "0.14.0"
 regex = "1"
-walkdir = "2.5.0"
 enum_dispatch = "0.3.13"
 indexmap.workspace = true
 common-path = "1.0.0"

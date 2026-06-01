@@ -177,13 +177,13 @@ pub fn discover_paths(
     path: &Path,
     options: &PathDiscoveryOptions<'_>,
 ) -> Result<Vec<PathBuf>, SqruffError> {
-    let path = if path.is_absolute() {
+    let resolved = if path.is_absolute() {
         path.to_path_buf()
     } else {
         options.working_dir.join(path)
     };
 
-    let Ok(metadata) = std::fs::metadata(&path) else {
+    let Ok(metadata) = std::fs::metadata(&resolved) else {
         if options.ignore_non_existent_files {
             return Ok(Vec::new());
         }
@@ -193,7 +193,7 @@ pub fn discover_paths(
     };
 
     if metadata.is_file() {
-        return Ok(vec![helpers::normalize(&path)]);
+        return Ok(vec![helpers::normalize(path)]);
     }
 
     let mut paths = BTreeSet::new();
@@ -208,8 +208,24 @@ pub fn discover_paths(
     let fallback_ignorer = ignore_file
         .as_ref()
         .map(|ignore_file| ignore_file as &dyn IgnoreMatcher);
-    collect_paths(&path, options, fallback_ignorer, &mut paths)?;
-    Ok(paths.into_iter().collect())
+    collect_paths(&resolved, options, fallback_ignorer, &mut paths)?;
+
+    // If the original path was relative, strip the working_dir prefix to preserve
+    // relative paths in the output, matching the old WalkDir-based behavior.
+    if !path.is_absolute() {
+        let prefix = helpers::normalize(&options.working_dir);
+        let stripped: Vec<PathBuf> = paths
+            .into_iter()
+            .map(|p| {
+                p.strip_prefix(&prefix)
+                    .map(|rel| rel.to_path_buf())
+                    .unwrap_or(p)
+            })
+            .collect();
+        Ok(stripped)
+    } else {
+        Ok(paths.into_iter().collect())
+    }
 }
 
 fn collect_paths(

@@ -1,5 +1,4 @@
 use hashbrown::HashMap;
-use ignore::gitignore::Gitignore;
 use lsp_server::{Connection, Message, Request, RequestId, Response};
 use lsp_types::notification::{
     DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
@@ -17,18 +16,28 @@ use serde_json::Value;
 use sqruff_lib::api::{
     Engine, EngineOptions, LintDiagnostic, ParseErrors, Source, SourceId, SqruffError,
 };
+#[cfg(not(target_arch = "wasm32"))]
+use sqruff_lib::core::config::ConfigLoader;
 use sqruff_lib::core::config::FluffConfig;
+#[cfg(not(target_arch = "wasm32"))]
+use sqruff_lib::ignore::IgnoreFile;
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 use wasm_bindgen::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
-fn load_config() -> Result<FluffConfig, SqruffError> {
-    FluffConfig::from_root(None, false, None)
+fn load_config(root: Option<&Path>) -> Result<FluffConfig, SqruffError> {
+    if let Some(root) = root {
+        let loader = ConfigLoader {};
+        let config = loader.try_load_config_up_to_path(root, None, false)?;
+        Ok(FluffConfig::new(config, None, None))
+    } else {
+        FluffConfig::from_root(None, false, None)
+    }
 }
 
 #[cfg(target_arch = "wasm32")]
-fn load_config() -> Result<FluffConfig, SqruffError> {
+fn load_config(_root: Option<&Path>) -> Result<FluffConfig, SqruffError> {
     Ok(FluffConfig::default())
 }
 
@@ -48,6 +57,10 @@ pub struct LanguageServer {
     send_diagnostics_callback: Box<dyn Fn(PublishDiagnosticsParams)>,
     documents: HashMap<Uri, String>,
     startup_config_error: Option<String>,
+    #[cfg(not(target_arch = "wasm32"))]
+    workspace_root: PathBuf,
+    #[cfg(not(target_arch = "wasm32"))]
+    ignore_file: IgnoreFile,
 }
 
 #[wasm_bindgen]
@@ -129,7 +142,24 @@ impl Wasm {
 
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
-        let (config, mut startup_config_error) = match load_config() {
+        Self::new_with_workspace_root(None, send_diagnostics_callback)
+    }
+
+    fn new_with_workspace_root(
+        workspace_root: Option<PathBuf>,
+        send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static,
+    ) -> Self {
+        #[cfg(not(target_arch = "wasm32"))]
+        let workspace_root = workspace_root
+            .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
+
+        #[cfg(not(target_arch = "wasm32"))]
+        let config_root = Some(workspace_root.as_path());
+
+        #[cfg(target_arch = "wasm32")]
+        let config_root = None;
+
+        let (config, mut startup_config_error) = match load_config(config_root) {
             Ok(config) => (config, None),
             Err(error) => {
                 let message = format!("Failed to load config, using defaults: {error}");
@@ -155,6 +185,10 @@ impl LanguageServer {
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
             documents: HashMap::new(),
             startup_config_error,
+            #[cfg(not(target_arch = "wasm32"))]
+            ignore_file: load_ignore_file(&workspace_root),
+            #[cfg(not(target_arch = "wasm32"))]
+            workspace_root,
         }
     }
 
@@ -179,6 +213,10 @@ impl LanguageServer {
     }
 
     fn format(&mut self, uri: Uri) -> Vec<lsp_types::TextEdit> {
+        if self.is_ignored(&uri) {
+            return Vec::new();
+        }
+
         let text = match self.documents.get(&uri).cloned() {
             Some(text) => text,
             None => return Vec::new(),
@@ -260,7 +298,7 @@ impl LanguageServer {
                 let uri = params.text_document.uri.as_str();
 
                 if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
-                    let new_config = match load_config() {
+                    let new_config = match self.load_workspace_config() {
                         Ok(config) => config,
                         Err(error) => {
                             eprintln!("Invalid config, keeping previous configuration: {error}");
@@ -272,6 +310,9 @@ impl LanguageServer {
                     } else {
                         eprintln!("Invalid templater in config, keeping previous configuration");
                     }
+                } else if uri.ends_with(".sqruffignore") {
+                    self.reload_ignore_file();
+                    self.recheck_files();
                 }
             }
             _ => {}
@@ -285,7 +326,7 @@ impl LanguageServer {
     }
 
     fn check_file(&self, uri: Uri, text: &str) {
-        if Self::is_ignored(&uri) {
+        if self.is_ignored(&uri) {
             let diagnostics = PublishDiagnosticsParams::new(uri.clone(), Vec::new(), None);
             (self.send_diagnostics_callback)(diagnostics);
             return;
@@ -312,41 +353,45 @@ impl LanguageServer {
         (self.send_diagnostics_callback)(diagnostics);
     }
 
-    fn is_ignored(uri: &Uri) -> bool {
-        let Some(path) = Self::uri_to_file_path(uri) else {
-            return false;
-        };
-        let Ok(root) = std::env::current_dir() else {
-            return false;
-        };
-        let ignore_file = root.join(".sqruffignore");
-        if !ignore_file.exists() {
-            return false;
-        }
-
-        let (gitignore, err) = Gitignore::new(ignore_file);
-        if err.is_some() {
-            return false;
-        }
-
-        gitignore.matched(&path, path.is_dir()).is_ignore()
-    }
-
-    fn uri_to_file_path(uri: &Uri) -> Option<PathBuf> {
-        if uri.scheme()?.as_str() != "file" {
-            return None;
-        }
-
-        let mut path = uri.path().as_str().to_string();
-        #[cfg(windows)]
+    fn is_ignored(&self, uri: &Uri) -> bool {
+        #[cfg(not(target_arch = "wasm32"))]
         {
-            if path.len() >= 3 && path.as_bytes()[0] == b'/' && path.as_bytes()[2] == b':' {
-                path.remove(0);
-            }
+            file_uri_to_path(uri).is_some_and(|path| self.ignore_file.is_ignored(&path))
         }
 
-        Some(Path::new(&path).to_path_buf())
+        #[cfg(target_arch = "wasm32")]
+        {
+            let _ = uri;
+            false
+        }
     }
+
+    fn load_workspace_config(&self) -> Result<FluffConfig, SqruffError> {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            load_config(Some(&self.workspace_root))
+        }
+
+        #[cfg(target_arch = "wasm32")]
+        {
+            load_config(None)
+        }
+    }
+
+    fn reload_ignore_file(&mut self) {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            self.ignore_file = load_ignore_file(&self.workspace_root);
+        }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn load_ignore_file(root: &Path) -> IgnoreFile {
+    IgnoreFile::new_from_root(root).unwrap_or_else(|err| {
+        eprintln!("Failed to load .sqruffignore: {err}");
+        IgnoreFile::empty()
+    })
 }
 
 pub fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -363,9 +408,10 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn main_loop(connection: Connection, _init_param: InitializeParams) {
+fn main_loop(connection: Connection, init_param: InitializeParams) {
     let sender = connection.sender.clone();
-    let mut lsp = LanguageServer::new(move |diagnostics| {
+    let workspace_root = workspace_root_from_initialize(&init_param);
+    let mut lsp = LanguageServer::new_with_workspace_root(workspace_root, move |diagnostics| {
         let notification = new_notification::<PublishDiagnostics>(diagnostics);
         if let Err(e) = sender.send(Message::Notification(notification)) {
             eprintln!("Failed to send diagnostics notification: {e}");
@@ -404,6 +450,125 @@ fn main_loop(connection: Connection, _init_param: InitializeParams) {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+fn workspace_root_from_initialize(params: &InitializeParams) -> Option<PathBuf> {
+    params
+        .workspace_folders
+        .as_ref()
+        .and_then(|folders| folders.first())
+        .and_then(|folder| file_uri_to_path(&folder.uri))
+        .or_else(|| {
+            #[allow(deprecated)]
+            params.root_uri.as_ref().and_then(file_uri_to_path)
+        })
+        .or_else(|| {
+            #[allow(deprecated)]
+            params.root_path.as_ref().map(PathBuf::from)
+        })
+}
+
+#[cfg(target_arch = "wasm32")]
+fn workspace_root_from_initialize(_params: &InitializeParams) -> Option<PathBuf> {
+    None
+}
+
+fn file_uri_to_path(uri: &Uri) -> Option<PathBuf> {
+    if uri
+        .scheme()
+        .is_some_and(|scheme| scheme.eq_lowercase("file"))
+    {
+        if let Some(authority) = uri.authority() {
+            let host = authority.host().as_str();
+            if !host.is_empty() && !host.eq_ignore_ascii_case("localhost") {
+                return None;
+            }
+        }
+
+        let path = uri.path().as_estr().decode().into_bytes();
+
+        #[cfg(target_os = "windows")]
+        {
+            let path = String::from_utf8(path.into_owned()).ok()?;
+            let path = if path.starts_with('/')
+                && path
+                    .as_bytes()
+                    .get(2)
+                    .is_some_and(|character| *character == b':')
+            {
+                &path[1..]
+            } else {
+                path.as_str()
+            };
+            return Some(PathBuf::from(path.replace('/', "\\")));
+        }
+
+        #[cfg(target_family = "unix")]
+        {
+            use std::ffi::OsStr;
+            use std::os::unix::ffi::OsStrExt;
+
+            return Some(PathBuf::from(OsStr::from_bytes(path.as_ref())));
+        }
+
+        #[cfg(not(any(target_os = "windows", target_family = "unix")))]
+        {
+            let path = String::from_utf8(path.into_owned()).ok()?;
+            return Some(PathBuf::from(path));
+        }
+    }
+
+    let uri = uri.as_str();
+    let path = uri.strip_prefix("file://")?;
+    let path = percent_decode(path)?;
+
+    #[cfg(target_os = "windows")]
+    {
+        let path = if path.starts_with('/')
+            && path
+                .as_bytes()
+                .get(2)
+                .is_some_and(|character| *character == b':')
+        {
+            &path[1..]
+        } else {
+            path.as_str()
+        };
+
+        return Some(PathBuf::from(path.replace('/', "\\")));
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Some(PathBuf::from(path))
+    }
+}
+
+fn percent_decode(input: &str) -> Option<String> {
+    let mut output = Vec::with_capacity(input.len());
+    let mut bytes = input.as_bytes().iter().copied();
+
+    while let Some(byte) = bytes.next() {
+        if byte == b'%' {
+            let high = bytes.next()?;
+            let low = bytes.next()?;
+            output.push((hex_value(high)? << 4) | hex_value(low)?);
+        } else {
+            output.push(byte);
+        }
+    }
+
+    String::from_utf8(output).ok()
+}
+
+fn hex_value(byte: u8) -> Option<u8> {
+    match byte {
+        b'0'..=b'9' => Some(byte - b'0'),
+        b'a'..=b'f' => Some(byte - b'a' + 10),
+        b'A'..=b'F' => Some(byte - b'A' + 10),
+        _ => None,
+    }
+}
+
 pub fn save_registration_options() -> lsp_types::RegistrationParams {
     let save_registration_options = lsp_types::TextDocumentSaveRegistrationOptions {
         include_text: false.into(),
@@ -418,6 +583,11 @@ pub fn save_registration_options() -> lsp_types::RegistrationParams {
                     language: None,
                     scheme: None,
                     pattern: Some("**/.sqruff".into()),
+                },
+                lsp_types::DocumentFilter {
+                    language: None,
+                    scheme: None,
+                    pattern: Some("**/.sqruffignore".into()),
                 },
             ]),
         },
@@ -464,8 +634,7 @@ fn to_lsp_diagnostic(diag: &LintDiagnostic, source: &str) -> Diagnostic {
 }
 
 fn source_id_from_uri(uri: &Uri) -> SourceId {
-    LanguageServer::uri_to_file_path(uri)
-        .map_or_else(|| SourceId::Virtual(uri.to_string()), SourceId::Path)
+    file_uri_to_path(uri).map_or_else(|| SourceId::Virtual(uri.to_string()), SourceId::Path)
 }
 
 fn build_full_document_edit(old_text: &str, new_text: String) -> Vec<lsp_types::TextEdit> {

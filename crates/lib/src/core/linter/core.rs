@@ -14,6 +14,7 @@ use crate::templaters::{
 };
 use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
+use rayon::prelude::*;
 use smol_str::{SmolStr, ToSmolStr};
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -358,19 +359,13 @@ impl Linter {
 
         let outputs = match self.templater.processing_mode() {
             ProcessingMode::Batch => self.process_templater_batch(&normalized_sources, config),
-            ProcessingMode::Parallel | ProcessingMode::Sequential => normalized_sources
+            ProcessingMode::Parallel => normalized_sources
+                .par_iter()
+                .map(|source| self.process_templater_single(source, config))
+                .collect::<Result<Vec<_>, _>>(),
+            ProcessingMode::Sequential => normalized_sources
                 .iter()
-                .map(|source| {
-                    self.process_templater_batch(std::slice::from_ref(source), config)
-                        .and_then(|mut rendered| {
-                            rendered.pop().ok_or_else(|| {
-                                TemplaterError::Failed(SQLFluffUserError::new(format!(
-                                    "Templater returned no results for file {}",
-                                    source_id_name(&source.id)
-                                )))
-                            })
-                        })
-                })
+                .map(|source| self.process_templater_single(source, config))
                 .collect::<Result<Vec<_>, _>>(),
         }?;
 
@@ -383,6 +378,22 @@ impl Linter {
         }
 
         Ok(outputs)
+    }
+
+    fn process_templater_single(
+        &self,
+        source: &NormalizedSource,
+        config: &FluffConfig,
+    ) -> Result<RenderedSource, TemplaterError> {
+        self.process_templater_batch(std::slice::from_ref(source), config)
+            .and_then(|mut rendered| {
+                rendered.pop().ok_or_else(|| {
+                    TemplaterError::Failed(SQLFluffUserError::new(format!(
+                        "Templater returned no results for file {}",
+                        source_id_name(&source.id)
+                    )))
+                })
+            })
     }
 
     fn process_templater_batch(

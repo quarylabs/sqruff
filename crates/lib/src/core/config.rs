@@ -186,7 +186,8 @@ impl FluffConfig {
         );
 
         let mut defaults = HashMap::new();
-        ConfigLoader::incorporate_vals(&mut defaults, values);
+        ConfigLoader::incorporate_vals(&mut defaults, values)
+            .expect("built-in default config must be valid");
 
         let mut configs = nested_combine(defaults, configs);
 
@@ -493,7 +494,7 @@ impl ConfigLoader {
     ) -> Result<HashMap<String, Value>, SqruffError> {
         let mut configs = HashMap::new();
         let elems = ConfigLoader::try_get_config_elems_from_file(path, Some(source))?;
-        ConfigLoader::incorporate_vals(&mut configs, elems);
+        ConfigLoader::incorporate_vals(&mut configs, elems)?;
         Ok(configs)
     }
 
@@ -505,7 +506,7 @@ impl ConfigLoader {
         else {
             return;
         };
-        ConfigLoader::incorporate_vals(configs, elems);
+        let _ = ConfigLoader::incorporate_vals(configs, elems);
     }
 
     pub fn try_load_config_file(
@@ -513,7 +514,7 @@ impl ConfigLoader {
         configs: &mut HashMap<String, Value>,
     ) -> Result<(), SqruffError> {
         let elems = ConfigLoader::try_get_config_elems_from_file(path.as_ref().into(), None)?;
-        ConfigLoader::incorporate_vals(configs, elems);
+        ConfigLoader::incorporate_vals(configs, elems)?;
         Ok(())
     }
 
@@ -605,34 +606,48 @@ impl ConfigLoader {
         Ok(buff)
     }
 
-    fn incorporate_vals(ctx: &mut HashMap<String, Value>, values: Vec<(Vec<String>, Value)>) {
+    fn incorporate_vals(
+        ctx: &mut HashMap<String, Value>,
+        values: Vec<(Vec<String>, Value)>,
+    ) -> Result<(), SqruffError> {
         for (path, value) in values {
-            insert_config_path(ctx, &path, value);
+            insert_config_path(ctx, &path, value)?;
         }
+        Ok(())
     }
 }
 
-fn insert_config_path(ctx: &mut HashMap<String, Value>, path: &[String], value: Value) {
+fn insert_config_path(
+    ctx: &mut HashMap<String, Value>,
+    path: &[String],
+    value: Value,
+) -> Result<(), SqruffError> {
     let Some((key, rest)) = path.split_first() else {
-        return;
+        return Ok(());
     };
 
     if rest.is_empty() {
         ctx.insert(key.to_string(), value);
-        return;
+        return Ok(());
     }
 
     let entry = ctx
         .entry(key.to_string())
         .or_insert_with(|| Value::Map(HashMap::new()));
     if entry.as_map().is_none() {
-        *entry = Value::Map(HashMap::new());
+        return Err(SqruffError::Config(format!(
+            "overriding config value with section at '{}'",
+            path.join(":")
+        )));
     }
     let Some(child) = entry.as_map_mut() else {
-        return;
+        return Err(SqruffError::Config(format!(
+            "config path '{}' must contain only sections before the final value",
+            path.join(":")
+        )));
     };
 
-    insert_config_path(child, rest, value);
+    insert_config_path(child, rest, value)
 }
 
 fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, Value> {
@@ -805,5 +820,28 @@ project_dir = 1
 
         assert!(matches!(err, SqruffError::Config(_)));
         assert!(err.to_string().contains("invalid path value"));
+    }
+
+    #[test]
+    fn insert_config_path_rejects_scalar_section_conflicts() {
+        let mut config = HashMap::new();
+        insert_config_path(
+            &mut config,
+            &["core".to_string()],
+            Value::String("not a table".into()),
+        )
+        .unwrap();
+
+        let err = insert_config_path(
+            &mut config,
+            &["core".to_string(), "dialect".to_string()],
+            Value::String("ansi".into()),
+        )
+        .unwrap_err();
+
+        assert!(
+            err.to_string()
+                .contains("overriding config value with section")
+        );
     }
 }

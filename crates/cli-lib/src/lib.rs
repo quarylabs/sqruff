@@ -1,6 +1,7 @@
 use clap::Parser as _;
 use sqruff_lib::api::ParseErrors;
 use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::ignore::IgnoreFile;
 use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
 use std::sync::Arc;
@@ -22,7 +23,6 @@ mod commands_templaters;
 mod docs;
 mod formatters;
 mod github_action;
-mod ignore;
 mod logger;
 mod reporters;
 mod stdin;
@@ -89,7 +89,7 @@ where
     }
 
     let current_path = std::env::current_dir().unwrap();
-    let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();
+    let ignore_file = IgnoreFile::new_from_root(&current_path).unwrap();
     let ignore_file = Arc::new(ignore_file);
     let ignorer = {
         let ignore_file = Arc::clone(&ignore_file);

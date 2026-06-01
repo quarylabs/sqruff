@@ -54,7 +54,6 @@ WASM_CRATE_NAMES = [
     "smol_str",
     "strum",
     "thiserror",
-    "walkdir",
 ]
 
 WASM_PROC_MACRO_CRATE_NAMES = [

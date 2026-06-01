@@ -382,17 +382,15 @@ impl Linter {
         let mut results = self.templater.process(std::slice::from_ref(&input), config);
 
         match results.pop() {
-            Some(Ok(TemplaterOutput::Rendered(templated_file))) => {
-                Ok(RenderedSource::Rendered {
-                    source_id: source_id.clone(),
-                    rendered: RenderedFile {
-                        templated_file,
-                        templater_violations: Vec::new(),
-                        filename: source_id_name(source_id),
-                        source_str: sql.into_owned(),
-                    },
-                })
-            }
+            Some(Ok(TemplaterOutput::Rendered(templated_file))) => Ok(RenderedSource::Rendered {
+                source_id: source_id.clone(),
+                rendered: RenderedFile {
+                    templated_file,
+                    templater_violations: Vec::new(),
+                    filename: source_id_name(source_id),
+                    source_str: sql.into_owned(),
+                },
+            }),
             Some(Ok(TemplaterOutput::Skipped(reason))) => Ok(RenderedSource::Skipped {
                 source_id: source_id.clone(),
                 reason,

@@ -513,6 +513,12 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "DATEFIRST",
         "DATEFORMAT",
         "DELAYED_DURABILITY",
+        // CREATE EXTERNAL DATA SOURCE (#4634)
+        "SOURCE",
+        "LOCATION",
+        "USER_DB",
+        "CONNECTION_OPTIONS",
+        "PUSHDOWN",
         // Function names that can be used as identifiers
         "NEWID",
         // T-SQL priority and format values

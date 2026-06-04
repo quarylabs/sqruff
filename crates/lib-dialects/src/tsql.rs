@@ -831,6 +831,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateTriggerStatementSegment").to_matchable(),
             Ref::new("DropTriggerStatementSegment").to_matchable(),
             Ref::new("CreateDatabaseScopedCredentialStatementSegment").to_matchable(),
+            Ref::new("CreateExternalDataSourceStatementSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),
@@ -858,6 +859,92 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("QuotedLiteralSegment").to_matchable(),
                 ])
                 .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // A quoted literal optionally prefixed with N (e.g. 'foo' or N'foo').
+    // sqruff lexes N'foo' as two tokens, so mirror the existing TSQL pattern.
+    dialect.add([(
+        "QuotedLiteralSegmentOptWithN".into(),
+        one_of(vec![
+            Ref::new("QuotedLiteralSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("NakedIdentifierSegment").to_matchable(), // N prefix
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // `LOCATION = ...` clause, used by external tables and external data sources.
+    dialect.add([(
+        "TableLocationClause".into(),
+        NodeMatcher::new(SyntaxKind::TableLocationClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("LOCATION").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("USER_DB").to_matchable(), // Azure Synapse Analytics specific
+                    Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // CREATE EXTERNAL DATA SOURCE statement
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-data-source-transact-sql
+    dialect.add([(
+        "CreateExternalDataSourceStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateExternalDataSourceStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("EXTERNAL").to_matchable(),
+                Ref::keyword("DATA").to_matchable(),
+                Ref::keyword("SOURCE").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Ref::keyword("WITH").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("TableLocationClause").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CONNECTION_OPTIONS").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CREDENTIAL").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("PUSHDOWN").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("ON").to_matchable(),
+                                Ref::keyword("OFF").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
                 .to_matchable(),
             ])
             .to_matchable()

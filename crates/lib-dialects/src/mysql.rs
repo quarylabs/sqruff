@@ -3,7 +3,9 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, any_set_of, one_of};
+use sqruff_lib_core::parser::grammar::anyof::{
+    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
+};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -2825,7 +2827,8 @@ pub fn raw_dialect() -> Dialect {
                     .optional()
                     .to_matchable(),
                 Ref::keyword("AS").to_matchable(),
-                Ref::new("SelectStatementSegment").to_matchable(),
+                optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
+                    .to_matchable(),
                 Ref::new("WithCheckOptionSegment").optional().to_matchable(),
             ])
             .to_matchable()
@@ -2870,7 +2873,8 @@ pub fn raw_dialect() -> Dialect {
                 .optional()
                 .to_matchable(),
             Ref::keyword("AS").to_matchable(),
-            Ref::new("SelectStatementSegment").to_matchable(),
+            optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
+                .to_matchable(),
             Ref::new("WithCheckOptionSegment").optional().to_matchable(),
         ])
         .to_matchable(),

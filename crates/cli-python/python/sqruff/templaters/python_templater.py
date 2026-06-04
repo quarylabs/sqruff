@@ -44,8 +44,10 @@ class FormatterInterface:
 
 
 class SQLTemplaterError(Exception):
-    def __init__(self, message):
+    def __init__(self, message, line_no: Optional[int] = None, line_pos: Optional[int] = None):
         self.message = message
+        self.line_no = line_no
+        self.line_pos = line_pos
 
 
 def zero_slice(i: int) -> slice:

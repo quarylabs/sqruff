@@ -215,7 +215,6 @@ fails_trailing_with_comments:
   configs: *operator_before
 
 passes_templated_newline:
-  ignored: "jinja is not set"
   pass_str: |
     {% macro binary_literal(expression) %}
       X'{{ expression }}'
@@ -226,9 +225,11 @@ passes_templated_newline:
     from my_table
     where
         a = {{ binary_literal("0000") }}
+  configs:
+    core:
+      templater: jinja
 
 fails_templated_code_non_templated_newline:
-  ignored: "jinja is not supported"
   fail_str: |
     {% macro binary_literal(expression) %}
       X'{{ expression }}'
@@ -240,6 +241,9 @@ fails_templated_code_non_templated_newline:
     where
         a =
             {{ binary_literal("0000") }}
+  configs:
+    core:
+      templater: jinja
 
 passes_operator_alone_on_line:
   # Special case: An operator on a line by itself is always okay.
@@ -252,7 +256,6 @@ passes_operator_alone_on_line:
 fixes_tuple_error_issue:
   # https://github.com/sqlfluff/sqlfluff/issues/4184
   # NB: This one isn't fixable.
-  ignored: "jinja is not supported"
   fail_str: |
     select * from foo
     where c is not null and -- comment
@@ -261,5 +264,7 @@ fixes_tuple_error_issue:
         {% endif %}
         true
   configs:
+    core:
+      templater: jinja
     indentation:
       template_blocks_indent: false

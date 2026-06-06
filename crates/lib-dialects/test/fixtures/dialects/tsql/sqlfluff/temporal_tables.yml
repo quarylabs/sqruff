@@ -1,0 +1,65 @@
+file:
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Department
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: DeptID
+          - data_type:
+            - data_type_identifier: INT
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+        - comma: ','
+        - column_definition:
+          - naked_identifier: DeptName
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '50'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: ValidFrom
+          - data_type:
+            - data_type_identifier: DATETIME2
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: ValidTo
+          - data_type:
+            - data_type_identifier: DATETIME2
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - period_segment:
+          - keyword: PERIOD
+          - keyword: FOR
+          - keyword: SYSTEM_TIME
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: ValidFrom
+            - comma: ','
+            - column_reference:
+              - naked_identifier: ValidTo
+            - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;

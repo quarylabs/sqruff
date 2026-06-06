@@ -23,17 +23,17 @@
     "monaco-editor": "^0.55.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "react-resizable-panels": "^4.0.16"
+    "react-resizable-panels": "^4.11.2"
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
-    "@tailwindcss/postcss": "^4.2.2",
+    "@tailwindcss/postcss": "^4.3.0",
     "@types/lodash-es": "^4.17.12",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react-swc": "^4.3.0",
     "autoprefixer": "^10.4.27",
-    "postcss": "^8.5.13",
+    "postcss": "^8.5.15",
     "tailwindcss": "^4.2.2",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:",

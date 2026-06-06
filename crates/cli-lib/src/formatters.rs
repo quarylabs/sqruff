@@ -1,15 +1,16 @@
-pub(crate) mod github_annotation_native_formatter;
-pub(crate) mod json;
 pub(crate) mod json_types;
 pub(crate) mod rules;
 pub(crate) mod utils;
 
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::io::{Stderr, Write};
+use std::sync::OnceLock;
 
 use anstyle::{AnsiColor, Effects, Style};
-use sqruff_lib::Formatter;
-use sqruff_lib::core::linter::linted_file::LintedFile;
+use sqruff_lib::api::{LintDiagnostic, SkipReason};
+use sqruff_lib::rules as sqruff_rules;
+#[cfg(test)]
 use sqruff_lib_core::errors::SQLBaseError;
 
 use crate::formatters::utils::{
@@ -18,42 +19,26 @@ use crate::formatters::utils::{
 
 const LIGHT_GREY: Style = AnsiColor::Black.on_default().effects(Effects::BOLD);
 
+fn rule_name_for_code(code: &str) -> Option<&'static str> {
+    static RULE_NAMES: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+
+    RULE_NAMES
+        .get_or_init(|| {
+            sqruff_rules::rules()
+                .into_iter()
+                .map(|rule| (rule.code(), rule.name()))
+                .collect()
+        })
+        .get(code)
+        .copied()
+}
+
 pub(crate) struct OutputStreamFormatter {
     output_stream: Option<Stderr>,
     plain_output: bool,
     filter_empty: bool,
     verbosity: i32,
     output_line_length: usize,
-}
-
-impl Formatter for OutputStreamFormatter {
-    fn dispatch_file_violations(&self, linted_file: &LintedFile) {
-        if self.verbosity < 0 {
-            return;
-        }
-
-        let s = self.format_file_violations(linted_file.path(), linted_file.violations());
-
-        self.dispatch(&s);
-    }
-
-    fn dispatch_file_skip(&self, fname: &str, reason: &str) {
-        if self.verbosity < 0 {
-            return;
-        }
-        let filename = self.colorize(fname, LIGHT_GREY);
-        let skip = self.colorize("SKIP", AnsiColor::Yellow.on_default());
-        self.dispatch(&format!("== [{filename}] {skip}: {reason}\n"));
-    }
-
-    fn completion_message(&self, count: usize) {
-        self.dispatch(&format!("The linter processed {count} file(s).\n"));
-        self.dispatch(if self.plain_output {
-            "All Finished\n"
-        } else {
-            "All Finished 📜 🎉\n"
-        });
-    }
 }
 
 impl OutputStreamFormatter {
@@ -79,10 +64,38 @@ impl OutputStreamFormatter {
         }
     }
 
-    fn format_file_violations(&self, fname: &str, violations: &[SQLBaseError]) -> String {
+    pub(crate) fn dispatch_file_diagnostics(&self, fname: &str, diagnostics: &[LintDiagnostic]) {
+        if self.verbosity < 0 {
+            return;
+        }
+
+        let s = self.format_file_diagnostics(fname, diagnostics);
+        self.dispatch(&s);
+    }
+
+    pub(crate) fn dispatch_file_skip(&self, fname: &str, reason: &SkipReason) {
+        if self.verbosity < 0 {
+            return;
+        }
+
+        let filename = self.colorize(fname, LIGHT_GREY);
+        let skip = self.colorize("SKIP", AnsiColor::Yellow.on_default());
+        self.dispatch(&format!("== [{filename}] {skip}: {}\n", reason.message));
+    }
+
+    pub(crate) fn emit_completion(&self, count: usize) {
+        self.dispatch(&format!("The linter processed {count} file(s).\n"));
+        self.dispatch(if self.plain_output {
+            "All Finished\n"
+        } else {
+            "All Finished 📜 🎉\n"
+        });
+    }
+
+    fn format_file_diagnostics(&self, fname: &str, diagnostics: &[LintDiagnostic]) -> String {
         let mut text_buffer = String::new();
 
-        let show = !violations.is_empty();
+        let show = !diagnostics.is_empty();
 
         if self.verbosity > 0 || show {
             let text = self.format_filename(fname, !show);
@@ -91,8 +104,8 @@ impl OutputStreamFormatter {
         }
 
         if show {
-            for violation in violations {
-                let text = self.format_violation(violation, self.output_line_length);
+            for diagnostic in diagnostics {
+                let text = self.format_diagnostic(diagnostic, self.output_line_length);
                 text_buffer.push_str(&text);
                 text_buffer.push('\n');
             }
@@ -120,6 +133,7 @@ impl OutputStreamFormatter {
         format!("== [{filename}] {status}")
     }
 
+    #[cfg(test)]
     fn format_violation(&self, violation: &SQLBaseError, max_line_length: usize) -> String {
         let mut desc = violation.desc().to_string();
 
@@ -139,6 +153,47 @@ impl OutputStreamFormatter {
         for (idx, line) in split_desc.into_iter().enumerate() {
             if idx == 0 {
                 let rule_code = format!("{:>4}", violation.rule_code());
+
+                if rule_code.contains("PRS") {
+                    section_color = AnsiColor::Red.on_default();
+                }
+
+                let section = format!("L:{line_elem} | P:{pos_elem} | {rule_code} | ");
+                let section = self.colorize(&section, section_color);
+                out_buff.push_str(&section);
+            } else {
+                out_buff.push_str(&format!(
+                    "\n{}{}",
+                    " ".repeat(23),
+                    self.colorize("| ", section_color),
+                ));
+            }
+            out_buff.push_str(line);
+        }
+
+        out_buff
+    }
+
+    fn format_diagnostic(&self, diagnostic: &LintDiagnostic, max_line_length: usize) -> String {
+        let mut desc = diagnostic.message.clone();
+
+        let line_elem = format!("{:4}", diagnostic.line);
+        let pos_elem = format!("{:4}", diagnostic.column);
+        let code = diagnostic.code.as_deref().unwrap_or("????");
+
+        if let Some(rule_name) = diagnostic.code.as_deref().and_then(rule_name_for_code) {
+            let text = self.colorize(rule_name, LIGHT_GREY);
+            let text = format!(" [{text}]");
+            desc.push_str(&text);
+        }
+
+        let split_desc = split_string_on_spaces(&desc, max_line_length - 25);
+        let mut section_color = AnsiColor::Blue.on_default();
+
+        let mut out_buff = String::new();
+        for (idx, line) in split_desc.into_iter().enumerate() {
+            if idx == 0 {
+                let rule_code = format!("{code:>4}");
 
                 if rule_code.contains("PRS") {
                     section_color = AnsiColor::Red.on_default();

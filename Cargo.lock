@@ -898,16 +898,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "line-index"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e27e0ed5a392a7f5ba0b3808a2afccff16c64933312c84b57618b49d1209bd2"
-dependencies = [
- "nohash-hasher",
- "text-size",
-]
-
-[[package]]
 name = "lineage"
 version = "0.38.0"
 dependencies = [
@@ -1591,7 +1581,7 @@ dependencies = [
  "sqruff-lib-dialects",
  "strum",
  "strum_macros",
- "walkdir",
+ "thiserror",
 ]
 
 [[package]]
@@ -1657,7 +1647,6 @@ dependencies = [
 name = "sqruff-wasm"
 version = "0.38.0"
 dependencies = [
- "line-index",
  "lineage",
  "serde",
  "serde_yaml",
@@ -1735,12 +1724,6 @@ name = "termtree"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f50febec83f5ee1df3015341d8bd429f2d1cc62bcba7ea2076759d315084683"
-
-[[package]]
-name = "text-size"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f18aa187839b2bdb1ad2fa35ead8c4c2976b64e4363c386d45ac0f7ee85c9233"
 
 [[package]]
 name = "thiserror"

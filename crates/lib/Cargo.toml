@@ -48,7 +48,6 @@ sqruff-lib-dialects.workspace = true
 fancy-regex = "0.18.0"
 itertools = "0.14.0"
 regex = "1"
-walkdir = "2.5.0"
 enum_dispatch = "0.3.13"
 indexmap.workspace = true
 common-path = "1.0.0"
@@ -56,6 +55,7 @@ configparser = "3.1.0"
 log.workspace = true
 pretty_assertions = "1.4.0"
 hashbrown.workspace = true
+ignore = "0.4.23"
 lazy-regex = "3.2.0"
 rayon = "1.12.0"
 smol_str = "0.3.1"
@@ -65,6 +65,7 @@ strum = "0.28.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = { version = "0.9.34", optional = true }
 serde_json = "1"
+thiserror = "2"
 
 # Only activated on python
 pyo3 = { version = "0.28.2", optional = true }

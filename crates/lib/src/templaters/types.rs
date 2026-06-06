@@ -1,9 +1,5 @@
 use fancy_regex::Regex;
 
-#[cfg(feature = "python")]
-use super::{DBT_TEMPLATER, JINJA_TEMPLATER, PYTHON_TEMPLATER};
-use super::{PLACEHOLDER_TEMPLATER, RAW_TEMPLATER, Templater};
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum TemplaterKind {
     Raw,
@@ -27,19 +23,6 @@ impl TemplaterKind {
             Self::Jinja => "jinja",
             #[cfg(feature = "python")]
             Self::Dbt => "dbt",
-        }
-    }
-
-    pub fn templater(self) -> &'static dyn Templater {
-        match self {
-            Self::Raw => &RAW_TEMPLATER,
-            Self::Placeholder => &PLACEHOLDER_TEMPLATER,
-            #[cfg(feature = "python")]
-            Self::Python => &PYTHON_TEMPLATER,
-            #[cfg(feature = "python")]
-            Self::Jinja => &JINJA_TEMPLATER,
-            #[cfg(feature = "python")]
-            Self::Dbt => &DBT_TEMPLATER,
         }
     }
 

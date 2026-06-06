@@ -99,8 +99,7 @@ fn test_ignore_data_directory_bug_reproduction() {
     );
 }
 
-/// Test that verifies sqruff does NOT traverse into ignored directories during file discovery
-/// This test verifies the fix in the paths_from_path method
+/// Test that verifies sqruff does NOT traverse into ignored directories during file discovery.
 #[test]
 fn test_directory_traversal_into_ignored_directories() {
     // Create a temporary directory for our test project
@@ -151,8 +150,7 @@ fn test_directory_traversal_into_ignored_directories() {
     println!("STDOUT: {}", stdout);
     println!("STDERR: {}", stderr);
 
-    // Fixed behavior: sqruff should NOT discover and process files in ignored directories
-    // This proves that paths_from_path now respects ignore patterns during traversal
+    // Fixed behavior: sqruff should NOT discover and process files in ignored directories.
     let found_ignored_files = (1..=5).any(|i| {
         stdout.contains(&format!("file_{}.sql", i)) || stderr.contains(&format!("file_{}.sql", i))
     }) || stdout.contains("deep_file.sql")
@@ -162,19 +160,15 @@ fn test_directory_traversal_into_ignored_directories() {
     assert!(
         !found_ignored_files,
         "FIXED BEHAVIOR: sqruff should NOT traverse into ignored .data directories or process files within them. \
-         This proves the paths_from_path method now respects ignore patterns during traversal. \
          Found ignored files in output: stdout={}, stderr={}",
         stdout, stderr
     );
 }
 
-/// Test that verifies file discovery behavior through lint_paths API
-/// This test uses the public lint_paths API with a dummy ignorer to test file discovery
+/// Test that verifies file discovery behavior through the workspace API.
 #[test]
-fn test_lint_paths_traverses_ignored_directories() {
-    use sqruff_lib::core::config::FluffConfig;
-    use sqruff_lib::core::linter::core::Linter;
-    use std::path::Path;
+fn test_workspace_discovery_prunes_ignored_directories() {
+    use sqruff_lib::api::{PathDiscoveryOptions, Workspace};
 
     // Create a temporary directory for our test project
     let temp_dir = TempDir::new().unwrap();
@@ -209,58 +203,40 @@ fn test_lint_paths_traverses_ignored_directories() {
     let sqruffignore_file = project_root.join(".sqruffignore");
     fs::write(&sqruffignore_file, ".data\n").unwrap();
 
-    // Create a linter instance
-    let mut linter = Linter::new(
-        FluffConfig::new(<_>::default(), None, None),
-        None,
-        None,
-        false,
-    )
-    .unwrap();
-
-    // Create a dummy ignorer that doesn't ignore anything (to test the current broken behavior)
-    // In the current implementation, the ignorer is applied AFTER file discovery
-    let dummy_ignorer = |_path: &Path| false; // Don't ignore anything
-
-    // Call lint_paths to test file discovery behavior
-    let lint_result = linter
-        .lint_paths(
-            vec![project_root.to_path_buf()],
-            false, // don't fix
-            &dummy_ignorer,
-        )
+    let workspace = Workspace::new(project_root.to_path_buf()).unwrap();
+    let options = PathDiscoveryOptions::new(project_root.to_path_buf());
+    let files = workspace
+        .discover_sources(&[project_root.to_path_buf()], &options)
         .unwrap();
-
-    // Convert to vector to access files
-    let files: Vec<_> = lint_result.into_iter().collect();
 
     println!("Linted files count: {}", files.len());
     for file in &files {
-        println!("Linted file: {}", file.path);
+        println!("Linted file: {:?}", file.id);
     }
 
-    // Check if ignored files were processed (current broken behavior)
-    let found_ignored1 = files.iter().any(|file| file.path.contains("ignored1.sql"));
-    let found_ignored2 = files.iter().any(|file| file.path.contains("ignored2.sql"));
+    let found_ignored1 = files
+        .iter()
+        .any(|file| format!("{:?}", file.id).contains("ignored1.sql"));
+    let found_ignored2 = files
+        .iter()
+        .any(|file| format!("{:?}", file.id).contains("ignored2.sql"));
     let found_nested_ignored = files
         .iter()
-        .any(|file| file.path.contains("nested_ignored.sql"));
-    let found_regular = files.iter().any(|file| file.path.contains("regular.sql"));
+        .any(|file| format!("{:?}", file.id).contains("nested_ignored.sql"));
+    let found_regular = files
+        .iter()
+        .any(|file| format!("{:?}", file.id).contains("regular.sql"));
 
     // Regular file should always be found
     assert!(
         found_regular,
         "Regular file should be processed. Files: {:?}",
-        files.iter().map(|f| &f.path).collect::<Vec<_>>()
+        files.iter().map(|f| &f.id).collect::<Vec<_>>()
     );
 
-    // Fixed behavior: lint_paths should NOT process files in ignored directories
-    // This proves that the underlying file discovery (paths_from_path) now respects ignore patterns
-    // Note: This test uses a dummy ignorer that doesn't ignore anything, so it tests the file discovery layer
-    // The actual ignore functionality is tested in the CLI layer tests above
-    let _any_ignored_found = found_ignored1 || found_ignored2 || found_nested_ignored;
-
-    // Since this test uses a dummy ignorer that doesn't ignore anything, files should still be found
-    // This test verifies that the file discovery mechanism itself works correctly
-    // The actual ignore functionality is tested at the CLI level in the tests above
+    assert!(
+        !(found_ignored1 || found_ignored2 || found_nested_ignored),
+        "Ignored files should not be discovered. Files: {:?}",
+        files.iter().map(|f| &f.id).collect::<Vec<_>>()
+    );
 }

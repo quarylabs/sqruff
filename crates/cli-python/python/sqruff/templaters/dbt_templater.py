@@ -925,7 +925,7 @@ def process_batch_from_rust(
     files: List[Tuple[str, str]],
     config_string: str,
     live_context: Dict[str, Any],
-) -> List[Tuple[Optional[TemplatedFile], Optional[str]]]:
+) -> List[Tuple[Optional[TemplatedFile], Optional[str], Optional[str]]]:
     """Process multiple files in a batch from the Rust side.
 
     This function provides optimized batch processing for dbt models by:
@@ -939,9 +939,10 @@ def process_batch_from_rust(
         live_context: Context dictionary for templating
 
     Returns:
-        List of (TemplatedFile | None, error_message | None) tuples.
-        For each input file, either the TemplatedFile is present (success)
-        or an error message is present (failure).
+        List of (TemplatedFile | None, error_message | None, skip_reason | None)
+        tuples. For each input file, either the TemplatedFile is present
+        (success), an error message is present (failure), or a skip reason is
+        present (skipped).
     """
     if not files:
         return []
@@ -962,11 +963,13 @@ def process_batch_from_rust(
     except Exception as e:
         # If sequencing fails, return error for all files
         error_msg = f"Failed to sequence files: {e}"
-        return [(None, error_msg) for _ in files]
+        return [(None, error_msg, None) for _ in files]
 
     # Process files in sequenced order, but we need to return results
     # in the original input order
-    results_by_fname: Dict[str, Tuple[Optional[TemplatedFile], Optional[str]]] = {}
+    results_by_fname: Dict[
+        str, Tuple[Optional[TemplatedFile], Optional[str], Optional[str]]
+    ] = {}
 
     for fname in sequenced_fnames:
         if fname not in file_contents:
@@ -985,25 +988,25 @@ def process_batch_from_rust(
             # Check for skipped file (e.g., disabled model or macro)
             if result[0] is None:
                 skip_reason = result[1] or "unknown reason"
-                results_by_fname[fname] = (None, "SKIP:" + skip_reason)
+                results_by_fname[fname] = (None, None, skip_reason)
                 continue
             (output, errors) = result
             if errors:
                 # Combine error messages
                 error_msgs = [str(e) for e in errors]
-                results_by_fname[fname] = (None, "; ".join(error_msgs))
+                results_by_fname[fname] = (None, "; ".join(error_msgs), None)
             else:
-                results_by_fname[fname] = (output, None)
+                results_by_fname[fname] = (output, None, None)
         except Exception as e:
-            results_by_fname[fname] = (None, str(e))
+            results_by_fname[fname] = (None, str(e), None)
 
     # Return results in original input order
-    results: List[Tuple[Optional[TemplatedFile], Optional[str]]] = []
+    results: List[Tuple[Optional[TemplatedFile], Optional[str], Optional[str]]] = []
     for fname in fnames_input_order:
         if fname in results_by_fname:
             results.append(results_by_fname[fname])
         else:
             # File was in input but not processed (shouldn't happen)
-            results.append((None, f"File {fname} was not processed"))
+            results.append((None, f"File {fname} was not processed", None))
 
     return results

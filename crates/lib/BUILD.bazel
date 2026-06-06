@@ -53,7 +53,7 @@ WASM_CRATE_NAMES = [
     "serde_json",
     "smol_str",
     "strum",
-    "walkdir",
+    "thiserror",
 ]
 
 WASM_PROC_MACRO_CRATE_NAMES = [

@@ -883,6 +883,26 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // PERIOD FOR SYSTEM_TIME (start_col, end_col) for temporal tables (#4654)
+    dialect.add([(
+        "PeriodSegment".into(),
+        NodeMatcher::new(SyntaxKind::PeriodSegment, |_| {
+            Sequence::new(vec![
+                Ref::keyword("PERIOD").to_matchable(),
+                Ref::keyword("FOR").to_matchable(),
+                Ref::keyword("SYSTEM_TIME").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // `LOCATION = ...` clause, used by external tables and external data sources.
     dialect.add([(
         "TableLocationClause".into(),
@@ -1714,6 +1734,7 @@ pub fn raw_dialect() -> Dialect {
                                 one_of(vec![
                                     Ref::new("TableConstraintSegment").to_matchable(),
                                     Ref::new("ColumnDefinitionSegment").to_matchable(),
+                                    Ref::new("PeriodSegment").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])

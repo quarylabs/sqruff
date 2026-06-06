@@ -1,0 +1,8 @@
+CREATE TABLE Department
+(
+    DeptID INT NOT NULL PRIMARY KEY,
+    DeptName VARCHAR(50) NOT NULL,
+    ValidFrom DATETIME2 NOT NULL,
+    ValidTo DATETIME2 NOT NULL,
+    PERIOD FOR SYSTEM_TIME (ValidFrom, ValidTo)
+);

@@ -24,6 +24,7 @@ default = [
     "databricks",
     "db2",
     "duckdb",
+    "greenplum",
     "hive",
     "mysql",
     "oracle",
@@ -41,6 +42,7 @@ clickhouse = []
 databricks = ["sparksql"]
 db2 = []
 duckdb = ["postgres"]
+greenplum = ["postgres"]
 hive = []
 mysql = []
 oracle = []

@@ -2309,6 +2309,11 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::new("WithCheckOptionSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("CONFLICT").to_matchable(),
+                ])
+                .to_matchable(),
             ];
             this.parse_mode(ParseMode::GreedyOnceStarted);
         })

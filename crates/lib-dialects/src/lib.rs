@@ -26,6 +26,8 @@ pub mod db2;
 mod db2_keywords;
 #[cfg(feature = "duckdb")]
 pub mod duckdb;
+#[cfg(feature = "greenplum")]
+pub mod greenplum;
 #[cfg(feature = "hive")]
 pub mod hive;
 #[cfg(feature = "mysql")]
@@ -83,6 +85,8 @@ pub fn dialect_config_options(
         DialectKind::Db2 => db2::Db2DialectConfig::config_options(),
         #[cfg(feature = "duckdb")]
         DialectKind::Duckdb => duckdb::DuckDBDialectConfig::config_options(),
+        #[cfg(feature = "greenplum")]
+        DialectKind::Greenplum => greenplum::GreenplumDialectConfig::config_options(),
         #[cfg(feature = "mysql")]
         DialectKind::Mysql => mysql::MySQLDialectConfig::config_options(),
         #[cfg(feature = "oracle")]
@@ -121,6 +125,8 @@ pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dia
         DialectKind::Db2 => db2::dialect(config),
         #[cfg(feature = "duckdb")]
         DialectKind::Duckdb => duckdb::dialect(config),
+        #[cfg(feature = "greenplum")]
+        DialectKind::Greenplum => greenplum::dialect(config),
         #[cfg(feature = "mysql")]
         DialectKind::Mysql => mysql::dialect(config),
         #[cfg(feature = "oracle")]

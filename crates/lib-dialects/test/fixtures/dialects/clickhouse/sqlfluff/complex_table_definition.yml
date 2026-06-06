@@ -161,14 +161,13 @@ file:
                 - expression:
                   - quoted_literal: '''key'''
                 - comma: ','
-                - expression:
+                - tuple:
                   - bracketed:
                     - start_bracket: (
                     - column_reference:
                       - naked_identifier: category
                     - comma: ','
-                    - column_reference:
-                      - quoted_identifier: '''CATEGORY'''
+                    - quoted_literal: '''CATEGORY'''
                     - end_bracket: )
                 - comma: ','
                 - expression:
@@ -661,14 +660,13 @@ file:
             - expression:
               - quoted_literal: '''price'''
             - comma: ','
-            - expression:
+            - tuple:
               - bracketed:
                 - start_bracket: (
                 - column_reference:
                   - naked_identifier: category
                 - comma: ','
-                - column_reference:
-                  - quoted_identifier: '''RESOURCE_TYPE'''
+                - quoted_literal: '''RESOURCE_TYPE'''
                 - end_bracket: )
             - comma: ','
             - expression:

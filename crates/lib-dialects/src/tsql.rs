@@ -844,6 +844,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateExternalDataSourceStatementSegment").to_matchable(),
             Ref::new("SqlcmdCommandSegment").to_matchable(),
             Ref::new("CreateExternalFileFormat").to_matchable(),
+            Ref::new("CreateExternalTableStatementSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),
@@ -1222,6 +1223,76 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("ExternalFileFormatParquetClause").to_matchable(),
                         Ref::new("ExternalFileFormatJsonClause").to_matchable(),
                         Ref::new("ExternalFileFormatDeltaClause").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // CREATE EXTERNAL TABLE (#4642)
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-table-transact-sql
+    dialect.add([(
+        "CreateExternalTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateExternalTableStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("EXTERNAL").to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("ColumnDefinitionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("WITH").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("TableLocationClause").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DATA_SOURCE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("FILE_FORMAT").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REJECT_TYPE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("VALUE").to_matchable(),
+                                Ref::keyword("PERCENTAGE").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REJECT_VALUE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REJECT_SAMPLE_VALUE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REJECTED_ROW_LOCATION").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])

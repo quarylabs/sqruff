@@ -524,6 +524,14 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "JSON",
         "DELTA",
         "FORMAT",
+        // CREATE EXTERNAL TABLE (#4642)
+        "DATA_SOURCE",
+        "FILE_FORMAT",
+        "REJECT_TYPE",
+        "REJECT_VALUE",
+        "REJECT_SAMPLE_VALUE",
+        "REJECTED_ROW_LOCATION",
+        "PERCENTAGE",
         // T-SQL SET options that can be used as identifiers
         "NOCOUNT",
         "XACT_ABORT",

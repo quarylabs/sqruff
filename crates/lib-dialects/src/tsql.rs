@@ -13,7 +13,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -99,6 +99,16 @@ pub fn raw_dialect() -> Dialect {
             ),
         ],
         "equals",
+    );
+
+    // sqlcmd `:r <path>` relative file paths (e.g. .\folder\script.sql) (#4653)
+    dialect.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "unquoted_relative_sql_file_path",
+            r"[.\w\\/#-]+\.[sS][qQ][lL]",
+            SyntaxKind::UnquotedRelativeSqlFilePath,
+        )],
+        "back_quote",
     );
 
     // T-SQL specific lexer patches:
@@ -832,6 +842,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropTriggerStatementSegment").to_matchable(),
             Ref::new("CreateDatabaseScopedCredentialStatementSegment").to_matchable(),
             Ref::new("CreateExternalDataSourceStatementSegment").to_matchable(),
+            Ref::new("SqlcmdCommandSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),
@@ -894,6 +905,65 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec![
                     Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
                         .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // sqlcmd commands `:r` and `:setvar` (#4653)
+    // https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility#sqlcmd-commands
+    dialect.add([(
+        "SqlcmdOperatorSegment".into(),
+        MultiStringParser::new(
+            vec!["r".to_string(), "setvar".to_string()],
+            SyntaxKind::SqlcmdOperator,
+        )
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "SqlcmdFilePathSegment".into(),
+        TypedParser::new(
+            SyntaxKind::UnquotedRelativeSqlFilePath,
+            SyntaxKind::UnquotedRelativeSqlFilePath,
+        )
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "SqlcmdCommandSegment".into(),
+        NodeMatcher::new(SyntaxKind::SqlcmdCommandSegment, |_| {
+            one_of(vec![
+                // :r <relative .sql file path>
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("ColonSegment").to_matchable(),
+                        Ref::new("SqlcmdOperatorSegment").to_matchable(),
+                    ])
+                    .config(|this| this.disallow_gaps())
+                    .to_matchable(),
+                    Ref::new("SqlcmdFilePathSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                // :setvar <name> <value>
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("ColonSegment").to_matchable(),
+                        Ref::new("SqlcmdOperatorSegment").to_matchable(),
+                    ])
+                    .config(|this| this.disallow_gaps())
+                    .to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("QuotedIdentifierSegment").to_matchable(),
+                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])

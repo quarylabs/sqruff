@@ -502,6 +502,9 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         // PERIOD FOR SYSTEM_TIME (temporal tables, #4654)
         "PERIOD",
         "SYSTEM_TIME",
+        // sqlcmd commands (#4653)
+        "R",
+        "SETVAR",
         // T-SQL SET options that can be used as identifiers
         "NOCOUNT",
         "XACT_ABORT",

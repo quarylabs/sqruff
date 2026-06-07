@@ -524,6 +524,8 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "JSON",
         "DELTA",
         "FORMAT",
+        // OPENJSON (#4652)
+        "OPENJSON",
         // CREATE EXTERNAL TABLE (#4642)
         "DATA_SOURCE",
         "FILE_FORMAT",

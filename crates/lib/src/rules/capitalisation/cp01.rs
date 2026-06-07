@@ -194,7 +194,14 @@ pub fn handle_segment(
     seg: ErasedSegment,
     context: &RuleContext,
 ) -> LintResult {
-    if seg.raw().is_empty() || seg.is_templated() {
+    // Skip templated segments only when configured to ignore templated areas (#4697).
+    // Default is true, matching the previous unconditional skip.
+    let ignore_templated_areas = context
+        .config
+        .get("ignore_templated_areas", "core")
+        .as_bool()
+        .unwrap_or(true);
+    if seg.raw().is_empty() || (seg.is_templated() && ignore_templated_areas) {
         return LintResult::new(None, Vec::new(), None, None);
     }
 

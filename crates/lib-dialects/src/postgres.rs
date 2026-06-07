@@ -2201,6 +2201,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("CONFLICT").to_matchable(),
                 ])
                 .to_matchable(),
+                Ref::keyword("RETURNING").to_matchable(),
             ];
             this.parse_mode(ParseMode::GreedyOnceStarted);
         })
@@ -6526,6 +6527,7 @@ pub fn raw_dialect() -> Dialect {
                                 Sequence::new(vec![
                                     one_of(vec![
                                         Ref::new("ColumnReferenceSegment").to_matchable(),
+                                        Ref::new("FunctionSegment").to_matchable(),
                                         Bracketed::new(vec![
                                             Ref::new("ExpressionSegment").to_matchable(),
                                         ])

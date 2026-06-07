@@ -78,6 +78,37 @@ file:
         - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: b
+      - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: '2'
+    - keyword: RETURNING
+    - expression:
+      - column_reference:
+        - naked_identifier: a
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: b
+- statement_terminator: ;
+- statement:
   - with_compound_statement:
     - keyword: WITH
     - common_table_expression:

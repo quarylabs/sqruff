@@ -2827,8 +2827,14 @@ pub fn raw_dialect() -> Dialect {
                     .optional()
                     .to_matchable(),
                 Ref::keyword("AS").to_matchable(),
-                optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
+                optionally_bracketed(vec![
+                    one_of(vec![
+                        Ref::new("SelectStatementSegment").to_matchable(),
+                        Ref::new("SetExpressionSegment").to_matchable(),
+                    ])
                     .to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::new("WithCheckOptionSegment").optional().to_matchable(),
             ])
             .to_matchable()
@@ -2873,8 +2879,14 @@ pub fn raw_dialect() -> Dialect {
                 .optional()
                 .to_matchable(),
             Ref::keyword("AS").to_matchable(),
-            optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
+            optionally_bracketed(vec![
+                one_of(vec![
+                    Ref::new("SelectStatementSegment").to_matchable(),
+                    Ref::new("SetExpressionSegment").to_matchable(),
+                ])
                 .to_matchable(),
+            ])
+            .to_matchable(),
             Ref::new("WithCheckOptionSegment").optional().to_matchable(),
         ])
         .to_matchable(),

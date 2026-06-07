@@ -1234,6 +1234,63 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // OPENJSON() table-valued function (#4652)
+    // https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql
+    dialect.add([(
+        "OpenJsonWithClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::OpenjsonWithClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            // column_path
+                            Ref::new("QuotedLiteralSegment").optional().to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("AS").to_matchable(),
+                                Ref::keyword("JSON").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "OpenJsonSegment".into(),
+        NodeMatcher::new(SyntaxKind::OpenjsonSegment, |_| {
+            Sequence::new(vec![
+                Ref::keyword("OPENJSON").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Ref::new("ParameterNameSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("OpenJsonWithClauseSegment")
+                    .optional()
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // CREATE EXTERNAL TABLE (#4642)
     // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-table-transact-sql
     dialect.add([(
@@ -1434,6 +1491,7 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec![
             Ref::new("ValuesClauseSegment").to_matchable(),
             Ref::new("BareFunctionSegment").to_matchable(),
+            Ref::new("OpenJsonSegment").to_matchable(),
             Ref::new("FunctionSegment").to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),
             Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),

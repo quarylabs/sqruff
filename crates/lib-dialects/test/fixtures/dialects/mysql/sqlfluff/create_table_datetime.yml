@@ -173,12 +173,21 @@ file:
         - keyword: 'NULL'
         - keyword: DEFAULT
         - keyword: NOW
+        - keyword: ON
+        - keyword: UPDATE
+        - keyword: NOW
       - comma: ','
       - column_definition:
         - naked_identifier: ts14
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
+        - keyword: NOW
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+        - keyword: ON
+        - keyword: UPDATE
         - keyword: NOW
         - bracketed:
           - start_bracket: (

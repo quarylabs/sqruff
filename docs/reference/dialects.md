@@ -11,6 +11,7 @@ Sqruff currently supports the following SQL dialects:
 - [databricks](#databricks)
 - [db2](#db2)
 - [duckdb](#duckdb)
+- [greenplum](#greenplum)
 - [mysql](#mysql)
 - [oracle](#oracle)
 - [postgres](#postgres)
@@ -102,6 +103,18 @@ DuckDB SQL dialect for in-process analytical database.
 **Configuration:**
 ```ini
 [sqruff:dialect:duckdb]
+```
+
+
+### greenplum
+
+Greenplum SQL dialect, a massively parallel Postgres.
+
+**Documentation:** [https://docs.vmware.com/en/VMware-Greenplum/index.html](https://docs.vmware.com/en/VMware-Greenplum/index.html)
+
+**Configuration:**
+```ini
+[sqruff:dialect:greenplum]
 ```
 
 

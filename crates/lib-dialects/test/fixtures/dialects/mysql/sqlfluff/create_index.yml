@@ -178,6 +178,40 @@ file:
       - column_reference:
         - naked_identifier: col
       - end_bracket: )
+    - keyword: ALGORITHM
+    - keyword: NOCOPY
+- statement_terminator: ;
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: idx
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: tbl
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col
+      - end_bracket: )
+    - keyword: ALGORITHM
+    - keyword: INSTANT
+- statement_terminator: ;
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: idx
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: tbl
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col
+      - end_bracket: )
     - keyword: LOCK
     - keyword: DEFAULT
 - statement_terminator: ;

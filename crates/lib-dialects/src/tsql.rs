@@ -2150,6 +2150,24 @@ pub fn raw_dialect() -> Dialect {
     // T-SQL supports alternative alias syntax: AliasName = Expression
     // The parser distinguishes between column references (table1.column1)
     // and alias assignments (AliasName = table1.column1)
+    // CreateRoleStatementSegment - T-SQL adds optional AUTHORIZATION (#4852).
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-role-transact-sql
+    dialect.replace_grammar(
+        "CreateRoleStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::keyword("ROLE").to_matchable(),
+            Ref::new("RoleReferenceSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("AUTHORIZATION").to_matchable(),
+                Ref::new("RoleReferenceSegment").to_matchable(),
+            ])
+            .config(|config| config.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     dialect.replace_grammar(
         "SelectClauseElementSegment",
         one_of(vec![

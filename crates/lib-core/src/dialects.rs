@@ -220,7 +220,21 @@ impl Dialect {
                 panic!("Unexpected SegmentGenerator while fetching '{name}'");
             }
             None => {
-                panic!("Grammar refers to '{name}' which was not found in the dialect.",);
+                if let Some(keyword) = name.strip_suffix("KeywordSegment") {
+                    panic!(
+                        "Grammar refers to the '{keyword}' keyword which was not found in the \
+                         {:?} dialect.\n\nThe syntax in the query is not (yet?) supported. Try to \
+                         narrow down your query to a minimal, reproducible case and raise an issue \
+                         on GitHub.\n\nOr, even better, see this guide on how to help contribute \
+                         keyword and/or dialect updates:\n\
+                         https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes#keywords",
+                        self.name
+                    );
+                }
+                panic!(
+                    "Grammar refers to '{name}' which was not found in the {:?} dialect.",
+                    self.name
+                );
             }
         }
     }

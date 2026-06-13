@@ -402,3 +402,72 @@ test_fail_nested_query_in_from_clause:
         *
     FROM
         stage
+
+test_pass_postgres_data_modifying_delete_cte:
+  # Data-modifying CTEs run for their side effects regardless of whether the
+  # primary query references them, so an unreferenced DELETE CTE is not unused.
+  pass_str: |
+    WITH deleted_children AS (
+        DELETE FROM child
+        WHERE parent_id = 1
+    )
+    DELETE FROM parent
+    WHERE id = 1
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_data_modifying_multiple_delete_ctes:
+  pass_str: |
+    WITH deleted_a AS (
+        DELETE FROM child_a
+        WHERE parent_id = 1
+    ),
+    deleted_b AS (
+        DELETE FROM child_b
+        WHERE parent_id = 1
+    )
+    DELETE FROM parent
+    WHERE id = 1
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_data_modifying_insert_cte:
+  pass_str: |
+    WITH archived AS (
+        INSERT INTO archive (id)
+        SELECT id FROM staging
+    )
+    DELETE FROM staging
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_postgres_data_modifying_update_cte:
+  pass_str: |
+    WITH bumped AS (
+        UPDATE counter
+        SET value = value + 1
+    )
+    SELECT 1
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_unused_select_cte_alongside_data_modifying:
+  # A genuinely unused SELECT CTE must still be flagged even when a sibling
+  # data-modifying CTE is exempt.
+  fail_str: |
+    WITH deleted_children AS (
+        DELETE FROM child
+        WHERE parent_id = 1
+    ),
+    unused AS (
+        SELECT id FROM other
+    )
+    DELETE FROM parent
+    WHERE id = 1
+  configs:
+    core:
+      dialect: postgres

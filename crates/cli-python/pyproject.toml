@@ -26,6 +26,6 @@ build-backend = "maturin"
 
 [tool.maturin]
 manifest-path = "Cargo.toml"
-module-name = "sqruff._lib_name"
+module-name = "sqruff._sqruff"
 features = ["pyo3/extension-module"]
 python-source = "python"

@@ -3874,6 +3874,21 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // ReturnStatementSegment.
+    // As specified in https://dev.mysql.com/doc/refman/8.0/en/return.html
+    mysql.add([(
+        "ReturnStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::ReturnStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("RETURN").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // ============================================================
     // StatementSegment - override to add MySQL-specific statements
     // ============================================================
@@ -3918,6 +3933,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("LoadDataSegment").to_matchable(),
                 Ref::new("ReplaceSegment").to_matchable(),
                 Ref::new("AlterDatabaseStatementSegment").to_matchable(),
+                Ref::new("ReturnStatementSegment").to_matchable(),
             ]),
             None,
             None,

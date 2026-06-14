@@ -55,7 +55,12 @@ Lint SQL files via passing a list of files or using stdin
 
   Default value: `human`
 
-  Possible values: `human`, `github-annotation-native`, `json`
+  Possible values:
+  - `human`
+  - `github-annotation-native`
+  - `json`
+  - `none`:
+    Produce no output. Used mostly for testing
 
 
 
@@ -76,7 +81,12 @@ Fix SQL files via passing a list of files or using stdin
 
   Default value: `human`
 
-  Possible values: `human`, `github-annotation-native`, `json`
+  Possible values:
+  - `human`
+  - `github-annotation-native`
+  - `json`
+  - `none`:
+    Produce no output. Used mostly for testing
 
 
 

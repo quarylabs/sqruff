@@ -11,9 +11,9 @@ use stdin::is_std_in_flag_input;
 use crate::commands::{Cli, Commands};
 #[cfg(feature = "codegen-docs")]
 use crate::docs::codegen_docs;
-use crate::formatters::OutputStreamFormatter;
 use crate::formatters::github_annotation_native_formatter::GithubAnnotationNativeFormatter;
 use crate::formatters::json::JsonFormatter;
+use crate::formatters::{NullFormatter, OutputStreamFormatter};
 
 pub mod commands;
 mod commands_dialects;
@@ -148,6 +148,10 @@ pub(crate) fn linter(
         }
         Format::Json => {
             let formatter = JsonFormatter::default();
+            Arc::new(formatter)
+        }
+        Format::None => {
+            let formatter = NullFormatter;
             Arc::new(formatter)
         }
     };

@@ -6,6 +6,8 @@ pub enum FormatType {
     Yaml,
     GithubAnnotation,
     GithubAnnotationNative,
+    /// An option to return _no output_.
+    None,
 }
 
 impl fmt::Display for FormatType {
@@ -16,6 +18,7 @@ impl fmt::Display for FormatType {
             FormatType::Yaml => write!(f, "yaml"),
             FormatType::GithubAnnotation => write!(f, "github-annotation"),
             FormatType::GithubAnnotationNative => write!(f, "github-annotation-native"),
+            FormatType::None => write!(f, "none"),
         }
     }
 }

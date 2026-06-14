@@ -5,6 +5,7 @@ use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::IndexSet;
+use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 
@@ -19,6 +20,8 @@ type Handle<T> = fn(
     Vec<ObjectReferenceSegment>,
     Vec<ColumnAliasInfo>,
     Vec<SmolStr>,
+    Option<ErasedSegment>,
+    &RuleContext,
     &T,
 ) -> Vec<LintResult>;
 
@@ -107,11 +110,12 @@ FROM
             return Vec::new();
         };
 
-        let _parent_select = context
+        let parent_select = context
             .parent_stack
             .iter()
             .rev()
-            .find(|seg| seg.is_type(SyntaxKind::SelectStatement));
+            .find(|seg| seg.is_type(SyntaxKind::SelectStatement))
+            .cloned();
 
         (self.lint_references_and_aliases)(
             select_info.table_aliases,
@@ -119,6 +123,8 @@ FROM
             select_info.reference_buffer,
             select_info.col_aliases,
             select_info.using_cols,
+            parent_select,
+            context,
             &self.context,
         )
     }
@@ -129,12 +135,15 @@ FROM
 }
 
 impl RuleAL04 {
+    #[allow(clippy::too_many_arguments)]
     pub fn lint_references_and_aliases(
         table_aliases: Vec<AliasInfo>,
         _: Vec<SmolStr>,
         _: Vec<ObjectReferenceSegment>,
         _: Vec<ColumnAliasInfo>,
         _: Vec<SmolStr>,
+        _: Option<ErasedSegment>,
+        _: &RuleContext,
         _: &(),
     ) -> Vec<LintResult> {
         let mut duplicates = IndexSet::default();

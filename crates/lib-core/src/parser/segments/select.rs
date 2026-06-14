@@ -7,12 +7,16 @@ pub struct SelectClauseElementSegment(pub ErasedSegment);
 
 impl SelectClauseElementSegment {
     pub fn alias(&self) -> Option<ColumnAliasInfo> {
+        // Stop recursing into nested SELECT statements so that an alias defined
+        // deeper inside a scalar subquery (e.g. `MAX(x.col) AS m`) is not
+        // mistaken for the alias of the outer select clause element
+        // (`(...) AS _stats`). See sqlfluff issue #6389.
         let alias_expression_segment = self
             .0
             .recursive_crawl(
                 const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) },
                 true,
-                &SyntaxSet::EMPTY,
+                const { &SyntaxSet::new(&[SyntaxKind::SelectStatement]) },
                 true,
             )
             .first()?

@@ -412,6 +412,13 @@ pub fn raw_dialect() -> Dialect {
         "CURRENT_DATE",
         "LOCALTIME",
         "LOCALTIMESTAMP",
+        "CURRENT_CATALOG",
+        "CURRENT_ROLE",
+        "CURRENT_SCHEMA",
+        "CURRENT_USER",
+        "SESSION_USER",
+        "SYSTEM_USER",
+        "USER",
     ]);
 
     // Postgres doesn't have a dateadd function

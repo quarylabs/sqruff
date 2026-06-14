@@ -1,0 +1,28 @@
+on:
+  pull_request:
+    paths:
+      - .sqlfluff-sha
+name: SQLFluff SHA Advance Check
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  sqlfluff-sha-advance:
+    name: Validate .sqlfluff-sha advances one commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # ratchet:actions/checkout@v6.0.3
+        with:
+          fetch-depth: 0
+      - name: Validate SHA advance
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          # The SHA on the PR's base branch (before this change).
+          OLD=$(git show "${BASE_SHA}:.sqlfluff-sha" | tr -d '[:space:]')
+          # The SHA proposed by this PR.
+          NEW=$(tr -d '[:space:]' < .sqlfluff-sha)
+          echo "Base .sqlfluff-sha: ${OLD}"
+          echo "PR   .sqlfluff-sha: ${NEW}"
+          ./.hacking/scripts/check_sqlfluff_sha_advance.sh "$OLD" "$NEW"

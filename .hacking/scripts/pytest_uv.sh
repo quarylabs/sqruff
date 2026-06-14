@@ -20,6 +20,13 @@ export PROJECT_ROOT="$WORKDIR"
 
 PYTHON_BIN="$VENV_DIR/bin/python3"
 
+# The hermetic venv is a copied python-build-standalone install. After Bazel
+# relocates it into the runfiles tree, the interpreter can fail to resolve its
+# own site-packages, surfacing as "No module named pytest". Point PYTHONPATH at
+# the venv's site-packages explicitly so the installed deps are importable.
+SITE_PACKAGES="$(echo "$VENV_DIR"/lib/python*/site-packages)"
+export PYTHONPATH="$SITE_PACKAGES${PYTHONPATH:+:$PYTHONPATH}"
+
 # Run pytest using the cached venv's Python
 echo "Running pytest..."
 "$PYTHON_BIN" -m pytest

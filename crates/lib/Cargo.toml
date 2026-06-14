@@ -52,7 +52,7 @@ walkdir = "2.5.0"
 enum_dispatch = "0.3.13"
 indexmap.workspace = true
 common-path = "1.0.0"
-configparser = "3.1.0"
+configparser = "3.2.0"
 log.workspace = true
 pretty_assertions = "1.4.0"
 hashbrown.workspace = true
@@ -73,7 +73,7 @@ pyo3 = { version = "0.28.2", optional = true }
 getrandom = { version = "0.2", features = ["js"] }
 
 [target.'cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))'.dependencies]
-ignore = "0.4.23"
+ignore = "0.4.26"
 
 [dev-dependencies]
 sqruff-lib = { path = "." }
@@ -82,7 +82,7 @@ criterion = { version = "4.2.1", package = "codspeed-criterion-compat" }
 expect-test = "1.5"
 glob = "0.3"
 serde_json = "1"
-serde_with = { version = "3.20", default-features = false, features = [
+serde_with = { version = "3.21", default-features = false, features = [
     "alloc",
     "macros",
 ] }

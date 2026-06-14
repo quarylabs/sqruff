@@ -12,7 +12,8 @@ dev = [
     "pytest>=9.0.3",
     "pytest-cov>=6.0.0",
     "ruff>=0.9.4",
-    "maturin>=1.8.3",
+    # Pinned: see crates/cli-python/pyproject.toml (maturin minor bumps can break the build).
+    "maturin==1.14.0",
     "jinja2>=3.0.0",
     "regex",
     "dbt-core>=1.4.1",
@@ -25,7 +26,8 @@ dev = [
 test = [
     "pytest>=9.0.3",
     "pytest-cov>=6.0.0",
-    "maturin>=1.8.3",
+    # Pinned: see crates/cli-python/pyproject.toml (maturin minor bumps can break the build).
+    "maturin==1.14.0",
     "jinja2>=3.0.0",
     "regex",
     "dbt-core>=1.4.1",

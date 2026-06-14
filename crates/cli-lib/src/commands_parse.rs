@@ -93,6 +93,7 @@ fn parse_and_output_tree(
                         println!("Parse tree for {}:", filename);
                         println!("{}", tree.stringify(false));
                     }
+                    ParseFormat::None => {}
                 }
 
                 // Also print any parsing violations if they exist

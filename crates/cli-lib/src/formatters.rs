@@ -161,6 +161,19 @@ impl OutputStreamFormatter {
     }
 }
 
+/// A formatter that produces no output. Mostly used for testing and
+/// benchmarking, where only the exit code matters.
+#[derive(Default)]
+pub(crate) struct NullFormatter;
+
+impl Formatter for NullFormatter {
+    fn dispatch_file_violations(&self, _linted_file: &LintedFile) {}
+
+    fn dispatch_file_skip(&self, _fname: &str, _reason: &str) {}
+
+    fn completion_message(&self, _count: usize) {}
+}
+
 #[derive(Clone, Copy)]
 pub(crate) enum Status {
     Pass,

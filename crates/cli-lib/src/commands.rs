@@ -88,6 +88,8 @@ pub enum Format {
     Human,
     GithubAnnotationNative,
     Json,
+    /// An option to return _no output_. Mostly used for testing and benchmarking.
+    None,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum, Display, Default)]
@@ -96,6 +98,8 @@ pub enum ParseFormat {
     Json,
     #[default]
     Pretty,
+    /// An option to return _no output_. Mostly used for testing and benchmarking.
+    None,
 }
 
 impl Default for Format {

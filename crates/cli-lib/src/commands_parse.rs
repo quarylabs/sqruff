@@ -93,6 +93,8 @@ fn parse_and_output_tree(
                         println!("Parse tree for {}:", filename);
                         println!("{}", tree.stringify(false));
                     }
+                    // Produce no output. Mostly used for testing and benchmarking.
+                    ParseFormat::None => {}
                 }
 
                 // Also print any parsing violations if they exist

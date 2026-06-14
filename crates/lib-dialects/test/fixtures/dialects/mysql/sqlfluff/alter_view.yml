@@ -146,3 +146,24 @@ file:
       - keyword: CHECK
       - keyword: OPTION
 - statement_terminator: ;
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: v2
+    - keyword: AS
+    - set_expression:
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+      - set_operator:
+        - keyword: UNION
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '2'
+- statement_terminator: ;

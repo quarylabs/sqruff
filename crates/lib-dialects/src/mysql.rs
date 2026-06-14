@@ -3574,6 +3574,20 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // ReturnStatementSegment.
+    mysql.add([(
+        "ReturnStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::ReturnStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("RETURN").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // AlterOptionSegment.
     mysql.add([(
         "AlterOptionSegment".into(),
@@ -3918,6 +3932,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("LoadDataSegment").to_matchable(),
                 Ref::new("ReplaceSegment").to_matchable(),
                 Ref::new("AlterDatabaseStatementSegment").to_matchable(),
+                Ref::new("ReturnStatementSegment").to_matchable(),
             ]),
             None,
             None,

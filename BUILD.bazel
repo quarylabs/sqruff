@@ -174,6 +174,22 @@ sh_test(
     tags = ["requires-network"],
 )
 
+# Check that uv.lock is up to date with pyproject.toml
+sh_test(
+    name = "uv_lock_check",
+    size = "small",
+    srcs = [".hacking/scripts/uv_lock_check.sh"],
+    data = [
+        "pyproject.toml",
+        "uv.lock",
+        "@uv//:uv",
+    ],
+    env = {
+        "UV": "$(rlocationpath @uv//:uv)",
+    },
+    tags = ["requires-network"],
+)
+
 # Python ruff check - format and lint
 sh_test(
     name = "ruff_check",

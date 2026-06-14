@@ -1,6 +1,8 @@
 on:
   pull_request:
   merge_group:
+  push:
+    branches: ["main"]
 name: PR Checks
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -46,6 +48,9 @@ jobs:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
           repository-cache: true
+          # Only master (push to main) runs update the cache; PRs and merge
+          # group jobs restore it read-only to avoid polluting/contending.
+          cache-save: ${{ github.event_name == 'push' }}
       - name: Build all targets
         run: bazelisk build --config=ci //...
       - name: Run all tests
@@ -60,6 +65,9 @@ jobs:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
           repository-cache: true
+          # Only master (push to main) runs update the cache; PRs and merge
+          # group jobs restore it read-only to avoid polluting/contending.
+          cache-save: ${{ github.event_name == 'push' }}
       - name: Update lockfile
         run: bazelisk mod deps --lockfile_mode=update
       - name: Check lockfile is up to date
@@ -71,6 +79,9 @@ jobs:
           fi
   build-binaries:
     name: Build binaries for all platforms
+    # Master pushes only need to refresh the Bazel cache; skip the binary
+    # matrix there since it does not use that cache.
+    if: github.event_name != 'push'
     runs-on: ${{ matrix.platform.os }}
     strategy:
       fail-fast: false

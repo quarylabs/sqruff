@@ -21,7 +21,10 @@ dbt = [
 sqruff = "sqruff.main:main"
 
 [build-system]
-requires = ["maturin>=1.8"]
+# Pinned exactly: maturin minor bumps can be breaking (1.14.0 dropped 3.13t
+# free-threaded support, only 3.14+), so an unpinned range silently breaks CI.
+# Bump deliberately and re-test the free-threaded wheel build when raising this.
+requires = ["maturin==1.14.0"]
 build-backend = "maturin" 
 
 [tool.maturin]

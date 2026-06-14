@@ -242,6 +242,19 @@ RUST_TARGETS = [
     "//crates/sqlinference:sqruff-sqlinference",
 ]
 
+# Workspace-level manifests shared by every per-crate hack target. Combined
+# with a crate's dependency-closure machete_srcs, this is the scoped input set
+# that lets unrelated crate edits stay cache hits (see cargo_hack_suite).
+filegroup(
+    name = "workspace_manifest",
+    srcs = [
+        "Cargo.lock",
+        "Cargo.toml",
+        "rust-toolchain.toml",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 # Common Cargo source files for cargo-based checks
 # Used by cargo_machete, cargo_check, cargo_hack_check, rust_lint
 filegroup(

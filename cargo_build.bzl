@@ -650,15 +650,36 @@ def hack_command(manifest, args):
         cmd += " " + args
     return cmd
 
-def cargo_hack_suite(name, manifest, variations, srcs, vendor, size = "large"):
+def cargo_hack_suite(name, manifest, variations, closure, vendor, size = "large"):
     """Generates one `cargo check` test per feature variation, plus a suite.
 
     Each generated target runs exactly the `cargo check` invocation that
     `cargo hack check --each-feature` would run for `manifest` and one feature,
     using the hermetic vendored toolchain. Splitting cargo-hack's serial sweep
-    into individual targets lets Bazel run them in parallel, attribute failures
-    per feature, and cache results when inputs are unchanged.
+    into individual targets lets Bazel run them in parallel and attribute
+    failures per feature.
+
+    `closure` is the crate's own directory plus the directories of its
+    transitive in-workspace dependencies (e.g. ["crates/lib-dialects",
+    "crates/lib-core"]). The action's inputs are scoped to just those crates'
+    sources, and the workspace `members`/`default-members` are trimmed to the
+    same set in-sandbox so cargo only loads the closure (rather than validating
+    every workspace member). This way an edit to an unrelated crate does not
+    invalidate this crate's targets, maximising Bazel cache hits.
     """
+    srcs = ["//:workspace_manifest"] + ["//{}:machete_srcs".format(d) for d in closure]
+
+    members_toml = "[" + ", ".join(['"{}"'.format(d) for d in closure]) + "]"
+
+    # Restrict the workspace to the dependency closure before running cargo, so
+    # missing (out-of-closure) crate sources don't fail workspace loading.
+    # Portable in-place edit (works with both GNU and BSD sed).
+    rewrite = (
+        "sed -e 's|^members = \\[\"crates/\\*\"\\]|members = " + members_toml + "|'" +
+        " -e 's|^default-members = .*|default-members = " + members_toml + "|'" +
+        " Cargo.toml > Cargo.toml.scoped && mv Cargo.toml.scoped Cargo.toml\n"
+    )
+
     tests = []
     for suffix, args in variations.items():
         tname = "{}_{}".format(name, suffix)
@@ -667,7 +688,7 @@ def cargo_hack_suite(name, manifest, variations, srcs, vendor, size = "large"):
             size = size,
             srcs = srcs,
             vendor = vendor,
-            script = hack_command(manifest, args) + " --offline",
+            script = rewrite + hack_command(manifest, args) + " --offline",
         )
         tests.append(":" + tname)
     native.test_suite(

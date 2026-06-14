@@ -1,5 +1,5 @@
 load("//:cargo_build.bzl", "cargo_hack_suite")
-load(":hack.bzl", "HACK", "MANIFEST")
+load(":hack.bzl", "CLOSURE", "HACK", "MANIFEST")
 
 exports_files([
     "Cargo.toml",
@@ -11,7 +11,7 @@ exports_files([
 # //:hack_reconcile. Run the whole crate sweep via `bazel test //crates/cli-python:hack`.
 cargo_hack_suite(
     name = "hack",
-    srcs = ["//:cargo_srcs"],
+    closure = CLOSURE,
     manifest = MANIFEST,
     variations = HACK,
     vendor = "//:cargo_deps",

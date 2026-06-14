@@ -1,14 +1,14 @@
 load("@crates//:defs.bzl", "all_crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_library")
 load("//:cargo_build.bzl", "cargo_hack_suite")
-load(":hack.bzl", "HACK", "MANIFEST")
+load(":hack.bzl", "CLOSURE", "HACK", "MANIFEST")
 
 # Per-feature `cargo check` targets mirroring `cargo hack --each-feature`.
 # The HACK map lives in hack.bzl and is reconciled against cargo-hack by
 # //:hack_reconcile. Run the whole crate sweep via `bazel test //crates/lib-dialects:hack`.
 cargo_hack_suite(
     name = "hack",
-    srcs = ["//:cargo_srcs"],
+    closure = CLOSURE,
     manifest = MANIFEST,
     variations = HACK,
     vendor = "//:cargo_deps",

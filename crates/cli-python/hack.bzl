@@ -12,3 +12,15 @@ MANIFEST = "crates/cli-python/Cargo.toml"
 FEATURES = []
 
 HACK = each_feature(FEATURES)
+
+# This crate plus its transitive in-workspace dependencies. Scopes the Bazel
+# action inputs (and the in-sandbox workspace) so edits to unrelated crates
+# remain cache hits. See cargo_hack_suite.
+CLOSURE = [
+    "crates/cli-python",
+    "crates/cli-lib",
+    "crates/lib",
+    "crates/lib-core",
+    "crates/lib-dialects",
+    "crates/lsp",
+]

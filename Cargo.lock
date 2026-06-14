@@ -1651,6 +1651,7 @@ dependencies = [
  "serde-wasm-bindgen",
  "serde_json",
  "sqruff-lib",
+ "sqruff-lib-core",
  "wasm-bindgen",
 ]
 

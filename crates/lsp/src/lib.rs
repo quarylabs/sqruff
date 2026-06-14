@@ -1,3 +1,5 @@
+mod semantic;
+
 use std::path::{Path, PathBuf};
 
 use hashbrown::HashMap;
@@ -6,13 +8,15 @@ use lsp_types::notification::{
     DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
     Notification, PublishDiagnostics,
 };
-use lsp_types::request::{Formatting, Request as _};
+use lsp_types::request::{Formatting, Request as _, SemanticTokensFullRequest};
 use lsp_types::{
     Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
     DidOpenTextDocumentParams, DidSaveTextDocumentParams, DocumentFormattingParams,
     InitializeParams, InitializeResult, NumberOrString, OneOf, Position, PublishDiagnosticsParams,
-    Registration, ServerCapabilities, TextDocumentIdentifier, TextDocumentItem,
-    TextDocumentSyncCapability, TextDocumentSyncKind, Uri, VersionedTextDocumentIdentifier,
+    Registration, SemanticTokens, SemanticTokensOptions, SemanticTokensParams,
+    SemanticTokensResult, SemanticTokensServerCapabilities, ServerCapabilities,
+    TextDocumentIdentifier, TextDocumentItem, TextDocumentSyncCapability, TextDocumentSyncKind,
+    Uri, VersionedTextDocumentIdentifier,
 };
 use serde_json::Value;
 #[cfg(not(target_arch = "wasm32"))]
@@ -47,6 +51,14 @@ fn server_initialize_result() -> InitializeResult {
         capabilities: ServerCapabilities {
             text_document_sync: TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL).into(),
             document_formatting_provider: OneOf::Left(true).into(),
+            semantic_tokens_provider: Some(
+                SemanticTokensServerCapabilities::SemanticTokensOptions(SemanticTokensOptions {
+                    legend: semantic::legend(),
+                    full: Some(lsp_types::SemanticTokensFullOptions::Bool(true)),
+                    range: Some(false),
+                    ..Default::default()
+                }),
+            ),
             ..Default::default()
         },
         server_info: None,
@@ -115,6 +127,13 @@ impl Wasm {
     pub fn format_source(&mut self, source: &str) -> String {
         self.0.format_source(source, None)
     }
+
+    #[wasm_bindgen(js_name = semanticTokens)]
+    pub fn semantic_tokens(&self, uri: JsValue) -> JsValue {
+        let uri = serde_wasm_bindgen::from_value(uri).unwrap();
+        let tokens = self.0.semantic_tokens(&uri);
+        serde_wasm_bindgen::to_value(&tokens).unwrap()
+    }
 }
 
 impl LanguageServer {
@@ -162,7 +181,33 @@ impl LanguageServer {
                 let edits = self.format(uri);
                 Some(Response::new_ok(id, edits))
             }
+            SemanticTokensFullRequest::METHOD => {
+                let SemanticTokensParams {
+                    text_document: TextDocumentIdentifier { uri },
+                    ..
+                } = serde_json::from_value(params).unwrap();
+
+                let tokens = self.semantic_tokens(&uri);
+                Some(Response::new_ok(id, SemanticTokensResult::Tokens(tokens)))
+            }
             _ => None,
+        }
+    }
+
+    fn semantic_tokens(&self, uri: &Uri) -> SemanticTokens {
+        if self.is_ignored(uri) {
+            return SemanticTokens::default();
+        }
+
+        let Some(text) = self.documents.get(uri) else {
+            return SemanticTokens::default();
+        };
+
+        let filename = file_uri_to_path(uri).map(|path| path.to_string_lossy().to_string());
+        let data = semantic::semantic_tokens(&self.linter, text, filename);
+        SemanticTokens {
+            result_id: None,
+            data,
         }
     }
 

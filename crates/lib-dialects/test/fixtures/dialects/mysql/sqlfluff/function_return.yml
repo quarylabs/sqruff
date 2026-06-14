@@ -1,0 +1,39 @@
+file:
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+      - quoted_identifier: '`testfunction`'
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: var1
+        - data_type:
+          - data_type_identifier: int
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: int
+    - characteristic_statement:
+      - keyword: DETERMINISTIC
+    - function_definition:
+      - transaction_statement:
+        - keyword: BEGIN
+        - statement:
+          - return_statement:
+            - keyword: RETURN
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: var1
+                  - binary_operator: +
+                  - numeric_literal: '1'
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: END
+- statement_terminator: '~'

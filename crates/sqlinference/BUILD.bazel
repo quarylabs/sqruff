@@ -1,5 +1,18 @@
 load("@crates//:defs.bzl", "all_crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+load("//:cargo_build.bzl", "cargo_hack_suite")
+load(":hack.bzl", "HACK", "MANIFEST")
+
+# Per-feature `cargo check` targets mirroring `cargo hack --each-feature`.
+# The HACK map lives in hack.bzl and is reconciled against cargo-hack by
+# //:hack_reconcile. Run the whole crate sweep via `bazel test //crates/sqlinference:hack`.
+cargo_hack_suite(
+    name = "hack",
+    srcs = ["//:cargo_srcs"],
+    manifest = MANIFEST,
+    variations = HACK,
+    vendor = "//:cargo_deps",
+)
 
 rust_library(
     name = "sqruff-sqlinference",

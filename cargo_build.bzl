@@ -616,3 +616,61 @@ cargo_run = rule(
     executable = True,
     attrs = _cargo_attrs,
 )
+
+def each_feature(features):
+    """Builds the `--each-feature` variation map for a crate.
+
+    Mirrors `cargo hack check --each-feature`: one `--no-default-features` run
+    plus one `--features X` run per declared feature. For a crate with no
+    features, pass `[]` to get a single plain `cargo check` (matching what
+    cargo-hack emits for featureless crates).
+
+    Returns a map of {target-name-suffix: cargo feature arguments}. The keys are
+    used as Bazel target name suffixes, so they must be valid target names.
+
+    The resulting set is reconciled one-to-one against cargo-hack itself by
+    //:hack_reconcile, which fails if a crate's hack.bzl drifts from the
+    features cargo-hack actually enumerates.
+    """
+    if not features:
+        return {"check": ""}
+    variations = {"none": "--no-default-features"}
+    for f in features:
+        variations[f] = "--no-default-features --features " + f
+    return variations
+
+def hack_command(manifest, args):
+    """Formats a single cargo-hack-equivalent `cargo check` command line.
+
+    Matches the exact form printed by `cargo hack ... --print-command-list`
+    (no `--offline`), so the reconciliation diff stays byte-for-byte.
+    """
+    cmd = "cargo check --manifest-path " + manifest
+    if args:
+        cmd += " " + args
+    return cmd
+
+def cargo_hack_suite(name, manifest, variations, srcs, vendor, size = "large"):
+    """Generates one `cargo check` test per feature variation, plus a suite.
+
+    Each generated target runs exactly the `cargo check` invocation that
+    `cargo hack check --each-feature` would run for `manifest` and one feature,
+    using the hermetic vendored toolchain. Splitting cargo-hack's serial sweep
+    into individual targets lets Bazel run them in parallel, attribute failures
+    per feature, and cache results when inputs are unchanged.
+    """
+    tests = []
+    for suffix, args in variations.items():
+        tname = "{}_{}".format(name, suffix)
+        cargo_test(
+            name = tname,
+            size = size,
+            srcs = srcs,
+            vendor = vendor,
+            script = hack_command(manifest, args) + " --offline",
+        )
+        tests.append(":" + tname)
+    native.test_suite(
+        name = name,
+        tests = tests,
+    )

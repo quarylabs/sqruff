@@ -1,0 +1,108 @@
+file:
+- statement:
+  - create_extension_statement:
+    - keyword: CREATE
+    - keyword: EXTENSION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - extension_reference:
+      - naked_identifier: vector
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: example_embeddings
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: id
+      - data_type:
+        - keyword: BIGSERIAL
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+        - naked_identifier: source_id
+      - data_type:
+        - keyword: BIGINT
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+        - naked_identifier: content
+      - data_type:
+        - keyword: TEXT
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+        - naked_identifier: embedding
+      - data_type:
+        - data_type_identifier: vector
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1536'
+            - end_bracket: )
+      - comma: ','
+      - column_reference:
+        - naked_identifier: labels
+      - data_type:
+        - keyword: TEXT
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: source_id
+          - comma: ','
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: fk_example_source
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: source_id
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: example_sources
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: source_id
+            - end_bracket: )
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: CASCADE
+      - end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: LIST
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: source_id
+      - end_bracket: )
+- statement_terminator: ;

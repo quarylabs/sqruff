@@ -93,7 +93,7 @@ impl Rule for RuleJJ01 {
 
 Jinja tags with either no whitespace or very long whitespace are hard to read.
 
-```sql
+```jinja
 SELECT {{a}} from {{ref('foo')}}
 ```
 
@@ -102,7 +102,7 @@ SELECT {{a}} from {{ref('foo')}}
 A single whitespace surrounding Jinja tags, alternatively longer gaps containing
 newlines are acceptable.
 
-```sql
+```jinja
 SELECT {{ a }} from {{ ref('foo') }};
 ```
 "#

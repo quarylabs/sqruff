@@ -656,6 +656,22 @@ mod tests {
         }
     }
 
+    #[test]
+    fn test_reflow_sequence_respace_keeps_operator_in_unparsable() {
+        // https://github.com/quarylabs/sqruff/issues/2624
+        // When the right-hand side of a comparison fails to parse, `>=` ends up
+        // inside an unparsable section. Reflow must leave that section alone
+        // rather than splitting the operator into `> =`.
+        let tables = Tables::default();
+        let root = parse_ansi_string("SELECT 1 FROM t WHERE a >= @x");
+        let config = <_>::default();
+        let seq = ReflowSequence::from_root(&root, &config);
+
+        let out = seq.respace(&tables, false, Filter::All).raw();
+        assert!(out.contains(">="), "operator should stay joined: {out:?}");
+        assert!(!out.contains("> ="), "operator must not be split: {out:?}");
+    }
+
     #[derive(Debug, Clone, Copy, PartialEq)]
     enum EditType {
         CreateBefore,

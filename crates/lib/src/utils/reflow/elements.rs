@@ -427,6 +427,18 @@ impl ReflowPoint {
         anchor_on: &'static str,
     ) -> (Vec<LintResult>, ReflowPoint) {
         let mut existing_results = lint_results;
+
+        // Leave spacing untouched when it lives entirely inside an unparsable
+        // section. Since we couldn't parse that section we don't understand its
+        // tokens, so reformatting it is unsafe - e.g. splitting `>=` into `> =`
+        // when the right-hand side fails to parse (issue #2624).
+        if let (Some(prev_block), Some(next_block)) = (prev_block, next_block)
+            && prev_block.within_unparsable()
+            && next_block.within_unparsable()
+        {
+            return (existing_results, self.clone());
+        }
+
         let (pre_constraint, post_constraint, strip_newlines) =
             determine_constraints(prev_block, next_block, strip_newlines);
 
@@ -653,6 +665,14 @@ impl ReflowBlock {
 
     pub fn class_types(&self) -> &SyntaxSet {
         self.segment.class_types()
+    }
+
+    /// Whether this block sits inside an unparsable section.
+    pub fn within_unparsable(&self) -> bool {
+        self.depth_info
+            .stack_class_types
+            .iter()
+            .any(|types| types.contains(SyntaxKind::Unparsable))
     }
 
     pub fn stack_spacing_configs(&self) -> &IntMap<u64, Spacing> {

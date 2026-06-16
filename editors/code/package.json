@@ -55,7 +55,7 @@
     "test:e2e:headed": "pnpm run package && playwright test --headed"
   },
   "dependencies": {
-    "vscode-languageclient": "^9.0.1",
+    "vscode-languageclient": "^10.0.0",
     "vscode-languageserver": "^9.0.1"
   },
   "devDependencies": {

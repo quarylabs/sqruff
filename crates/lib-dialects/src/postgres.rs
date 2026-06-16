@@ -285,14 +285,7 @@ fn build_datatype_segment_grammar(pgvector: bool) -> Matchable {
         ])
         .to_matchable(),
         one_of(vec![
-            AnyNumberOf::new(vec![
-                Bracketed::new(vec![
-                    Ref::new("ExpressionSegment").optional().to_matchable(),
-                ])
-                .config(|this| this.bracket_type("square"))
-                .to_matchable(),
-            ])
-            .to_matchable(),
+            Ref::new("ArrayTypeSuffixSegment").to_matchable(),
             Ref::new("ArrayTypeSegment").to_matchable(),
             Ref::new("SizedArrayTypeSegment").to_matchable(),
         ])
@@ -1266,6 +1259,23 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("DateTimeTypeIdentifier").optional().to_matchable(),
                 Ref::new("QuotedLiteralSegment").to_matchable(),
             ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    postgres.add([(
+        "ArrayTypeSuffixSegment".into(),
+        NodeMatcher::new(SyntaxKind::ArrayTypeSuffix, |_| {
+            AnyNumberOf::new(vec![
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").optional().to_matchable(),
+                ])
+                .config(|this| this.bracket_type("square"))
+                .to_matchable(),
+            ])
+            .config(|this| this.min_times(1))
             .to_matchable()
         })
         .to_matchable()

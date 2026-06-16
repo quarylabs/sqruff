@@ -58,8 +58,9 @@ file:
         - naked_identifier: labels
       - data_type:
         - keyword: TEXT
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
+        - array_type_suffix:
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
       - comma: ','
       - table_constraint:
         - keyword: PRIMARY

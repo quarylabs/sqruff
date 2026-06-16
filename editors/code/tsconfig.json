@@ -4,6 +4,7 @@
     "moduleResolution": "Bundler",
     "target": "ES2022",
     "lib": ["ES2022", "WebWorker"],
+    "types": ["node", "vscode"],
     "sourceMap": true,
     "rootDir": "src",
     "strict": true /* enable all strict type-checking options */,

@@ -408,15 +408,28 @@ impl ErasedSegment {
 
         let pos_marker = self.get_position_marker().unwrap();
         if pos_marker.is_literal() && !has_descendant_source_fixes {
+            let templated_str = templated_file.templated_str.as_ref().unwrap();
+            let templated_slice = pos_marker.templated_slice.clone();
+            let source_slice = pos_marker.source_slice.clone();
+
+            // Skip patch if the position marker's slices are malformed.
+            let templated_len = templated_str.len();
+            let source_len = templated_file.source_str.len();
+            let templated_ok = templated_slice.start <= templated_slice.end
+                && templated_slice.end <= templated_len;
+            let source_ok =
+                source_slice.start <= source_slice.end && source_slice.end <= source_len;
+            if !templated_ok || !source_ok {
+                return acc;
+            }
+
             acc.extend(self.iter_source_fix_patches(templated_file));
             acc.push(FixPatch::new(
-                pos_marker.templated_slice.clone(),
+                templated_slice.clone(),
                 self.raw().clone(),
-                // SyntaxKind::Literal.into(),
-                pos_marker.source_slice.clone(),
-                templated_file.templated_str.as_ref().unwrap()[pos_marker.templated_slice.clone()]
-                    .to_string(),
-                templated_file.source_str[pos_marker.source_slice.clone()].to_string(),
+                source_slice.clone(),
+                templated_str[templated_slice].to_string(),
+                templated_file.source_str[source_slice].to_string(),
             ));
         } else if self.segments().is_empty() {
             return acc;

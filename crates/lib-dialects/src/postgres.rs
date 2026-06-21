@@ -1167,6 +1167,55 @@ pub fn raw_dialect() -> Dialect {
     postgres.replace_grammar("ArrayTypeSegment", Ref::keyword("ARRAY").to_matchable());
 
     postgres.add([(
+        "ReferencedColumnListGrammar".into(),
+        NodeMatcher::new(SyntaxKind::ReferencedColumnList, |_| {
+            Ref::new("BracketedColumnReferenceListGrammar").to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    postgres.replace_grammar(
+        "ReferenceDefinitionGrammar",
+        Sequence::new(vec![
+            Ref::keyword("REFERENCES").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            // Foreign columns making up FOREIGN KEY constraint
+            Ref::new("ReferencedColumnListGrammar")
+                .optional()
+                .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("MATCH").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("FULL").to_matchable(),
+                    Ref::keyword("PARTIAL").to_matchable(),
+                    Ref::keyword("SIMPLE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            AnyNumberOf::new(vec![
+                // ON DELETE clause, e.g. ON DELETE NO ACTION
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("DELETE").to_matchable(),
+                    Ref::new("ReferentialActionGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("UPDATE").to_matchable(),
+                    Ref::new("ReferentialActionGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    postgres.add([(
         "IndexAccessMethodSegment".into(),
         NodeMatcher::new(SyntaxKind::IndexAccessMethod, |_| {
             Ref::new("SingleIdentifierGrammar").to_matchable()

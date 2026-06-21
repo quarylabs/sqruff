@@ -267,6 +267,15 @@ test_postgres_datatype:
     core:
       dialect: postgres
 
+test_postgres_referenced_column_list_spacing:
+  pass_str: |
+    CREATE TABLE child (
+        parent_id INTEGER REFERENCES parent(id)
+    );
+  configs:
+    core:
+      dialect: postgres
+
 test_redshift_datatype:
   pass_str: |
     select

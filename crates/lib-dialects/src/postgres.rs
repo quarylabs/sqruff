@@ -298,6 +298,112 @@ fn build_datatype_segment_grammar(pgvector: bool) -> Matchable {
     .to_matchable()
 }
 
+fn table_constraint_body_grammar() -> Matchable {
+    Sequence::new(vec![
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("CHECK").to_matchable(),
+                Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()]).to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NO").to_matchable(),
+                    Ref::keyword("INHERIT").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("UNIQUE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NULLS").to_matchable(),
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::keyword("DISTINCT").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                Ref::new("IndexParametersSegment").optional().to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::new("PrimaryKeyGrammar").to_matchable(),
+                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                Ref::new("IndexParametersSegment").optional().to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("EXCLUDE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("USING").to_matchable(),
+                    Ref::new("IndexAccessMethodSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("ExclusionConstraintElementSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("IndexParametersSegment").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WHERE").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("FOREIGN").to_matchable(),
+                Ref::keyword("KEY").to_matchable(),
+                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+        AnyNumberOf::new(vec![
+            one_of(vec![
+                Ref::keyword("DEFERRABLE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NOT").to_matchable(),
+                    Ref::keyword("DEFERRABLE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("INITIALLY").to_matchable(),
+                    Ref::keyword("DEFERRED").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("INITIALLY").to_matchable(),
+                    Ref::keyword("IMMEDIATE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("NOT").to_matchable(),
+                Ref::keyword("VALID").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("NO").to_matchable(),
+                Ref::keyword("INHERIT").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable()
+}
+
 pub fn raw_dialect() -> Dialect {
     let mut postgres = ansi::raw_dialect();
     postgres.name = DialectKind::Postgres;
@@ -4881,114 +4987,16 @@ pub fn raw_dialect() -> Dialect {
     postgres.add([(
         "TableConstraintSegment".into(),
         NodeMatcher::new(SyntaxKind::TableConstraint, |_| {
-            Sequence::new(vec![
+            one_of(vec![
                 Sequence::new(vec![
                     Ref::keyword("CONSTRAINT").to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
-                one_of(vec![
-                    Sequence::new(vec![
-                        Ref::keyword("CHECK").to_matchable(),
-                        Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
-                            .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NO").to_matchable(),
-                            Ref::keyword("INHERIT").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("UNIQUE").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NULLS").to_matchable(),
-                            Ref::keyword("NOT").optional().to_matchable(),
-                            Ref::keyword("DISTINCT").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
-                        Ref::new("IndexParametersSegment").optional().to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::new("PrimaryKeyGrammar").to_matchable(),
-                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
-                        Ref::new("IndexParametersSegment").optional().to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("EXCLUDE").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("USING").to_matchable(),
-                            Ref::new("IndexAccessMethodSegment").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![
-                                Ref::new("ExclusionConstraintElementSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("IndexParametersSegment").optional().to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("WHERE").to_matchable(),
-                            Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
-                                .to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("FOREIGN").to_matchable(),
-                        Ref::keyword("KEY").to_matchable(),
-                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
-                        Ref::new("ReferenceDefinitionGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    table_constraint_body_grammar(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable(),
-                AnyNumberOf::new(vec![
-                    one_of(vec![
-                        Ref::keyword("DEFERRABLE").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NOT").to_matchable(),
-                            Ref::keyword("DEFERRABLE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("INITIALLY").to_matchable(),
-                            Ref::keyword("DEFERRED").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("INITIALLY").to_matchable(),
-                            Ref::keyword("IMMEDIATE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("NOT").to_matchable(),
-                        Ref::keyword("VALID").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("NO").to_matchable(),
-                        Ref::keyword("INHERIT").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
+                table_constraint_body_grammar(),
             ])
             .to_matchable()
         })

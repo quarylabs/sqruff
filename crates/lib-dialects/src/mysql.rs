@@ -2827,8 +2827,14 @@ pub fn raw_dialect() -> Dialect {
                     .optional()
                     .to_matchable(),
                 Ref::keyword("AS").to_matchable(),
-                optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
+                optionally_bracketed(vec![
+                    one_of(vec![
+                        Ref::new("SelectStatementSegment").to_matchable(),
+                        Ref::new("SetExpressionSegment").to_matchable(),
+                    ])
                     .to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::new("WithCheckOptionSegment").optional().to_matchable(),
             ])
             .to_matchable()
@@ -2873,8 +2879,14 @@ pub fn raw_dialect() -> Dialect {
                 .optional()
                 .to_matchable(),
             Ref::keyword("AS").to_matchable(),
-            optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
+            optionally_bracketed(vec![
+                one_of(vec![
+                    Ref::new("SelectStatementSegment").to_matchable(),
+                    Ref::new("SetExpressionSegment").to_matchable(),
+                ])
                 .to_matchable(),
+            ])
+            .to_matchable(),
             Ref::new("WithCheckOptionSegment").optional().to_matchable(),
         ])
         .to_matchable(),
@@ -3875,6 +3887,20 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // ============================================================
+    // RETURN statement (#4693) — https://dev.mysql.com/doc/refman/8.0/en/return.html
+    mysql.add([(
+        "ReturnStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::ReturnStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("RETURN").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // StatementSegment - override to add MySQL-specific statements
     // ============================================================
 
@@ -3918,6 +3944,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("LoadDataSegment").to_matchable(),
                 Ref::new("ReplaceSegment").to_matchable(),
                 Ref::new("AlterDatabaseStatementSegment").to_matchable(),
+                Ref::new("ReturnStatementSegment").to_matchable(),
             ]),
             None,
             None,

@@ -9,7 +9,7 @@ use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::TypedParser;
+use sqruff_lib_core::parser::parsers::{StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 
@@ -42,6 +42,27 @@ pub fn raw_dialect() -> Dialect {
             SyntaxKind::BytesSingleQuote,
         )],
         "single_quote",
+    );
+
+    // SQLite bind parameters: @name, :name, ?NNN and $name. These must be
+    // lexed before the bare `question`/`colon` matchers so the full parameter
+    // token is captured (e.g. `>= @since` instead of splitting `>=`).
+    sqlite_dialect.insert_lexer_matchers(
+        vec![
+            Matcher::regex(
+                "at_sign_literal",
+                r"@[a-zA-Z0-9_]+",
+                SyntaxKind::AtSignLiteral,
+            ),
+            Matcher::regex("colon_literal", r":[a-zA-Z0-9_]+", SyntaxKind::ColonLiteral),
+            Matcher::regex("question_literal", r"\?[0-9]+", SyntaxKind::QuestionLiteral),
+            Matcher::regex(
+                "dollar_literal",
+                r"\$[a-zA-Z0-9_]+",
+                SyntaxKind::DollarLiteral,
+            ),
+        ],
+        "question",
     );
 
     sqlite_dialect.sets_mut("reserved_keywords").clear();
@@ -79,13 +100,64 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable()
                 .into(),
         ),
+        // SQLite bind parameter segments.
+        (
+            "AtSignLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::AtSignLiteral, SyntaxKind::AtSignLiteral)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "ColonLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::ColonLiteral, SyntaxKind::ColonLiteral)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "QuestionLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::QuestionLiteral, SyntaxKind::QuestionLiteral)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "DollarLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::DollarLiteral, SyntaxKind::DollarLiteral)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "QuestionMarkSegment".into(),
+            StringParser::new("?", SyntaxKind::QuestionMark)
+                .to_matchable()
+                .into(),
+        ),
+        // SQLite allows named and argument based parameters to prevent SQL
+        // injection: @name, ?, :name, ?NNN and $name.
+        (
+            "ParameterizedSegment".into(),
+            NodeMatcher::new(SyntaxKind::ParameterizedExpression, |_| {
+                one_of(vec![
+                    Ref::new("AtSignLiteralSegment").to_matchable(),
+                    Ref::new("QuestionMarkSegment").to_matchable(),
+                    Ref::new("ColonLiteralSegment").to_matchable(),
+                    Ref::new("QuestionLiteralSegment").to_matchable(),
+                    Ref::new("DollarLiteralSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // Extend LiteralGrammar to include blob literals
         (
             "LiteralGrammar".into(),
             sqlite_dialect
                 .grammar("LiteralGrammar")
                 .copy(
-                    Some(vec![Ref::new("BytesQuotedLiteralSegment").to_matchable()]),
+                    Some(vec![
+                        Ref::new("ParameterizedSegment").to_matchable(),
+                        Ref::new("BytesQuotedLiteralSegment").to_matchable(),
+                    ]),
                     None,
                     None,
                     None,

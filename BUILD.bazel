@@ -155,6 +155,41 @@ sh_test(
     ],
 )
 
+# Check that pnpm-lock.yaml is up to date with the workspace package.json files
+sh_test(
+    name = "pnpm_lock_check",
+    size = "small",
+    srcs = [".hacking/scripts/pnpm_lock_check.sh"],
+    data = [
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "//editors/code:package.json",
+        "//playground:package.json",
+        "@pnpm//:pnpm",
+    ],
+    env = {
+        "PNPM": "$(rlocationpath @pnpm//:pnpm)",
+    },
+    tags = ["requires-network"],
+)
+
+# Check that uv.lock is up to date with pyproject.toml
+sh_test(
+    name = "uv_lock_check",
+    size = "small",
+    srcs = [".hacking/scripts/uv_lock_check.sh"],
+    data = [
+        "pyproject.toml",
+        "uv.lock",
+        "@uv//:uv",
+    ],
+    env = {
+        "UV": "$(rlocationpath @uv//:uv)",
+    },
+    tags = ["requires-network"],
+)
+
 # Python ruff check - format and lint
 sh_test(
     name = "ruff_check",
@@ -223,7 +258,7 @@ filegroup(
 cargo_vendor(
     name = "cargo_vendor",
     manifests = [":cargo_srcs"],
-    rust_version = "1.95.0",
+    rust_version = "1.96.0",
     components = [
         "clippy",
         "rustfmt",

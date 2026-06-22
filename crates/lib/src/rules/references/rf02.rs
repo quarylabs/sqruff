@@ -4,7 +4,9 @@ use regex::Regex;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
+use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -12,9 +14,16 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::rules::aliasing::al04::RuleAL04;
 
+#[derive(Clone, Debug, Default)]
+pub struct RuleRF02Config {
+    ignore_words: Vec<String>,
+    ignore_words_regex: Vec<Regex>,
+    subqueries_ignore_external_references: bool,
+}
+
 #[derive(Clone, Debug)]
 pub struct RuleRF02 {
-    base: RuleAL04<(Vec<String>, Vec<Regex>)>,
+    base: RuleAL04<RuleRF02Config>,
 }
 
 impl Default for RuleRF02 {
@@ -22,7 +31,7 @@ impl Default for RuleRF02 {
         Self {
             base: RuleAL04 {
                 lint_references_and_aliases: Self::lint_references_and_aliases,
-                context: (Vec::new(), Vec::new()),
+                context: RuleRF02Config::default(),
             },
         }
     }
@@ -50,10 +59,18 @@ impl Rule for RuleRF02 {
             })
             .unwrap_or_default();
 
+        let subqueries_ignore_external_references = config["subqueries_ignore_external_references"]
+            .as_bool()
+            .unwrap_or(false);
+
         Ok(Self {
             base: RuleAL04 {
                 lint_references_and_aliases: Self::lint_references_and_aliases,
-                context: (ignore_words, ignore_words_regex),
+                context: RuleRF02Config {
+                    ignore_words,
+                    ignore_words_regex,
+                    subqueries_ignore_external_references,
+                },
             },
         }
         .erased())
@@ -105,26 +122,68 @@ LEFT JOIN vee ON vee.a = foo.a
 }
 
 impl RuleRF02 {
+    /// Determine if a subquery is part of the `from` clause.
+    ///
+    /// Any subqueries in the `from_clause` should be ignored, unless they are a
+    /// nested correlated query (i.e. inside a `where_clause`).
+    fn is_root_from_clause(rule_context: &RuleContext) -> bool {
+        for x in rule_context.parent_stack.iter().rev() {
+            if x.is_type(SyntaxKind::FromClause) {
+                return true;
+            } else if x.is_type(SyntaxKind::WhereClause) {
+                return false;
+            }
+        }
+        false
+    }
+
+    #[allow(clippy::too_many_arguments)]
     fn lint_references_and_aliases(
-        table_aliases: Vec<AliasInfo>,
+        mut table_aliases: Vec<AliasInfo>,
         standalone_aliases: Vec<SmolStr>,
         references: Vec<ObjectReferenceSegment>,
         col_aliases: Vec<ColumnAliasInfo>,
         using_cols: Vec<SmolStr>,
-        context: &(Vec<String>, Vec<Regex>),
+        parent_select: Option<ErasedSegment>,
+        rule_context: &RuleContext,
+        context: &RuleRF02Config,
     ) -> Vec<LintResult> {
+        let parent_select_info = parent_select.and_then(|parent| {
+            get_select_statement_info(&parent, rule_context.dialect.into(), true)
+        });
+        if let Some(parent_select_info) = parent_select_info {
+            // If we are looking at a subquery, include any table references
+            // from the parent (outer) select.
+            for table_alias in parent_select_info.table_aliases {
+                let is_from = Self::is_root_from_clause(rule_context);
+                if !table_alias
+                    .from_expression_element
+                    .path_to(&rule_context.segment)
+                    .is_empty()
+                    || is_from
+                    || context.subqueries_ignore_external_references
+                {
+                    // Skip the subquery alias itself, or if the subquery is
+                    // inside a `from`/`join` clause that isn't a nested
+                    // `where` clause.
+                    continue;
+                }
+                table_aliases.push(table_alias);
+            }
+        }
+
         if table_aliases.len() <= 1 {
             return Vec::new();
         }
 
         let mut violation_buff = Vec::new();
         for r in references {
-            if context.0.contains(&r.0.raw().to_lowercase()) {
+            if context.ignore_words.contains(&r.0.raw().to_lowercase()) {
                 continue;
             }
 
             if context
-                .1
+                .ignore_words_regex
                 .iter()
                 .any(|regex| regex.is_match(r.0.raw().as_ref()))
             {

@@ -13,7 +13,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -99,6 +99,16 @@ pub fn raw_dialect() -> Dialect {
             ),
         ],
         "equals",
+    );
+
+    // sqlcmd `:r <path>` relative file paths (e.g. .\folder\script.sql) (#4653)
+    dialect.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "unquoted_relative_sql_file_path",
+            r"[.\w\\/#-]+\.[sS][qQ][lL]",
+            SyntaxKind::UnquotedRelativeSqlFilePath,
+        )],
+        "back_quote",
     );
 
     // T-SQL specific lexer patches:
@@ -832,6 +842,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropTriggerStatementSegment").to_matchable(),
             Ref::new("CreateDatabaseScopedCredentialStatementSegment").to_matchable(),
             Ref::new("CreateExternalDataSourceStatementSegment").to_matchable(),
+            Ref::new("SqlcmdCommandSegment").to_matchable(),
+            Ref::new("CreateExternalFileFormat").to_matchable(),
+            Ref::new("CreateExternalTableStatementSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),
@@ -879,6 +892,471 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
         ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // PERIOD FOR SYSTEM_TIME (start_col, end_col) for temporal tables (#4654)
+    dialect.add([(
+        "PeriodSegment".into(),
+        NodeMatcher::new(SyntaxKind::PeriodSegment, |_| {
+            Sequence::new(vec![
+                Ref::keyword("PERIOD").to_matchable(),
+                Ref::keyword("FOR").to_matchable(),
+                Ref::keyword("SYSTEM_TIME").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // sqlcmd commands `:r` and `:setvar` (#4653)
+    // https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility#sqlcmd-commands
+    dialect.add([(
+        "SqlcmdOperatorSegment".into(),
+        MultiStringParser::new(
+            vec!["r".to_string(), "setvar".to_string()],
+            SyntaxKind::SqlcmdOperator,
+        )
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "SqlcmdFilePathSegment".into(),
+        TypedParser::new(
+            SyntaxKind::UnquotedRelativeSqlFilePath,
+            SyntaxKind::UnquotedRelativeSqlFilePath,
+        )
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "SqlcmdCommandSegment".into(),
+        NodeMatcher::new(SyntaxKind::SqlcmdCommandSegment, |_| {
+            one_of(vec![
+                // :r <relative .sql file path>
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("ColonSegment").to_matchable(),
+                        Ref::new("SqlcmdOperatorSegment").to_matchable(),
+                    ])
+                    .config(|this| this.disallow_gaps())
+                    .to_matchable(),
+                    Ref::new("SqlcmdFilePathSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                // :setvar <name> <value>
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("ColonSegment").to_matchable(),
+                        Ref::new("SqlcmdOperatorSegment").to_matchable(),
+                    ])
+                    .config(|this| this.disallow_gaps())
+                    .to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("QuotedIdentifierSegment").to_matchable(),
+                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // CREATE EXTERNAL FILE FORMAT (#4647)
+    // Restricted value sets for compression codecs, encodings and SerDe methods.
+    dialect.add([(
+        "FileCompressionSegment".into(),
+        MultiStringParser::new(
+            vec![
+                "'org.apache.hadoop.io.compress.GzipCodec'".to_string(),
+                "'org.apache.hadoop.io.compress.DefaultCodec'".to_string(),
+                "'org.apache.hadoop.io.compress.SnappyCodec'".to_string(),
+            ],
+            SyntaxKind::FileCompression,
+        )
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "FileEncodingSegment".into(),
+        MultiStringParser::new(
+            vec!["'UTF8'".to_string(), "'UTF16'".to_string()],
+            SyntaxKind::FileEncoding,
+        )
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "SerdeMethodSegment".into(),
+        MultiStringParser::new(
+            vec![
+                "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'".to_string(),
+                "'org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe'".to_string(),
+            ],
+            SyntaxKind::SerdeMethod,
+        )
+        .to_matchable()
+        .into(),
+    )]);
+
+    // FORMAT_OPTIONS (...) entries for the delimited-text file format.
+    dialect.add([(
+        "ExternalFileFormatDelimitedTextFormatOptionClause".into(),
+        NodeMatcher::new(
+            SyntaxKind::ExternalFileDelimitedTextFormatOptionsClause,
+            |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("FIELD_TERMINATOR").to_matchable(),
+                            Ref::keyword("STRING_DELIMITER").to_matchable(),
+                            Ref::keyword("DATE_FORMAT").to_matchable(),
+                            Ref::keyword("PARSER_VERSION").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("FIRST_ROW").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("USE_TYPE_DEFAULT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("BooleanLiteralGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ENCODING").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("FileEncodingSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            },
+        )
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Per-format clauses inside `CREATE EXTERNAL FILE FORMAT ... WITH ( ... )`.
+    dialect.add([(
+        "ExternalFileFormatDelimitedTextClause".into(),
+        NodeMatcher::new(SyntaxKind::ExternalFileDelimitedTextClause, |_| {
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("FORMAT_TYPE").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::keyword("DELIMITEDTEXT").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("FORMAT_OPTIONS").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Ref::new("ExternalFileFormatDelimitedTextFormatOptionClause")
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DATA_COMPRESSION").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("FileCompressionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "ExternalFileFormatRcClause".into(),
+        NodeMatcher::new(SyntaxKind::ExternalFileRcClause, |_| {
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("FORMAT_TYPE").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::keyword("RCFILE").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SERDE_METHOD").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("SerdeMethodSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DATA_COMPRESSION").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("FileCompressionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "ExternalFileFormatOrcClause".into(),
+        NodeMatcher::new(SyntaxKind::ExternalFileOrcClause, |_| {
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("FORMAT_TYPE").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::keyword("ORC").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DATA_COMPRESSION").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("FileCompressionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "ExternalFileFormatParquetClause".into(),
+        NodeMatcher::new(SyntaxKind::ExternalFileParquetClause, |_| {
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("FORMAT_TYPE").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::keyword("PARQUET").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DATA_COMPRESSION").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("FileCompressionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "ExternalFileFormatJsonClause".into(),
+        NodeMatcher::new(SyntaxKind::ExternalFileJsonClause, |_| {
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("FORMAT_TYPE").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::keyword("JSON").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DATA_COMPRESSION").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("FileCompressionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "ExternalFileFormatDeltaClause".into(),
+        NodeMatcher::new(SyntaxKind::ExternalFileDeltaClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("FORMAT_TYPE").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::keyword("DELTA").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "CreateExternalFileFormat".into(),
+        NodeMatcher::new(SyntaxKind::CreateExternalFileFormat, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("EXTERNAL").to_matchable(),
+                Ref::keyword("FILE").to_matchable(),
+                Ref::keyword("FORMAT").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Ref::keyword("WITH").to_matchable(),
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Ref::new("ExternalFileFormatDelimitedTextClause").to_matchable(),
+                        Ref::new("ExternalFileFormatRcClause").to_matchable(),
+                        Ref::new("ExternalFileFormatOrcClause").to_matchable(),
+                        Ref::new("ExternalFileFormatParquetClause").to_matchable(),
+                        Ref::new("ExternalFileFormatJsonClause").to_matchable(),
+                        Ref::new("ExternalFileFormatDeltaClause").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // OPENJSON() table-valued function (#4652)
+    // https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql
+    dialect.add([(
+        "OpenJsonWithClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::OpenjsonWithClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            // column_path
+                            Ref::new("QuotedLiteralSegment").optional().to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("AS").to_matchable(),
+                                Ref::keyword("JSON").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "OpenJsonSegment".into(),
+        NodeMatcher::new(SyntaxKind::OpenjsonSegment, |_| {
+            Sequence::new(vec![
+                Ref::keyword("OPENJSON").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Ref::new("ParameterNameSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("OpenJsonWithClauseSegment")
+                    .optional()
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // CREATE EXTERNAL TABLE (#4642)
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-table-transact-sql
+    dialect.add([(
+        "CreateExternalTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateExternalTableStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("EXTERNAL").to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("ColumnDefinitionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("WITH").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("TableLocationClause").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DATA_SOURCE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("FILE_FORMAT").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REJECT_TYPE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("VALUE").to_matchable(),
+                                Ref::keyword("PERCENTAGE").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REJECT_VALUE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REJECT_SAMPLE_VALUE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REJECTED_ROW_LOCATION").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -1013,6 +1491,7 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec![
             Ref::new("ValuesClauseSegment").to_matchable(),
             Ref::new("BareFunctionSegment").to_matchable(),
+            Ref::new("OpenJsonSegment").to_matchable(),
             Ref::new("FunctionSegment").to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),
             Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
@@ -1714,6 +2193,7 @@ pub fn raw_dialect() -> Dialect {
                                 one_of(vec![
                                     Ref::new("TableConstraintSegment").to_matchable(),
                                     Ref::new("ColumnDefinitionSegment").to_matchable(),
+                                    Ref::new("PeriodSegment").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])

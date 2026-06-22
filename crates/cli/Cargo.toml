@@ -6,7 +6,7 @@ repository.workspace = true
 edition.workspace = true
 license.workspace = true
 default-run = "sqruff"
-rust-version = "1.95"
+rust-version = "1.96"
 
 [package.metadata.binstall]
 pkg-url = "{ repo }/releases/download/v{ version }/sqruff-{ target-family }-{ target-arch }.tar.gz"
@@ -67,12 +67,16 @@ harness = false
 name = "dialect_override"
 harness = false
 
+[[test]]
+name = "none_format"
+harness = false
+
 [package.metadata.cargo-machete]
 ignored = ["pyo3"]
 
 [dependencies]
 sqruff-cli-lib.workspace = true
-pyo3 = { version = "0.28.2", features = ["auto-initialize"], optional = true }
+pyo3 = { version = "0.29.0", features = ["auto-initialize"], optional = true }
 dhat = { version = "0.3.3", optional = true }
 
 [target.'cfg(all(target_os = "windows", not(feature = "dhat-heap")))'.dependencies]

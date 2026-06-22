@@ -13,14 +13,9 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    const cl = new LanguageClient(
-      "sqruff-lsp",
-      "Sqruff LSP",
-      {
-        documentSelector: [{ language: "sql" }],
-      },
-      worker,
-    );
+    const cl = new LanguageClient("sqruff-lsp", "Sqruff LSP", worker, {
+      documentSelector: [{ language: "sql" }],
+    });
 
     const fileEvents = [
       vscode.workspace.createFileSystemWatcher("**/.sqruff"),

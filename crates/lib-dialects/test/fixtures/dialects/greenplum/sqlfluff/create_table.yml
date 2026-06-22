@@ -1,0 +1,298 @@
+file:
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: measurement
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: city_id
+        - data_type:
+          - keyword: int
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: logdate
+        - data_type:
+          - datetime_type_identifier:
+            - keyword: date
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: peaktemp
+        - data_type:
+          - keyword: int
+        - comma: ','
+        - column_reference:
+          - naked_identifier: unitsales
+        - data_type:
+          - keyword: int
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - parameter: appendoptimized
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - boolean_literal: 'true'
+        - comma: ','
+        - parameter: compresslevel
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '5'
+        - end_bracket: )
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: txn_id
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: measurement
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: city_id
+        - data_type:
+          - keyword: int
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: logdate
+        - data_type:
+          - datetime_type_identifier:
+            - keyword: date
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: peaktemp
+        - data_type:
+          - keyword: int
+        - comma: ','
+        - column_reference:
+          - naked_identifier: unitsales
+        - data_type:
+          - keyword: int
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - parameter: appendoptimized
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - boolean_literal: 'true'
+        - end_bracket: )
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: txn_id
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: test
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: test_id
+        - data_type:
+          - keyword: int
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: logdate
+        - data_type:
+          - datetime_type_identifier:
+            - keyword: date
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: test_text
+        - data_type:
+          - keyword: int
+        - end_bracket: )
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: txn_id
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: test_randomly
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: test_id
+        - data_type:
+          - keyword: int
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: logdate
+        - data_type:
+          - datetime_type_identifier:
+            - keyword: date
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: test_text
+        - data_type:
+          - keyword: int
+        - end_bracket: )
+      - keyword: DISTRIBUTED
+      - keyword: RANDOMLY
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: test_replicated
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: test_id
+        - data_type:
+          - keyword: int
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: logdate
+        - data_type:
+          - datetime_type_identifier:
+            - keyword: date
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: test_text
+        - data_type:
+          - keyword: int
+        - end_bracket: )
+      - keyword: DISTRIBUTED
+      - keyword: REPLICATED
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: sales_zstd
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: id
+        - data_type:
+          - keyword: int
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: amount
+        - data_type:
+          - keyword: int
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - parameter: appendoptimized
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - boolean_literal: 'true'
+        - comma: ','
+        - parameter: compresstype
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - properties_naked_identifier: zstd
+        - comma: ','
+        - parameter: orientation
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - properties_naked_identifier: column
+        - end_bracket: )
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: id
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: quoted_opt
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: id
+        - data_type:
+          - keyword: int
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - parameter: compresstype
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_identifier: '"zstd"'
+        - end_bracket: )
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: id
+        - end_bracket: )
+- statement_terminator: ;

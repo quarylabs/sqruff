@@ -2174,3 +2174,27 @@ test_pass_implicit_where:
   configs:
     indentation:
       allow_implicit_indents: true
+
+test_fail_issue_4680:
+  # NOTE: It doesn't reindent the second clause, but the important
+  # thing is that we don't get an exception.
+  # https://github.com/sqlfluff/sqlfluff/issues/4680
+  ignored: "jinja is not supported"
+  fail_str: |
+    SELECT col1
+    FROM table
+    WHERE
+      {% if true %}
+        col1 > 1
+      {% else %}
+        col1 > 0
+      {% endif %}
+  fix_str: |
+    SELECT col1
+    FROM table
+    WHERE
+        {% if true %}
+            col1 > 1
+        {% else %}
+        col1 > 0
+      {% endif %}

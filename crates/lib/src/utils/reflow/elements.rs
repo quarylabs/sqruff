@@ -260,16 +260,16 @@ impl ReflowPoint {
 
                 let new_indent = SegmentBuilder::whitespace(tables.next_id(), desired_indent);
 
-                let (last_newline_idx, last_newline) = self
-                    .segments
-                    .iter()
-                    .enumerate()
-                    .rev()
-                    .find(|(_, it)| {
+                let Some((last_newline_idx, last_newline)) =
+                    self.segments.iter().enumerate().rev().find(|(_, it)| {
                         it.is_type(SyntaxKind::Newline)
-                            && it.get_position_marker().unwrap().is_literal()
+                            && it
+                                .get_position_marker()
+                                .is_some_and(|marker| marker.is_literal())
                     })
-                    .unwrap();
+                else {
+                    return (Vec::new(), self.clone());
+                };
 
                 let mut new_segments = self.segments[..=last_newline_idx].to_vec();
                 new_segments.push(new_indent.clone());
@@ -840,3 +840,74 @@ impl PartialEq<ReflowBlock> for ReflowElement {
 }
 
 pub type ReflowSequenceType = Vec<ReflowElement>;
+
+#[cfg(test)]
+mod tests {
+    use sqruff_lib_core::dialects::syntax::SyntaxKind;
+    use sqruff_lib_core::parser::markers::PositionMarker;
+    use sqruff_lib_core::parser::segments::{SegmentBuilder, Tables};
+    use sqruff_lib_core::templaters::{
+        RawFileSlice, TemplateSliceKind, TemplatedFile, TemplatedFileSlice,
+    };
+
+    use super::ReflowPoint;
+
+    #[test]
+    fn indent_to_leaves_non_literal_newline_unchanged() {
+        let templated_file = TemplatedFile::new(
+            "{{ source('connection', 'table') }}".to_string(),
+            "model.sql".to_string(),
+            Some("\n".to_string()),
+            Some(vec![TemplatedFileSlice::new(
+                TemplateSliceKind::Templated,
+                0..34,
+                0..1,
+            )]),
+            Some(vec![RawFileSlice::new(
+                "{{ source('connection', 'table') }}".to_string(),
+                TemplateSliceKind::Templated,
+                0,
+                None,
+                None,
+            )]),
+        )
+        .unwrap();
+        let marker = PositionMarker::new(0..34, 0..1, templated_file, Some(1), Some(1));
+        let newline = SegmentBuilder::token(0, "\n", SyntaxKind::Newline)
+            .with_position(marker)
+            .finish();
+        let point = ReflowPoint::new(vec![newline]);
+        let tables = Tables::default();
+
+        let (results, new_point) = point.indent_to(
+            &tables,
+            "    ",
+            None,
+            Some(SegmentBuilder::keyword(1, "select")),
+            None,
+            None,
+        );
+
+        assert!(results.is_empty());
+        assert_eq!(new_point, point);
+    }
+
+    #[test]
+    fn indent_to_leaves_markerless_newline_unchanged() {
+        let newline = SegmentBuilder::newline(0, "\n");
+        let point = ReflowPoint::new(vec![newline]);
+        let tables = Tables::default();
+
+        let (results, new_point) = point.indent_to(
+            &tables,
+            "    ",
+            None,
+            Some(SegmentBuilder::keyword(1, "select")),
+            None,
+            None,
+        );
+
+        assert!(results.is_empty());
+        assert_eq!(new_point, point);
+    }
+}

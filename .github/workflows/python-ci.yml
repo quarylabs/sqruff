@@ -23,6 +23,7 @@ jobs:
   linux:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
+      fail-fast: false
       matrix:
         platform:
           - runner: ubuntu-22.04
@@ -57,7 +58,7 @@ jobs:
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: auto
       - name: Upload wheels
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+        uses: ./.github/actions/upload-artifact-with-retry
         with:
           name: wheels-linux-${{ matrix.platform.target }}
           path: dist
@@ -65,6 +66,7 @@ jobs:
   musllinux:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
+      fail-fast: false
       matrix:
         platform:
           - runner: ubuntu-22.04
@@ -94,7 +96,7 @@ jobs:
           args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t
           manylinux: musllinux_1_2
       - name: Upload wheels
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+        uses: ./.github/actions/upload-artifact-with-retry
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}
           path: dist
@@ -102,6 +104,7 @@ jobs:
   windows:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
+      fail-fast: false
       matrix:
         platform:
           - runner: windows-latest
@@ -148,7 +151,7 @@ jobs:
           args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
       - name: Upload wheels
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+        uses: ./.github/actions/upload-artifact-with-retry
         with:
           name: wheels-windows-${{ matrix.platform.target }}
           path: dist
@@ -156,6 +159,7 @@ jobs:
   macos:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
+      fail-fast: false
       matrix:
         platform:
           - runner: macos-15-intel
@@ -180,7 +184,7 @@ jobs:
           args: --release --out dist --manifest-path crates/cli-python/Cargo.toml -i python3.14t
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
       - name: Upload wheels
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+        uses: ./.github/actions/upload-artifact-with-retry
         with:
           name: wheels-macos-${{ matrix.platform.target }}
           path: dist
@@ -195,7 +199,7 @@ jobs:
           command: sdist
           args: --out dist --manifest-path crates/cli-python/Cargo.toml
       - name: Upload sdist
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+        uses: ./.github/actions/upload-artifact-with-retry
         with:
           name: wheels-sdist
           path: dist

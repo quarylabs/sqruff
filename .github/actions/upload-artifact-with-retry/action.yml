@@ -1,0 +1,39 @@
+name: Upload artifact with retry
+description: Upload an artifact, retrying transient upload failures.
+
+inputs:
+  name:
+    description: Name to use for the uploaded artifact.
+    required: true
+  path:
+    description: Path to upload.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Upload artifact (attempt 1)
+      id: upload_1
+      continue-on-error: true
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.path }}
+
+    - name: Upload artifact (attempt 2)
+      id: upload_2
+      if: steps.upload_1.outcome == 'failure'
+      continue-on-error: true
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.path }}
+        overwrite: true
+
+    - name: Upload artifact (attempt 3)
+      if: steps.upload_1.outcome == 'failure' && steps.upload_2.outcome == 'failure'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.path }}
+        overwrite: true

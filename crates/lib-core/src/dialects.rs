@@ -174,7 +174,10 @@ impl Dialect {
         set_label: &'static str,
         values: &'static str,
     ) {
-        let keywords = values.lines().map(str::trim);
+        let keywords = values
+            .lines()
+            .map(str::trim)
+            .filter(|keyword| !keyword.is_empty());
         self.sets_mut(set_label).extend(keywords);
     }
 

@@ -6,7 +6,17 @@ load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
-load(":cargo_build.bzl", "cargo_run", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
+load(":cargo_build.bzl", "cargo_run", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "hack_command", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
+load("//crates/cli:hack.bzl", cli_hack = "HACK", cli_manifest = "MANIFEST")
+load("//crates/cli-lib:hack.bzl", cli_lib_hack = "HACK", cli_lib_manifest = "MANIFEST")
+load("//crates/cli-python:hack.bzl", cli_python_hack = "HACK", cli_python_manifest = "MANIFEST")
+load("//crates/lib:hack.bzl", lib_hack = "HACK", lib_manifest = "MANIFEST")
+load("//crates/lib-core:hack.bzl", lib_core_hack = "HACK", lib_core_manifest = "MANIFEST")
+load("//crates/lib-dialects:hack.bzl", lib_dialects_hack = "HACK", lib_dialects_manifest = "MANIFEST")
+load("//crates/lib-wasm:hack.bzl", lib_wasm_hack = "HACK", lib_wasm_manifest = "MANIFEST")
+load("//crates/lineage:hack.bzl", lineage_hack = "HACK", lineage_manifest = "MANIFEST")
+load("//crates/lsp:hack.bzl", lsp_hack = "HACK", lsp_manifest = "MANIFEST")
+load("//crates/sqlinference:hack.bzl", sqlinference_hack = "HACK", sqlinference_manifest = "MANIFEST")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
@@ -232,6 +242,19 @@ RUST_TARGETS = [
     "//crates/sqlinference:sqruff-sqlinference",
 ]
 
+# Workspace-level manifests shared by every per-crate hack target. Combined
+# with a crate's dependency-closure machete_srcs, this is the scoped input set
+# that lets unrelated crate edits stay cache hits (see cargo_hack_suite).
+filegroup(
+    name = "workspace_manifest",
+    srcs = [
+        "Cargo.lock",
+        "Cargo.toml",
+        "rust-toolchain.toml",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 # Common Cargo source files for cargo-based checks
 # Used by cargo_machete, cargo_check, cargo_hack_check, rust_lint
 filegroup(
@@ -251,6 +274,7 @@ filegroup(
         "//crates/lsp:machete_srcs",
         "//crates/sqlinference:machete_srcs",
     ],
+    visibility = ["//visibility:public"],
 )
 
 # Vendor cargo dependencies and install Rust toolchain (cached until Cargo.lock changes)
@@ -269,6 +293,7 @@ cargo_vendor(
 cargo_vendor_provider(
     name = "cargo_deps",
     vendor = ":cargo_vendor",
+    visibility = ["//visibility:public"],
 )
 
 # Pre-cache Python venv with all dev dependencies (cached until pyproject.toml changes)
@@ -460,16 +485,87 @@ cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --exc
 """,
 )
 
-# Cargo hack check - verify each feature compiles in isolation
-# This ensures no feature combination is broken
-# Uses vendored dependencies for hermetic builds
+# Cargo hack check - verify each feature compiles in isolation.
+#
+# Instead of one monolithic `cargo hack check --each-feature` action (serial,
+# all-or-nothing caching), the sweep is decomposed into one `cargo check`
+# target per feature per crate. Each crate owns its variation map in its
+# hack.bzl (see cargo_hack_suite); the targets run in parallel and give
+# per-feature failure attribution. The whole sweep is the union of every
+# crate's hack suite.
+#
+# hack_reconcile (below) guarantees that decomposition stays a one-to-one
+# match with what cargo-hack itself would enumerate, so no feature is silently
+# dropped.
+
+# Expected command list derived from every crate's hack.bzl map. Compared
+# against `cargo hack ... --print-command-list` by hack_reconcile.
+_HACK_MODULES = [
+    (cli_manifest, cli_hack),
+    (cli_lib_manifest, cli_lib_hack),
+    (cli_python_manifest, cli_python_hack),
+    (lib_manifest, lib_hack),
+    (lib_core_manifest, lib_core_hack),
+    (lib_dialects_manifest, lib_dialects_hack),
+    (lib_wasm_manifest, lib_wasm_hack),
+    (lineage_manifest, lineage_hack),
+    (lsp_manifest, lsp_hack),
+    (sqlinference_manifest, sqlinference_hack),
+]
+
+_EXPECTED_HACK_COMMANDS = [
+    hack_command(manifest, args)
+    for manifest, hack in _HACK_MODULES
+    for args in hack.values()
+]
+
+_HACK_WANT = "\n".join(sorted(_EXPECTED_HACK_COMMANDS))
+
+# Reconciliation test: the per-crate hack.bzl maps must match, one-to-one, the
+# commands `cargo hack check --each-feature` would run. Uses --print-command-list
+# so nothing is compiled; CARGO_NET_OFFLINE (not --offline) keeps the printed
+# lines clean for diffing.
 cargo_test(
-    name = "cargo_hack_check",
-    size = "enormous",
+    name = "hack_reconcile",
+    size = "small",
     srcs = [":cargo_srcs"],
     tools = ["@cargo_hack//:cargo-hack"],
     vendor = ":cargo_deps",
-    script = "cargo hack check --each-feature --exclude-features=codegen-docs --offline",
+    script = (
+        "cat > want.txt <<'HACK_WANT_EOF'\n" +
+        _HACK_WANT + "\n" +
+        "HACK_WANT_EOF\n" +
+        "sort -o want.txt want.txt\n" +
+        "CARGO_NET_OFFLINE=true cargo hack check --each-feature --exclude-features=codegen-docs --print-command-list | sort > got.txt\n" +
+        "if ! diff -u want.txt got.txt; then\n" +
+        "    echo ''\n" +
+        "    echo 'ERROR: the per-crate hack.bzl maps are out of sync with cargo-hack.'\n" +
+        "    echo '  < want.txt = enumerated from crates/*/hack.bzl FEATURES lists'\n" +
+        "    echo '  > got.txt  = what cargo hack check --each-feature enumerates'\n" +
+        "    echo 'Update the FEATURES lists in the relevant crates/*/hack.bzl to match.'\n" +
+        "    exit 1\n" +
+        "fi\n" +
+        "echo 'OK: hack.bzl maps match cargo hack --each-feature one-to-one.'\n"
+    ),
+)
+
+# Aggregates the whole feature sweep plus the reconciliation guard.
+# Usage: bazel test //:cargo_hack_check
+test_suite(
+    name = "cargo_hack_check",
+    tests = [
+        "//crates/cli:hack",
+        "//crates/cli-lib:hack",
+        "//crates/cli-python:hack",
+        "//crates/lib:hack",
+        "//crates/lib-core:hack",
+        "//crates/lib-dialects:hack",
+        "//crates/lib-wasm:hack",
+        "//crates/lineage:hack",
+        "//crates/lsp:hack",
+        "//crates/sqlinference:hack",
+        ":hack_reconcile",
+    ],
 )
 
 # Zensical docs build - verify documentation builds successfully

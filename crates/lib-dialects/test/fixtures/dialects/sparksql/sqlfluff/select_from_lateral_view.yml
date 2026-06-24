@@ -61,8 +61,9 @@ file:
                           - end_bracket: )
                   - end_bracket: )
             - naked_identifier: tbl_name
-            - keyword: AS
-            - naked_identifier: c_age
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: c_age
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -86,8 +87,9 @@ file:
                             - numeric_literal: '80'
                           - end_bracket: )
                   - end_bracket: )
-            - keyword: AS
-            - naked_identifier: d_age
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: d_age
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -139,8 +141,9 @@ file:
                             - numeric_literal: '60'
                           - end_bracket: )
                   - end_bracket: )
-            - keyword: AS
-            - naked_identifier: c_age
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: c_age
           - lateral_view_clause:
             - keyword: LATERAL
             - keyword: VIEW
@@ -164,8 +167,9 @@ file:
                             - numeric_literal: '80'
                           - end_bracket: )
                   - end_bracket: )
-            - keyword: AS
-            - naked_identifier: d_age
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: d_age
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -229,8 +233,9 @@ file:
                           - end_bracket: )
                   - end_bracket: )
             - naked_identifier: tbl_name
-            - keyword: AS
-            - naked_identifier: c_age
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: c_age
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -290,8 +295,9 @@ file:
                           - end_bracket: )
                   - end_bracket: )
             - naked_identifier: tbl_name
-            - keyword: AS
-            - naked_identifier: c_age
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: c_age
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -351,7 +357,8 @@ file:
                           - end_bracket: )
                   - end_bracket: )
             - naked_identifier: tbl_name
-            - naked_identifier: c_age
+            - alias_expression:
+              - naked_identifier: c_age
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -460,12 +467,21 @@ file:
                       - naked_identifier: array_of_structs
                   - end_bracket: )
             - naked_identifier: exploded_people
-            - keyword: AS
-            - naked_identifier: name
-            - comma: ','
-            - naked_identifier: age
-            - comma: ','
-            - naked_identifier: state
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: name
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: age
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: state
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -518,12 +534,21 @@ file:
                       - naked_identifier: array_of_structs
                   - end_bracket: )
             - naked_identifier: exploded_people
-            - keyword: AS
-            - naked_identifier: name
-            - comma: ','
-            - naked_identifier: age
-            - comma: ','
-            - naked_identifier: state
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: name
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: age
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: state
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -628,11 +653,20 @@ file:
                       - naked_identifier: array_of_structs
                   - end_bracket: )
             - naked_identifier: exploded_people
-            - naked_identifier: name
-            - comma: ','
-            - naked_identifier: age
-            - comma: ','
-            - naked_identifier: state
+            - alias_expression:
+              - naked_identifier: name
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: age
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: state
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -684,12 +718,21 @@ file:
                     - column_reference:
                       - naked_identifier: array_of_structs
                   - end_bracket: )
-            - keyword: AS
-            - naked_identifier: name
-            - comma: ','
-            - naked_identifier: age
-            - comma: ','
-            - naked_identifier: state
+            - alias_expression:
+              - keyword: AS
+              - naked_identifier: name
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: age
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: state
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -794,6 +837,7 @@ file:
                     - dot: .
                     - naked_identifier: column2
                 - end_bracket: )
-          - keyword: AS
-          - naked_identifier: things
+          - alias_expression:
+            - keyword: AS
+            - naked_identifier: things
 - statement_terminator: ;

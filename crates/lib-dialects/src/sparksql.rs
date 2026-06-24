@@ -2583,6 +2583,58 @@ pub fn raw_dialect() -> Dialect {
     );
 
     sparksql_dialect.replace_grammar(
+        "OrderByClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("ORDER").to_matchable(),
+            Ref::keyword("BY").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ASC").to_matchable(),
+                        Ref::keyword("DESC").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NULLS").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("FIRST").to_matchable(),
+                            Ref::keyword("LAST").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| {
+                this.terminators = vec![
+                    Ref::keyword("CLUSTER").to_matchable(),
+                    Ref::keyword("DISTRIBUTE").to_matchable(),
+                    Ref::keyword("SORT").to_matchable(),
+                    Ref::keyword("LIMIT").to_matchable(),
+                    Ref::keyword("HAVING").to_matchable(),
+                    Ref::keyword("QUALIFY").to_matchable(),
+                    Ref::keyword("WINDOW").to_matchable(),
+                    Ref::new("FrameClauseUnitGrammar").to_matchable(),
+                    Ref::keyword("SEPARATOR").to_matchable(),
+                ]
+            })
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    sparksql_dialect.replace_grammar(
         // Enhance `GROUP BY` clause like in `SELECT` for 'CUBE' and 'ROLLUP`.
         // https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
         "GroupByClauseSegment",
@@ -2734,32 +2786,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("VIEW").to_matchable(),
                     Ref::keyword("OUTER").optional().to_matchable(),
                     Ref::new("FunctionSegment").to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::new("SingleIdentifierGrammar").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("AS").optional().to_matchable(),
-                                Delimited::new(vec![
-                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
-                        ])
+                    // This allows for a table name to precede the alias expression.
+                    Ref::new("SingleIdentifierGrammar")
+                        .optional()
                         .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("AS").optional().to_matchable(),
-                            Delimited::new(vec![
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
                     MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()

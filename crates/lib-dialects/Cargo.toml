@@ -57,7 +57,7 @@ tsql = []
 [dependencies]
 sqruff-lib-core.workspace = true
 strum.workspace = true
-itertools = "0.14.0"
+itertools = "0.15.0"
 hashbrown.workspace = true
 serde_yaml = "0.9.34+deprecated"
 

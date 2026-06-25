@@ -824,9 +824,9 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.14.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
+checksum = "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc"
 dependencies = [
  "either",
 ]
@@ -936,9 +936,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.32"
+version = "0.4.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "953f07c43838f8e6f9758cab68bf5bed85465e7587ebe0b823f1bcd81978ad3a"
+checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 
 [[package]]
 name = "lsp-server"
@@ -989,9 +989,9 @@ dependencies = [
 
 [[package]]
 name = "minijinja"
-version = "2.20.0"
+version = "2.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2929e494b2280e1e18959bb2e121da03347ae896896fdfaceaab43c88a02803f"
+checksum = "cb3d648e68cea56d9858d535ee28f9538404e2dd8cb08ed0bd05dca379477f39"
 dependencies = [
  "memo-map",
  "serde",
@@ -1572,7 +1572,7 @@ dependencies = [
  "hashbrown 0.17.1",
  "ignore",
  "indexmap",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "lazy-regex",
  "log",
  "nohash-hasher",
@@ -1601,7 +1601,7 @@ dependencies = [
  "fancy-regex",
  "hashbrown 0.17.1",
  "indexmap",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "log",
  "nohash-hasher",
  "pretty_assertions",
@@ -1621,7 +1621,7 @@ dependencies = [
  "expect-test",
  "glob",
  "hashbrown 0.17.1",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "rayon",
  "serde_yaml",
  "sqruff-lib-core",

@@ -84,7 +84,7 @@ use_repo(pnpm, "pnpm")
 playwright = use_extension("@rules_playwright//playwright:extensions.bzl", "playwright")
 playwright.repo(
     name = "playwright",
-    playwright_version = "1.60.0",
+    playwright_version = "1.61.0",
 )
 use_repo(playwright, "playwright")
 

@@ -143,7 +143,7 @@ file:
             - column_reference:
               - naked_identifier: date
           - comma: ','
-          - expression:
+          - tuple:
             - bracketed:
               - start_bracket: (
               - column_reference:

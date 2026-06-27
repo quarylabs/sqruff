@@ -81,7 +81,8 @@ file:
       - expression:
         - numeric_literal: '5.51'
       - keyword: STEP
-      - numeric_literal: '0.5'
+      - expression:
+        - numeric_literal: '0.5'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -173,7 +174,8 @@ file:
       - keyword: WITH
       - keyword: FILL
       - keyword: STEP
-      - numeric_literal: '5'
+      - expression:
+        - numeric_literal: '5'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -260,7 +262,8 @@ file:
       - keyword: WITH
       - keyword: FILL
       - keyword: STEP
-      - numeric_literal: '5'
+      - expression:
+        - numeric_literal: '5'
       - comma: ','
       - column_reference:
         - naked_identifier: d2
@@ -352,10 +355,11 @@ file:
       - keyword: WITH
       - keyword: FILL
       - keyword: STEP
-      - interval_expression:
-        - keyword: INTERVAL
-        - numeric_literal: '1'
-        - date_part: DAY
+      - expression:
+        - interval_expression:
+          - keyword: INTERVAL
+          - numeric_literal: '1'
+          - date_part: DAY
       - comma: ','
       - column_reference:
         - naked_identifier: d2

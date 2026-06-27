@@ -26,6 +26,7 @@ filegroup(
         [
             ".github/**/*.yaml",
             ".github/**/*.yml",
+            "docs/**/*.md",
         ],
     ) + [
         "README.md",
@@ -42,6 +43,7 @@ prettier_bin.prettier_test(
         "--check",
         "--config",
         ".prettierrc.json",
+        "docs",
         "editors",
         "playground",
         "*.md",
@@ -64,6 +66,7 @@ prettier_bin.prettier_binary(
         "--write",
         "--config",
         ".prettierrc.json",
+        "docs",
         "editors",
         "playground",
         "*.md",

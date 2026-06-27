@@ -4,11 +4,11 @@ test_basic:
   pass_str: SELECT 1
 
 test_basic_template:
-  ignored: "jinja is not supported"
   pass_str: |
     {{ 'SELECT 1' }}
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: false
 
 test_basic_fix:

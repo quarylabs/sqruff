@@ -318,13 +318,14 @@ fail_but_dont_fix_templated_table_name_consistent:
     FROM {{ "foo" }}
 
 fail_but_dont_fix_templated_table_name_qualified:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT
         a,
         {{ "foo" }}.b
     FROM {{ "foo" }}
   configs:
+    core:
+      templater: jinja
     rules:
       references.consistent:
         single_table_references: qualified

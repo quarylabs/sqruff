@@ -396,7 +396,6 @@ test_jinja_with_disbalanced_pairs:
   # The range(3) -%} results in swallowing the \n
   # N.B. The way LT02 handles this is questionable,
   # and this test seals in that behaviour.
-  ignored: "jinja is not supported"
   pass_str: |
     SELECT
         cohort_month
@@ -405,6 +404,9 @@ test_jinja_with_disbalanced_pairs:
         {% endfor -%}
         , TRUE AS overall
     FROM orders
+  configs:
+    core:
+      templater: jinja
 
 test_fail_attempted_hanger_fix:
   # Check messy hanger correction.
@@ -502,7 +504,6 @@ test_fail_clean_reindent_fix:
 
 # https://github.com/sqlfluff/sqlfluff/issues/643
 test_pass_indent_snowflake:
-  ignored: "jinja is not set"
   pass_str: |
     with source_data as (
         select * from {{ source('source_name', 'xxx_yyy_zzz') }}
@@ -512,11 +513,11 @@ test_pass_indent_snowflake:
     from source_data
   configs:
     core:
+      templater: jinja
       dialect: snowflake
 
 # https://github.com/sqlfluff/sqlfluff/issues/643
 test_pass_indent_indent_bigquery:
-  ignored: "jinja is not set"
   pass_str: |
     with source_data as (
         select * from {{ source('source_name', 'xxx_yyy_zzz') }}
@@ -525,6 +526,7 @@ test_pass_indent_indent_bigquery:
     from source_data
   configs:
     core:
+      templater: jinja
       dialect: bigquery
 
 test_jinja_indent_templated_table_name_a:
@@ -852,7 +854,6 @@ test_pass_ignore_templated_whitespace:
       ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_1:
-  ignored: "jinja is not set"
   fail_str: |
     SELECT
         c1,
@@ -866,6 +867,7 @@ test_fail_ignore_templated_whitespace_1:
 
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_2:
@@ -884,7 +886,6 @@ test_fail_ignore_templated_whitespace_2:
       ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_3:
-  ignored: "jinja is not set"
   fail_str: |
     SELECT
         c1,
@@ -897,6 +898,7 @@ test_fail_ignore_templated_whitespace_3:
     FROM my_table
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: false
 
 test_pass_ignore_templated_whitespace_4:
@@ -911,19 +913,23 @@ test_pass_ignore_templated_whitespace_4:
     FROM my_table
 
 test_pass_ignore_templated_newline_not_last_line:
-  ignored: "jinja is not supported"
   pass_str: |
     select *
     from {{ "\n\nmy_table" }}
     inner join
         my_table2
         using (id)
+  configs:
+    core:
+      templater: jinja
 
 test_pass_ignore_templated_newline_last_line:
-  ignored: "jinja is not set"
   pass_str: |
     select *
     from {{ "\n\nmy_table" }}
+  configs:
+    core:
+      templater: jinja
 
 test_fail_fix_template_indentation_1:
   fail_str: |
@@ -936,7 +942,6 @@ test_fail_fix_template_indentation_1:
         {{ "c2" }}
 
 test_fail_fix_template_indentation_2:
-  ignored: "jinja is not supported"
   fail_str: |
     with
     first_join as (
@@ -959,6 +964,9 @@ test_fail_fix_template_indentation_2:
     )
 
     select * from first_join
+  configs:
+    core:
+      templater: jinja
 
 test_pass_tsql_update_indent:
   pass_str: |
@@ -1475,7 +1483,6 @@ test_fail_deny_implicit_indent:
       allow_implicit_indents: false
 
 test_pass_templated_newlines:
-  ignored: "jinja is not supported"
   # NOTE: The macro has many newlines in it,
   # and the calling of it is indented. Check that
   # this doesn't panic.
@@ -1490,6 +1497,9 @@ test_pass_templated_newlines:
     SELECT
         {{ my_macro() }} as awkward_indentation
     FROM foo
+  configs:
+    core:
+      templater: jinja
 
 test_fail_fix_beside_templated:
   ignored: "jinja is not supported"
@@ -1823,7 +1833,6 @@ test_fix_implicit_indents_4467_b:
 
 test_fix_macro_indents_4367:
   # https://github.com/sqlfluff/sqlfluff/issues/4367
-  ignored: "jinja is not supported"
   fail_str: |
     {% macro my_macro(col) %}
         {{ col }}
@@ -1842,6 +1851,9 @@ test_fix_macro_indents_4367:
         {{ my_macro("mycol") }},
         something_else
     FROM mytable
+  configs:
+    core:
+      templater: jinja
 
 test_fix_untaken_positive_4433:
   # https://github.com/sqlfluff/sqlfluff/issues/4433

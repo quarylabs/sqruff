@@ -6,7 +6,7 @@ use itertools::{Itertools, chain, enumerate};
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::parser::segments::{BlockType, ErasedSegment, SegmentBuilder, Tables};
 use strum_macros::EnumString;
 
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
@@ -68,6 +68,10 @@ impl IndentLine {
         elements: &'a ReflowSequenceType,
     ) -> impl Iterator<Item = &'a ErasedSegment> {
         self.blocks(elements).map(|it| it.segment())
+    }
+
+    fn is_all_templates(&self, elements: &ReflowSequenceType) -> bool {
+        self.blocks(elements).all(|b| b.is_all_unrendered())
     }
 
     fn blocks<'a>(
@@ -191,6 +195,353 @@ fn revise_comment_lines(lines: &mut [IndentLine], elements: &ReflowSequenceType)
     );
     for (comment_line_idx, initial_indent_balance) in changes {
         lines[comment_line_idx].initial_indent_balance = initial_indent_balance;
+    }
+}
+
+/// Drop unrendered `{% if %}` lines that are rendered elsewhere in the
+/// template, so they don't throw off templated-line detection. Mirrors
+/// SQLFluff's `_revise_skipped_source_lines`.
+fn revise_skipped_source_lines(lines: &mut Vec<IndentLine>, elements: &ReflowSequenceType) {
+    let mut if_locs: HashMap<(usize, usize), Vec<(usize, usize)>> = HashMap::new();
+    let mut skipped_source_blocks: Vec<((usize, usize), (usize, usize))> = Vec::new();
+
+    for line in lines.iter() {
+        let mut has_skipped_source = false;
+        let mut template_loc: Option<(usize, usize)> = None;
+        let mut source_loc: Option<(usize, usize)> = None;
+        for (i, seg) in line.block_segments(elements).enumerate() {
+            if !seg.is_type(SyntaxKind::Placeholder) {
+                break;
+            }
+            let block_type = seg.block_type();
+            if i == 0 {
+                if block_type != Some(BlockType::BlockStart) {
+                    break;
+                }
+                let pm = seg.get_position_marker().unwrap();
+                template_loc = Some(pm.templated_position());
+                source_loc = Some(pm.source_position());
+                if_locs
+                    .entry(source_loc.unwrap())
+                    .or_default()
+                    .push(template_loc.unwrap());
+            } else if block_type == Some(BlockType::SkippedSource) {
+                has_skipped_source = true;
+            } else if block_type == Some(BlockType::BlockEnd)
+                && has_skipped_source
+                && let (Some(s), Some(t)) = (source_loc, template_loc)
+            {
+                skipped_source_blocks.push((s, t));
+            }
+        }
+    }
+
+    let mut ignore_locs: Vec<(usize, usize)> = Vec::new();
+    for (source_loc, template_loc) in &skipped_source_blocks {
+        if let Some(others) = if_locs.get(source_loc) {
+            for other in others {
+                if !skipped_source_blocks.contains(&(*source_loc, *other)) {
+                    ignore_locs.push(*template_loc);
+                }
+            }
+        }
+    }
+
+    let mut remove_idxs = Vec::new();
+    for (idx, line) in lines.iter().enumerate() {
+        let Some(seg) = line.block_segments(elements).next() else {
+            continue;
+        };
+        if !seg.is_type(SyntaxKind::Placeholder) || seg.block_type() != Some(BlockType::BlockStart)
+        {
+            continue;
+        }
+        let template_loc = seg.get_position_marker().unwrap().templated_position();
+        if ignore_locs.contains(&template_loc) {
+            remove_idxs.push(idx);
+        }
+    }
+    for idx in remove_idxs.into_iter().rev() {
+        lines.remove(idx);
+    }
+}
+
+/// Make template-block lines indent consistently. Mirrors SQLFluff's
+/// `_revise_templated_lines` (cases 1/2/3 of the docstring there).
+fn revise_templated_lines(lines: &mut Vec<IndentLine>, elements: &ReflowSequenceType) {
+    let mut depths: HashMap<u32, Vec<isize>> = HashMap::new();
+    let mut grouped: HashMap<u32, Vec<usize>> = HashMap::new();
+
+    for (idx, line) in lines.iter().enumerate() {
+        if !line.is_all_templates(elements) {
+            continue;
+        }
+        for block in line.blocks(elements) {
+            if let Some(uuid) = block.segment().block_uuid() {
+                grouped.entry(uuid).or_default().push(idx);
+                depths
+                    .entry(uuid)
+                    .or_default()
+                    .push(line.initial_indent_balance);
+            }
+        }
+    }
+
+    // Most-indented groups first; tie-break by uuid for determinism.
+    let mut sorted_group_indices: Vec<u32> = grouped.keys().copied().collect();
+    sorted_group_indices.sort_by(|a, b| {
+        let ma = depths[a].iter().max().unwrap();
+        let mb = depths[b].iter().max().unwrap();
+        mb.cmp(ma).then(a.cmp(b))
+    });
+
+    for group_idx in 0..sorted_group_indices.len() {
+        let group_uuid = sorted_group_indices[group_idx];
+        let group_lines = grouped[&group_uuid].clone();
+
+        // Case 1: already consistent.
+        let distinct: HashSet<isize> = group_lines
+            .iter()
+            .map(|&idx| lines[idx].initial_indent_balance)
+            .collect();
+        if distinct.len() == 1 {
+            continue;
+        }
+
+        // Build the set of indent options for each line.
+        let mut options: Vec<HashSet<isize>> = Vec::new();
+        for &idx in &group_lines {
+            let line = &lines[idx];
+            let mut steps: HashSet<isize> = HashSet::from([line.initial_indent_balance]);
+
+            let first_point_idx = line.indent_points[0].idx;
+            let first_segment = &elements[first_point_idx + 1].segments()[0];
+            if first_segment.is_type(SyntaxKind::TemplateLoop) {
+                continue;
+            }
+
+            // Backward look through the preceding points.
+            let mut indent_balance = line.initial_indent_balance;
+            for i in (1..=first_point_idx).rev() {
+                let element = &elements[i];
+                if let Some(point) = element.as_point() {
+                    for indent_val in point.get_indent_segment_vals(true).into_iter().rev() {
+                        indent_balance -= indent_val;
+                        steps.insert(indent_balance);
+                    }
+                } else {
+                    let seg0 = &element.segments()[0];
+                    if !seg0.is_type(SyntaxKind::Placeholder) {
+                        break;
+                    }
+                    if !matches!(
+                        seg0.block_type(),
+                        Some(
+                            BlockType::BlockStart
+                                | BlockType::BlockEnd
+                                | BlockType::SkippedSource
+                                | BlockType::BlockMid
+                        )
+                    ) {
+                        break;
+                    }
+                }
+            }
+
+            // Forward look through the post point.
+            indent_balance = line.initial_indent_balance;
+            let last_point_idx = line.indent_points.last().unwrap().idx;
+            let last_point = elements[last_point_idx].as_point().unwrap();
+            for indent_val in last_point.get_indent_segment_vals(true) {
+                indent_balance += indent_val;
+                steps.insert(indent_balance);
+            }
+
+            let case_type = if first_segment.is_type(SyntaxKind::Placeholder) {
+                first_segment.block_type()
+            } else {
+                None
+            };
+
+            if matches!(case_type, Some(BlockType::BlockStart | BlockType::BlockMid)) {
+                let mut forward_indent_balance = line.initial_indent_balance;
+                for element in &elements[line.indent_points[0].idx..] {
+                    if let Some(block) = element.as_block() {
+                        if !block.is_all_unrendered() {
+                            break;
+                        }
+                        continue;
+                    }
+                    let point = element.as_point().unwrap();
+                    for indent_val in point.get_indent_segment_vals(true) {
+                        forward_indent_balance += indent_val;
+                        steps.insert(forward_indent_balance);
+                    }
+                }
+            }
+
+            if matches!(case_type, Some(BlockType::BlockEnd | BlockType::BlockMid))
+                && idx > 0
+                && first_point_idx >= 1
+                && first_point_idx - 1 == lines[idx - 1].indent_points[0].idx + 1
+            {
+                let seg = &elements[first_point_idx - 1].segments()[0];
+                if seg.is_type(SyntaxKind::Placeholder)
+                    && seg.block_type() == Some(BlockType::BlockEnd)
+                {
+                    let mut v = line.initial_indent_balance;
+                    while v < lines[idx - 1].initial_indent_balance {
+                        steps.insert(v);
+                        v += 1;
+                    }
+                }
+            }
+
+            options.push(steps);
+        }
+
+        // Work out the indents _between_ the group lines, ignoring outer loops.
+        // SQLFluff treats index 0 as falsy here, so map it to None.
+        let mut last_group_line: Option<usize> = group_lines.first().copied().filter(|&l| l != 0);
+        let mut net_balance: isize = 0;
+        let mut balance_trough: Option<isize> = None;
+        let mut temp_balance_trough: Option<isize> = None;
+        let mut inner_lines: Vec<usize> = Vec::new();
+
+        for idx in (group_lines[0] + 1)..=group_lines[group_lines.len() - 1] {
+            // Reset on outer-group lines (then fall through, matching SQLFluff).
+            for grp in &sorted_group_indices[group_idx + 1..] {
+                if grouped[grp].contains(&idx) {
+                    last_group_line = None;
+                    net_balance = 0;
+                    temp_balance_trough = None;
+                    break;
+                }
+            }
+
+            if group_lines.contains(&idx) {
+                if let Some(lgl) = last_group_line {
+                    inner_lines.extend((lgl + 1)..idx);
+                }
+                if let Some(tbt) = temp_balance_trough {
+                    balance_trough = Some(balance_trough.map_or(tbt, |bt| bt.min(tbt)));
+                    temp_balance_trough = None;
+                }
+                last_group_line = Some(idx);
+                net_balance = 0;
+            } else if last_group_line.is_some() {
+                let is_subgroup_line = sorted_group_indices[..group_idx]
+                    .iter()
+                    .any(|grp| grouped[grp].contains(&idx));
+                let ips = &lines[idx].indent_points;
+                for ip in &ips[..ips.len().saturating_sub(1)] {
+                    // Don't count the trough on already-covered block ends/mids.
+                    if elements[ip.idx + 1]
+                        .class_types()
+                        .contains(SyntaxKind::Placeholder)
+                        && matches!(
+                            elements[ip.idx + 1].segments()[0].block_type(),
+                            Some(BlockType::BlockEnd | BlockType::BlockMid)
+                        )
+                    {
+                        continue;
+                    }
+
+                    if ip.indent_trough < 0 && !is_subgroup_line {
+                        let next_group_line = group_lines
+                            .iter()
+                            .copied()
+                            .filter(|&n| n > idx)
+                            .min()
+                            .unwrap();
+                        let next_start = lines[next_group_line].indent_points[0].idx;
+                        let rendered_between = elements[ip.idx..next_start]
+                            .iter()
+                            .any(|e| e.as_block().is_some_and(|b| !b.is_all_unrendered()));
+                        if !rendered_between {
+                            continue;
+                        }
+
+                        let this_trough = net_balance + ip.indent_trough;
+                        let mut dedented_untaken = false;
+                        if ip.indent_impulse < 0 {
+                            let mut b = ip.initial_indent_balance;
+                            while b > ip.closing_indent_balance() {
+                                if ip.untaken_indents.contains(&b) {
+                                    dedented_untaken = true;
+                                }
+                                b -= 1;
+                            }
+                        }
+                        if this_trough == 0 && dedented_untaken {
+                            net_balance += ip.indent_impulse;
+                            continue;
+                        }
+                        temp_balance_trough =
+                            Some(temp_balance_trough.map_or(this_trough, |t| t.min(this_trough)));
+                    }
+                    net_balance += ip.indent_impulse;
+                }
+            }
+        }
+
+        // Evaluate options.
+        let overlap: HashSet<isize> = match options.split_first() {
+            None => HashSet::new(),
+            Some((first, rest)) => rest.iter().fold(first.clone(), |acc, o| {
+                acc.intersection(o).copied().collect()
+            }),
+        };
+
+        let best_indent;
+        if overlap.is_empty() || balance_trough.is_some_and(|bt| bt <= 0) {
+            // Case 3: cuts across the tree; use the lowest indent.
+            best_indent = group_lines
+                .iter()
+                .map(|&idx| lines[idx].initial_indent_balance)
+                .min()
+                .unwrap();
+            for &idx in &inner_lines {
+                lines[idx].initial_indent_balance -= 1;
+            }
+        } else {
+            let mut overlap = overlap;
+            let mut fallback = 0;
+            if overlap.len() > 1 {
+                let check_lines = [group_lines[0] + 1, group_lines[group_lines.len() - 1] - 1];
+                fallback = check_lines
+                    .iter()
+                    .map(|&idx| lines[idx].initial_indent_balance)
+                    .max()
+                    .unwrap();
+                for &idx in &check_lines {
+                    overlap.remove(&lines[idx].initial_indent_balance);
+                }
+            }
+            best_indent = if overlap.is_empty() {
+                fallback
+            } else {
+                *overlap.iter().max().unwrap()
+            };
+        }
+
+        for &idx in &group_lines {
+            lines[idx].initial_indent_balance = best_indent;
+        }
+    }
+
+    // Drop lines whose placeholder source spans newlines (we can only fix the
+    // start of such a tag).
+    let mut remove_idxs = Vec::new();
+    for (idx, line) in lines.iter().enumerate() {
+        let first_seg = &elements[line.indent_points[0].idx + 1].segments()[0];
+        let src = first_seg.source_str();
+        if src.as_str() != first_seg.raw().as_str() && src.contains('\n') {
+            remove_idxs.push(idx);
+        }
+    }
+    for idx in remove_idxs.into_iter().rev() {
+        lines.remove(idx);
     }
 }
 
@@ -911,9 +1262,15 @@ pub fn lint_indent_points(
     let mut elem_buffer = elements.clone();
     let mut forced_indents = Vec::new();
 
+    revise_skipped_source_lines(&mut lines, &elements);
+    revise_templated_lines(&mut lines, &elements);
     revise_comment_lines(&mut lines, &elements);
 
     for line in lines {
+        if line.is_all_templates(&elements) {
+            continue;
+        }
+
         let line_results = lint_line_buffer_indents(
             tables,
             &mut elem_buffer,

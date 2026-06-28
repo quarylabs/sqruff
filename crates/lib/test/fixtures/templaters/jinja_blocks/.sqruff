@@ -1,0 +1,3 @@
+[sqruff]
+templater = jinja
+dialect = ansi

@@ -408,6 +408,15 @@ impl Linter {
 
         initial_violations.extend(violations.into_iter().map_into());
 
+        // Whether to suppress lint results whose anchor falls in a
+        // template-generated (non-literal) region. Mirrors SQLFluff's
+        // `remove_templated_errors`. Default true.
+        let ignore_templated_areas = self
+            .config
+            .get("ignore_templated_areas", "core")
+            .as_bool()
+            .unwrap_or(true);
+
         let mut anchor_info = HashMap::default();
 
         for phase in phases {
@@ -456,6 +465,16 @@ impl Linter {
                         tree.clone(),
                         &self.config,
                         &mut |mut result| {
+                            // Suppress results anchored in template-generated
+                            // regions unless the rule targets templated areas,
+                            // matching SQLFluff's `remove_templated_errors`.
+                            if ignore_templated_areas
+                                && !rule.targets_templated()
+                                && result.anchor_in_templated_section()
+                            {
+                                return;
+                            }
+
                             if ignore_mask.as_ref().is_none_or(|ignore_mask| {
                                 !ignore_mask.is_masked(&result, rule.into())
                             }) {

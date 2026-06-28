@@ -62,6 +62,15 @@ impl LintResult {
         }
     }
 
+    /// Whether the anchor sits in a template-generated (non-literal) region.
+    pub fn anchor_in_templated_section(&self) -> bool {
+        self.anchor.as_ref().is_some_and(|anchor| {
+            anchor
+                .get_position_marker()
+                .is_some_and(|marker| !marker.is_literal())
+        })
+    }
+
     pub fn to_linting_error(self, rule: &ErasedRule) -> Option<SQLLintError> {
         let anchor = self.anchor.clone()?;
 
@@ -166,8 +175,28 @@ pub trait Rule: Debug + 'static + Send + Sync {
         false
     }
 
+    /// Whether this rule is designed to operate on template-generated regions.
+    ///
+    /// When `false` (the default) and `ignore_templated_areas` is enabled, any
+    /// lint result whose anchor falls in a non-literal (templated) section is
+    /// suppressed, matching SQLFluff's behaviour.
+    fn targets_templated(&self) -> bool {
+        false
+    }
+
     fn crawl_behaviour(&self) -> Crawler;
 }
+
+/// Emits a `targets_templated` override returning `true`, for rules that
+/// operate on template-generated regions (SQLFluff's `targets_templated`).
+macro_rules! targets_templated {
+    () => {
+        fn targets_templated(&self) -> bool {
+            true
+        }
+    };
+}
+pub(crate) use targets_templated;
 
 pub struct Exception;
 

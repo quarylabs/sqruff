@@ -1,13 +1,16 @@
 use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
+use sqruff_lib_core::parser::segments::{BlockType, ErasedSegment, SegmentBuilder};
+use sqruff_lib_core::templaters::TemplateSliceKind;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups};
+use crate::core::rules::{
+    Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups, targets_templated,
+};
 use crate::utils::functional::context::FunctionalContext;
 
 fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
@@ -19,12 +22,20 @@ fn get_trailing_newlines(segment: &ErasedSegment) -> Vec<ErasedSegment> {
         } else if !seg.is_whitespace()
             && !seg.is_type(SyntaxKind::Dedent)
             && !seg.is_type(SyntaxKind::EndOfFile)
+            && !is_source_only_template_placeholder(&seg)
         {
             break;
         }
     }
 
     result
+}
+
+fn trailing_newline_count(segments: &Segments) -> usize {
+    segments
+        .iter()
+        .map(|segment| segment.raw().chars().filter(|&ch| ch == '\n').count())
+        .sum()
 }
 
 fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
@@ -35,11 +46,78 @@ fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
 
         if !children.is_empty() {
             parent_stack.push(segment.first().unwrap().clone());
-            segment = children.find_last_where(|s| !s.is_type(SyntaxKind::EndOfFile));
+            segment = children.find_last_where(|s| {
+                !s.is_type(SyntaxKind::EndOfFile) && !is_source_only_template_placeholder(s)
+            });
         } else {
             return (parent_stack, segment);
         }
     }
+}
+
+fn is_source_only_template_placeholder(segment: &ErasedSegment) -> bool {
+    segment.is_type(SyntaxKind::Placeholder)
+        && matches!(
+            segment.block_type(),
+            Some(
+                BlockType::Comment
+                    | BlockType::BlockStart
+                    | BlockType::BlockMid
+                    | BlockType::BlockEnd
+            )
+        )
+}
+
+fn source_eof_anchor(segment: &ErasedSegment, source_len: usize) -> Option<ErasedSegment> {
+    let mut anchor = None;
+
+    for seg in segment.recursive_crawl_all(true) {
+        if seg.is_type(SyntaxKind::EndOfFile) {
+            continue;
+        }
+
+        if seg
+            .get_position_marker()
+            .is_some_and(|marker| marker.source_slice.end == source_len)
+        {
+            anchor = Some(seg.clone());
+        }
+    }
+
+    anchor
+}
+
+fn templated_source_missing_final_newline(context: &RuleContext) -> bool {
+    context
+        .templated_file
+        .as_ref()
+        .is_some_and(|templated_file| {
+            !templated_file.source_str.ends_with('\n')
+                && templated_file.templated().ends_with('\n')
+                && templated_file
+                    .raw_sliced()
+                    .iter()
+                    .any(|slice| !slice.has_slice_kind(TemplateSliceKind::Literal))
+        })
+}
+
+fn templated_file_has_extra_final_newline(context: &RuleContext) -> bool {
+    context
+        .templated_file
+        .as_ref()
+        .is_some_and(|templated_file| {
+            templated_file
+                .raw_sliced()
+                .iter()
+                .any(|slice| !slice.has_slice_kind(TemplateSliceKind::Literal))
+                && templated_file
+                    .templated()
+                    .chars()
+                    .rev()
+                    .take_while(|&ch| ch == '\n')
+                    .count()
+                    > 1
+        })
 }
 
 #[derive(Debug, Default, Clone)]
@@ -132,39 +210,93 @@ Add trailing newline to the end. The $ character represents end of file.
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
 
+    targets_templated!();
+
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        let source_missing_final_newline = templated_source_missing_final_newline(context);
+        let templated_extra_final_newline = templated_file_has_extra_final_newline(context);
         let (parent_stack, segment) = get_last_segment(FunctionalContext::new(context).segment());
 
         if segment.is_empty() {
-            return Vec::new();
+            return if source_missing_final_newline {
+                context
+                    .templated_file
+                    .as_ref()
+                    .and_then(|templated_file| {
+                        source_eof_anchor(&context.segment, templated_file.source_str.len())
+                    })
+                    .map(|anchor| LintResult::new(anchor.into(), Vec::new(), None, None))
+                    .into_iter()
+                    .collect()
+            } else {
+                Vec::new()
+            };
         }
 
         let trailing_newlines = Segments::from_vec(get_trailing_newlines(&context.segment), None);
-        if trailing_newlines.is_empty() {
-            let fix_anchor_segment = if parent_stack.len() == 1 {
+        let trailing_newline_count = trailing_newline_count(&trailing_newlines);
+
+        if trailing_newlines.is_empty() || source_missing_final_newline {
+            let default_fix_anchor_segment = if parent_stack.len() == 1 {
                 segment.first().unwrap().clone()
             } else {
                 parent_stack[1].clone()
             };
+            let fix_anchor_segment = if source_missing_final_newline {
+                context
+                    .templated_file
+                    .as_ref()
+                    .and_then(|templated_file| {
+                        source_eof_anchor(&context.segment, templated_file.source_str.len())
+                    })
+                    .unwrap_or(default_fix_anchor_segment)
+            } else {
+                default_fix_anchor_segment
+            };
 
-            vec![LintResult::new(
-                segment.first().unwrap().clone().into(),
+            let fixes = if source_missing_final_newline {
+                Vec::new()
+            } else {
                 vec![LintFix::create_after(
                     fix_anchor_segment,
                     vec![SegmentBuilder::newline(context.tables.next_id(), "\n")],
                     None,
-                )],
+                )]
+            };
+
+            vec![LintResult::new(
+                segment.first().unwrap().clone().into(),
+                fixes,
                 None,
                 None,
             )]
-        } else if trailing_newlines.len() > 1 {
-            vec![LintResult::new(
-                segment.first().unwrap().clone().into(),
+        } else if trailing_newline_count > 1 || templated_extra_final_newline {
+            let fixes = if templated_extra_final_newline
+                || context
+                    .templated_file
+                    .as_ref()
+                    .is_some_and(|templated_file| {
+                        templated_file
+                            .raw_sliced()
+                            .iter()
+                            .any(|slice| !slice.has_slice_kind(TemplateSliceKind::Literal))
+                    })
+                || trailing_newlines
+                    .iter()
+                    .any(|segment| segment.raw().chars().filter(|&ch| ch == '\n').count() > 1)
+            {
+                Vec::new()
+            } else {
                 trailing_newlines
                     .into_iter()
                     .skip(1)
                     .map(|d| LintFix::delete(d.clone()))
-                    .collect(),
+                    .collect()
+            };
+
+            vec![LintResult::new(
+                segment.first().unwrap().clone().into(),
+                fixes,
                 None,
                 None,
             )]

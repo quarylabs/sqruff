@@ -132,6 +132,15 @@ impl ReflowPoint {
         indent
     }
 
+    pub(crate) fn get_indent_segment_vals(&self, exclude_block_indents: bool) -> Vec<isize> {
+        self.segments
+            .iter()
+            .filter(|seg| seg.is_type(SyntaxKind::Indent))
+            .filter(|seg| !(exclude_block_indents && seg.block_uuid().is_some()))
+            .map(|seg| seg.indent_val() as isize)
+            .collect()
+    }
+
     pub(crate) fn num_newlines(&self) -> usize {
         self.segments
             .iter()
@@ -665,6 +674,18 @@ impl ReflowBlock {
 
     pub fn class_types(&self) -> &SyntaxSet {
         self.segment.class_types()
+    }
+
+    /// True if the block contains only whitespace/indent/placeholder/loop.
+    pub fn is_all_unrendered(&self) -> bool {
+        matches!(
+            self.segment.get_type(),
+            SyntaxKind::Whitespace
+                | SyntaxKind::Placeholder
+                | SyntaxKind::Newline
+                | SyntaxKind::Indent
+                | SyntaxKind::TemplateLoop
+        )
     }
 
     /// Whether this block sits inside an unparsable section.

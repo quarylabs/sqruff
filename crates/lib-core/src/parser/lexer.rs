@@ -3,13 +3,17 @@ use std::fmt::Debug;
 use std::ops::Range;
 use std::str::Chars;
 
+use std::collections::HashMap;
+
+use smol_str::SmolStr;
+
 use super::markers::PositionMarker;
-use super::segments::{ErasedSegment, SegmentBuilder, Tables};
+use super::segments::{BlockType, ErasedSegment, SegmentBuilder, Tables, TemplateInfo};
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLLexError;
 use crate::slice_helpers::{is_zero_slice, offset_slice};
-use crate::templaters::{TemplateSliceKind, TemplatedFile};
+use crate::templaters::{TemplateSliceKind, TemplatedFile, TemplatedFileSlice};
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -648,6 +652,233 @@ impl Lexer {
     }
 }
 
+/// Tracks template block nesting, pairing block tags with a shared uuid so the
+/// linter can treat matching `{% .. %}` / `{% end.. %}` tags consistently.
+#[derive(Default)]
+struct BlockTracker {
+    stack: Vec<u32>,
+    map: HashMap<(usize, usize), u32>,
+    next: u32,
+}
+
+impl BlockTracker {
+    fn enter(&mut self, src: Range<usize>) {
+        let key = (src.start, src.end);
+        let uuid = match self.map.get(&key) {
+            Some(&u) => u,
+            None => {
+                let id = self.next;
+                self.next += 1;
+                self.map.insert(key, id);
+                id
+            }
+        };
+        self.stack.push(uuid);
+    }
+
+    fn exit(&mut self) {
+        self.stack.pop();
+    }
+
+    fn top(&self) -> Option<u32> {
+        self.stack.last().copied()
+    }
+}
+
+fn block_type_from(kind: TemplateSliceKind) -> BlockType {
+    match kind {
+        TemplateSliceKind::Literal => BlockType::Literal,
+        TemplateSliceKind::Templated => BlockType::Templated,
+        TemplateSliceKind::Comment => BlockType::Comment,
+        TemplateSliceKind::BlockStart => BlockType::BlockStart,
+        TemplateSliceKind::BlockMid => BlockType::BlockMid,
+        TemplateSliceKind::BlockEnd => BlockType::BlockEnd,
+    }
+}
+
+fn make_template_segment(
+    kind: SyntaxKind,
+    block_type: BlockType,
+    block_uuid: Option<u32>,
+    source_str: SmolStr,
+    is_template: bool,
+    position: PositionMarker,
+) -> ErasedSegment {
+    SegmentBuilder::token(0, "", kind)
+        .with_template_info(TemplateInfo {
+            block_type,
+            block_uuid,
+            source_str,
+            is_template,
+        })
+        .with_position(position)
+        .finish()
+}
+
+fn make_placeholder(
+    block_type: BlockType,
+    block_uuid: Option<u32>,
+    source_str: SmolStr,
+    source_slice: Range<usize>,
+    templated_slice: Range<usize>,
+    templated_file: &TemplatedFile,
+) -> ErasedSegment {
+    let position = PositionMarker::new(
+        source_slice,
+        templated_slice,
+        templated_file.clone(),
+        None,
+        None,
+    );
+    make_template_segment(
+        SyntaxKind::Placeholder,
+        block_type,
+        block_uuid,
+        source_str,
+        false,
+        position,
+    )
+}
+
+/// A template-introduced indent/dedent meta.
+fn make_template_meta(
+    kind: SyntaxKind,
+    block_uuid: Option<u32>,
+    source_point: usize,
+    templated_point: usize,
+    templated_file: &TemplatedFile,
+) -> ErasedSegment {
+    let position = PositionMarker::from_point(
+        source_point,
+        templated_point,
+        templated_file.clone(),
+        None,
+        None,
+    );
+    make_template_segment(
+        kind,
+        BlockType::Templated,
+        block_uuid,
+        "".into(),
+        true,
+        position,
+    )
+}
+
+/// Generate placeholder and loop segments for a zero-length template slice:
+/// backward jumps (`TemplateLoop`), blocks, forward jumps and other unrendered
+/// template elements. Mirrors SQLFluff's `_handle_zero_length_slice`.
+fn handle_zero_length_slice(
+    tfs: &TemplatedFileSlice,
+    next_tfs: Option<&TemplatedFileSlice>,
+    block_stack: &mut BlockTracker,
+    templated_file: &TemplatedFile,
+) -> Vec<ErasedSegment> {
+    let mut out = Vec::new();
+    let is_block = matches!(
+        tfs.slice_type,
+        TemplateSliceKind::BlockStart | TemplateSliceKind::BlockMid | TemplateSliceKind::BlockEnd
+    );
+
+    if is_block {
+        // Backward jump -> loop marker, wrapped in template dedent/indent.
+        if let Some(next) = next_tfs
+            && next.source_slice.start < tfs.source_slice.start
+        {
+            let (sp, tp) = (tfs.source_slice.start, tfs.templated_slice.start);
+            out.push(make_template_meta(
+                SyntaxKind::Dedent,
+                None,
+                sp,
+                tp,
+                templated_file,
+            ));
+            out.push(make_template_segment(
+                SyntaxKind::TemplateLoop,
+                BlockType::Templated,
+                block_stack.top(),
+                "".into(),
+                false,
+                PositionMarker::from_point(sp, tp, templated_file.clone(), None, None),
+            ));
+            out.push(make_template_meta(
+                SyntaxKind::Indent,
+                None,
+                sp,
+                tp,
+                templated_file,
+            ));
+            return out;
+        }
+
+        if tfs.slice_type == TemplateSliceKind::BlockStart {
+            block_stack.enter(tfs.source_slice.clone());
+        } else {
+            // block_mid / block_end: template dedent before the tag.
+            out.push(make_template_meta(
+                SyntaxKind::Dedent,
+                block_stack.top(),
+                tfs.source_slice.start,
+                tfs.templated_slice.start,
+                templated_file,
+            ));
+        }
+
+        out.push(make_placeholder(
+            block_type_from(tfs.slice_type),
+            block_stack.top(),
+            templated_file.source_str[tfs.source_slice.clone()].into(),
+            tfs.source_slice.clone(),
+            tfs.templated_slice.clone(),
+            templated_file,
+        ));
+
+        if tfs.slice_type == TemplateSliceKind::BlockEnd {
+            block_stack.exit();
+        } else {
+            // block_start / block_mid: template indent after the tag.
+            out.push(make_template_meta(
+                SyntaxKind::Indent,
+                block_stack.top(),
+                tfs.source_slice.end,
+                tfs.templated_slice.end,
+                templated_file,
+            ));
+        }
+
+        // Forward jump -> skipped source placeholder.
+        if let Some(next) = next_tfs
+            && next.source_slice.start > tfs.source_slice.end
+        {
+            let gap = tfs.source_slice.end..next.source_slice.start;
+            let mut src = templated_file.source_str[gap.clone()].to_string();
+            if src.len() >= 20 {
+                src = format!("... [{} unused template characters] ...", src.len());
+            }
+            out.push(make_placeholder(
+                BlockType::SkippedSource,
+                None,
+                src.into(),
+                gap,
+                tfs.templated_slice.clone(),
+                templated_file,
+            ));
+        }
+
+        return out;
+    }
+
+    out.push(make_placeholder(
+        block_type_from(tfs.slice_type),
+        None,
+        templated_file.source_str[tfs.source_slice.clone()].into(),
+        tfs.source_slice.clone(),
+        tfs.templated_slice.clone(),
+        templated_file,
+    ));
+    out
+}
+
 fn iter_segments(
     lexed_elements: Vec<TemplateElement>,
     templated_file: &TemplatedFile,
@@ -655,8 +886,9 @@ fn iter_segments(
     let mut result: Vec<ErasedSegment> = Vec::with_capacity(lexed_elements.len());
     // An index to track where we've got to in the templated file.
     let mut tfs_idx = 0;
-    // We keep a map of previous block locations in case they re-occur.
-    // let block_stack = BlockTracker()
+    let mut block_stack = BlockTracker::default();
+    // Highest zero-slice index already emitted, to avoid duplicates on re-scan.
+    let mut handled_zero_until = 0;
     let templated_file_slices = &templated_file.sliced_file;
 
     // Now work out source slices, and add in template placeholders.
@@ -672,12 +904,16 @@ fn iter_segments(
         {
             // Is it a zero slice?
             if is_zero_slice(&tfs.templated_slice) {
-                let _slice = if idx + 1 < templated_file_slices.len() {
-                    templated_file_slices[idx + 1].clone().into()
-                } else {
-                    None
-                };
-
+                if idx >= handled_zero_until {
+                    let next_tfs = templated_file_slices.get(idx + 1);
+                    result.extend(handle_zero_length_slice(
+                        tfs,
+                        next_tfs,
+                        &mut block_stack,
+                        templated_file,
+                    ));
+                    handled_zero_until = idx + 1;
+                }
                 continue;
             }
 
@@ -796,8 +1032,7 @@ fn iter_segments(
                     // have length (and so don't get picked up by
                     // _handle_zero_length_slice)
                     if tfs.has_slice_kind(TemplateSliceKind::BlockStart) {
-                        unimplemented!()
-                        // block_stack.enter(tfs.source_slice)
+                        block_stack.enter(tfs.source_slice.clone());
                     }
 
                     // Is our current element totally contained in this slice?
@@ -855,6 +1090,22 @@ fn iter_segments(
             panic!("Unable to process slice: {tfs:?}");
         }
     }
+
+    // Drain any trailing zero-length slices (e.g. a file ending on a block
+    // tag), which the element loop never reaches.
+    for idx in handled_zero_until..templated_file_slices.len() {
+        let tfs = &templated_file_slices[idx];
+        if is_zero_slice(&tfs.templated_slice) {
+            let next_tfs = templated_file_slices.get(idx + 1);
+            result.extend(handle_zero_length_slice(
+                tfs,
+                next_tfs,
+                &mut block_stack,
+                templated_file,
+            ));
+        }
+    }
+
     result
 }
 

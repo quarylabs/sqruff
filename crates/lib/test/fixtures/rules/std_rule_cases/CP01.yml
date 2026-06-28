@@ -122,17 +122,16 @@ test_pass_ignore_words_complex:
         ignore_words_regex: (^Se|^Fr)
 
 test_pass_ignore_templated_code_true:
-  ignored: "jinja is not set"
   pass_str: |
     {{ "select" }} a
     FROM foo
     WHERE 1
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: true
 
 test_fail_ignore_templated_code_false:
-  ignored: "jinja is not supported"
   fail_str: |
     {{ "select" }} a
     FROM foo
@@ -143,6 +142,7 @@ test_fail_ignore_templated_code_false:
     where 1
   configs:
     core:
+      templater: jinja
       ignore_templated_areas: false
 
 test_fail_snowflake_group_by_cube:

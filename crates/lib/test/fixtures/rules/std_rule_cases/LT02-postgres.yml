@@ -1,0 +1,14 @@
+rule: LT02
+
+test_pass_postgres_named_table_constraint_indent:
+  pass_str: |
+    CREATE TABLE child (
+        parent_id INTEGER,
+        CONSTRAINT child_parent_fk
+            FOREIGN KEY (parent_id)
+            REFERENCES parent(id)
+            ON DELETE CASCADE
+    );
+  configs:
+    core:
+      dialect: postgres

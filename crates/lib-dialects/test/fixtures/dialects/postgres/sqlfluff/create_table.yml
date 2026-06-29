@@ -75,10 +75,11 @@ file:
         - naked_identifier: vector
       - data_type:
         - keyword: int
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
+        - array_type_suffix:
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1339,11 +1340,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: groups
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: group_id
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: group_id
+            - end_bracket: )
         - keyword: ON
         - keyword: DELETE
         - keyword: CASCADE
@@ -1356,11 +1358,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: groups
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: group_id
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: group_id
+            - end_bracket: )
         - keyword: ON
         - keyword: UPDATE
         - keyword: RESTRICT
@@ -1373,11 +1376,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: groups
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: group_id
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: group_id
+            - end_bracket: )
         - keyword: MATCH
         - keyword: SIMPLE
       - end_bracket: )
@@ -2351,14 +2355,15 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: table1
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: col1
-          - comma: ','
-          - column_reference:
-            - naked_identifier: col2
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: col1
+            - comma: ','
+            - column_reference:
+              - naked_identifier: col2
+            - end_bracket: )
         - keyword: ON
         - keyword: DELETE
         - keyword: SET
@@ -2413,14 +2418,15 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: table1
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: col1
-          - comma: ','
-          - column_reference:
-            - naked_identifier: col2
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: col1
+            - comma: ','
+            - column_reference:
+              - naked_identifier: col2
+            - end_bracket: )
         - keyword: ON
         - keyword: DELETE
         - keyword: SET

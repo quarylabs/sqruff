@@ -210,6 +210,14 @@ impl LintFix {
     }
 
     pub fn has_template_conflicts(&self, templated_file: &TemplatedFile) -> bool {
+        if let LintFix::CreateAfter { anchor, .. } = self
+            && anchor
+                .get_position_marker()
+                .is_some_and(|pos| pos.source_slice.end == templated_file.source_str.len())
+        {
+            return false;
+        }
+
         if let LintFix::Replace { anchor, edit, .. } = self
             && edit.len() == 1
         {
@@ -226,7 +234,7 @@ impl LintFix {
 
         let fix_slices = self.fix_slices(templated_file, false);
         let result = check_fn(fix_slices, |fs: RawFileSlice| {
-            fs.has_slice_kind(TemplateSliceKind::Templated)
+            !fs.has_slice_kind(TemplateSliceKind::Literal)
         });
 
         let source_is_empty = match self {
@@ -248,7 +256,7 @@ impl LintFix {
         );
         raw_slices
             .iter()
-            .any(|fs| fs.has_slice_kind(TemplateSliceKind::Templated))
+            .any(|fs| !fs.has_slice_kind(TemplateSliceKind::Literal))
     }
 }
 

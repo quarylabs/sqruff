@@ -74,6 +74,7 @@ impl SegmentBuilder {
                     raw_segments_with_ancestors: Default::default(),
                 }),
                 hash: OnceCell::new(),
+                template_info: None,
             },
         }
     }
@@ -88,8 +89,16 @@ impl SegmentBuilder {
                 position_marker: None,
                 kind: NodeOrTokenKind::Token(TokenData { raw: raw.into() }),
                 hash: OnceCell::new(),
+                template_info: None,
             },
         }
+    }
+
+    /// Attach template metadata to this segment (placeholder / template loop /
+    /// template indent-dedent).
+    pub fn with_template_info(mut self, info: TemplateInfo) -> Self {
+        self.node_or_token.template_info = Some(Box::new(info));
+        self
     }
 
     pub fn position_from_segments(mut self) -> Self {
@@ -175,8 +184,33 @@ impl ErasedSegment {
     pub fn is_meta(&self) -> bool {
         matches!(
             self.value.syntax_kind,
-            SyntaxKind::Indent | SyntaxKind::Implicit | SyntaxKind::Dedent | SyntaxKind::EndOfFile
+            SyntaxKind::Indent
+                | SyntaxKind::Implicit
+                | SyntaxKind::Dedent
+                | SyntaxKind::EndOfFile
+                | SyntaxKind::Placeholder
+                | SyntaxKind::TemplateLoop
         )
+    }
+
+    pub fn template_info(&self) -> Option<&TemplateInfo> {
+        self.value.template_info.as_deref()
+    }
+
+    pub fn block_uuid(&self) -> Option<u32> {
+        self.value.template_info.as_ref().and_then(|i| i.block_uuid)
+    }
+
+    pub fn block_type(&self) -> Option<BlockType> {
+        self.value.template_info.as_ref().map(|i| i.block_type)
+    }
+
+    /// Source text for a placeholder, else the segment raw.
+    pub fn source_str(&self) -> SmolStr {
+        match self.value.template_info.as_ref() {
+            Some(info) => info.source_str.clone(),
+            None => self.raw().clone(),
+        }
     }
 
     pub fn is_code(&self) -> bool {
@@ -282,6 +316,7 @@ impl ErasedSegment {
                     raw_segments_with_ancestors: node.raw_segments_with_ancestors.clone(),
                 }),
                 hash: OnceCell::new(),
+                template_info: self.value.template_info.clone(),
             }),
         }
     }
@@ -1038,6 +1073,34 @@ pub struct NodeOrToken {
     kind: NodeOrTokenKind,
     code_idx: OnceCell<Rc<Vec<usize>>>,
     hash: OnceCell<u64>,
+    /// Template metadata for placeholder / template-loop segments. `None` for
+    /// ordinary segments. Excluded from hashing, equality and serialisation.
+    template_info: Option<Box<TemplateInfo>>,
+}
+
+/// Template block kind, mirroring SQLFluff's `TemplateSegment.block_type`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BlockType {
+    Literal,
+    Templated,
+    Comment,
+    BlockStart,
+    BlockMid,
+    BlockEnd,
+    SkippedSource,
+    Compound,
+    Endpoint,
+}
+
+#[derive(Debug, Clone)]
+pub struct TemplateInfo {
+    pub block_type: BlockType,
+    /// Pairs matching block tags. Deterministic per-lex counter, not a UUID.
+    pub block_uuid: Option<u32>,
+    /// Raw source text of the tag (e.g. `{% for x in y %}`).
+    pub source_str: SmolStr,
+    /// True for template-introduced indent/dedent metas.
+    pub is_template: bool,
 }
 
 #[derive(Debug, Clone)]

@@ -269,3 +269,297 @@ fn test_dialect_ansi_parse_indented_joins() {
         assert_eq!(res_meta_locs, meta_loc);
     }
 }
+
+/// Issue #2607: layout rules must not flag false positives inside
+/// template-generated regions. Uses real jinja slices (captured from the jinja
+/// templater) for a nested `{% for %}`/`{% if %}` so the test runs without the
+/// Python jinja runtime. Before the template-placeholder reindent port this
+/// produced false-positive LT02 violations on the template-tag lines.
+#[test]
+fn test_reindent_no_false_positive_in_jinja_for_loop() {
+    use sqruff_lib_core::templaters::{
+        RawFileSlice, TemplateSliceKind, TemplatedFile, TemplatedFileSlice,
+    };
+
+    let source = "select\n    {% for col in ['a', 'b', 'c'] %}\n        {{ col }}\n        {% if not loop.last %}, {% endif %}\n    {% endfor %}\nfrom my_table\n";
+    let templated = "select\n    \n        a\n        , \n    \n        b\n        , \n    \n        c\n        \n    \nfrom my_table\n";
+
+    // (slice_type, source_start, source_end, templated_start, templated_end)
+    let sliced: &[(&str, usize, usize, usize, usize)] = &[
+        ("literal", 0, 11, 0, 11),
+        ("block_start", 11, 43, 11, 11),
+        ("literal", 43, 52, 11, 20),
+        ("templated", 52, 61, 20, 21),
+        ("literal", 61, 70, 21, 30),
+        ("block_start", 70, 92, 30, 30),
+        ("literal", 92, 94, 30, 32),
+        ("block_end", 94, 105, 32, 32),
+        ("literal", 105, 110, 32, 37),
+        ("block_end", 110, 122, 37, 37),
+        ("literal", 43, 52, 37, 46),
+        ("templated", 52, 61, 46, 47),
+        ("literal", 61, 70, 47, 56),
+        ("block_start", 70, 92, 56, 56),
+        ("literal", 92, 94, 56, 58),
+        ("block_end", 94, 105, 58, 58),
+        ("literal", 105, 110, 58, 63),
+        ("block_end", 110, 122, 63, 63),
+        ("literal", 43, 52, 63, 72),
+        ("templated", 52, 61, 72, 73),
+        ("literal", 61, 70, 73, 82),
+        ("block_start", 70, 92, 82, 82),
+        ("block_end", 94, 105, 82, 82),
+        ("literal", 105, 110, 82, 87),
+        ("block_end", 110, 122, 87, 87),
+        ("literal", 122, 137, 87, 102),
+    ];
+    // (slice_type, source_idx, block_idx, raw)
+    let raw: &[(&str, usize, usize, &str)] = &[
+        ("literal", 0, 0, "select\n    "),
+        ("block_start", 11, 1, "{% for col in ['a', 'b', 'c'] %}"),
+        ("literal", 43, 1, "\n        "),
+        ("templated", 52, 1, "{{ col }}"),
+        ("literal", 61, 1, "\n        "),
+        ("block_start", 70, 2, "{% if not loop.last %}"),
+        ("literal", 92, 2, ", "),
+        ("block_end", 94, 2, "{% endif %}"),
+        ("literal", 105, 3, "\n    "),
+        ("block_end", 110, 3, "{% endfor %}"),
+        ("literal", 122, 4, "\nfrom my_table\n"),
+    ];
+
+    let sliced_file = sliced
+        .iter()
+        .map(|&(k, ss, se, ts, te)| {
+            TemplatedFileSlice::new_typed(
+                TemplateSliceKind::from_slice_type(k).unwrap(),
+                ss..se,
+                ts..te,
+            )
+        })
+        .collect();
+    let raw_sliced = raw
+        .iter()
+        .map(|&(k, idx, blk, r)| {
+            RawFileSlice::new_typed(
+                r.to_string(),
+                TemplateSliceKind::from_slice_type(k).unwrap(),
+                idx,
+                None,
+                Some(blk),
+            )
+        })
+        .collect();
+
+    let templated_file = TemplatedFile::new(
+        source.to_string(),
+        "a.sql".to_string(),
+        Some(templated.to_string()),
+        Some(sliced_file),
+        Some(raw_sliced),
+    )
+    .unwrap();
+
+    // Use `crate::` paths so these match the internal crate instance (the
+    // module imports `sqruff_lib` as an external crate at the top of the file).
+    let rendered = crate::core::linter::common::RenderedFile {
+        templated_file,
+        templater_violations: vec![],
+        filename: "a.sql".to_string(),
+        source_str: source.to_string(),
+    };
+
+    let lnt = crate::core::linter::core::Linter::new(
+        crate::core::config::FluffConfig::new(<_>::default(), None, None),
+        None,
+        None,
+        false,
+    )
+    .unwrap();
+    let linted = lnt.lint_rendered(rendered, false).unwrap();
+
+    let layout: Vec<_> = linted
+        .violations()
+        .iter()
+        .filter(|v| matches!(v.rule_code(), "LT01" | "LT02"))
+        .map(|v| (v.rule_code(), v.line_no, v.line_pos))
+        .collect();
+    assert!(
+        layout.is_empty(),
+        "unexpected layout violations in templated region: {layout:?}"
+    );
+}
+
+/// LT12 is a source-file rule. A templated file can render with a final newline
+/// while the source file still lacks one because trailing Jinja blocks render to
+/// zero length.
+#[test]
+fn test_lt12_reports_missing_source_newline_after_jinja_block() {
+    use sqruff_lib_core::templaters::{
+        RawFileSlice, TemplateSliceKind, TemplatedFile, TemplatedFileSlice,
+    };
+
+    let source =
+        "select\n    id\nfrom my_table\n{% if is_incremental() %}\nwhere id > 0\n{% endif %}";
+    let templated = "select\n    id\nfrom my_table\n";
+
+    let sliced_file = vec![
+        TemplatedFileSlice::new_typed(TemplateSliceKind::Literal, 0..28, 0..28),
+        TemplatedFileSlice::new_typed(TemplateSliceKind::BlockStart, 28..53, 28..28),
+        TemplatedFileSlice::new_typed(TemplateSliceKind::Literal, 53..67, 28..28),
+        TemplatedFileSlice::new_typed(TemplateSliceKind::BlockEnd, 67..78, 28..28),
+    ];
+    let raw_sliced = vec![
+        RawFileSlice::new_typed(
+            "select\n    id\nfrom my_table\n".to_string(),
+            TemplateSliceKind::Literal,
+            0,
+            None,
+            Some(0),
+        ),
+        RawFileSlice::new_typed(
+            "{% if is_incremental() %}".to_string(),
+            TemplateSliceKind::BlockStart,
+            28,
+            None,
+            Some(1),
+        ),
+        RawFileSlice::new_typed(
+            "\nwhere id > 0\n".to_string(),
+            TemplateSliceKind::Literal,
+            53,
+            None,
+            Some(1),
+        ),
+        RawFileSlice::new_typed(
+            "{% endif %}".to_string(),
+            TemplateSliceKind::BlockEnd,
+            67,
+            None,
+            Some(1),
+        ),
+    ];
+
+    let templated_file = TemplatedFile::new(
+        source.to_string(),
+        "a.sql".to_string(),
+        Some(templated.to_string()),
+        Some(sliced_file),
+        Some(raw_sliced),
+    )
+    .unwrap();
+
+    let rendered = crate::core::linter::common::RenderedFile {
+        templated_file,
+        templater_violations: vec![],
+        filename: "a.sql".to_string(),
+        source_str: source.to_string(),
+    };
+
+    let lnt = crate::core::linter::core::Linter::new(
+        crate::core::config::FluffConfig::new(<_>::default(), None, None),
+        None,
+        None,
+        false,
+    )
+    .unwrap();
+    let linted = lnt.lint_rendered(rendered, false).unwrap();
+
+    let lt12: Vec<_> = linted
+        .violations()
+        .iter()
+        .filter(|v| v.rule_code() == "LT12")
+        .map(|v| (v.line_no, v.line_pos))
+        .collect();
+    assert!(!lt12.is_empty(), "expected LT12 violation");
+}
+
+/// Trailing source-only Jinja blocks should not hide extra rendered newlines
+/// from LT12.
+#[test]
+fn test_lt12_reports_extra_rendered_newline_before_jinja_block() {
+    use sqruff_lib_core::templaters::{
+        RawFileSlice, TemplateSliceKind, TemplatedFile, TemplatedFileSlice,
+    };
+
+    let source = "select\n    id\nfrom my_table\n\n{% if is_incremental() %}\n{% endif %}\n";
+    let templated = "select\n    id\nfrom my_table\n\n";
+
+    let sliced_file = vec![
+        TemplatedFileSlice::new_typed(TemplateSliceKind::Literal, 0..29, 0..29),
+        TemplatedFileSlice::new_typed(TemplateSliceKind::BlockStart, 29..54, 29..29),
+        TemplatedFileSlice::new_typed(TemplateSliceKind::Literal, 54..55, 29..29),
+        TemplatedFileSlice::new_typed(TemplateSliceKind::BlockEnd, 55..66, 29..29),
+        TemplatedFileSlice::new_typed(TemplateSliceKind::Literal, 66..67, 29..29),
+    ];
+    let raw_sliced = vec![
+        RawFileSlice::new_typed(
+            "select\n    id\nfrom my_table\n\n".to_string(),
+            TemplateSliceKind::Literal,
+            0,
+            None,
+            Some(0),
+        ),
+        RawFileSlice::new_typed(
+            "{% if is_incremental() %}".to_string(),
+            TemplateSliceKind::BlockStart,
+            29,
+            None,
+            Some(1),
+        ),
+        RawFileSlice::new_typed(
+            "\n".to_string(),
+            TemplateSliceKind::Literal,
+            54,
+            None,
+            Some(1),
+        ),
+        RawFileSlice::new_typed(
+            "{% endif %}".to_string(),
+            TemplateSliceKind::BlockEnd,
+            55,
+            None,
+            Some(1),
+        ),
+        RawFileSlice::new_typed(
+            "\n".to_string(),
+            TemplateSliceKind::Literal,
+            66,
+            None,
+            Some(1),
+        ),
+    ];
+
+    let templated_file = TemplatedFile::new(
+        source.to_string(),
+        "a.sql".to_string(),
+        Some(templated.to_string()),
+        Some(sliced_file),
+        Some(raw_sliced),
+    )
+    .unwrap();
+
+    let rendered = crate::core::linter::common::RenderedFile {
+        templated_file,
+        templater_violations: vec![],
+        filename: "a.sql".to_string(),
+        source_str: source.to_string(),
+    };
+
+    let lnt = crate::core::linter::core::Linter::new(
+        crate::core::config::FluffConfig::new(<_>::default(), None, None),
+        None,
+        None,
+        false,
+    )
+    .unwrap();
+    let linted = lnt.lint_rendered(rendered, false).unwrap();
+
+    let lt12: Vec<_> = linted
+        .violations()
+        .iter()
+        .filter(|v| v.rule_code() == "LT12")
+        .map(|v| (v.line_no, v.line_pos))
+        .collect();
+    assert!(!lt12.is_empty(), "expected LT12 violation");
+}

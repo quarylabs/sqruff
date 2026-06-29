@@ -692,6 +692,10 @@ impl RawFileSlice {
         &self.raw
     }
 
+    pub const fn block_idx(&self) -> usize {
+        self.block_idx
+    }
+
     /// Return the slice type (e.g., literal, templated, comment).
     pub const fn slice_type(&self) -> TemplateSliceKind {
         self.slice_type

@@ -11,7 +11,7 @@ use sqruff_lib_core::templaters::TemplateSliceKind;
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups, targets_templated};
 
 /// Represents the parsed components of a Jinja tag.
 struct JinjaTagComponents {
@@ -111,6 +111,8 @@ SELECT {{ a }} from {{ ref('foo') }};
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Jinja]
     }
+
+    targets_templated!();
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         // This rule only applies when we have a templated file

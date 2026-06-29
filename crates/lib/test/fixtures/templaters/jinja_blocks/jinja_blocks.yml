@@ -1,0 +1,30 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: where
+      - expression:
+        - column_reference:
+          - naked_identifier: col
+        - keyword: in
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''a'''
+          - comma: ','
+          - quoted_literal: '''b'''
+          - comma: ','
+          - quoted_literal: '''c'''
+          - end_bracket: )

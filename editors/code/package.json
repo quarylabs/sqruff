@@ -56,12 +56,12 @@
   },
   "dependencies": {
     "vscode-languageclient": "^10.0.0",
-    "vscode-languageserver": "^10.0.0"
+    "vscode-languageserver": "^10.0.1"
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
     "@rauschma/env-var": "^1.0.1",
-    "@types/node": "~22.18.13",
+    "@types/node": "~26.0.1",
     "@types/vscode": "1.96.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^3.0.0",

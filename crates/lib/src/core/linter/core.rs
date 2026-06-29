@@ -468,22 +468,23 @@ impl Linter {
                             // Suppress results anchored in template-generated
                             // regions unless the rule targets templated areas,
                             // matching SQLFluff's `remove_templated_errors`.
-                            if ignore_templated_areas
+                            let suppress_templated_violation = ignore_templated_areas
                                 && !rule.targets_templated()
-                                && result.anchor_in_templated_section()
-                            {
-                                return;
-                            }
+                                && result.anchor_in_templated_section();
 
                             if ignore_mask.as_ref().is_none_or(|ignore_mask| {
                                 !ignore_mask.is_masked(&result, rule.into())
                             }) {
-                                compute_anchor_edit_info(
-                                    &mut anchor_info,
-                                    std::mem::take(&mut result.fixes),
-                                );
+                                if !suppress_templated_violation
+                                    || (fix && !result.fixes.is_empty())
+                                {
+                                    compute_anchor_edit_info(
+                                        &mut anchor_info,
+                                        std::mem::take(&mut result.fixes),
+                                    );
+                                }
 
-                                if is_first_linter_pass {
+                                if is_first_linter_pass && !suppress_templated_violation {
                                     initial_violations.extend(result.to_linting_error(rule));
                                 }
                             }

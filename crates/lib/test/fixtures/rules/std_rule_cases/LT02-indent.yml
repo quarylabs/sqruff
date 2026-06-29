@@ -912,6 +912,12 @@ test_pass_ignore_templated_whitespace_4:
         {{ "      c2\n" }} AS other_id
     FROM my_table
 
+test_pass_blank_line_before_jinja_comment:
+  pass_str: "with source as (\n    \n    {# comment #}\n    select 1\n)\nselect * from source\n"
+  configs:
+    core:
+      templater: jinja
+
 test_pass_ignore_templated_newline_not_last_line:
   pass_str: |
     select *

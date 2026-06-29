@@ -1,8 +1,8 @@
-use hashbrown::HashMap;
+use hashbrown::{HashMap, HashSet};
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{BlockType, ErasedSegment, SegmentBuilder};
-use sqruff_lib_core::templaters::TemplateSliceKind;
+use sqruff_lib_core::templaters::{RawFileSlice, TemplateSliceKind, TemplatedFile};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
@@ -101,22 +101,74 @@ fn templated_source_missing_final_newline(context: &RuleContext) -> bool {
         })
 }
 
+fn raw_slice_index_at_source_pos(raw_sliced: &[RawFileSlice], source_pos: usize) -> Option<usize> {
+    raw_sliced.iter().position(|slice| {
+        slice.source_slice().start <= source_pos && source_pos < slice.source_slice().end
+    })
+}
+
+fn whitespace_only_literal_inside_template_block(
+    templated_file: &TemplatedFile,
+    source_pos: usize,
+) -> bool {
+    let raw_sliced = templated_file.raw_sliced();
+    let Some(raw_idx) = raw_slice_index_at_source_pos(raw_sliced, source_pos) else {
+        return false;
+    };
+    let raw_slice = &raw_sliced[raw_idx];
+
+    raw_slice.has_slice_kind(TemplateSliceKind::Literal)
+        && raw_slice.raw().chars().all(char::is_whitespace)
+        && raw_sliced[raw_idx + 1..].iter().any(|next_slice| {
+            next_slice.block_idx() == raw_slice.block_idx()
+                && matches!(
+                    next_slice.slice_kind(),
+                    TemplateSliceKind::BlockMid | TemplateSliceKind::BlockEnd
+                )
+        })
+}
+
 fn templated_file_has_extra_final_newline(context: &RuleContext) -> bool {
     context
         .templated_file
         .as_ref()
         .is_some_and(|templated_file| {
-            templated_file
+            if !templated_file
                 .raw_sliced()
                 .iter()
                 .any(|slice| !slice.has_slice_kind(TemplateSliceKind::Literal))
-                && templated_file
-                    .templated()
-                    .chars()
-                    .rev()
-                    .take_while(|&ch| ch == '\n')
-                    .count()
-                    > 1
+            {
+                return false;
+            }
+
+            let templated = templated_file.templated();
+            let mut literal_trailing_newline_source_positions = HashSet::new();
+
+            for idx in (0..templated.len()).rev() {
+                if templated.as_bytes()[idx] != b'\n' {
+                    break;
+                }
+
+                let Some(slice) = templated_file.sliced_file.iter().find(|slice| {
+                    slice.templated_slice.start <= idx && idx < slice.templated_slice.end
+                }) else {
+                    continue;
+                };
+
+                if slice.has_slice_kind(TemplateSliceKind::Literal) {
+                    let source_idx = slice.source_slice.start + (idx - slice.templated_slice.start);
+                    if source_idx < slice.source_slice.end
+                        && !whitespace_only_literal_inside_template_block(
+                            templated_file,
+                            source_idx,
+                        )
+                    {
+                        literal_trailing_newline_source_positions.insert(source_idx);
+                    }
+                }
+            }
+
+            literal_trailing_newline_source_positions.len() > 1
         })
 }
 
@@ -235,6 +287,16 @@ Add trailing newline to the end. The $ character represents end of file.
 
         let trailing_newlines = Segments::from_vec(get_trailing_newlines(&context.segment), None);
         let trailing_newline_count = trailing_newline_count(&trailing_newlines);
+        let has_non_literal_slices =
+            context
+                .templated_file
+                .as_ref()
+                .is_some_and(|templated_file| {
+                    templated_file
+                        .raw_sliced()
+                        .iter()
+                        .any(|slice| !slice.has_slice_kind(TemplateSliceKind::Literal))
+                });
 
         if trailing_newlines.is_empty() || source_missing_final_newline {
             let default_fix_anchor_segment = if parent_stack.len() == 1 {
@@ -270,17 +332,11 @@ Add trailing newline to the end. The $ character represents end of file.
                 None,
                 None,
             )]
-        } else if trailing_newline_count > 1 || templated_extra_final_newline {
+        } else if (!has_non_literal_slices && trailing_newline_count > 1)
+            || templated_extra_final_newline
+        {
             let fixes = if templated_extra_final_newline
-                || context
-                    .templated_file
-                    .as_ref()
-                    .is_some_and(|templated_file| {
-                        templated_file
-                            .raw_sliced()
-                            .iter()
-                            .any(|slice| !slice.has_slice_kind(TemplateSliceKind::Literal))
-                    })
+                || has_non_literal_slices
                 || trailing_newlines
                     .iter()
                     .any(|segment| segment.raw().chars().filter(|&ch| ch == '\n').count() > 1)

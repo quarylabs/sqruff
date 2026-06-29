@@ -1,6 +1,7 @@
 use hashbrown::{HashMap, HashSet};
 use itertools::enumerate;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::parser::segments::BlockType;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -101,11 +102,13 @@ FROM my_table
                         break;
                     }
 
-                    if seg.is_type(SyntaxKind::Comment) || seg.is_type(SyntaxKind::InlineComment) {
+                    if seg.is_type(SyntaxKind::Comment)
+                        || seg.is_type(SyntaxKind::InlineComment)
+                        || (seg.is_type(SyntaxKind::Placeholder)
+                            && seg.block_type() == Some(BlockType::Comment))
+                    {
                         to_remove.insert(res_idx);
                         break;
-                    } else if seg.is_type(SyntaxKind::Placeholder) {
-                        unimplemented!()
                     }
                 }
             }

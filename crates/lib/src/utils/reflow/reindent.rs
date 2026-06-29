@@ -74,6 +74,24 @@ impl IndentLine {
         self.blocks(elements).all(|b| b.is_all_unrendered())
     }
 
+    fn is_source_only_template_line(&self, elements: &ReflowSequenceType) -> bool {
+        let mut segments = self.block_segments(elements).peekable();
+        segments.peek().is_some()
+            && segments.all(|seg| {
+                seg.is_type(SyntaxKind::Placeholder)
+                    && matches!(
+                        seg.block_type(),
+                        Some(
+                            BlockType::BlockStart
+                                | BlockType::BlockMid
+                                | BlockType::BlockEnd
+                                | BlockType::SkippedSource
+                                | BlockType::Comment
+                        )
+                    )
+            })
+    }
+
     fn blocks<'a>(
         &self,
         elements: &'a ReflowSequenceType,
@@ -1267,7 +1285,7 @@ pub fn lint_indent_points(
     revise_comment_lines(&mut lines, &elements);
 
     for line in lines {
-        if line.is_all_templates(&elements) {
+        if line.is_source_only_template_line(&elements) {
             continue;
         }
 

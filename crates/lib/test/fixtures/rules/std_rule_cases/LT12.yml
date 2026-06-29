@@ -42,6 +42,14 @@ test_pass_templated_macro_newlines:
     core:
       templater: jinja
 
+test_pass_templated_loop_repeated_newline:
+  pass_str: |
+    {% for i in [1, 2] %}
+    {% endfor %}
+  configs:
+    core:
+      templater: jinja
+
 test_fail_templated_no_newline:
   ignored: "jinja is not set"
   # Tricky because there's no newline at the end of the file (following the

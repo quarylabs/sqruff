@@ -1,4 +1,7 @@
 use hashbrown::HashMap;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::templaters::TemplatedFile;
 
 use crate::core::config::Value;
@@ -50,6 +53,10 @@ fn source_only_slice_at(templated_file: &TemplatedFile, pos: usize) -> bool {
         slice.slice_kind().is_source_only()
             && slice.source_slice().start <= pos
             && pos < slice.source_slice().end
+    }) || templated_file.sliced_file.iter().any(|slice| {
+        slice.templated_slice.is_empty()
+            && slice.source_slice.start <= pos
+            && pos < slice.source_slice.end
     })
 }
 
@@ -64,6 +71,43 @@ fn line_is_adjacent_to_source_only_slice(templated_file: &TemplatedFile, pos: us
         || source_only_slice_at(templated_file, pos)
         || (before > 0 && source_only_slice_at(templated_file, before - 1))
         || source_only_slice_at(templated_file, after)
+}
+
+fn source_line_has_non_source_only_non_whitespace(
+    templated_file: &TemplatedFile,
+    pos: usize,
+) -> bool {
+    let source = templated_file.source_str.as_str();
+    let (line_start, line_end) = line_bounds(source, pos);
+    source[line_start..line_end]
+        .char_indices()
+        .any(|(idx, ch)| {
+            !ch.is_whitespace() && !source_only_slice_at(templated_file, line_start + idx)
+        })
+}
+
+fn is_literal_whitespace_segment(segment: &ErasedSegment) -> bool {
+    (segment.is_type(SyntaxKind::Newline) || segment.is_type(SyntaxKind::Whitespace))
+        && segment
+            .get_position_marker()
+            .is_some_and(|marker| marker.is_literal())
+}
+
+fn is_whitespace_edit(segment: &ErasedSegment) -> bool {
+    segment.is_type(SyntaxKind::Newline) || segment.is_type(SyntaxKind::Whitespace)
+}
+
+fn is_literal_indentation_fix(fix: &LintFix) -> bool {
+    match fix {
+        LintFix::Replace { anchor, edit, .. } => {
+            is_literal_whitespace_segment(anchor) && edit.iter().all(is_whitespace_edit)
+        }
+        _ => false,
+    }
+}
+
+fn has_only_literal_indentation_fixes(result: &LintResult) -> bool {
+    !result.fixes.is_empty() && result.fixes.iter().all(is_literal_indentation_fix)
 }
 
 impl Rule for RuleLT02 {
@@ -124,10 +168,13 @@ FROM foo
             .filter(|result| {
                 !result.anchor.as_ref().is_some_and(|anchor| {
                     anchor.get_position_marker().is_some_and(|marker| {
-                        line_is_adjacent_to_source_only_slice(
-                            templated_file,
-                            marker.source_slice.start,
-                        )
+                        let source_pos = marker.source_slice.start;
+                        line_is_adjacent_to_source_only_slice(templated_file, source_pos)
+                            && (!has_only_literal_indentation_fixes(result)
+                                || !source_line_has_non_source_only_non_whitespace(
+                                    templated_file,
+                                    source_pos,
+                                ))
                     })
                 })
             })

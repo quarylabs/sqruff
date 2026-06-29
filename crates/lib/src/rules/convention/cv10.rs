@@ -1,15 +1,21 @@
+use std::ops::Range;
+
 use hashbrown::HashMap;
 use regex::Regex;
+use smol_str::SmolStr;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_lib_core::parser::markers::PositionMarker;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
+use sqruff_lib_core::parser::segments::fix::SourceFix;
+use sqruff_lib_core::templaters::TemplateSliceKind;
 use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups, targets_templated};
 
 #[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq, Default)]
 #[strum(serialize_all = "snake_case")]
@@ -48,6 +54,8 @@ pub struct RuleCV10 {
 }
 
 impl Rule for RuleCV10 {
+    targets_templated!();
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleCV10 {
             preferred_quoted_literal_style: config["preferred_quoted_literal_style"]
@@ -112,6 +120,19 @@ from foo
             return Vec::new();
         }
 
+        let Some(position_marker) = context.segment.get_position_marker() else {
+            return Vec::new();
+        };
+        let spans_template = segment_spans_templated_slice(position_marker);
+        if spans_template
+            && !quote_delimiters_are_in_literal_source(
+                context.segment.raw().as_ref(),
+                position_marker,
+            )
+        {
+            return Vec::new();
+        }
+
         let preferred_quoted_literal_style =
             if self.preferred_quoted_literal_style == PreferredQuotedLiteralStyle::Consistent {
                 let preferred_quoted_literal_style = context
@@ -138,8 +159,33 @@ from foo
         );
 
         if fixed_string != context.segment.raw().as_str() {
-            return vec![LintResult::new(
-                context.segment.clone().into(),
+            let fixes = if spans_template {
+                source_only_quote_fixes(context, &fixed_string)
+                    .map(|source_fixes| {
+                        let raw_token = SegmentBuilder::token(
+                            context.tables.next_id(),
+                            context.segment.raw().as_ref(),
+                            context.segment.get_type(),
+                        )
+                        .finish();
+
+                        let edit_segment = SegmentBuilder::node(
+                            context.tables.next_id(),
+                            context.segment.get_type(),
+                            context.dialect.name,
+                            vec![raw_token],
+                        )
+                        .with_source_fixes(source_fixes)
+                        .finish();
+
+                        vec![LintFix::replace(
+                            context.segment.clone(),
+                            vec![edit_segment],
+                            None,
+                        )]
+                    })
+                    .unwrap_or_default()
+            } else {
                 vec![LintFix::replace(
                     context.segment.clone(),
                     vec![
@@ -151,7 +197,12 @@ from foo
                         .finish(),
                     ],
                     None,
-                )],
+                )]
+            };
+
+            return vec![LintResult::new(
+                context.segment.clone().into(),
+                fixes,
                 Some("".into()),
                 None,
             )];
@@ -167,6 +218,124 @@ from foo
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::QuotedLiteral]) }).into()
     }
+}
+
+fn segment_spans_templated_slice(position_marker: &PositionMarker) -> bool {
+    position_marker
+        .templated_file
+        .raw_sliced()
+        .iter()
+        .any(|slice| {
+            slice.has_slice_kind(TemplateSliceKind::Templated)
+                && ranges_overlap(&slice.source_slice(), &position_marker.source_slice).is_some()
+        })
+}
+
+fn quote_delimiters_are_in_literal_source(raw: &str, position_marker: &PositionMarker) -> bool {
+    let Some((leading_offset, leading_quote)) = raw
+        .char_indices()
+        .find(|(_, ch)| !matches!(ch, 'r' | 'b' | 'R' | 'B'))
+    else {
+        return false;
+    };
+    let Some((trailing_offset, trailing_quote)) = raw.char_indices().next_back() else {
+        return false;
+    };
+
+    matches!(leading_quote, '\'' | '"')
+        && matches!(trailing_quote, '\'' | '"')
+        && templated_position_is_literal_source(
+            position_marker,
+            position_marker.templated_slice.start + leading_offset,
+            leading_quote,
+        )
+        && templated_position_is_literal_source(
+            position_marker,
+            position_marker.templated_slice.start + trailing_offset,
+            trailing_quote,
+        )
+}
+
+fn templated_position_is_literal_source(
+    position_marker: &PositionMarker,
+    templated_pos: usize,
+    expected: char,
+) -> bool {
+    position_marker
+        .templated_file
+        .sliced_file
+        .iter()
+        .find(|slice| {
+            slice.templated_slice.start <= templated_pos
+                && templated_pos < slice.templated_slice.end
+        })
+        .is_some_and(|slice| {
+            if !slice.has_slice_kind(TemplateSliceKind::Literal) {
+                return false;
+            }
+
+            let source_pos = slice.source_slice.start + templated_pos - slice.templated_slice.start;
+            position_marker.templated_file.source_str[source_pos..].starts_with(expected)
+        })
+}
+
+fn source_only_quote_fixes(context: &RuleContext, fixed_string: &str) -> Option<Vec<SourceFix>> {
+    let position_marker = context.segment.get_position_marker()?;
+    let raw = context.segment.raw();
+
+    if raw.len() != fixed_string.len() {
+        return None;
+    }
+
+    let mut source_fixes = Vec::new();
+    let templated_file = &position_marker.templated_file;
+
+    for slice in &templated_file.sliced_file {
+        let Some(overlap) =
+            ranges_overlap(&slice.templated_slice, &position_marker.templated_slice)
+        else {
+            continue;
+        };
+        if overlap.is_empty() {
+            continue;
+        }
+
+        let local_slice = overlap.start - position_marker.templated_slice.start
+            ..overlap.end - position_marker.templated_slice.start;
+        let raw_part = raw.get(local_slice.clone())?;
+        let fixed_part = fixed_string.get(local_slice.clone())?;
+
+        if !slice.has_slice_kind(TemplateSliceKind::Literal) {
+            if raw_part != fixed_part {
+                return None;
+            }
+            continue;
+        }
+
+        if raw_part == fixed_part {
+            continue;
+        }
+
+        let source_start = slice.source_slice.start + overlap.start - slice.templated_slice.start;
+        let source_end = source_start + overlap.end - overlap.start;
+        source_fixes.push(SourceFix::new(
+            SmolStr::new(fixed_part),
+            source_start..source_end,
+            overlap,
+        ));
+    }
+
+    if source_fixes.is_empty() {
+        None
+    } else {
+        Some(source_fixes)
+    }
+}
+
+fn ranges_overlap(left: &Range<usize>, right: &Range<usize>) -> Option<Range<usize>> {
+    let start = left.start.max(right.start);
+    let end = left.end.min(right.end);
+    (start < end).then_some(start..end)
 }
 
 // FIXME: avoid memory allocations

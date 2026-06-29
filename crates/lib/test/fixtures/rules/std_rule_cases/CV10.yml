@@ -288,17 +288,20 @@ test_pass_partially_templated_quoted_literals_simple:
     SELECT "{{ 'a string' }}"
   configs:
     core:
+      templater: jinja
       dialect: bigquery
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_fail_partially_templated_quoted_literals_simple:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT '{{ "a string" }}'
+  fix_str: |
+    SELECT "{{ "a string" }}"
   configs:
     core:
+      templater: jinja
       dialect: bigquery
     rules:
       convention.quoted_literals:
@@ -309,17 +312,20 @@ test_pass_partially_templated_quoted_literals_complex:
     SELECT "this_is_a_lintable_{{ 'string' }}"
   configs:
     core:
+      templater: jinja
       dialect: bigquery
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_fail_partially_templated_quoted_literals_complex:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT 'this_is_a_lintable_{{ "string" }}'
+  fix_str: |
+    SELECT "this_is_a_lintable_{{ "string" }}"
   configs:
     core:
+      templater: jinja
       dialect: bigquery
     rules:
       convention.quoted_literals:
@@ -330,31 +336,39 @@ test_pass_partially_templated_quoted_literals_with_multiple_templates:
     SELECT "this_{{ 'is' }}_{{ 'a_lintable' }}_{{ 'string' }}"
   configs:
     core:
+      templater: jinja
       dialect: bigquery
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_fail_partially_templated_quoted_literals_with_multiple_templates:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT 'this_{{ "is" }}_{{ "a_lintable" }}_{{ "string" }}'
+  fix_str: |
+    SELECT "this_{{ "is" }}_{{ "a_lintable" }}_{{ "string" }}"
   configs:
     core:
+      templater: jinja
       dialect: bigquery
     rules:
       convention.quoted_literals:
         preferred_quoted_literal_style: double_quotes
 
 test_fail_partially_templated_quoted_literals_inside_blocks:
-  ignored: "jinja is not supported"
   fail_str: |
     SELECT
         {% if true %}
         '{{ "another_templated_string" }}'
         {% endif %}
+  fix_str: |
+    SELECT
+        {% if true %}
+        "{{ "another_templated_string" }}"
+        {% endif %}
   configs:
     core:
+      templater: jinja
       dialect: bigquery
     rules:
       convention.quoted_literals:

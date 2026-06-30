@@ -55,9 +55,21 @@ where
 
             std::process::exit(1);
         };
-        FluffConfig::from_file(Path::new(config))
+        match FluffConfig::try_from_file(Path::new(config)) {
+            Ok(config) => config,
+            Err(err) => {
+                eprintln!("{err}");
+                std::process::exit(1);
+            }
+        }
     } else {
-        FluffConfig::from_root(None, false, None).unwrap()
+        match FluffConfig::from_root(None, false, None) {
+            Ok(config) => config,
+            Err(err) => {
+                eprintln!("{err}");
+                std::process::exit(1);
+            }
+        }
     };
 
     if let Some(dialect) = cli.dialect {

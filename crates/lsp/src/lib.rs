@@ -28,8 +28,10 @@ use wasm_bindgen::prelude::*;
 fn load_config(root: Option<&Path>) -> FluffConfig {
     if let Some(root) = root {
         let loader = ConfigLoader {};
-        let config = loader.load_config_at_path(root);
-        FluffConfig::new(config, None, None)
+        loader
+            .try_load_config_at_path(root)
+            .map(|config| FluffConfig::new(config, None, None))
+            .unwrap_or_default()
     } else {
         FluffConfig::from_root(None, false, None).unwrap_or_default()
     }

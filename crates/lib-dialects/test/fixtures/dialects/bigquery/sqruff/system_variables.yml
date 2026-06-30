@@ -1,0 +1,27 @@
+file:
+- statement:
+  - set_segment:
+    - keyword: SET
+    - naked_identifier: foo
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - system_variable:
+      - double_at_sign_literal: '@@bar'
+- statement_terminator: ;
+- statement:
+  - set_segment:
+    - keyword: SET
+    - naked_identifier: foo
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - system_variable:
+      - double_at_sign_literal: '@@error.message'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - system_variable:
+          - double_at_sign_literal: '@@bar'
+- statement_terminator: ;

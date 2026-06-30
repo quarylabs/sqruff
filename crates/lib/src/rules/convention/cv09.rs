@@ -17,12 +17,15 @@ pub struct RuleCV09 {
 impl Rule for RuleCV09 {
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         let blocked_words = config["blocked_words"]
-            .as_string()
-            .map_or(Default::default(), |it| {
-                it.split(',')
-                    .map(|s| s.to_string().to_uppercase())
-                    .collect::<HashSet<_>>()
-            });
+            .as_array()
+            .unwrap_or_default()
+            .into_iter()
+            .map(|word| {
+                word.as_string()
+                    .map(|word| word.to_string().to_uppercase())
+                    .ok_or_else(|| "blocked_words must be a string or array of strings".to_string())
+            })
+            .collect::<Result<HashSet<_>, _>>()?;
         let blocked_regex = config["blocked_regex"]
             .as_array()
             .unwrap_or_default()

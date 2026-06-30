@@ -53,6 +53,7 @@ WASM_CRATE_NAMES = [
     "serde_json",
     "smol_str",
     "strum",
+    "toml",
     "walkdir",
 ]
 

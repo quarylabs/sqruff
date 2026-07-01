@@ -1,8 +1,6 @@
 use std::ops::Range;
 use std::rc::Rc;
 
-use hashbrown::HashSet;
-
 use crate::slice_helpers::zero_slice;
 use crate::templaters::TemplatedFile;
 
@@ -125,21 +123,29 @@ impl PositionMarker {
         let mut source_end = usize::MIN;
         let mut template_start = usize::MAX;
         let mut template_end = usize::MIN;
-        let mut templated_files = HashSet::new();
+        let mut templated_file: Option<&TemplatedFile> = None;
 
         for marker in markers {
             source_start = source_start.min(marker.source_slice.start);
             source_end = source_end.max(marker.source_slice.end);
             template_start = template_start.min(marker.templated_slice.start);
             template_end = template_end.max(marker.templated_slice.end);
-            templated_files.insert(marker.templated_file.clone());
+            match templated_file {
+                None => templated_file = Some(&marker.templated_file),
+                Some(existing) => {
+                    if !existing.ptr_eq(&marker.templated_file)
+                        && *existing != marker.templated_file
+                    {
+                        panic!("Attempted to make a parent marker from multiple files.");
+                    }
+                }
+            }
         }
 
-        if templated_files.len() != 1 {
-            panic!("Attempted to make a parent marker from multiple files.");
-        }
-
-        let templated_file = templated_files.into_iter().next().unwrap();
+        let templated_file = match templated_file {
+            Some(templated_file) => templated_file.clone(),
+            None => panic!("Attempted to make a parent marker from multiple files."),
+        };
         PositionMarker::new(
             source_start..source_end,
             template_start..template_end,

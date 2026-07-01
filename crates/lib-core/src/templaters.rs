@@ -125,6 +125,11 @@ impl TemplatedFile {
         &self.inner.name
     }
 
+    /// Whether `self` and `other` share the same underlying allocation.
+    pub fn ptr_eq(&self, other: &TemplatedFile) -> bool {
+        Arc::ptr_eq(&self.inner, &other.inner)
+    }
+
     #[cfg(feature = "stringify")]
     pub fn to_yaml(&self) -> String {
         let inner = &*self.inner;

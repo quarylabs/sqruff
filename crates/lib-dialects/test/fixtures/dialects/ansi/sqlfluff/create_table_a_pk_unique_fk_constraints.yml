@@ -56,12 +56,13 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: table2
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: c2_
-          - comma: ','
-          - column_reference:
-            - naked_identifier: c3_
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: c2_
+            - comma: ','
+            - column_reference:
+              - naked_identifier: c3_
+            - end_bracket: )
       - end_bracket: )

@@ -1116,7 +1116,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("REFERENCES").to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
                 // Foreign columns making up FOREIGN KEY constraint
-                Ref::new("BracketedColumnReferenceListGrammar")
+                Ref::new("ReferencedColumnListGrammar")
                     .optional()
                     .to_matchable(),
                 Sequence::new(vec![
@@ -1147,6 +1147,14 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ReferencedColumnListGrammar".into(),
+            NodeMatcher::new(SyntaxKind::ReferencedColumnList, |_| {
+                Ref::new("BracketedColumnReferenceListGrammar").to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

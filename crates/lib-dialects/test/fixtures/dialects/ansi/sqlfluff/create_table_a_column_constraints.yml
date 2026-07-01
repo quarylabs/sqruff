@@ -57,11 +57,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: table2
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: c6_other
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: c6_other
+              - end_bracket: )
       - comma: ','
       - column_definition:
         - naked_identifier: c6
@@ -71,11 +72,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: table2
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: c6_other
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: c6_other
+              - end_bracket: )
           - keyword: MATCH
           - keyword: FULL
       - comma: ','
@@ -87,11 +89,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: table2
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: c6_other
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: c6_other
+              - end_bracket: )
           - keyword: MATCH
           - keyword: PARTIAL
       - comma: ','
@@ -103,11 +106,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: table2
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: c6_other
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: c6_other
+              - end_bracket: )
           - keyword: MATCH
           - keyword: SIMPLE
       - comma: ','
@@ -119,11 +123,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: table2
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: c6_other
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: c6_other
+              - end_bracket: )
           - keyword: ON
           - keyword: DELETE
           - keyword: NO
@@ -137,11 +142,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: table2
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: c6_other
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: c6_other
+              - end_bracket: )
           - keyword: ON
           - keyword: UPDATE
           - keyword: SET
@@ -155,11 +161,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: table2
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: c6_other
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: c6_other
+              - end_bracket: )
           - keyword: ON
           - keyword: DELETE
           - keyword: RESTRICT
@@ -183,11 +190,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: table3
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: c7_other
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: c7_other
+              - end_bracket: )
       - comma: ','
       - column_definition:
         - naked_identifier: c8

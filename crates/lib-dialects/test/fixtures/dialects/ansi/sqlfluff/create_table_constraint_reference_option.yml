@@ -45,11 +45,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: a
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: b
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: b
+            - end_bracket: )
         - keyword: ON
         - keyword: DELETE
         - keyword: RESTRICT
@@ -72,11 +73,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: a
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: d
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: d
+            - end_bracket: )
         - keyword: ON
         - keyword: UPDATE
         - keyword: CASCADE
@@ -99,11 +101,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: a
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: c
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: c
+            - end_bracket: )
         - keyword: ON
         - keyword: DELETE
         - keyword: SET

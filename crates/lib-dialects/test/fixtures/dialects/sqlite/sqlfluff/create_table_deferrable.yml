@@ -28,11 +28,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: users
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: id
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: id
+            - end_bracket: )
         - keyword: DEFERRABLE
       - end_bracket: )
 - statement_terminator: ;
@@ -65,11 +66,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: users
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: id
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: id
+            - end_bracket: )
         - keyword: DEFERRABLE
         - keyword: INITIALLY
         - keyword: DEFERRED
@@ -104,11 +106,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: users
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: id
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: id
+            - end_bracket: )
         - keyword: DEFERRABLE
         - keyword: INITIALLY
         - keyword: IMMEDIATE
@@ -143,11 +146,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: users
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: id
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: id
+            - end_bracket: )
         - keyword: NOT
         - keyword: DEFERRABLE
       - end_bracket: )
@@ -181,11 +185,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: users
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: id
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: id
+            - end_bracket: )
         - keyword: NOT
         - keyword: DEFERRABLE
         - keyword: INITIALLY
@@ -221,11 +226,12 @@ file:
         - keyword: REFERENCES
         - table_reference:
           - naked_identifier: users
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-            - naked_identifier: id
-          - end_bracket: )
+        - referenced_column_list:
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: id
+            - end_bracket: )
         - keyword: NOT
         - keyword: DEFERRABLE
         - keyword: INITIALLY
@@ -258,11 +264,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: artist
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: artistid
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: artistid
+              - end_bracket: )
           - keyword: DEFERRABLE
       - end_bracket: )
 - statement_terminator: ;
@@ -292,11 +299,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: artist
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: artistid
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: artistid
+              - end_bracket: )
           - keyword: DEFERRABLE
           - keyword: INITIALLY
           - keyword: DEFERRED
@@ -328,11 +336,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: artist
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: artistid
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: artistid
+              - end_bracket: )
           - keyword: DEFERRABLE
           - keyword: INITIALLY
           - keyword: IMMEDIATE
@@ -364,11 +373,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: artist
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: artistid
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: artistid
+              - end_bracket: )
           - keyword: NOT
           - keyword: DEFERRABLE
       - end_bracket: )
@@ -399,11 +409,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: artist
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: artistid
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: artistid
+              - end_bracket: )
           - keyword: NOT
           - keyword: DEFERRABLE
           - keyword: INITIALLY
@@ -436,11 +447,12 @@ file:
           - keyword: REFERENCES
           - table_reference:
             - naked_identifier: artist
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: artistid
-            - end_bracket: )
+          - referenced_column_list:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: artistid
+              - end_bracket: )
           - keyword: NOT
           - keyword: DEFERRABLE
           - keyword: INITIALLY

@@ -353,8 +353,8 @@ test_align_multiple_all:
   fix_str: |
     create table tab1 (
         a varchar(25) not null,
-        b int         not null unique      references tab2 (b),
-        c varchar(5)  not null primary key references tab2 (c)
+        b int         not null unique      references tab2(b),
+        c varchar(5)  not null primary key references tab2(c)
     )
   configs:
     layout:

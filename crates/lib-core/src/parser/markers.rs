@@ -1,7 +1,6 @@
 use std::ops::Range;
 use std::rc::Rc;
 
-
 use crate::slice_helpers::zero_slice;
 use crate::templaters::TemplatedFile;
 
@@ -124,14 +123,6 @@ impl PositionMarker {
         let mut source_end = usize::MIN;
         let mut template_start = usize::MAX;
         let mut template_end = usize::MIN;
-        // The children of a node all carry clones of one `TemplatedFile` (an
-        // `Arc`), so confirm they are the same file by pointer identity rather
-        // than inserting each into a `HashSet`. The derived `Hash`/`Eq` hash and
-        // compare the entire templated source, so the old set made building each
-        // parent marker O(source_len) per child — quadratic in file size over a
-        // whole parse. A content comparison is kept only as a fallback for the
-        // (unexpected) case of two distinct allocations, preserving the original
-        // "all from one file" check exactly.
         let mut templated_file: Option<&TemplatedFile> = None;
 
         for marker in markers {

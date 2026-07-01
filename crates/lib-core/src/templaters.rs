@@ -126,11 +126,6 @@ impl TemplatedFile {
     }
 
     /// Whether `self` and `other` share the same underlying allocation.
-    ///
-    /// This is an O(1) identity check on the inner [`Arc`], unlike the derived
-    /// `PartialEq`/`Hash`, which compare/hash the entire templated source. Use it
-    /// when many clones of one [`TemplatedFile`] need to be confirmed identical
-    /// without paying a content comparison per clone.
     pub fn ptr_eq(&self, other: &TemplatedFile) -> bool {
         Arc::ptr_eq(&self.inner, &other.inner)
     }

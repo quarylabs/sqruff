@@ -22,7 +22,7 @@ def _cargo_vendor_impl(ctx):
     # Build component install command
     install_components = ""
     if ctx.attr.components:
-        install_components = "rustup component add " + " ".join(ctx.attr.components)
+        install_components = "rustup component add --toolchain {rust_version} ".format(rust_version = ctx.attr.rust_version) + " ".join(ctx.attr.components)
 
     script_content = """#!/bin/bash
 set -euo pipefail
@@ -34,15 +34,21 @@ EXEC_ROOT="$PWD"
 export CARGO_HOME="$EXEC_ROOT/{toolchain_out}/cargo"
 export RUSTUP_HOME="$EXEC_ROOT/{toolchain_out}/rustup"
 mkdir -p "$CARGO_HOME" "$RUSTUP_HOME"
+rm -f "$RUSTUP_HOME/settings.toml"
 
 # Download and install rustup (no-modify-path prevents writing to ~/.profile)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --default-toolchain {rust_version} --profile minimal
 
 # Add cargo to PATH
 export PATH="$CARGO_HOME/bin:$PATH"
+export RUSTUP_TOOLCHAIN="{rust_version}"
 
 # Install additional components if specified
 {install_components}
+
+# Force the requested toolchain to remain the default even if rustup inherited
+# stale settings from a previous sandbox path.
+rustup default {rust_version}
 
 # Verify installation
 cargo --version
@@ -535,6 +541,7 @@ TOOLCHAIN_DIR="$RUNFILES/_main/{toolchain_dir}"
 export CARGO_HOME="$TOOLCHAIN_DIR/cargo"
 export RUSTUP_HOME="$TOOLCHAIN_DIR/rustup"
 export PATH="$CARGO_HOME/bin:$PATH"
+export RUSTUP_TOOLCHAIN="{rust_version}"
 
 {tool_setup}
 
@@ -550,12 +557,16 @@ done << 'SRCS_EOF'
 {srcs}
 SRCS_EOF
 
-# Copy vendored dependencies
-cp -rL "$VENDOR_DIR" "$WORK_DIR/vendor"
-
-# Copy cargo config
+# Point cargo at the read-only vendored dependencies in runfiles. The sources are
+# immutable, so copying the full vendor tree into every test sandbox is wasted I/O.
 mkdir -p "$WORK_DIR/.cargo"
-cp "$CARGO_CONFIG" "$WORK_DIR/.cargo/config.toml"
+cat > "$WORK_DIR/.cargo/config.toml" <<EOF
+[source.crates-io]
+replace-with = "vendored-sources"
+
+[source.vendored-sources]
+directory = "$VENDOR_DIR"
+EOF
 
 cd "$WORK_DIR"
 
@@ -569,6 +580,7 @@ export CARGO_TARGET_DIR="$WORK_DIR/target"
         vendor_dir = vendor_info.vendor_dir.short_path,
         cargo_config = vendor_info.cargo_config.short_path,
         toolchain_dir = vendor_info.toolchain_dir.short_path,
+        rust_version = ctx.attr.rust_version,
         srcs = "\n".join([f.short_path for f in ctx.files.srcs]),
         tool_setup = tool_setup,
         python_setup = python_setup,
@@ -603,6 +615,10 @@ _cargo_attrs = {
         doc = "Additional cargo subcommand binaries (e.g. cargo-hack) to symlink into PATH",
     ),
     "script": attr.string(mandatory = True),
+    "rust_version": attr.string(
+        default = "1.96.0",
+        doc = "Rust toolchain version to use from the vendored toolchain",
+    ),
 }
 
 cargo_test = rule(

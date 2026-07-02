@@ -1,16 +1,19 @@
 use std::str::FromStr;
 
+use configparser::ini::Ini;
 use expect_test::expect_file;
-use hashbrown::HashSet;
+use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
+use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
+use sqruff_lib_core::value::Value;
 use sqruff_lib_dialects::kind_to_dialect;
 use strum::IntoEnumIterator;
 
@@ -26,6 +29,58 @@ fn check_no_unparsable_segments(tree: &ErasedSegment) -> Vec<String> {
             )
         })
         .collect()
+}
+
+fn dialect_config_from_fixture_dir(
+    fixture_dir: &std::path::Path,
+    dialect_kind: DialectKind,
+) -> Option<Value> {
+    for file_name in [".sqlfluff", ".sqruff"] {
+        let config_path = fixture_dir.join(file_name);
+        if !config_path.exists() {
+            continue;
+        }
+
+        let mut config = Ini::new();
+        config
+            .read(std::fs::read_to_string(config_path).unwrap())
+            .unwrap();
+
+        let dialect_section = format!("sqruff:dialect:{}", dialect_kind.as_ref());
+        let sqlfluff_dialect_section = format!("sqlfluff:dialect:{}", dialect_kind.as_ref());
+
+        for section_name in [dialect_section, sqlfluff_dialect_section] {
+            let Some(section) = config.get_map_ref().get(&section_name) else {
+                continue;
+            };
+
+            let values = section
+                .iter()
+                .map(|(key, value)| {
+                    (
+                        key.to_owned(),
+                        value
+                            .as_deref()
+                            .unwrap_or_default()
+                            .parse::<Value>()
+                            .unwrap(),
+                    )
+                })
+                .collect::<HashMap<_, _>>();
+
+            return Some(Value::Map(values));
+        }
+    }
+
+    None
+}
+
+fn dialect_for_fixture_dir(
+    fixture_dir: &std::path::Path,
+    dialect_kind: DialectKind,
+) -> Option<Dialect> {
+    let config = dialect_config_from_fixture_dir(fixture_dir, dialect_kind);
+    kind_to_dialect(&dialect_kind, config.as_ref())
 }
 
 fn main() {
@@ -71,13 +126,24 @@ fn main() {
     // Go through each of the dialects and check if the files are present
     for dialect_name in &dialects {
         let dialect_kind = DialectKind::from_str(dialect_name).unwrap();
-        let Some(dialect) = kind_to_dialect(&dialect_kind, None) else {
+        if kind_to_dialect(&dialect_kind, None).is_none() {
             println!("{dialect_name} disabled");
             continue;
-        };
+        }
 
         let path = format!("test/fixtures/dialects/{dialect_name}/*/*.sql");
         let files = glob::glob(&path).unwrap().flatten().collect_vec();
+        let dialects_by_fixture_dir = files
+            .iter()
+            .map(|file| file.parent().unwrap())
+            .unique()
+            .map(|fixture_dir| {
+                (
+                    fixture_dir.to_path_buf(),
+                    dialect_for_fixture_dir(fixture_dir, dialect_kind).unwrap(),
+                )
+            })
+            .collect::<HashMap<_, _>>();
 
         println!("For dialect: {dialect_name}, found {} files", files.len());
 
@@ -90,8 +156,9 @@ fn main() {
             let actual = {
                 let sql = std::fs::read_to_string(file).unwrap();
                 let tables = Tables::default();
-                let lexer = Lexer::from(&dialect);
-                let parser = Parser::from(&dialect);
+                let dialect = dialects_by_fixture_dir.get(file.parent().unwrap()).unwrap();
+                let lexer = Lexer::from(dialect);
+                let parser = Parser::from(dialect);
                 let tokens = lexer.lex(&tables, sql);
                 assert!(tokens.1.is_empty());
 

@@ -62,6 +62,7 @@ hashbrown.workspace = true
 serde_yaml = "0.9.34+deprecated"
 
 [dev-dependencies]
+configparser = "3.2.0"
 sqruff-lib-core.workspace = true
 sqruff-lib-core.features = ["serde", "stringify"]
 rayon = "1.12.0"

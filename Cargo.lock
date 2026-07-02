@@ -1628,6 +1628,7 @@ dependencies = [
 name = "sqruff-lib-dialects"
 version = "0.38.0"
 dependencies = [
+ "configparser",
  "expect-test",
  "glob",
  "hashbrown 0.17.1",

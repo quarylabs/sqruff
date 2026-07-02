@@ -1,0 +1,5 @@
+[sqruff]
+dialect = postgres
+
+[sqruff:dialect:postgres]
+pgvector = true

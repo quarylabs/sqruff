@@ -54,6 +54,7 @@ pub enum SyntaxKind {
     WithCompoundStatement,
     CommonTableExpression,
     CTEColumnList,
+    ReferencedColumnList,
     TriggerReference,
     TableConstraint,
     JoinOnCondition,

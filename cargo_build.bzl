@@ -108,7 +108,7 @@ cargo_vendor = rule(
             doc = "Cargo.toml and Cargo.lock files",
         ),
         "rust_version": attr.string(
-            default = "1.96.0",
+            default = "1.96.1",
             doc = "Rust toolchain version to install",
         ),
         "components": attr.string_list(
@@ -616,7 +616,7 @@ _cargo_attrs = {
     ),
     "script": attr.string(mandatory = True),
     "rust_version": attr.string(
-        default = "1.96.0",
+        default = "1.96.1",
         doc = "Rust toolchain version to use from the vendored toolchain",
     ),
 }

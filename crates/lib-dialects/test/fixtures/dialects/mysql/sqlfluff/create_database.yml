@@ -29,7 +29,8 @@ file:
       - naked_identifier: utf8mb4
     - create_option_segment:
       - keyword: COLLATE
-      - naked_identifier: utf8mb4_0900_ai_ci
+      - collation_reference:
+        - naked_identifier: utf8mb4_0900_ai_ci
     - create_option_segment:
       - keyword: DEFAULT
       - keyword: ENCRYPTION
@@ -52,7 +53,8 @@ file:
       - keyword: COLLATE
       - comparison_operator:
         - raw_comparison_operator: =
-      - naked_identifier: utf8mb4_0900_ai_ci
+      - collation_reference:
+        - naked_identifier: utf8mb4_0900_ai_ci
     - create_option_segment:
       - keyword: DEFAULT
       - keyword: ENCRYPTION
@@ -73,7 +75,8 @@ file:
       - naked_identifier: utf8mb4
     - create_option_segment:
       - keyword: COLLATE
-      - naked_identifier: utf8mb4_0900_ai_ci
+      - collation_reference:
+        - naked_identifier: utf8mb4_0900_ai_ci
     - create_option_segment:
       - keyword: DEFAULT
       - keyword: ENCRYPTION

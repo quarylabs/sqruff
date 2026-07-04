@@ -92,7 +92,7 @@ pub fn raw_dialect() -> Dialect {
                                                 Ref::new("ColumnConstraintSegment").to_matchable(),
                                                 Sequence::new(vec![
                                                     Ref::keyword("COLLATE").to_matchable(),
-                                                    Ref::new("ObjectReferenceSegment")
+                                                    Ref::new("CollationReferenceSegment")
                                                         .to_matchable(),
                                                 ])
                                                 .to_matchable(),
@@ -224,7 +224,8 @@ pub fn raw_dialect() -> Dialect {
                                         AnyNumberOf::new(vec![
                                             Sequence::new(vec![
                                                 Ref::keyword("COLLATE").to_matchable(),
-                                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                                Ref::new("CollationReferenceSegment")
+                                                    .to_matchable(),
                                             ])
                                             .config(|this| this.optional())
                                             .to_matchable(),

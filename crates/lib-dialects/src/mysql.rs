@@ -1104,7 +1104,7 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("COLLATE").to_matchable(),
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("CollationReferenceSegment").to_matchable(),
                 ])
                 .to_matchable(),
             ])
@@ -3560,7 +3560,7 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("COLLATE").to_matchable(),
                         Ref::new("EqualsSegment").optional().to_matchable(),
-                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                        Ref::new("CollationReferenceSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
@@ -3618,7 +3618,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("DEFAULT").optional().to_matchable(),
                     Ref::keyword("COLLATE").to_matchable(),
                     Ref::new("EqualsSegment").optional().to_matchable(),
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("CollationReferenceSegment").to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![

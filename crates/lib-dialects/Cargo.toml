@@ -33,6 +33,7 @@ default = [
     "snowflake",
     "sparksql",
     "sqlite",
+    "starrocks",
     "trino",
     "tsql",
 ]
@@ -51,6 +52,7 @@ redshift = ["postgres"]
 snowflake = []
 sparksql = ["hive"]
 sqlite = []
+starrocks = ["mysql"]
 trino = []
 tsql = []
 

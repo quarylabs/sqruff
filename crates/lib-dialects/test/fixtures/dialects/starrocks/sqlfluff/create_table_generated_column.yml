@@ -1,0 +1,98 @@
+file:
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: test_tbl1
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: id
+          - data_type:
+            - data_type_identifier: INT
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: data_array
+          - data_type:
+            - data_type_identifier: ARRAY
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: data_json
+          - data_type:
+            - data_type_identifier: JSON
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - naked_identifier: newcol1
+          - data_type:
+            - data_type_identifier: DOUBLE
+          - column_constraint_segment:
+            - keyword: AS
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: array_avg
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: data_array
+                    - end_bracket: )
+        - comma: ','
+        - column_definition:
+          - naked_identifier: newcol2
+          - data_type:
+            - data_type_identifier: String
+          - column_constraint_segment:
+            - keyword: AS
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: json_string
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - function:
+                        - function_name:
+                          - function_name_identifier: json_query
+                        - function_contents:
+                          - bracketed:
+                            - start_bracket: (
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: data_json
+                            - comma: ','
+                            - expression:
+                              - quoted_literal: '"$.a"'
+                            - end_bracket: )
+                    - end_bracket: )
+        - end_bracket: )
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: id
+        - end_bracket: )
+      - distribution_segment:
+        - keyword: DISTRIBUTED
+        - keyword: BY
+        - keyword: HASH
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+- statement_terminator: ;

@@ -19,6 +19,7 @@ Sqruff currently supports the following SQL dialects:
 - [snowflake](#snowflake)
 - [sparksql](#sparksql)
 - [sqlite](#sqlite)
+- [starrocks](#starrocks)
 - [trino](#trino)
 - [tsql](#tsql)
 
@@ -213,6 +214,18 @@ SQLite SQL dialect for embedded database.
 **Configuration:**
 ```ini
 [sqruff:dialect:sqlite]
+```
+
+
+### starrocks
+
+StarRocks SQL dialect for real-time analytical workloads.
+
+**Documentation:** [https://docs.starrocks.io/docs/sql-reference/](https://docs.starrocks.io/docs/sql-reference/)
+
+**Configuration:**
+```ini
+[sqruff:dialect:starrocks]
 ```
 
 

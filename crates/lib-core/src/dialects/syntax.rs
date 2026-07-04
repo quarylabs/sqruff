@@ -1097,6 +1097,17 @@ pub enum SyntaxKind {
     OracleTableConstraint,
     OracleFunctionName,
     OracleOrderByClause,
+    EngineType,
+    PartitionSegment,
+    DistributionSegment,
+    IndexDefinition,
+    CreateRoutineLoadStatement,
+    RoutineLoadProperties,
+    RoutineLoadDataSourceProperties,
+    StopRoutineLoadStatement,
+    PauseRoutineLoadStatement,
+    ResumeRoutineLoadStatement,
+    InsertOverwriteStatement,
 }
 
 impl SyntaxKind {

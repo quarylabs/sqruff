@@ -109,6 +109,7 @@ pub enum DialectKind {
     Snowflake,
     Sparksql,
     Sqlite,
+    Starrocks,
     Trino,
     Tsql,
 }
@@ -132,6 +133,7 @@ impl DialectKind {
             DialectKind::Snowflake => "snowflake",
             DialectKind::Sparksql => "sparksql",
             DialectKind::Sqlite => "sqlite",
+            DialectKind::Starrocks => "starrocks",
             DialectKind::Trino => "trino",
             DialectKind::Tsql => "tsql",
         }
@@ -161,6 +163,7 @@ impl DialectKind {
             DialectKind::Snowflake => "Snowflake SQL dialect for cloud data platform.",
             DialectKind::Sparksql => "Apache Spark SQL dialect for big data processing.",
             DialectKind::Sqlite => "SQLite SQL dialect for embedded database.",
+            DialectKind::Starrocks => "StarRocks SQL dialect for real-time analytical workloads.",
             DialectKind::Trino => "Trino (formerly PrestoSQL) dialect for distributed SQL queries.",
             DialectKind::Tsql => "T-SQL dialect for Microsoft SQL Server and Azure SQL.",
         }
@@ -202,6 +205,7 @@ impl DialectKind {
             DialectKind::Snowflake => Some("https://docs.snowflake.com/en/sql-reference.html"),
             DialectKind::Sparksql => Some("https://spark.apache.org/sql/"),
             DialectKind::Sqlite => Some("https://www.sqlite.org/lang.html"),
+            DialectKind::Starrocks => Some("https://docs.starrocks.io/docs/sql-reference/"),
             DialectKind::Trino => Some("https://trino.io/docs/current/sql.html"),
             DialectKind::Tsql => {
                 Some("https://learn.microsoft.com/en-us/sql/t-sql/language-reference")

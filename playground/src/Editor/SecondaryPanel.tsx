@@ -1,11 +1,11 @@
 import MonacoEditor from "@monaco-editor/react";
 
 export enum SecondaryTool {
-  "Format" = "Format",
-  "Cst" = "Cst",
-  "Lineage" = "Lineage",
-  "Templater" = "Templater",
-  "Lexer" = "Lexer",
+  Format = "Format",
+  Cst = "Cst",
+  Lineage = "Lineage",
+  Templater = "Templater",
+  Lexer = "Lexer",
 }
 
 export default function SecondaryPanel({

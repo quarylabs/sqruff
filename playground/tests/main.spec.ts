@@ -37,3 +37,31 @@ test("state is loaded", async ({ page }) => {
 
   await formatEditorContains(page, "select 1 as test");
 });
+
+test("source editor provides semantic tokens", async ({ page }) => {
+  await page.goto("/?__sqruffSemanticTokenTest=1");
+
+  const tokenData = await page
+    .waitForFunction(() => {
+      const data = (
+        window as typeof window & {
+          __sqruffLastSemanticTokens?: number[];
+        }
+      ).__sqruffLastSemanticTokens;
+      return data && data.length >= 10 ? data : undefined;
+    })
+    .then((handle) => handle.jsonValue());
+
+  expect(tokenData.slice(0, 5)).toEqual([0, 0, 6, 0, 0]);
+  expect(chunkSemanticTokens(tokenData).some((token) => token[3] === 7)).toBe(
+    true,
+  );
+});
+
+function chunkSemanticTokens(data: number[]): number[][] {
+  const chunks: number[][] = [];
+  for (let index = 0; index < data.length; index += 5) {
+    chunks.push(data.slice(index, index + 5));
+  }
+  return chunks;
+}

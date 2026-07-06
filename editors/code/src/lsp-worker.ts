@@ -7,6 +7,7 @@ import {
   BrowserMessageWriter,
   PublishDiagnosticsParams,
   DocumentFormattingParams,
+  SemanticTokensParams,
 } from "vscode-languageserver/browser";
 
 sqruffInit(sqruffWasmData).then(() => {
@@ -41,6 +42,13 @@ sqruffInit(sqruffWasmData).then(() => {
     "textDocument/formatting",
     (params: DocumentFormattingParams) => {
       return lsp.format(params.textDocument.uri);
+    },
+  );
+
+  connection.onRequest(
+    "textDocument/semanticTokens/full",
+    (params: SemanticTokensParams) => {
+      return lsp.semanticTokens(params.textDocument.uri);
     },
   );
 

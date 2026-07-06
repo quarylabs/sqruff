@@ -158,6 +158,22 @@ impl Linter {
             secondary,
         }
     }
+
+    #[wasm_bindgen(js_name = semanticTokens)]
+    pub fn semantic_tokens(&self, sql: &str) -> Vec<u32> {
+        sqruff_lsp::semantic::semantic_tokens(&self.base, sql, None)
+            .into_iter()
+            .flat_map(|token| {
+                [
+                    token.delta_line,
+                    token.delta_start,
+                    token.length,
+                    token.token_type,
+                    token.token_modifiers_bitset,
+                ]
+            })
+            .collect()
+    }
 }
 
 fn print_tree(

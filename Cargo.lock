@@ -1674,6 +1674,7 @@ dependencies = [
  "serde_yaml",
  "sqruff-lib",
  "sqruff-lib-core",
+ "sqruff-lsp",
  "wasm-bindgen",
 ]
 

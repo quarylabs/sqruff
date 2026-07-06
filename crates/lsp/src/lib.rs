@@ -1,4 +1,4 @@
-mod semantic;
+pub mod semantic;
 
 use std::path::{Path, PathBuf};
 

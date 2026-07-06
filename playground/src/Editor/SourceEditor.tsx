@@ -3,18 +3,54 @@ import { MarkerSeverity } from "monaco-editor";
 import { useCallback, useEffect, useRef } from "react";
 import { Diagnostic } from "../pkg";
 
+declare global {
+  interface Window {
+    __sqruffLastSemanticTokens?: number[];
+  }
+}
+
+const SEMANTIC_TOKEN_TYPES = [
+  "keyword",
+  "string",
+  "number",
+  "comment",
+  "operator",
+  "function",
+  "type",
+  "variable",
+  "parameter",
+  "property",
+  "macro",
+];
+
 export default function SourceEditor({
   visible,
   source,
   diagnostics,
+  semanticTokens,
   onChange,
 }: {
   visible: boolean;
   source: string;
   diagnostics: Diagnostic[];
+  semanticTokens: Uint32Array;
   onChange: (sqlSource: string) => void;
 }) {
   const monacoRef = useRef<Monaco | null>(null);
+  const semanticTokensRef = useRef<Uint32Array>(semanticTokens);
+  const providerRef = useRef<{ dispose: () => void } | null>(null);
+
+  useEffect(() => {
+    semanticTokensRef.current = semanticTokens;
+    publishSemanticTokensForTest(semanticTokens);
+  }, [semanticTokens]);
+
+  useEffect(() => {
+    return () => {
+      providerRef.current?.dispose();
+      providerRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     const editor = monacoRef.current;
@@ -37,6 +73,22 @@ export default function SourceEditor({
     (_editor, instance) => {
       updateMarkers(instance, diagnostics);
       monacoRef.current = instance;
+
+      if (providerRef.current == null) {
+        providerRef.current =
+          instance.languages.registerDocumentSemanticTokensProvider("sql", {
+            getLegend: () => ({
+              tokenTypes: SEMANTIC_TOKEN_TYPES,
+              tokenModifiers: [],
+            }),
+            provideDocumentSemanticTokens: () => {
+              const data = semanticTokensRef.current;
+              publishSemanticTokensForTest(data);
+              return { data };
+            },
+            releaseDocumentSemanticTokens: () => {},
+          });
+      }
     },
 
     [diagnostics],
@@ -60,6 +112,12 @@ export default function SourceEditor({
       onChange={handleChange}
     />
   );
+}
+
+function publishSemanticTokensForTest(data: Uint32Array) {
+  if (new URLSearchParams(location.search).has("__sqruffSemanticTokenTest")) {
+    window.__sqruffLastSemanticTokens = Array.from(data);
+  }
 }
 
 function updateMarkers(monaco: Monaco, diagnostics: Array<Diagnostic>) {

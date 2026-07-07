@@ -694,4 +694,5 @@ def cargo_hack_suite(name, manifest, variations, closure, vendor, size = "large"
     native.test_suite(
         name = name,
         tests = tests,
+        visibility = ["//visibility:public"],
     )

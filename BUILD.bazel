@@ -527,7 +527,7 @@ _HACK_WANT = "\n".join(sorted(_EXPECTED_HACK_COMMANDS))
 # lines clean for diffing.
 cargo_test(
     name = "hack_reconcile",
-    size = "small",
+    size = "medium",
     srcs = [":cargo_srcs"],
     tools = ["@cargo_hack//:cargo-hack"],
     vendor = ":cargo_deps",

@@ -256,7 +256,7 @@ impl Linter {
                                 !ignore_mask.is_masked(&result, rule.into())
                             }) {
                                 if !suppress_templated_violation
-                                    || (fix && !result.fixes.is_empty())
+                                    || (matches!(mode, Mode::Fix) && !result.fixes.is_empty())
                                 {
                                     compute_anchor_edit_info(
                                         &mut anchor_info,

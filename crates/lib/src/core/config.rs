@@ -10,6 +10,7 @@ use sqruff_lib_core::parser::{IndentationConfig, Parser};
 pub use sqruff_lib_core::value::Value;
 use sqruff_lib_dialects::kind_to_dialect;
 
+use crate::api::SqruffError;
 use crate::templaters::TemplaterKind;
 use crate::utils::reflow::config::ReflowConfig;
 
@@ -127,29 +128,27 @@ impl FluffConfig {
 
     /// from_file creates a config object from a file path. The path is used both
     /// to read the file content and to resolve relative `_path`/`_dir` values.
-    pub fn from_file(path: &Path) -> FluffConfig {
-        Self::try_from_file(path).unwrap()
-    }
-
-    pub fn try_from_file(path: &Path) -> Result<FluffConfig, SQLFluffUserError> {
+    pub fn from_file(path: &Path) -> Result<FluffConfig, SqruffError> {
         let mut configs = HashMap::new();
         ConfigLoader::try_load_config_file(path, &mut configs)?;
         Ok(FluffConfig::new(configs, None, None))
     }
 
-    /// from_source creates a config object from a string. This is used for testing and for
-    /// loading a config from a string.
+    /// Creates a config object from a source string, falling back to defaults on invalid input.
     ///
-    /// The optional_path_specification is used to specify a path to use for relative paths in the
-    /// config. This is useful for testing.
-    pub fn from_source(source: &str, optional_path_specification: Option<&Path>) -> FluffConfig {
-        Self::try_from_source(source, optional_path_specification).unwrap()
+    /// Production code should use `try_from_source()` and surface the error.
+    #[cfg(test)]
+    pub fn from_source_or_default_for_tests(
+        source: &str,
+        optional_path_specification: Option<&Path>,
+    ) -> FluffConfig {
+        Self::try_from_source(source, optional_path_specification).unwrap_or_default()
     }
 
     pub fn try_from_source(
         source: &str,
         optional_path_specification: Option<&Path>,
-    ) -> Result<FluffConfig, SQLFluffUserError> {
+    ) -> Result<FluffConfig, SqruffError> {
         let configs = ConfigLoader::try_from_source(source, optional_path_specification)?;
         Ok(FluffConfig::new(configs, None, None))
     }
@@ -204,7 +203,8 @@ impl FluffConfig {
         );
 
         let mut defaults = HashMap::new();
-        ConfigLoader::incorporate_vals(&mut defaults, values);
+        ConfigLoader::incorporate_vals(&mut defaults, values)
+            .expect("built-in default config must be valid");
 
         let mut configs = nested_combine(defaults, configs);
 
@@ -269,7 +269,7 @@ impl FluffConfig {
         extra_config_path: Option<String>,
         ignore_local_config: bool,
         overrides: Option<HashMap<String, String>>,
-    ) -> Result<FluffConfig, SQLFluffUserError> {
+    ) -> Result<FluffConfig, SqruffError> {
         let loader = ConfigLoader {};
         let mut config = loader.try_load_config_up_to_path(
             ".",
@@ -427,14 +427,14 @@ impl ConfigLoader {
         head.chain(tail)
     }
 
-    pub fn load_config_up_to_path(
+    pub fn load_config_up_to_path_or_default(
         &self,
         path: impl AsRef<Path>,
         extra_config_path: Option<String>,
         ignore_local_config: bool,
     ) -> HashMap<String, Value> {
         self.try_load_config_up_to_path(path, extra_config_path, ignore_local_config)
-            .unwrap()
+            .unwrap_or_default()
     }
 
     pub fn try_load_config_up_to_path(
@@ -442,7 +442,7 @@ impl ConfigLoader {
         path: impl AsRef<Path>,
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-    ) -> Result<HashMap<String, Value>, SQLFluffUserError> {
+    ) -> Result<HashMap<String, Value>, SqruffError> {
         let path = path.as_ref();
 
         let config_stack = if ignore_local_config {
@@ -461,14 +461,14 @@ impl ConfigLoader {
         Ok(nested_combine(config_stack))
     }
 
-    pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> HashMap<String, Value> {
-        self.try_load_config_at_path(path).unwrap()
+    pub fn load_config_at_path_or_default(&self, path: impl AsRef<Path>) -> HashMap<String, Value> {
+        self.try_load_config_at_path(path).unwrap_or_default()
     }
 
     pub fn try_load_config_at_path(
         &self,
         path: impl AsRef<Path>,
-    ) -> Result<HashMap<String, Value>, SQLFluffUserError> {
+    ) -> Result<HashMap<String, Value>, SqruffError> {
         let path = path.as_ref();
 
         let filename_options = [
@@ -496,30 +496,41 @@ impl ConfigLoader {
         Ok(configs)
     }
 
-    pub fn from_source(source: &str, path: Option<&Path>) -> HashMap<String, Value> {
-        Self::try_from_source(source, path).unwrap()
+    #[cfg(test)]
+    pub fn from_source_or_default_for_tests(
+        source: &str,
+        path: Option<&Path>,
+    ) -> HashMap<String, Value> {
+        Self::try_from_source(source, path).unwrap_or_default()
     }
 
     pub fn try_from_source(
         source: &str,
         path: Option<&Path>,
-    ) -> Result<HashMap<String, Value>, SQLFluffUserError> {
+    ) -> Result<HashMap<String, Value>, SqruffError> {
         let mut configs = HashMap::new();
         let elems = ConfigLoader::try_get_config_elems_from_file(path, Some(source))?;
-        ConfigLoader::incorporate_vals(&mut configs, elems);
+        ConfigLoader::incorporate_vals(&mut configs, elems)?;
         Ok(configs)
     }
 
-    pub fn load_config_file(path: impl AsRef<Path>, configs: &mut HashMap<String, Value>) {
-        Self::try_load_config_file(path, configs).unwrap();
+    pub fn load_config_file_or_default(
+        path: impl AsRef<Path>,
+        configs: &mut HashMap<String, Value>,
+    ) {
+        let Ok(elems) = ConfigLoader::try_get_config_elems_from_file(path.as_ref().into(), None)
+        else {
+            return;
+        };
+        let _ = ConfigLoader::incorporate_vals(configs, elems);
     }
 
     pub fn try_load_config_file(
         path: impl AsRef<Path>,
         configs: &mut HashMap<String, Value>,
-    ) -> Result<(), SQLFluffUserError> {
+    ) -> Result<(), SqruffError> {
         let elems = ConfigLoader::try_get_config_elems_from_file(path.as_ref().into(), None)?;
-        ConfigLoader::incorporate_vals(configs, elems);
+        ConfigLoader::incorporate_vals(configs, elems)?;
         Ok(())
     }
 
@@ -527,21 +538,26 @@ impl ConfigLoader {
         config_path: Option<&Path>,
         config_string: Option<&str>,
     ) -> Vec<(Vec<String>, Value)> {
-        Self::try_get_config_elems_from_file(config_path, config_string).unwrap()
+        Self::try_get_config_elems_from_file(config_path, config_string).unwrap_or_default()
     }
 
     fn try_get_config_elems_from_file(
         config_path: Option<&Path>,
         config_string: Option<&str>,
-    ) -> Result<Vec<(Vec<String>, Value)>, SQLFluffUserError> {
+    ) -> Result<Vec<(Vec<String>, Value)>, SqruffError> {
         let content = match (config_path, config_string) {
             (None, None) => {
-                unimplemented!("One of fpath or config_string is required.")
+                return Err(SqruffError::Config(
+                    "one of config path or config string is required".to_string(),
+                ));
             }
             (_, Some(text)) => text.to_owned(),
-            (Some(path), None) => std::fs::read_to_string(path).map_err(|err| {
-                config_error(config_path, format!("Unable to read config file: {err}"))
-            })?,
+            (Some(path), None) => {
+                std::fs::read_to_string(path).map_err(|source| SqruffError::Io {
+                    path: path.to_path_buf(),
+                    source,
+                })?
+            }
         };
 
         if is_toml_config(config_path) {
@@ -551,23 +567,14 @@ impl ConfigLoader {
         parse_ini_config_elems(&content, config_path)
     }
 
-    fn incorporate_vals(ctx: &mut HashMap<String, Value>, values: Vec<(Vec<String>, Value)>) {
+    fn incorporate_vals(
+        ctx: &mut HashMap<String, Value>,
+        values: Vec<(Vec<String>, Value)>,
+    ) -> Result<(), SqruffError> {
         for (path, value) in values {
-            let mut current_map = &mut *ctx;
-            for key in path.iter().take(path.len() - 1) {
-                match current_map
-                    .entry(key.to_string())
-                    .or_insert_with(|| Value::Map(HashMap::new()))
-                    .as_map_mut()
-                {
-                    Some(slot) => current_map = slot,
-                    None => panic!("Overriding config value with section! [{path:?}]"),
-                }
-            }
-
-            let last_key = path.last().expect("Expected at least one element in path");
-            current_map.insert(last_key.to_string(), value);
+            insert_config_path(ctx, &path, value)?;
         }
+        Ok(())
     }
 }
 
@@ -579,17 +586,17 @@ fn is_toml_config(config_path: Option<&Path>) -> bool {
     })
 }
 
-fn config_error(config_path: Option<&Path>, message: impl std::fmt::Display) -> SQLFluffUserError {
+fn config_error(config_path: Option<&Path>, message: impl std::fmt::Display) -> SqruffError {
     let location = config_path
         .map(|path| path.display().to_string())
         .unwrap_or_else(|| "config source".to_owned());
-    SQLFluffUserError::new(format!("Error loading config from {location}: {}", message))
+    SqruffError::Config(format!("Error loading config from {location}: {}", message))
 }
 
 fn parse_ini_config_elems(
     content: &str,
     config_path: Option<&Path>,
-) -> Result<Vec<(Vec<String>, Value)>, SQLFluffUserError> {
+) -> Result<Vec<(Vec<String>, Value)>, SqruffError> {
     let mut buff = Vec::new();
     let mut config = Ini::new();
 
@@ -616,9 +623,11 @@ fn parse_ini_config_elems(
                 let name_lowercase = name.to_lowercase();
 
                 if name_lowercase == "load_macros_from_path" {
-                    unimplemented!()
+                    return Err(SqruffError::Unsupported(
+                        "load_macros_from_path config is not implemented",
+                    ));
                 } else if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir") {
-                    value = resolve_relative_config_path(value, config_path);
+                    value = resolve_relative_config_path(value, config_path, name)?;
                 }
 
                 let mut key = key.clone();
@@ -634,7 +643,7 @@ fn parse_ini_config_elems(
 fn parse_toml_config_elems(
     content: &str,
     config_path: Option<&Path>,
-) -> Result<Vec<(Vec<String>, Value)>, SQLFluffUserError> {
+) -> Result<Vec<(Vec<String>, Value)>, SqruffError> {
     let root = content
         .parse::<toml::Table>()
         .map_err(|err| config_error(config_path, err))?;
@@ -643,14 +652,14 @@ fn parse_toml_config_elems(
 
     for config_root in ["sqlfluff", "sqruff"] {
         if let Some(table) = root.get(config_root).and_then(toml::Value::as_table) {
-            collect_toml_config_elems(table, Vec::new(), config_path, &mut buff);
+            collect_toml_config_elems(table, Vec::new(), config_path, &mut buff)?;
         }
     }
 
     if let Some(tool) = root.get("tool").and_then(toml::Value::as_table) {
         for config_root in ["sqlfluff", "sqruff"] {
             if let Some(table) = tool.get(config_root).and_then(toml::Value::as_table) {
-                collect_toml_config_elems(table, Vec::new(), config_path, &mut buff);
+                collect_toml_config_elems(table, Vec::new(), config_path, &mut buff)?;
             }
         }
     }
@@ -663,22 +672,24 @@ fn collect_toml_config_elems(
     section_path: Vec<String>,
     config_path: Option<&Path>,
     buff: &mut Vec<(Vec<String>, Value)>,
-) {
+) -> Result<(), SqruffError> {
     for (name, value) in table {
         match value {
             toml::Value::Table(table) => {
                 let mut section_path = section_path.clone();
                 section_path.push(name.to_owned());
-                collect_toml_config_elems(table, section_path, config_path, buff);
+                collect_toml_config_elems(table, section_path, config_path, buff)?;
             }
             value => {
                 if name == "load_macros_from_path" {
-                    unimplemented!()
+                    return Err(SqruffError::Unsupported(
+                        "load_macros_from_path config is not implemented",
+                    ));
                 }
 
                 let mut value = toml_value_to_config_value(value);
                 if name.ends_with("_path") || name.ends_with("_dir") {
-                    value = resolve_relative_config_path(value, config_path);
+                    value = resolve_relative_config_path(value, config_path, name)?;
                 }
 
                 let key = toml_config_key_path(&section_path, name);
@@ -686,6 +697,7 @@ fn collect_toml_config_elems(
             }
         }
     }
+    Ok(())
 }
 
 fn toml_config_key_path(section_path: &[String], key: &str) -> Vec<String> {
@@ -736,18 +748,61 @@ fn toml_value_to_config_value(value: &toml::Value) -> Value {
     }
 }
 
-fn resolve_relative_config_path(mut value: Value, config_path: Option<&Path>) -> Value {
-    let path = PathBuf::from(value.as_string().unwrap());
-    if !path.is_absolute() {
-        let config_path = config_path.unwrap().parent().unwrap();
-        let current_dir = std::env::current_dir().unwrap();
-        let config_path = current_dir.join(config_path);
-        let config_path = std::path::absolute(config_path).unwrap();
+fn resolve_relative_config_path(
+    mut value: Value,
+    config_path: Option<&Path>,
+    name: &str,
+) -> Result<Value, SqruffError> {
+    let Some(path_value) = value.as_string() else {
+        return Err(config_error(
+            config_path,
+            format!("invalid path value for config key '{name}'"),
+        ));
+    };
+    let path = PathBuf::from(path_value);
+    if !path.is_absolute()
+        && let Some(config_path) = config_path.and_then(Path::parent)
+        && let Ok(current_dir) = std::env::current_dir()
+        && let Ok(config_path) = std::path::absolute(current_dir.join(config_path))
+    {
         let path = config_path.join(path);
         let path: String = path.to_string_lossy().into();
         value = Value::String(path.into());
     }
-    value
+    Ok(value)
+}
+
+fn insert_config_path(
+    ctx: &mut HashMap<String, Value>,
+    path: &[String],
+    value: Value,
+) -> Result<(), SqruffError> {
+    let Some((key, rest)) = path.split_first() else {
+        return Ok(());
+    };
+
+    if rest.is_empty() {
+        ctx.insert(key.to_string(), value);
+        return Ok(());
+    }
+
+    let entry = ctx
+        .entry(key.to_string())
+        .or_insert_with(|| Value::Map(HashMap::new()));
+    if entry.as_map().is_none() {
+        return Err(SqruffError::Config(format!(
+            "overriding config value with section at '{}'",
+            path.join(":")
+        )));
+    }
+    let Some(child) = entry.as_map_mut() else {
+        return Err(SqruffError::Config(format!(
+            "config path '{}' must contain only sections before the final value",
+            path.join(":")
+        )));
+    };
+
+    insert_config_path(child, rest, value)
 }
 
 fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, Value> {
@@ -796,7 +851,7 @@ mod tests {
     #[test]
     fn test_dialect_config_section_parsing() {
         // Test that [sqruff:dialect:snowflake] section is correctly parsed
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = snowflake
@@ -805,7 +860,8 @@ dialect = snowflake
 some_option = value
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         // Verify that the dialect config section is accessible
         let dialect_section = config.raw.get("dialect");
@@ -824,7 +880,7 @@ some_option = value
     #[test]
     fn test_dialect_config_empty_section() {
         // Test that empty [sqruff:dialect:bigquery] section works
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = bigquery
@@ -832,7 +888,8 @@ dialect = bigquery
 [sqruff:dialect:bigquery]
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         // The config should still be valid
         assert_eq!(config.get_dialect().name, DialectKind::Bigquery);
@@ -841,13 +898,14 @@ dialect = bigquery
     #[test]
     fn test_dialect_without_config_section() {
         // Test that a dialect works without a config section
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = postgres
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         // The config should still be valid
         assert_eq!(config.get_dialect().name, DialectKind::Postgres);
@@ -855,26 +913,27 @@ dialect = postgres
 
     #[test]
     fn test_templater_kind_defaults_to_raw() {
-        let config = FluffConfig::from_source("", None);
+        let config = FluffConfig::try_from_source("", None).unwrap();
         assert_eq!(config.templater_kind().unwrap(), TemplaterKind::Raw);
     }
 
     #[test]
     fn test_templater_kind_parses_placeholder() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 templater = placeholder
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         assert_eq!(config.templater_kind().unwrap(), TemplaterKind::Placeholder);
     }
 
     #[test]
     fn test_templater_section_uses_typed_kind() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 templater = placeholder
@@ -883,7 +942,8 @@ templater = placeholder
 param_style = colon
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         let section = config
             .templater_section(TemplaterKind::Placeholder)
@@ -989,7 +1049,11 @@ max_line_length = 39
         )
         .unwrap();
 
-        let config = FluffConfig::new(ConfigLoader {}.load_config_at_path(&dir), None, None);
+        let config = FluffConfig::new(
+            ConfigLoader {}.load_config_at_path_or_default(&dir),
+            None,
+            None,
+        );
         fs::remove_dir_all(&dir).unwrap();
 
         assert_eq!(config.raw["core"]["max_line_length"].as_int(), Some(39));
@@ -1007,7 +1071,11 @@ max_line_length = 44
         )
         .unwrap();
 
-        let config = FluffConfig::new(ConfigLoader {}.load_config_at_path(&dir), None, None);
+        let config = FluffConfig::new(
+            ConfigLoader {}.load_config_at_path_or_default(&dir),
+            None,
+            None,
+        );
         fs::remove_dir_all(&dir).unwrap();
 
         assert_eq!(config.raw["core"]["max_line_length"].as_int(), Some(44));
@@ -1030,7 +1098,7 @@ max_line_length = 44
     #[cfg(feature = "python")]
     #[test]
     fn test_templater_context_uses_typed_kind() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 templater = python
@@ -1039,9 +1107,51 @@ templater = python
 blah = foo
 "#,
             None,
-        );
+        )
+        .unwrap();
 
         let context = config.templater_context(TemplaterKind::Python).unwrap();
         assert_eq!(context.get("blah").unwrap().as_string(), Some("foo"));
+    }
+
+    #[test]
+    fn try_from_source_returns_config_error_for_invalid_path_value() {
+        let err = FluffConfig::try_from_source(
+            r#"
+[sqruff]
+templater = dbt
+
+[sqruff:templater:dbt]
+project_dir = 1
+"#,
+            None,
+        )
+        .unwrap_err();
+
+        assert!(matches!(err, SqruffError::Config(_)));
+        assert!(err.to_string().contains("invalid path value"));
+    }
+
+    #[test]
+    fn insert_config_path_rejects_scalar_section_conflicts() {
+        let mut config = HashMap::new();
+        insert_config_path(
+            &mut config,
+            &["core".to_string()],
+            Value::String("not a table".into()),
+        )
+        .unwrap();
+
+        let err = insert_config_path(
+            &mut config,
+            &["core".to_string(), "dialect".to_string()],
+            Value::String("ansi".into()),
+        )
+        .unwrap_err();
+
+        assert!(
+            err.to_string()
+                .contains("overriding config value with section")
+        );
     }
 }

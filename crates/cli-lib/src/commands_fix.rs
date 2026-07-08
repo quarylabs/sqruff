@@ -1,6 +1,7 @@
 use crate::commands::FixArgs;
 use crate::commands::Format;
-use crate::linter;
+use crate::commands_lint::{ApplyFixes, Input, LintCommand, run_lint_command};
+use sqruff_lib::api::{Mode, ParseErrors};
 use sqruff_lib::core::config::FluffConfig;
 use std::path::Path;
 
@@ -8,74 +9,42 @@ pub(crate) fn run_fix(
     args: FixArgs,
     config: FluffConfig,
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
-    collect_parse_errors: bool,
+    parse_errors: ParseErrors,
 ) -> i32 {
     let FixArgs { paths, format } = args;
-    let mut linter = match linter(config, format, collect_parse_errors) {
-        Ok(l) => l,
-        Err(e) => {
-            eprintln!("{}", e);
-            return 1;
-        }
-    };
-    let result = match linter.lint_paths(paths, true, &ignorer) {
-        Ok(result) => result,
-        Err(e) => {
-            eprintln!("{}", e.value);
-            return 1;
-        }
-    };
-
-    if !result.has_violations() {
-        println!("{} files processed, nothing to fix.", result.len());
-        0
-    } else {
-        let any_unfixable_errors = result.has_unfixable_violations();
-        let files = result.len();
-
-        for mut file in result {
-            if !file.has_fixes() {
-                continue;
-            }
-            let path = std::mem::take(&mut file.path);
-            let fixed = file.fix_string();
-            std::fs::write(path, fixed).unwrap();
-        }
-
-        linter.formatter_mut().unwrap().completion_message(files);
-
-        any_unfixable_errors as i32
-    }
+    run_lint_command(
+        LintCommand {
+            mode: Mode::Fix,
+            input: Input::Paths(paths),
+            apply: ApplyFixes::ToDisk,
+            format,
+        },
+        config,
+        ignorer,
+        parse_errors,
+    )
 }
 
-pub(crate) fn run_fix_stdin(
-    config: FluffConfig,
-    format: Format,
-    collect_parse_errors: bool,
-) -> i32 {
-    let read_in = crate::stdin::read_std_in().unwrap();
-
-    let linter = match linter(config, format, collect_parse_errors) {
-        Ok(l) => l,
+pub(crate) fn run_fix_stdin(config: FluffConfig, format: Format, parse_errors: ParseErrors) -> i32 {
+    let read_in = match crate::stdin::read_std_in() {
+        Ok(s) => s,
         Err(e) => {
-            eprintln!("{}", e);
-            return 1;
-        }
-    };
-    let result = match linter.lint_string(&read_in, None, true) {
-        Ok(result) => result,
-        Err(e) => {
-            eprintln!("{}", e.value);
+            eprintln!("Failed to read stdin: {e}");
             return 1;
         }
     };
 
-    let has_unfixable_errors = result.has_unfixable_violations();
-
-    println!("{}", result.fix_string());
-
-    // if all fixable violations are fixable, return 0 else return 1
-    has_unfixable_errors as i32
+    run_lint_command(
+        LintCommand {
+            mode: Mode::Fix,
+            input: Input::Stdin(read_in),
+            apply: ApplyFixes::Stdout,
+            format,
+        },
+        config,
+        |_| false,
+        parse_errors,
+    )
 }
 
 #[cfg(test)]
@@ -107,9 +76,31 @@ mod tests {
             format: Format::Human,
         };
         let config = FluffConfig::default();
-        run_fix(args, config, ignore_none, true);
+        run_fix(args, config, ignore_none, ParseErrors::Include);
 
         let after = std::fs::metadata(&path).unwrap().modified().unwrap();
         assert_eq!(before, after);
+    }
+
+    #[test]
+    fn run_fix_writes_file_when_changes_exist() {
+        let mut tmp = NamedTempFile::new().unwrap();
+        write!(tmp, "SELECT foo bar FROM tabs").unwrap();
+        tmp.flush().unwrap();
+        let tmp = tmp.into_temp_path();
+        let path = tmp.to_path_buf();
+
+        let args = FixArgs {
+            paths: vec![path.clone()],
+            format: Format::Human,
+        };
+        let config = FluffConfig::try_from_source("[sqruff]\nrules = AL02\n", None).unwrap();
+        let exit_code = run_fix(args, config, ignore_none, ParseErrors::Include);
+
+        assert_eq!(exit_code, 0);
+        assert_eq!(
+            std::fs::read_to_string(&path).unwrap(),
+            "SELECT foo AS bar FROM tabs"
+        );
     }
 }

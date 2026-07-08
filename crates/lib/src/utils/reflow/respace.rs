@@ -602,7 +602,7 @@ mod tests {
 
     fn parse_string_with_config(sql: &str, config: &FluffConfig) -> ErasedSegment {
         let tables = Tables::default();
-        let linter = Linter::new(config.clone(), None, None, false).unwrap();
+        let linter = Linter::new(config.clone(), None, crate::api::ParseErrors::Suppress).unwrap();
         linter
             .parse_string(&tables, sql, None)
             .unwrap()
@@ -784,7 +784,7 @@ mod tests {
         for spacing_after in cases {
             let _panic = enter_panic(format!("spacing_after={spacing_after}"));
 
-            let config = FluffConfig::from_source(
+            let config = FluffConfig::try_from_source(
                 &format!(
                     r#"
 [sqruff]
@@ -795,7 +795,8 @@ spacing_after = {spacing_after}
 "#
                 ),
                 None,
-            );
+            )
+            .unwrap();
             let root = parse_string_with_config("select 1 -- comment\n+ 2", &config);
             let seq = ReflowSequence::from_root(&root, &config);
             let new_seq = seq.respace(&Tables::default(), false, Filter::All);

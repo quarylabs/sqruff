@@ -1,15 +1,15 @@
-use hashbrown::HashMap;
-use std::sync::Arc;
-
 use fancy_regex::Regex;
+use hashbrown::HashMap;
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::{
     RawFileSlice, TemplateSliceKind, TemplatedFile, TemplatedFileSlice,
 };
 
-use crate::Formatter;
 use crate::core::config::FluffConfig;
-use crate::templaters::{PlaceholderStyle, ProcessingMode, Templater};
+use crate::templaters::{
+    PlaceholderStyle, ProcessingMode, Templater, TemplaterError, TemplaterInput, TemplaterOutput,
+    source_id_name,
+};
 
 #[derive(Default)]
 pub struct PlaceholderTemplater;
@@ -286,13 +286,17 @@ Also consider making a pull request to the project to have your style added, it 
 
     fn process(
         &self,
-        files: &[(&str, &str)],
+        files: &[TemplaterInput<'_>],
         config: &FluffConfig,
-        _: &Option<Arc<dyn Formatter>>,
-    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+    ) -> Vec<Result<TemplaterOutput, TemplaterError>> {
         files
             .iter()
-            .map(|(content, fname)| self.process_single(content, fname, config))
+            .map(|file| {
+                let fname = source_id_name(file.source_id);
+                self.process_single(file.source, &fname, config)
+                    .map(TemplaterOutput::Rendered)
+                    .map_err(TemplaterError::Failed)
+            })
             .collect()
     }
 }
@@ -305,19 +309,46 @@ mod tests {
 
     type PlaceholderCase<'a> = (&'a str, &'a str, &'a str, Vec<(&'a str, &'a str)>);
 
+    fn process_one(
+        templater: &PlaceholderTemplater,
+        in_str: &str,
+        name: &str,
+        config: &FluffConfig,
+    ) -> Result<TemplatedFile, SQLFluffUserError> {
+        let source_id = crate::api::SourceId::Virtual(name.to_string());
+        templater
+            .process(
+                &[TemplaterInput {
+                    source: in_str,
+                    source_id: &source_id,
+                }],
+                config,
+            )
+            .into_iter()
+            .next()
+            .unwrap()
+            .map(|output| match output {
+                TemplaterOutput::Rendered(file) => file,
+                TemplaterOutput::Skipped(reason) => {
+                    panic!("placeholder templater skipped: {}", reason.message)
+                }
+            })
+            .map_err(TemplaterError::into_user_error)
+    }
+
     #[test]
     /// Test the templaters when nothing has to be replaced.
     fn test_templater_no_replacement() {
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             "
 [sqruff:templater:placeholder]
 param_style = colon",
             None,
-        );
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
-        let out_str = results.into_iter().next().unwrap().unwrap();
+        )
+        .unwrap();
+        let out_str = process_one(&templater, in_str, "test.sql", &config).unwrap();
         let out = out_str.templated();
         assert_eq!(in_str, out)
     }
@@ -617,7 +648,7 @@ WHERE userid = 42 AND date > '2021-10-01'
         ];
 
         for (in_str, param_style, expected_out, values) in cases {
-            let config = FluffConfig::from_source(
+            let config = FluffConfig::try_from_source(
                 format!(
                     r#"
 [sqruff:templater:placeholder]
@@ -633,10 +664,10 @@ param_style = {}
                 )
                 .as_str(),
                 None,
-            );
+            )
+            .unwrap();
             let templater = PlaceholderTemplater {};
-            let results = templater.process(&[(in_str, "test.sql")], &config, &None);
-            let out_str = results.into_iter().next().unwrap().unwrap();
+            let out_str = process_one(&templater, in_str, "test.sql", &config).unwrap();
             let out = out_str.templated();
             assert_eq!(expected_out, out)
         }
@@ -646,11 +677,10 @@ param_style = {}
     /// Test the error raised when config is incomplete, as in no param_regex
     /// nor param_style.
     fn test_templater_setup_none() {
-        let config = FluffConfig::from_source("", None);
+        let config = FluffConfig::try_from_source("", None).unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
-        let out_str = results.into_iter().next().unwrap();
+        let out_str = process_one(&templater, in_str, "test.sql", &config);
 
         assert!(out_str.is_err());
         assert_eq!(
@@ -663,18 +693,18 @@ param_style = {}
     /// Test the error raised when both param_regex and param_style are
     /// provided.
     fn test_templater_setup_both_provided() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff:templater:placeholder]
 param_regex = __(?P<param_name>[\w_]+)__
 param_style = colon
             "#,
             None,
-        );
+        )
+        .unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
-        let out_str = results.into_iter().next().unwrap();
+        let out_str = process_one(&templater, in_str, "test.sql", &config);
 
         assert!(out_str.is_err());
         assert_eq!(
@@ -686,18 +716,18 @@ param_style = colon
     #[test]
     /// Test custom regex templating.
     fn test_templater_custom_regex() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff:templater:placeholder]
 param_regex = __(?P<param_name>[\w_]+)__
 my_name = john
 "#,
             None,
-        );
+        )
+        .unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT bla FROM blob WHERE id = __my_name__";
-        let results = templater.process(&[(in_str, "test")], &config, &None);
-        let out_str = results.into_iter().next().unwrap().unwrap();
+        let out_str = process_one(&templater, in_str, "test", &config).unwrap();
         let out = out_str.templated();
         assert_eq!("SELECT bla FROM blob WHERE id = john", out)
     }
@@ -705,17 +735,17 @@ my_name = john
     #[test]
     /// Test the exception raised when parameter styles is unknown.
     fn test_templater_styles_not_existing() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff:templater:placeholder]
 param_style = unknown
             "#,
             None,
-        );
+        )
+        .unwrap();
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
-        let out_str = results.into_iter().next().unwrap();
+        let out_str = process_one(&templater, in_str, "test.sql", &config);
 
         assert!(out_str.is_err());
         assert_eq!(
@@ -727,7 +757,7 @@ param_style = unknown
     #[test]
     /// Test the linter fully with this templater.
     fn test_templater_placeholder() {
-        let config = FluffConfig::from_source(
+        let config = FluffConfig::try_from_source(
             r#"
 [sqruff]
 dialect = ansi
@@ -738,11 +768,15 @@ rules = all
 param_style = percent
 "#,
             None,
-        );
+        )
+        .unwrap();
         let sql = "SELECT a,b FROM users WHERE a = %s";
 
-        let mut linter = Linter::new(config, None, None, false).unwrap();
-        let result = linter.lint_string_wrapped(sql, true).unwrap().fix_string();
+        let mut linter = Linter::new(config, None, crate::api::ParseErrors::Suppress).unwrap();
+        let result = linter
+            .lint_string_wrapped(sql, crate::api::Mode::Fix)
+            .unwrap()
+            .fix_string();
 
         assert_eq!(result, "SELECT\n    a,\n    b\nFROM users\nWHERE a = %s\n");
     }

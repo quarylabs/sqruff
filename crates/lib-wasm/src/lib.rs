@@ -1,11 +1,13 @@
-use line_index::LineIndex;
 use lineage::{Lineage, Node};
 use serde::Serialize;
+use sqruff_lib::api::{
+    Engine, EngineOptions, LintDiagnostic, Mode, ParseErrors, Source, SourceId, SqruffError,
+};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
-use sqruff_lib::templaters::RAW_TEMPLATER;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::parser::{IndentationConfig, Parser};
+use std::borrow::Cow;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -28,17 +30,32 @@ impl Diagnostic {
 
 #[wasm_bindgen]
 pub struct Linter {
+    engine: Engine,
     base: SqruffLinter,
 }
 
-#[wasm_bindgen]
-#[derive(PartialEq, Eq)]
-pub enum Tool {
-    Format = "Format",
-    Cst = "Cst",
-    Lineage = "Lineage",
-    Templater = "Templater",
-    Lexer = "Lexer",
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Tool {
+    Format,
+    Cst,
+    Lineage,
+    Templater,
+    Lexer,
+}
+
+impl TryFrom<&str> for Tool {
+    type Error = &'static str;
+
+    fn try_from(value: &str) -> std::result::Result<Self, Self::Error> {
+        match value {
+            "Format" => Ok(Self::Format),
+            "Cst" => Ok(Self::Cst),
+            "Lineage" => Ok(Self::Lineage),
+            "Templater" => Ok(Self::Templater),
+            "Lexer" => Ok(Self::Lexer),
+            _ => Err("unsupported tool"),
+        }
+    }
 }
 
 #[wasm_bindgen]
@@ -72,25 +89,68 @@ impl Result {
 #[wasm_bindgen]
 impl Linter {
     #[wasm_bindgen(constructor)]
-    pub fn new(source: &str) -> Self {
-        let config = FluffConfig::from_source(source, None);
-        let templater = SqruffLinter::get_templater(&config).unwrap_or(&RAW_TEMPLATER);
-        Self {
-            base: SqruffLinter::new(config, None, Some(templater), true).unwrap(),
-        }
+    pub fn new(source: &str) -> std::result::Result<Self, JsValue> {
+        let config = FluffConfig::try_from_source(source, None)
+            .map_err(|e| JsValue::from_str(&e.to_string()))?;
+        let engine = Engine::new(
+            config.clone(),
+            EngineOptions {
+                parse_errors: ParseErrors::Include,
+            },
+        )
+        .map_err(|e| JsValue::from_str(&e.to_string()))?;
+        let base = SqruffLinter::new(config, None, ParseErrors::Include)
+            .map_err(|e| JsValue::from_str(&e.to_string()))?;
+        Ok(Self { engine, base })
     }
 
     #[wasm_bindgen]
-    pub fn check(&self, sql: &str, tool: Tool) -> Result {
-        let line_index = LineIndex::new(sql);
+    pub fn check(&self, sql: &str, tool: &str) -> Result {
+        let Ok(tool) = Tool::try_from(tool) else {
+            return Result {
+                diagnostics: Vec::new(),
+                secondary: format!("Error: unsupported tool: {tool}"),
+            };
+        };
 
+        match tool {
+            Tool::Format => self.check_with_engine(sql, Mode::Fix),
+            Tool::Cst | Tool::Lineage | Tool::Templater | Tool::Lexer => {
+                self.check_developer_tool(sql, tool)
+            }
+        }
+    }
+
+    fn check_with_engine(&self, sql: &str, mode: Mode) -> Result {
+        let report = match self.engine_report(sql, mode) {
+            Ok(report) => report,
+            Err(e) => return result_from_error(e),
+        };
+
+        Result {
+            diagnostics: diagnostics_from_lint_diagnostics(&report.diagnostics),
+            secondary: report.fixed_source.unwrap_or_default(),
+        }
+    }
+
+    fn check_developer_tool(&self, sql: &str, tool: Tool) -> Result {
+        let report = match self.engine_report(sql, Mode::Check) {
+            Ok(report) => report,
+            Err(e) => return result_from_error(e),
+        };
         let tables = Tables::default();
-        let parsed = self.base.parse_string(&tables, sql, None).unwrap();
+        let parsed = match self.base.parse_string(&tables, sql, None) {
+            Ok(parsed) => parsed,
+            Err(e) => return result_from_str(&e.value),
+        };
 
-        let templated = self
+        let templated = match self
             .base
             .render_string(sql, "".to_string(), self.base.config())
-            .unwrap();
+        {
+            Ok(t) => t,
+            Err(e) => return result_from_str(&e.value),
+        };
 
         let cst = if tool == Tool::Cst {
             parsed.tree.clone()
@@ -98,42 +158,11 @@ impl Linter {
             None
         };
 
-        let result = match self.base.lint_parsed(&tables, parsed, tool == Tool::Format) {
-            Ok(result) => result,
-            Err(e) => {
-                return Result {
-                    diagnostics: vec![Diagnostic {
-                        message: e.value,
-                        start_line_number: 1,
-                        start_column: 1,
-                        end_line_number: 1,
-                        end_column: 1,
-                    }],
-                    secondary: String::new(),
-                };
-            }
-        };
-        let violations = result.violations();
-
-        let diagnostics = violations
-            .iter()
-            .map(|violation| {
-                let start = line_index.line_col(violation.source_slice.start.try_into().unwrap());
-                let end = line_index.line_col(violation.source_slice.end.try_into().unwrap());
-
-                Diagnostic {
-                    message: violation.description.clone(),
-                    start_line_number: start.line + 1,
-                    start_column: start.col + 1,
-                    end_line_number: end.line + 1,
-                    end_column: end.col + 1,
-                }
-            })
-            .collect();
-
         let secondary = match tool {
-            Tool::Format => result.fix_string(),
-            Tool::Cst => cst.unwrap().stringify(false),
+            Tool::Cst => match cst {
+                Some(cst) => cst.stringify(false),
+                None => String::new(),
+            },
             Tool::Lineage => {
                 let parser = Parser::new(
                     self.base.config().get_dialect(),
@@ -150,13 +179,60 @@ impl Linter {
                 let (segments, _errors) = lexer.lex(&lex_tables, sql);
                 format_lexer_output(&segments)
             }
-            Tool::__Invalid => String::from("Error: unsupported tool"),
+            Tool::Format => String::new(),
         };
 
         Result {
-            diagnostics,
+            diagnostics: diagnostics_from_lint_diagnostics(&report.diagnostics),
             secondary,
         }
+    }
+
+    fn engine_report(
+        &self,
+        sql: &str,
+        mode: Mode,
+    ) -> std::result::Result<sqruff_lib::api::FileReport, SqruffError> {
+        let source = Source {
+            id: SourceId::Stdin,
+            text: Cow::Borrowed(sql),
+        };
+
+        match mode {
+            Mode::Check => self.engine.check_source(source),
+            Mode::Fix => self.engine.fix_source(source),
+        }
+    }
+}
+
+fn diagnostics_from_lint_diagnostics(diagnostics: &[LintDiagnostic]) -> Vec<Diagnostic> {
+    diagnostics.iter().map(to_wasm_diagnostic).collect()
+}
+
+fn to_wasm_diagnostic(diagnostic: &LintDiagnostic) -> Diagnostic {
+    Diagnostic {
+        message: diagnostic.message.clone(),
+        start_line_number: diagnostic.line as u32,
+        start_column: diagnostic.column as u32,
+        end_line_number: diagnostic.end_line as u32,
+        end_column: diagnostic.end_column as u32,
+    }
+}
+
+fn result_from_error(error: SqruffError) -> Result {
+    result_from_str(&error.to_string())
+}
+
+fn result_from_str(message: &str) -> Result {
+    Result {
+        diagnostics: vec![Diagnostic {
+            message: message.to_string(),
+            start_line_number: 1,
+            start_column: 1,
+            end_line_number: 1,
+            end_column: 1,
+        }],
+        secondary: String::new(),
     }
 }
 

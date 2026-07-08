@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use std::path::Path;
 use std::str::FromStr;
 
@@ -6,6 +8,7 @@ use hashbrown::HashMap;
 use rayon::prelude::*;
 use serde::Deserialize;
 use serde_with::{KeyValueMap, serde_as};
+use sqruff_lib::api::{Mode, ParseErrors};
 use sqruff_lib::core::config::{FluffConfig, Value};
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -76,22 +79,19 @@ fn main() {
         });
 }
 
-// FIXME: Simplify FluffConfig handling. It's quite chaotic right now.
 struct RuleTestState {
-    linter: Linter,
     core: HashMap<String, Value>,
 }
 
 impl RuleTestState {
     fn new() -> Self {
-        let mut linter = Linter::new(FluffConfig::default(), None, None, true).unwrap();
         let mut core = HashMap::new();
         core.insert(
             "core".to_string(),
-            linter.config_mut().raw.get("core").unwrap().clone(),
+            FluffConfig::default().raw.get("core").unwrap().clone(),
         );
 
-        Self { linter, core }
+        Self { core }
     }
 }
 
@@ -108,16 +108,13 @@ fn process_file(state: &mut RuleTestState, path: &Path, verbose: bool) {
         .map(|x| Value::String(x.into()))
         .collect::<Vec<Value>>();
 
-    state
-        .core
+    let mut file_core = state.core.clone();
+    file_core
         .get_mut("core")
         .unwrap()
         .as_map_mut()
         .unwrap()
         .insert("rule_allowlist".into(), Value::Array(file_rules));
-
-    state.linter.config_mut().raw.extend(state.core.clone());
-    state.linter.config_mut().reload_reflow();
 
     for case in file.cases {
         if verbose {
@@ -144,14 +141,12 @@ fn process_file(state: &mut RuleTestState, path: &Path, verbose: bool) {
 
         let has_config = !case.configs.is_empty();
         let rule = &file.rule;
-        if has_config {
-            *state.linter.config_mut() = FluffConfig::new(case.configs.clone(), None, None);
-            state.linter.config_mut().raw.extend(state.core.clone());
+        let config = if has_config {
+            let mut config = FluffConfig::new(case.configs.clone(), None, None);
+            config.raw.extend(file_core.clone());
 
             if let Some(core) = case.configs.get("core").and_then(|it| it.as_map()) {
-                state
-                    .linter
-                    .config_mut()
+                config
                     .raw
                     .get_mut("core")
                     .unwrap()
@@ -160,7 +155,7 @@ fn process_file(state: &mut RuleTestState, path: &Path, verbose: bool) {
                     .extend(core.clone());
             }
 
-            for (config, value) in &case
+            for (config_name, value) in &case
                 .configs
                 .get("rules")
                 .cloned()
@@ -169,47 +164,45 @@ fn process_file(state: &mut RuleTestState, path: &Path, verbose: bool) {
                 .cloned()
                 .unwrap_or_default()
             {
-                if INDENT_CONFIG.contains(&config.as_str()) {
-                    state
-                        .linter
-                        .config_mut()
+                if INDENT_CONFIG.contains(&config_name.as_str()) {
+                    config
                         .raw
                         .get_mut("indentation")
                         .unwrap()
                         .as_map_mut()
                         .unwrap()
-                        .insert(config.clone(), value.clone());
+                        .insert(config_name.clone(), value.clone());
                 }
             }
 
-            state.linter.config_mut().reload_reflow();
+            config.reload_reflow();
+            config
+        } else {
+            let mut config = FluffConfig::default();
+            config.raw.extend(file_core.clone());
+            config.reload_reflow();
+            config
+        };
 
-            // Recreate linter with proper templater after all config is set up
-            let templater = match Linter::get_templater(state.linter.config()) {
-                Ok(t) => t,
-                Err(e) => {
-                    if std::env::var("SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS").is_ok() {
-                        println!("Skipping case '{}': {}", case.name, e);
-                        *state.linter.config_mut() = FluffConfig::default();
-                        state.linter.config_mut().raw.extend(state.core.clone());
-                        state.linter.config_mut().reload_reflow();
-                        continue;
-                    } else {
-                        panic!(
-                            "Unsupported templater in case '{}': {}. \
-                             Set SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS=1 to skip these tests.",
-                            case.name, e
-                        );
-                    }
+        let templater = match Linter::get_templater(&config) {
+            Ok(t) => t,
+            Err(e) => {
+                if std::env::var("SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS").is_ok() {
+                    println!("Skipping case '{}': {}", case.name, e);
+                    continue;
                 }
-            };
-            state.linter =
-                Linter::new(state.linter.config().clone(), None, Some(templater), true).unwrap();
-        }
+                panic!(
+                    "Unsupported templater in case '{}': {}. \
+                     Set SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS=1 to skip these tests.",
+                    case.name, e
+                );
+            }
+        };
+        let mut linter = Linter::new(config, Some(templater), ParseErrors::Include).unwrap();
 
         match case.kind {
             TestCaseKind::Pass { pass_str } => {
-                let result = state.linter.lint_string_wrapped(&pass_str, false).unwrap();
+                let result = linter.lint_string_wrapped(&pass_str, Mode::Check).unwrap();
                 let error_string = format!(
                     r#"
 The following test test can be used to recreate the issue:
@@ -220,18 +213,18 @@ mod tests {{
 
     #[test]
     fn test_example() {{
-        let config = FluffConfig::from_source("
+        let config = FluffConfig::try_from_source("
 [sqruff]
 rules = {rule}
 dialect = {dialect}
 ",
- None);
+ None).unwrap();
 
-        let mut linter = Linter::new(config, None, None, true);
+        let mut linter = Linter::new(config, None, ParseErrors::Include);
 
         let pass_str = r"{pass_str}";
 
-        let f = linter.lint_string_wrapped(&pass_str, false);
+        let f = linter.lint_string_wrapped(&pass_str, Mode::Check);
         assert_eq!(&f.violations, &[]);
     }}
 }}
@@ -244,7 +237,7 @@ dialect = {dialect}
                 assert_eq!(&result.violations(), &[], "{}", error_string);
             }
             TestCaseKind::Fail { fail_str } => {
-                let file = state.linter.lint_string_wrapped(&fail_str, false).unwrap();
+                let file = linter.lint_string_wrapped(&fail_str, Mode::Check).unwrap();
                 assert_ne!(&file.violations(), &[])
             }
             TestCaseKind::Fix { fail_str, fix_str } => {
@@ -253,24 +246,11 @@ dialect = {dialect}
                     "Fail and fix strings should not be equal"
                 );
 
-                let linted = state.linter.lint_string_wrapped(&fail_str, true).unwrap();
+                let linted = linter.lint_string_wrapped(&fail_str, Mode::Fix).unwrap();
                 let actual = linted.fix_string();
 
                 pretty_assertions::assert_eq!(actual, fix_str);
             }
-        }
-
-        if has_config {
-            *state.linter.config_mut() = FluffConfig::default();
-            state.linter.config_mut().raw.extend(state.core.clone());
-            state.linter.config_mut().reload_reflow();
-
-            // Recreate linter with default templater to avoid leaking
-            // the custom templater (e.g. placeholder) into subsequent tests.
-            let templater = Linter::get_templater(state.linter.config())
-                .expect("Default config should have a valid templater");
-            state.linter =
-                Linter::new(state.linter.config().clone(), None, Some(templater), true).unwrap();
         }
     }
 }

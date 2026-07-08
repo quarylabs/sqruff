@@ -1,5 +1,6 @@
 use std::io::{self, BufRead};
 
+use sqruff_lib::api::ParseErrors;
 use sqruff_lib::core::{config::FluffConfig, linter::core::Linter};
 use sqruff_lib_core::parser::segments::Tables;
 
@@ -66,7 +67,7 @@ fn parse_and_output_tree(
     format: ParseFormat,
 ) -> i32 {
     // Create a linter and parse the SQL
-    let linter = match Linter::new(config.clone(), None, None, true) {
+    let linter = match Linter::new(config.clone(), None, ParseErrors::Include) {
         Ok(l) => l,
         Err(e) => {
             eprintln!("{}", e);

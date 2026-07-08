@@ -2100,8 +2100,10 @@ mod tests {
         use crate::core::linter::core::Linter;
 
         let sql = "with a as (select 1\nfrom t join u v on\n1=1\n)\nselect * from a\n";
-        let linter = Linter::new(<_>::default(), None, None, false).unwrap();
-        let result = linter.lint_string(sql, None, false).unwrap();
+        let linter = Linter::new(<_>::default(), None, crate::api::ParseErrors::Suppress).unwrap();
+        let result = linter
+            .lint_string(sql, None, crate::api::Mode::Check)
+            .unwrap();
         // The panic is caught by catch_unwind and surfaced as an
         // "Unexpected exception" violation. Assert none are present.
         for v in result.violations() {

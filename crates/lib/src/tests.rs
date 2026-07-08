@@ -370,11 +370,12 @@ fn test_reindent_no_false_positive_in_jinja_for_loop() {
     let lnt = crate::core::linter::core::Linter::new(
         crate::core::config::FluffConfig::new(<_>::default(), None, None),
         None,
-        None,
-        false,
+        crate::api::ParseErrors::Suppress,
     )
     .unwrap();
-    let linted = lnt.lint_rendered(rendered, false).unwrap();
+    let linted = lnt
+        .lint_rendered(rendered, crate::core::linter::core::Mode::Check)
+        .unwrap();
 
     let layout: Vec<_> = linted
         .violations()
@@ -457,11 +458,12 @@ fn test_lt12_reports_missing_source_newline_after_jinja_block() {
     let lnt = crate::core::linter::core::Linter::new(
         crate::core::config::FluffConfig::new(<_>::default(), None, None),
         None,
-        None,
-        false,
+        crate::api::ParseErrors::Suppress,
     )
     .unwrap();
-    let linted = lnt.lint_rendered(rendered, false).unwrap();
+    let linted = lnt
+        .lint_rendered(rendered, crate::core::linter::core::Mode::Check)
+        .unwrap();
 
     let lt12: Vec<_> = linted
         .violations()
@@ -547,11 +549,12 @@ fn test_lt12_reports_extra_rendered_newline_before_jinja_block() {
     let lnt = crate::core::linter::core::Linter::new(
         crate::core::config::FluffConfig::new(<_>::default(), None, None),
         None,
-        None,
-        false,
+        crate::api::ParseErrors::Suppress,
     )
     .unwrap();
-    let linted = lnt.lint_rendered(rendered, false).unwrap();
+    let linted = lnt
+        .lint_rendered(rendered, crate::core::linter::core::Mode::Check)
+        .unwrap();
 
     let lt12: Vec<_> = linted
         .violations()

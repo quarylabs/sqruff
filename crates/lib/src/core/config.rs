@@ -1049,7 +1049,11 @@ max_line_length = 39
         )
         .unwrap();
 
-        let config = FluffConfig::new(ConfigLoader {}.load_config_at_path(&dir), None, None);
+        let config = FluffConfig::new(
+            ConfigLoader {}.load_config_at_path_or_default(&dir),
+            None,
+            None,
+        );
         fs::remove_dir_all(&dir).unwrap();
 
         assert_eq!(config.raw["core"]["max_line_length"].as_int(), Some(39));
@@ -1067,7 +1071,11 @@ max_line_length = 44
         )
         .unwrap();
 
-        let config = FluffConfig::new(ConfigLoader {}.load_config_at_path(&dir), None, None);
+        let config = FluffConfig::new(
+            ConfigLoader {}.load_config_at_path_or_default(&dir),
+            None,
+            None,
+        );
         fs::remove_dir_all(&dir).unwrap();
 
         assert_eq!(config.raw["core"]["max_line_length"].as_int(), Some(44));

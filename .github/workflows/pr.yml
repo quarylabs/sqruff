@@ -51,6 +51,8 @@ jobs:
           # Only master (push to main) runs update the cache; PRs and merge
           # group jobs restore it read-only to avoid polluting/contending.
           cache-save: ${{ github.event_name == 'push' }}
+      - name: Install LLD
+        run: sudo apt-get update --yes && sudo apt-get install --yes lld
       - name: Build all targets
         run: bazelisk build --config=ci //...
       - name: Run all tests

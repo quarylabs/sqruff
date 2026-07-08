@@ -17,6 +17,8 @@ use serde_json::Value;
 use sqruff_lib::api::{
     Engine, EngineOptions, LintDiagnostic, ParseErrors, Source, SourceId, SqruffError,
 };
+#[cfg(not(target_arch = "wasm32"))]
+use sqruff_lib::core::config::ConfigLoader;
 use sqruff_lib::core::config::FluffConfig;
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
@@ -36,7 +38,7 @@ fn load_config(root: Option<&Path>) -> FluffConfig {
 }
 
 #[cfg(target_arch = "wasm32")]
-fn load_config() -> FluffConfig {
+fn load_config(_root: Option<&Path>) -> FluffConfig {
     FluffConfig::default()
 }
 
@@ -117,7 +119,7 @@ impl Wasm {
 
 impl LanguageServer {
     pub fn new(send_diagnostics_callback: impl Fn(PublishDiagnosticsParams) + 'static) -> Self {
-        let config = load_config();
+        let config = load_config(None);
         Self {
             engine: Self::new_engine(config).unwrap(),
             send_diagnostics_callback: Box::new(send_diagnostics_callback),
@@ -205,7 +207,7 @@ impl LanguageServer {
                 let uri = params.text_document.uri.as_str();
 
                 if uri.ends_with(".sqlfluff") || uri.ends_with(".sqruff") {
-                    let new_config = load_config();
+                    let new_config = load_config(None);
                     if self.set_config(new_config).is_ok() {
                         self.recheck_files();
                     } else {
@@ -277,13 +279,16 @@ impl LanguageServer {
             return None;
         }
 
-        let mut path = uri.path().as_str().to_string();
+        let path = uri.path().as_str().to_string();
         #[cfg(windows)]
-        {
+        let path = {
+            let mut path = path;
+
             if path.len() >= 3 && path.as_bytes()[0] == b'/' && path.as_bytes()[2] == b':' {
                 path.remove(0);
             }
-        }
+            path
+        };
 
         Some(Path::new(&path).to_path_buf())
     }

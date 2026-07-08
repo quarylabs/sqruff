@@ -1541,6 +1541,7 @@ dependencies = [
  "expect-test",
  "fancy-regex",
  "fern",
+ "ignore",
  "log",
  "minijinja",
  "pyo3",

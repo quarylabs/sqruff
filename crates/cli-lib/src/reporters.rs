@@ -16,6 +16,7 @@ pub(crate) enum Reporter {
     Human(HumanReporter),
     Json(JsonReporter),
     Github(GithubReporter),
+    None,
 }
 
 impl Reporter {
@@ -24,6 +25,7 @@ impl Reporter {
             Format::Human => Self::Human(HumanReporter::new(config)),
             Format::GithubAnnotationNative => Self::Github(GithubReporter::new()),
             Format::Json => Self::Json(JsonReporter::default()),
+            Format::None => Self::None,
         }
     }
 
@@ -32,6 +34,7 @@ impl Reporter {
             Self::Human(r) => r.emit(report),
             Self::Json(r) => r.emit(report),
             Self::Github(r) => r.emit(report),
+            Self::None => Ok(()),
         }
     }
 
@@ -40,6 +43,7 @@ impl Reporter {
             Self::Human(r) => r.emit_diagnostics(report),
             Self::Json(r) => r.emit(report),
             Self::Github(r) => r.emit(report),
+            Self::None => Ok(()),
         }
     }
 }

@@ -10,6 +10,7 @@ use sqruff_lib_core::parser::{IndentationConfig, Parser};
 pub use sqruff_lib_core::value::Value;
 use sqruff_lib_dialects::kind_to_dialect;
 
+use crate::api::SqruffError;
 use crate::templaters::TemplaterKind;
 use crate::utils::reflow::config::ReflowConfig;
 
@@ -127,11 +128,7 @@ impl FluffConfig {
 
     /// from_file creates a config object from a file path. The path is used both
     /// to read the file content and to resolve relative `_path`/`_dir` values.
-    pub fn from_file(path: &Path) -> FluffConfig {
-        Self::try_from_file(path).unwrap()
-    }
-
-    pub fn try_from_file(path: &Path) -> Result<FluffConfig, SQLFluffUserError> {
+    pub fn from_file(path: &Path) -> Result<FluffConfig, SqruffError> {
         let mut configs = HashMap::new();
         ConfigLoader::try_load_config_file(path, &mut configs)?;
         Ok(FluffConfig::new(configs, None, None))
@@ -143,13 +140,13 @@ impl FluffConfig {
     /// The optional_path_specification is used to specify a path to use for relative paths in the
     /// config. This is useful for testing.
     pub fn from_source(source: &str, optional_path_specification: Option<&Path>) -> FluffConfig {
-        Self::try_from_source(source, optional_path_specification).unwrap()
+        Self::try_from_source(source, optional_path_specification).unwrap_or_default()
     }
 
     pub fn try_from_source(
         source: &str,
         optional_path_specification: Option<&Path>,
-    ) -> Result<FluffConfig, SQLFluffUserError> {
+    ) -> Result<FluffConfig, SqruffError> {
         let configs = ConfigLoader::try_from_source(source, optional_path_specification)?;
         Ok(FluffConfig::new(configs, None, None))
     }
@@ -269,7 +266,7 @@ impl FluffConfig {
         extra_config_path: Option<String>,
         ignore_local_config: bool,
         overrides: Option<HashMap<String, String>>,
-    ) -> Result<FluffConfig, SQLFluffUserError> {
+    ) -> Result<FluffConfig, SqruffError> {
         let loader = ConfigLoader {};
         let mut config = loader.try_load_config_up_to_path(
             ".",
@@ -434,7 +431,7 @@ impl ConfigLoader {
         ignore_local_config: bool,
     ) -> HashMap<String, Value> {
         self.try_load_config_up_to_path(path, extra_config_path, ignore_local_config)
-            .unwrap()
+            .unwrap_or_default()
     }
 
     pub fn try_load_config_up_to_path(
@@ -442,7 +439,7 @@ impl ConfigLoader {
         path: impl AsRef<Path>,
         extra_config_path: Option<String>,
         ignore_local_config: bool,
-    ) -> Result<HashMap<String, Value>, SQLFluffUserError> {
+    ) -> Result<HashMap<String, Value>, SqruffError> {
         let path = path.as_ref();
 
         let config_stack = if ignore_local_config {
@@ -462,13 +459,13 @@ impl ConfigLoader {
     }
 
     pub fn load_config_at_path(&self, path: impl AsRef<Path>) -> HashMap<String, Value> {
-        self.try_load_config_at_path(path).unwrap()
+        self.try_load_config_at_path(path).unwrap_or_default()
     }
 
     pub fn try_load_config_at_path(
         &self,
         path: impl AsRef<Path>,
-    ) -> Result<HashMap<String, Value>, SQLFluffUserError> {
+    ) -> Result<HashMap<String, Value>, SqruffError> {
         let path = path.as_ref();
 
         let filename_options = [
@@ -497,13 +494,13 @@ impl ConfigLoader {
     }
 
     pub fn from_source(source: &str, path: Option<&Path>) -> HashMap<String, Value> {
-        Self::try_from_source(source, path).unwrap()
+        Self::try_from_source(source, path).unwrap_or_default()
     }
 
     pub fn try_from_source(
         source: &str,
         path: Option<&Path>,
-    ) -> Result<HashMap<String, Value>, SQLFluffUserError> {
+    ) -> Result<HashMap<String, Value>, SqruffError> {
         let mut configs = HashMap::new();
         let elems = ConfigLoader::try_get_config_elems_from_file(path, Some(source))?;
         ConfigLoader::incorporate_vals(&mut configs, elems);
@@ -511,13 +508,17 @@ impl ConfigLoader {
     }
 
     pub fn load_config_file(path: impl AsRef<Path>, configs: &mut HashMap<String, Value>) {
-        Self::try_load_config_file(path, configs).unwrap();
+        let Ok(elems) = ConfigLoader::try_get_config_elems_from_file(path.as_ref().into(), None)
+        else {
+            return;
+        };
+        ConfigLoader::incorporate_vals(configs, elems);
     }
 
     pub fn try_load_config_file(
         path: impl AsRef<Path>,
         configs: &mut HashMap<String, Value>,
-    ) -> Result<(), SQLFluffUserError> {
+    ) -> Result<(), SqruffError> {
         let elems = ConfigLoader::try_get_config_elems_from_file(path.as_ref().into(), None)?;
         ConfigLoader::incorporate_vals(configs, elems);
         Ok(())
@@ -527,21 +528,26 @@ impl ConfigLoader {
         config_path: Option<&Path>,
         config_string: Option<&str>,
     ) -> Vec<(Vec<String>, Value)> {
-        Self::try_get_config_elems_from_file(config_path, config_string).unwrap()
+        Self::try_get_config_elems_from_file(config_path, config_string).unwrap_or_default()
     }
 
     fn try_get_config_elems_from_file(
         config_path: Option<&Path>,
         config_string: Option<&str>,
-    ) -> Result<Vec<(Vec<String>, Value)>, SQLFluffUserError> {
+    ) -> Result<Vec<(Vec<String>, Value)>, SqruffError> {
         let content = match (config_path, config_string) {
             (None, None) => {
-                unimplemented!("One of fpath or config_string is required.")
+                return Err(SqruffError::Config(
+                    "one of config path or config string is required".to_string(),
+                ));
             }
             (_, Some(text)) => text.to_owned(),
-            (Some(path), None) => std::fs::read_to_string(path).map_err(|err| {
-                config_error(config_path, format!("Unable to read config file: {err}"))
-            })?,
+            (Some(path), None) => {
+                std::fs::read_to_string(path).map_err(|source| SqruffError::Io {
+                    path: path.to_path_buf(),
+                    source,
+                })?
+            }
         };
 
         if is_toml_config(config_path) {
@@ -579,17 +585,17 @@ fn is_toml_config(config_path: Option<&Path>) -> bool {
     })
 }
 
-fn config_error(config_path: Option<&Path>, message: impl std::fmt::Display) -> SQLFluffUserError {
+fn config_error(config_path: Option<&Path>, message: impl std::fmt::Display) -> SqruffError {
     let location = config_path
         .map(|path| path.display().to_string())
         .unwrap_or_else(|| "config source".to_owned());
-    SQLFluffUserError::new(format!("Error loading config from {location}: {}", message))
+    SqruffError::Config(format!("Error loading config from {location}: {}", message))
 }
 
 fn parse_ini_config_elems(
     content: &str,
     config_path: Option<&Path>,
-) -> Result<Vec<(Vec<String>, Value)>, SQLFluffUserError> {
+) -> Result<Vec<(Vec<String>, Value)>, SqruffError> {
     let mut buff = Vec::new();
     let mut config = Ini::new();
 
@@ -616,7 +622,9 @@ fn parse_ini_config_elems(
                 let name_lowercase = name.to_lowercase();
 
                 if name_lowercase == "load_macros_from_path" {
-                    unimplemented!()
+                    return Err(SqruffError::Unsupported(
+                        "load_macros_from_path config is not implemented",
+                    ));
                 } else if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir") {
                     value = resolve_relative_config_path(value, config_path);
                 }
@@ -634,7 +642,7 @@ fn parse_ini_config_elems(
 fn parse_toml_config_elems(
     content: &str,
     config_path: Option<&Path>,
-) -> Result<Vec<(Vec<String>, Value)>, SQLFluffUserError> {
+) -> Result<Vec<(Vec<String>, Value)>, SqruffError> {
     let root = content
         .parse::<toml::Table>()
         .map_err(|err| config_error(config_path, err))?;

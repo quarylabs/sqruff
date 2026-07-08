@@ -206,7 +206,7 @@ def benchmark_batch_approach(
                 live_context=live_context,
             )
             # Check for errors
-            for templated_file, error in results:
+            for templated_file, error, skip_reason in results:
                 if error:
                     print(f"  Error: {error}")
         except Exception as e:

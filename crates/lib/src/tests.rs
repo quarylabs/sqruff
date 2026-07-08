@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use sqruff_lib::api::ParseErrors;
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
@@ -193,8 +194,7 @@ fn test_dialect_ansi_specific_segment_not_parse() {
         let lnt = Linter::new(
             FluffConfig::new(<_>::default(), None, None),
             None,
-            None,
-            false,
+            ParseErrors::Suppress,
         )
         .unwrap();
         let tables = Tables::default();
@@ -215,8 +215,7 @@ fn test_dialect_ansi_is_whitespace() {
     let lnt = Linter::new(
         FluffConfig::new(<_>::default(), None, None),
         None,
-        None,
-        false,
+        ParseErrors::Suppress,
     )
     .unwrap();
     let file_content = std::fs::read_to_string(
@@ -249,8 +248,7 @@ fn test_dialect_ansi_parse_indented_joins() {
     let lnt = Linter::new(
         FluffConfig::new(<_>::default(), None, None),
         None,
-        None,
-        false,
+        ParseErrors::Suppress,
     )
     .unwrap();
 

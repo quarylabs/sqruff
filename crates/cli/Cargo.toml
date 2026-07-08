@@ -71,6 +71,10 @@ harness = false
 name = "none_format"
 harness = false
 
+[[test]]
+name = "path_discovery"
+harness = false
+
 [package.metadata.cargo-machete]
 ignored = ["pyo3"]
 

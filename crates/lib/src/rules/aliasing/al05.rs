@@ -605,14 +605,14 @@ dialect = postgres
             None,
         );
 
-        Linter::new(config, None, None, true).unwrap()
+        Linter::new(config, None, crate::api::ParseErrors::Include).unwrap()
     }
 
     #[test]
     fn test_al05_postgres_json_operator_alias_is_used() {
         let mut linter = postgres_al05_linter();
         let linted = linter
-            .lint_string_wrapped(POSTGRES_JSON_ALIAS_REPRODUCER, false)
+            .lint_string_wrapped(POSTGRES_JSON_ALIAS_REPRODUCER, crate::api::Mode::Check)
             .unwrap();
 
         assert_eq!(linted.violations(), &[]);
@@ -622,7 +622,7 @@ dialect = postgres
     fn test_al05_postgres_json_operator_fix_preserves_alias() {
         let mut linter = postgres_al05_linter();
         let linted = linter
-            .lint_string_wrapped(POSTGRES_JSON_ALIAS_REPRODUCER, true)
+            .lint_string_wrapped(POSTGRES_JSON_ALIAS_REPRODUCER, crate::api::Mode::Fix)
             .unwrap();
 
         assert_eq!(linted.fix_string(), POSTGRES_JSON_ALIAS_REPRODUCER);

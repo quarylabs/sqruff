@@ -154,10 +154,11 @@ def test_batch_processing():
     assert len(results) == len(files)
 
     success_count = 0
-    for templated_file, error in results:
+    for templated_file, error, skip_reason in results:
         if error is None:
-            assert templated_file is not None
-            success_count += 1
+            if skip_reason is None:
+                assert templated_file is not None
+                success_count += 1
         else:
             # Sequencing errors would show up here - the bug we're guarding
             # against would produce: "Failed to sequence files: 'str' object
@@ -223,7 +224,7 @@ def test_batch_processing_preserves_order():
     assert len(results) == len(files)
 
     # For each result, if successful, the fname should match
-    for i, (templated_file, error) in enumerate(results):
+    for i, (templated_file, error, skip_reason) in enumerate(results):
         if templated_file is not None:
             expected_fname = files[i][1]
             # The templated file should be for the correct input file

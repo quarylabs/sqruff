@@ -1,21 +1,26 @@
 use std::collections::BTreeMap;
 
 use serde::Serialize;
-use sqruff_lib_core::errors::SQLBaseError;
+use sqruff_lib::api::LintDiagnostic;
 
-impl From<SQLBaseError> for Diagnostic {
-    fn from(value: SQLBaseError) -> Self {
-        let code = value.rule.map(|rule| rule.code.to_string());
+impl Diagnostic {
+    pub(crate) fn from_lint_diagnostic(value: &LintDiagnostic) -> Self {
         Diagnostic {
             range: Range {
-                start: Position::new(value.line_no as u32, value.line_pos as u32),
-                end: Position::new(value.line_no as u32, value.line_pos as u32),
+                start: Position::new(value.line as u32, value.column as u32),
+                end: Position::new(value.end_line as u32, value.end_column as u32),
             },
-            message: value.description,
+            message: value.message.clone(),
             severity: DiagnosticSeverity::Warning,
             source: Some("sqruff".to_string()),
-            code,
+            code: value.code.clone(),
         }
+    }
+}
+
+impl From<&LintDiagnostic> for Diagnostic {
+    fn from(value: &LintDiagnostic) -> Self {
+        Self::from_lint_diagnostic(value)
     }
 }
 

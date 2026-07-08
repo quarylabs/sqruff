@@ -1,15 +1,15 @@
-use hashbrown::HashMap;
-use std::sync::Arc;
-
 use fancy_regex::Regex;
+use hashbrown::HashMap;
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::{
     RawFileSlice, TemplateSliceKind, TemplatedFile, TemplatedFileSlice,
 };
 
-use crate::Formatter;
 use crate::core::config::FluffConfig;
-use crate::templaters::{PlaceholderStyle, ProcessingMode, Templater};
+use crate::templaters::{
+    PlaceholderStyle, ProcessingMode, Templater, TemplaterError, TemplaterInput, TemplaterOutput,
+    source_id_name,
+};
 
 #[derive(Default)]
 pub struct PlaceholderTemplater;
@@ -286,13 +286,17 @@ Also consider making a pull request to the project to have your style added, it 
 
     fn process(
         &self,
-        files: &[(&str, &str)],
+        files: &[TemplaterInput<'_>],
         config: &FluffConfig,
-        _: &Option<Arc<dyn Formatter>>,
-    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+    ) -> Vec<Result<TemplaterOutput, TemplaterError>> {
         files
             .iter()
-            .map(|(content, fname)| self.process_single(content, fname, config))
+            .map(|file| {
+                let fname = source_id_name(file.source_id);
+                self.process_single(file.source, &fname, config)
+                    .map(TemplaterOutput::Rendered)
+                    .map_err(TemplaterError::Failed)
+            })
             .collect()
     }
 }
@@ -305,6 +309,33 @@ mod tests {
 
     type PlaceholderCase<'a> = (&'a str, &'a str, &'a str, Vec<(&'a str, &'a str)>);
 
+    fn process_one(
+        templater: &PlaceholderTemplater,
+        in_str: &str,
+        name: &str,
+        config: &FluffConfig,
+    ) -> Result<TemplatedFile, SQLFluffUserError> {
+        let source_id = crate::api::SourceId::Virtual(name.to_string());
+        templater
+            .process(
+                &[TemplaterInput {
+                    source: in_str,
+                    source_id: &source_id,
+                }],
+                config,
+            )
+            .into_iter()
+            .next()
+            .unwrap()
+            .map(|output| match output {
+                TemplaterOutput::Rendered(file) => file,
+                TemplaterOutput::Skipped(reason) => {
+                    panic!("placeholder templater skipped: {}", reason.message)
+                }
+            })
+            .map_err(TemplaterError::into_user_error)
+    }
+
     #[test]
     /// Test the templaters when nothing has to be replaced.
     fn test_templater_no_replacement() {
@@ -316,8 +347,7 @@ mod tests {
 param_style = colon",
             None,
         );
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
-        let out_str = results.into_iter().next().unwrap().unwrap();
+        let out_str = process_one(&templater, in_str, "test.sql", &config).unwrap();
         let out = out_str.templated();
         assert_eq!(in_str, out)
     }
@@ -635,8 +665,7 @@ param_style = {}
                 None,
             );
             let templater = PlaceholderTemplater {};
-            let results = templater.process(&[(in_str, "test.sql")], &config, &None);
-            let out_str = results.into_iter().next().unwrap().unwrap();
+            let out_str = process_one(&templater, in_str, "test.sql", &config).unwrap();
             let out = out_str.templated();
             assert_eq!(expected_out, out)
         }
@@ -649,8 +678,7 @@ param_style = {}
         let config = FluffConfig::from_source("", None);
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
-        let out_str = results.into_iter().next().unwrap();
+        let out_str = process_one(&templater, in_str, "test.sql", &config);
 
         assert!(out_str.is_err());
         assert_eq!(
@@ -673,8 +701,7 @@ param_style = colon
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
-        let out_str = results.into_iter().next().unwrap();
+        let out_str = process_one(&templater, in_str, "test.sql", &config);
 
         assert!(out_str.is_err());
         assert_eq!(
@@ -696,8 +723,7 @@ my_name = john
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT bla FROM blob WHERE id = __my_name__";
-        let results = templater.process(&[(in_str, "test")], &config, &None);
-        let out_str = results.into_iter().next().unwrap().unwrap();
+        let out_str = process_one(&templater, in_str, "test", &config).unwrap();
         let out = out_str.templated();
         assert_eq!("SELECT bla FROM blob WHERE id = john", out)
     }
@@ -714,8 +740,7 @@ param_style = unknown
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
-        let out_str = results.into_iter().next().unwrap();
+        let out_str = process_one(&templater, in_str, "test.sql", &config);
 
         assert!(out_str.is_err());
         assert_eq!(
@@ -741,8 +766,11 @@ param_style = percent
         );
         let sql = "SELECT a,b FROM users WHERE a = %s";
 
-        let mut linter = Linter::new(config, None, None, false).unwrap();
-        let result = linter.lint_string_wrapped(sql, true).unwrap().fix_string();
+        let mut linter = Linter::new(config, None, crate::api::ParseErrors::Suppress).unwrap();
+        let result = linter
+            .lint_string_wrapped(sql, crate::api::Mode::Fix)
+            .unwrap()
+            .fix_string();
 
         assert_eq!(result, "SELECT\n    a,\n    b\nFROM users\nWHERE a = %s\n");
     }

@@ -1,11 +1,10 @@
-use std::sync::Arc;
-
-use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::TemplatedFile;
 
-use crate::Formatter;
+use crate::api::SourceId;
 use crate::core::config::FluffConfig;
-use crate::templaters::{ProcessingMode, Templater};
+use crate::templaters::{
+    ProcessingMode, Templater, TemplaterError, TemplaterInput, TemplaterOutput, source_id_name,
+};
 
 #[derive(Default)]
 pub struct RawTemplater;
@@ -14,10 +13,14 @@ impl RawTemplater {
     fn process_single(
         &self,
         in_str: &str,
-        f_name: &str,
-    ) -> Result<TemplatedFile, SQLFluffUserError> {
-        TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None)
-            .map_err(|e| SQLFluffUserError::new(format!("Raw templater error: {e}")))
+        source_id: &SourceId,
+    ) -> Result<TemplatedFile, TemplaterError> {
+        let f_name = source_id_name(source_id);
+        TemplatedFile::new(in_str.to_string(), f_name.to_string(), None, None, None).map_err(|e| {
+            TemplaterError::Failed(sqruff_lib_core::errors::SQLFluffUserError::new(format!(
+                "Raw templater error: {e}"
+            )))
+        })
     }
 }
 
@@ -36,13 +39,15 @@ impl Templater for RawTemplater {
 
     fn process(
         &self,
-        files: &[(&str, &str)],
+        files: &[TemplaterInput<'_>],
         _config: &FluffConfig,
-        _formatter: &Option<Arc<dyn Formatter>>,
-    ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
+    ) -> Vec<Result<TemplaterOutput, TemplaterError>> {
         files
             .iter()
-            .map(|(content, fname)| self.process_single(content, fname))
+            .map(|file| {
+                self.process_single(file.source, file.source_id)
+                    .map(TemplaterOutput::Rendered)
+            })
             .collect()
     }
 }
@@ -57,14 +62,20 @@ mod test {
         let templater = RawTemplater;
         let in_str = "SELECT * FROM {{blah}}";
 
+        let source_id = SourceId::Virtual("test.sql".into());
         let results = templater.process(
-            &[(in_str, "test.sql")],
+            &[TemplaterInput {
+                source: in_str,
+                source_id: &source_id,
+            }],
             &FluffConfig::from_source("", None),
-            &None,
         );
 
         assert_eq!(results.len(), 1);
-        let outstr = results.into_iter().next().unwrap().unwrap();
+        let outstr = match results.into_iter().next().unwrap().unwrap() {
+            TemplaterOutput::Rendered(file) => file,
+            TemplaterOutput::Skipped(_) => panic!("raw templater should render"),
+        };
         assert_eq!(outstr.templated_str, Some(in_str.to_string()));
     }
 }

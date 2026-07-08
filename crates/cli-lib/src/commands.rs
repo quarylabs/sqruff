@@ -20,7 +20,7 @@ pub struct Cli {
     pub dialect: Option<String>,
     /// Show parse errors.
     #[arg(long, global = true, default_value = "false")]
-    pub parsing_errors: bool,
+    pub(crate) parsing_errors: bool,
 }
 
 #[derive(Debug, Subcommand)]

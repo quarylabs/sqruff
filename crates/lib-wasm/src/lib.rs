@@ -1,11 +1,15 @@
 use line_index::LineIndex;
 use lineage::{Lineage, Node};
 use serde::Serialize;
+use sqruff_lib::api::{
+    Engine, EngineOptions, LintDiagnostic, ParseErrors, Source, SourceId, SqruffError,
+};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter as SqruffLinter;
 use sqruff_lib::templaters::RAW_TEMPLATER;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::parser::{IndentationConfig, Parser};
+use std::borrow::Cow;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -28,6 +32,7 @@ impl Diagnostic {
 
 #[wasm_bindgen]
 pub struct Linter {
+    engine: Engine,
     base: SqruffLinter,
 }
 
@@ -76,14 +81,48 @@ impl Linter {
         let config = FluffConfig::from_source(source, None);
         let templater = SqruffLinter::get_templater(&config).unwrap_or(&RAW_TEMPLATER);
         Self {
-            base: SqruffLinter::new(config, None, Some(templater), true).unwrap(),
+            engine: Engine::new(
+                config.clone(),
+                EngineOptions {
+                    parse_errors: ParseErrors::Include,
+                },
+            )
+            .unwrap(),
+            base: SqruffLinter::new(config, Some(templater), true).unwrap(),
         }
     }
 
     #[wasm_bindgen]
     pub fn check(&self, sql: &str, tool: Tool) -> Result {
-        let line_index = LineIndex::new(sql);
+        match tool {
+            Tool::Format => self.check_with_engine(sql, true),
+            Tool::Cst | Tool::Lineage | Tool::Templater | Tool::Lexer => {
+                self.check_developer_tool(sql, tool)
+            }
+            Tool::__Invalid => Result {
+                diagnostics: Vec::new(),
+                secondary: String::from("Error: unsupported tool"),
+            },
+        }
+    }
 
+    fn check_with_engine(&self, sql: &str, fix: bool) -> Result {
+        let report = match self.engine_report(sql, fix) {
+            Ok(report) => report,
+            Err(e) => return result_from_error(e),
+        };
+
+        Result {
+            diagnostics: diagnostics_from_lint_diagnostics(sql, &report.diagnostics),
+            secondary: report.fixed_source.unwrap_or_default(),
+        }
+    }
+
+    fn check_developer_tool(&self, sql: &str, tool: Tool) -> Result {
+        let report = match self.engine_report(sql, false) {
+            Ok(report) => report,
+            Err(e) => return result_from_error(e),
+        };
         let tables = Tables::default();
         let parsed = self.base.parse_string(&tables, sql, None).unwrap();
 
@@ -98,41 +137,7 @@ impl Linter {
             None
         };
 
-        let result = match self.base.lint_parsed(&tables, parsed, tool == Tool::Format) {
-            Ok(result) => result,
-            Err(e) => {
-                return Result {
-                    diagnostics: vec![Diagnostic {
-                        message: e.value,
-                        start_line_number: 1,
-                        start_column: 1,
-                        end_line_number: 1,
-                        end_column: 1,
-                    }],
-                    secondary: String::new(),
-                };
-            }
-        };
-        let violations = result.violations();
-
-        let diagnostics = violations
-            .iter()
-            .map(|violation| {
-                let start = line_index.line_col(violation.source_slice.start.try_into().unwrap());
-                let end = line_index.line_col(violation.source_slice.end.try_into().unwrap());
-
-                Diagnostic {
-                    message: violation.description.clone(),
-                    start_line_number: start.line + 1,
-                    start_column: start.col + 1,
-                    end_line_number: end.line + 1,
-                    end_column: end.col + 1,
-                }
-            })
-            .collect();
-
         let secondary = match tool {
-            Tool::Format => result.fix_string(),
             Tool::Cst => cst.unwrap().stringify(false),
             Tool::Lineage => {
                 let parser = Parser::new(
@@ -150,13 +155,78 @@ impl Linter {
                 let (segments, _errors) = lexer.lex(&lex_tables, sql);
                 format_lexer_output(&segments)
             }
+            Tool::Format => String::new(),
             Tool::__Invalid => String::from("Error: unsupported tool"),
         };
 
         Result {
-            diagnostics,
+            diagnostics: diagnostics_from_lint_diagnostics(sql, &report.diagnostics),
             secondary,
         }
+    }
+
+    fn engine_report(
+        &self,
+        sql: &str,
+        fix: bool,
+    ) -> std::result::Result<sqruff_lib::api::FileReport, SqruffError> {
+        let source = Source {
+            id: SourceId::Stdin,
+            text: Cow::Borrowed(sql),
+        };
+
+        if fix {
+            self.engine.fix_source(source)
+        } else {
+            self.engine.check_source(source)
+        }
+    }
+}
+
+fn diagnostics_from_lint_diagnostics(sql: &str, diagnostics: &[LintDiagnostic]) -> Vec<Diagnostic> {
+    let line_index = LineIndex::new(sql);
+    diagnostics
+        .iter()
+        .map(|diag| diagnostic_from_lint_diagnostic(diag, &line_index))
+        .collect()
+}
+
+fn diagnostic_from_lint_diagnostic(
+    diagnostic: &LintDiagnostic,
+    line_index: &LineIndex,
+) -> Diagnostic {
+    if diagnostic.source_range.is_empty() && diagnostic.line > 0 && diagnostic.column > 0 {
+        return Diagnostic {
+            message: diagnostic.message.clone(),
+            start_line_number: diagnostic.line as u32,
+            start_column: diagnostic.column as u32,
+            end_line_number: diagnostic.line as u32,
+            end_column: diagnostic.column as u32,
+        };
+    }
+
+    let start = line_index.line_col(diagnostic.source_range.start.try_into().unwrap());
+    let end = line_index.line_col(diagnostic.source_range.end.try_into().unwrap());
+
+    Diagnostic {
+        message: diagnostic.message.clone(),
+        start_line_number: start.line + 1,
+        start_column: start.col + 1,
+        end_line_number: end.line + 1,
+        end_column: end.col + 1,
+    }
+}
+
+fn result_from_error(error: SqruffError) -> Result {
+    Result {
+        diagnostics: vec![Diagnostic {
+            message: error.value,
+            start_line_number: 1,
+            start_column: 1,
+            end_line_number: 1,
+            end_column: 1,
+        }],
+        secondary: String::new(),
     }
 }
 

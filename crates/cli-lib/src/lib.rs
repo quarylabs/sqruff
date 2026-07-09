@@ -1,8 +1,5 @@
 use clap::Parser as _;
-use commands::Format;
-use sqruff_lib::core::linter::core::Linter;
-use sqruff_lib::ignore::IgnoreFile;
-use sqruff_lib::{Formatter, core::config::FluffConfig};
+use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
 use std::sync::Arc;
@@ -11,10 +8,6 @@ use stdin::is_std_in_flag_input;
 use crate::commands::{Cli, Commands};
 #[cfg(feature = "codegen-docs")]
 use crate::docs::codegen_docs;
-use crate::formatters::github_annotation_native_formatter::GithubAnnotationNativeFormatter;
-use crate::formatters::json::JsonFormatter;
-use crate::formatters::{NullFormatter, OutputStreamFormatter};
-
 pub mod commands;
 mod commands_dialects;
 mod commands_fix;
@@ -28,7 +21,9 @@ mod commands_templaters;
 mod docs;
 mod formatters;
 mod github_action;
+mod ignore;
 mod logger;
+mod reporters;
 mod stdin;
 
 #[cfg(feature = "codegen-docs")]
@@ -89,7 +84,7 @@ where
     }
 
     let current_path = std::env::current_dir().unwrap();
-    let ignore_file = IgnoreFile::new_from_root(&current_path).unwrap();
+    let ignore_file = ignore::IgnoreFile::new_from_root(&current_path).unwrap();
     let ignore_file = Arc::new(ignore_file);
     let ignorer = {
         let ignore_file = Arc::clone(&ignore_file);
@@ -136,37 +131,4 @@ where
         #[cfg(feature = "parser")]
         Commands::Parse(args) => commands_parse::run_parse(args, config),
     }
-}
-
-pub(crate) fn linter(
-    config: FluffConfig,
-    format: Format,
-    collect_parse_errors: bool,
-) -> Result<Linter, String> {
-    let formatter: Arc<dyn Formatter> = match format {
-        Format::Human => {
-            let output_stream = std::io::stderr().into();
-            let formatter = OutputStreamFormatter::new(
-                output_stream,
-                config.get("nocolor", "core").as_bool().unwrap_or_default(),
-                config.get("verbose", "core").as_int().unwrap_or_default(),
-            );
-            Arc::new(formatter)
-        }
-        Format::GithubAnnotationNative => {
-            let output_stream = std::io::stderr();
-            let formatter = GithubAnnotationNativeFormatter::new(output_stream);
-            Arc::new(formatter)
-        }
-        Format::Json => {
-            let formatter = JsonFormatter::default();
-            Arc::new(formatter)
-        }
-        Format::None => {
-            let formatter = NullFormatter;
-            Arc::new(formatter)
-        }
-    };
-
-    Linter::new(config, Some(formatter), None, collect_parse_errors)
 }

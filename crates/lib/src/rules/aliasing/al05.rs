@@ -605,7 +605,7 @@ dialect = postgres
             None,
         );
 
-        Linter::new(config, None, None, true).unwrap()
+        Linter::new(config, None, true).unwrap()
     }
 
     #[test]

@@ -8,13 +8,10 @@ use sqruff_lib_core::templaters::{
 };
 
 use super::Templater;
-use crate::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::ProcessingMode;
 use crate::templaters::TemplaterKind;
 use crate::templaters::python_shared::PythonFluffConfig;
-use std::sync::Arc;
-
 #[derive(Default)]
 pub struct PythonTemplater;
 
@@ -92,7 +89,6 @@ At the moment, dot notation is not supported in the templater."
         &self,
         files: &[(&str, &str)],
         config: &FluffConfig,
-        _formatter: &Option<Arc<dyn Formatter>>,
     ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
         files
             .iter()
@@ -278,7 +274,7 @@ blah = foo
 
         let templater = PythonTemplater;
 
-        let results = templater.process(&[(PYTHON_STRING, "test.sql")], &config, &None);
+        let results = templater.process(&[(PYTHON_STRING, "test.sql")], &config);
         let templated_file = results.into_iter().next().unwrap().unwrap();
 
         assert_eq!(templated_file.templated(), "SELECT * FROM foo");
@@ -375,7 +371,7 @@ noblah = foo
 
         let templater = PythonTemplater;
 
-        let results = templater.process(&[(PYTHON_STRING, "test.sql")], &config, &None);
+        let results = templater.process(&[(PYTHON_STRING, "test.sql")], &config);
         let templated_file = results.into_iter().next().unwrap();
 
         assert!(templated_file.is_err())

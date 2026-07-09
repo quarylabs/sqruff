@@ -1,5 +1,6 @@
+use hashbrown::HashMap;
 use itertools::Itertools;
-use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::core::config::{FluffConfig, Value};
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
@@ -472,6 +473,31 @@ fn test_lt12_reports_missing_source_newline_after_jinja_block() {
         .map(|v| (v.line_no, v.line_pos))
         .collect();
     assert!(!lt12.is_empty(), "expected LT12 violation");
+}
+
+#[test]
+fn test_sqlite_create_temp_view_body_indent() {
+    let config = FluffConfig::new(
+        HashMap::from([(
+            "core".into(),
+            Value::Map(HashMap::from([
+                ("dialect".into(), Value::String("sqlite".into())),
+                ("rules".into(), Value::String("LT02".into())),
+            ])),
+        )]),
+        None,
+        None,
+    );
+    let mut lnt = Linter::new(config, None, None, true).unwrap();
+    let sql =
+        "CREATE TEMP VIEW IF NOT EXISTS view_name AS\nSELECT\ncol1,\ncol2\nFROM\ntable_name;\n";
+
+    let linted = lnt.lint_string_wrapped(sql, true).unwrap();
+
+    assert_eq!(
+        linted.fix_string(),
+        "CREATE TEMP VIEW IF NOT EXISTS view_name AS\nSELECT\n    col1,\n    col2\nFROM\n    table_name;\n"
+    );
 }
 
 /// Trailing source-only Jinja blocks should not hide extra rendered newlines

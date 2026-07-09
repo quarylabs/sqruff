@@ -49,6 +49,8 @@ jobs:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
           repository-cache: true
+      - name: Install LLD
+        run: sudo apt-get update --yes && sudo apt-get install --yes lld
       - name: Build VS Code extension
         run: bazel build //editors/code:vscode_extension
       - name: Copy VSIX to expected location

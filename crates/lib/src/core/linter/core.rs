@@ -2,9 +2,8 @@ use std::borrow::Cow;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, OnceLock};
+use std::sync::OnceLock;
 
-use crate::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::linter::common::{BatchRenderedResult, ParsedString, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
@@ -31,7 +30,6 @@ use walkdir::WalkDir;
 
 pub struct Linter {
     config: FluffConfig,
-    formatter: Option<Arc<dyn Formatter>>,
     templater: &'static dyn Templater,
     rules: OnceLock<Vec<ErasedRule>>,
 
@@ -42,7 +40,6 @@ pub struct Linter {
 impl Linter {
     pub fn new(
         config: FluffConfig,
-        formatter: Option<Arc<dyn Formatter>>,
         templater: Option<&'static dyn Templater>,
         include_parse_errors: bool,
     ) -> Result<Linter, String> {
@@ -52,7 +49,6 @@ impl Linter {
         };
         Ok(Linter {
             config,
-            formatter,
             templater,
             rules: OnceLock::new(),
             include_parse_errors,
@@ -119,22 +115,23 @@ impl Linter {
 
         for path in paths {
             if path.is_file() {
-                expanded_paths.push(path.to_string_lossy().to_string());
+                expanded_paths.push((path.to_string_lossy().to_string(), true));
             } else {
-                expanded_paths.extend(self.paths_from_path(
-                    path,
-                    None,
-                    None,
-                    None,
-                    None,
-                    Some(ignorer),
-                ));
+                expanded_paths.extend(
+                    self.paths_from_path(path, None, None, None, None, Some(ignorer))?
+                        .into_iter()
+                        .map(|path| (path, false)),
+                );
             };
         }
 
         let paths: Vec<String> = expanded_paths
             .into_iter()
-            .filter(|path| {
+            .filter(|(path, is_explicit)| {
+                if *is_explicit {
+                    return true;
+                }
+
                 let should_ignore = ignorer(Path::new(path));
                 if should_ignore {
                     log::debug!(
@@ -144,6 +141,7 @@ impl Linter {
                 }
                 !should_ignore
             })
+            .map(|(path, _)| path)
             .collect_vec();
 
         let mut files = Vec::with_capacity(paths.len());
@@ -171,9 +169,7 @@ impl Linter {
                             files.push(self.lint_rendered(rendered, fix)?);
                         }
                         BatchRenderedResult::Skipped { filename, reason } => {
-                            if let Some(formatter) = &self.formatter {
-                                formatter.dispatch_file_skip(&filename, &reason);
-                            }
+                            log::debug!("Skipping file '{filename}': {reason}");
                         }
                     }
                 }
@@ -270,9 +266,7 @@ impl Linter {
             .collect();
 
         // Process all files in batch
-        let results = self
-            .templater
-            .process(&file_refs, &self.config, &self.formatter);
+        let results = self.templater.process(&file_refs, &self.config);
 
         // Convert results to BatchRenderedResults, preserving order
         results
@@ -364,10 +358,6 @@ impl Linter {
             violations,
             ignore_mask,
         );
-
-        if let Some(formatter) = &self.formatter {
-            formatter.dispatch_file_violations(&linted_file);
-        }
 
         Ok(linted_file)
     }
@@ -545,11 +535,9 @@ impl Linter {
         }
 
         let templater_violations = vec![];
-        let mut results = self.templater.process(
-            &[(sql.as_ref(), filename.as_str())],
-            config,
-            &self.formatter,
-        );
+        let mut results = self
+            .templater
+            .process(&[(sql.as_ref(), filename.as_str())], config);
 
         match results.pop() {
             Some(Ok(templated_file)) => Ok(RenderedFile {
@@ -698,7 +686,7 @@ impl Linter {
         ignore_files: Option<bool>,
         working_path: Option<String>,
         ignorer: Option<&(dyn Fn(&Path) -> bool + Send + Sync)>,
-    ) -> Vec<String> {
+    ) -> Result<Vec<String>, SQLFluffUserError> {
         let ignore_file_name = ignore_file_name.unwrap_or_else(|| String::from(".sqlfluffignore"));
         let ignore_non_existent_files = ignore_non_existent_files.unwrap_or(false);
         let ignore_files = ignore_files.unwrap_or(true);
@@ -707,9 +695,11 @@ impl Linter {
 
         let Ok(metadata) = std::fs::metadata(&path) else {
             if ignore_non_existent_files {
-                return Vec::new();
+                return Ok(Vec::new());
             } else {
-                panic!("Specified path does not exist. Check it/they exist(s): {path:?}");
+                return Err(SQLFluffUserError::new(format!(
+                    "Specified path does not exist. Check it/they exist(s): {path:?}"
+                )));
             }
         };
 
@@ -847,7 +837,7 @@ impl Linter {
 
         let mut files = filtered_buffer.into_iter().collect_vec();
         files.sort();
-        files
+        Ok(files)
     }
 
     pub fn config(&self) -> &FluffConfig {
@@ -868,17 +858,17 @@ impl Linter {
         Ok(self.rules.get().unwrap())
     }
 
-    pub fn formatter(&self) -> Option<&Arc<dyn Formatter>> {
-        self.formatter.as_ref()
-    }
-
-    pub fn formatter_mut(&mut self) -> Option<&mut Arc<dyn Formatter>> {
-        self.formatter.as_mut()
+    pub(crate) fn include_parse_errors(&self) -> bool {
+        self.include_parse_errors
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
+    use std::path::{Path, PathBuf};
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     use sqruff_lib_core::parser::segments::Tables;
 
     use crate::core::config::FluffConfig;
@@ -894,7 +884,7 @@ rules = all
             None,
         );
 
-        Linter::new(config, None, None, true).unwrap()
+        Linter::new(config, None, true).unwrap()
     }
 
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {
@@ -904,18 +894,23 @@ rules = all
             .collect()
     }
 
+    fn temp_project(name: &str) -> PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("sqruff-{name}-{nanos}"));
+        fs::create_dir_all(&path).unwrap();
+        path
+    }
+
     #[test]
     fn test_linter_path_from_paths_dir() {
         // Test extracting paths from directories.
-        let lntr = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
-        let paths =
-            lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None, None);
+        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+        let paths = lntr
+            .paths_from_path("test/fixtures/lexer".into(), None, None, None, None, None)
+            .unwrap();
         let expected = vec![
             "test.fixtures.lexer.basic.sql",
             "test.fixtures.lexer.block_comment.sql",
@@ -927,21 +922,11 @@ rules = all
     #[test]
     fn test_linter_path_from_paths_default() {
         // Test .sql files are found by default.
-        let lntr = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
-        let paths = normalise_paths(lntr.paths_from_path(
-            "test/fixtures/linter".into(),
-            None,
-            None,
-            None,
-            None,
-            None,
-        ));
+        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+        let paths = normalise_paths(
+            lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None, None)
+                .unwrap(),
+        );
         assert!(paths.contains(&"test.fixtures.linter.passing.sql".to_string()));
         assert!(paths.contains(&"test.fixtures.linter.passing_cap_extension.SQL".to_string()));
         assert!(!paths.contains(&"test.fixtures.linter.discovery_file.txt".to_string()));
@@ -953,10 +938,11 @@ rules = all
         // FluffConfig
         let config =
             FluffConfig::new(<_>::default(), None, None).with_sql_file_exts(vec![".txt".into()]);
-        let lntr = Linter::new(config, None, None, false).unwrap();
+        let lntr = Linter::new(config, None, false).unwrap();
 
-        let paths =
-            lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None, None);
+        let paths = lntr
+            .paths_from_path("test/fixtures/linter".into(), None, None, None, None, None)
+            .unwrap();
 
         // Normalizing paths as in the Python version
         let normalized_paths = normalise_paths(paths);
@@ -971,26 +957,83 @@ rules = all
 
     #[test]
     fn test_linter_path_from_paths_file() {
-        let lntr = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
-        let paths = lntr.paths_from_path(
-            "test/fixtures/linter/indentation_errors.sql".into(),
-            None,
-            None,
-            None,
-            None,
-            None,
-        );
+        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+        let paths = lntr
+            .paths_from_path(
+                "test/fixtures/linter/indentation_errors.sql".into(),
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
+            .unwrap();
 
         assert_eq!(
             normalise_paths(paths),
             &["test.fixtures.linter.indentation_errors.sql"]
         );
+    }
+
+    #[test]
+    fn test_linter_path_from_paths_missing_returns_error() {
+        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+
+        let err = lntr
+            .paths_from_path(
+                "test/fixtures/linter/does_not_exist.sql".into(),
+                None,
+                None,
+                None,
+                None,
+                None,
+            )
+            .unwrap_err();
+
+        assert!(err.value.contains("Specified path does not exist"));
+    }
+
+    #[test]
+    fn test_linter_path_from_paths_prunes_ignored_directories() {
+        let project = temp_project("ignored-dir");
+        let ignored_dir = project.join("ignored").join("nested");
+        fs::create_dir_all(&ignored_dir).unwrap();
+        fs::write(project.join("regular.sql"), "SELECT 1;\n").unwrap();
+        fs::write(ignored_dir.join("hidden.sql"), "SELECT bad FROM hidden;\n").unwrap();
+
+        let lntr = Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
+        let ignorer = |path: &Path| path.file_name().is_some_and(|name| name == "ignored");
+
+        let paths = lntr
+            .paths_from_path(project.clone(), None, None, None, None, Some(&ignorer))
+            .unwrap();
+
+        assert_eq!(paths.len(), 1);
+        assert!(paths[0].ends_with("regular.sql"));
+
+        fs::remove_dir_all(project).unwrap();
+    }
+
+    #[test]
+    fn test_linter_lint_paths_keeps_explicit_ignored_files() {
+        let project = temp_project("explicit-ignored-file");
+        let file = project.join("explicit.sql");
+        fs::write(&file, "SELECT 1;\n").unwrap();
+
+        let config = FluffConfig::from_source("[sqruff]\ndialect = ansi\n", None);
+        let mut lntr = Linter::new(config, None, false).unwrap();
+        let explicit_file = file.clone();
+        let ignorer = move |path: &Path| path == explicit_file;
+
+        let result = lntr
+            .lint_paths(vec![file.clone()], false, &ignorer)
+            .unwrap();
+        let files = result.into_iter().collect::<Vec<_>>();
+
+        assert_eq!(files.len(), 1);
+        assert!(files[0].path().ends_with("explicit.sql"));
+
+        fs::remove_dir_all(project).unwrap();
     }
 
     // test__linter__skip_large_bytes
@@ -1012,13 +1055,8 @@ rules = all
     // test__linter__linting_unexpected_error_handled_gracefully
     #[test]
     fn test_linter_empty_file() {
-        let linter = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
+        let linter =
+            Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
         let tables = Tables::default();
         let parsed = linter.parse_string(&tables, "", None).unwrap();
 
@@ -1045,13 +1083,8 @@ rules = all
         "
         .to_string();
 
-        let linter = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
+        let linter =
+            Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
         let tables = Tables::default();
         let _parsed = linter.parse_string(&tables, &sql, None).unwrap();
     }
@@ -1076,13 +1109,8 @@ rules = all
 
         let source =
             "SELECT *\nFROM {{ ref('stg_users') }}\nWHERE created_at > '{{ var(\"start_date\") }}'";
-        let linter = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
+        let linter =
+            Linter::new(FluffConfig::new(<_>::default(), None, None), None, false).unwrap();
 
         // Simulate a failed templater by creating a RenderedFile with
         // templater_violations (this is what render_files_batch does when

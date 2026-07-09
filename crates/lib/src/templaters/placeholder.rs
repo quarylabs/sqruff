@@ -1,13 +1,10 @@
-use hashbrown::HashMap;
-use std::sync::Arc;
-
 use fancy_regex::Regex;
+use hashbrown::HashMap;
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::{
     RawFileSlice, TemplateSliceKind, TemplatedFile, TemplatedFileSlice,
 };
 
-use crate::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::{PlaceholderStyle, ProcessingMode, Templater};
 
@@ -288,7 +285,6 @@ Also consider making a pull request to the project to have your style added, it 
         &self,
         files: &[(&str, &str)],
         config: &FluffConfig,
-        _: &Option<Arc<dyn Formatter>>,
     ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
         files
             .iter()
@@ -316,7 +312,7 @@ mod tests {
 param_style = colon",
             None,
         );
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
+        let results = templater.process(&[(in_str, "test.sql")], &config);
         let out_str = results.into_iter().next().unwrap().unwrap();
         let out = out_str.templated();
         assert_eq!(in_str, out)
@@ -635,7 +631,7 @@ param_style = {}
                 None,
             );
             let templater = PlaceholderTemplater {};
-            let results = templater.process(&[(in_str, "test.sql")], &config, &None);
+            let results = templater.process(&[(in_str, "test.sql")], &config);
             let out_str = results.into_iter().next().unwrap().unwrap();
             let out = out_str.templated();
             assert_eq!(expected_out, out)
@@ -649,7 +645,7 @@ param_style = {}
         let config = FluffConfig::from_source("", None);
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
+        let results = templater.process(&[(in_str, "test.sql")], &config);
         let out_str = results.into_iter().next().unwrap();
 
         assert!(out_str.is_err());
@@ -673,7 +669,7 @@ param_style = colon
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT 2+2";
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
+        let results = templater.process(&[(in_str, "test.sql")], &config);
         let out_str = results.into_iter().next().unwrap();
 
         assert!(out_str.is_err());
@@ -696,7 +692,7 @@ my_name = john
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT bla FROM blob WHERE id = __my_name__";
-        let results = templater.process(&[(in_str, "test")], &config, &None);
+        let results = templater.process(&[(in_str, "test")], &config);
         let out_str = results.into_iter().next().unwrap().unwrap();
         let out = out_str.templated();
         assert_eq!("SELECT bla FROM blob WHERE id = john", out)
@@ -714,7 +710,7 @@ param_style = unknown
         );
         let templater = PlaceholderTemplater {};
         let in_str = "SELECT * FROM {{blah}} WHERE %(gnepr)s OR e~':'";
-        let results = templater.process(&[(in_str, "test.sql")], &config, &None);
+        let results = templater.process(&[(in_str, "test.sql")], &config);
         let out_str = results.into_iter().next().unwrap();
 
         assert!(out_str.is_err());
@@ -741,7 +737,7 @@ param_style = percent
         );
         let sql = "SELECT a,b FROM users WHERE a = %s";
 
-        let mut linter = Linter::new(config, None, None, false).unwrap();
+        let mut linter = Linter::new(config, None, false).unwrap();
         let result = linter.lint_string_wrapped(sql, true).unwrap().fix_string();
 
         assert_eq!(result, "SELECT\n    a,\n    b\nFROM users\nWHERE a = %s\n");

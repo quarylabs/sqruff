@@ -627,10 +627,9 @@ mod tests {
 [sqruff]
 dialect = bigquery
 rules = AL02
-    "#,
+"#,
                 None,
             ),
-            None,
             None,
             false,
         )
@@ -661,10 +660,9 @@ FROM foo
 [sqruff]
 dialect = bigquery
 rules = AL02
-    "#,
+"#,
                 None,
             ),
-            None,
             None,
             false,
         )
@@ -676,10 +674,9 @@ rules = AL02
 dialect = bigquery
 rules = AL02
 disable_noqa = True
-    "#,
+"#,
                 None,
             ),
-            None,
             None,
             false,
         )
@@ -707,10 +704,9 @@ FROM foo
 [sqruff]
 dialect = bigquery
 rules = AL02
-    "#,
+"#,
                 None,
             ),
-            None,
             None,
             false,
         )

@@ -2,14 +2,12 @@ use super::Templater;
 use super::python::PythonTemplatedFile;
 use crate::core::config::FluffConfig;
 use crate::templaters::python_shared::PythonFluffConfig;
-use crate::templaters::{Formatter, ProcessingMode, TemplaterKind};
+use crate::templaters::{ProcessingMode, TemplaterKind};
 use pyo3::prelude::*;
 use pyo3::types::PyList;
 use pyo3::{Py, PyAny, Python};
 use sqruff_lib_core::errors::SQLFluffUserError;
 use sqruff_lib_core::templaters::TemplatedFile;
-use std::sync::Arc;
-
 pub struct DBTTemplater;
 
 impl Templater for DBTTemplater {
@@ -126,7 +124,6 @@ The linter then operates on this compiled SQL."#
         &self,
         files: &[(&str, &str)],
         config: &FluffConfig,
-        _: &Option<Arc<dyn Formatter>>,
     ) -> Vec<Result<TemplatedFile, SQLFluffUserError>> {
         if files.is_empty() {
             return Vec::new();

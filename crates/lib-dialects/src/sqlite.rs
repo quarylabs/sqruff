@@ -1043,6 +1043,23 @@ pub fn raw_dialect() -> Dialect {
     );
 
     sqlite_dialect.replace_grammar(
+        "CreateViewStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::new("TemporaryGrammar").optional().to_matchable(),
+            Ref::keyword("VIEW").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Ref::new("BracketedColumnReferenceListGrammar")
+                .optional()
+                .to_matchable(),
+            Ref::keyword("AS").to_matchable(),
+            optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    sqlite_dialect.replace_grammar(
         "StatementSegment",
         one_of(vec![
             Ref::new("AlterTableStatementSegment").to_matchable(),

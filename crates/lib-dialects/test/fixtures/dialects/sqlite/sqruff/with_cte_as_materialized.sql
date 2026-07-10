@@ -1,0 +1,7 @@
+WITH cte AS MATERIALIZED (
+    SELECT X'123456' AS col
+    FROM t
+)
+
+SELECT col
+FROM cte

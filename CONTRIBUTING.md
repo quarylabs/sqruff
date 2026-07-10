@@ -12,8 +12,8 @@ You'll also need to set up a python virtualenv and install dependencies as follo
 
 ```bash
 virtualenv .venv
-source ./venv/bin/activate
-make python_install
+source .venv/bin/activate
+make python_sync
 ```
 
 ### Running Tests

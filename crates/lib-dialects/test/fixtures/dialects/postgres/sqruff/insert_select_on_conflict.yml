@@ -1,0 +1,174 @@
+file:
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: b
+      - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: '2'
+    - keyword: ON
+    - keyword: CONFLICT
+    - conflict_target:
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: a
+        - comma: ','
+        - column_reference:
+          - naked_identifier: b
+        - end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: b
+      - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: '2'
+    - keyword: ON
+    - keyword: CONFLICT
+    - conflict_target:
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: a
+        - end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - column_reference:
+        - naked_identifier: b
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: b
+      - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: '2'
+    - keyword: RETURNING
+    - expression:
+      - column_reference:
+        - naked_identifier: a
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: b
+- statement_terminator: ;
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - naked_identifier: ins
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+            - naked_identifier: link
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: parent_unid
+            - comma: ','
+            - column_reference:
+              - naked_identifier: child_unid
+            - end_bracket: )
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - dollar_numeric_literal: $1
+              - comma: ','
+              - select_clause_element:
+                - function:
+                  - function_name:
+                    - function_name_identifier: unnest
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - cast_expression:
+                          - dollar_numeric_literal: $2
+                          - casting_operator: '::'
+                          - data_type:
+                            - keyword: uuid
+                            - start_square_bracket: '['
+                            - end_square_bracket: ']'
+                      - end_bracket: )
+          - keyword: ON
+          - keyword: CONFLICT
+          - conflict_target:
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: parent_unid
+              - comma: ','
+              - column_reference:
+                - naked_identifier: child_unid
+              - end_bracket: )
+          - conflict_action:
+            - keyword: DO
+            - keyword: NOTHING
+        - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+- statement_terminator: ;

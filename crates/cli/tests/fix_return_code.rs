@@ -1,7 +1,9 @@
 use core::str;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use assert_cmd::Command;
+use tempfile::NamedTempFile;
 
 fn main() {
     fix_return_code();
@@ -48,6 +50,26 @@ fn fix_return_code() {
 
     // STDIN - nothing to fix
     let config_file = cargo_folder.join("tests/fix_return_code/fix_everything.cfg");
+
+    // File - nothing to fix with the none formatter produces no output.
+    let mut file = NamedTempFile::new().unwrap();
+    write!(file, "SELECT foo AS bar FROM tabs").unwrap();
+    file.flush().unwrap();
+    let mut cmd = Command::new(sqruff_path.clone());
+    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    cmd.arg("fix")
+        .arg("-f")
+        .arg("none")
+        .arg("--config")
+        .arg(&config_file)
+        .arg(file.path());
+
+    let assert = cmd.assert();
+    let output = assert.get_output();
+    assert_eq!(output.stdout, b"");
+    assert_eq!(output.stderr, b"");
+    assert_eq!(output.status.code().unwrap(), 0);
+
     let mut cmd = Command::new(sqruff_path.clone());
     cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
     cmd.arg("fix")

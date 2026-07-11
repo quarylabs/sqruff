@@ -1,10 +1,12 @@
-import { test, expect } from "@playwright/test";
-import { readFileSync } from "fs";
+import { test as browserTest, expect, type Locator } from "@playwright/test";
+import { cpSync, readFileSync } from "fs";
 import { join } from "path";
+import { test } from "./fixtures";
+import { FIXTURES_DIR, openFile, openServerPage } from "./utils";
 
 const WORKER_ORIGIN = "http://sqruff-worker.test";
 
-test("browser LSP worker returns semantic tokens", async ({ page }) => {
+browserTest("browser LSP worker returns semantic tokens", async ({ page }) => {
   const workerScript = readFileSync(
     join(__dirname, "..", "dist", "browserServerMain.js"),
     "utf-8",
@@ -138,6 +140,44 @@ test("browser LSP worker returns semantic tokens", async ({ page }) => {
     true,
   );
 });
+
+test("VS Code renders distinct semantic token colours", async ({
+  sharedCodeServer,
+  tempDir,
+  page,
+}) => {
+  const projectDir = join(tempDir, "sample_project");
+  cpSync(FIXTURES_DIR, projectDir, { recursive: true });
+
+  await openServerPage(page, projectDir, sharedCodeServer);
+  await openFile(page, "lint_errors.sql");
+
+  const editor = page.locator(".monaco-editor").filter({ visible: true });
+  await expect(editor.locator(".view-line").first()).toContainText("SELECT");
+
+  await expect
+    .poll(() => renderedTokenColors(editor.locator(".view-lines")), {
+      timeout: 30_000,
+    })
+    .toMatchObject({
+      SELECT: "rgb(255, 0, 0)",
+      a: "rgb(0, 255, 0)",
+    });
+});
+
+async function renderedTokenColors(viewLines: Locator) {
+  return viewLines.locator("span").evaluateAll((spans) =>
+    Object.fromEntries(
+      spans
+        .filter((span) => span.children.length === 0)
+        .map((span) => [
+          span.textContent?.trim() ?? "",
+          getComputedStyle(span).color,
+        ])
+        .filter(([text]) => text.length > 0),
+    ),
+  );
+}
 
 function chunkSemanticTokens(data: number[]): number[][] {
   const chunks: number[][] = [];

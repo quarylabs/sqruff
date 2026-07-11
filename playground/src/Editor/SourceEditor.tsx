@@ -9,6 +9,8 @@ declare global {
   }
 }
 
+const SEMANTIC_TOKEN_TEST_THEME = "sqruff-semantic-token-test";
+
 const SEMANTIC_TOKEN_TYPES = [
   "keyword",
   "string",
@@ -74,6 +76,19 @@ export default function SourceEditor({
       updateMarkers(instance, diagnostics);
       monacoRef.current = instance;
 
+      if (isSemanticTokenTest()) {
+        instance.editor.defineTheme(SEMANTIC_TOKEN_TEST_THEME, {
+          base: "vs",
+          inherit: true,
+          rules: [
+            { token: "keyword", foreground: "FF0000" },
+            { token: "variable", foreground: "00FF00" },
+          ],
+          colors: {},
+        });
+        instance.editor.setTheme(SEMANTIC_TOKEN_TEST_THEME);
+      }
+
       if (providerRef.current == null) {
         providerRef.current =
           instance.languages.registerDocumentSemanticTokensProvider("sql", {
@@ -105,6 +120,7 @@ export default function SourceEditor({
         roundedSelection: false,
         scrollBeyondLastLine: false,
         contextmenu: false,
+        "semanticHighlighting.enabled": true,
       }}
       language={"sql"}
       wrapperProps={visible ? {} : { style: { display: "none" } }}
@@ -115,9 +131,13 @@ export default function SourceEditor({
 }
 
 function publishSemanticTokensForTest(data: Uint32Array) {
-  if (new URLSearchParams(location.search).has("__sqruffSemanticTokenTest")) {
+  if (isSemanticTokenTest()) {
     window.__sqruffLastSemanticTokens = Array.from(data);
   }
+}
+
+function isSemanticTokenTest() {
+  return new URLSearchParams(location.search).has("__sqruffSemanticTokenTest");
 }
 
 function updateMarkers(monaco: Monaco, diagnostics: Array<Diagnostic>) {

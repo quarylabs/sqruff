@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
 import { formatEditorContains, updateEditorText } from "./helpers";
 
 test("home page opens", async ({ page }) => {
@@ -56,7 +56,35 @@ test("source editor provides semantic tokens", async ({ page }) => {
   expect(chunkSemanticTokens(tokenData).some((token) => token[3] === 7)).toBe(
     true,
   );
+
+  const sourceEditor = page.locator("#main .monaco-editor").filter({
+    visible: true,
+  });
+  await expect(sourceEditor.locator(".view-line").first()).toContainText(
+    "SELECT",
+  );
+
+  await expect
+    .poll(() => renderedTokenColors(sourceEditor.locator(".view-lines")))
+    .toMatchObject({
+      SELECT: "rgb(255, 0, 0)",
+      name: "rgb(0, 255, 0)",
+    });
 });
+
+async function renderedTokenColors(viewLines: Locator) {
+  return viewLines.locator("span").evaluateAll((spans) =>
+    Object.fromEntries(
+      spans
+        .filter((span) => span.children.length === 0)
+        .map((span) => [
+          span.textContent?.trim() ?? "",
+          getComputedStyle(span).color,
+        ])
+        .filter(([text]) => text.length > 0),
+    ),
+  );
+}
 
 function chunkSemanticTokens(data: number[]): number[][] {
   const chunks: number[][] = [];

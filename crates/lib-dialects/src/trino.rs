@@ -78,7 +78,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "LambdaArrowSegment".into(),
-            StringParser::new("->", SyntaxKind::Symbol)
+            StringParser::new("->", SyntaxKind::LambdaArrow)
                 .to_matchable()
                 .into(),
         ),
@@ -931,8 +931,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Sequence::new(vec![
                 one_of(vec![
                     Ref::new("ParameterNameSegment").to_matchable(),
-                    Bracketed::new(vec![Ref::new("ParameterNameSegment").to_matchable()])
-                        .to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ParameterNameSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
                 Ref::new("LambdaArrowSegment").to_matchable(),

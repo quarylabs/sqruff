@@ -117,7 +117,7 @@ file:
                     - end_square_bracket: ']'
               - comma: ','
               - parameter: x
-              - symbol: ->
+              - lambda_arrow: ->
               - expression:
                 - column_reference:
                   - naked_identifier: x
@@ -155,7 +155,7 @@ file:
                     - end_square_bracket: ']'
               - comma: ','
               - parameter: x
-              - symbol: ->
+              - lambda_arrow: ->
               - expression:
                 - column_reference:
                   - naked_identifier: x

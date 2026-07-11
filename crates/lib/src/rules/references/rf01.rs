@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 
-use hashbrown::HashMap;
+use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::Dialect;
@@ -33,6 +33,19 @@ pub struct RuleRF01 {
 }
 
 impl RuleRF01 {
+    fn dialect_supports_dot_access(dialect: DialectKind) -> bool {
+        matches!(
+            dialect,
+            DialectKind::Athena
+                | DialectKind::Bigquery
+                | DialectKind::Databricks
+                | DialectKind::Duckdb
+                | DialectKind::Redshift
+                | DialectKind::Sparksql
+                | DialectKind::Trino
+        )
+    }
+
     #[allow(clippy::only_used_in_recursion)]
     fn resolve_reference<'a>(
         &self,
@@ -71,6 +84,20 @@ impl RuleRF01 {
             for standalone_alias in &payload.standalone_aliases {
                 targets.push(vec![standalone_alias.clone()]);
             }
+        }
+
+        let distinct_targets: HashSet<Vec<String>> = targets
+            .iter()
+            .map(|target| target.iter().map(|part| part.to_uppercase()).collect())
+            .collect();
+        let dialect = RefCell::borrow(&query.inner).dialect.name;
+
+        if Self::dialect_supports_dot_access(dialect)
+            && (distinct_targets.len() == 1
+                || matches!(dialect, DialectKind::Bigquery | DialectKind::Sparksql))
+            && !self.force_enable
+        {
+            return None;
         }
 
         if !object_ref_matches_table(&possible_references, &targets) {
@@ -237,18 +264,6 @@ FROM foo
 
     fn force_enable(&self) -> bool {
         self.force_enable
-    }
-
-    fn dialect_skip(&self) -> &'static [DialectKind] {
-        // Disabled by default for dialects with dot-access semantics.
-        &[
-            DialectKind::Athena,
-            DialectKind::Bigquery,
-            DialectKind::Databricks,
-            DialectKind::Duckdb,
-            DialectKind::Redshift,
-            DialectKind::Sparksql,
-        ]
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {

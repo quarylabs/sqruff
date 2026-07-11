@@ -323,3 +323,41 @@ test_pass_postgres_select_with_alias_quoted:
   configs:
     core:
       dialect: postgres
+
+test_pass_trino_row_field_access_single_source:
+  # Trino uses dot access for fields in ROW values. In an unaliased,
+  # single-source query, this is indistinguishable from table qualification.
+  pass_str: |
+    SELECT some_row_object.some_attribute
+    FROM some_schema.some_table
+  configs:
+    core:
+      dialect: trino
+
+test_fail_trino_row_field_access_single_source_force_enable:
+  fail_str: |
+    SELECT some_row_object.some_attribute
+    FROM some_schema.some_table
+  configs:
+    core:
+      dialect: trino
+    rules:
+      references.from:
+        force_enable: true
+
+test_fail_trino_row_field_access_multiple_sources:
+  fail_str: |
+    SELECT some_row_object.some_attribute
+    FROM some_schema.some_table
+    CROSS JOIN other_schema.other_table
+  configs:
+    core:
+      dialect: trino
+
+test_fail_trino_row_field_access_aliased_source:
+  fail_str: |
+    SELECT some_row_object.some_attribute
+    FROM some_schema.some_table AS source_table
+  configs:
+    core:
+      dialect: trino

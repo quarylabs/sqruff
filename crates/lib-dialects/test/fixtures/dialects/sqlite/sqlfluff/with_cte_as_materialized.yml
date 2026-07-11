@@ -12,10 +12,7 @@ file:
           - select_clause:
             - keyword: SELECT
             - select_clause_element:
-              - bytes_quoted_literal: X'123456'
-              - alias_expression:
-                - alias_operator:
-                  - keyword: AS
+              - column_reference:
                 - naked_identifier: col
           - from_clause:
             - keyword: FROM

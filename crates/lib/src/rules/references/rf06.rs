@@ -78,8 +78,8 @@ SELECT 123 as foo
 
 When `prefer_quoted_identifiers = True`, the quotes are always necessary, no matter if the identifier is valid, a reserved keyword, or contains special characters.
 
-> **Note**
-> Note due to different quotes being used by different dialects supported by `SQLFluff`, and those quotes meaning different things in different contexts, this mode is not `sqlfluff fix` compatible.
+Automatic fixes are available when the dialect has a single context-independent
+identifier quote style. Other dialects report the violation without a fix.
 
 **Anti-pattern**
 
@@ -196,9 +196,27 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
         }
 
         if self.prefer_quoted_identifiers {
+            let fixes = identifier_quote_chars(context.dialect.name)
+                .map(|(opening, closing)| {
+                    LintFix::replace(
+                        context.segment.clone(),
+                        vec![
+                            SegmentBuilder::token(
+                                context.tables.next_id(),
+                                &format!("{opening}{identifier_contents}{closing}"),
+                                SyntaxKind::QuotedIdentifier,
+                            )
+                            .finish(),
+                        ],
+                        None,
+                    )
+                })
+                .into_iter()
+                .collect();
+
             return vec![LintResult::new(
                 context.segment.clone().into(),
-                Vec::new(),
+                fixes,
                 Some(format!("Missing quoted identifier {identifier_contents}.")),
                 None,
             )];
@@ -259,4 +277,62 @@ fn is_full_match(pattern: &str, text: &str) -> bool {
     let full_pattern = format!("(?i)^{pattern}$"); // Adding (?i) for case insensitivity
     let regex = fancy_regex::Regex::new(&full_pattern).unwrap();
     regex.is_match(text).unwrap()
+}
+
+/// Returns the preferred identifier delimiters for dialects where a single
+/// context-independent choice is safe. `None` keeps RF06 lint-only.
+fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'static str)> {
+    match dialect {
+        DialectKind::Ansi
+        | DialectKind::Clickhouse
+        | DialectKind::Db2
+        | DialectKind::Duckdb
+        | DialectKind::Greenplum
+        | DialectKind::Oracle
+        | DialectKind::Postgres
+        | DialectKind::Redshift
+        | DialectKind::Snowflake
+        | DialectKind::Sqlite
+        | DialectKind::Trino => Some(("\"", "\"")),
+        DialectKind::Bigquery
+        | DialectKind::Databricks
+        | DialectKind::Mysql
+        | DialectKind::Sparksql
+        | DialectKind::Starrocks => Some(("`", "`")),
+        DialectKind::Tsql => Some(("[", "]")),
+        DialectKind::Athena => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn identifier_quote_chars_are_defined_for_every_dialect() {
+        let expectations = [
+            (DialectKind::Ansi, Some(("\"", "\""))),
+            (DialectKind::Athena, None),
+            (DialectKind::Bigquery, Some(("`", "`"))),
+            (DialectKind::Clickhouse, Some(("\"", "\""))),
+            (DialectKind::Databricks, Some(("`", "`"))),
+            (DialectKind::Db2, Some(("\"", "\""))),
+            (DialectKind::Duckdb, Some(("\"", "\""))),
+            (DialectKind::Greenplum, Some(("\"", "\""))),
+            (DialectKind::Mysql, Some(("`", "`"))),
+            (DialectKind::Oracle, Some(("\"", "\""))),
+            (DialectKind::Postgres, Some(("\"", "\""))),
+            (DialectKind::Redshift, Some(("\"", "\""))),
+            (DialectKind::Snowflake, Some(("\"", "\""))),
+            (DialectKind::Sparksql, Some(("`", "`"))),
+            (DialectKind::Sqlite, Some(("\"", "\""))),
+            (DialectKind::Starrocks, Some(("`", "`"))),
+            (DialectKind::Trino, Some(("\"", "\""))),
+            (DialectKind::Tsql, Some(("[", "]"))),
+        ];
+
+        for (dialect, expected) in expectations {
+            assert_eq!(identifier_quote_chars(dialect), expected, "{dialect:?}");
+        }
+    }
 }

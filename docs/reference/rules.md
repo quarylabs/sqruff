@@ -2217,8 +2217,8 @@ SELECT 123 as foo
 
 When `prefer_quoted_identifiers = True`, the quotes are always necessary, no matter if the identifier is valid, a reserved keyword, or contains special characters.
 
-> **Note**
-> Note due to different quotes being used by different dialects supported by `SQLFluff`, and those quotes meaning different things in different contexts, this mode is not `sqlfluff fix` compatible.
+Automatic fixes are available when the dialect has a single context-independent
+identifier quote style. Other dialects report the violation without a fix.
 
 **Anti-pattern**
 

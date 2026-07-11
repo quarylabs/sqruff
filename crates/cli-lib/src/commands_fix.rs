@@ -27,7 +27,9 @@ pub(crate) fn run_fix(
     };
 
     if !result.has_violations() {
-        println!("{} files processed, nothing to fix.", result.len());
+        if !matches!(format, Format::None) {
+            println!("{} files processed, nothing to fix.", result.len());
+        }
         0
     } else {
         let any_unfixable_errors = result.has_unfixable_violations();

@@ -1645,6 +1645,7 @@ version = "0.39.0"
 dependencies = [
  "console_error_panic_hook",
  "hashbrown 0.17.1",
+ "ignore",
  "js-sys",
  "lsp-server",
  "lsp-types",

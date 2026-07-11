@@ -2,7 +2,7 @@ use regex::Regex;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
+use sqruff_lib_core::parser::segments::SegmentBuilder;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -77,6 +77,9 @@ SELECT 123 as foo
 ```
 
 When `prefer_quoted_identifiers = True`, the quotes are always necessary, no matter if the identifier is valid, a reserved keyword, or contains special characters.
+
+Automatic fixes are available when the dialect has a single context-independent
+identifier quote style. Other dialects report the violation without a fix.
 
 **Anti-pattern**
 
@@ -193,17 +196,27 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
         }
 
         if self.prefer_quoted_identifiers {
+            let fixes = identifier_quote_chars(context.dialect.name)
+                .map(|(opening, closing)| {
+                    LintFix::replace(
+                        context.segment.clone(),
+                        vec![
+                            SegmentBuilder::token(
+                                context.tables.next_id(),
+                                &format!("{opening}{identifier_contents}{closing}"),
+                                SyntaxKind::QuotedIdentifier,
+                            )
+                            .finish(),
+                        ],
+                        None,
+                    )
+                })
+                .into_iter()
+                .collect();
+
             return vec![LintResult::new(
                 context.segment.clone().into(),
-                vec![LintFix::replace(
-                    context.segment.clone(),
-                    vec![make_quoted_identifier(
-                        context.dialect.name,
-                        &identifier_contents,
-                        context.tables.next_id(),
-                    )],
-                    None,
-                )],
+                fixes,
                 Some(format!("Missing quoted identifier {identifier_contents}.")),
                 None,
             )];
@@ -266,31 +279,60 @@ fn is_full_match(pattern: &str, text: &str) -> bool {
     regex.is_match(text).unwrap()
 }
 
-/// Returns the appropriate open and close quote characters for identifier quoting
-/// in the given dialect.
-fn identifier_quote_chars(dialect: DialectKind) -> (&'static str, &'static str) {
+/// Returns the preferred identifier delimiters for dialects where a single
+/// context-independent choice is safe. `None` keeps RF06 lint-only.
+fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'static str)> {
     match dialect {
-        DialectKind::Tsql => ("[", "]"),
+        DialectKind::Ansi
+        | DialectKind::Clickhouse
+        | DialectKind::Db2
+        | DialectKind::Duckdb
+        | DialectKind::Greenplum
+        | DialectKind::Oracle
+        | DialectKind::Postgres
+        | DialectKind::Redshift
+        | DialectKind::Snowflake
+        | DialectKind::Sqlite
+        | DialectKind::Trino => Some(("\"", "\"")),
         DialectKind::Bigquery
         | DialectKind::Databricks
         | DialectKind::Mysql
-        | DialectKind::Sparksql => ("`", "`"),
-        _ => ("\"", "\""),
+        | DialectKind::Sparksql
+        | DialectKind::Starrocks => Some(("`", "`")),
+        DialectKind::Tsql => Some(("[", "]")),
+        DialectKind::Athena => None,
     }
 }
 
-/// Creates a `QuotedIdentifier` segment by wrapping `identifier_contents` in
-/// the dialect-appropriate quote characters.
-fn make_quoted_identifier(
-    dialect: DialectKind,
-    identifier_contents: &str,
-    id: u32,
-) -> ErasedSegment {
-    let (open, close) = identifier_quote_chars(dialect);
-    SegmentBuilder::token(
-        id,
-        &format!("{open}{identifier_contents}{close}"),
-        SyntaxKind::QuotedIdentifier,
-    )
-    .finish()
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn identifier_quote_chars_are_defined_for_every_dialect() {
+        let expectations = [
+            (DialectKind::Ansi, Some(("\"", "\""))),
+            (DialectKind::Athena, None),
+            (DialectKind::Bigquery, Some(("`", "`"))),
+            (DialectKind::Clickhouse, Some(("\"", "\""))),
+            (DialectKind::Databricks, Some(("`", "`"))),
+            (DialectKind::Db2, Some(("\"", "\""))),
+            (DialectKind::Duckdb, Some(("\"", "\""))),
+            (DialectKind::Greenplum, Some(("\"", "\""))),
+            (DialectKind::Mysql, Some(("`", "`"))),
+            (DialectKind::Oracle, Some(("\"", "\""))),
+            (DialectKind::Postgres, Some(("\"", "\""))),
+            (DialectKind::Redshift, Some(("\"", "\""))),
+            (DialectKind::Snowflake, Some(("\"", "\""))),
+            (DialectKind::Sparksql, Some(("`", "`"))),
+            (DialectKind::Sqlite, Some(("\"", "\""))),
+            (DialectKind::Starrocks, Some(("`", "`"))),
+            (DialectKind::Trino, Some(("\"", "\""))),
+            (DialectKind::Tsql, Some(("[", "]"))),
+        ];
+
+        for (dialect, expected) in expectations {
+            assert_eq!(identifier_quote_chars(dialect), expected, "{dialect:?}");
+        }
+    }
 }

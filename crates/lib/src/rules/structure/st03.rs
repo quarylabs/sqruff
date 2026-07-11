@@ -89,6 +89,32 @@ FROM cte1
         for name in remaining_ctes.values() {
             let tmp = RefCell::borrow(&query.inner);
             let cte = RefCell::borrow(&tmp.ctes[name].inner);
+
+            // Data-modifying CTEs (INSERT/UPDATE/DELETE/MERGE) are executed for
+            // their side effects in dialects like Postgres, whether or not the
+            // primary query references them, so they are never "unused".
+            // Mirrors SQLFluff ST03's `_is_data_modifying_cte` exemption.
+            if let Some(def) = &cte.cte_definition_segment {
+                let is_data_modifying = !def
+                    .recursive_crawl(
+                        const {
+                            &SyntaxSet::new(&[
+                                SyntaxKind::InsertStatement,
+                                SyntaxKind::UpdateStatement,
+                                SyntaxKind::DeleteStatement,
+                                SyntaxKind::MergeStatement,
+                            ])
+                        },
+                        true,
+                        const { &SyntaxSet::EMPTY },
+                        true,
+                    )
+                    .is_empty();
+                if is_data_modifying {
+                    continue;
+                }
+            }
+
             result.push(LintResult::new(
                 cte.cte_name_segment.clone(),
                 Vec::new(),

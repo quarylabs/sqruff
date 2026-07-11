@@ -37,6 +37,7 @@ struct TestCase {
     #[serde(rename = "$key$")]
     name: String,
     ignored: Option<String>,
+    line_numbers: Option<Vec<usize>>,
     #[serde(flatten)]
     kind: TestCaseKind,
     #[serde(default)]
@@ -245,7 +246,19 @@ dialect = {dialect}
             }
             TestCaseKind::Fail { fail_str } => {
                 let file = state.linter.lint_string_wrapped(&fail_str, false).unwrap();
-                assert_ne!(&file.violations(), &[])
+                assert_ne!(&file.violations(), &[]);
+                if let Some(expected_line_numbers) = &case.line_numbers {
+                    let actual_line_numbers = file
+                        .violations()
+                        .iter()
+                        .map(|violation| violation.line_no)
+                        .collect::<Vec<_>>();
+                    assert_eq!(
+                        &actual_line_numbers, expected_line_numbers,
+                        "Unexpected violation lines in case '{}'",
+                        case.name
+                    );
+                }
             }
             TestCaseKind::Fix { fail_str, fix_str } => {
                 assert_ne!(
@@ -254,6 +267,18 @@ dialect = {dialect}
                 );
 
                 let linted = state.linter.lint_string_wrapped(&fail_str, true).unwrap();
+                if let Some(expected_line_numbers) = &case.line_numbers {
+                    let actual_line_numbers = linted
+                        .violations()
+                        .iter()
+                        .map(|violation| violation.line_no)
+                        .collect::<Vec<_>>();
+                    assert_eq!(
+                        &actual_line_numbers, expected_line_numbers,
+                        "Unexpected violation lines in case '{}'",
+                        case.name
+                    );
+                }
                 let actual = linted.fix_string();
 
                 pretty_assertions::assert_eq!(actual, fix_str);

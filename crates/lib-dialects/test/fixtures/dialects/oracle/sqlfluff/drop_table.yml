@@ -1,0 +1,35 @@
+file:
+- oracle_batch:
+  - statement:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: foo
+        - dot: .
+        - naked_identifier: bar
+      - keyword: CASCADE
+      - keyword: CONSTRAINTS
+      - keyword: PURGE
+  - statement_terminator: ;
+  - statement:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: foo
+        - dot: .
+        - naked_identifier: bar
+      - keyword: CASCADE
+      - keyword: CONSTRAINTS
+  - statement_terminator: ;
+  - statement:
+    - drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: foo
+        - dot: .
+        - naked_identifier: bar
+      - keyword: PURGE
+  - statement_terminator: ;

@@ -77,6 +77,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "HIERARCHICAL",
     "HOUR",
     "ID",
+    "IDENTIFIED",
     "IF",
     "ILIKE",
     "IN",

@@ -1129,6 +1129,25 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    sqlite_dialect.replace_grammar(
+        "CTEDefinitionSegment",
+        Sequence::new(vec![
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("CTEColumnList").optional().to_matchable(),
+            Ref::keyword("AS").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("NOT").optional().to_matchable(),
+                Ref::keyword("MATERIALIZED").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+                .config(|this| this.parse_mode = ParseMode::Greedy)
+                .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     sqlite_dialect.add([(
         "ReturningClauseSegment".into(),
         Sequence::new(vec![

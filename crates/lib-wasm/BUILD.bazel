@@ -10,6 +10,7 @@ rust_library(
     deps = all_crate_deps(normal = True) + [
         "//crates/lib:sqruff-lib",
         "//crates/lib-core:sqruff-lib-core",
+        "//crates/lsp:sqruff-lsp",
         "//crates/lineage:lineage",
     ],
 )
@@ -34,6 +35,7 @@ rust_shared_library(
     deps = crate_deps(WASM_CRATE_NAMES) + [
         "//crates/lib:sqruff-lib-for-wasm",
         "//crates/lib-core:sqruff-lib-core",
+        "//crates/lsp:sqruff-lsp-for-wasm",
         "//crates/lineage:lineage",
     ],
 )

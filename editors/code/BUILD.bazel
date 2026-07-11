@@ -212,6 +212,7 @@ playwright_test_bin.playwright_test(
     ],
     chdir = package_name(),
     data = [
+        ":esbuild_bundle",
         ":node_modules/@playwright/test",
         ":node_modules/code-server",
         ":vscode_extension",

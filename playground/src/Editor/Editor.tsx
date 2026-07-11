@@ -61,16 +61,23 @@ export default function Editor({
 
   const deferredSource = useDeferredValue(source);
 
-  const checkResult: Result = useMemo(() => {
-    const { sqlSource, settingsSource } = deferredSource;
-    try {
-      const linter = new Linter(settingsSource);
-      return linter.check(sqlSource, secondaryTool ?? "Format");
-    } catch (error) {
-      console.log(error);
-      return new Result();
-    }
-  }, [deferredSource, secondaryTool]);
+  const analysis: { checkResult: Result; semanticTokens: Uint32Array } =
+    useMemo(() => {
+      const { sqlSource, settingsSource } = deferredSource;
+      try {
+        const linter = new Linter(settingsSource);
+        return {
+          checkResult: linter.check(sqlSource, secondaryTool ?? "Format"),
+          semanticTokens: linter.semanticTokens(sqlSource),
+        };
+      } catch (error) {
+        console.log(error);
+        return {
+          checkResult: new Result(),
+          semanticTokens: new Uint32Array(),
+        };
+      }
+    }, [deferredSource, secondaryTool]);
 
   return (
     <>
@@ -80,7 +87,8 @@ export default function Editor({
           <SourceEditor
             visible={tab === "Source"}
             source={source.sqlSource}
-            diagnostics={checkResult.diagnostics}
+            diagnostics={analysis.checkResult.diagnostics}
+            semanticTokens={analysis.semanticTokens}
             onChange={onSourceChanged}
           />
           <SettingsEditor
@@ -95,7 +103,7 @@ export default function Editor({
             <Panel id="secondary-panel" className={"my-2"} minSize={10}>
               <SecondaryPanel
                 tool={secondaryTool}
-                result={checkResult.secondary}
+                result={analysis.checkResult.secondary}
               />
             </Panel>
           </>

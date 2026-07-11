@@ -25,6 +25,14 @@ export async function startCodeServer({
   const settingsObj: Record<string, unknown> = {
     "security.workspace.trust.enabled": false,
     "workbench.startupEditor": "none",
+    "editor.semanticHighlighting.enabled": true,
+    "editor.semanticTokenColorCustomizations": {
+      enabled: true,
+      rules: {
+        keyword: "#ff0000",
+        variable: "#00ff00",
+      },
+    },
   };
   if (process.env.SQRUFF_PATH) {
     settingsObj["sqruff.executablePath"] = resolve(process.env.SQRUFF_PATH);

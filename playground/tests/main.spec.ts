@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Locator } from "@playwright/test";
 import { formatEditorContains, updateEditorText } from "./helpers";
 
 test("home page opens", async ({ page }) => {
@@ -37,3 +37,59 @@ test("state is loaded", async ({ page }) => {
 
   await formatEditorContains(page, "select 1 as test");
 });
+
+test("source editor provides semantic tokens", async ({ page }) => {
+  await page.goto("/?__sqruffSemanticTokenTest=1");
+
+  const tokenData = await page
+    .waitForFunction(() => {
+      const data = (
+        window as typeof window & {
+          __sqruffLastSemanticTokens?: number[];
+        }
+      ).__sqruffLastSemanticTokens;
+      return data && data.length >= 10 ? data : undefined;
+    })
+    .then((handle) => handle.jsonValue());
+
+  expect(tokenData.slice(0, 5)).toEqual([0, 0, 6, 0, 0]);
+  expect(chunkSemanticTokens(tokenData).some((token) => token[3] === 7)).toBe(
+    true,
+  );
+
+  const sourceEditor = page.locator("#main .monaco-editor").filter({
+    visible: true,
+  });
+  await expect(sourceEditor.locator(".view-line").first()).toContainText(
+    "SELECT",
+  );
+
+  await expect
+    .poll(() => renderedTokenColors(sourceEditor.locator(".view-lines")))
+    .toMatchObject({
+      SELECT: "rgb(255, 0, 0)",
+      name: "rgb(0, 255, 0)",
+    });
+});
+
+async function renderedTokenColors(viewLines: Locator) {
+  return viewLines.locator("span").evaluateAll((spans) =>
+    Object.fromEntries(
+      spans
+        .filter((span) => span.children.length === 0)
+        .map((span) => [
+          span.textContent?.trim() ?? "",
+          getComputedStyle(span).color,
+        ])
+        .filter(([text]) => text.length > 0),
+    ),
+  );
+}
+
+function chunkSemanticTokens(data: number[]): number[][] {
+  const chunks: number[][] = [];
+  for (let index = 0; index < data.length; index += 5) {
+    chunks.push(data.slice(index, index + 5));
+  }
+  return chunks;
+}

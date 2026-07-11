@@ -2046,7 +2046,6 @@ SELECT
 FROM foo
 ```
 
-**Dialects where this rule is skipped:** `athena`, `bigquery`, `databricks`, `duckdb`, `redshift`, `sparksql`
 
 ### references.qualification
 

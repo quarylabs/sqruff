@@ -17,7 +17,7 @@ file:
                 - quoted_literal: '''(\w)(\w*)'''
               - comma: ','
               - parameter: x
-              - symbol: ->
+              - lambda_arrow: ->
               - expression:
                 - function:
                   - function_name:

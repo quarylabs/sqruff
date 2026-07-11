@@ -1,0 +1,80 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: array_sort
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - typed_array_literal:
+                  - array_type:
+                    - keyword: ARRAY
+                  - array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '3'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - comma: ','
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - parameter: x
+                - comma: ','
+                - parameter: y
+                - end_bracket: )
+              - lambda_arrow: ->
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: IF
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: x
+                        - comparison_operator:
+                          - raw_comparison_operator: <
+                        - column_reference:
+                          - naked_identifier: y
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: IF
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - naked_identifier: x
+                                - comparison_operator:
+                                  - raw_comparison_operator: =
+                                - column_reference:
+                                  - naked_identifier: y
+                              - comma: ','
+                              - expression:
+                                - numeric_literal: '0'
+                              - comma: ','
+                              - expression:
+                                - numeric_literal:
+                                  - sign_indicator: '-'
+                                  - numeric_literal: '1'
+                              - end_bracket: )
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;

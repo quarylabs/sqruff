@@ -1788,6 +1788,31 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     clickhouse_dialect.replace_grammar(
+        "CreateUserStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::keyword("USER").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("OnClusterClauseSegment").optional().to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("IDENTIFIED").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    clickhouse_dialect.replace_grammar(
         "DropRoleStatementSegment",
         Sequence::new(vec![
             Ref::keyword("DROP").to_matchable(),

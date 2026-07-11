@@ -951,7 +951,7 @@ mod tests {
     }
 
     // const SIMPLE_SOURCE_STR: &str = "01234\n6789{{foo}}fo\nbarss";
-    // const SIMPLE_TEMPLATED_STR: &str = "01234\n6789x\nfo\nbarfss";
+    // const SIMPLE_TEMPLATED_STR: &str = "01234\n6789x\nfo\nbarss";
 
     fn simple_sliced_file() -> Vec<TemplatedFileSlice> {
         vec![

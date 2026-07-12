@@ -1759,6 +1759,31 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    // Support ClickHouse parametric aggregate functions, which use a
+    // double-parentheses syntax: `func(params)(args)`.
+    // https://clickhouse.com/docs/sql-reference/aggregate-functions/parametric-functions
+    clickhouse_dialect.replace_grammar(
+        "FunctionContentsSegment",
+        one_of(vec![
+            // Double parentheses pattern: func(params)(args)
+            Sequence::new(vec![
+                Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
+                    .to_matchable(),
+                Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+            // Standard ANSI single parentheses
+            Sequence::new(vec![
+                Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     clickhouse_dialect.add([(
         "DropDictionaryStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::DropDictionaryStatement, |_| {

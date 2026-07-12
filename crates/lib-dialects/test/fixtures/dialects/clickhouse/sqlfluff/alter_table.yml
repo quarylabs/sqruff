@@ -1346,3 +1346,26 @@ file:
     - table_reference:
       - naked_identifier: z
 - statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: y
+    - data_type:
+      - data_type_identifier: Int32
+    - keyword: ALIAS
+    - expression:
+      - column_reference:
+        - naked_identifier: z
+      - binary_operator: +
+      - numeric_literal: '10'
+    - keyword: SETTINGS
+    - naked_identifier: abc
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '1'
+- statement_terminator: ;

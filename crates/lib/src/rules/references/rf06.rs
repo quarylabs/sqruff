@@ -296,6 +296,7 @@ fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'stati
         | DialectKind::Trino => Some(("\"", "\"")),
         DialectKind::Bigquery
         | DialectKind::Databricks
+        | DialectKind::Hive
         | DialectKind::Mysql
         | DialectKind::Sparksql
         | DialectKind::Starrocks => Some(("`", "`")),
@@ -319,6 +320,7 @@ mod tests {
             (DialectKind::Db2, Some(("\"", "\""))),
             (DialectKind::Duckdb, Some(("\"", "\""))),
             (DialectKind::Greenplum, Some(("\"", "\""))),
+            (DialectKind::Hive, Some(("`", "`"))),
             (DialectKind::Mysql, Some(("`", "`"))),
             (DialectKind::Oracle, Some(("\"", "\""))),
             (DialectKind::Postgres, Some(("\"", "\""))),

@@ -12,6 +12,7 @@ Sqruff currently supports the following SQL dialects:
 - [db2](#db2)
 - [duckdb](#duckdb)
 - [greenplum](#greenplum)
+- [hive](#hive)
 - [mysql](#mysql)
 - [oracle](#oracle)
 - [postgres](#postgres)
@@ -116,6 +117,18 @@ Greenplum SQL dialect, a massively parallel Postgres.
 **Configuration:**
 ```ini
 [sqruff:dialect:greenplum]
+```
+
+
+### hive
+
+Apache Hive SQL dialect for data warehousing.
+
+**Documentation:** [https://hive.apache.org/docs/latest/language/](https://hive.apache.org/docs/latest/language/)
+
+**Configuration:**
+```ini
+[sqruff:dialect:hive]
 ```
 
 

@@ -110,11 +110,11 @@ from foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        // TODO: "databricks", "hive", "mysql"
+        // TODO: "databricks", "mysql"
         if !(self.force_enable
             || matches!(
                 context.dialect.name,
-                DialectKind::Bigquery | DialectKind::Sparksql
+                DialectKind::Bigquery | DialectKind::Hive | DialectKind::Sparksql
             ))
         {
             return Vec::new();

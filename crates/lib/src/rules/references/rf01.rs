@@ -40,6 +40,7 @@ impl RuleRF01 {
                 | DialectKind::Bigquery
                 | DialectKind::Databricks
                 | DialectKind::Duckdb
+                | DialectKind::Hive
                 | DialectKind::Redshift
                 | DialectKind::Sparksql
                 | DialectKind::Trino

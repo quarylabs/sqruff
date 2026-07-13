@@ -56,7 +56,7 @@
   },
   "dependencies": {
     "vscode-languageclient": "^10.0.0",
-    "vscode-languageserver": "^10.0.1"
+    "vscode-languageserver": "^10.1.0"
   },
   "devDependencies": {
     "@eslint/js": "catalog:",

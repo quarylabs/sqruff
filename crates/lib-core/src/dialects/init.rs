@@ -102,6 +102,7 @@ pub enum DialectKind {
     Db2,
     Duckdb,
     Greenplum,
+    Hive,
     Mysql,
     Oracle,
     Postgres,
@@ -126,6 +127,7 @@ impl DialectKind {
             DialectKind::Db2 => "db2",
             DialectKind::Duckdb => "duckdb",
             DialectKind::Greenplum => "greenplum",
+            DialectKind::Hive => "hive",
             DialectKind::Mysql => "mysql",
             DialectKind::Oracle => "oracle",
             DialectKind::Postgres => "postgres",
@@ -154,6 +156,7 @@ impl DialectKind {
             DialectKind::Db2 => "IBM Db2 SQL dialect.",
             DialectKind::Duckdb => "DuckDB SQL dialect for in-process analytical database.",
             DialectKind::Greenplum => "Greenplum SQL dialect, a massively parallel Postgres.",
+            DialectKind::Hive => "Apache Hive SQL dialect for data warehousing.",
             DialectKind::Mysql => "MySQL SQL dialect for the popular open-source database.",
             DialectKind::Oracle => "Oracle SQL dialect for Oracle Database.",
             DialectKind::Postgres => {
@@ -194,6 +197,7 @@ impl DialectKind {
             DialectKind::Greenplum => {
                 Some("https://docs.vmware.com/en/VMware-Greenplum/index.html")
             }
+            DialectKind::Hive => Some("https://hive.apache.org/docs/latest/language/"),
             DialectKind::Mysql => Some("https://dev.mysql.com/doc/"),
             DialectKind::Oracle => {
                 Some("https://www.oracle.com/database/technologies/appdev/sql.html")

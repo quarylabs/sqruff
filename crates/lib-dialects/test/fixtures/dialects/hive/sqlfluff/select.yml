@@ -1,0 +1,28 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: name
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: users
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: active
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - boolean_literal: 'TRUE'
+- statement_terminator: ;

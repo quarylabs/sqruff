@@ -55,6 +55,7 @@ pub fn raw_dialect() -> Dialect {
         "ESCAPED",
         "FIELDS",
         "INPUTFORMAT",
+        "IREGEXP",
         "ITEMS",
         "JSON",
         "JSONFILE",
@@ -112,6 +113,19 @@ pub fn raw_dialect() -> Dialect {
     );
 
     hive_dialect.add([
+        (
+            // Impala dialect uses REGEXP and IREGEXP
+            "LikeGrammar".into(),
+            one_of(vec![
+                Ref::keyword("LIKE").to_matchable(),
+                Ref::keyword("RLIKE").to_matchable(),
+                Ref::keyword("ILIKE").to_matchable(),
+                Ref::keyword("REGEXP").to_matchable(),
+                Ref::keyword("IREGEXP").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "QuotedLiteralSegment".into(),
             one_of(vec![

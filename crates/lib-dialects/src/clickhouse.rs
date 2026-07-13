@@ -2581,6 +2581,27 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("TableReferenceSegment").to_matchable(),
                 ])
                 .to_matchable(),
+                // ALTER TABLE ... UPDATE column = expr [, column = expr ...] WHERE condition
+                Sequence::new(vec![
+                    Ref::keyword("UPDATE").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("WhereClauseSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                // ALTER TABLE ... DELETE WHERE condition
+                Sequence::new(vec![
+                    Ref::keyword("DELETE").to_matchable(),
+                    Ref::new("WhereClauseSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
             Ref::new("SettingsClauseSegment").optional().to_matchable(),

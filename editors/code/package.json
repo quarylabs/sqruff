@@ -63,7 +63,7 @@
     "@rauschma/env-var": "^1.0.1",
     "@types/node": "~26.0.1",
     "@types/vscode": "1.96.0",
-    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
     "@vscode/test-web": "^0.0.81",
     "@playwright/test": "catalog:",

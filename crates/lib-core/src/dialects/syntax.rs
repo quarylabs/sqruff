@@ -169,6 +169,7 @@ pub enum SyntaxKind {
     SelectReplaceClause,
     StructTypeSchema,
     Tuple,
+    TupleElementAccess,
     NamedArgument,
     DeclareSegment,
     SetSegment,

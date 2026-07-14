@@ -4,7 +4,7 @@ use sqruff_lib::core::config::{FluffConfig, Value};
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::test_functions::fresh_ansi_dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::context::ParseContext;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
@@ -388,6 +388,112 @@ fn test_reindent_no_false_positive_in_jinja_for_loop() {
     assert!(
         layout.is_empty(),
         "unexpected layout violations in templated region: {layout:?}"
+    );
+}
+
+#[test]
+fn test_clickhouse_tuple_element_access_has_no_spacing_violation() {
+    let config = FluffConfig::new(
+        HashMap::from([(
+            "core".into(),
+            Value::Map(HashMap::from([
+                ("dialect".into(), Value::String("clickhouse".into())),
+                ("rules".into(), Value::String("LT01".into())),
+            ])),
+        )]),
+        None,
+        None,
+    );
+    let mut lnt = Linter::new(config, None, None, true).unwrap();
+    let sql = concat!(
+        "SELECT test.1.1.2;\n",
+        "SELECT (test.1).2;\n",
+        "SELECT test.2;\n",
+        "SELECT tuple(1, 2).1 FROM t;\n",
+        "SELECT ((test.1).2).3 FROM t;\n",
+    );
+
+    let linted = lnt.lint_string_wrapped(sql, true).unwrap();
+
+    let lt01: Vec<_> = linted
+        .violations()
+        .iter()
+        .filter(|v| v.rule_code() == "LT01")
+        .map(|v| (v.line_no, v.line_pos))
+        .collect();
+    assert!(
+        lt01.is_empty(),
+        "unexpected LT01 tuple access violations: {lt01:?}"
+    );
+}
+
+#[test]
+fn test_clickhouse_tuple_element_access_parse_boundaries() {
+    let config = FluffConfig::new(
+        HashMap::from([(
+            "core".into(),
+            Value::Map(HashMap::from([(
+                "dialect".into(),
+                Value::String("clickhouse".into()),
+            )])),
+        )]),
+        None,
+        None,
+    );
+    let lnt = Linter::new(config, None, None, true).unwrap();
+    let tables = Tables::default();
+
+    let valid_sql = [
+        "SELECT test.1.1.2;",
+        "SELECT (test.1).2;",
+        "SELECT test.2;",
+        "SELECT tuple(1, 2).1 FROM t;",
+        "SELECT ((test.1).2).3 FROM t;",
+        "SELECT test.1[2] FROM t;",
+        "SELECT test.1[2].3 FROM t;",
+        "SELECT arr[1].2[3] FROM t;",
+        "SELECT t.a.1 FROM foo AS t;",
+        "SELECT uniq(col1) FROM table1 WHERE col1 IN (SELECT col1 FROM table1 WHERE col2 = 34);",
+    ]
+    .join("\n");
+    let parsed = lnt.parse_string(&tables, &valid_sql, None).unwrap();
+    assert!(
+        parsed.violations.is_empty(),
+        "expected valid ClickHouse tuple access to parse cleanly: {:?}",
+        parsed.violations
+    );
+
+    for sql in [
+        "SELECT .1abc;",
+        "SELECT .123abc;",
+        "SELECT test.1abc;",
+        "SELECT test.12a;",
+        "SELECT test.1_2;",
+        "SELECT test.1.2e3;",
+    ] {
+        let parsed = lnt.parse_string(&tables, sql, None).unwrap();
+        assert!(
+            !parsed.violations.is_empty(),
+            "expected invalid tuple index boundary to fail parsing: {sql}"
+        );
+    }
+
+    // ClickHouse numeric literals fall back to strtod parsing and support
+    // exponential notation, so `.1e2` should stay numeric syntax rather than
+    // tuple access. See: https://clickhouse.com/docs/sql-reference/syntax#numeric
+    let parsed = lnt.parse_string(&tables, "SELECT test.1e2;", None).unwrap();
+    let tree = parsed.tree.unwrap();
+    let tuple_access = tree.recursive_crawl(
+        &SyntaxSet::new(&[SyntaxKind::ColumnReference, SyntaxKind::TupleElementAccess]),
+        true,
+        &SyntaxSet::EMPTY,
+        true,
+    );
+    assert!(
+        tuple_access
+            .iter()
+            .all(|segment| segment.raw().as_str() != "test.1e2"),
+        "expected exponent-style numeric literal not to parse as tuple access"
     );
 }
 

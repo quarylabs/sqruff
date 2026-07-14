@@ -1,0 +1,189 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: tuple
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - comma: ','
+              - expression:
+                - numeric_literal: '3'
+              - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: arr
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: arr
+          - tuple_element_access:
+            - numeric_literal: '.1'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: dsa
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: arr
+          - array_accessor:
+            - start_square_bracket: '['
+            - numeric_literal: '1'
+            - end_square_bracket: ']'
+          - tuple_element_access:
+            - numeric_literal: '.2'
+          - array_accessor:
+            - start_square_bracket: '['
+            - numeric_literal: '3'
+            - end_square_bracket: ']'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: mixed_array_tuple_access
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: tuple
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - numeric_literal: '1'
+                - comma: ','
+                - expression:
+                  - numeric_literal: '2'
+                - end_bracket: )
+          - tuple_element_access:
+            - numeric_literal: '.1'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: first_tuple_value
+- statement_terminator: ;
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: tuple
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: tuple
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - function:
+                          - function_name:
+                            - function_name_identifier: tuple
+                          - function_contents:
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - quoted_literal: '''a'''
+                              - comma: ','
+                              - expression:
+                                - quoted_literal: '''aa'''
+                              - end_bracket: )
+                      - comma: ','
+                      - expression:
+                        - quoted_literal: '''b'''
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - quoted_literal: '''c'''
+              - end_bracket: )
+      - keyword: AS
+      - naked_identifier: test
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - column_reference:
+              - naked_identifier: test
+            - tuple_element_access:
+              - numeric_literal: '.1'
+              - numeric_literal: '.1'
+              - numeric_literal: '.2'
+        - comma: ','
+        - select_clause_element:
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: test
+                - tuple_element_access:
+                  - numeric_literal: '.1'
+              - end_bracket: )
+            - tuple_element_access:
+              - numeric_literal: '.2'
+        - comma: ','
+        - select_clause_element:
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: test
+                    - tuple_element_access:
+                      - numeric_literal: '.1'
+                  - end_bracket: )
+                - tuple_element_access:
+                  - numeric_literal: '.2'
+              - end_bracket: )
+            - tuple_element_access:
+              - numeric_literal: '.3'
+        - comma: ','
+        - select_clause_element:
+          - expression:
+            - column_reference:
+              - naked_identifier: test
+            - tuple_element_access:
+              - numeric_literal: '.1'
+            - array_accessor:
+              - start_square_bracket: '['
+              - numeric_literal: '2'
+              - end_square_bracket: ']'
+        - comma: ','
+        - select_clause_element:
+          - expression:
+            - column_reference:
+              - naked_identifier: test
+            - tuple_element_access:
+              - numeric_literal: '.1'
+            - array_accessor:
+              - start_square_bracket: '['
+              - numeric_literal: '2'
+              - end_square_bracket: ']'
+            - tuple_element_access:
+              - numeric_literal: '.3'
+        - comma: ','
+        - select_clause_element:
+          - expression:
+            - column_reference:
+              - naked_identifier: test
+            - tuple_element_access:
+              - numeric_literal: '.2'
+- statement_terminator: ;

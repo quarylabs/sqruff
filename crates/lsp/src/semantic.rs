@@ -1189,7 +1189,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | StopRoutineLoadStatement
         | PauseRoutineLoadStatement
         | ResumeRoutineLoadStatement
-        | InsertOverwriteStatement => return None,
+        | InsertOverwriteStatement
+        | TupleElementAccess => return None,
     };
 
     Some(highlight)

@@ -1,0 +1,16 @@
+file:
+- statement:
+  - drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: bar
+    - keyword: RESTRICT
+- statement_terminator: ;

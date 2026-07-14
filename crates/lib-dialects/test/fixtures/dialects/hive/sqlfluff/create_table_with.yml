@@ -1,0 +1,47 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: masonboro_sandbox
+      - dot: .
+      - naked_identifier: test
+    - keyword: AS
+    - with_compound_statement:
+      - keyword: WITH
+      - common_table_expression:
+        - naked_identifier: us_sales
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: rev
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: masonboro_sales
+                      - dot: .
+                      - naked_identifier: us_2021
+          - end_bracket: )
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: rev
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: us_sales
+- statement_terminator: ;

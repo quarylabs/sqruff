@@ -1,0 +1,22 @@
+file:
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: foo
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: ROLE
+    - quoted_literal: '"role"'
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: bar
+    - keyword: SET
+    - keyword: MANAGEDLOCATION
+    - quoted_literal: '"hdfs://alternate_path"'
+- statement_terminator: ;

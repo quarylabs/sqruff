@@ -94,6 +94,67 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "YY",
     ]);
 
+    // Tuple element access can chain numeric suffixes like `test.1.1.2`.
+    // The ANSI numeric matcher rejects `.1.1`, so make ClickHouse split each
+    // `.N` suffix before the generic dot matcher sees it. Do not split a
+    // numeric prefix off a longer word; `test.12a` should stay invalid.
+    clickhouse_dialect.insert_lexer_matchers(
+        vec![Matcher::legacy(
+            "tuple_index_numeric_literal",
+            |s| s.starts_with('.'),
+            r"\.[0-9]+(?![0-9A-Za-z_])",
+            SyntaxKind::NumericLiteral,
+        )],
+        "dot",
+    );
+
+    clickhouse_dialect.replace_grammar(
+        "AccessorGrammar",
+        AnyNumberOf::new(vec![
+            Ref::new("ArrayAccessorSegment").to_matchable(),
+            Ref::new("TupleElementAccessSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    clickhouse_dialect.replace_grammar(
+        "Expression_D_Grammar",
+        one_of(vec![
+            // Prefer postfix tuple access before ClickHouse datatype-literal
+            // parsing can consume `.N` as a standalone numeric literal.
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("BareFunctionSegment").to_matchable(),
+                    Ref::new("FunctionSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Ref::new("ExpressionSegment").to_matchable(),
+                            Ref::new("SelectableGrammar").to_matchable(),
+                            Delimited::new(vec![
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::new("FunctionSegment").to_matchable(),
+                                Ref::new("LiteralGrammar").to_matchable(),
+                                Ref::new("LocalAliasSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
+                    .to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("TupleElementAccessSegment").to_matchable(),
+                Ref::new("AccessorGrammar").optional().to_matchable(),
+            ])
+            .allow_gaps(false)
+            .to_matchable(),
+            clickhouse_dialect.grammar("Expression_D_Grammar"),
+        ])
+        .to_matchable(),
+    );
+
     // ClickHouse supports CTEs with DML statements (INSERT, UPDATE, DELETE)
     // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
     clickhouse_dialect.add([(
@@ -446,6 +507,25 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             })
             .to_matchable()
             .into(),
+        ),
+        (
+            "TupleElementAccessSegment".into(),
+            NodeMatcher::new(SyntaxKind::TupleElementAccess, |_| {
+                AnyNumberOf::new(vec![Ref::new("TupleIndexSegment").to_matchable()])
+                    .config(|this| {
+                        this.min_times(1);
+                        this.disallow_gaps();
+                    })
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TupleIndexSegment".into(),
+            RegexParser::new(r"\.[0-9]+", SyntaxKind::NumericLiteral)
+                .to_matchable()
+                .into(),
         ),
     ]);
 

@@ -1,0 +1,14 @@
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE IF NOT EXISTS example_embeddings (
+    id BIGSERIAL NOT NULL,
+    source_id BIGINT NOT NULL,
+    content TEXT NOT NULL,
+    embedding vector(1536),
+    labels TEXT[],
+    PRIMARY KEY (source_id, id),
+    CONSTRAINT fk_example_source
+        FOREIGN KEY (source_id)
+        REFERENCES example_sources(source_id)
+        ON DELETE CASCADE
+) PARTITION BY LIST (source_id);

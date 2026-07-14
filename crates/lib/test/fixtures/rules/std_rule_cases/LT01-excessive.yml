@@ -297,6 +297,20 @@ test_bigquery_datatype:
     core:
       dialect: bigquery
 
+test_bigquery_array_literal_spacing:
+  pass_str: |
+    SELECT [1, 2, 3] AS arr
+  configs:
+    core:
+      dialect: bigquery
+
+test_duckdb_array_literal_spacing:
+  pass_str: |
+    SELECT [1, 2, 3] AS arr
+  configs:
+    core:
+      dialect: duckdb
+
 test_athena_datatype:
   pass_str: |
       select
@@ -345,6 +359,13 @@ test_sparksql_datatype:
           'bar'::CHAR(3),
           col1::STRUCT<foo: int>,
           col2::ARRAY<int>
+  configs:
+    core:
+      dialect: sparksql
+
+test_sparksql_array_literal_spacing:
+  pass_str: |
+    SELECT [1, 2, 3] AS arr
   configs:
     core:
       dialect: sparksql

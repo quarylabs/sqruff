@@ -277,18 +277,15 @@ fn build_datatype_segment_grammar(pgvector: bool) -> Matchable {
             Ref::new("WellKnownTextGeometrySegment").to_matchable(),
             Ref::new("DateTimeTypeIdentifier").to_matchable(),
             Sequence::new(vec![one_of(known_types).to_matchable()]).to_matchable(),
-            Ref::new("DatatypeIdentifierSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                Ref::new("BracketedArguments").optional().to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
         one_of(vec![
-            AnyNumberOf::new(vec![
-                Bracketed::new(vec![
-                    Ref::new("ExpressionSegment").optional().to_matchable(),
-                ])
-                .config(|this| this.bracket_type("square"))
-                .to_matchable(),
-            ])
-            .to_matchable(),
+            Ref::new("ArrayTypeSuffixSegment").to_matchable(),
             Ref::new("ArrayTypeSegment").to_matchable(),
             Ref::new("SizedArrayTypeSegment").to_matchable(),
         ])
@@ -1268,9 +1265,73 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    postgres.add([(
+        "ArrayTypeSuffixSegment".into(),
+        NodeMatcher::new(SyntaxKind::ArrayTypeSuffix, |_| {
+            AnyNumberOf::new(vec![
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").optional().to_matchable(),
+                ])
+                .config(|this| this.bracket_type("square"))
+                .to_matchable(),
+            ])
+            .config(|this| this.min_times(1))
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     postgres.replace_grammar("DatatypeSegment", build_datatype_segment_grammar(false));
 
     postgres.replace_grammar("ArrayTypeSegment", Ref::keyword("ARRAY").to_matchable());
+
+    postgres.add([(
+        "ReferencedColumnListGrammar".into(),
+        NodeMatcher::new(SyntaxKind::ReferencedColumnList, |_| {
+            Ref::new("BracketedColumnReferenceListGrammar").to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    postgres.replace_grammar(
+        "ReferenceDefinitionGrammar",
+        Sequence::new(vec![
+            Ref::keyword("REFERENCES").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Ref::new("ReferencedColumnListGrammar")
+                .optional()
+                .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("MATCH").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("FULL").to_matchable(),
+                    Ref::keyword("PARTIAL").to_matchable(),
+                    Ref::keyword("SIMPLE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("DELETE").to_matchable(),
+                    Ref::new("ReferentialActionGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("UPDATE").to_matchable(),
+                    Ref::new("ReferentialActionGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     postgres.add([(
         "IndexAccessMethodSegment".into(),

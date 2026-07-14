@@ -1,6 +1,19 @@
 load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library")
 load("@rules_rust_wasm_bindgen//:defs.bzl", "rust_wasm_bindgen")
+load("//:cargo_build.bzl", "cargo_hack_suite")
+load(":hack.bzl", "CLOSURE", "HACK", "MANIFEST")
+
+# Per-feature `cargo check` targets mirroring `cargo hack --each-feature`.
+# The HACK map lives in hack.bzl and is reconciled against cargo-hack by
+# //:hack_reconcile. Run the whole crate sweep via `bazel test //crates/lsp:hack`.
+cargo_hack_suite(
+    name = "hack",
+    closure = CLOSURE,
+    manifest = MANIFEST,
+    variations = HACK,
+    vendor = "//:cargo_deps",
+)
 
 rust_library(
     name = "sqruff-lsp",

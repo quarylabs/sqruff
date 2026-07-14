@@ -1,0 +1,26 @@
+file:
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: LOCAL
+    - keyword: DIRECTORY
+    - quoted_literal: '''/path'''
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: foo
+- statement_terminator: ;

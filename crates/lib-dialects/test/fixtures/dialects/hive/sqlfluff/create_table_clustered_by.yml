@@ -1,0 +1,43 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: col1
+        - data_type:
+          - primitive_type:
+            - keyword: string
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col2
+        - data_type:
+          - primitive_type:
+            - keyword: float
+      - end_bracket: )
+    - keyword: CLUSTERED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col2
+      - end_bracket: )
+    - keyword: SORTED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col1
+      - keyword: DESC
+      - end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '5'
+    - keyword: BUCKETS
+- statement_terminator: ;

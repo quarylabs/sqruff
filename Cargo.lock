@@ -1561,8 +1561,12 @@ version = "0.39.0"
 dependencies = [
  "assert_cmd",
  "expect-test",
+ "hashbrown 0.17.0",
  "pyo3",
  "sqruff-cli-lib",
+ "sqruff-lib",
+ "sqruff-lib-core",
+ "strum",
  "tempfile",
 ]
 

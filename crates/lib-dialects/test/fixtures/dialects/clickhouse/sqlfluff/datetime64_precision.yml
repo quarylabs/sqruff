@@ -25,9 +25,10 @@ file:
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: DateTime64
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: datetime
@@ -43,10 +44,11 @@ file:
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: DateTime64
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '3'
-                - end_bracket: )
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '3'
+                  - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: datetime
@@ -62,12 +64,13 @@ file:
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: DateTime64
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '3'
-                - comma: ','
-                - quoted_literal: '''Europe/Paris'''
-                - end_bracket: )
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '3'
+                  - comma: ','
+                  - quoted_literal: '''Europe/Paris'''
+                  - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: datetime
@@ -83,10 +86,11 @@ file:
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: DateTime64
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '6'
-                - end_bracket: )
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '6'
+                  - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: datetime

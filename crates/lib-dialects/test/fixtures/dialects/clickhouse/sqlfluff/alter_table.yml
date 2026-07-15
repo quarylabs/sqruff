@@ -597,11 +597,12 @@ file:
     - naked_identifier: browser
     - data_type:
       - data_type_identifier: Array
-      - bracketed:
-        - start_bracket: (
-        - data_type:
-          - data_type_identifier: String
-        - end_bracket: )
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - data_type:
+            - data_type_identifier: String
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - alter_table_statement:

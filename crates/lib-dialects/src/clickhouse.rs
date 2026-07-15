@@ -1267,99 +1267,68 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .into(),
     )]);
 
-    clickhouse_dialect.replace_grammar(
-        "DatatypeSegment",
-        one_of(vec![
-            // Nullable(Type)
-            Sequence::new(vec![
-                StringParser::new("NULLABLE", SyntaxKind::DataTypeIdentifier).to_matchable(),
-                Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()]).to_matchable(),
-            ])
-            .to_matchable(),
-            // LowCardinality(Type)
-            Sequence::new(vec![
-                StringParser::new("LOWCARDINALITY", SyntaxKind::DataTypeIdentifier).to_matchable(),
-                Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()]).to_matchable(),
-            ])
-            .to_matchable(),
-            // DateTime64(precision, 'timezone')
-            Sequence::new(vec![
-                StringParser::new("DATETIME64", SyntaxKind::DataTypeIdentifier).to_matchable(),
+    clickhouse_dialect.add([
+        (
+            "DateTime64ArgumentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::BracketedArguments, |_| {
                 Bracketed::new(vec![
-                    Delimited::new(vec![
-                        one_of(vec![
-                            Ref::new("NumericLiteralSegment").to_matchable(), // precision
+                    Sequence::new(vec![
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("CommaSegment").to_matchable(),
                             Ref::new("QuotedLiteralSegment").to_matchable(),
                         ])
+                        .config(|this| this.optional())
                         .to_matchable(),
                     ])
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            // DateTime('timezone')
-            Sequence::new(vec![
-                StringParser::new("DATETIME", SyntaxKind::DataTypeIdentifier).to_matchable(),
-                Bracketed::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
                     .config(|this| this.optional())
                     .to_matchable(),
-            ])
-            .to_matchable(),
-            // FixedString(length)
-            Sequence::new(vec![
-                StringParser::new("FIXEDSTRING", SyntaxKind::DataTypeIdentifier).to_matchable(),
-                Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
-                    .to_matchable(),
-            ])
-            .to_matchable(),
-            // Array(Type)
-            Sequence::new(vec![
-                StringParser::new("ARRAY", SyntaxKind::DataTypeIdentifier).to_matchable(),
-                Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()]).to_matchable(),
-            ])
-            .to_matchable(),
-            // Map(KeyType, ValueType)
-            Sequence::new(vec![
-                StringParser::new("MAP", SyntaxKind::DataTypeIdentifier).to_matchable(),
-                Bracketed::new(vec![
-                    Delimited::new(vec![Ref::new("DatatypeSegment").to_matchable()]).to_matchable(),
                 ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            // Tuple(Type1, Type2) or Tuple(name1 Type1, ...)
-            Sequence::new(vec![
-                StringParser::new("TUPLE", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DateTimeArgumentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::BracketedArguments, |_| {
+                Bracketed::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()]).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "NumericArgumentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::BracketedArguments, |_| {
+                Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DecimalArgumentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::BracketedArguments, |_| {
                 Bracketed::new(vec![
-                    Delimited::new(vec![
-                        one_of(vec![
-                            // Named tuple element: name Type
-                            Sequence::new(vec![
-                                one_of(vec![
-                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
-                                    Ref::new("QuotedIdentifierSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::new("DatatypeSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            // Regular tuple element: just Type
-                            Ref::new("DatatypeSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("CommaSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
                         ])
+                        .config(|this| this.optional())
                         .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            // Nested(name1 Type1, name2 Type2)
-            Sequence::new(vec![
-                StringParser::new("NESTED", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "NestedArgumentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::BracketedArguments, |_| {
                 Bracketed::new(vec![
                     Delimited::new(vec![
                         Sequence::new(vec![
@@ -1370,18 +1339,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                 ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            // JSON data type
-            StringParser::new("JSON", SyntaxKind::DataTypeIdentifier).to_matchable(),
-            // Enum8('val1' = 1, 'val2' = 2)
-            Sequence::new(vec![
-                one_of(vec![
-                    StringParser::new("ENUM8", SyntaxKind::DataTypeIdentifier).to_matchable(),
-                    StringParser::new("ENUM16", SyntaxKind::DataTypeIdentifier).to_matchable(),
-                ])
-                .to_matchable(),
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "EnumArgumentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::BracketedArguments, |_| {
                 Bracketed::new(vec![
                     Delimited::new(vec![
                         Sequence::new(vec![
@@ -1393,7 +1358,84 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                 ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    clickhouse_dialect.replace_grammar(
+        "DatatypeSegment",
+        one_of(vec![
+            // Nullable(Type)
+            Sequence::new(vec![
+                StringParser::new("NULLABLE", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                Ref::new("BracketedArguments").to_matchable(),
+            ])
+            .to_matchable(),
+            // LowCardinality(Type)
+            Sequence::new(vec![
+                StringParser::new("LOWCARDINALITY", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                Ref::new("BracketedArguments").to_matchable(),
+            ])
+            .to_matchable(),
+            // DateTime64(precision, 'timezone')
+            Sequence::new(vec![
+                StringParser::new("DATETIME64", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                Ref::new("DateTime64ArgumentsSegment")
+                    .optional()
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+            // DateTime('timezone')
+            Sequence::new(vec![
+                StringParser::new("DATETIME", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                Ref::new("DateTimeArgumentsSegment")
+                    .optional()
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+            // Time64(precision)
+            Sequence::new(vec![
+                StringParser::new("TIME64", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                Ref::new("NumericArgumentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            // FixedString(length)
+            Sequence::new(vec![
+                StringParser::new("FIXEDSTRING", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                Ref::new("NumericArgumentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            // Array(Type)
+            Sequence::new(vec![
+                StringParser::new("ARRAY", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                Ref::new("BracketedArguments").to_matchable(),
+            ])
+            .to_matchable(),
+            // Map(KeyType, ValueType)
+            Sequence::new(vec![
+                StringParser::new("MAP", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                Ref::new("BracketedArguments").to_matchable(),
+            ])
+            .to_matchable(),
+            // Nested(name1 Type1, name2 Type2)
+            Sequence::new(vec![
+                StringParser::new("NESTED", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                Ref::new("NestedArgumentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            // JSON data type
+            StringParser::new("JSON", SyntaxKind::DataTypeIdentifier).to_matchable(),
+            // Enum8('val1' = 1, 'val2' = 2)
+            Sequence::new(vec![
+                one_of(vec![
+                    StringParser::new("ENUM8", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                    StringParser::new("ENUM16", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                ])
                 .to_matchable(),
+                Ref::new("EnumArgumentsSegment").to_matchable(),
             ])
             .to_matchable(),
             // double args
@@ -1403,7 +1445,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     StringParser::new("NUMERIC", SyntaxKind::DataTypeIdentifier).to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::new("BracketedArguments").optional().to_matchable(),
+                Ref::new("DecimalArgumentsSegment")
+                    .optional()
+                    .to_matchable(),
             ])
             .to_matchable(),
             // single args
@@ -1415,61 +1459,52 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     StringParser::new("DECIMAL256", SyntaxKind::DataTypeIdentifier).to_matchable(),
                 ])
                 .to_matchable(),
-                Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
-                    .to_matchable(),
+                Ref::new("NumericArgumentsSegment").to_matchable(),
             ])
             .to_matchable(),
             Ref::new("TupleTypeSegment").to_matchable(),
             Ref::new("DatatypeIdentifierSegment").to_matchable(),
             Ref::new("NumericLiteralSegment").to_matchable(),
-            Sequence::new(vec![
-                StringParser::new("DATETIME64", SyntaxKind::DataTypeIdentifier).to_matchable(),
-                Bracketed::new(vec![
-                    Delimited::new(vec![
-                        Ref::new("NumericLiteralSegment").to_matchable(), // precision
-                        Ref::new("QuotedLiteralSegment").optional().to_matchable(),
-                    ])
-                    // The brackets might be empty as well
-                    .config(|this| {
-                        this.optional();
-                    })
-                    .to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            Sequence::new(vec![
-                StringParser::new("ARRAY", SyntaxKind::DataTypeIdentifier).to_matchable(),
-                Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()]).to_matchable(),
-            ])
-            .to_matchable(),
         ])
         .to_matchable(),
     );
 
     clickhouse_dialect.add([(
         "TupleTypeSegment".into(),
-        Sequence::new(vec![
-            Ref::keyword("TUPLE").to_matchable(),
-            Ref::new("TupleTypeSchemaSegment").to_matchable(),
-        ])
+        NodeMatcher::new(SyntaxKind::StructType, |_| {
+            Sequence::new(vec![
+                Ref::keyword("TUPLE").to_matchable(),
+                Ref::new("TupleTypeSchemaSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
 
     clickhouse_dialect.add([(
         "TupleTypeSchemaSegment".into(),
-        Bracketed::new(vec![
-            Delimited::new(vec![
-                Sequence::new(vec![
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    Ref::new("DatatypeSegment").to_matchable(),
+        NodeMatcher::new(SyntaxKind::TupleTypeSchema, |_| {
+            Bracketed::new(vec![
+                Delimited::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Ref::new("QuotedIdentifierSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])
-            .to_matchable(),
-        ])
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -1477,15 +1512,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     clickhouse_dialect.replace_grammar(
         "BracketedArguments",
         Bracketed::new(vec![
-            Delimited::new(vec![
-                one_of(vec![
-                    Ref::new("DatatypeIdentifierSegment").to_matchable(),
-                    Ref::new("NumericLiteralSegment").to_matchable(),
-                ])
+            Delimited::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                .config(|this| this.optional())
                 .to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
         ])
         .to_matchable(),
     );

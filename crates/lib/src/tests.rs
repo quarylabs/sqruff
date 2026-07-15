@@ -606,6 +606,94 @@ fn test_sqlite_create_temp_view_body_indent() {
     );
 }
 
+#[test]
+fn test_clickhouse_parametric_type_spacing_fix() {
+    let config = FluffConfig::new(
+        HashMap::from([(
+            "core".into(),
+            Value::Map(HashMap::from([
+                ("dialect".into(), Value::String("clickhouse".into())),
+                ("rules".into(), Value::String("LT01".into())),
+            ])),
+        )]),
+        None,
+        None,
+    );
+    let mut lnt = Linter::new(config, None, None, true).unwrap();
+    let sql = concat!(
+        "CREATE TABLE t (\n",
+        "    event_created_at DateTime64 (3),\n",
+        "    event_created_at_tz DateTime ('UTC'),\n",
+        "    obs_value Decimal (18, 9),\n",
+        "    fixed_str FixedString (16),\n",
+        "    nullable_col Nullable (String),\n",
+        "    lc_col LowCardinality (String),\n",
+        "    arr_col Array (UInt8),\n",
+        "    map_col Map (String, UInt8),\n",
+        "    enum_col Enum8 ('a' = 1, 'b' = 2),\n",
+        "    tuple_col Tuple (UInt8, String),\n",
+        "    nested_col Nested (a UInt8, b String),\n",
+        "    t64 Time64 (3),\n",
+        "    dec32 Decimal32 (3),\n",
+        "    dec64 Decimal64 (6)\n",
+        ") ENGINE = MergeTree ORDER BY event_created_at;",
+    );
+
+    let linted = lnt.lint_string_wrapped(sql, true).unwrap();
+
+    assert_eq!(
+        linted.fix_string(),
+        concat!(
+            "CREATE TABLE t (\n",
+            "    event_created_at DateTime64(3),\n",
+            "    event_created_at_tz DateTime('UTC'),\n",
+            "    obs_value Decimal(18, 9),\n",
+            "    fixed_str FixedString(16),\n",
+            "    nullable_col Nullable(String),\n",
+            "    lc_col LowCardinality(String),\n",
+            "    arr_col Array(UInt8),\n",
+            "    map_col Map(String, UInt8),\n",
+            "    enum_col Enum8('a' = 1, 'b' = 2),\n",
+            "    tuple_col Tuple(UInt8, String),\n",
+            "    nested_col Nested(a UInt8, b String),\n",
+            "    t64 Time64(3),\n",
+            "    dec32 Decimal32(3),\n",
+            "    dec64 Decimal64(6)\n",
+            ") ENGINE = MergeTree ORDER BY event_created_at;",
+        )
+    );
+}
+
+#[test]
+fn test_clickhouse_datetime64_rejects_timezone_without_precision() {
+    let config = FluffConfig::new(
+        HashMap::from([(
+            "core".into(),
+            Value::Map(HashMap::from([(
+                "dialect".into(),
+                Value::String("clickhouse".into()),
+            )])),
+        )]),
+        None,
+        None,
+    );
+    let lnt = Linter::new(config, None, None, true).unwrap();
+    let tables = Tables::default();
+
+    let parsed = lnt
+        .parse_string(
+            &tables,
+            "SELECT '2024-01-01'::DateTime64('UTC') AS dt;",
+            None,
+        )
+        .unwrap();
+
+    assert!(
+        !parsed.violations.is_empty(),
+        "expected DateTime64 timezone argument without precision to fail parsing"
+    );
+}
+
 /// Trailing source-only Jinja blocks should not hide extra rendered newlines
 /// from LT12.
 #[test]

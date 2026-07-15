@@ -494,11 +494,12 @@ file:
         - naked_identifier: s
         - data_type:
           - data_type_identifier: Nullable
-          - bracketed:
-            - start_bracket: (
-            - data_type:
-              - data_type_identifier: String
-            - end_bracket: )
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - data_type:
+                - data_type_identifier: String
+              - end_bracket: )
       - end_bracket: )
     - engine:
       - keyword: ENGINE

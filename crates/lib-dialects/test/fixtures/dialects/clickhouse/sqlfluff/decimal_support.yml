@@ -10,18 +10,19 @@ file:
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: Nullable
-              - bracketed:
-                - start_bracket: (
-                - data_type:
-                  - data_type_identifier: Decimal
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '12'
-                      - comma: ','
-                      - numeric_literal: '0'
-                      - end_bracket: )
-                - end_bracket: )
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - data_type:
+                    - data_type_identifier: Decimal
+                    - bracketed_arguments:
+                      - bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '12'
+                        - comma: ','
+                        - numeric_literal: '0'
+                        - end_bracket: )
+                  - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: num_value
@@ -37,15 +38,17 @@ file:
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: Nullable
-              - bracketed:
-                - start_bracket: (
-                - data_type:
-                  - data_type_identifier: Decimal32
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '1'
-                    - end_bracket: )
-                - end_bracket: )
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - data_type:
+                    - data_type_identifier: Decimal32
+                    - bracketed_arguments:
+                      - bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '1'
+                        - end_bracket: )
+                  - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: num_value
@@ -61,15 +64,17 @@ file:
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: Nullable
-              - bracketed:
-                - start_bracket: (
-                - data_type:
-                  - data_type_identifier: Decimal64
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '12'
-                    - end_bracket: )
-                - end_bracket: )
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - data_type:
+                    - data_type_identifier: Decimal64
+                    - bracketed_arguments:
+                      - bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '12'
+                        - end_bracket: )
+                  - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: num_value
@@ -85,15 +90,17 @@ file:
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: Nullable
-              - bracketed:
-                - start_bracket: (
-                - data_type:
-                  - data_type_identifier: Decimal128
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '12'
-                    - end_bracket: )
-                - end_bracket: )
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - data_type:
+                    - data_type_identifier: Decimal128
+                    - bracketed_arguments:
+                      - bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '12'
+                        - end_bracket: )
+                  - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: num_value
@@ -109,15 +116,17 @@ file:
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: Nullable
-              - bracketed:
-                - start_bracket: (
-                - data_type:
-                  - data_type_identifier: Decimal256
-                  - bracketed:
-                    - start_bracket: (
-                    - numeric_literal: '12'
-                    - end_bracket: )
-                - end_bracket: )
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - data_type:
+                    - data_type_identifier: Decimal256
+                    - bracketed_arguments:
+                      - bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '12'
+                        - end_bracket: )
+                  - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: num_value
@@ -155,18 +164,19 @@ file:
             - casting_operator: '::'
             - data_type:
               - data_type_identifier: Nullable
-              - bracketed:
-                - start_bracket: (
-                - data_type:
-                  - data_type_identifier: Numeric
-                  - bracketed_arguments:
-                    - bracketed:
-                      - start_bracket: (
-                      - numeric_literal: '12'
-                      - comma: ','
-                      - numeric_literal: '0'
-                      - end_bracket: )
-                - end_bracket: )
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - data_type:
+                    - data_type_identifier: Numeric
+                    - bracketed_arguments:
+                      - bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '12'
+                        - comma: ','
+                        - numeric_literal: '0'
+                        - end_bracket: )
+                  - end_bracket: )
         - alias_expression:
           - keyword: as
           - naked_identifier: num_value

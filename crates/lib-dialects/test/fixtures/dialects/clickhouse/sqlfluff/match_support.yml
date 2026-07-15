@@ -70,11 +70,12 @@ file:
                     - casting_operator: '::'
                     - data_type:
                       - data_type_identifier: Nullable
-                      - bracketed:
-                        - start_bracket: (
-                        - data_type:
-                          - data_type_identifier: Float64
-                        - end_bracket: )
+                      - bracketed_arguments:
+                        - bracketed:
+                          - start_bracket: (
+                          - data_type:
+                            - data_type_identifier: Float64
+                          - end_bracket: )
               - keyword: end
           - alias_expression:
             - keyword: as

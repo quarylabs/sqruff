@@ -1,0 +1,329 @@
+file:
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col_a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: col_b
+      - end_bracket: )
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - keyword: ON
+    - wildcard_identifier:
+      - naked_identifier: db_name
+      - dot: .
+      - star: '*'
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - wildcard_identifier:
+      - star: '*'
+      - dot: .
+      - star: '*'
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - wildcard_identifier:
+      - naked_identifier: db_name
+      - dot: .
+      - naked_identifier: table_prefix
+      - star: '*'
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - wildcard_identifier:
+      - naked_identifier: db_prefix
+      - star: '*'
+      - dot: .
+      - star: '*'
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: DELETE
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: UPDATE
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALTER
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALTER
+    - keyword: DELETE
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALTER
+    - keyword: UPDATE
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALTER
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALTER
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: REFRESH
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: MODIFY
+    - keyword: QUERY
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: ROW
+    - keyword: POLICY
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALTER
+    - keyword: QUOTA
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: DROP
+    - keyword: SETTINGS
+    - keyword: PROFILE
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - comma: ','
+    - keyword: INSERT
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALTER
+    - keyword: DELETE
+    - comma: ','
+    - keyword: ALTER
+    - keyword: UPDATE
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: SHOW
+    - keyword: ACCESS
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ROLE
+    - keyword: ADMIN
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ACCESS
+    - keyword: MANAGEMENT
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: REVOKE
+    - keyword: SELECT
+    - keyword: ON
+    - naked_identifier: db_name
+    - keyword: FROM
+    - role_reference:
+      - naked_identifier: user_name
+- statement_terminator: ;

@@ -1,5 +1,11 @@
 rule: LT12
 
+test_pass_empty_file:
+  # An empty file has no content to enforce a trailing newline on and must not
+  # raise an error (nor an exception).
+  # https://github.com/sqlfluff/sqlfluff/issues/4807
+  pass_str: ""
+
 test_pass_single_final_newline:
   pass_str: "SELECT foo FROM bar\n"
 

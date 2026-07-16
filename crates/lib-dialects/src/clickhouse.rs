@@ -2112,9 +2112,48 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::keyword("VIEW").to_matchable(),
                 Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                        .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
                 Ref::new("OnClusterClauseSegment").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DEFINER").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::keyword("CURRENT_USER").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SQL").to_matchable(),
+                    Ref::keyword("SECURITY").to_matchable(),
+                    // NOTE: "NONE" is deprecated but still accepted by ClickHouse.
+                    one_of(vec![
+                        Ref::keyword("DEFINER").to_matchable(),
+                        Ref::keyword("INVOKER").to_matchable(),
+                        Ref::keyword("NONE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
                 Ref::keyword("AS").to_matchable(),
-                Ref::new("SelectableGrammar").to_matchable(),
+                Ref::new("SelectableGrammar")
+                    .terminators(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("COMMENT").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                Ref::new("CommentClauseSegment").optional().to_matchable(),
                 Ref::new("TableEndClauseSegment").optional().to_matchable(),
             ])
             .to_matchable()
@@ -2171,8 +2210,40 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DEFINER").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::keyword("CURRENT_USER").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SQL").to_matchable(),
+                    Ref::keyword("SECURITY").to_matchable(),
+                    // NOTE: "NONE" is deprecated but still accepted by ClickHouse.
+                    one_of(vec![
+                        Ref::keyword("DEFINER").to_matchable(),
+                        Ref::keyword("NONE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
                 Ref::keyword("AS").to_matchable(),
-                Ref::new("SelectableGrammar").to_matchable(),
+                Ref::new("SelectableGrammar")
+                    .terminators(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("COMMENT").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                Ref::new("CommentClauseSegment").optional().to_matchable(),
                 Ref::new("TableEndClauseSegment").optional().to_matchable(),
             ])
             .to_matchable()
@@ -2232,6 +2303,137 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ])
         .to_matchable(),
     );
+
+    clickhouse_dialect.add([(
+        "CreateDictionaryStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateDictionaryStatement, |_| {
+            // A dictionary source/layout function such as
+            // `CLICKHOUSE(HOST 'localhost' ...)` or `HASHED()`.
+            let dictionary_function = || {
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Bracketed::new(vec![
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| {
+                            this.min_times(1);
+                            this.optional();
+                        })
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            };
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                Ref::keyword("DICTIONARY").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::new("OnClusterClauseSegment").optional().to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::keyword("DEFAULT").to_matchable(),
+                                    Ref::keyword("EXPRESSION").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            any_set_of(vec![
+                                Ref::keyword("IS_OBJECT_ID").to_matchable(),
+                                Ref::keyword("HIERARCHICAL").to_matchable(),
+                                Ref::keyword("INJECTIVE").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("PRIMARY").to_matchable(),
+                Ref::keyword("KEY").to_matchable(),
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SOURCE").to_matchable(),
+                    Bracketed::new(vec![dictionary_function()]).to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LAYOUT").to_matchable(),
+                    Bracketed::new(vec![dictionary_function()]).to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LIFETIME").to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("MIN").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::keyword("MAX").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SETTINGS").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("NakedIdentifierSegment").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("CommentClauseSegment").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     clickhouse_dialect.add([(
         "DropDictionaryStatementSegment".into(),
@@ -3063,6 +3265,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ansi::statement_segment().copy(
             Some(vec![
                 Ref::new("CreateMaterializedViewStatementSegment").to_matchable(),
+                Ref::new("CreateDictionaryStatementSegment").to_matchable(),
                 Ref::new("DropDictionaryStatementSegment").to_matchable(),
                 Ref::new("DropQuotaStatementSegment").to_matchable(),
                 Ref::new("DropSettingProfileStatementSegment").to_matchable(),

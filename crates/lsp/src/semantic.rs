@@ -324,6 +324,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateExternalTableStatement
         | AlterViewStatement
         | CreateMaterializedViewStatement
+        | CreateDictionaryStatement
         | AlterMaterializedViewSetOptionsStatement
         | DropMaterializedViewStatement
         | ParameterizedExpression

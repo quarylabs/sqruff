@@ -290,6 +290,7 @@ pub enum SyntaxKind {
     DatabaseEngine,
     ColumnTtlSegment,
     TableTtlSegment,
+    CreateDictionaryStatement,
     DropDictionaryStatement,
     DropQuotaStatement,
     DropSettingProfileStatement,

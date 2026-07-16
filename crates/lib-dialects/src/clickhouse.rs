@@ -1164,6 +1164,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     ]);
 
     clickhouse_dialect.add([(
+        "QualifyClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("QUALIFY").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                optionally_bracketed(vec![Ref::new("ExpressionSegment").to_matchable()])
+                    .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    clickhouse_dialect.add([(
         "PreWhereClauseSegment".into(),
         NodeMatcher::new(SyntaxKind::PreWhereClause, |_| {
             Sequence::new(vec![
@@ -1229,6 +1245,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ]),
                 None,
                 None,
+                None,
+                Vec::new(),
+                false,
+            )
+            .copy(
+                Some(vec![
+                    Ref::new("QualifyClauseSegment").optional().to_matchable(),
+                ]),
+                None,
+                Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
                 None,
                 Vec::new(),
                 false,

@@ -665,6 +665,53 @@ fn test_clickhouse_parametric_type_spacing_fix() {
 }
 
 #[test]
+fn test_clickhouse_select_apply_spacing_fix() {
+    let config = FluffConfig::new(
+        HashMap::from([(
+            "core".into(),
+            Value::Map(HashMap::from([
+                ("dialect".into(), Value::String("clickhouse".into())),
+                ("rules".into(), Value::String("LT01".into())),
+            ])),
+        )]),
+        None,
+        None,
+    );
+    let mut lnt = Linter::new(config, None, None, true).unwrap();
+    let sql = concat!(
+        "SELECT * APPLY (sum) FROM t1;\n",
+        "SELECT * EXCEPT (c1) APPLY (col -> sum(col)) FROM t1;\n",
+    );
+
+    let linted = lnt.lint_string_wrapped(sql, true).unwrap();
+
+    assert_eq!(
+        linted.fix_string(),
+        concat!(
+            "SELECT * APPLY(sum) FROM t1;\n",
+            "SELECT * EXCEPT (c1) APPLY(col -> sum(col)) FROM t1;\n",
+        )
+    );
+
+    let correct_sql = concat!(
+        "SELECT * APPLY(sum) FROM t1;\n",
+        "SELECT * EXCEPT (c1) APPLY(col -> sum(col)) FROM t1;\n",
+    );
+    let correct_linted = lnt.lint_string_wrapped(correct_sql, false).unwrap();
+    let lt01: Vec<_> = correct_linted
+        .violations()
+        .iter()
+        .filter(|v| v.rule_code() == "LT01")
+        .map(|v| (v.rule_code(), v.line_no, v.line_pos))
+        .collect();
+
+    assert!(
+        lt01.is_empty(),
+        "unexpected LT01 violations for correctly spaced APPLY clauses: {lt01:?}"
+    );
+}
+
+#[test]
 fn test_clickhouse_datetime64_rejects_timezone_without_precision() {
     let config = FluffConfig::new(
         HashMap::from([(

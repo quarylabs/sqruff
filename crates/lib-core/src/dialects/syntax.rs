@@ -166,6 +166,7 @@ pub enum SyntaxKind {
     WhileStatement,
     DatePartWeek,
     SelectExceptClause,
+    SelectApplyClause,
     SelectReplaceClause,
     StructTypeSchema,
     Tuple,

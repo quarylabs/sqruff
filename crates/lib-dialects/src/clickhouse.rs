@@ -818,6 +818,21 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // A Clickhouse SELECT APPLY clause.
+        // https://clickhouse.com/docs/en/sql-reference/statements/select#apply-modifier
+        (
+            "ApplyClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectApplyClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("APPLY").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "QuotedLiteralSegment".into(),
             one_of(vec![
@@ -864,16 +879,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     clickhouse_dialect.replace_grammar(
         "WildcardExpressionSegment",
-        ansi::wildcard_expression_segment().copy(
-            Some(vec![
-                Ref::new("ExceptClauseSegment").optional().to_matchable(),
-            ]),
-            None,
-            None,
-            None,
-            Vec::new(),
-            false,
-        ),
+        Sequence::new(vec![
+            Ref::new("WildcardIdentifierSegment").to_matchable(),
+            Ref::new("ExceptClauseSegment").optional().to_matchable(),
+            AnyNumberOf::new(vec![Ref::new("ApplyClauseSegment").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable(),
     );
 
     clickhouse_dialect.add([(

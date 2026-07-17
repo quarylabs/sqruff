@@ -312,6 +312,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | WhileStatements
         | WhileStatement
         | SelectExceptClause
+        | SelectApplyClause
         | SelectReplaceClause
         | StructTypeSchema
         | Tuple

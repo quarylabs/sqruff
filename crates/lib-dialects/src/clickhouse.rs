@@ -520,6 +520,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .copy(
                     Some(vec![
                         Ref::keyword("PREWHERE").to_matchable(),
+                        Ref::keyword("SETTINGS").to_matchable(),
                         Ref::keyword("INTO").to_matchable(),
                         Ref::keyword("FORMAT").to_matchable(),
                     ]),
@@ -1216,6 +1217,32 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ]),
                 None,
                 Some(Ref::new("WhereClauseSegment").optional().to_matchable()),
+                None,
+                vec![
+                    Ref::new("FormatClauseSegment").to_matchable(),
+                    Ref::new("IntoOutfileClauseSegment").to_matchable(),
+                    Ref::new("SettingsClauseSegment").to_matchable(),
+                ],
+                false,
+            ),
+    );
+
+    clickhouse_dialect.replace_grammar(
+        "SetExpressionSegment",
+        ansi_dialect
+            .grammar("SetExpressionSegment")
+            .match_grammar(&ansi_dialect)
+            .unwrap()
+            .copy(
+                Some(vec![
+                    Ref::new("FormatClauseSegment").optional().to_matchable(),
+                    Ref::new("SettingsClauseSegment").optional().to_matchable(),
+                    Ref::new("IntoOutfileClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                ]),
+                None,
+                None,
                 None,
                 Vec::new(),
                 false,

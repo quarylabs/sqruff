@@ -576,8 +576,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     ]);
 
     // Disambiguate wildcard EXCEPT from set operator EXCEPT.
-    // Exclude patterns like `EXCEPT ( ... )` and `EXCEPT identifier` from
-    // being parsed as a set operator to allow wildcard `* EXCEPT ...` to bind.
+    // Exclude `EXCEPT ( ... )` from being parsed as a set operator to allow
+    // wildcard `* EXCEPT (...)` to bind.
     clickhouse_dialect.replace_grammar(
         "SetOperatorSegment",
         one_of(vec![
@@ -595,17 +595,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ])
         .config(|config| {
             config.exclude = Some(
-                one_of(vec![
-                    Sequence::new(vec![
-                        Ref::keyword("EXCEPT").to_matchable(),
-                        Bracketed::new(vec![Anything::new().to_matchable()]).to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("EXCEPT").to_matchable(),
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("EXCEPT").to_matchable(),
+                    Bracketed::new(vec![Anything::new().to_matchable()]).to_matchable(),
                 ])
                 .to_matchable(),
             );

@@ -265,6 +265,15 @@ Add trailing newline to the end. The $ character represents end of file.
     targets_templated!();
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
+        // Edge case: if the file is totally empty, there's nothing to enforce a
+        // trailing newline on. sqruff represents an empty file as a single
+        // zero-length literal placeholder followed by `end_of_file`, so the
+        // "last segment" is that empty placeholder rather than nothing. Return
+        // without error, mirroring SQLFluff's `if not segment: return None`.
+        if context.segment.raw().is_empty() {
+            return Vec::new();
+        }
+
         let source_missing_final_newline = templated_source_missing_final_newline(context);
         let templated_extra_final_newline = templated_file_has_extra_final_newline(context);
         let (parent_stack, segment) = get_last_segment(FunctionalContext::new(context).segment());

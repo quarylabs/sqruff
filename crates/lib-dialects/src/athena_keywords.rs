@@ -1,3 +1,9 @@
+// A list of all Athena keywords.
+//
+// Presto List (for Athena v2): https://prestodb.io/docs/0.217/language/reserved.html
+// Trino List (for Athena v3): https://trino.io/docs/current/language/reserved.html
+// Hive List: https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL
+
 pub(crate) const ATHENA_RESERVED_KEYWORDS: &[&str] = &[
     "ALL",
     "ALTER",

@@ -4936,6 +4936,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("FunctionSegment").to_matchable(),
                     Bracketed::new(vec![
                         one_of(vec![
+                            Ref::new("LateralColumnAliasExpressionGrammar").to_matchable(),
                             Ref::new("ExpressionSegment").to_matchable(),
                             Ref::new("SelectableGrammar").to_matchable(),
                             Delimited::new(vec![
@@ -4998,6 +4999,10 @@ pub fn raw_dialect() -> Dialect {
             AnyNumberOf::new(vec![Ref::new("ArrayAccessorSegment").to_matchable()])
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "LateralColumnAliasExpressionGrammar".into(),
+            Nothing::new().to_matchable().into(),
         ),
     ]);
 

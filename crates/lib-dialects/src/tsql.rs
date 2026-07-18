@@ -2240,6 +2240,27 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // T-SQL CREATE ROLE with optional AUTHORIZATION clause
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-role-transact-sql
+    dialect.replace_grammar(
+        "CreateRoleStatementSegment",
+        NodeMatcher::new(SyntaxKind::CreateRoleStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("ROLE").to_matchable(),
+                Ref::new("RoleReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("AUTHORIZATION").to_matchable(),
+                    Ref::new("RoleReferenceSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
     dialect.add([(
         "TableOptionGrammar".into(),
         one_of(vec![

@@ -128,6 +128,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("FunctionSegment").to_matchable(),
                     Bracketed::new(vec![
                         one_of(vec![
+                            Ref::new("LateralColumnAliasExpressionGrammar").to_matchable(),
                             Ref::new("ExpressionSegment").to_matchable(),
                             Ref::new("SelectableGrammar").to_matchable(),
                             Delimited::new(vec![
@@ -151,6 +152,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .allow_gaps(false)
             .to_matchable(),
             clickhouse_dialect.grammar("Expression_D_Grammar"),
+        ])
+        .to_matchable(),
+    );
+
+    clickhouse_dialect.replace_grammar(
+        "LateralColumnAliasExpressionGrammar",
+        Sequence::new(vec![
+            Ref::new("ExpressionSegment").to_matchable(),
+            Ref::new("AliasExpressionSegment").to_matchable(),
         ])
         .to_matchable(),
     );

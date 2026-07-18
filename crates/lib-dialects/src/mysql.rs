@@ -1329,6 +1329,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("DEFAULT").to_matchable(),
                         Ref::keyword("INPLACE").to_matchable(),
                         Ref::keyword("COPY").to_matchable(),
+                        Ref::keyword("NOCOPY").to_matchable(),
+                        Ref::keyword("INSTANT").to_matchable(),
                     ])
                     .to_matchable(),
                 ])

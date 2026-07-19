@@ -587,6 +587,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | Literal
         | Meta
         | Colon
+        | TernaryColon
         | StatementTerminator
         | StartSquareBracket
         | EndSquareBracket

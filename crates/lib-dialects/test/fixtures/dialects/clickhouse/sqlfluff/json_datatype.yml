@@ -1,0 +1,313 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: c
+        - data_type:
+          - data_type_identifier: JSON
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - keyword: tuple
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: c
+        - data_type:
+          - data_type_identifier: JSON
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - parameter: max_dynamic_paths
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '16'
+              - end_bracket: )
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - keyword: tuple
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t3
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: c
+        - data_type:
+          - data_type_identifier: JSON
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - parameter: max_dynamic_paths
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '16'
+              - comma: ','
+              - parameter: max_dynamic_types
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '8'
+              - end_bracket: )
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - keyword: tuple
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t4
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: c
+        - data_type:
+          - data_type_identifier: JSON
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - json_path:
+                - naked_identifier: some
+                - dot: .
+                - naked_identifier: path
+              - data_type:
+                - data_type_identifier: UInt32
+              - comma: ','
+              - json_path:
+                - naked_identifier: content_type
+              - data_type:
+                - data_type_identifier: LowCardinality
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - data_type:
+                      - data_type_identifier: String
+                    - end_bracket: )
+              - end_bracket: )
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - keyword: tuple
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t4_escaped
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: c
+        - data_type:
+          - data_type_identifier: JSON
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - json_path:
+                - quoted_identifier: '`a%2Eb`'
+              - data_type:
+                - data_type_identifier: UInt8
+              - comma: ','
+              - keyword: SKIP
+              - json_path:
+                - quoted_identifier: '`a%2Eb`'
+              - end_bracket: )
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - keyword: tuple
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t5
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: c
+        - data_type:
+          - data_type_identifier: JSON
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - parameter: max_dynamic_paths
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '4'
+              - comma: ','
+              - json_path:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: b
+              - data_type:
+                - data_type_identifier: UInt32
+              - comma: ','
+              - keyword: SKIP
+              - json_path:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: c
+              - comma: ','
+              - keyword: SKIP
+              - keyword: REGEXP
+              - quoted_literal: '''paths_to_skip.*'''
+              - end_bracket: )
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - keyword: tuple
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t6
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - quoted_identifier: '`ephemeral_detail`'
+        - data_type:
+          - data_type_identifier: JSON
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - parameter: max_dynamic_paths
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '64'
+              - comma: ','
+              - json_path:
+                - naked_identifier: content_type
+              - data_type:
+                - data_type_identifier: LowCardinality
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - data_type:
+                      - data_type_identifier: String
+                    - end_bracket: )
+              - comma: ','
+              - json_path:
+                - naked_identifier: source
+              - data_type:
+                - data_type_identifier: LowCardinality
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - data_type:
+                      - data_type_identifier: String
+                    - end_bracket: )
+              - comma: ','
+              - json_path:
+                - naked_identifier: truncated
+              - data_type:
+                - data_type_identifier: Bool
+              - end_bracket: )
+        - keyword: DEFAULT
+        - quoted_literal: '''{}'''
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
+      - merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - keyword: tuple
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+- statement_terminator: ;

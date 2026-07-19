@@ -1,0 +1,279 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - oracle_table_reference:
+        - naked_identifier: NEW_VIEW
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PERSON_ID
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: PERSONS
+                - alias_expression:
+                  - naked_identifier: p
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_view_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: VIEW
+      - oracle_table_reference:
+        - naked_identifier: NEW_VIEW
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PERSON_ID
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: PERSONS
+                - alias_expression:
+                  - naked_identifier: p
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_view_statement:
+      - keyword: CREATE
+      - keyword: FORCE
+      - keyword: VIEW
+      - oracle_table_reference:
+        - naked_identifier: NEW_VIEW
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PERSON_ID
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: PERSONS
+                - alias_expression:
+                  - naked_identifier: p
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_view_statement:
+      - keyword: CREATE
+      - keyword: NO
+      - keyword: FORCE
+      - keyword: VIEW
+      - oracle_table_reference:
+        - naked_identifier: NEW_VIEW
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PERSON_ID
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: PERSONS
+                - alias_expression:
+                  - naked_identifier: p
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_view_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: NO
+      - keyword: FORCE
+      - keyword: VIEW
+      - oracle_table_reference:
+        - naked_identifier: NEW_VIEW
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PERSON_ID
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: PERSONS
+                - alias_expression:
+                  - naked_identifier: p
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_view_statement:
+      - keyword: CREATE
+      - keyword: EDITIONING
+      - keyword: VIEW
+      - oracle_table_reference:
+        - naked_identifier: NEW_VIEW
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PERSON_ID
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: PERSONS
+                - alias_expression:
+                  - naked_identifier: p
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_view_statement:
+      - keyword: CREATE
+      - keyword: EDITIONABLE
+      - keyword: VIEW
+      - oracle_table_reference:
+        - naked_identifier: NEW_VIEW
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PERSON_ID
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: PERSONS
+                - alias_expression:
+                  - naked_identifier: p
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_view_statement:
+      - keyword: CREATE
+      - keyword: NONEDITIONABLE
+      - keyword: VIEW
+      - oracle_table_reference:
+        - naked_identifier: NEW_VIEW
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PERSON_ID
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: PERSONS
+                - alias_expression:
+                  - naked_identifier: p
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_view_statement:
+      - keyword: CREATE
+      - keyword: EDITIONABLE
+      - keyword: EDITIONING
+      - keyword: VIEW
+      - oracle_table_reference:
+        - naked_identifier: NEW_VIEW
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PERSON_ID
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: PERSONS
+                - alias_expression:
+                  - naked_identifier: p
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_view_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: EDITIONING
+      - keyword: VIEW
+      - oracle_table_reference:
+        - naked_identifier: NEW_VIEW
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PERSON_ID
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: PERSONS
+                - alias_expression:
+                  - naked_identifier: p
+        - end_bracket: )
+  - statement_terminator: ;

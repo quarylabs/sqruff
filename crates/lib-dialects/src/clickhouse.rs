@@ -107,6 +107,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         )],
         "dot",
     );
+    clickhouse_dialect.insert_lexer_matchers(
+        vec![Matcher::string(
+            "double_equals",
+            "==",
+            SyntaxKind::RawComparisonOperator,
+        )],
+        "equals",
+    );
 
     clickhouse_dialect.replace_grammar(
         "AccessorGrammar",
@@ -176,6 +184,34 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("ExpressionSegment").to_matchable(),
             ])
             .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    clickhouse_dialect.replace_grammar(
+        "ComparisonOperatorGrammar",
+        one_of(vec![
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("DoubleEqualsSegment").to_matchable(),
+            Ref::new("GreaterThanSegment").to_matchable(),
+            Ref::new("LessThanSegment").to_matchable(),
+            Ref::new("GreaterThanOrEqualToSegment").to_matchable(),
+            Ref::new("LessThanOrEqualToSegment").to_matchable(),
+            Ref::new("NotEqualToSegment").to_matchable(),
+            Ref::new("LikeOperatorSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("IS").to_matchable(),
+                Ref::keyword("DISTINCT").to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("IS").to_matchable(),
+                Ref::keyword("NOT").to_matchable(),
+                Ref::keyword("DISTINCT").to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+            ])
             .to_matchable(),
         ])
         .to_matchable(),
@@ -1152,6 +1188,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             TypedParser::new(SyntaxKind::Lambda, SyntaxKind::Lambda)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "RawDoubleEqualsSegment".into(),
+            StringParser::new("==", SyntaxKind::RawComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "DoubleEqualsSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Ref::new("RawDoubleEqualsSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
     ]);
 

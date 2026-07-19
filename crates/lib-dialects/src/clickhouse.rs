@@ -166,6 +166,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     clickhouse_dialect.replace_grammar(
+        "Expression_A_Grammar",
+        Sequence::new(vec![
+            clickhouse_dialect.grammar("Expression_A_Grammar"),
+            Sequence::new(vec![
+                Ref::new("QuestionMarkSegment").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+                Ref::new("TernaryColonSegment").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    clickhouse_dialect.replace_grammar(
         "AccessPermissionSegment",
         one_of(vec![
             Sequence::new(vec![
@@ -987,6 +1003,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         vec![Matcher::string("lambda", "->", SyntaxKind::Lambda)],
         "newline",
     );
+
+    clickhouse_dialect.add([(
+        "QuestionMarkSegment".into(),
+        StringParser::new("?", SyntaxKind::Question)
+            .to_matchable()
+            .into(),
+    )]);
+
+    clickhouse_dialect.add([(
+        "TernaryColonSegment".into(),
+        StringParser::new(":", SyntaxKind::TernaryColon)
+            .to_matchable()
+            .into(),
+    )]);
 
     clickhouse_dialect.add(vec![
         (

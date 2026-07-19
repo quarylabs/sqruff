@@ -461,6 +461,7 @@ pub enum SyntaxKind {
     Meta,
     #[default]
     Colon,
+    TernaryColon,
     StatementTerminator,
     StartSquareBracket,
     EndSquareBracket,

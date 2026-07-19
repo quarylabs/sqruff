@@ -712,6 +712,39 @@ fn test_clickhouse_select_apply_spacing_fix() {
 }
 
 #[test]
+fn test_clickhouse_ternary_spacing_no_false_positive() {
+    let config = FluffConfig::new(
+        HashMap::from([(
+            "core".into(),
+            Value::Map(HashMap::from([
+                ("dialect".into(), Value::String("clickhouse".into())),
+                ("rules".into(), Value::String("LT01".into())),
+            ])),
+        )]),
+        None,
+        None,
+    );
+    let mut lnt = Linter::new(config, None, None, true).unwrap();
+    let sql = concat!(
+        "SELECT a ? b : c AS x FROM t;\n",
+        "SELECT col = '' ? 0 : 1 AS x FROM t;\n",
+    );
+
+    let linted = lnt.lint_string_wrapped(sql, false).unwrap();
+    let lt01: Vec<_> = linted
+        .violations()
+        .iter()
+        .filter(|v| v.rule_code() == "LT01")
+        .map(|v| (v.rule_code(), v.line_no, v.line_pos))
+        .collect();
+
+    assert!(
+        lt01.is_empty(),
+        "unexpected LT01 violations for correctly spaced ternary expressions: {lt01:?}"
+    );
+}
+
+#[test]
 fn test_clickhouse_datetime64_rejects_timezone_without_precision() {
     let config = FluffConfig::new(
         HashMap::from([(

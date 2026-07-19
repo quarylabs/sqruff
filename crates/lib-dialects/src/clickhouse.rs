@@ -1520,6 +1520,59 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "JSONPathSegment".into(),
+            NodeMatcher::new(SyntaxKind::JsonPath, |_| {
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    .config(|config| {
+                        config.delimiter(Ref::new("DotSegment"));
+                        config.allow_gaps = false;
+                    })
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JSONArgumentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::BracketedArguments, |_| {
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("SKIP").to_matchable(),
+                                one_of(vec![
+                                    Sequence::new(vec![
+                                        Ref::keyword("REGEXP").to_matchable(),
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::new("JSONPathSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("JSONPathSegment").to_matchable(),
+                                Ref::new("DatatypeSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     clickhouse_dialect.replace_grammar(
@@ -1583,8 +1636,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("NestedArgumentsSegment").to_matchable(),
             ])
             .to_matchable(),
-            // JSON data type
-            StringParser::new("JSON", SyntaxKind::DataTypeIdentifier).to_matchable(),
+            // JSON(max_dynamic_paths=N, path Type, SKIP ...)
+            Sequence::new(vec![
+                StringParser::new("JSON", SyntaxKind::DataTypeIdentifier).to_matchable(),
+                Ref::new("JSONArgumentsSegment").optional().to_matchable(),
+            ])
+            .to_matchable(),
             // Enum8('val1' = 1, 'val2' = 2)
             Sequence::new(vec![
                 one_of(vec![

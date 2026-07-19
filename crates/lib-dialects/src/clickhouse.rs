@@ -1142,11 +1142,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     clickhouse_dialect.add([
         (
             "JoinLikeClauseGrammar".into(),
-            Sequence::new(vec![
-                AnyNumberOf::new(vec![Ref::new("ArrayJoinClauseSegment").to_matchable()])
-                    .config(|this| this.min_times(1))
-                    .to_matchable(),
-                Ref::new("AliasExpressionSegment").optional().to_matchable(),
+            AnyNumberOf::new(vec![Ref::new("ArrayJoinClauseSegment").to_matchable()])
+                .config(|this| this.min_times(1))
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "ArrayJoinClauseTerminatorGrammar".into(),
+            one_of(vec![
+                Ref::keyword("WHERE").to_matchable(),
+                Ref::new("FromClauseTerminatorGrammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LEFT").optional().to_matchable(),
+                    Ref::keyword("ARRAY").to_matchable(),
+                    Ref::new("JoinKeywordsGrammar").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -1586,6 +1597,26 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     clickhouse_dialect.add([(
+        "ArrayJoinClauseElementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SelectClauseElement, |_| {
+            one_of(vec![
+                Ref::new("WildcardExpressionSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                    Ref::new("AliasExpressionSegment")
+                        .exclude(Ref::new("ArrayJoinClauseTerminatorGrammar"))
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    clickhouse_dialect.add([(
         "ArrayJoinClauseSegment".into(),
         NodeMatcher::new(SyntaxKind::ArrayJoinClause, |_| {
             Sequence::new(vec![
@@ -1593,8 +1624,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::keyword("ARRAY").to_matchable(),
                 Ref::new("JoinKeywordsGrammar").to_matchable(),
                 MetaSegment::indent().to_matchable(),
-                Delimited::new(vec![Ref::new("SelectClauseElementSegment").to_matchable()])
-                    .to_matchable(),
+                Delimited::new(vec![
+                    Ref::new("ArrayJoinClauseElementSegment").to_matchable(),
+                ])
+                .to_matchable(),
                 MetaSegment::dedent().to_matchable(),
             ])
             .to_matchable()

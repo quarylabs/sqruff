@@ -7,4 +7,4 @@ catalog:
   '@playwright/test': 1.61.1
   eslint: ^10.6.0
   typescript: ^6.0.3
-  typescript-eslint: ^8.63.0
+  typescript-eslint: ^8.64.0

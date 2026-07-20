@@ -704,7 +704,19 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
-                        Ref::keyword("CURRENT_TIMESTAMP").to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("CURRENT_TIMESTAMP").to_matchable(),
+                                Ref::keyword("NOW").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Bracketed::new(vec![
+                                Ref::new("NumericLiteralSegment").optional().to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                         Sequence::new(vec![
                             Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
                                 .to_matchable(),

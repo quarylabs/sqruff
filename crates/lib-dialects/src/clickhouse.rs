@@ -779,46 +779,105 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    let order_by_sort_key = |with_fill: Option<bool>| {
+        let mut elements = vec![
+            one_of(vec![
+                Ref::new("ColumnReferenceSegment").to_matchable(),
+                Ref::new("NumericLiteralSegment").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("ASC").to_matchable(),
+                Ref::keyword("DESC").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("NULLS").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("FIRST").to_matchable(),
+                    Ref::keyword("LAST").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ];
+
+        match with_fill {
+            Some(true) => elements.push(Ref::new("WithFillSegment").to_matchable()),
+            Some(false) => {}
+            None => elements.push(Ref::new("WithFillSegment").optional().to_matchable()),
+        }
+
+        Sequence::new(elements).to_matchable()
+    };
+
+    let interpolate_clause = || {
+        Sequence::new(vec![
+            Ref::keyword("INTERPOLATE").to_matchable(),
+            Bracketed::new(vec![
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AS").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .to_matchable()
+    };
+
     clickhouse_dialect.replace_grammar(
         "OrderByClauseSegment",
         Sequence::new(vec![
             Ref::keyword("ORDER").to_matchable(),
             Ref::keyword("BY").to_matchable(),
             MetaSegment::indent().to_matchable(),
-            Delimited::new(vec![
+            one_of(vec![
                 Sequence::new(vec![
-                    one_of(vec![
-                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                        Ref::new("NumericLiteralSegment").to_matchable(),
-                        Ref::new("ExpressionSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("ASC").to_matchable(),
-                        Ref::keyword("DESC").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
                     Sequence::new(vec![
-                        Ref::keyword("NULLS").to_matchable(),
-                        one_of(vec![
-                            Ref::keyword("FIRST").to_matchable(),
-                            Ref::keyword("LAST").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                order_by_sort_key(Some(false)),
+                                Ref::new("CommaSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        order_by_sort_key(Some(true)),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("CommaSegment").to_matchable(),
+                                order_by_sort_key(None),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])
-                    .config(|this| this.optional())
                     .to_matchable(),
-                    Ref::new("WithFillSegment").optional().to_matchable(),
+                    interpolate_clause(),
                 ])
                 .to_matchable(),
+                Delimited::new(vec![order_by_sort_key(None)])
+                    .config(|this| {
+                        this.terminators = vec![
+                            Ref::keyword("LIMIT").to_matchable(),
+                            Ref::new("FrameClauseUnitGrammar").to_matchable(),
+                        ]
+                    })
+                    .to_matchable(),
             ])
-            .config(|this| {
-                this.terminators = vec![
-                    Ref::keyword("LIMIT").to_matchable(),
-                    Ref::new("FrameClauseUnitGrammar").to_matchable(),
-                ]
-            })
             .to_matchable(),
             MetaSegment::dedent().to_matchable(),
         ])

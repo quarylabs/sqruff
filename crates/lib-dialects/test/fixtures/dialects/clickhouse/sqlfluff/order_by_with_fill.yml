@@ -362,3 +362,202 @@ file:
       - keyword: WITH
       - keyword: FILL
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+      - keyword: WITH
+      - keyword: FILL
+      - keyword: INTERPOLATE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: b
+        - keyword: AS
+        - expression:
+          - column_reference:
+            - naked_identifier: b
+          - binary_operator: +
+          - numeric_literal: '1'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+      - keyword: WITH
+      - keyword: FILL
+      - keyword: FROM
+      - expression:
+        - numeric_literal: '1'
+      - keyword: TO
+      - expression:
+        - numeric_literal: '10'
+      - keyword: STEP
+      - numeric_literal: '2'
+      - keyword: INTERPOLATE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: b
+        - keyword: AS
+        - expression:
+          - column_reference:
+            - naked_identifier: b
+          - binary_operator: +
+          - numeric_literal: '1'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: c
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+      - keyword: WITH
+      - keyword: FILL
+      - keyword: INTERPOLATE
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: ts
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: value
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: ts
+      - keyword: WITH
+      - keyword: FILL
+      - comma: ','
+      - column_reference:
+        - naked_identifier: id
+      - keyword: INTERPOLATE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: value
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: sensor_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: timestamp
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: value
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: sensor_id
+      - comma: ','
+      - column_reference:
+        - naked_identifier: timestamp
+      - keyword: WITH
+      - keyword: FILL
+      - keyword: INTERPOLATE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: value
+        - keyword: AS
+        - expression:
+          - numeric_literal: '9999'
+        - end_bracket: )
+- statement_terminator: ;

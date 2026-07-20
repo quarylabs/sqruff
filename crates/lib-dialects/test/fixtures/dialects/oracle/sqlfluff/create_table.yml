@@ -1,0 +1,78 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_create_table_statement:
+      - keyword: create
+      - keyword: table
+      - oracle_table_reference:
+        - naked_identifier: tabl#e1
+      - bracketed:
+        - start_bracket: (
+        - oracle_column_definition:
+          - naked_identifier: c1
+          - data_type:
+            - data_type_identifier: SMALLINT
+        - comma: ','
+        - oracle_column_definition:
+          - naked_identifier: c2
+          - data_type:
+            - data_type_identifier: DATE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_table_statement:
+      - keyword: create
+      - keyword: table
+      - oracle_table_reference:
+        - naked_identifier: table1$
+      - bracketed:
+        - start_bracket: (
+        - oracle_column_definition:
+          - naked_identifier: c1
+          - data_type:
+            - data_type_identifier: SMALLINT
+        - comma: ','
+        - oracle_column_definition:
+          - naked_identifier: c2
+          - data_type:
+            - data_type_identifier: DATE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_table_statement:
+      - keyword: create
+      - keyword: table
+      - oracle_table_reference:
+        - naked_identifier: tab#le1$
+      - bracketed:
+        - start_bracket: (
+        - oracle_column_definition:
+          - naked_identifier: c1
+          - data_type:
+            - data_type_identifier: SMALLINT
+        - comma: ','
+        - oracle_column_definition:
+          - naked_identifier: c2
+          - data_type:
+            - data_type_identifier: DATE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_table_statement:
+      - keyword: create
+      - keyword: table
+      - oracle_table_reference:
+        - naked_identifier: tab#le1$
+      - bracketed:
+        - start_bracket: (
+        - oracle_column_definition:
+          - naked_identifier: c#1
+          - data_type:
+            - data_type_identifier: SMALLINT
+        - comma: ','
+        - oracle_column_definition:
+          - naked_identifier: c$2
+          - data_type:
+            - data_type_identifier: DATE
+        - end_bracket: )
+  - statement_terminator: ;

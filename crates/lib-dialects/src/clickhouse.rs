@@ -3623,7 +3623,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("BY").to_matchable(),
                     one_of(vec![
                         Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
-                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                 ])

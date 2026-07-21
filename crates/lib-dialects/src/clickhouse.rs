@@ -1392,24 +1392,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     clickhouse_dialect.replace_grammar(
         "SetExpressionSegment",
-        ansi_dialect
-            .grammar("SetExpressionSegment")
-            .match_grammar(&ansi_dialect)
-            .unwrap()
-            .copy(
-                Some(vec![
-                    Ref::new("FormatClauseSegment").optional().to_matchable(),
+        Sequence::new(vec![
+            Ref::new("NonSetSelectableGrammar").to_matchable(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                    Ref::new("LimitClauseSegment").optional().to_matchable(),
                     Ref::new("SettingsClauseSegment").optional().to_matchable(),
-                    Ref::new("IntoOutfileClauseSegment")
-                        .optional()
-                        .to_matchable(),
-                ]),
-                None,
-                None,
-                None,
-                Vec::new(),
-                false,
-            ),
+                    Ref::new("SetOperatorSegment").to_matchable(),
+                    Ref::new("NonSetSelectableGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.min_times(1))
+            .to_matchable(),
+            Ref::new("OrderByClauseSegment").optional().to_matchable(),
+            Ref::new("LimitClauseSegment").optional().to_matchable(),
+            Ref::new("NamedWindowSegment").optional().to_matchable(),
+            Ref::new("FormatClauseSegment").optional().to_matchable(),
+            Ref::new("SettingsClauseSegment").optional().to_matchable(),
+            Ref::new("IntoOutfileClauseSegment")
+                .optional()
+                .to_matchable(),
+        ])
+        .to_matchable(),
     );
 
     clickhouse_dialect.replace_grammar(

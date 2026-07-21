@@ -1231,6 +1231,6 @@ def process_from_rust(
     except Exception as e:
         print("Error: ", e)
         raise e
-    if errors != []:
+    if errors != [] and not config.jinja_ignore_templating:
         raise ValueError
     return output

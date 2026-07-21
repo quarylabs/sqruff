@@ -18,6 +18,11 @@ pub struct Cli {
     /// Override the dialect (e.g., bigquery, clickhouse, ansi).
     #[arg(long, global = true)]
     pub dialect: Option<String>,
+    /// Override the `library_path` value for the jinja templater. Set this to
+    /// 'none' to disable it entirely. This overrides any values set by users in
+    /// configuration files or inline directives.
+    #[arg(long, global = true)]
+    pub library_path: Option<String>,
     /// Show parse errors.
     #[arg(long, global = true, default_value = "false")]
     pub parsing_errors: bool,

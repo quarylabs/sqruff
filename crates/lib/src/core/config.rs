@@ -737,7 +737,12 @@ fn toml_value_to_config_value(value: &toml::Value) -> Value {
 }
 
 fn resolve_relative_config_path(mut value: Value, config_path: Option<&Path>) -> Value {
-    let path = PathBuf::from(value.as_string().unwrap());
+    // Non-string values (e.g. `none`, which parses to `Value::None`) have no
+    // path to resolve; leave them untouched.
+    let Some(raw) = value.as_string() else {
+        return value;
+    };
+    let path = PathBuf::from(raw);
     if !path.is_absolute() {
         let config_path = config_path.unwrap().parent().unwrap();
         let current_dir = std::env::current_dir().unwrap();
@@ -870,6 +875,22 @@ templater = placeholder
         );
 
         assert_eq!(config.templater_kind().unwrap(), TemplaterKind::Placeholder);
+    }
+
+    #[test]
+    fn test_library_path_none_does_not_resolve() {
+        // A `library_path` of `none` parses to `Value::None` and must not be run
+        // through relative-path resolution (which would otherwise panic without a
+        // config path). It should simply be stored as an empty value.
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+library_path = none
+"#,
+            None,
+        );
+
+        assert!(config.get("library_path", "core").is_none());
     }
 
     #[test]

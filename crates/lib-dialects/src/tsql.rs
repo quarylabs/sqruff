@@ -845,6 +845,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("SqlcmdCommandSegment").to_matchable(),
             Ref::new("CreateExternalFileFormat").to_matchable(),
             Ref::new("CreateExternalTableStatementSegment").to_matchable(),
+            Ref::new("DropExternalTableStatementSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),
@@ -1354,6 +1355,23 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // DROP EXTERNAL TABLE (#4919)
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-external-table-transact-sql
+    dialect.add([(
+        "DropExternalTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropExternalTableStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("EXTERNAL").to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
             ])
             .to_matchable()
         })

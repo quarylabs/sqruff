@@ -1,4 +1,4 @@
-use crate::core::config::FluffConfig;
+use crate::core::config::{FluffConfig, Value};
 use crate::templaters::TemplaterKind;
 use hashbrown::HashMap;
 use pyo3::prelude::*;
@@ -65,25 +65,31 @@ impl From<&FluffConfig> for PythonFluffConfig {
             // allows the value to be overridden at the point of invocation (e.g.
             // via the `--library-path` CLI option) regardless of what any config
             // files or in-file directives set. A value of `none` is parsed as an
-            // empty value and falls back to the templater-specific setting.
+            // explicit empty value and disables the templater-specific setting.
             // Ported from SQLFluff #4925.
-            jinja_library_paths: value
-                .get("library_path", "core")
-                .as_string()
-                .map(|library_path| vec![library_path.to_string()])
-                .or_else(|| {
-                    value
-                        .templater_value(TemplaterKind::Jinja, "library_paths")
-                        .map(|value| {
-                            value
-                                .as_array()
-                                .unwrap()
-                                .iter()
-                                .map(|v| v.as_string().unwrap().to_string())
-                                .collect::<Vec<_>>()
-                        })
-                })
-                .unwrap_or_default(),
+            jinja_library_paths: match value
+                .raw
+                .get("core")
+                .and_then(Value::as_map)
+                .and_then(|core| core.get("library_path"))
+            {
+                Some(Value::None) => Vec::new(),
+                Some(library_path) => library_path
+                    .as_string()
+                    .map(|library_path| vec![library_path.to_string()])
+                    .unwrap_or_default(),
+                None => value
+                    .templater_value(TemplaterKind::Jinja, "library_paths")
+                    .map(|value| {
+                        value
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|v| v.as_string().unwrap().to_string())
+                            .collect::<Vec<_>>()
+                    })
+                    .unwrap_or_default(),
+            },
             dbt_profile: None,
             dbt_profiles_dir: value
                 .templater_value(TemplaterKind::Dbt, "profiles_dir")
@@ -193,9 +199,9 @@ library_paths = ./my_library
     }
 
     #[test]
-    fn test_global_library_path_none_falls_back() {
-        // A global `library_path = none` is treated as unset and falls back to
-        // the templater-specific value.
+    fn test_global_library_path_none_disables_libraries() {
+        // A global `library_path = none` explicitly disables the
+        // templater-specific value.
         let source = r"
 [sqruff]
 templater = jinja
@@ -206,9 +212,6 @@ library_paths = ./my_library
         let config = FluffConfig::from_source(source, None);
         let python_fluff_config = PythonFluffConfig::from(config);
 
-        assert_eq!(
-            python_fluff_config.jinja_library_paths,
-            vec!["./my_library".to_string()]
-        );
+        assert!(python_fluff_config.jinja_library_paths.is_empty());
     }
 }

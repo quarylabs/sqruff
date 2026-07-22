@@ -61,6 +61,20 @@ file:
     - keyword: TABLE
     - table_reference:
       - quoted_identifier: '`users`'
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+      - quoted_identifier: '`col_1`'
+    - keyword: TO
+    - column_reference:
+      - quoted_identifier: '`del_col_1`'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`users`'
     - keyword: CHANGE
     - keyword: COLUMN
     - column_reference:

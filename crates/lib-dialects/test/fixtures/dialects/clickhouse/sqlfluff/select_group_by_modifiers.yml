@@ -1,0 +1,403 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - keyword: ALL
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - keyword: ALL
+      - keyword: WITH
+      - keyword: TOTALS
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+      - keyword: WITH
+      - keyword: TOTALS
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+      - keyword: WITH
+      - keyword: ROLLUP
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+      - keyword: WITH
+      - keyword: CUBE
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+        - function_name:
+          - function_name_identifier: ROLLUP
+        - bracketed:
+          - start_bracket: (
+          - grouping_expression_list:
+            - column_reference:
+              - naked_identifier: a
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+        - function_name:
+          - function_name_identifier: CUBE
+        - bracketed:
+          - start_bracket: (
+          - grouping_expression_list:
+            - column_reference:
+              - naked_identifier: a
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - grouping_sets_clause:
+        - keyword: GROUPING
+        - keyword: SETS
+        - bracketed:
+          - start_bracket: (
+          - grouping_expression_list:
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - end_bracket: )
+            - comma: ','
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: b
+                - end_bracket: )
+          - end_bracket: )
+      - keyword: WITH
+      - keyword: TOTALS
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: b
+      - keyword: WITH
+      - keyword: ROLLUP
+      - keyword: WITH
+      - keyword: TOTALS
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: b
+      - keyword: WITH
+      - keyword: CUBE
+      - keyword: WITH
+      - keyword: TOTALS
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: a
+      - keyword: WITH
+      - keyword: TOTALS
+    - having_clause:
+      - keyword: HAVING
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - numeric_literal: '1'
+- statement_terminator: ;

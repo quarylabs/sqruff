@@ -1,0 +1,23 @@
+-- ClickHouse GROUP BY modifiers: WITH ROLLUP / WITH CUBE / WITH TOTALS.
+
+SELECT a, count() FROM t GROUP BY ALL;
+
+SELECT a, count() FROM t GROUP BY ALL WITH TOTALS;
+
+SELECT a, count() FROM t GROUP BY a WITH TOTALS;
+
+SELECT a, count() FROM t GROUP BY a WITH ROLLUP;
+
+SELECT a, count() FROM t GROUP BY a WITH CUBE;
+
+SELECT a, count() FROM t GROUP BY ROLLUP(a);
+
+SELECT a, count() FROM t GROUP BY CUBE(a);
+
+SELECT a, b, count() FROM t GROUP BY GROUPING SETS ((a), (b)) WITH TOTALS;
+
+SELECT a, b, count() FROM t GROUP BY a, b WITH ROLLUP WITH TOTALS;
+
+SELECT a, b, count() FROM t GROUP BY a, b WITH CUBE WITH TOTALS;
+
+SELECT a, count() FROM t GROUP BY a WITH TOTALS HAVING count() > 1;

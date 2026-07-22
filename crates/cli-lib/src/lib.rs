@@ -2,7 +2,7 @@ use clap::Parser as _;
 use commands::Format;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::ignore::IgnoreFile;
-use sqruff_lib::{Formatter, core::config::FluffConfig};
+use sqruff_lib::{Formatter, core::config::FluffConfig, core::config::Value};
 use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
 use std::sync::Arc;
@@ -85,6 +85,19 @@ where
                 eprintln!("{}", e);
                 std::process::exit(1);
             }
+        }
+    }
+
+    if let Some(library_path) = cli.library_path {
+        // A value of 'none' explicitly disables the library path, mirroring the
+        // config parser which treats the literal string "none" as an empty value.
+        let value = if library_path.eq_ignore_ascii_case("none") {
+            Value::None
+        } else {
+            Value::String(library_path.into())
+        };
+        if let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut) {
+            core.insert("library_path".to_string(), value);
         }
     }
 

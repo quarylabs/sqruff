@@ -1,0 +1,5 @@
+[sqruff]
+templater = jinja
+
+[sqruff:templater:jinja]
+library_paths = tests/library_path/configured_library

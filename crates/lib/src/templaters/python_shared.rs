@@ -1,4 +1,4 @@
-use crate::core::config::FluffConfig;
+use crate::core::config::{FluffConfig, Value};
 use crate::templaters::TemplaterKind;
 use hashbrown::HashMap;
 use pyo3::prelude::*;
@@ -60,17 +60,36 @@ impl From<&FluffConfig> for PythonFluffConfig {
             jinja_ignore_templating: value
                 .templater_value(TemplaterKind::Jinja, "ignore_templating")
                 .and_then(|value| value.as_bool()),
-            jinja_library_paths: value
-                .templater_value(TemplaterKind::Jinja, "library_paths")
-                .map(|value| {
-                    value
-                        .as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|v| v.as_string().unwrap().to_string())
-                        .collect::<Vec<_>>()
-                })
-                .unwrap_or_default(),
+            // A global `library_path` set in the top-level `[sqruff]` section
+            // takes precedence over the templater-specific `library_paths`. This
+            // allows the value to be overridden at the point of invocation (e.g.
+            // via the `--library-path` CLI option) regardless of what any config
+            // files or in-file directives set. A value of `none` is parsed as an
+            // explicit empty value and disables the templater-specific setting.
+            // Ported from SQLFluff #4925.
+            jinja_library_paths: match value
+                .raw
+                .get("core")
+                .and_then(Value::as_map)
+                .and_then(|core| core.get("library_path"))
+            {
+                Some(Value::None) => Vec::new(),
+                Some(library_path) => library_path
+                    .as_string()
+                    .map(|library_path| vec![library_path.to_string()])
+                    .unwrap_or_default(),
+                None => value
+                    .templater_value(TemplaterKind::Jinja, "library_paths")
+                    .map(|value| {
+                        value
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|v| v.as_string().unwrap().to_string())
+                            .collect::<Vec<_>>()
+                    })
+                    .unwrap_or_default(),
+            },
             dbt_profile: None,
             dbt_profiles_dir: value
                 .templater_value(TemplaterKind::Dbt, "profiles_dir")
@@ -142,5 +161,57 @@ mod tests {
         assert_eq!(python_fluff_config.jinja_ignore_templating, None);
     }
 
-    // TODO Add more tests
+    #[test]
+    fn test_jinja_library_path_from_templater_section() {
+        let source = r"
+[sqruff]
+templater = jinja
+[sqruff:templater:jinja]
+library_paths = ./my_library
+";
+        let config = FluffConfig::from_source(source, None);
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert_eq!(
+            python_fluff_config.jinja_library_paths,
+            vec!["./my_library".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_global_library_path_takes_precedence() {
+        // A global `library_path` overrides the templater-specific value. An
+        // absolute path is used so it is not rewritten relative to a config file.
+        let source = r"
+[sqruff]
+templater = jinja
+library_path = /global_library
+[sqruff:templater:jinja]
+library_paths = ./my_library
+";
+        let config = FluffConfig::from_source(source, None);
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert_eq!(
+            python_fluff_config.jinja_library_paths,
+            vec!["/global_library".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_global_library_path_none_disables_libraries() {
+        // A global `library_path = none` explicitly disables the
+        // templater-specific value.
+        let source = r"
+[sqruff]
+templater = jinja
+library_path = none
+[sqruff:templater:jinja]
+library_paths = ./my_library
+";
+        let config = FluffConfig::from_source(source, None);
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert!(python_fluff_config.jinja_library_paths.is_empty());
+    }
 }

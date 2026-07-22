@@ -33,6 +33,7 @@ sqruff is a sql formatter and linter
 
 * `--config <CONFIG>` — Path to a configuration file
 * `--dialect <DIALECT>` — Override the dialect (e.g., bigquery, clickhouse, ansi)
+* `--library-path <LIBRARY_PATH>` — Override the `library_path` value for the jinja templater. Set this to 'none' to disable it entirely. This overrides any values set by users in configuration files or inline directives
 * `--parsing-errors` — Show parse errors
 
   Default value: `false`

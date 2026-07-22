@@ -262,61 +262,75 @@ class JinjaTemplater(PythonTemplater):
 
         """
         # If a more global library_path is set, let that take precedence.
-        library_path = config.jinja_library_paths
-        if not library_path:
+        library_paths = config.jinja_library_paths
+        if not library_paths:
             return {}
 
-        libraries = JinjaTemplater.Libraries()
+        extracted_libraries: Dict[str, Any] = {}
+        for library_path in library_paths:
+            libraries = JinjaTemplater.Libraries()
 
-        # If library_path has __init__.py we parse it as one module, else we parse it
-        # a set of modules
-        is_library_module = os.path.exists(os.path.join(library_path, "__init__.py"))
-        library_module_name = os.path.basename(library_path)
-
-        # Need to go one level up to parse as a module correctly
-        walk_path = (
-            os.path.join(library_path, "..") if is_library_module else library_path
-        )
-
-        for module_finder, module_name, _ in pkgutil.walk_packages([walk_path]):
-            # skip other modules that can be near module_dir
-            if is_library_module and not module_name.startswith(library_module_name):
-                continue
-
-            # import_module is deprecated as of python 3.4. This follows roughly
-            # the guidance of the python docs:
-            # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
-            spec = module_finder.find_spec(module_name, None)
-            assert spec, (
-                f"Module {module_name} failed to be found despite being listed."
+            # If library_path has __init__.py we parse it as one module, else we parse
+            # it as a set of modules.
+            is_library_module = os.path.exists(
+                os.path.join(library_path, "__init__.py")
             )
-            module = importlib.util.module_from_spec(spec)
-            sys.modules[module_name] = module
-            assert spec.loader, f"Module {module_name} missing expected loader."
-            spec.loader.exec_module(module)
+            library_module_name = os.path.basename(library_path)
 
-            if "." in module_name:  # nested modules have `.` in module_name
-                *module_path, last_module_name = module_name.split(".")
-                # find parent module recursively
-                parent_module = reduce(
-                    lambda res, path_part: getattr(res, path_part),
-                    module_path,
-                    libraries,
+            # Need to go one level up to parse as a module correctly
+            walk_path = (
+                os.path.join(library_path, "..") if is_library_module else library_path
+            )
+
+            for module_finder, module_name, _ in pkgutil.walk_packages([walk_path]):
+                # skip other modules that can be near module_dir
+                if is_library_module and not module_name.startswith(
+                    library_module_name
+                ):
+                    continue
+
+                # import_module is deprecated as of python 3.4. This follows roughly
+                # the guidance of the python docs:
+                # https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module
+                spec = module_finder.find_spec(module_name, None)
+                assert spec, (
+                    f"Module {module_name} failed to be found despite being listed."
                 )
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[module_name] = module
+                assert spec.loader, f"Module {module_name} missing expected loader."
+                spec.loader.exec_module(module)
 
-                # set attribute on module object to make jinja working correctly
-                setattr(parent_module, last_module_name, module)
-            else:
-                # set attr on `libraries` obj to make it work in jinja nicely
-                setattr(libraries, module_name, module)
+                if "." in module_name:  # nested modules have `.` in module_name
+                    *module_path, last_module_name = module_name.split(".")
+                    # find parent module recursively
+                    parent_module = reduce(
+                        lambda res, path_part: getattr(res, path_part),
+                        module_path,
+                        libraries,
+                    )
 
-        if is_library_module:
-            # when library is module we have one more root module in hierarchy and we
-            # remove it
-            libraries = getattr(libraries, library_module_name)
+                    # set attribute on module object to make jinja working correctly
+                    setattr(parent_module, last_module_name, module)
+                else:
+                    # set attr on `libraries` obj to make it work in jinja nicely
+                    setattr(libraries, module_name, module)
 
-        # remove magic methods from result
-        return {k: v for k, v in libraries.__dict__.items() if not k.startswith("__")}
+            if is_library_module:
+                # when library is module we have one more root module in hierarchy and
+                # we remove it
+                libraries = getattr(libraries, library_module_name)
+
+            # remove magic methods from result
+            extracted_libraries.update(
+                {
+                    key: value
+                    for key, value in libraries.__dict__.items()
+                    if not key.startswith("__")
+                }
+            )
+
+        return extracted_libraries
 
     @classmethod
     def _crawl_tree(

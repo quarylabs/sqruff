@@ -497,6 +497,67 @@ fn test_clickhouse_tuple_element_access_parse_boundaries() {
     );
 }
 
+#[test]
+fn test_clickhouse_group_by_totals_inside_indent() {
+    let config = FluffConfig::new(
+        HashMap::from([(
+            "core".into(),
+            Value::Map(HashMap::from([(
+                "dialect".into(),
+                Value::String("clickhouse".into()),
+            )])),
+        )]),
+        None,
+        None,
+    );
+    let lnt = Linter::new(config, None, None, true).unwrap();
+    let tables = Tables::default();
+
+    let parsed = lnt
+        .parse_string(
+            &tables,
+            "SELECT a, count() FROM t GROUP BY a WITH TOTALS HAVING count() > 1;",
+            None,
+        )
+        .unwrap();
+    assert!(
+        parsed.violations.is_empty(),
+        "expected ClickHouse GROUP BY WITH TOTALS to parse cleanly: {:?}",
+        parsed.violations
+    );
+
+    let tree = parsed.tree.unwrap();
+    let groupby = tree
+        .recursive_crawl(
+            &SyntaxSet::new(&[SyntaxKind::GroupbyClause]),
+            true,
+            &SyntaxSet::EMPTY,
+            true,
+        )
+        .into_iter()
+        .next()
+        .expect("expected a groupby_clause");
+
+    let segments = groupby.segments();
+    let indent_index = segments
+        .iter()
+        .position(|segment| segment.is_indent() && segment.indent_val() > 0)
+        .expect("expected groupby_clause indent");
+    let totals_index = segments
+        .iter()
+        .position(|segment| segment.raw().as_str().eq_ignore_ascii_case("TOTALS"))
+        .expect("expected WITH TOTALS inside groupby_clause");
+    let dedent_index = segments
+        .iter()
+        .position(|segment| segment.is_indent() && segment.indent_val() < 0)
+        .expect("expected groupby_clause dedent");
+
+    assert!(
+        indent_index < totals_index && totals_index < dedent_index,
+        "expected WITH TOTALS to stay inside the GROUP BY indent scope"
+    );
+}
+
 /// LT12 is a source-file rule. A templated file can render with a final newline
 /// while the source file still lacks one because trailing Jinja blocks render to
 /// zero length.

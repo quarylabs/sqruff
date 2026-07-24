@@ -506,9 +506,13 @@ impl Lexer {
                 break;
             }
 
-            // If we STILL can't match, then just panic out.
-            let mut resort_res = self.last_resort_lexer.matches(str_buff);
-            if !resort_res.elements.is_empty() {
+            // lex_match stopped at a byte that no matcher covers. Consume that
+            // unlexable run with the last-resort matcher and keep going, instead
+            // of dropping the remainder of the input.
+            let mut resort_res = self.last_resort_lexer.matches(res.forward_string);
+            if resort_res.forward_string.len() == res.forward_string.len() {
+                // The last-resort matcher made no progress; stop to avoid an
+                // infinite loop rather than spin on the same byte.
                 break;
             }
 
@@ -1154,6 +1158,23 @@ mod tests {
         assert_eq!(res.elements[1].text, "\n");
         assert_eq!(res.elements[2].text, "/");
         assert_eq!(res.elements.len(), 3);
+    }
+
+    #[test]
+    fn lex_preserves_unlexable_input() {
+        // The word matcher only covers ASCII word chars, like real dialects, so
+        // a non-ASCII identifier character is unlexable. The full text must
+        // still round-trip through the returned segments; dropping it would make
+        // `fix` silently delete part of the user's SQL.
+        let matchers = vec![
+            Matcher::regex("whitespace", r"[^\S\r\n]+", SyntaxKind::Whitespace),
+            Matcher::regex("word", r"[0-9a-zA-Z_]+", SyntaxKind::Word),
+        ];
+        let lexer = Lexer::new(&matchers);
+        let tables = Tables::default();
+        let (segments, _) = lexer.lex(&tables, "select ф");
+        let reconstructed: String = segments.iter().map(|s| s.raw().as_str()).collect();
+        assert_eq!(reconstructed, "select ф");
     }
 
     /// Test the RegexLexer.

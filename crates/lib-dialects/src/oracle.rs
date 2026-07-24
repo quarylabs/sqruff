@@ -4828,7 +4828,6 @@ pub fn raw_dialect() -> Dialect {
             existing.copy(
                 Some(vec![
                     Ref::new("ListaggOverflowClauseSegment").to_matchable(),
-                    Ref::new("JSONObjectContentSegment").to_matchable(),
                 ]),
                 None,
                 None,

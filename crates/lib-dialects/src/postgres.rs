@@ -431,9 +431,15 @@ pub fn raw_dialect() -> Dialect {
             r#"(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?"#,
             SyntaxKind::UnicodeDoubleQuote
         ),
+        // Verbatim from sqlfluff#6323, which fixed `@?`, `@@`, `?|` and `?&` (we
+        // track a 2023 sha, so this is pre-applied ahead of that port). The
+        // optional quantifiers matter: the lexer's combined regex is
+        // leftmost-first, not leftmost-longest, so spelling these as separate
+        // alternatives would need every operator ordered ahead of its own
+        // prefix.
         Matcher::regex(
             "json_operator",
-            r#"->>|#>>|->|#>|@>|<@|\?\|_|\?|\?&|#-"#,
+            r#"->>?|#>>?|@[>@?]|<@|\?[|&]?|#-"#,
             SyntaxKind::JsonOperator
         ),
         Matcher::string(

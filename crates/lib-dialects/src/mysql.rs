@@ -2777,6 +2777,18 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("TableReferenceSegment").to_matchable(),
                             ])
                             .to_matchable(),
+                            // Rename index
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::keyword("INDEX").to_matchable(),
+                                    Ref::keyword("KEY").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("IndexReferenceSegment").to_matchable(),
+                                Ref::keyword("TO").to_matchable(),
+                                Ref::new("IndexReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                             // Rename column
                             Sequence::new(vec![
                                 Ref::keyword("COLUMN").to_matchable(),

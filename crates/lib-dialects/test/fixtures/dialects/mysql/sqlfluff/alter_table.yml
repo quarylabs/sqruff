@@ -405,6 +405,38 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: RENAME
+    - keyword: INDEX
+    - database_reference:
+      - quoted_identifier: '`index_name`'
+    - keyword: to
+    - database_reference:
+      - quoted_identifier: '`new_index_name`'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: RENAME
+    - keyword: KEY
+    - database_reference:
+      - quoted_identifier: '`key_name`'
+    - keyword: to
+    - database_reference:
+      - quoted_identifier: '`new_key_name`'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
       - quoted_identifier: '`x`'
     - keyword: ADD
     - table_constraint:

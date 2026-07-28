@@ -14,9 +14,9 @@
     ]
   },
   "devDependencies": {
-    "@secretlint/secretlint-formatter-sarif": "^13.0.2",
-    "@secretlint/secretlint-rule-no-dotenv": "^13.0.2",
-    "@secretlint/secretlint-rule-preset-recommend": "^13.0.2",
+    "@secretlint/secretlint-formatter-sarif": "^13.0.4",
+    "@secretlint/secretlint-rule-no-dotenv": "^13.0.4",
+    "@secretlint/secretlint-rule-preset-recommend": "^13.0.4",
     "prettier": "^3.9.4"
   },
   "scripts": {

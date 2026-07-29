@@ -149,10 +149,9 @@ Port the next SQLFluff commit to sqruff.
 
 17. **Recheck the stack immediately before publishing.** Fetch again and repeat steps 2 and 8. This closes the race where another run creates a port while this run is testing.
 
-   - If this exact port now exists, do not push or create a duplicate PR. Report the existing PR and stop.
-   - If there are now five or more open SQLFluff port PRs, do not push or
-     create another PR. Report the existing stack and stop.
-   - If another port PR became the new stack tip, rebase this branch onto that tip, resolve `.sqlfluff-sha` so the commits advance in upstream order, rerun affected tests, and use the new tip as the PR base.
+    - If this exact port now exists, do not push or create a duplicate PR. Report the existing PR and stop.
+    - If there are now five or more open SQLFluff port PRs, do not push or create another PR. Report the existing stack and stop.
+    - If another port PR became the new stack tip, rebase this branch onto that tip, resolve `.sqlfluff-sha` so the commits advance in upstream order, rerun affected tests, and use the new tip as the PR base.
     - Never publish a sibling SQLFluff port PR against `main` while an open port stack exists.
 
 18. **Push and create the PR against the selected base branch:**

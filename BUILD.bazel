@@ -24,6 +24,7 @@ filegroup(
     name = "prettier_srcs",
     srcs = glob(
         [
+            ".claude/**/*.md",
             ".github/**/*.yaml",
             ".github/**/*.yml",
         ],
@@ -45,6 +46,7 @@ prettier_bin.prettier_test(
         "editors",
         "playground",
         "*.md",
+        ".claude",
         ".github",
     ],
     chdir = package_name(),
@@ -67,6 +69,7 @@ prettier_bin.prettier_binary(
         "editors",
         "playground",
         "*.md",
+        ".claude",
         ".github",
     ],
     chdir = package_name(),

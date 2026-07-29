@@ -1,6 +1,6 @@
 
 # Builder stage
-FROM rust:1.92-bookworm AS builder
+FROM rust:1.97.1-bookworm AS builder
 
 WORKDIR /usr/src/sqruff
 COPY . .

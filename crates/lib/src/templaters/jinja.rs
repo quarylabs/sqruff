@@ -125,7 +125,35 @@ The jinja templater will expand this to valid SQL before linting.
 
 ## dbt Builtins
 
-When `apply_dbt_builtins` is enabled (the default), common dbt functions like `ref()`, `source()`, and `config()` are available as dummy implementations. This allows linting dbt-style SQL without a full dbt project setup. For full dbt support, use the `dbt` templater instead."#
+When `apply_dbt_builtins` is enabled (the default), common dbt functions like `ref()`, `source()`, and `config()` are available as dummy implementations. This allows linting dbt-style SQL without a full dbt project setup. For full dbt support, use the `dbt` templater instead.
+
+## Library Filters
+
+In addition to variables and macros, the library configured via `library_path` can expose [Jinja filters](https://jinja.palletsprojects.com/en/3.1.x/templates/#filters) to the Jinja environment.
+
+This is achieved by setting a global variable named `SQLFLUFF_JINJA_FILTERS`. `SQLFLUFF_JINJA_FILTERS` is a dictionary where:
+
+- dictionary keys map to the Jinja filter name
+- dictionary values map to the Python callable
+
+For example, to make the Airflow filter `ds` available, add the following to the `__init__.py` of the library:
+
+```python
+# https://github.com/apache/airflow/blob/main/airflow/templates.py#L50
+def ds_filter(value: datetime.date | datetime.time | None) -> str | None:
+    """Date filter."""
+    if value is None:
+        return None
+    return value.strftime("%Y-%m-%d")
+
+SQLFLUFF_JINJA_FILTERS = {"ds": ds_filter}
+```
+
+Now, `ds` can be used in SQL:
+
+```sql
+SELECT "{{ "2000-01-01" | ds }}";
+```"#
     }
 
     fn processing_mode(&self) -> ProcessingMode {

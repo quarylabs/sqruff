@@ -24,6 +24,7 @@ filegroup(
     name = "prettier_srcs",
     srcs = glob(
         [
+            ".claude/**/*.md",
             ".github/**/*.yaml",
             ".github/**/*.yml",
         ],
@@ -45,6 +46,7 @@ prettier_bin.prettier_test(
         "editors",
         "playground",
         "*.md",
+        ".claude",
         ".github",
     ],
     chdir = package_name(),
@@ -67,6 +69,7 @@ prettier_bin.prettier_binary(
         "editors",
         "playground",
         "*.md",
+        ".claude",
         ".github",
     ],
     chdir = package_name(),
@@ -273,17 +276,12 @@ filegroup(
     ],
 )
 
-# Vendor cargo dependencies and install Rust toolchain (cached until dependency
-# manifests, Cargo.lock, or toolchain configuration changes).
-# Installs Rust via rustup with clippy and rustfmt components
+# Vendor Cargo dependencies with the registered rules_rust toolchain. The
+# result is cached until dependency manifests, Cargo.lock, or the toolchain
+# changes.
 cargo_vendor(
     name = "cargo_vendor",
     manifests = [":cargo_manifests"],
-    rust_version = "1.96.1",
-    components = [
-        "clippy",
-        "rustfmt",
-    ],
 )
 
 # Provider wrapper for vendored dependencies
@@ -322,7 +320,7 @@ rust_clippy(
 )
 
 # Codegen docs check - verify generated docs are up to date
-# Uses vendored Rust toolchain for hermetic builds (same as cargo_test)
+# Uses the registered rules_rust toolchain (same as cargo_test)
 cargo_test(
     name = "codegen_docs_check",
     srcs = [
@@ -403,7 +401,6 @@ sh_test(
     env = {
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
         "MACHETE": "$(rlocationpath @cargo_machete//:cargo-machete)",
-        "RUSTUP_TOOLCHAIN": "stable",
     },
     tags = ["exclusive"],
 )
@@ -444,11 +441,12 @@ cargo_test(
     name = "cargo_fmt_check",
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
-    script = "cargo fmt --all -- --check",
+    script = "find . -type f -name '*.rs' -exec \"$RUSTFMT\" --edition 2024 --check {} +",
 )
 
 # Cargo test - run all tests exactly like the GitHub Action
-# Uses vendored Rust toolchain and pre-cached Python venv for fully sandboxed execution
+# Uses the registered rules_rust toolchain and pre-cached Python venv
+# for fully sandboxed execution
 # Python venv provides maturin, pytest, jinja2, dbt, etc.
 cargo_test(
     name = "cargo_test",

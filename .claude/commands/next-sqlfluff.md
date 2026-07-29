@@ -1,5 +1,17 @@
 Port the next SQLFluff commit to sqruff.
 
+## Safety limits
+
+- Create **at most one pull request per invocation**. After publishing or
+  deciding that no PR should be created, stop. Do not loop, recurse, or start
+  another SQLFluff port.
+- Keep **at most five open SQLFluff port PRs** in the repository. Count the
+  matching open PRs before starting any port work. If there are already five,
+  stop without creating a branch or PR and report the existing stack.
+- Every new SQLFluff port PR must extend the active PR stack. If the stack is
+  empty, the new PR starts it from `main`; otherwise, the new PR targets the
+  current stack tip. Never create a parallel or sibling port PR.
+
 ## Workflow
 
 1. **Require a clean worktree and fetch the latest refs:**
@@ -19,6 +31,9 @@ Port the next SQLFluff commit to sqruff.
    ```
 
    Keep PRs whose head branch starts with `port/sqlfluff-` or whose title/body identifies them as SQLFluff ports.
+
+   Count these matching open port PRs. If the count is five or more, stop and
+   report the stack; do not perform the remaining steps.
 
    - If none exist, use `main` as the base branch and start from `origin/main`.
    - If port PRs exist, build their base/head relationship and select the **stack tip**: the open port PR whose head branch is not the base of another open port PR. Use that PR's head branch as the base branch. The new PR must target this branch, not `main`.
@@ -134,8 +149,10 @@ Port the next SQLFluff commit to sqruff.
 
 17. **Recheck the stack immediately before publishing.** Fetch again and repeat steps 2 and 8. This closes the race where another run creates a port while this run is testing.
 
-    - If this exact port now exists, do not push or create a duplicate PR. Report the existing PR and stop.
-    - If another port PR became the new stack tip, rebase this branch onto that tip, resolve `.sqlfluff-sha` so the commits advance in upstream order, rerun affected tests, and use the new tip as the PR base.
+   - If this exact port now exists, do not push or create a duplicate PR. Report the existing PR and stop.
+   - If there are now five or more open SQLFluff port PRs, do not push or
+     create another PR. Report the existing stack and stop.
+   - If another port PR became the new stack tip, rebase this branch onto that tip, resolve `.sqlfluff-sha` so the commits advance in upstream order, rerun affected tests, and use the new tip as the PR base.
     - Never publish a sibling SQLFluff port PR against `main` while an open port stack exists.
 
 18. **Push and create the PR against the selected base branch:**
@@ -153,4 +170,4 @@ Port the next SQLFluff commit to sqruff.
 
     Include the base PR URL. Ensure the PR diff contains only this port relative to its base branch.
 
-19. **Summarize the stack and merge order.** Report what was ported, the new PR, its base PR, the bottom-to-top merge order, tests run, and any decisions made. After a lower PR merges, rebase or retarget its immediate child onto the updated `main` before merging the child if GitHub does not do so automatically.
+19. **Summarize the stack and merge order, then stop.** Report what was ported, the new PR, its base PR, the bottom-to-top merge order, tests run, and any decisions made. After a lower PR merges, rebase or retarget its immediate child onto the updated `main` before merging the child if GitHub does not do so automatically. Do not begin porting the next SQLFluff commit in this invocation.

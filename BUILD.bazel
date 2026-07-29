@@ -253,11 +253,32 @@ filegroup(
     ],
 )
 
-# Vendor cargo dependencies and install Rust toolchain (cached until Cargo.lock changes)
+# Cargo metadata used to resolve and vendor dependencies. Keep this separate
+# from cargo_srcs so ordinary Rust source changes do not invalidate vendoring.
+filegroup(
+    name = "cargo_manifests",
+    srcs = [
+        "Cargo.lock",
+        "Cargo.toml",
+        "//crates/cli:Cargo.toml",
+        "//crates/cli-lib:Cargo.toml",
+        "//crates/cli-python:Cargo.toml",
+        "//crates/lib:Cargo.toml",
+        "//crates/lib-core:Cargo.toml",
+        "//crates/lib-dialects:Cargo.toml",
+        "//crates/lib-wasm:Cargo.toml",
+        "//crates/lineage:Cargo.toml",
+        "//crates/lsp:Cargo.toml",
+        "//crates/sqlinference:Cargo.toml",
+    ],
+)
+
+# Vendor cargo dependencies and install Rust toolchain (cached until dependency
+# manifests, Cargo.lock, or toolchain configuration changes).
 # Installs Rust via rustup with clippy and rustfmt components
 cargo_vendor(
     name = "cargo_vendor",
-    manifests = [":cargo_srcs"],
+    manifests = [":cargo_manifests"],
     rust_version = "1.96.1",
     components = [
         "clippy",

@@ -62,6 +62,23 @@ for src in {srcs}; do
     cp "$src" "$WORK_DIR/$src"
 done
 
+# Cargo requires each workspace package to have at least one target before it
+# will resolve the workspace. Vendoring only depends on the manifests and
+# lockfile, so create disposable targets instead of declaring the real Rust
+# sources as inputs to this action.
+for manifest in {srcs}; do
+    case "$manifest" in
+        */Cargo.toml)
+            package_dir="$WORK_DIR/$(dirname "$manifest")"
+            mkdir -p "$package_dir/src/bin"
+            touch \
+                "$package_dir/src/lib.rs" \
+                "$package_dir/src/main.rs" \
+                "$package_dir/src/bin/bench.rs"
+            ;;
+    esac
+done
+
 cd "$WORK_DIR"
 
 cargo vendor "$EXEC_ROOT/{vendor_out}" 2>&1

@@ -1,6 +1,8 @@
 load("@crates//:defs.bzl", "all_crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_binary")
 
+exports_files(["Cargo.toml"])
+
 rust_binary(
     name = "sqruff",
     srcs = glob(["src/**/*.rs"]),

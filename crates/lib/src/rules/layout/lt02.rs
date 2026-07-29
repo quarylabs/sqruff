@@ -1,5 +1,5 @@
 use hashbrown::HashMap;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::templaters::TemplatedFile;
@@ -159,6 +159,22 @@ FROM foo
             .reindent(context.tables)
             .results();
 
+        let script_content_ranges = context
+            .segment
+            .recursive_crawl(
+                const { &SyntaxSet::new(&[SyntaxKind::ScriptContent]) },
+                true,
+                &SyntaxSet::EMPTY,
+                true,
+            )
+            .into_iter()
+            .filter_map(|segment| {
+                segment
+                    .get_position_marker()
+                    .map(|marker| marker.source_slice.clone())
+            })
+            .collect::<Vec<_>>();
+
         let Some(templated_file) = &context.templated_file else {
             return results;
         };
@@ -169,12 +185,15 @@ FROM foo
                 !result.anchor.as_ref().is_some_and(|anchor| {
                     anchor.get_position_marker().is_some_and(|marker| {
                         let source_pos = marker.source_slice.start;
-                        line_is_adjacent_to_source_only_slice(templated_file, source_pos)
-                            && (!has_only_literal_indentation_fixes(result)
-                                || !source_line_has_non_source_only_non_whitespace(
-                                    templated_file,
-                                    source_pos,
-                                ))
+                        script_content_ranges
+                            .iter()
+                            .any(|range| range.start <= source_pos && source_pos < range.end)
+                            || (line_is_adjacent_to_source_only_slice(templated_file, source_pos)
+                                && (!has_only_literal_indentation_fixes(result)
+                                    || !source_line_has_non_source_only_non_whitespace(
+                                        templated_file,
+                                        source_pos,
+                                    )))
                     })
                 })
             })

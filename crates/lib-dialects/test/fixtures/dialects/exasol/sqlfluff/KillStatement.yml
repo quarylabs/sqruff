@@ -1,0 +1,33 @@
+file:
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: STATEMENT
+    - keyword: IN
+    - keyword: SESSION
+    - numeric_literal: '7792436882684342285'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: SESSION
+    - numeric_literal: '7792436882684342285'
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: SESSION
+    - keyword: CURRENT_SESSION
+- statement_terminator: ;
+- statement:
+  - kill_statement:
+    - keyword: KILL
+    - keyword: STATEMENT
+    - numeric_literal: '1234'
+    - keyword: IN
+    - keyword: SESSION
+    - numeric_literal: '7792436882684342285'
+    - keyword: WITH
+    - keyword: MESSAGE
+    - quoted_literal: '''not allowed!'''
+- statement_terminator: ;

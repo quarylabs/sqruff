@@ -1112,6 +1112,93 @@ pub enum SyntaxKind {
     PauseRoutineLoadStatement,
     ResumeRoutineLoadStatement,
     InsertOverwriteStatement,
+    // Exasol-specific
+    AlterConnection,
+    AlterConsumerGroupStatement,
+    AlterSystemStatement,
+    AlterTableAddColumn,
+    AlterTableAlterColumn,
+    AlterTableColumnStatement,
+    AlterTableConstraintStatement,
+    AlterTableDistributePartitionStatement,
+    AlterTableDropColumn,
+    AlterTableModifyColumn,
+    AlterTableRenameColumn,
+    AlterVirtualSchemaStatement,
+    CloseSchemaStatement,
+    ColumnDatatypeDefinition,
+    ColumnReferenceList,
+    ConnectByClause,
+    ConnectionDefinition,
+    ConsumerGroupParameter,
+    CreateAdapterScript,
+    CreateConnection,
+    CreateConsumerGroupStatement,
+    CreateScriptingLuaScript,
+    CreateUdfScript,
+    CreateVirtualSchemaStatement,
+    CsvCols,
+    DropConnectionStatement,
+    DropConsumerGroupStatement,
+    DropScriptStatement,
+    EscapedIdentifier,
+    ExplainVirtualStatement,
+    ExportIntoClause,
+    FbvCols,
+    FileOpts,
+    FlushStatisticsStatement,
+    FunctionAssignment,
+    FunctionBody,
+    FunctionForLoop,
+    FunctionIfBranch,
+    FunctionReference,
+    FunctionScriptTerminator,
+    FunctionWhileLoop,
+    GrantRevokeConnection,
+    GrantRevokeConnectionRestricted,
+    GrantRevokeImpersonation,
+    GrantRevokeObjectPrivileges,
+    GrantRevokeRoles,
+    GrantRevokeSystemPrivileges,
+    ImpersonateStatement,
+    ImportColumns,
+    ImportErrorDestination,
+    ImportErrorsClause,
+    ImportExportDbsrc,
+    ImportFile,
+    ImportFromClause,
+    ImportScript,
+    ImportStatement,
+    KerberosAuth,
+    KillStatement,
+    LdapAuth,
+    ObjectPrivilege,
+    OpenSchemaStatement,
+    OpenidAuth,
+    PlusPriorInverse,
+    PreferenceTerm,
+    PreferringClause,
+    PreloadStatement,
+    RangeOperator,
+    RecompressReorganizeStatement,
+    RejectClause,
+    ScriptContent,
+    ScriptReference,
+    SessionParameter,
+    SystemParameter,
+    SystemPrivilege,
+    TableConstraintDefinition,
+    TableContentDefinition,
+    TableDistributionPartitionClause,
+    TableLikeClause,
+    TruncateAuditLogsStatement,
+    UdfParamDotSyntax,
+    ValuesClauseElements,
+    ValuesInsertClause,
+    ValuesRangeClause,
+    ViewReference,
+    WithInvalidForeignKeyClause,
+    WithInvalidUniquePkClause,
 }
 
 impl SyntaxKind {
@@ -1131,7 +1218,7 @@ impl SyntaxKind {
 }
 
 #[derive(Clone, PartialEq, Eq, Default)]
-pub struct SyntaxSet([u64; 18]);
+pub struct SyntaxSet([u64; 19]);
 
 impl std::fmt::Debug for SyntaxSet {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -1140,7 +1227,7 @@ impl std::fmt::Debug for SyntaxSet {
 }
 
 impl SyntaxSet {
-    pub const EMPTY: SyntaxSet = Self([0; 18]);
+    pub const EMPTY: SyntaxSet = Self([0; 19]);
     const SLICE_BITS: u16 = u64::BITS as u16;
 
     pub const fn new(kinds: &[SyntaxKind]) -> Self {

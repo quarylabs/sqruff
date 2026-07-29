@@ -1,0 +1,81 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: pushdown_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: pushdown_involved_tables
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: pushdown_sql
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - bracketed:
+          - start_bracket: (
+          - from_expression_element:
+            - table_expression:
+              - explain_virtual_statement:
+                - keyword: EXPLAIN
+                - keyword: VIRTUAL
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - wildcard_expression:
+                        - wildcard_identifier:
+                          - star: '*'
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - naked_identifier: vs_impala
+                            - dot: .
+                            - naked_identifier: sample_07
+                  - where_clause:
+                    - keyword: WHERE
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: total_emp
+                      - comparison_operator:
+                        - raw_comparison_operator: '>'
+                      - numeric_literal: '10000'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - explain_virtual_statement:
+    - keyword: EXPLAIN
+    - keyword: VIRTUAL
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: vs_impala
+                - dot: .
+                - naked_identifier: sample_07
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: total_emp
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - numeric_literal: '10000'
+- statement_terminator: ;

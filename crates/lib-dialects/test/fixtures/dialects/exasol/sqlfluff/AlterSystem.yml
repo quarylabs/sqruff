@@ -1,0 +1,51 @@
+file:
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: NLS_DATE_LANGUAGE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''DEU'''
+- statement_terminator: ;
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: NLS_FIRST_DAY_OF_WEEK
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''SYSTEM TABLES'''
+- statement_terminator: ;
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: IDLE_TIMEOUT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '3600'
+- statement_terminator: ;
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: USER_TEMP_DB_RAM_LIMIT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''50G'''
+- statement_terminator: ;

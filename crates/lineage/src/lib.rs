@@ -817,12 +817,12 @@ mod tests {
                 "x",
                 "WITH dataset AS (
             SELECT *
-            FROM catalog.db.table_a
+            FROM my_catalog.my_db.table_a
 
             UNION ALL
 
             SELECT *
-            FROM catalog.db.table_b
+            FROM my_catalog.my_db.table_b
         )
 
         SELECT x, created_at FROM dataset;",
@@ -840,7 +840,7 @@ mod tests {
             );
             assert_eq!(
                 tables.stringify(downstream_a.source),
-                "select * from catalog.db.table_a as catalog.db.table_a",
+                "select * from my_catalog.my_db.table_a as my_catalog.my_db.table_a",
                 "Failed for dialect: {}",
                 dialect_name
             );
@@ -858,7 +858,7 @@ mod tests {
             );
             assert_eq!(
                 tables.stringify(downstream_a.source),
-                "select * from catalog.db.table_b as catalog.db.table_b",
+                "select * from my_catalog.my_db.table_b as my_catalog.my_db.table_b",
                 "Failed for dialect: {}",
                 dialect_name
             );
@@ -879,12 +879,12 @@ mod tests {
                 .source(
                     "dataset",
                     "SELECT *
-                FROM catalog.db.table_a
+                FROM my_catalog.my_db.table_a
 
                 UNION ALL
 
                 SELECT *
-                FROM catalog.db.table_b",
+                FROM my_catalog.my_db.table_b",
                 )
                 .build();
 
@@ -904,7 +904,7 @@ mod tests {
             );
             assert_eq!(
                 tables.stringify(downstream_a.source),
-                "select * from catalog.db.table_a as catalog.db.table_a",
+                "select * from my_catalog.my_db.table_a as my_catalog.my_db.table_a",
                 "Failed for dialect: {}",
                 dialect_name
             );
@@ -927,7 +927,7 @@ mod tests {
             );
             assert_eq!(
                 tables.stringify(downstream_a.source),
-                "select * from catalog.db.table_b as catalog.db.table_b",
+                "select * from my_catalog.my_db.table_b as my_catalog.my_db.table_b",
                 "Failed for dialect: {}",
                 dialect_name
             );

@@ -1,0 +1,55 @@
+file:
+- statement:
+  - create_scripting_lua_script:
+    - keyword: CREATE
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: insert_low_high
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: param1
+      - comma: ','
+      - naked_identifier: param2
+      - comma: ','
+      - naked_identifier: param3
+      - end_bracket: )
+    - keyword: AS
+    - script_content:
+      - word: import
+      - bracketed:
+        - start_bracket: (
+        - single_quote: '''function_lib'''
+        - end_bracket: )
+      - word: lowest
+      - comma: ','
+      - word: highest
+      - raw_comparison_operator: =
+      - word: function_lib
+      - dot: .
+      - word: min_max
+      - bracketed:
+        - start_bracket: (
+        - word: param1
+        - comma: ','
+        - word: param2
+        - comma: ','
+        - word: param3
+        - end_bracket: )
+      - word: query
+      - bracketed:
+        - start_bracket: (
+        - code: '[[INSERT INTO t VALUES (:x, :y)]]'
+        - comma: ','
+        - start_curly_bracket: '{'
+        - word: x
+        - raw_comparison_operator: =
+        - word: lowest
+        - comma: ','
+        - word: y
+        - raw_comparison_operator: =
+        - word: highest
+        - end_curly_bracket: '}'
+        - end_bracket: )
+- function_script_terminator: |
+    /

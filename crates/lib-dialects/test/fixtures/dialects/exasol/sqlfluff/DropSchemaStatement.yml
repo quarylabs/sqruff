@@ -1,0 +1,38 @@
+file:
+- statement:
+  - drop_schema_statement:
+    - keyword: DROP
+    - keyword: FORCE
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+  - drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+  - drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_schema
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - drop_schema_statement:
+    - keyword: DROP
+    - keyword: VIRTUAL
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_virtual_schema
+- statement_terminator: ;

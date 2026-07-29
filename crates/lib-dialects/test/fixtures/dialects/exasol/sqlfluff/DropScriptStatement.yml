@@ -1,0 +1,22 @@
+file:
+- statement:
+  - drop_script_statement:
+    - keyword: DROP
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: my_script
+- statement_terminator: ;
+- statement:
+  - drop_script_statement:
+    - keyword: DROP
+    - keyword: ADAPTER
+    - keyword: SCRIPT
+    - keyword: IF
+    - keyword: EXISTS
+    - script_reference:
+      - object_reference:
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: ADAPTER_SCRIPT
+- statement_terminator: ;

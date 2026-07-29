@@ -9,6 +9,7 @@ ALL_FEATURES = [
     "clickhouse",
     "databricks",
     "duckdb",
+    "exasol",
     "hive",
     "mysql",
     "postgres",

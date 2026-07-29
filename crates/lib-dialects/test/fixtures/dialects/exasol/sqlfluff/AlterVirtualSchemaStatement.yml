@@ -1,0 +1,50 @@
+file:
+- statement:
+  - alter_virtual_schema_statement:
+    - keyword: ALTER
+    - keyword: VIRTUAL
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s2
+    - keyword: SET
+    - column_reference:
+      - naked_identifier: CONNECTION_STRING
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''jdbc:hive2://localhost:10000/default'''
+- statement_terminator: ;
+- statement:
+  - alter_virtual_schema_statement:
+    - keyword: ALTER
+    - keyword: VIRTUAL
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s2
+    - keyword: REFRESH
+- statement_terminator: ;
+- statement:
+  - alter_virtual_schema_statement:
+    - keyword: ALTER
+    - keyword: VIRTUAL
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - quoted_identifier: '"role1"'
+- statement_terminator: ;
+- statement:
+  - alter_virtual_schema_statement:
+    - keyword: ALTER
+    - keyword: VIRTUAL
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - naked_identifier: role1
+- statement_terminator: ;

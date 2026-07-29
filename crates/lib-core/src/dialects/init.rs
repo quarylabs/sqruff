@@ -101,6 +101,7 @@ pub enum DialectKind {
     Databricks,
     Db2,
     Duckdb,
+    Exasol,
     Greenplum,
     Hive,
     Mysql,
@@ -126,6 +127,7 @@ impl DialectKind {
             DialectKind::Databricks => "databricks",
             DialectKind::Db2 => "db2",
             DialectKind::Duckdb => "duckdb",
+            DialectKind::Exasol => "exasol",
             DialectKind::Greenplum => "greenplum",
             DialectKind::Hive => "hive",
             DialectKind::Mysql => "mysql",
@@ -155,6 +157,7 @@ impl DialectKind {
             DialectKind::Databricks => "Databricks SQL dialect for lakehouse analytics.",
             DialectKind::Db2 => "IBM Db2 SQL dialect.",
             DialectKind::Duckdb => "DuckDB SQL dialect for in-process analytical database.",
+            DialectKind::Exasol => "Exasol SQL dialect for the Exasol analytics database.",
             DialectKind::Greenplum => "Greenplum SQL dialect, a massively parallel Postgres.",
             DialectKind::Hive => "Apache Hive SQL dialect for data warehousing.",
             DialectKind::Mysql => "MySQL SQL dialect for the popular open-source database.",
@@ -194,6 +197,7 @@ impl DialectKind {
             }
             DialectKind::Db2 => Some("https://www.ibm.com/docs/en/i/7.4?topic=overview-db2-i"),
             DialectKind::Duckdb => Some("https://duckdb.org/docs/sql/introduction"),
+            DialectKind::Exasol => Some("https://docs.exasol.com/db/latest/sql_references.htm"),
             DialectKind::Greenplum => {
                 Some("https://docs.vmware.com/en/VMware-Greenplum/index.html")
             }

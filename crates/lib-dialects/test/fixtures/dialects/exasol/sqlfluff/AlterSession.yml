@@ -1,0 +1,71 @@
+file:
+- statement:
+  - alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: TIME_ZONE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''EUROPE/BERLIN'''
+- statement_terminator: ;
+- statement:
+  - alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: QUERY_TIMEOUT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '120'
+- statement_terminator: ;
+- statement:
+  - alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: NLS_DATE_FORMAT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''DDD-YYYY'''
+- statement_terminator: ;
+- statement:
+  - alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: SESSION_TEMP_DB_RAM_LIMIT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''10240M'''
+- statement_terminator: ;
+- statement:
+  - alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''OFF'''
+- statement_terminator: ;
+- statement:
+  - alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''SYSTEM TABLES'''
+- statement_terminator: ;
+- statement:
+  - alter_session_statement:
+    - keyword: ALTER
+    - keyword: SESSION
+    - keyword: SET
+    - session_parameter: IDLE_TIMEOUT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '2400'
+- statement_terminator: ;

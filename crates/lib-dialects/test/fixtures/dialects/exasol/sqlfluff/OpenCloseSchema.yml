@@ -1,0 +1,22 @@
+file:
+- statement:
+  - open_schema_statement:
+    - keyword: OPEN
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: test
+- statement_terminator: ;
+- statement:
+  - open_schema_statement:
+    - keyword: OPEN
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '"test"'
+- statement_terminator: ;
+- statement:
+  - close_schema_statement:
+    - keyword: CLOSE
+    - keyword: SCHEMA
+- statement_terminator: ;

@@ -1,0 +1,51 @@
+file:
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - naked_identifier: user1
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - naked_identifier: role1
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+    - keyword: SET
+    - keyword: RAW_SIZE_LIMIT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '128'
+    - star: '*'
+    - numeric_literal: '1024'
+    - star: '*'
+    - numeric_literal: '1024'
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - quoted_identifier: '"role1"'
+- statement_terminator: ;

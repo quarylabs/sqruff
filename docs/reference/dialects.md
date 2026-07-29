@@ -11,6 +11,7 @@ Sqruff currently supports the following SQL dialects:
 - [databricks](#databricks)
 - [db2](#db2)
 - [duckdb](#duckdb)
+- [exasol](#exasol)
 - [greenplum](#greenplum)
 - [hive](#hive)
 - [mysql](#mysql)
@@ -105,6 +106,18 @@ DuckDB SQL dialect for in-process analytical database.
 **Configuration:**
 ```ini
 [sqruff:dialect:duckdb]
+```
+
+
+### exasol
+
+Exasol SQL dialect for the Exasol analytics database.
+
+**Documentation:** [https://docs.exasol.com/db/latest/sql_references.htm](https://docs.exasol.com/db/latest/sql_references.htm)
+
+**Configuration:**
+```ini
+[sqruff:dialect:exasol]
 ```
 
 

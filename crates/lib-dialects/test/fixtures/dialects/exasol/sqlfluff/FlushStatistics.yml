@@ -1,0 +1,6 @@
+file:
+- statement:
+  - flush_statistics_statement:
+    - keyword: FLUSH
+    - keyword: STATISTICS
+- statement_terminator: ;

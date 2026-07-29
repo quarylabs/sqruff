@@ -1,0 +1,52 @@
+file:
+- statement:
+  - create_udf_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PYTHON
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: TEST
+        - dot: .
+        - naked_identifier: MYHELLOWORLD
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - keyword: VARCHAR
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '2000'
+          - end_bracket: )
+    - keyword: AS
+    - script_content:
+      - word: l
+      - raw_comparison_operator: =
+      - word: exa
+      - dot: .
+      - word: import_script
+      - bracketed:
+        - start_bracket: (
+        - single_quote: '''LIB.MYLIB'''
+        - end_bracket: )
+      - word: def
+      - word: run
+      - bracketed:
+        - start_bracket: (
+        - word: ctx
+        - end_bracket: )
+      - colon: ':'
+      - word: return
+      - word: l
+      - dot: .
+      - word: helloWorld
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+- function_script_terminator: |
+    /

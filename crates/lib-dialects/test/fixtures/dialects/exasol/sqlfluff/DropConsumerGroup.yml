@@ -1,0 +1,15 @@
+file:
+- statement:
+  - drop_consumer_group_statement:
+    - keyword: DROP
+    - keyword: CONSUMER
+    - keyword: GROUP
+    - naked_identifier: CEO
+- statement_terminator: ;
+- statement:
+  - drop_consumer_group_statement:
+    - keyword: DROP
+    - keyword: CONSUMER
+    - keyword: GROUP
+    - quoted_identifier: '"ADMIN"'
+- statement_terminator: ;

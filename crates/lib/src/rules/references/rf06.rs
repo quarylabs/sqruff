@@ -124,6 +124,14 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
             return Vec::new();
         }
 
+        if context.dialect.name == DialectKind::Exasol
+            && FunctionalContext::new(context)
+                .parent_stack()
+                .any_match(|it| it.is_type(SyntaxKind::AlterUserStatement))
+        {
+            return Vec::new();
+        }
+
         let identifier_is_quoted =
             !lazy_regex::regex_is_match!(r#"^[^"\'\[].+[^"\'\]]$"#, context.segment.raw().as_ref());
 
@@ -287,6 +295,7 @@ fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'stati
         | DialectKind::Clickhouse
         | DialectKind::Db2
         | DialectKind::Duckdb
+        | DialectKind::Exasol
         | DialectKind::Greenplum
         | DialectKind::Oracle
         | DialectKind::Postgres
@@ -319,6 +328,7 @@ mod tests {
             (DialectKind::Databricks, Some(("`", "`"))),
             (DialectKind::Db2, Some(("\"", "\""))),
             (DialectKind::Duckdb, Some(("\"", "\""))),
+            (DialectKind::Exasol, Some(("\"", "\""))),
             (DialectKind::Greenplum, Some(("\"", "\""))),
             (DialectKind::Hive, Some(("`", "`"))),
             (DialectKind::Mysql, Some(("`", "`"))),

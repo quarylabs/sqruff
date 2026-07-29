@@ -1,0 +1,22 @@
+file:
+- statement:
+  - create_scripting_lua_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: LUA
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: aschema
+        - dot: .
+        - naked_identifier: hello
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+    - keyword: AS
+    - script_content:
+      - word: return
+      - single_quote: '''HELLO'''
+- function_script_terminator: |
+    /

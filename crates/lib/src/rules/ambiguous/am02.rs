@@ -61,6 +61,7 @@ SELECT a, b FROM table_2
             DialectKind::Bigquery,
             DialectKind::Clickhouse,
             DialectKind::Duckdb,
+            DialectKind::Exasol,
             DialectKind::Postgres,
             DialectKind::Snowflake,
             DialectKind::Sparksql,

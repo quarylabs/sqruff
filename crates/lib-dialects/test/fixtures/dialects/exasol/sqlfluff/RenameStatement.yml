@@ -1,0 +1,45 @@
+file:
+- statement:
+  - rename_statement:
+    - keyword: RENAME
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: s1
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: s2
+- statement_terminator: ;
+- statement:
+  - rename_statement:
+    - keyword: RENAME
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: t1
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: t2
+- statement_terminator: ;
+- statement:
+  - rename_statement:
+    - keyword: RENAME
+    - object_reference:
+      - naked_identifier: s2
+      - dot: .
+      - naked_identifier: t3
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: t4
+- statement_terminator: ;
+- statement:
+  - rename_statement:
+    - keyword: RENAME
+    - object_reference:
+      - naked_identifier: s2
+      - dot: .
+      - naked_identifier: t3
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: s2
+      - dot: .
+      - naked_identifier: t4
+- statement_terminator: ;

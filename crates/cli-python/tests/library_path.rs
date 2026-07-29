@@ -27,7 +27,20 @@ fn main() {
 
     cmd.assert().success();
 
-    let mut disabled_cmd = Command::new(sqruff_path);
+    let mut configured_filter_cmd = Command::new(&sqruff_path);
+    configured_filter_cmd
+        .current_dir(crate_dir)
+        .env("HOME", crate_dir)
+        .arg("lint")
+        .arg("--format")
+        .arg("none")
+        .arg("--config")
+        .arg(fixture_dir.join(".sqruff"))
+        .arg(fixture_dir.join("filter_query.sql"));
+
+    configured_filter_cmd.assert().success();
+
+    let mut disabled_cmd = Command::new(&sqruff_path);
     disabled_cmd
         .current_dir(crate_dir)
         .env("HOME", crate_dir)

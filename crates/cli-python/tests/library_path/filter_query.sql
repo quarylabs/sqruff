@@ -1,0 +1,1 @@
+SELECT '{{ "mixedCase" | uppercase }}';

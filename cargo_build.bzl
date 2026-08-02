@@ -1,28 +1,27 @@
 """Custom Bazel rules for running Cargo as an opaque tool in a hermetic sandbox.
 
-These rules install Rust from scratch using rustup, then run cargo commands
-with vendored dependencies for hermetic, reproducible builds.
+These rules use the Rust toolchain registered with rules_rust, then run Cargo
+commands with vendored dependencies for hermetic, reproducible builds.
 
 Also provides rules for pre-caching a Python virtual environment via uv,
 so that cargo tests requiring Python (e.g. PyO3/maturin) can run fully
 sandboxed without network access at test time.
 """
 
+_RUST_TOOLCHAIN_TYPE = "@rules_rust//rust:toolchain_type"
+_RUSTFMT_TOOLCHAIN_TYPE = "@rules_rust//rust/rustfmt:toolchain_type"
+
 def _cargo_vendor_impl(ctx):
-    """Vendors cargo dependencies and installs Rust toolchain with components."""
+    """Vendors Cargo dependencies with the registered rules_rust toolchain."""
     vendor_dir = ctx.actions.declare_directory("vendor")
     cargo_config = ctx.actions.declare_file(".cargo/config.toml")
-    toolchain_dir = ctx.actions.declare_directory("rust_toolchain")
 
     manifest_files = ctx.files.manifests
+    rust_toolchain = ctx.toolchains[_RUST_TOOLCHAIN_TYPE]
+    toolchain_files = rust_toolchain.all_files.to_list()
 
     # Build list of source paths
     src_paths = " ".join([f.path for f in manifest_files])
-
-    # Build component install command
-    install_components = ""
-    if ctx.attr.components:
-        install_components = "rustup component add --toolchain {rust_version} ".format(rust_version = ctx.attr.rust_version) + " ".join(ctx.attr.components)
 
     script_content = """#!/bin/bash
 set -euo pipefail
@@ -30,29 +29,15 @@ set -euo pipefail
 # Save the original directory for outputs
 EXEC_ROOT="$PWD"
 
-# Set up isolated cargo/rustup home that we'll preserve
-export CARGO_HOME="$EXEC_ROOT/{toolchain_out}/cargo"
-export RUSTUP_HOME="$EXEC_ROOT/{toolchain_out}/rustup"
-mkdir -p "$CARGO_HOME" "$RUSTUP_HOME"
-rm -f "$RUSTUP_HOME/settings.toml"
+CARGO_BIN="$EXEC_ROOT/{cargo_path}"
+RUSTC_BIN="$EXEC_ROOT/{rustc_path}"
+export PATH="$(dirname "$CARGO_BIN"):$PATH"
+export CARGO="$CARGO_BIN"
+export RUSTC="$RUSTC_BIN"
+unset RUSTUP_HOME RUSTUP_TOOLCHAIN
 
-# Download and install rustup (no-modify-path prevents writing to ~/.profile)
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --default-toolchain {rust_version} --profile minimal
-
-# Add cargo to PATH
-export PATH="$CARGO_HOME/bin:$PATH"
-export RUSTUP_TOOLCHAIN="{rust_version}"
-
-# Install additional components if specified
-{install_components}
-
-# Force the requested toolchain to remain the default even if rustup inherited
-# stale settings from a previous sandbox path.
-rustup default {rust_version}
-
-# Verify installation
-cargo --version
-rustc --version
+"$CARGO_BIN" --version
+"$RUSTC_BIN" --version
 
 WORK_DIR=$(mktemp -d)
 
@@ -81,7 +66,7 @@ done
 
 cd "$WORK_DIR"
 
-cargo vendor "$EXEC_ROOT/{vendor_out}" 2>&1
+"$CARGO_BIN" vendor "$EXEC_ROOT/{vendor_out}" 2>&1
 
 # Write the cargo config that points to the vendored dir
 mkdir -p "$EXEC_ROOT/$(dirname {config_out})"
@@ -93,29 +78,28 @@ replace-with = "vendored-sources"
 directory = "vendor"
 EOF
 """.format(
-        rust_version = ctx.attr.rust_version,
-        install_components = install_components,
+        cargo_path = rust_toolchain.cargo.path,
+        rustc_path = rust_toolchain.rustc.path,
         srcs = src_paths,
         vendor_out = vendor_dir.path,
         config_out = cargo_config.path,
-        toolchain_out = toolchain_dir.path,
     )
 
     script_file = ctx.actions.declare_file(ctx.label.name + "_vendor.sh")
     ctx.actions.write(script_file, script_content, is_executable = True)
 
     ctx.actions.run(
-        inputs = manifest_files,
-        outputs = [vendor_dir, cargo_config, toolchain_dir],
+        inputs = manifest_files + toolchain_files,
+        outputs = [vendor_dir, cargo_config],
         executable = script_file,
         mnemonic = "CargoVendor",
-        progress_message = "Vendoring cargo dependencies (installing Rust %s)" % ctx.attr.rust_version,
+        progress_message = "Vendoring Cargo dependencies with the Bazel-managed Rust toolchain",
         execution_requirements = {
             "requires-network": "1",
         },
     )
 
-    return [DefaultInfo(files = depset([vendor_dir, cargo_config, toolchain_dir]))]
+    return [DefaultInfo(files = depset([vendor_dir, cargo_config]))]
 
 cargo_vendor = rule(
     implementation = _cargo_vendor_impl,
@@ -124,24 +108,16 @@ cargo_vendor = rule(
             allow_files = True,
             doc = "Cargo.toml and Cargo.lock files",
         ),
-        "rust_version": attr.string(
-            default = "1.96.1",
-            doc = "Rust toolchain version to install",
-        ),
-        "components": attr.string_list(
-            default = [],
-            doc = "Additional rustup components to install (e.g., clippy, rustfmt)",
-        ),
     },
+    toolchains = [_RUST_TOOLCHAIN_TYPE],
 )
 
-# Provider to carry vendored dependencies and toolchain
+# Provider to carry vendored dependencies
 CargoVendorInfo = provider(
-    doc = "Carries vendored cargo dependencies and Rust toolchain",
+    doc = "Carries vendored Cargo dependencies",
     fields = {
         "vendor_dir": "Directory containing vendored sources",
         "cargo_config": "File with cargo config pointing to vendor",
-        "toolchain_dir": "Directory containing Rust toolchain installation",
     },
 )
 
@@ -149,15 +125,12 @@ def _cargo_vendor_provider_impl(ctx):
     """Wrapper that provides CargoVendorInfo from cargo_vendor output."""
     vendor_files = ctx.attr.vendor[DefaultInfo].files.to_list()
     vendor_dir = None
-    toolchain_dir = None
     cargo_config = None
 
     for f in vendor_files:
         if f.is_directory:
             if f.basename == "vendor":
                 vendor_dir = f
-            elif f.basename == "rust_toolchain":
-                toolchain_dir = f
         else:
             cargo_config = f
 
@@ -166,7 +139,6 @@ def _cargo_vendor_provider_impl(ctx):
         CargoVendorInfo(
             vendor_dir = vendor_dir,
             cargo_config = cargo_config,
-            toolchain_dir = toolchain_dir,
         ),
     ]
 
@@ -486,14 +458,22 @@ uv_python_venv = rule(
 )
 
 def _cargo_test_impl(ctx):
-    """Runs cargo commands as a Bazel test using pre-installed toolchain.
+    """Runs Cargo commands using the registered rules_rust toolchain.
 
     Optionally sets up a Python virtual environment (from python_venv_provider)
     so that PyO3/maturin-based tests can run fully sandboxed.
     """
     vendor_info = ctx.attr.vendor[CargoVendorInfo]
+    rust_toolchain = ctx.toolchains[_RUST_TOOLCHAIN_TYPE]
+    rustfmt_toolchain = ctx.toolchains[_RUSTFMT_TOOLCHAIN_TYPE]
+    toolchain_files = depset(
+        transitive = [
+            rust_toolchain.all_files,
+            rustfmt_toolchain.all_files,
+        ],
+    ).to_list()
 
-    all_inputs = ctx.files.srcs + ctx.files.tools + [vendor_info.vendor_dir, vendor_info.cargo_config, vendor_info.toolchain_dir]
+    all_inputs = ctx.files.srcs + ctx.files.tools + [vendor_info.vendor_dir, vendor_info.cargo_config] + toolchain_files
 
     # Add python venv inputs if provided
     python_setup = ""
@@ -552,13 +532,16 @@ fi
 
 VENDOR_DIR="$RUNFILES/_main/{vendor_dir}"
 CARGO_CONFIG="$RUNFILES/_main/{cargo_config}"
-TOOLCHAIN_DIR="$RUNFILES/_main/{toolchain_dir}"
+CARGO_BIN="$RUNFILES/_main/{cargo_path}"
+RUSTC_BIN="$RUNFILES/_main/{rustc_path}"
+RUSTFMT_BIN="$RUNFILES/_main/{rustfmt_path}"
 
-# Use the pre-installed toolchain from cargo_vendor
-export CARGO_HOME="$TOOLCHAIN_DIR/cargo"
-export RUSTUP_HOME="$TOOLCHAIN_DIR/rustup"
-export PATH="$CARGO_HOME/bin:$PATH"
-export RUSTUP_TOOLCHAIN="{rust_version}"
+# Use the pinned toolchain registered by rules_rust.
+export PATH="$(dirname "$CARGO_BIN"):$PATH"
+export CARGO="$CARGO_BIN"
+export RUSTC="$RUSTC_BIN"
+export RUSTFMT="$RUSTFMT_BIN"
+unset RUSTUP_HOME RUSTUP_TOOLCHAIN
 
 {tool_setup}
 
@@ -596,8 +579,9 @@ export CARGO_TARGET_DIR="$WORK_DIR/target"
 """.format(
         vendor_dir = vendor_info.vendor_dir.short_path,
         cargo_config = vendor_info.cargo_config.short_path,
-        toolchain_dir = vendor_info.toolchain_dir.short_path,
-        rust_version = ctx.attr.rust_version,
+        cargo_path = rust_toolchain.cargo.short_path,
+        rustc_path = rust_toolchain.rustc.short_path,
+        rustfmt_path = rustfmt_toolchain.rustfmt.short_path,
         srcs = "\n".join([f.short_path for f in ctx.files.srcs]),
         tool_setup = tool_setup,
         python_setup = python_setup,
@@ -619,7 +603,7 @@ _cargo_attrs = {
     "vendor": attr.label(
         mandatory = True,
         providers = [CargoVendorInfo],
-        doc = "cargo_vendor_provider target with pre-installed toolchain",
+        doc = "cargo_vendor_provider target with vendored dependencies",
     ),
     "python_venv": attr.label(
         default = None,
@@ -632,20 +616,24 @@ _cargo_attrs = {
         doc = "Additional cargo subcommand binaries (e.g. cargo-hack) to symlink into PATH",
     ),
     "script": attr.string(mandatory = True),
-    "rust_version": attr.string(
-        default = "1.96.1",
-        doc = "Rust toolchain version to use from the vendored toolchain",
-    ),
 }
 
 cargo_test = rule(
     implementation = _cargo_test_impl,
     test = True,
     attrs = _cargo_attrs,
+    toolchains = [
+        _RUST_TOOLCHAIN_TYPE,
+        _RUSTFMT_TOOLCHAIN_TYPE,
+    ],
 )
 
 cargo_run = rule(
     implementation = _cargo_test_impl,
     executable = True,
     attrs = _cargo_attrs,
+    toolchains = [
+        _RUST_TOOLCHAIN_TYPE,
+        _RUSTFMT_TOOLCHAIN_TYPE,
+    ],
 )

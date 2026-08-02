@@ -23,7 +23,7 @@ export CARGO_TARGET_DIR="$WORKDIR/target"
 # Use system cargo if available, otherwise install rustup
 if ! command -v cargo &> /dev/null; then
     export RUSTUP_HOME="$WORKDIR/.rustup"
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --no-modify-path
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain 1.97.1 --no-modify-path
     export PATH="$CARGO_HOME/bin:$PATH"
 fi
 

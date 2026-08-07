@@ -2,6 +2,12 @@ packages:
   - editors/code
   - playground
 
+onlyBuiltDependencies:
+  - code-server
+  - esbuild
+  - '@swc/core'
+  - argon2
+
 catalog:
   '@eslint/js': ^10.0.1
   '@playwright/test': 1.62.1

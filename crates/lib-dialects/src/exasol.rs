@@ -2877,14 +2877,9 @@ pub fn raw_dialect() -> Dialect {
                             one_of(vec![
                                 Sequence::new(vec![
                                     Ref::new("UserPasswordAuthSegment").to_matchable(),
-                                    Sequence::new(vec![
-                                        Ref::keyword("REPLACE").to_matchable(),
-                                        Ref::new("QuotedIdentifierSegment").to_matchable(),
-                                    ])
-                                    .config(|this| {
-                                        this.optional();
-                                    })
-                                    .to_matchable(),
+                                    Ref::new("UserPasswordReplacementSegment")
+                                        .optional()
+                                        .to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Ref::new("UserLDAPAuthSegment").to_matchable(),
@@ -2936,6 +2931,18 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::PasswordAuth, |_| {
                 Sequence::new(vec![
                     Ref::keyword("BY").to_matchable(),
+                    Ref::new("QuotedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UserPasswordReplacementSegment".into(),
+            NodeMatcher::new(SyntaxKind::PasswordAuth, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("REPLACE").to_matchable(),
                     Ref::new("QuotedIdentifierSegment").to_matchable(),
                 ])
                 .to_matchable()

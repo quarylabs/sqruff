@@ -9,8 +9,9 @@ file:
     - password_auth:
       - keyword: BY
       - quoted_identifier: '"h22_xhz"'
-    - keyword: REPLACE
-    - quoted_identifier: '"h12_xhz"'
+    - password_auth:
+      - keyword: REPLACE
+      - quoted_identifier: '"h12_xhz"'
 - statement_terminator: ;
 - statement:
   - alter_user_statement:

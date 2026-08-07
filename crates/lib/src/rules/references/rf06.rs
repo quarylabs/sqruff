@@ -124,14 +124,6 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
             return Vec::new();
         }
 
-        if context.dialect.name == DialectKind::Exasol
-            && FunctionalContext::new(context)
-                .parent_stack()
-                .any_match(|it| it.is_type(SyntaxKind::AlterUserStatement))
-        {
-            return Vec::new();
-        }
-
         let identifier_is_quoted =
             !lazy_regex::regex_is_match!(r#"^[^"\'\[].+[^"\'\]]$"#, context.segment.raw().as_ref());
 

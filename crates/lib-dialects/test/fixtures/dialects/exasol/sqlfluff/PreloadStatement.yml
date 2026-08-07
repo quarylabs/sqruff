@@ -1,0 +1,72 @@
+file:
+- statement:
+  - preload_statement:
+    - keyword: PRELOAD
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: i
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - preload_statement:
+    - keyword: PRELOAD
+    - keyword: DATABASE
+- statement_terminator: ;
+- statement:
+  - preload_statement:
+    - keyword: PRELOAD
+    - keyword: TABLES
+    - table_reference:
+      - naked_identifier: t1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: t2
+- statement_terminator: ;
+- statement:
+  - preload_statement:
+    - keyword: PRELOAD
+    - keyword: SCHEMAS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+    - comma: ','
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s2
+- statement_terminator: ;
+- statement:
+  - preload_statement:
+    - keyword: PRELOAD
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+- statement_terminator: ;
+- statement:
+  - truncate_audit_logs_statement:
+    - keyword: TRUNCATE
+    - keyword: AUDIT
+    - keyword: LOGS
+- statement_terminator: ;
+- statement:
+  - truncate_audit_logs_statement:
+    - keyword: TRUNCATE
+    - keyword: AUDIT
+    - keyword: LOGS
+    - keyword: KEEP
+    - keyword: LAST
+    - keyword: MONTH
+- statement_terminator: ;
+- statement:
+  - truncate_audit_logs_statement:
+    - keyword: TRUNCATE
+    - keyword: AUDIT
+    - keyword: LOGS
+    - keyword: KEEP
+    - keyword: FROM
+    - quoted_literal: '''2019-01-01'''
+- statement_terminator: ;

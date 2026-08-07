@@ -1,0 +1,67 @@
+file:
+- statement:
+  - execute_script_statement:
+    - keyword: EXECUTE
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: script_1
+- statement_terminator: ;
+- statement:
+  - execute_script_statement:
+    - keyword: EXECUTE
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: script_1
+    - keyword: WITH
+    - keyword: OUTPUT
+- statement_terminator: ;
+- statement:
+  - execute_script_statement:
+    - keyword: EXECUTE
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: script_2
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - numeric_literal: '3'
+      - comma: ','
+      - expression:
+        - quoted_literal: '''ABC'''
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: OUTPUT
+- statement_terminator: ;
+- statement:
+  - execute_script_statement:
+    - keyword: EXECUTE
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: script_3
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: ARRAY
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '3'
+              - comma: ','
+              - expression:
+                - numeric_literal: '4'
+              - comma: ','
+              - expression:
+                - numeric_literal: '5'
+              - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

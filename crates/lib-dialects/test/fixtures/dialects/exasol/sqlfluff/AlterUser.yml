@@ -1,0 +1,143 @@
+file:
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: user_1
+    - keyword: IDENTIFIED
+    - password_auth:
+      - keyword: BY
+      - quoted_identifier: '"h22_xhz"'
+    - password_auth:
+      - keyword: REPLACE
+      - quoted_identifier: '"h12_xhz"'
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: user_1
+    - keyword: IDENTIFIED
+    - password_auth:
+      - keyword: BY
+      - quoted_identifier: '"h12_xhz"'
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: user_2
+    - keyword: IDENTIFIED
+    - ldap_auth:
+      - keyword: AT
+      - keyword: LDAP
+      - keyword: AS
+      - quoted_literal: '''cn=user_2,dc=authorization,dc=exasol,dc=com'''
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: user_3
+    - keyword: PASSWORD_EXPIRY_POLICY
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''42 days'''
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: user_4
+    - keyword: PASSWORD
+    - keyword: EXPIRE
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: user_5
+    - keyword: RESET
+    - keyword: FAILED
+    - keyword: LOGIN
+    - keyword: ATTEMPTS
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: userx
+    - keyword: SET
+    - keyword: CONSUMER_GROUP
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - naked_identifier: CEO
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: userx
+    - keyword: SET
+    - keyword: CONSUMER_GROUP
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: '"ADMIN"'
+    - keyword: SET
+    - keyword: CONSUMER_GROUP
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_identifier: '"TABLE"'
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - identifier: '[admin]'
+    - keyword: SET
+    - keyword: CONSUMER_GROUP
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_identifier: '"DAY"'
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: '"ADMIN"'
+    - keyword: SET
+    - keyword: CONSUMER_GROUP
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - identifier: '[day]'
+- statement_terminator: ;
+- statement:
+  - alter_user_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: oidctestuser
+    - keyword: IDENTIFIED
+    - openid_auth:
+      - keyword: BY
+      - keyword: OPENID
+      - keyword: SUBJECT
+      - quoted_literal: '''database-user@exasol.example'''
+- statement_terminator: ;

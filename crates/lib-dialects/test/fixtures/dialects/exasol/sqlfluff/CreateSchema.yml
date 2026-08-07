@@ -1,0 +1,20 @@
+file:
+- statement:
+  - create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+- statement_terminator: ;
+- statement:
+  - create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s2
+- statement_terminator: ;

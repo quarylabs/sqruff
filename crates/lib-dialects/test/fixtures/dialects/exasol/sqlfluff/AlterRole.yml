@@ -1,0 +1,37 @@
+file:
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: role1
+    - keyword: SET
+    - keyword: CONSUMER_GROUP
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - naked_identifier: CEO
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: role2
+    - keyword: SET
+    - keyword: CONSUMER_GROUP
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - alter_role_statement:
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: '"TABLE"'
+    - keyword: SET
+    - keyword: CONSUMER_GROUP
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_identifier: '"DaY"'
+- statement_terminator: ;

@@ -1,0 +1,37 @@
+file:
+- statement:
+  - create_scripting_lua_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: LUA
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: aschema
+        - dot: .
+        - naked_identifier: hello
+    - keyword: AS
+    - script_content:
+      - word: return
+      - single_quote: '''HELLO'''
+- function_script_terminator: |
+    /
+- statement:
+  - create_scripting_lua_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: LUA
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: aschema
+        - dot: .
+        - naked_identifier: world
+    - keyword: AS
+    - script_content:
+      - word: return
+      - single_quote: '''WORLD'''
+- function_script_terminator: |
+    /

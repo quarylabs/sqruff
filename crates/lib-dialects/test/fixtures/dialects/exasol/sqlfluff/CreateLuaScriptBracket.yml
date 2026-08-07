@@ -1,0 +1,38 @@
+file:
+- statement:
+  - create_scripting_lua_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: LUA
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: BRACKET
+        - dot: .
+        - naked_identifier: SCRIPT_EXAMPLE
+    - keyword: RETURNS
+    - keyword: ROWCOUNT
+    - keyword: AS
+    - script_content:
+      - word: local
+      - word: _stmt
+      - raw_comparison_operator: =
+      - code: '[[SOME ASSIGNMENT WITH OPEN BRACKET ( ]]'
+      - word: x
+      - raw_comparison_operator: =
+      - numeric_literal: '1'
+      - word: local
+      - word: _stmt
+      - raw_comparison_operator: =
+      - word: _stmt
+      - range_operator: ..
+      - code: '[[ ) ]]'
+      - word: local
+      - word: _nsted
+      - raw_comparison_operator: =
+      - code: '[=[one ([[two]] one]=]'
+      - word: return
+      - numeric_literal: '1'
+- function_script_terminator: |
+    /

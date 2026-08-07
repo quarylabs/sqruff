@@ -287,6 +287,7 @@ fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'stati
         | DialectKind::Clickhouse
         | DialectKind::Db2
         | DialectKind::Duckdb
+        | DialectKind::Exasol
         | DialectKind::Greenplum
         | DialectKind::Oracle
         | DialectKind::Postgres
@@ -319,6 +320,7 @@ mod tests {
             (DialectKind::Databricks, Some(("`", "`"))),
             (DialectKind::Db2, Some(("\"", "\""))),
             (DialectKind::Duckdb, Some(("\"", "\""))),
+            (DialectKind::Exasol, Some(("\"", "\""))),
             (DialectKind::Greenplum, Some(("\"", "\""))),
             (DialectKind::Hive, Some(("`", "`"))),
             (DialectKind::Mysql, Some(("`", "`"))),

@@ -1,0 +1,36 @@
+file:
+- statement:
+  - drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: test_user1
+- statement_terminator: ;
+- statement:
+  - drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: test_user2
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - drop_role_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: myrole
+- statement_terminator: ;
+- statement:
+  - drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - role_reference:
+      - quoted_identifier: '"ADMIN"'
+- statement_terminator: ;
+- statement:
+  - drop_role_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: '"Important"'

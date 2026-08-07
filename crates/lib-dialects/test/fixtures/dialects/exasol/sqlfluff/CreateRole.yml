@@ -1,0 +1,22 @@
+file:
+- statement:
+  - create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: test_role
+- statement_terminator: ;
+- statement:
+  - create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: '"test_role"'
+- statement_terminator: ;
+- statement:
+  - create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - role_reference:
+      - identifier: '[admin]'
+- statement_terminator: ;

@@ -490,7 +490,7 @@ UNION DISTINCT
 SELECT a, b FROM table_2
 ```
 
-**Dialects where this rule is skipped:** `bigquery`, `clickhouse`, `duckdb`, `postgres`, `snowflake`, `sparksql`
+**Dialects where this rule is skipped:** `bigquery`, `clickhouse`, `duckdb`, `exasol`, `postgres`, `snowflake`, `sparksql`
 
 ### ambiguous.order_by
 

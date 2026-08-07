@@ -71,6 +71,16 @@ test_fail_prefer_quoted_identifiers_duckdb:
       references.quoting:
         prefer_quoted_identifiers: true
 
+test_fail_prefer_quoted_identifiers_exasol:
+  fail_str: SELECT 1 AS foo;
+  fix_str: SELECT 1 AS "foo";
+  configs:
+    core:
+      dialect: exasol
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
 test_fail_prefer_quoted_identifiers_greenplum:
   fail_str: SELECT 1 AS foo;
   fix_str: SELECT 1 AS "foo";
@@ -819,5 +829,23 @@ test_pass_exasol_password_literals:
     rules:
       references.quoting:
         prefer_quoted_identifiers: false
+    core:
+      dialect: exasol
+
+test_fail_alter_quoted_user_exasol:
+  fail_str: |
+    ALTER USER "USER1" IDENTIFIED BY "h22_xhz" REPLACE "h12_xhz";
+  fix_str: |
+    ALTER USER USER1 IDENTIFIED BY "h22_xhz" REPLACE "h12_xhz";
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_alter_quoted_consumer_group_exasol:
+  fail_str: |
+    ALTER USER USER1 SET CONSUMER_GROUP = "CEO";
+  fix_str: |
+    ALTER USER USER1 SET CONSUMER_GROUP = CEO;
+  configs:
     core:
       dialect: exasol

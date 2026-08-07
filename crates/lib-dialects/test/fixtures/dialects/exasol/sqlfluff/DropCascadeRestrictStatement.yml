@@ -1,0 +1,20 @@
+file:
+- statement:
+  - drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - view_reference:
+      - object_reference:
+        - naked_identifier: my_view
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: my_function
+    - keyword: CASCADE
+- statement_terminator: ;

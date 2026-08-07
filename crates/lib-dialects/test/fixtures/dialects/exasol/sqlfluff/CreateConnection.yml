@@ -1,0 +1,54 @@
+file:
+- statement:
+  - create_connection:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: ftp_connection
+    - keyword: TO
+    - connection_definition:
+      - quoted_literal: '''ftp://192.168.1.1/'''
+      - keyword: USER
+      - quoted_literal: '''agent_007'''
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - quoted_literal: '''secret'''
+- statement_terminator: ;
+- statement:
+  - create_connection:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: exa_connection
+    - keyword: TO
+    - connection_definition:
+      - quoted_literal: '''192.168.6.11..14:8563'''
+- statement_terminator: ;
+- statement:
+  - create_connection:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: ora_connection
+    - keyword: TO
+    - connection_definition:
+      - quoted_literal: |-
+          '(DESCRIPTION =
+              (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.6.54)(PORT = 1521))
+              (CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = orcl)))'
+- statement_terminator: ;
+- statement:
+  - create_connection:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: jdbc_connection_1
+    - keyword: TO
+    - connection_definition:
+      - quoted_literal: '''jdbc:mysql://192.168.6.1/my_db'''
+- statement_terminator: ;
+- statement:
+  - create_connection:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: jdbc_connection_2
+    - keyword: TO
+    - connection_definition:
+      - quoted_literal: '''jdbc:postgresql://192.168.6.2:5432/my_db?stringtype=unspecified'''
+- statement_terminator: ;

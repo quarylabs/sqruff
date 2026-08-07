@@ -1,0 +1,104 @@
+file:
+- statement:
+  - create_udf_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - naked_identifier: PYTHON3
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: MYSCHEMA
+        - dot: .
+        - naked_identifier: MYPYTHONSCRIPT
+    - bracketed:
+      - start_bracket: (
+      - column_datatype_definition:
+        - naked_identifier: JSON_STR
+        - data_type:
+          - keyword: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '2000000'
+              - end_bracket: )
+      - comma: ','
+      - column_datatype_definition:
+        - naked_identifier: LANGUAGE_KEY
+        - data_type:
+          - keyword: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '50'
+              - end_bracket: )
+      - comma: ','
+      - column_datatype_definition:
+        - naked_identifier: TXT_KEY
+        - data_type:
+          - keyword: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '50'
+              - end_bracket: )
+      - end_bracket: )
+    - emits_segment:
+      - keyword: EMITS
+      - bracketed:
+        - start_bracket: (
+        - column_datatype_definition:
+          - naked_identifier: X
+          - data_type:
+            - keyword: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '2000000'
+                - end_bracket: )
+        - end_bracket: )
+    - keyword: AS
+    - script_content:
+      - double_quote: |-
+          """
+          /*====================================================================
+              e.g.:
+              SELECT MYSCHEMA.MYPYTHONSCRIPT(
+                      '[{"
+      - at_sign_literal: '@lang'
+      - double_quote: '":"'
+      - word: de
+      - minus: '-'
+      - word: DE
+      - double_quote: '","'
+      - dollar_literal: $
+      - double_quote: '":"'
+      - word: Krztxt
+      - double_quote: '"}, {"'
+      - at_sign_literal: '@lang'
+      - double_quote: '":"'
+      - word: en
+      - minus: '-'
+      - word: GB
+      - double_quote: '","'
+      - dollar_literal: $
+      - double_quote: '":"'
+      - word: Shrttxt
+      - double_quote: |-
+          "}]',
+                      '@lang',
+                      '$'
+                  );
+           ====================================================================*/
+          """
+      - word: def
+      - word: run
+      - bracketed:
+        - start_bracket: (
+        - word: ctx
+        - end_bracket: )
+      - colon: ':'
+      - word: pass
+- function_script_terminator: |
+    /

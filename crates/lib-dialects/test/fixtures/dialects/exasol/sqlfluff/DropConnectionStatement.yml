@@ -1,0 +1,21 @@
+file:
+- statement:
+  - drop_connection_statement:
+    - keyword: DROP
+    - keyword: CONNECTION
+    - naked_identifier: my_connection
+- statement_terminator: ;
+- statement:
+  - drop_connection_statement:
+    - keyword: DROP
+    - keyword: CONNECTION
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: my_connection
+- statement_terminator: ;
+- statement:
+  - drop_connection_statement:
+    - keyword: DROP
+    - keyword: CONNECTION
+    - quoted_identifier: '"myCon"'
+- statement_terminator: ;

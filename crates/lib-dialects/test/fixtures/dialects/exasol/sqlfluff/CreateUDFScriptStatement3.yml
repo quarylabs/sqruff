@@ -1,0 +1,32 @@
+file:
+- statement:
+  - create_udf_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - naked_identifier: PYTHON3
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+      - object_reference:
+        - naked_identifier: LIB
+        - dot: .
+        - naked_identifier: MYLIB
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - keyword: INT
+    - keyword: AS
+    - script_content:
+      - word: def
+      - word: helloWorld
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+      - colon: ':'
+      - word: return
+      - double_quote: '"Hello Python3 World!"'
+- function_script_terminator: |
+    /

@@ -1,0 +1,22 @@
+file:
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - quoted_identifier: '"MY_SCHEMA"'
+      - dot: .
+      - quoted_identifier: '"MY_TABLE"'
+    - keyword: CASCADE
+    - keyword: CASCADE
+    - keyword: CONSTRAINTS
+- statement_terminator: ;

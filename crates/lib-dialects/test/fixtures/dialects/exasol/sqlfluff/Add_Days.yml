@@ -1,0 +1,39 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ADD_DAYS
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - keyword: DATE
+                - date_constructor_literal: '''2000-02-28'''
+              - comma: ','
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+        - alias_expression:
+          - naked_identifier: AD1
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ADD_DAYS
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - keyword: TIMESTAMP
+                - date_constructor_literal: '''2001-02-28 12:00:00'''
+              - comma: ','
+              - expression:
+                - numeric_literal: '1'
+              - end_bracket: )
+        - alias_expression:
+          - naked_identifier: AD2
+- statement_terminator: ;

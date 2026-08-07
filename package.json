@@ -5,14 +5,6 @@
     "pnpm": ">=10.0.0"
   },
   "engineStrict": true,
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "code-server",
-      "esbuild",
-      "@swc/core",
-      "argon2"
-    ]
-  },
   "devDependencies": {
     "@secretlint/secretlint-formatter-sarif": "^13.0.4",
     "@secretlint/secretlint-rule-no-dotenv": "^13.0.4",

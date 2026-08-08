@@ -1,0 +1,8 @@
+# Go module used solely to pin the version of keep-sorted, Google's linter for
+# keeping blocks of lines sorted (https://github.com/google/keep-sorted).
+# gazelle's go_deps extension reads these files in MODULE.bazel and builds the
+# binary from source, so no per-platform binaries need to be pinned in tools.bzl.
+exports_files([
+    "go.mod",
+    "go.sum",
+])

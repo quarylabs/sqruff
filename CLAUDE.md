@@ -22,6 +22,10 @@ cargo fmt --all
 # Run key lint checks via Bazel
 bazel test //:rustfmt_check //:clippy_check //:prettier_check //:ruff_check //:cargo_machete
 
+# Check (and fix) that keep-sorted blocks stay alphabetical
+bazel test //:keep_sorted_check
+bazel run //:keep_sorted_fix
+
 # Hermetic cargo checks (vendored deps, isolated Rust toolchain)
 bazel test //:cargo_check //:cargo_clippy //:cargo_fmt_check
 

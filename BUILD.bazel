@@ -256,6 +256,30 @@ filegroup(
     ],
 )
 
+# keep-sorted check - verify `keep-sorted` blocks are alphabetically sorted
+sh_test(
+    name = "keep_sorted_check",
+    size = "small",
+    srcs = [".hacking/scripts/keep_sorted_check.sh"],
+    data = [
+        ":cargo_srcs",
+        "@com_github_google_keep_sorted//:keep-sorted",
+    ],
+    env = {
+        "KEEP_SORTED": "$(rlocationpath @com_github_google_keep_sorted//:keep-sorted)",
+    },
+)
+
+# keep-sorted fix - sort the blocks in place (for fixing locally and in CI)
+sh_binary(
+    name = "keep_sorted_fix",
+    srcs = [".hacking/scripts/keep_sorted_fix.sh"],
+    data = ["@com_github_google_keep_sorted//:keep-sorted"],
+    env = {
+        "KEEP_SORTED": "$(rlocationpath @com_github_google_keep_sorted//:keep-sorted)",
+    },
+)
+
 # Cargo metadata used to resolve and vendor dependencies. Keep this separate
 # from cargo_srcs so ordinary Rust source changes do not invalidate vendoring.
 filegroup(

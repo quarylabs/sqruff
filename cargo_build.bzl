@@ -40,6 +40,7 @@ unset RUSTUP_HOME RUSTUP_TOOLCHAIN
 "$RUSTC_BIN" --version
 
 WORK_DIR=$(mktemp -d)
+export CARGO_HOME="$WORK_DIR/.cargo"
 
 # Copy all Cargo.toml / Cargo.lock files preserving structure
 for src in {srcs}; do

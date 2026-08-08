@@ -505,8 +505,9 @@ file:
                 - casting_operator: '::'
                 - data_type:
                   - keyword: INTEGER
-                  - start_square_bracket: '['
-                  - end_square_bracket: ']'
+                  - array_type_suffix:
+                    - start_square_bracket: '['
+                    - end_square_bracket: ']'
             - alias_expression:
               - keyword: AS
               - quoted_identifier: '"ancestors"'
@@ -529,8 +530,9 @@ file:
                 - casting_operator: '::'
                 - data_type:
                   - keyword: text
-                  - start_square_bracket: '['
-                  - end_square_bracket: ']'
+                  - array_type_suffix:
+                    - start_square_bracket: '['
+                    - end_square_bracket: ']'
             - alias_expression:
               - keyword: AS
               - quoted_identifier: '"path"'
@@ -549,8 +551,9 @@ file:
                 - casting_operator: '::'
                 - data_type:
                   - keyword: INTEGER
-                  - start_square_bracket: '['
-                  - end_square_bracket: ']'
+                  - array_type_suffix:
+                    - start_square_bracket: '['
+                    - end_square_bracket: ']'
             - alias_expression:
               - keyword: AS
               - quoted_identifier: '"path_nodes"'

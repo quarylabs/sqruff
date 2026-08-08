@@ -75,10 +75,11 @@ file:
         - naked_identifier: vector
       - data_type:
         - keyword: int
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
+        - array_type_suffix:
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
 - statement:

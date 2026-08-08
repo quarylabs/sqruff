@@ -134,6 +134,7 @@ pub enum SyntaxKind {
     IntervalExpression,
     ArrayType,
     SizedArrayType,
+    ArrayTypeSuffix,
     SelectStatement,
     OverlapsClause,
     SelectClause,

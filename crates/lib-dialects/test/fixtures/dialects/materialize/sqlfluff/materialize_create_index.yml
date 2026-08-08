@@ -1,0 +1,51 @@
+file:
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: active_customers_geo_idx
+    - keyword: ON
+    - object_reference:
+      - naked_identifier: active_customers
+    - bracketed:
+      - start_bracket: (
+      - word: geo_id
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: active_customers_exp_idx
+    - keyword: ON
+    - object_reference:
+      - naked_identifier: active_customers
+    - bracketed:
+      - start_bracket: (
+      - word: upper
+      - bracketed:
+        - start_bracket: (
+        - word: guid
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: i2
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+      - naked_identifier: cluster2
+    - keyword: ON
+    - object_reference:
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - word: f1
+      - end_bracket: )
+- statement_terminator: ;

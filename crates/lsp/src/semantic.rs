@@ -1279,7 +1279,25 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ViewReference
         | WithInvalidForeignKeyClause
         | WithInvalidUniquePkClause
-        | TupleElementAccess => return None,
+        | TupleElementAccess
+        | MaterializeSize
+        | AlterConnectionRotateKeys
+        | AlterRenameStatement
+        | AlterSecretStatement
+        | AlterSourceSinkSizeStatement
+        | CopyToStatement
+        | CopyFromStatement
+        | CreateClusterStatement
+        | CreateClusterReplicaStatement
+        | CreateConnectionStatement
+        | CreateSecretStatement
+        | CreateSinkKafkaStatement
+        | CreateSourceKafkaStatement
+        | CreateSourceLoadGeneratorStatement
+        | CreateSourcePostgresStatement
+        | ShowCreateStatement
+        | ShowIndexesStatement
+        | ShowMaterializedViewsStatement => return None,
     };
 
     Some(highlight)

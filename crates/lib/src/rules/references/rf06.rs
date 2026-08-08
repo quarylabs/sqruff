@@ -289,6 +289,7 @@ fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'stati
         | DialectKind::Duckdb
         | DialectKind::Exasol
         | DialectKind::Greenplum
+        | DialectKind::Materialize
         | DialectKind::Oracle
         | DialectKind::Postgres
         | DialectKind::Redshift

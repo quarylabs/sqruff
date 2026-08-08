@@ -28,6 +28,7 @@ default = [
     "greenplum",
     "hive",
     "mysql",
+    "materialize",
     "oracle",
     "postgres",
     "redshift",
@@ -48,6 +49,7 @@ exasol = []
 greenplum = ["postgres"]
 hive = []
 mysql = []
+materialize = ["postgres"]
 oracle = []
 postgres = []
 redshift = ["postgres"]

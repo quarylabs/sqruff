@@ -104,6 +104,7 @@ pub enum DialectKind {
     Exasol,
     Greenplum,
     Hive,
+    Materialize,
     Mysql,
     Oracle,
     Postgres,
@@ -131,6 +132,7 @@ impl DialectKind {
             DialectKind::Greenplum => "greenplum",
             DialectKind::Hive => "hive",
             DialectKind::Mysql => "mysql",
+            DialectKind::Materialize => "materialize",
             DialectKind::Oracle => "oracle",
             DialectKind::Postgres => "postgres",
             DialectKind::Redshift => "redshift",
@@ -161,6 +163,7 @@ impl DialectKind {
             DialectKind::Greenplum => "Greenplum SQL dialect, a massively parallel Postgres.",
             DialectKind::Hive => "Apache Hive SQL dialect for data warehousing.",
             DialectKind::Mysql => "MySQL SQL dialect for the popular open-source database.",
+            DialectKind::Materialize => "Materialize SQL dialect for the streaming data warehouse.",
             DialectKind::Oracle => "Oracle SQL dialect for Oracle Database.",
             DialectKind::Postgres => {
                 "PostgreSQL SQL dialect for the advanced open-source database."
@@ -203,6 +206,7 @@ impl DialectKind {
             }
             DialectKind::Hive => Some("https://hive.apache.org/docs/latest/language/"),
             DialectKind::Mysql => Some("https://dev.mysql.com/doc/"),
+            DialectKind::Materialize => Some("https://materialize.com/docs/sql/"),
             DialectKind::Oracle => {
                 Some("https://www.oracle.com/database/technologies/appdev/sql.html")
             }

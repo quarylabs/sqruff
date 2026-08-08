@@ -1,0 +1,48 @@
+file:
+- statement:
+  - fetch_statement:
+    - keyword: FETCH
+    - numeric_literal: '100'
+    - object_reference:
+      - naked_identifier: c
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - word: timeout
+      - raw_comparison_operator: =
+      - single_quote: '''1s'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - fetch_statement:
+    - keyword: FETCH
+    - keyword: ALL
+    - object_reference:
+      - naked_identifier: c1
+- statement_terminator: ;
+- statement:
+  - declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+      - naked_identifier: c
+    - keyword: CURSOR
+    - keyword: FOR
+    - word: SUBSCRIBE
+    - word: fetch_during_ingest
+- statement_terminator: ;
+- statement:
+  - declare_statement:
+    - keyword: DECLARE
+    - object_reference:
+      - naked_identifier: c
+    - keyword: CURSOR
+    - keyword: FOR
+    - word: SUBSCRIBE
+    - bracketed:
+      - start_bracket: (
+      - word: SELECT
+      - star: '*'
+      - word: FROM
+      - word: t1
+      - end_bracket: )
+- statement_terminator: ;

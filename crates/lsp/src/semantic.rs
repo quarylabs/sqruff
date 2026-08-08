@@ -1297,7 +1297,18 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateSourcePostgresStatement
         | ShowCreateStatement
         | ShowIndexesStatement
-        | ShowMaterializedViewsStatement => return None,
+        | ShowMaterializedViewsStatement
+        | BteqKeyWordSegment
+        | BteqStatement
+        | CollectStatUsingOptionClause
+        | CollectStatisticsStatement
+        | CreateTableOptionsStatement
+        | DatabaseStatement
+        | FromInUpdateClause
+        | SetQueryBandStatement
+        | TdColumnAttributeConstraint
+        | TdPartitioningLevel
+        | TdTableConstraint => return None,
     };
 
     Some(highlight)

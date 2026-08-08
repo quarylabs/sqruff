@@ -68,6 +68,8 @@ mod sqlite_keywords;
 pub mod starrocks;
 #[cfg(feature = "starrocks")]
 mod starrocks_keywords;
+#[cfg(feature = "teradata")]
+pub mod teradata;
 #[cfg(feature = "trino")]
 pub mod trino;
 #[cfg(feature = "trino")]
@@ -121,6 +123,8 @@ pub fn dialect_config_options(
         DialectKind::Sqlite => sqlite::SQLiteDialectConfig::config_options(),
         #[cfg(feature = "starrocks")]
         DialectKind::Starrocks => starrocks::StarRocksDialectConfig::config_options(),
+        #[cfg(feature = "teradata")]
+        DialectKind::Teradata => teradata::TeradataDialectConfig::config_options(),
         #[cfg(feature = "trino")]
         DialectKind::Trino => trino::TrinoDialectConfig::config_options(),
         #[cfg(feature = "tsql")]
@@ -169,6 +173,8 @@ pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dia
         DialectKind::Sqlite => sqlite::dialect(config),
         #[cfg(feature = "starrocks")]
         DialectKind::Starrocks => starrocks::dialect(config),
+        #[cfg(feature = "teradata")]
+        DialectKind::Teradata => teradata::dialect(config),
         #[cfg(feature = "trino")]
         DialectKind::Trino => trino::dialect(config),
         #[cfg(feature = "tsql")]

@@ -23,6 +23,7 @@ Sqruff currently supports the following SQL dialects:
 - [sparksql](#sparksql)
 - [sqlite](#sqlite)
 - [starrocks](#starrocks)
+- [teradata](#teradata)
 - [trino](#trino)
 - [tsql](#tsql)
 
@@ -265,6 +266,18 @@ StarRocks SQL dialect for real-time analytical workloads.
 **Configuration:**
 ```ini
 [sqruff:dialect:starrocks]
+```
+
+
+### teradata
+
+Teradata SQL dialect for the Teradata analytics platform.
+
+**Documentation:** [https://docs.teradata.com/](https://docs.teradata.com/)
+
+**Configuration:**
+```ini
+[sqruff:dialect:teradata]
 ```
 
 

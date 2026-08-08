@@ -1,0 +1,203 @@
+file:
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: VOLATILE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: a
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - quoted_literal: '''A'''
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: B
+        - end_bracket: )
+      - td_table_constraint:
+        - keyword: WITH
+        - keyword: DATA
+        - keyword: ON
+        - keyword: COMMIT
+        - keyword: PRESERVE
+        - keyword: ROWS
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: VOLATILE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: b
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - quoted_literal: '''A'''
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: B
+        - end_bracket: )
+      - td_table_constraint:
+        - keyword: WITH
+        - keyword: DATA
+        - keyword: ON
+        - keyword: COMMIT
+        - keyword: DELETE
+        - keyword: ROWS
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: VOLATILE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: c
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - quoted_literal: '''A'''
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: B
+        - end_bracket: )
+      - td_table_constraint:
+        - keyword: WITH
+        - keyword: NO
+        - keyword: DATA
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: VOLATILE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: e
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - quoted_literal: '''A'''
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: B
+        - end_bracket: )
+      - td_table_constraint:
+        - keyword: WITH
+        - keyword: NO
+        - keyword: DATA
+        - keyword: AND
+        - keyword: STATS
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: VOLATILE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: f
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - quoted_literal: '''A'''
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: B
+        - end_bracket: )
+      - td_table_constraint:
+        - keyword: WITH
+        - keyword: NO
+        - keyword: DATA
+        - keyword: AND
+        - keyword: NO
+        - keyword: STATS
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: VOLATILE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: g
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - quoted_literal: '''A'''
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: B
+        - end_bracket: )
+      - td_table_constraint:
+        - keyword: WITH
+        - keyword: NO
+        - keyword: DATA
+        - keyword: AND
+        - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: VOLATILE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: h
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - quoted_literal: '''A'''
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: B
+        - end_bracket: )
+      - td_table_constraint:
+        - keyword: WITH
+        - keyword: NO
+        - keyword: DATA
+        - keyword: AND
+        - keyword: NO
+        - keyword: STATISTICS
+        - keyword: ON
+        - keyword: COMMIT
+        - keyword: PRESERVE
+        - keyword: ROWS
+- statement_terminator: ;

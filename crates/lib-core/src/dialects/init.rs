@@ -113,6 +113,7 @@ pub enum DialectKind {
     Sparksql,
     Sqlite,
     Starrocks,
+    Teradata,
     Trino,
     Tsql,
 }
@@ -140,6 +141,7 @@ impl DialectKind {
             DialectKind::Sparksql => "sparksql",
             DialectKind::Sqlite => "sqlite",
             DialectKind::Starrocks => "starrocks",
+            DialectKind::Teradata => "teradata",
             DialectKind::Trino => "trino",
             DialectKind::Tsql => "tsql",
         }
@@ -173,6 +175,7 @@ impl DialectKind {
             DialectKind::Sparksql => "Apache Spark SQL dialect for big data processing.",
             DialectKind::Sqlite => "SQLite SQL dialect for embedded database.",
             DialectKind::Starrocks => "StarRocks SQL dialect for real-time analytical workloads.",
+            DialectKind::Teradata => "Teradata SQL dialect for the Teradata analytics platform.",
             DialectKind::Trino => "Trino (formerly PrestoSQL) dialect for distributed SQL queries.",
             DialectKind::Tsql => "T-SQL dialect for Microsoft SQL Server and Azure SQL.",
         }
@@ -218,6 +221,7 @@ impl DialectKind {
             DialectKind::Sparksql => Some("https://spark.apache.org/sql/"),
             DialectKind::Sqlite => Some("https://www.sqlite.org/lang.html"),
             DialectKind::Starrocks => Some("https://docs.starrocks.io/docs/sql-reference/"),
+            DialectKind::Teradata => Some("https://docs.teradata.com/"),
             DialectKind::Trino => Some("https://trino.io/docs/current/sql.html"),
             DialectKind::Tsql => {
                 Some("https://learn.microsoft.com/en-us/sql/t-sql/language-reference")

@@ -1,0 +1,18 @@
+file:
+- statement:
+  - set_session_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - database_statement:
+      - keyword: DATABASE
+      - database_reference:
+        - naked_identifier: database1
+- statement_terminator: ;
+- statement:
+  - set_session_statement:
+    - keyword: SS
+    - database_statement:
+      - keyword: DATABASE
+      - database_reference:
+        - naked_identifier: database1
+- statement_terminator: ;

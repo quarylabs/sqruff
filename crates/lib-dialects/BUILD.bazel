@@ -17,6 +17,7 @@ ALL_FEATURES = [
     "snowflake",
     "sparksql",
     "sqlite",
+    "teradata",
     "trino",
     "tsql",
 ]

@@ -1,0 +1,61 @@
+file:
+- statement:
+  - create_sink_kafka_statement:
+    - keyword: CREATE
+    - keyword: SINK
+    - object_reference:
+      - naked_identifier: quotes_sink
+    - keyword: FROM
+    - object_reference:
+      - naked_identifier: quotes
+    - keyword: INTO
+    - word: KAFKA
+    - word: CONNECTION
+    - word: kafka_connection
+    - bracketed:
+      - start_bracket: (
+      - word: TOPIC
+      - single_quote: '''quotes-sink'''
+      - end_bracket: )
+    - word: FORMAT
+    - word: JSON
+    - word: ENVELOPE
+    - word: DEBEZIUM
+    - word: WITH
+    - bracketed:
+      - start_bracket: (
+      - word: SIZE
+      - raw_comparison_operator: =
+      - single_quote: '''3xsmall'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_sink_kafka_statement:
+    - keyword: CREATE
+    - keyword: SINK
+    - object_reference:
+      - naked_identifier: frank_quotes_sink
+    - keyword: FROM
+    - object_reference:
+      - naked_identifier: frank_quotes
+    - keyword: INTO
+    - word: KAFKA
+    - word: CONNECTION
+    - word: kafka_connection
+    - bracketed:
+      - start_bracket: (
+      - word: TOPIC
+      - single_quote: '''frank-quotes-sink'''
+      - end_bracket: )
+    - word: FORMAT
+    - word: JSON
+    - word: ENVELOPE
+    - word: DEBEZIUM
+    - word: WITH
+    - bracketed:
+      - start_bracket: (
+      - word: SIZE
+      - raw_comparison_operator: =
+      - single_quote: '''3xsmall'''
+      - end_bracket: )
+- statement_terminator: ;

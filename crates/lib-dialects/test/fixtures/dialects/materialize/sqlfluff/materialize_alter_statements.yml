@@ -1,0 +1,158 @@
+file:
+- statement:
+  - alter_connection_rotate_keys:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - object_reference:
+      - naked_identifier: test
+    - keyword: rotate
+    - keyword: keys
+- statement_terminator: ;
+- statement:
+  - alter_rename_statement:
+    - keyword: ALTER
+    - keyword: CONNECTION
+    - object_reference:
+      - naked_identifier: test
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: test2
+- statement_terminator: ;
+- statement:
+  - alter_rename_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: test
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: test2
+- statement_terminator: ;
+- statement:
+  - alter_rename_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+      - naked_identifier: test
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: test2
+- statement_terminator: ;
+- statement:
+  - alter_rename_statement:
+    - keyword: ALTER
+    - keyword: SOURCE
+    - object_reference:
+      - naked_identifier: test
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: test2
+- statement_terminator: ;
+- statement:
+  - alter_rename_statement:
+    - keyword: ALTER
+    - keyword: SINK
+    - object_reference:
+      - naked_identifier: test
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: test2
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: test
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: test2
+- statement_terminator: ;
+- statement:
+  - alter_rename_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - object_reference:
+      - naked_identifier: test
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: test2
+- statement_terminator: ;
+- statement:
+  - alter_rename_statement:
+    - keyword: ALTER
+    - keyword: SECRET
+    - object_reference:
+      - naked_identifier: test
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: test2
+- statement_terminator: ;
+- statement:
+  - alter_index_statement:
+    - keyword: ALTER
+    - keyword: INDEX
+    - object_reference:
+      - naked_identifier: test_idx
+    - keyword: SET
+    - keyword: ENABLED
+- statement_terminator: ;
+- statement:
+  - alter_secret_statement:
+    - keyword: ALTER
+    - keyword: SECRET
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: name
+    - keyword: AS
+    - word: value
+- statement_terminator: ;
+- statement:
+  - alter_secret_statement:
+    - keyword: ALTER
+    - keyword: SECRET
+    - object_reference:
+      - naked_identifier: name
+    - keyword: AS
+    - word: value
+- statement_terminator: ;
+- statement:
+  - alter_source_sink_size_statement:
+    - keyword: ALTER
+    - keyword: SOURCE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: sink_name
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - keyword: SIZE
+      - compression_type: '''xsmall'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_source_sink_size_statement:
+    - keyword: ALTER
+    - keyword: SINK
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: source_name
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - keyword: SIZE
+      - compression_type: '''xsmall'''
+      - end_bracket: )
+- statement_terminator: ;

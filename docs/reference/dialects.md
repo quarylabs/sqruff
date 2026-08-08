@@ -14,6 +14,7 @@ Sqruff currently supports the following SQL dialects:
 - [exasol](#exasol)
 - [greenplum](#greenplum)
 - [hive](#hive)
+- [materialize](#materialize)
 - [mysql](#mysql)
 - [oracle](#oracle)
 - [postgres](#postgres)
@@ -142,6 +143,18 @@ Apache Hive SQL dialect for data warehousing.
 **Configuration:**
 ```ini
 [sqruff:dialect:hive]
+```
+
+
+### materialize
+
+Materialize SQL dialect for the streaming data warehouse.
+
+**Documentation:** [https://materialize.com/docs/sql/](https://materialize.com/docs/sql/)
+
+**Configuration:**
+```ini
+[sqruff:dialect:materialize]
 ```
 
 

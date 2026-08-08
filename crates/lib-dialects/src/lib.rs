@@ -34,6 +34,10 @@ mod exasol_keywords;
 pub mod greenplum;
 #[cfg(feature = "hive")]
 pub mod hive;
+#[cfg(feature = "materialize")]
+pub mod materialize;
+#[cfg(feature = "materialize")]
+mod materialize_keywords;
 #[cfg(feature = "mysql")]
 pub mod mysql;
 #[cfg(feature = "mysql")]
@@ -101,6 +105,8 @@ pub fn dialect_config_options(
         DialectKind::Hive => hive::HiveDialectConfig::config_options(),
         #[cfg(feature = "mysql")]
         DialectKind::Mysql => mysql::MySQLDialectConfig::config_options(),
+        #[cfg(feature = "materialize")]
+        DialectKind::Materialize => materialize::MaterializeDialectConfig::config_options(),
         #[cfg(feature = "oracle")]
         DialectKind::Oracle => oracle::OracleDialectConfig::config_options(),
         #[cfg(feature = "postgres")]
@@ -147,6 +153,8 @@ pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dia
         DialectKind::Hive => hive::dialect(config),
         #[cfg(feature = "mysql")]
         DialectKind::Mysql => mysql::dialect(config),
+        #[cfg(feature = "materialize")]
+        DialectKind::Materialize => materialize::dialect(config),
         #[cfg(feature = "oracle")]
         DialectKind::Oracle => oracle::dialect(config),
         #[cfg(feature = "postgres")]

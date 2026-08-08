@@ -1,0 +1,84 @@
+file:
+- statement:
+  - create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+      - naked_identifier: mz_joe
+    - keyword: REPLICAS
+    - bracketed:
+      - start_bracket: (
+      - word: r1
+      - bracketed:
+        - start_bracket: (
+        - word: size
+        - single_quote: '''1'''
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+      - naked_identifier: mz_joe
+    - keyword: REPLICAS
+    - bracketed:
+      - start_bracket: (
+      - word: r1
+      - bracketed:
+        - start_bracket: (
+        - word: size
+        - single_quote: '''1'''
+        - end_bracket: )
+      - comma: ','
+      - word: r2
+      - bracketed:
+        - start_bracket: (
+        - word: size
+        - single_quote: '''1'''
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_cluster_replica_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - keyword: REPLICA
+    - object_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: size_1
+    - word: SIZE
+    - single_quote: '''large'''
+- statement_terminator: ;
+- statement:
+  - create_cluster_replica_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - keyword: REPLICA
+    - object_reference:
+      - naked_identifier: c1
+      - dot: .
+      - naked_identifier: r1
+    - word: SIZE
+    - raw_comparison_operator: =
+    - single_quote: '''medium'''
+- statement_terminator: ;
+- statement:
+  - create_cluster_replica_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - keyword: REPLICA
+    - object_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: replica
+    - word: AVAILABILITY
+    - word: ZONE
+    - single_quote: '''a'''
+    - comma: ','
+    - word: AVAILABILITY
+    - word: ZONE
+    - single_quote: '''b'''
+- statement_terminator: ;

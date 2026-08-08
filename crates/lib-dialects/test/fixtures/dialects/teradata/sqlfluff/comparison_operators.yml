@@ -1,0 +1,364 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - keyword: GE
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - keyword: LE
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - keyword: EQ
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '>'
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - comparison_operator:
+            - binary_operator: ^
+            - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - comparison_operator:
+            - keyword: NOT
+            - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - keyword: NE
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - keyword: GT
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - keyword: LT
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: MY_TABLE
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - expression:
+          - column_reference:
+            - naked_identifier: A
+          - comparison_operator:
+            - raw_comparison_operator: <
+          - column_reference:
+            - naked_identifier: B
+- statement_terminator: ;

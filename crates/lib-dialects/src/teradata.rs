@@ -74,6 +74,7 @@ pub fn raw_dialect() -> Dialect {
         "CASESPECIFIC",
         "CS",
         "DAYS",
+        "DEL",
         "DUAL",
         "EQ",
         "ERRORCODE",
@@ -855,6 +856,15 @@ fn replace_core_grammars(dialect: &mut Dialect) {
         .to_matchable(),
     );
     dialect.replace_grammar("CreateTableStatementSegment", create_table_statement());
+    dialect.replace_grammar(
+        "DeleteStatementSegment",
+        Sequence::new(vec![
+            one_of(vec![kw("DELETE"), kw("DEL")]).to_matchable(),
+            Ref::new("FromClauseSegment").to_matchable(),
+            Ref::new("WhereClauseSegment").optional().to_matchable(),
+        ])
+        .to_matchable(),
+    );
     dialect.replace_grammar("UpdateStatementSegment", update_statement());
     dialect.replace_grammar(
         "SelectClauseSegment",

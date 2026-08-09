@@ -2786,11 +2786,30 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("VIEW").to_matchable(),
                     Ref::keyword("OUTER").optional().to_matchable(),
                     Ref::new("FunctionSegment").to_matchable(),
-                    // This allows for a table name to precede the alias expression.
-                    Ref::new("SingleIdentifierGrammar")
-                        .optional()
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("AS").optional().to_matchable(),
+                                Delimited::new(vec![
+                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
                         .to_matchable(),
-                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AS").optional().to_matchable(),
+                            Delimited::new(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                     MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()

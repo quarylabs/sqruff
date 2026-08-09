@@ -1,0 +1,74 @@
+file:
+- statement:
+  - set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''cat=siamese;dog=akita;'''
+    - keyword: UPDATE
+    - keyword: FOR
+    - keyword: SESSION
+    - keyword: VOLATILE
+- statement_terminator: ;
+- statement:
+  - set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''area=west;city=sandiego;tree=maple;flower=rose;'''
+    - keyword: FOR
+    - keyword: SESSION
+- statement_terminator: ;
+- statement:
+  - set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''city=san diego;'''
+    - keyword: UPDATE
+    - keyword: FOR
+    - keyword: SESSION
+- statement_terminator: ;
+- statement:
+  - set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''PROXYUSER=fred;'''
+    - keyword: FOR
+    - keyword: TRANSACTION
+- statement_terminator: ;
+- statement:
+  - set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: NONE
+    - keyword: FOR
+    - keyword: TRANSACTION
+- statement_terminator: ;
+- statement:
+  - set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: NONE
+    - keyword: FOR
+    - keyword: TRANSACTION
+- statement_terminator: ;
+- statement:
+  - set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: ''''''
+    - keyword: FOR
+    - keyword: TRANSACTION
+- statement_terminator: ;

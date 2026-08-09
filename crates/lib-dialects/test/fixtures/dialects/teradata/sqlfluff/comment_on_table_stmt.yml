@@ -1,0 +1,13 @@
+file:
+- statement:
+  - comment_clause:
+    - keyword: comment
+    - keyword: on
+    - keyword: table
+    - table_reference:
+      - naked_identifier: sandbox_db
+      - dot: .
+      - naked_identifier: Org_Descendant
+    - keyword: is
+    - quoted_literal: '''View with all Org_Unit_Ids on all levels'''
+- statement_terminator: ;

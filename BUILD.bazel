@@ -419,6 +419,7 @@ sh_test(
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_check",
+    python_venv = ":python_deps",
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo check --all --all-features --tests --benches --locked --offline",
@@ -429,6 +430,7 @@ cargo_test(
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_build_release",
+    python_venv = ":python_deps",
     size = "enormous",
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
@@ -439,6 +441,7 @@ cargo_test(
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_clippy",
+    python_venv = ":python_deps",
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo clippy --all --all-features --offline -- -D warnings",
@@ -495,6 +498,7 @@ cargo_test(
     name = "cargo_hack_check",
     size = "enormous",
     srcs = [":cargo_srcs"],
+    python_venv = ":python_deps",
     tools = ["@cargo_hack//:cargo-hack"],
     vendor = ":cargo_deps",
     script = "cargo hack check --each-feature --exclude-features=codegen-docs --offline",

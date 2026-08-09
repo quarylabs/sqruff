@@ -8,8 +8,13 @@ so that cargo tests requiring Python (e.g. PyO3/maturin) can run fully
 sandboxed without network access at test time.
 """
 
+load("@rules_cc//cc:action_names.bzl", "ACTION_NAMES")
+load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain")
+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
+
 _RUST_TOOLCHAIN_TYPE = "@rules_rust//rust:toolchain_type"
 _RUSTFMT_TOOLCHAIN_TYPE = "@rules_rust//rust/rustfmt:toolchain_type"
+_CC_TOOLCHAIN_TYPE = "@bazel_tools//tools/cpp:toolchain_type"
 
 def _cargo_vendor_impl(ctx):
     """Vendors Cargo dependencies with the registered rules_rust toolchain."""
@@ -467,10 +472,16 @@ def _cargo_test_impl(ctx):
     vendor_info = ctx.attr.vendor[CargoVendorInfo]
     rust_toolchain = ctx.toolchains[_RUST_TOOLCHAIN_TYPE]
     rustfmt_toolchain = ctx.toolchains[_RUSTFMT_TOOLCHAIN_TYPE]
+    cc_toolchain = find_cc_toolchain(ctx)
+    cc_features = cc_common.configure_features(ctx = ctx, cc_toolchain = cc_toolchain)
+    cc_path = cc_common.get_tool_for_action(feature_configuration = cc_features, action_name = ACTION_NAMES.c_compile)
+    cxx_path = cc_common.get_tool_for_action(feature_configuration = cc_features, action_name = ACTION_NAMES.cpp_compile)
+    ar_path = cc_common.get_tool_for_action(feature_configuration = cc_features, action_name = ACTION_NAMES.cpp_link_static_library)
     toolchain_files = depset(
         transitive = [
             rust_toolchain.all_files,
             rustfmt_toolchain.all_files,
+            cc_toolchain.all_files,
         ],
     ).to_list()
 
@@ -489,6 +500,11 @@ PYTHON_ENV_SRC="$RUNFILES/_main/{venv_dir}"
 # Copy the Python installation to the writable work directory
 cp -rL "$PYTHON_ENV_SRC" "$WORK_DIR/.python"
 
+# python-build-standalone ships only the versioned shared library. PyO3 asks
+# the linker for -lpython3.12, which requires the conventional unversioned
+# linker name in the relocated writable copy.
+ln -sf libpython3.12.so.1.0 "$WORK_DIR/.python/lib/libpython3.12.so"
+
 # Set up environment for PyO3 and maturin
 export PYO3_PYTHON="$WORK_DIR/.python/bin/python3"
 export VIRTUAL_ENV="$WORK_DIR/.python"
@@ -499,6 +515,9 @@ export PATH="$WORK_DIR/.python/bin:$PATH"
 export LIBRARY_PATH="$WORK_DIR/.python/lib:${{LIBRARY_PATH:-}}"
 export LD_LIBRARY_PATH="$WORK_DIR/.python/lib:${{LD_LIBRARY_PATH:-}}"
 export DYLD_LIBRARY_PATH="$WORK_DIR/.python/lib:${{DYLD_LIBRARY_PATH:-}}"
+# PyO3's relocated standalone interpreter reports its original /install/lib
+# prefix. Add the actual copied library directory for final link actions.
+export RUSTFLAGS="${{RUSTFLAGS:-}} -L native=$WORK_DIR/.python/lib"
 
 # Create .venv symlink for tests that expect it at the project root
 ln -s .python "$WORK_DIR/.venv"
@@ -537,11 +556,30 @@ CARGO_BIN="$RUNFILES/_main/{cargo_path}"
 RUSTC_BIN="$RUNFILES/_main/{rustc_path}"
 RUSTFMT_BIN="$RUNFILES/_main/{rustfmt_path}"
 
+# Local C toolchains commonly return absolute system paths, while downloaded
+# toolchains return exec-root-relative paths that live under runfiles.
+resolve_cc_tool() {{
+    case "$1" in
+        /*) echo "$1" ;;
+        *) echo "$RUNFILES/_main/$1" ;;
+    esac
+}}
+CC_BIN=$(resolve_cc_tool "{cc_path}")
+CXX_BIN=$(resolve_cc_tool "{cxx_path}")
+AR_BIN=$(resolve_cc_tool "{ar_path}")
+
 # Use the pinned toolchain registered by rules_rust.
-export PATH="$(dirname "$CARGO_BIN"):$PATH"
+CC_BINDIR=$(mktemp -d)
+ln -s "$CC_BIN" "$CC_BINDIR/cc"
+ln -s "$CXX_BIN" "$CC_BINDIR/c++"
+ln -s "$AR_BIN" "$CC_BINDIR/ar"
+export PATH="$CC_BINDIR:$(dirname "$CARGO_BIN"):$PATH"
 export CARGO="$CARGO_BIN"
 export RUSTC="$RUSTC_BIN"
 export RUSTFMT="$RUSTFMT_BIN"
+export CC="$CC_BIN"
+export CXX="$CXX_BIN"
+export AR="$AR_BIN"
 unset RUSTUP_HOME RUSTUP_TOOLCHAIN
 
 {tool_setup}
@@ -583,6 +621,9 @@ export CARGO_TARGET_DIR="$WORK_DIR/target"
         cargo_path = rust_toolchain.cargo.short_path,
         rustc_path = rust_toolchain.rustc.short_path,
         rustfmt_path = rustfmt_toolchain.rustfmt.short_path,
+        cc_path = cc_path,
+        cxx_path = cxx_path,
+        ar_path = ar_path,
         srcs = "\n".join([f.short_path for f in ctx.files.srcs]),
         tool_setup = tool_setup,
         python_setup = python_setup,
@@ -623,9 +664,11 @@ cargo_test = rule(
     implementation = _cargo_test_impl,
     test = True,
     attrs = _cargo_attrs,
+    fragments = ["cpp"],
     toolchains = [
         _RUST_TOOLCHAIN_TYPE,
         _RUSTFMT_TOOLCHAIN_TYPE,
+        _CC_TOOLCHAIN_TYPE,
     ],
 )
 
@@ -633,8 +676,10 @@ cargo_run = rule(
     implementation = _cargo_test_impl,
     executable = True,
     attrs = _cargo_attrs,
+    fragments = ["cpp"],
     toolchains = [
         _RUST_TOOLCHAIN_TYPE,
         _RUSTFMT_TOOLCHAIN_TYPE,
+        _CC_TOOLCHAIN_TYPE,
     ],
 )

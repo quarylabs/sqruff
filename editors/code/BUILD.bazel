@@ -208,6 +208,7 @@ playwright_test_bin.playwright_test(
     size = "large",
     args = [
         "test",
+        "--pass-with-no-tests",
         "--config=playwright.bazel.config.ts",
     ],
     chdir = package_name(),

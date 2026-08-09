@@ -40,9 +40,11 @@ register_toolchains("@python_versions//:all")
 
 bazel_dep(name = "aspect_rules_lint", version = "2.5.0")
 bazel_dep(name = "rules_go", version = "0.60.0", repo_name = "io_bazel_rules_go")
+bazel_dep(name = "rules_cc", version = "0.2.17")
 bazel_dep(name = "gazelle", version = "0.50.0")
 bazel_dep(name = "rules_rust", version = "0.68.1")
 bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.68.1")
+bazel_dep(name = "rules_rust_pyo3", version = "0.68.1")
 bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "rules_shellcheck", version = "0.4.0")
 
@@ -69,11 +71,17 @@ npm.npm_translate_lock(
         "//editors/code:package.json",
         "//playground:package.json",
     ],
+    # code-server installs the nested VS Code runtime during postinstall. Its
+    # optional native addons are not needed by the headless tests and require
+    # host Python/compiler discovery, so suppress nested install scripts only.
     lifecycle_hooks_envs = {
-        "code-server": ["npm_config_user_agent=npm/10.0.0 node/v22.0.0"],
+        "code-server": [
+            "npm_config_ignore_scripts=true",
+            "npm_config_user_agent=npm/10.0.0 node/v22.0.0",
+        ],
     },
     lifecycle_hooks_execution_requirements = {
-        "code-server": ["no-sandbox"],
+        "code-server": ["no-sandbox", "requires-network"],
     },
     pnpm_lock = "//:pnpm-lock.yaml",
 )
@@ -105,6 +113,7 @@ rust.toolchain(
 use_repo(rust, "rust_toolchains")
 
 register_toolchains("@rust_toolchains//:all")
+register_toolchains("@rules_rust_pyo3//toolchains:toolchain")
 
 # Required for WASM cross-compilation
 register_toolchains("@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm32_toolchain")
@@ -131,11 +140,29 @@ crate.from_cargo(
 
 # Annotations for pyo3 crates - use Python toolchain for build scripts
 crate.annotation(
-    build_script_toolchains = ["@rules_python//python:current_py_toolchain"],
+    build_script_data = ["@@rules_rust_pyo3+//:current_pyo3_toolchain"],
+    build_script_env = {
+        "PYO3_CROSS": "$(PYO3_CROSS)",
+        "PYO3_CROSS_LIB_DIR": "$(PYO3_CROSS_LIB_DIR)",
+        "PYO3_CROSS_PYTHON_IMPLEMENTATION": "$(PYO3_CROSS_PYTHON_IMPLEMENTATION)",
+        "PYO3_CROSS_PYTHON_VERSION": "$(PYO3_CROSS_PYTHON_VERSION)",
+        "PYO3_NO_PYTHON": "$(PYO3_NO_PYTHON)",
+        "PYO3_PYTHON": "$(PYO3_PYTHON)",
+    },
+    build_script_toolchains = ["@@rules_rust_pyo3+//:current_pyo3_toolchain"],
     crate = "pyo3-build-config",
 )
 crate.annotation(
-    build_script_toolchains = ["@rules_python//python:current_py_toolchain"],
+    build_script_data = ["@@rules_rust_pyo3+//:current_pyo3_toolchain"],
+    build_script_env = {
+        "PYO3_CROSS": "$(PYO3_CROSS)",
+        "PYO3_CROSS_LIB_DIR": "$(PYO3_CROSS_LIB_DIR)",
+        "PYO3_CROSS_PYTHON_IMPLEMENTATION": "$(PYO3_CROSS_PYTHON_IMPLEMENTATION)",
+        "PYO3_CROSS_PYTHON_VERSION": "$(PYO3_CROSS_PYTHON_VERSION)",
+        "PYO3_NO_PYTHON": "$(PYO3_NO_PYTHON)",
+        "PYO3_PYTHON": "$(PYO3_PYTHON)",
+    },
+    build_script_toolchains = ["@@rules_rust_pyo3+//:current_pyo3_toolchain"],
     crate = "pyo3-ffi",
 )
 use_repo(crate, "crates")

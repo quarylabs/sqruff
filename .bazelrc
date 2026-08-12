@@ -18,6 +18,9 @@ build:lint --aspects=//:linters.bzl%keep_sorted
 build:lint --output_groups=rules_lint_human
 build:lint --@aspect_rules_lint//lint:fail_on_violation
 
+# Required by rules_lint's isolated keep-sorted dependency extension.
+common --experimental_isolated_extension_usages
+
 # CI-specific settings
 build:ci --color=yes
 build:ci --curses=no

@@ -18,6 +18,11 @@ ALTER TABLE table1 ADD CONSTRAINT "constraint1" PRIMARY KEY ( col1 );
 
 ALTER TABLE table1 ADD CONSTRAINT "constraint1" PRIMARY KEY ( col1, col2 );
 
+ALTER TABLE my_table
+ADD CONSTRAINT my_table_unique_idx UNIQUE (
+  column_a, column_b
+);
+
 ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY ( col1 ) REFERENCES table2 ( col2 );
 
 ALTER TABLE table1 ADD CONSTRAINT "constraint1" FOREIGN KEY ( col1 ) REFERENCES table2 ( col2 );

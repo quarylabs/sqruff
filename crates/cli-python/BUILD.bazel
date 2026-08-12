@@ -1,7 +1,21 @@
+load("//:cargo_build.bzl", "cargo_hack_suite")
+load(":hack.bzl", "CLOSURE", "HACK", "MANIFEST")
+
 exports_files([
     "Cargo.toml",
     "pyproject.toml",
 ])
+
+# Per-feature `cargo check` targets mirroring `cargo hack --each-feature`.
+# The HACK map lives in hack.bzl and is reconciled against cargo-hack by
+# //:hack_reconcile. Run the whole crate sweep via `bazel test //crates/cli-python:hack`.
+cargo_hack_suite(
+    name = "hack",
+    closure = CLOSURE,
+    manifest = MANIFEST,
+    variations = HACK,
+    vendor = "//:cargo_deps",
+)
 
 # Python source files for linting
 filegroup(

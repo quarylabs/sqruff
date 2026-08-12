@@ -1,0 +1,60 @@
+on:
+  workflow_call:
+    outputs:
+      sqlfluff-sha-only:
+        description: >-
+          "true" when the change under test touches nothing but .sqlfluff-sha,
+          i.e. it only advances the SQLFluff port marker and cannot affect any
+          build, test or benchmark result.
+        value: ${{ jobs.detect.outputs.sqlfluff-sha-only }}
+name: SQLFluff SHA Only
+permissions:
+  contents: read
+jobs:
+  detect:
+    name: Detect .sqlfluff-sha-only change
+    runs-on: ubuntu-latest
+    outputs:
+      sqlfluff-sha-only: ${{ steps.detect.outputs.sqlfluff-sha-only }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Detect changed files
+        id: detect
+        env:
+          # Empty for events without a base to compare against (pushes to main,
+          # tags, workflow_dispatch); those always get the full suite.
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
+        run: |
+          set -euo pipefail
+
+          report() {
+            echo "sqlfluff-sha-only=$1" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
+          if [ -z "${BASE_SHA}" ] || [ -z "${HEAD_SHA}" ]; then
+            echo "No base/head to compare for ${GITHUB_EVENT_NAME}; running the full suite."
+            report false
+          fi
+
+          for sha in "${BASE_SHA}" "${HEAD_SHA}"; do
+            if ! git cat-file -e "${sha}^{commit}" 2>/dev/null; then
+              echo "::warning::${sha} is not available locally; running the full suite."
+              report false
+            fi
+          done
+
+          MERGE_BASE=$(git merge-base "${BASE_SHA}" "${HEAD_SHA}")
+          CHANGED=$(git diff --name-only "${MERGE_BASE}" "${HEAD_SHA}")
+          echo "Changed files (${MERGE_BASE}..${HEAD_SHA}):"
+          echo "${CHANGED}"
+
+          if [ "${CHANGED}" = ".sqlfluff-sha" ]; then
+            echo "Only .sqlfluff-sha changed; the SQLFluff SHA Advance Check is the only relevant check."
+            report true
+          fi
+
+          report false

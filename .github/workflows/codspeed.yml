@@ -12,9 +12,16 @@ permissions:
   id-token: write
 
 jobs:
+  # Advancing .sqlfluff-sha on its own cannot change benchmark results.
+  sqlfluff-sha-only:
+    name: SQLFluff SHA Only
+    uses: ./.github/workflows/sqlfluff-sha-only.yml
+
   benchmarks:
     name: Run benchmarks
     runs-on: codspeed-macro
+    needs: sqlfluff-sha-only
+    if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
 

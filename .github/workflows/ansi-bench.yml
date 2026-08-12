@@ -10,9 +10,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  # Advancing .sqlfluff-sha on its own cannot change benchmark results.
+  sqlfluff-sha-only:
+    name: SQLFluff SHA Only
+    uses: ./.github/workflows/sqlfluff-sha-only.yml
   benchmark:
     name: Run benchmarks
     runs-on: ubuntu-latest
+    needs: sqlfluff-sha-only
+    if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
       - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b

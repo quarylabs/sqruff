@@ -1,0 +1,146 @@
+file:
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: IND_TIPO_TARJETA
+      - end_bracket: )
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: DB_1
+      - dot: .
+      - naked_identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: INDEX
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: COD_TARJETA
+      - comma: ','
+      - column_reference:
+        - naked_identifier: COD_EST
+      - comma: ','
+      - column_reference:
+        - naked_identifier: IND_TIPO_TARJETA
+      - comma: ','
+      - column_reference:
+        - naked_identifier: FEC_ANIO_MES
+      - end_bracket: )
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: DB_1
+      - dot: .
+      - naked_identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: o_orderstatus
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: orders
+- statement_terminator: ;
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: USING
+    - collect_stat_using_option_clause:
+      - keyword: SYSTEM
+      - keyword: THRESHOLD
+      - keyword: FOR
+      - keyword: CURRENT
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: o_orderstatus
+      - comma: ','
+      - column_reference:
+        - naked_identifier: o_orderkey
+      - end_bracket: )
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: orders
+- statement_terminator: ;
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATS
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: IND_TIPO_TARJETA
+      - end_bracket: )
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: DB_1
+      - dot: .
+      - naked_identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STAT
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: IND_TIPO_TARJETA
+      - end_bracket: )
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: DB_1
+      - dot: .
+      - naked_identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATS
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: IND_TIPO_TARJETA
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: DB_1
+      - dot: .
+      - naked_identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATS
+    - keyword: INDEX
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: COD_TARJETA
+      - comma: ','
+      - column_reference:
+        - naked_identifier: COD_EST
+      - comma: ','
+      - column_reference:
+        - naked_identifier: IND_TIPO_TARJETA
+      - comma: ','
+      - column_reference:
+        - naked_identifier: FEC_ANIO_MES
+      - end_bracket: )
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: DB_1
+      - dot: .
+      - naked_identifier: TABLE_1
+- statement_terminator: ;

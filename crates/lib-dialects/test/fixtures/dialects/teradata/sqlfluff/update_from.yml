@@ -1,0 +1,100 @@
+file:
+- statement:
+  - update_statement:
+    - update_statement:
+      - keyword: UPDATE
+      - table_reference:
+        - naked_identifier: table_name
+      - from_in_update_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: a
+                    - comma: ','
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: b
+                    - comma: ','
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: c
+                    - comma: ','
+                    - select_clause_element:
+                      - column_reference:
+                        - naked_identifier: d
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - table_reference:
+                            - naked_identifier: t_b
+                      - join_clause:
+                        - keyword: INNER
+                        - keyword: JOIN
+                        - from_expression_element:
+                          - table_expression:
+                            - table_reference:
+                              - naked_identifier: t_c
+                        - join_on_condition:
+                          - keyword: ON
+                          - expression:
+                            - expression:
+                              - column_reference:
+                                - naked_identifier: t_b
+                                - dot: .
+                                - naked_identifier: d
+                              - comparison_operator:
+                                - raw_comparison_operator: =
+                              - column_reference:
+                                - naked_identifier: t_c
+                                - dot: .
+                                - naked_identifier: d
+                  - where_clause:
+                    - keyword: WHERE
+                    - expression:
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: b
+                        - comparison_operator:
+                          - raw_comparison_operator: =
+                        - quoted_literal: '''F'''
+                - end_bracket: )
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - naked_identifier: t_d
+      - set_clause_list:
+        - keyword: SET
+        - set_clause:
+          - column_reference:
+            - naked_identifier: column1
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: value1
+        - comma: ','
+        - set_clause:
+          - column_reference:
+            - naked_identifier: column2
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''value2'''
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - expression:
+            - column_reference:
+              - naked_identifier: a
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '1'
+- statement_terminator: ;

@@ -12,9 +12,16 @@ permissions:
   id-token: write
 
 jobs:
+  # Advancing .sqlfluff-sha on its own cannot change benchmark results.
+  sqlfluff-sha-only:
+    name: SQLFluff SHA Only
+    uses: ./.github/workflows/sqlfluff-sha-only.yml
+
   benchmarks:
     name: Run benchmarks
     runs-on: codspeed-macro
+    needs: sqlfluff-sha-only
+    if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
 
@@ -34,7 +41,7 @@ jobs:
         run: cargo codspeed build --package sqruff-lib
 
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@88472375d0a4572cf70a9f1fe3a4e0ab8da1b924 # ratchet:CodSpeedHQ/action@v5.0.1
+        uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # ratchet:CodSpeedHQ/action@v5.0.3
         with:
           run: cargo codspeed run --package sqruff-lib
           mode: walltime

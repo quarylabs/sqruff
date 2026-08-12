@@ -1,0 +1,7 @@
+file:
+- statement:
+  - database_statement:
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: database1
+- statement_terminator: ;

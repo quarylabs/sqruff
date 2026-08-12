@@ -19,15 +19,17 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: my_table
+            - table_reference:
+              - object_reference:
+                - naked_identifier: my_table
         - join_clause:
           - keyword: LEFT
           - keyword: JOIN
           - from_expression_element:
             - table_expression:
-              - object_reference:
-                - naked_identifier: other_table
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: other_table
           - join_on_condition:
             - keyword: ON
             - expression:
@@ -269,6 +271,7 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: my_table
+            - table_reference:
+              - object_reference:
+                - naked_identifier: my_table
 - statement_terminator: ;

@@ -31,8 +31,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: sales
+            - table_reference:
+              - object_reference:
+                - naked_identifier: sales
         - pivot_clause:
           - keyword: PIVOT
           - bracketed:
@@ -125,8 +126,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: sales
+            - table_reference:
+              - object_reference:
+                - naked_identifier: sales
         - pivot_clause:
           - keyword: PIVOT
           - bracketed:
@@ -301,8 +303,9 @@ file:
                   - from_expression:
                     - from_expression_element:
                       - table_expression:
-                        - object_reference:
-                          - naked_identifier: sales
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: sales
               - end_bracket: )
           - alias_expression:
             - keyword: AS
@@ -420,8 +423,9 @@ file:
                   - from_expression:
                     - from_expression_element:
                       - table_expression:
-                        - object_reference:
-                          - naked_identifier: sales
+                        - table_reference:
+                          - object_reference:
+                            - naked_identifier: sales
               - end_bracket: )
           - alias_expression:
             - keyword: AS

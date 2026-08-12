@@ -39,8 +39,9 @@ file:
   - keyword: COMMENT
   - keyword: ON
   - keyword: TABLE
-  - object_reference:
-    - naked_identifier: my_table
+  - table_reference:
+    - object_reference:
+      - naked_identifier: my_table
   - keyword: IS
   - quoted_literal: '''This is my table'''
 - statement_terminator: ;
@@ -48,8 +49,9 @@ file:
   - keyword: COMMENT
   - keyword: ON
   - keyword: TABLE
-  - object_reference:
-    - naked_identifier: my_table
+  - table_reference:
+    - object_reference:
+      - naked_identifier: my_table
   - keyword: IS
   - keyword: 'NULL'
 - statement_terminator: ;

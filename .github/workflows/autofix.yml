@@ -37,9 +37,6 @@ jobs:
       - name: Run ruff
         run: bazelisk run //:ruff_fix
 
-      - name: Run keep-sorted
-        run: bazelisk run //:keep_sorted_fix
-
       - name: Regenerate docs
         run: bazelisk run //:codegen_docs_fix
 

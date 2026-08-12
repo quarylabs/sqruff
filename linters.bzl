@@ -7,7 +7,6 @@ label-typed arguments. See https://bazel.build/extending/aspects.
 Usage:
   bazel test //:keep_sorted_check      # fails on unsorted blocks
   bazel build --config=lint //...      # reports violations across the repo
-  bazel run //:keep_sorted_fix         # sorts the blocks in place
 """
 
 load("@aspect_rules_lint//lint:keep_sorted.bzl", "lint_keep_sorted_aspect")

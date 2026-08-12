@@ -3,8 +3,8 @@ use std::iter::FromIterator;
 /// Every kind of node the parser can produce.
 ///
 /// The variants are kept alphabetical by keep-sorted, which `//:keep_sorted_check`
-/// enforces; run `bazel run //:keep_sorted_fix` after adding one. Discriminants
-/// are assigned by position and are never persisted, so re-sorting is safe.
+/// enforces. Discriminants are assigned by position and are never persisted, so
+/// re-sorting is safe.
 #[derive(
     Debug,
     PartialEq,

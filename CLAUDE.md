@@ -22,9 +22,8 @@ cargo fmt --all
 # Run key lint checks via Bazel
 bazel test //:rustfmt_check //:clippy_check //:prettier_check //:ruff_check //:cargo_machete
 
-# Check (and fix) that keep-sorted blocks stay alphabetical
+# Check that keep-sorted blocks stay alphabetical
 bazel test //:keep_sorted_check
-bazel run //:keep_sorted_fix
 
 # Run the rules_lint aspects (currently keep-sorted) over everything
 bazel build --config=lint //...

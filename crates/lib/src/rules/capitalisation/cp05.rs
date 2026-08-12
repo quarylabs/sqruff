@@ -75,6 +75,7 @@ CREATE TABLE t (
             for seg in context.segment.segments() {
                 if seg.is_type(SyntaxKind::Symbol)
                     || seg.is_type(SyntaxKind::Identifier)
+                    || seg.is_type(SyntaxKind::QuotedIdentifier)
                     || seg.is_type(SyntaxKind::QuotedLiteral)
                     || !seg.segments().is_empty()
                 {

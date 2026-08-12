@@ -162,3 +162,36 @@ test_pass_typless_structs_dont_trigger_rule:
     rules:
       capitalisation.types:
         extended_capitalisation_policy: upper
+
+# See https://github.com/quarylabs/sqruff/issues/3049
+test_pass_postgres_setof_quoted_custom_type:
+  pass_str: |
+    CREATE TABLE "companies_created_stats" (
+        "month" TIMESTAMPTZ NOT NULL,
+        "count" INT NOT NULL
+    );
+
+    CREATE OR REPLACE FUNCTION get_companies_created_stats()
+    RETURNS SETOF "companies_created_stats"
+    AS
+    $$
+    SELECT DATE_TRUNC('month', c.created_at) AS month, COUNT(*) AS count
+    FROM company c
+    GROUP BY month
+    ORDER BY month;
+    $$ LANGUAGE sql STABLE;
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper
+
+test_pass_postgres_quoted_custom_column_type:
+  pass_str: CREATE TABLE events (payload "eventPayload");
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      capitalisation.types:
+        extended_capitalisation_policy: upper

@@ -7,6 +7,7 @@ load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 load(":cargo_build.bzl", "cargo_run", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
+load(":linters.bzl", "keep_sorted_test")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
@@ -254,6 +255,14 @@ filegroup(
         "//crates/lsp:machete_srcs",
         "//crates/sqlinference:machete_srcs",
     ],
+)
+
+# keep-sorted check - run the keep-sorted lint aspect over every Rust crate and
+# fail if any block is out of order. See //:linters.bzl.
+keep_sorted_test(
+    name = "keep_sorted_check",
+    size = "small",
+    srcs = RUST_TARGETS,
 )
 
 # Cargo metadata used to resolve and vendor dependencies. Keep this separate

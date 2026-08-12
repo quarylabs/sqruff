@@ -503,6 +503,7 @@ cp -rL "$PYTHON_ENV_SRC" "$WORK_DIR/.python"
 # python-build-standalone ships only the versioned shared library. PyO3 asks
 # the linker for -lpython3.12, which requires the conventional unversioned
 # linker name in the relocated writable copy.
+chmod u+w "$WORK_DIR/.python/lib"
 ln -sf libpython3.12.so.1.0 "$WORK_DIR/.python/lib/libpython3.12.so"
 
 # Set up environment for PyO3 and maturin

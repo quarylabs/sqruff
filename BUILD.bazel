@@ -7,6 +7,7 @@ load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 load(":cargo_build.bzl", "cargo_run", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
+load(":linters.bzl", "keep_sorted_test")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
@@ -256,21 +257,17 @@ filegroup(
     ],
 )
 
-# keep-sorted check - verify `keep-sorted` blocks are alphabetically sorted
-sh_test(
+# keep-sorted check - run the keep-sorted lint aspect over every Rust crate and
+# fail if any block is out of order. See //:linters.bzl.
+keep_sorted_test(
     name = "keep_sorted_check",
     size = "small",
-    srcs = [".hacking/scripts/keep_sorted_check.sh"],
-    data = [
-        ":cargo_srcs",
-        "@com_github_google_keep_sorted//:keep-sorted",
-    ],
-    env = {
-        "KEEP_SORTED": "$(rlocationpath @com_github_google_keep_sorted//:keep-sorted)",
-    },
+    srcs = RUST_TARGETS,
 )
 
-# keep-sorted fix - sort the blocks in place (for fixing locally and in CI)
+# keep-sorted fix - sort the blocks in place (for fixing locally and in CI).
+# rules_lint only produces patches in fix mode, which needs the Aspect CLI to
+# apply, so drive the same binary directly instead.
 sh_binary(
     name = "keep_sorted_fix",
     srcs = [".hacking/scripts/keep_sorted_fix.sh"],

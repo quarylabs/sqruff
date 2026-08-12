@@ -11,6 +11,13 @@ build --curses=yes
 # Test output
 test --test_output=errors
 
+# Lint aspects from aspect_rules_lint, declared in //:linters.bzl.
+# `bazel build --config=lint //...` reports violations and fails the build;
+# `bazel test //:keep_sorted_check` is the same check wired as a test.
+build:lint --aspects=//:linters.bzl%keep_sorted
+build:lint --output_groups=rules_lint_human
+build:lint --@aspect_rules_lint//lint:fail_on_violation
+
 # CI-specific settings
 build:ci --color=yes
 build:ci --curses=no

@@ -48,9 +48,11 @@ bazel_dep(name = "rules_shellcheck", version = "0.4.0")
 
 # keep-sorted (https://github.com/google/keep-sorted) is Google's language
 # agnostic linter that keeps the lines between its start/end marker comments
-# alphabetically sorted. It is a Go program, so gazelle builds it from source
-# out of the module pinned in .hacking/keep-sorted rather than us pinning a
-# prebuilt binary per platform in tools.bzl.
+# alphabetically sorted. aspect_rules_lint wraps it in a lint aspect (see
+# //:linters.bzl) but does not vendor the tool the way it does ruff, so gazelle
+# builds it from source out of the module pinned in .hacking/keep-sorted. We
+# pin our own go.mod rather than @aspect_rules_lint//lint/keep-sorted:go.mod so
+# the keep-sorted version moves independently of rules_lint upgrades.
 keep_sorted_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
 keep_sorted_deps.from_file(go_mod = "//.hacking/keep-sorted:go.mod")
 use_repo(keep_sorted_deps, "com_github_google_keep_sorted")

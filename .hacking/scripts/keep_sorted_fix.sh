@@ -10,8 +10,9 @@ cd "$BUILD_WORKSPACE_DIRECTORY"
 MARKER="keep-sorted"
 PATTERN="$MARKER start"
 
-# Same discovery as keep_sorted_check.sh, but over the real workspace, so the
-# generated and vendored trees Bazel ignores are skipped here too.
+# //:keep_sorted_check lints the srcs of the Rust targets via the rules_lint
+# aspect; here we sweep the whole workspace instead, minus the generated and
+# vendored trees Bazel ignores. Fixing a superset of what is checked is safe.
 mapfile -t FILES < <(grep -rl --binary-files=without-match "$PATTERN" . \
     --exclude-dir=.git \
     --exclude-dir=dist \

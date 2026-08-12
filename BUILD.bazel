@@ -7,6 +7,7 @@ load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 load(":cargo_build.bzl", "cargo_run", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
+load(":linters.bzl", "keep_sorted_test")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
@@ -256,6 +257,14 @@ filegroup(
     ],
 )
 
+# keep-sorted check - run the keep-sorted lint aspect over every Rust crate and
+# fail if any block is out of order. See //:linters.bzl.
+keep_sorted_test(
+    name = "keep_sorted_check",
+    size = "small",
+    srcs = RUST_TARGETS,
+)
+
 # Cargo metadata used to resolve and vendor dependencies. Keep this separate
 # from cargo_srcs so ordinary Rust source changes do not invalidate vendoring.
 filegroup(
@@ -410,6 +419,7 @@ sh_test(
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_check",
+    python_venv = ":python_deps",
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo check --all --all-features --tests --benches --locked --offline",
@@ -420,6 +430,7 @@ cargo_test(
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_build_release",
+    python_venv = ":python_deps",
     size = "enormous",
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
@@ -430,6 +441,7 @@ cargo_test(
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_clippy",
+    python_venv = ":python_deps",
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo clippy --all --all-features --offline -- -D warnings",
@@ -486,6 +498,7 @@ cargo_test(
     name = "cargo_hack_check",
     size = "enormous",
     srcs = [":cargo_srcs"],
+    python_venv = ":python_deps",
     tools = ["@cargo_hack//:cargo-hack"],
     vendor = ":cargo_deps",
     script = "cargo hack check --each-feature --exclude-features=codegen-docs --offline",

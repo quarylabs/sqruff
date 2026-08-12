@@ -12,10 +12,11 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: shopify_cz
-              - dot: .
-              - naked_identifier: order
+            - table_reference:
+              - object_reference:
+                - naked_identifier: shopify_cz
+                - dot: .
+                - naked_identifier: order
 - statement_terminator: ;
 - statement:
   - select_statement:

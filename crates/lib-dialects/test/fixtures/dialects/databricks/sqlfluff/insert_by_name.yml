@@ -3,8 +3,9 @@ file:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
-    - object_reference:
-      - naked_identifier: target
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target
     - keyword: BY
     - keyword: NAME
     - select_statement:
@@ -49,8 +50,9 @@ file:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
-    - object_reference:
-      - naked_identifier: target
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target
     - keyword: BY
     - keyword: NAME
     - select_statement:
@@ -97,8 +99,9 @@ file:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
-    - object_reference:
-      - naked_identifier: target
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target
     - keyword: BY
     - keyword: NAME
     - select_statement:
@@ -139,8 +142,9 @@ file:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
-    - object_reference:
-      - naked_identifier: target
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target
     - keyword: BY
     - keyword: NAME
     - select_statement:
@@ -187,8 +191,9 @@ file:
   - insert_statement:
     - keyword: INSERT
     - keyword: INTO
-    - object_reference:
-      - naked_identifier: target
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target
     - keyword: BY
     - keyword: NAME
     - select_statement:

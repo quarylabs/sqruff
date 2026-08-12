@@ -15,8 +15,8 @@ env:
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: true
 jobs:
   # A change that only advances .sqlfluff-sha cannot change any build, test or
-  # benchmark result, so the jobs below skip themselves for it and the SQLFluff
-  # SHA Advance Check is left to validate the bump on its own.
+  # benchmark result. Required matrix jobs still report success, but their
+  # expensive steps are skipped; the SHA Advance Check validates the bump.
   sqlfluff-sha-only:
     name: SQLFluff SHA Only
     uses: ./.github/workflows/sqlfluff-sha-only.yml
@@ -94,7 +94,7 @@ jobs:
     # Master pushes only need to refresh the Bazel cache; skip the binary
     # matrix there since it does not use that cache.
     needs: sqlfluff-sha-only
-    if: github.event_name != 'push' && needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+    if: github.event_name != 'push'
     runs-on: ${{ matrix.platform.os }}
     strategy:
       fail-fast: false
@@ -121,8 +121,13 @@ jobs:
             target: aarch64-apple-darwin
             bin: sqruff
     steps:
+      - name: Skip build for .sqlfluff-sha-only change
+        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only == 'true'
+        run: echo "No binary build is needed when only .sqlfluff-sha changes."
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
       - uses: ./.github/actions/build-binaries
+        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
         with:
           package: false
           publish: false

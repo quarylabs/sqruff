@@ -69,17 +69,19 @@ file:
         - naked_identifier: pay_by_quarter
       - data_type:
         - keyword: integer
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
+        - array_type_suffix:
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
       - comma: ','
       - column_reference:
         - naked_identifier: schedule
       - data_type:
         - keyword: text
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
-        - start_square_bracket: '['
-        - end_square_bracket: ']'
+        - array_type_suffix:
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -94,14 +96,15 @@ file:
         - naked_identifier: squares
       - data_type:
         - keyword: integer
-        - start_square_bracket: '['
-        - expression:
-          - numeric_literal: '3'
-        - end_square_bracket: ']'
-        - start_square_bracket: '['
-        - expression:
-          - numeric_literal: '3'
-        - end_square_bracket: ']'
+        - array_type_suffix:
+          - start_square_bracket: '['
+          - expression:
+            - numeric_literal: '3'
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - expression:
+            - numeric_literal: '3'
+          - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -587,8 +590,9 @@ file:
                         - casting_operator: '::'
                         - data_type:
                           - keyword: int
-                          - start_square_bracket: '['
-                          - end_square_bracket: ']'
+                          - array_type_suffix:
+                            - start_square_bracket: '['
+                            - end_square_bracket: ']'
                     - alias_expression:
                       - keyword: AS
                       - naked_identifier: f1

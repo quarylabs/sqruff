@@ -1,11 +1,13 @@
 use crate::databricks_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
 use crate::sparksql;
 use sqruff_lib_core::dialects::init::DialectConfig;
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::Config;
 use sqruff_lib_core::parser::grammar::anyof::one_of;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
+use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::{
     dialects::{Dialect, init::DialectKind},
@@ -201,7 +203,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             // A reference to an table, CTE, subquery or alias.
             "TableReferenceSegment".into(),
-            Ref::new("ObjectReferenceSegment").to_matchable().into(),
+            NodeMatcher::new(SyntaxKind::TableReference, |_| {
+                Ref::new("ObjectReferenceSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             // A reference to a schema.

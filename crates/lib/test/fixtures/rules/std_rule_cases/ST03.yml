@@ -13,6 +13,18 @@ test_pass_cte_defined_and_used_1:
     )
     select * from cte
 
+test_pass_databricks_cte_defined_and_used:
+  pass_str: |
+    WITH base AS (
+        SELECT 1 AS x
+    )
+
+    SELECT *
+    FROM base
+  configs:
+    core:
+      dialect: databricks
+
 test_pass_cte_defined_and_used_2:
   pass_str: |
     WITH cte1 AS (

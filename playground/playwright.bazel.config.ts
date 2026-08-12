@@ -17,9 +17,10 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  // Use Python's built-in http server to serve the built dist directory
+  // Vite and its Node runtime are declared Bazel inputs via VITE_DATA.
   webServer: {
-    command: "python3 -m http.server 4173 -d dist",
+    command:
+      "node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173",
     url: "http://localhost:4173",
     reuseExistingServer: false,
   },

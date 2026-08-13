@@ -12,8 +12,7 @@ file:
           - bracketed:
             - start_bracket: (
             - values_clause_elements:
-              - expression:
-                - numeric_literal: '1'
+              - numeric_literal: '1'
             - end_bracket: )
           - alias_expression:
             - alias_operator:
@@ -53,21 +52,17 @@ file:
           - bracketed:
             - start_bracket: (
             - values_clause_elements:
-              - expression:
-                - numeric_literal: '1'
+              - numeric_literal: '1'
               - comma: ','
-              - expression:
-                - numeric_literal: '2'
+              - numeric_literal: '2'
             - end_bracket: )
           - comma: ','
           - bracketed:
             - start_bracket: (
             - values_clause_elements:
-              - expression:
-                - numeric_literal: '3'
+              - numeric_literal: '3'
               - comma: ','
-              - expression:
-                - numeric_literal: '4'
+              - numeric_literal: '4'
             - end_bracket: )
           - alias_expression:
             - alias_operator:
@@ -116,8 +111,7 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - values_clause_elements:
-                    - expression:
-                      - numeric_literal: '1'
+                    - numeric_literal: '1'
                   - end_bracket: )
             - end_bracket: )
           - alias_expression:
@@ -150,21 +144,17 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - values_clause_elements:
-                    - expression:
-                      - numeric_literal: '1'
+                    - numeric_literal: '1'
                     - comma: ','
-                    - expression:
-                      - numeric_literal: '2'
+                    - numeric_literal: '2'
                   - end_bracket: )
                 - comma: ','
                 - bracketed:
                   - start_bracket: (
                   - values_clause_elements:
-                    - expression:
-                      - numeric_literal: '3'
+                    - numeric_literal: '3'
                     - comma: ','
-                    - expression:
-                      - numeric_literal: '4'
+                    - numeric_literal: '4'
                   - end_bracket: )
             - end_bracket: )
           - alias_expression:

@@ -440,27 +440,21 @@ file:
           - bracketed:
             - start_bracket: (
             - values_clause_elements:
-              - expression:
-                - quoted_literal: '''a'''
+              - quoted_literal: '''a'''
               - comma: ','
-              - expression:
-                - quoted_literal: '''b'''
+              - quoted_literal: '''b'''
               - comma: ','
-              - expression:
-                - quoted_literal: '''c'''
+              - quoted_literal: '''c'''
             - end_bracket: )
           - comma: ','
           - bracketed:
             - start_bracket: (
             - values_clause_elements:
-              - expression:
-                - quoted_literal: '''d'''
+              - quoted_literal: '''d'''
               - comma: ','
-              - expression:
-                - quoted_literal: '''e'''
+              - quoted_literal: '''e'''
               - comma: ','
-              - expression:
-                - quoted_literal: '''f'''
+              - quoted_literal: '''f'''
             - end_bracket: )
           - comma: ','
           - bracketed:
@@ -477,11 +471,9 @@ file:
                         - quoted_literal: '''a'''
                       - end_bracket: )
               - comma: ','
-              - expression:
-                - quoted_literal: '''b'''
+              - quoted_literal: '''b'''
               - comma: ','
-              - expression:
-                - quoted_literal: '''d'''
+              - quoted_literal: '''d'''
             - end_bracket: )
           - alias_expression:
             - alias_operator:
@@ -644,11 +636,9 @@ file:
               - bracketed:
                 - start_bracket: (
                 - values_clause_elements:
-                  - expression:
-                    - quoted_literal: '''x'''
+                  - quoted_literal: '''x'''
                   - comma: ','
-                  - expression:
-                    - quoted_literal: '''y'''
+                  - quoted_literal: '''y'''
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -669,11 +659,9 @@ file:
               - bracketed:
                 - start_bracket: (
                 - values_clause_elements:
-                  - expression:
-                    - quoted_literal: '''x'''
+                  - quoted_literal: '''x'''
                   - comma: ','
-                  - expression:
-                    - quoted_literal: '''y'''
+                  - quoted_literal: '''y'''
                 - end_bracket: )
               - alias_expression:
                 - alias_operator:

@@ -681,6 +681,7 @@ pub fn raw_dialect() -> Dialect {
                                 NodeMatcher::new(SyntaxKind::ValuesClauseElements, |_| {
                                     Delimited::new(vec![
                                         Ref::keyword("DEFAULT").to_matchable(),
+                                        Ref::new("LiteralGrammar").to_matchable(),
                                         Ref::new("ExpressionSegment").to_matchable(),
                                     ])
                                     .to_matchable()

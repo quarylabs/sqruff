@@ -198,14 +198,11 @@ file:
             - bracketed:
               - start_bracket: (
               - values_clause_elements:
-                - expression:
-                  - numeric_literal: '1'
+                - numeric_literal: '1'
                 - comma: ','
-                - expression:
-                  - numeric_literal: '2'
+                - numeric_literal: '2'
                 - comma: ','
-                - expression:
-                  - numeric_literal: '3'
+                - numeric_literal: '3'
               - end_bracket: )
       - merge_when_matched_clause:
         - keyword: WHEN

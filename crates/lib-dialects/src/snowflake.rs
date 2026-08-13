@@ -2665,7 +2665,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Sequence::new(vec![
                                 Ref::keyword("UNIQUE").to_matchable(),
                                 Bracketed::new(vec![
-                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
                                 .config(|this| this.optional())
                                 .to_matchable(),

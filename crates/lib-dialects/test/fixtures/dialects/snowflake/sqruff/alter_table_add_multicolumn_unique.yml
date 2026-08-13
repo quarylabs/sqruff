@@ -1,0 +1,21 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - alter_table_constraint_action:
+      - keyword: ADD
+      - keyword: CONSTRAINT
+      - naked_identifier: my_table_unique_idx
+      - keyword: UNIQUE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: column_a
+        - comma: ','
+        - column_reference:
+          - naked_identifier: column_b
+        - end_bracket: )
+- statement_terminator: ;

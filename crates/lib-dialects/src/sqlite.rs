@@ -185,12 +185,39 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("PRIMARY").to_matchable(),
                 Ref::keyword("KEY").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ASC").to_matchable(),
+                    Ref::keyword("DESC").to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+                Ref::new("ConflictClauseSegment").optional().to_matchable(),
                 Sequence::new(vec![Ref::keyword("AUTOINCREMENT").to_matchable()])
                     .config(|config| {
                         config.optional();
                     })
                     .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ConflictClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::ConflictClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("CONFLICT").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ROLLBACK").to_matchable(),
+                        Ref::keyword("ABORT").to_matchable(),
+                        Ref::keyword("FAIL").to_matchable(),
+                        Ref::keyword("IGNORE").to_matchable(),
+                        Ref::keyword("REPLACE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -690,48 +717,80 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    let column_constraint = sqlite_dialect
-        .grammar("ColumnConstraintSegment")
-        .match_grammar(&sqlite_dialect)
-        .unwrap()
-        .copy(
-            Some(vec![
-                one_of(vec![
+    sqlite_dialect.replace_grammar(
+        "ColumnConstraintSegment",
+        Sequence::new(vec![
+            Sequence::new(vec![
+                Ref::keyword("CONSTRAINT").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .config(|config| config.optional())
+            .to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::keyword("NULL").to_matchable(),
+                    Ref::new("ConflictClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("CHECK").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DEFAULT").to_matchable(),
+                    Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("PrimaryKeyGrammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("UniqueKeyGrammar").to_matchable(),
+                    Ref::new("ConflictClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("AutoIncrementGrammar").to_matchable(),
+                Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                Ref::new("CommentClauseSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("COLLATE").to_matchable(),
+                    Ref::new("CollationReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("DEFERRABLE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NOT").to_matchable(),
                     Ref::keyword("DEFERRABLE").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("NOT").to_matchable(),
-                        Ref::keyword("DEFERRABLE").to_matchable(),
-                    ])
-                    .to_matchable(),
                 ])
-                .config(|config| {
-                    config.optional();
-                })
                 .to_matchable(),
-                one_of(vec![
-                    Sequence::new(vec![
-                        Ref::keyword("INITIALLY").to_matchable(),
-                        Ref::keyword("DEFERRED").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("INITIALLY").to_matchable(),
-                        Ref::keyword("IMMEDIATE").to_matchable(),
-                    ])
-                    .to_matchable(),
+            ])
+            .config(|config| {
+                config.optional();
+            })
+            .to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("INITIALLY").to_matchable(),
+                    Ref::keyword("DEFERRED").to_matchable(),
                 ])
-                .config(|config| {
-                    config.optional();
-                })
                 .to_matchable(),
-            ]),
-            None,
-            None,
-            None,
-            Vec::new(),
-            false,
-        );
-    sqlite_dialect.replace_grammar("ColumnConstraintSegment", column_constraint);
+                Sequence::new(vec![
+                    Ref::keyword("INITIALLY").to_matchable(),
+                    Ref::keyword("IMMEDIATE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|config| {
+                config.optional();
+            })
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     sqlite_dialect.replace_grammar(
         "TableConstraintSegment",
@@ -754,11 +813,13 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("UNIQUE").to_matchable(),
                     Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    Ref::new("ConflictClauseSegment").optional().to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
                     Ref::new("PrimaryKeyGrammar").to_matchable(),
                     Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    Ref::new("ConflictClauseSegment").optional().to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![

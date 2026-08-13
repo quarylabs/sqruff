@@ -12,8 +12,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: sales
+            - table_reference:
+              - object_reference:
+                - naked_identifier: sales
         - unpivot_clause:
           - keyword: UNPIVOT
           - keyword: INCLUDE
@@ -67,8 +68,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: oncall
+            - table_reference:
+              - object_reference:
+                - naked_identifier: oncall
         - unpivot_clause:
           - keyword: UNPIVOT
           - bracketed:

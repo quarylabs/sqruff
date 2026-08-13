@@ -1,0 +1,90 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: TEXT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          - conflict_clause:
+            - keyword: ON
+            - keyword: CONFLICT
+            - keyword: REPLACE
+        - column_constraint_segment:
+          - keyword: DEFAULT
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: uuid
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - end_bracket: )
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: email
+        - data_type:
+          - data_type_identifier: TEXT
+        - column_constraint_segment:
+          - keyword: UNIQUE
+          - conflict_clause:
+            - keyword: ON
+            - keyword: CONFLICT
+            - keyword: IGNORE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: code
+        - data_type:
+          - data_type_identifier: TEXT
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          - conflict_clause:
+            - keyword: ON
+            - keyword: CONFLICT
+            - keyword: FAIL
+      - comma: ','
+      - table_constraint:
+        - keyword: UNIQUE
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: email
+          - end_bracket: )
+        - conflict_clause:
+          - keyword: ON
+          - keyword: CONFLICT
+          - keyword: ABORT
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - comma: ','
+          - column_reference:
+            - naked_identifier: code
+          - end_bracket: )
+        - conflict_clause:
+          - keyword: ON
+          - keyword: CONFLICT
+          - keyword: ROLLBACK
+      - end_bracket: )
+- statement_terminator: ;

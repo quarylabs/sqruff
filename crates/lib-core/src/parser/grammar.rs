@@ -219,6 +219,10 @@ impl MatchableTrait for Anything {
         &[]
     }
 
+    fn validation_children(&self) -> Vec<&Matchable> {
+        self.terminators.iter().collect()
+    }
+
     fn match_segments(
         &self,
         segments: &[ErasedSegment],

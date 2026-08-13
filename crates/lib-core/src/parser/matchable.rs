@@ -157,6 +157,11 @@ pub trait MatchableTrait {
         self.elements().iter().collect()
     }
 
+    /// Dialect-library references selected dynamically while matching.
+    fn validation_references(&self, _dialect: &Dialect) -> Vec<&'static str> {
+        Vec::new()
+    }
+
     // Return whether this element is optional.
     fn is_optional(&self) -> bool {
         false

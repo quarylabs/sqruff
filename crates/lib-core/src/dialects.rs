@@ -316,6 +316,19 @@ impl Dialect {
             self.validate_matchable(&grammar, visited, path, errors);
         }
 
+        for reference in matchable.validation_references(self) {
+            path.push(reference.to_string());
+            if let Some(DialectElementType::Matchable(target)) = self.library.get(reference) {
+                self.validate_matchable(target, visited, path, errors);
+            } else {
+                errors.push(DialectValidationError {
+                    path: path.clone(),
+                    missing_reference: reference.to_string(),
+                });
+            }
+            path.pop();
+        }
+
         for child in matchable.validation_children() {
             self.validate_matchable(child, visited, path, errors);
         }
@@ -364,7 +377,8 @@ pub type BracketPair = (&'static str, &'static str, &'static str, bool);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser::grammar::Ref;
+    use crate::parser::grammar::sequence::Bracketed;
+    use crate::parser::grammar::{Anything, Ref};
 
     #[test]
     fn validate_reports_reachable_missing_reference_with_path() {
@@ -418,5 +432,72 @@ mod tests {
         dialect.expand();
 
         assert_eq!(dialect.validate(), Ok(()));
+    }
+
+    #[test]
+    fn validate_reports_missing_anything_terminator() {
+        let mut dialect = Dialect::new();
+        dialect.add([(
+            "FileSegment".into(),
+            Anything::new()
+                .terminators(vec![Ref::new("MissingSegment").to_matchable()])
+                .to_matchable()
+                .into(),
+        )]);
+
+        let error = dialect.validate().unwrap_err();
+        assert_eq!(error.missing_reference(), "MissingSegment");
+        assert_eq!(error.path(), ["FileSegment", "MissingSegment"]);
+    }
+
+    #[test]
+    fn validate_reports_missing_bracket_pair_reference() {
+        let mut dialect = Dialect::new();
+        let mut bracketed = Bracketed::new(vec![]);
+        bracketed.bracket_type("angle");
+        bracketed.bracket_pairs_set = "angle_bracket_pairs";
+        dialect.update_bracket_sets(
+            "angle_bracket_pairs",
+            vec![(
+                "angle",
+                "StartAngleBracketSegment",
+                "MissingEndSegment",
+                false,
+            )],
+        );
+        dialect.add([
+            ("FileSegment".into(), bracketed.to_matchable().into()),
+            (
+                "StartAngleBracketSegment".into(),
+                Anything::new().to_matchable().into(),
+            ),
+        ]);
+
+        let error = dialect.validate().unwrap_err();
+        assert_eq!(error.missing_reference(), "MissingEndSegment");
+        assert_eq!(error.path(), ["FileSegment", "MissingEndSegment"]);
+    }
+
+    #[test]
+    fn validate_reports_missing_default_bracket_pair_reference() {
+        let mut dialect = Dialect::new();
+        dialect.update_bracket_sets(
+            "bracket_pairs",
+            vec![("round", "MissingStartSegment", "EndBracketSegment", false)],
+        );
+        dialect.add([
+            (
+                "FileSegment".into(),
+                Bracketed::new(vec![]).to_matchable().into(),
+            ),
+            (
+                "EndBracketSegment".into(),
+                Anything::new().to_matchable().into(),
+            ),
+        ]);
+
+        let error = dialect.validate().unwrap_err();
+        assert_eq!(error.missing_reference(), "MissingStartSegment");
+        assert_eq!(error.path(), ["FileSegment", "MissingStartSegment"]);
     }
 }

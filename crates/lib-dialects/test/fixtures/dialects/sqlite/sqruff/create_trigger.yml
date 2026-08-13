@@ -1,0 +1,36 @@
+file:
+- statement:
+  - create_trigger_statement:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+      - naked_identifier: ok
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: whatever
+    - keyword: WHEN
+    - expression:
+      - numeric_literal: '1'
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+    - keyword: BEGIN
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - function_name_identifier: RAISE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - keyword: ABORT
+                - comma: ','
+                - quoted_literal: '''Son😭😭😭😭😭😭'''
+                - end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

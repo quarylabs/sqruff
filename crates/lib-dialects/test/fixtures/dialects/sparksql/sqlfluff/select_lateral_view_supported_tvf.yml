@@ -96,9 +96,8 @@ file:
                             - numeric_literal: '4'
                           - end_bracket: )
                   - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: c2
+            - keyword: AS
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -145,9 +144,8 @@ file:
                             - numeric_literal: '4'
                           - end_bracket: )
                   - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: c2
+            - keyword: AS
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -312,15 +310,10 @@ file:
                                   - end_bracket: )
                           - end_bracket: )
                   - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: c1
-      - comma: ','
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: c2
+            - keyword: AS
+            - naked_identifier: c1
+            - comma: ','
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -389,15 +382,10 @@ file:
                                   - end_bracket: )
                           - end_bracket: )
                   - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: c1
-      - comma: ','
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: c2
+            - keyword: AS
+            - naked_identifier: c1
+            - comma: ','
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -496,9 +484,8 @@ file:
                             - numeric_literal: '20'
                           - end_bracket: )
                   - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: c1
+            - keyword: AS
+            - naked_identifier: c1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -545,9 +532,8 @@ file:
                             - numeric_literal: '20'
                           - end_bracket: )
                   - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: c1
+            - keyword: AS
+            - naked_identifier: c1
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -616,15 +602,10 @@ file:
                   - expression:
                     - numeric_literal: '3'
                   - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: c1
-      - comma: ','
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: c2
+            - keyword: AS
+            - naked_identifier: c1
+            - comma: ','
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -687,15 +668,10 @@ file:
                   - expression:
                     - quoted_literal: '''b'''
                   - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: c1
-      - comma: ','
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - naked_identifier: c2
+            - keyword: AS
+            - naked_identifier: c1
+            - comma: ','
+            - naked_identifier: c2
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -752,7 +728,6 @@ file:
                   - expression:
                     - quoted_literal: '''HOST'''
                   - end_bracket: )
-            - alias_expression:
-              - keyword: AS
-              - naked_identifier: c1
+            - keyword: AS
+            - naked_identifier: c1
 - statement_terminator: ;

@@ -1,0 +1,129 @@
+file:
+- statement:
+  - select_statement:
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: Stream
+              - dot: .
+              - naked_identifier: Stream
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - parameter: $create_at_start
+                - keyword: IS
+                - null_literal: 'NULL'
+              - end_bracket: )
+            - binary_operator: OR
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: create_at
+                - comparison_operator:
+                  - raw_comparison_operator: '>'
+                  - raw_comparison_operator: =
+                - parameter: $create_at_start
+              - end_bracket: )
+          - end_bracket: )
+        - binary_operator: AND
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - parameter: $create_at
+                - keyword: IS
+                - null_literal: 'NULL'
+              - end_bracket: )
+            - binary_operator: OR
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: create_at
+                - comparison_operator: ==
+                - parameter: $create_at
+              - end_bracket: )
+          - end_bracket: )
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: channel
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: Stream
+              - dot: .
+              - naked_identifier: Stream
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: channel
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - parameter: $stream_id
+        - keyword: IS
+        - null_literal: 'NULL'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - parameter: $target
+                - comparison_operator: ==
+                - quoted_literal: '''stream_id'''
+              - keyword: THEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: stream_id
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - parameter: $target
+                - comparison_operator: ==
+                - quoted_literal: '''name'''
+              - keyword: THEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: name
+            - keyword: END
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: mapping
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: Stream
+              - dot: .
+              - naked_identifier: Mapping
+- statement_terminator: ;

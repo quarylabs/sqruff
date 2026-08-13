@@ -51,7 +51,7 @@ fn fix_return_code() {
 
     // let stdout_str = str::from_utf8(&output.stdout).unwrap();
     // let stderr_str = str::from_utf8(&output.stderr).unwrap();
-    // assert_eq!(stdout_str, "SELECT foo FROM bar;\n\n");
+    // assert_eq!(stdout_str, "SELECT foo FROM bar;\n");
     // assert_eq!(stderr_str, "");
 
     // STDIN - nothing to fix

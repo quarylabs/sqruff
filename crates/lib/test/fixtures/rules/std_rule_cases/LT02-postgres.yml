@@ -12,3 +12,19 @@ test_pass_postgres_named_table_constraint_indent:
   configs:
     core:
       dialect: postgres
+
+test_pass_table_indent_after_alter_text_search_configuration:
+  pass_str: |
+    CREATE TEXT SEARCH CONFIGURATION public.unaccent_english (
+        PARSER = pg_catalog."default"
+    );
+
+    ALTER TEXT SEARCH CONFIGURATION public.unaccent_english
+    ADD MAPPING FOR uint WITH simple;
+
+    CREATE TABLE example (
+        id INTEGER NOT NULL
+    );
+  configs:
+    core:
+      dialect: postgres

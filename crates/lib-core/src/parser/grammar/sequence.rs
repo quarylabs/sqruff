@@ -90,6 +90,13 @@ impl MatchableTrait for Sequence {
         &self.elements
     }
 
+    fn validation_children(&self) -> Vec<&Matchable> {
+        self.elements
+            .iter()
+            .chain(self.terminators.iter())
+            .collect()
+    }
+
     fn is_optional(&self) -> bool {
         self.is_optional
     }
@@ -388,6 +395,19 @@ impl DerefMut for Bracketed {
 impl MatchableTrait for Bracketed {
     fn elements(&self) -> &[Matchable] {
         &self.elements
+    }
+
+    fn validation_children(&self) -> Vec<&Matchable> {
+        self.this.validation_children()
+    }
+
+    fn validation_references(&self, dialect: &crate::dialects::Dialect) -> Vec<&'static str> {
+        dialect
+            .bracket_sets(self.bracket_pairs_set)
+            .into_iter()
+            .filter(|(bracket_type, _, _, _)| *bracket_type == self.bracket_type)
+            .flat_map(|(_, start_ref, end_ref, _)| [start_ref, end_ref])
+            .collect()
     }
 
     fn is_optional(&self) -> bool {

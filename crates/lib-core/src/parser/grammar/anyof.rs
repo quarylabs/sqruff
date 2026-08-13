@@ -144,6 +144,14 @@ impl MatchableTrait for AnyNumberOf {
         &self.elements
     }
 
+    fn validation_children(&self) -> Vec<&Matchable> {
+        self.elements
+            .iter()
+            .chain(self.exclude.iter())
+            .chain(self.terminators.iter())
+            .collect()
+    }
+
     fn is_optional(&self) -> bool {
         self.optional || self.min_times == 0
     }

@@ -83,7 +83,216 @@ fn dialect_for_fixture_dir(
     kind_to_dialect(&dialect_kind, config.as_ref())
 }
 
+fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
+    match dialect {
+        DialectKind::Bigquery => &[
+            "ACTION",
+            "ASSIGNMENT",
+            "BEFORE",
+            "CONSTRUCTOR",
+            "DEFERRABLE",
+            "DEFERRED",
+            "EACH",
+            "FUNCTIONS",
+            "IMMEDIATE",
+            "INITIALLY",
+            "INSTANCE",
+            "INSTEAD",
+            "MATCH",
+            "METHOD",
+            "NEXT",
+            "OLD",
+            "ONLY",
+            "PARTIAL",
+            "PROCEDURES",
+            "REFERENCING",
+            "ROUTINES",
+            "SEQUENCES",
+            "SIMPLE",
+            "SPECIFIC",
+            "STAGES",
+            "STATEMENT",
+            "STATIC",
+            "STREAMS",
+            "TABLES",
+            "TASKS",
+            "VIEWS",
+        ],
+        DialectKind::Duckdb | DialectKind::Greenplum | DialectKind::Postgres => &["EXECUTION"],
+        DialectKind::Materialize => &["EXECUTION", "VARIADIC"],
+        DialectKind::Oracle => &[
+            "AUTHENTICATION",
+            "CREDENTIAL",
+            "EXCEPTIONS",
+            "HASH",
+            "METADATA",
+            "RETENTION",
+            "SETTINGS",
+            "STEP",
+            "UNUSED",
+        ],
+        DialectKind::Redshift => &[
+            "ALLOW_CONNECTIONS",
+            "DEPENDENCIES",
+            "ICU",
+            "IS_TEMPLATE",
+            "LC_COLLATE",
+            "LC_CTYPE",
+            "LIBC",
+            "LOCALE",
+            "MCV",
+            "NDISTINCT",
+            "PERMISSIVE",
+            "PROVIDER",
+            "RESTRICTIVE",
+            "SKIP_LOCKED",
+            "SUMMARY",
+            "TIMING",
+            "WAL",
+        ],
+        DialectKind::Snowflake => &[
+            "ACTION",
+            "ASSIGNMENT",
+            "CONSTRUCTOR",
+            "EACH",
+            "INSTANCE",
+            "INSTEAD",
+            "METHOD",
+            "NEW",
+            "OLD",
+            "PARTIAL",
+            "QuotedLiteralGrammar",
+            "REFERENCING",
+            "SIMPLE",
+            "SPECIFIC",
+            "STATIC",
+        ],
+        DialectKind::Sqlite => &[
+            "BINDING", "DATA", "INTERVAL", "MATCHED", "PARTIAL", "SCHEMA", "SIMPLE",
+        ],
+        DialectKind::Starrocks => &["BITMAP", "OPTIMIZER_COSTS"],
+        DialectKind::Trino => &[
+            "ACCOUNT",
+            "ACTION",
+            "APPLY",
+            "ASSIGNMENT",
+            "AUTO_INCREMENT",
+            "BEFORE",
+            "BINDING",
+            "CACHE",
+            "CHECK",
+            "COLLATE",
+            "CONNECT",
+            "CONSTRUCTOR",
+            "COPY",
+            "CYCLE",
+            "DATABASE",
+            "DEFERRABLE",
+            "DEFERRED",
+            "DOMAIN",
+            "EACH",
+            "EXECUTION",
+            "FOREIGN",
+            "FUNCTION",
+            "FUTURE",
+            "IMPORTED",
+            "INCREMENT",
+            "INDEX",
+            "INITIALLY",
+            "INSTANCE",
+            "INSTEAD",
+            "INTEGRATION",
+            "LANGUAGE",
+            "LARGE",
+            "MANAGE",
+            "MASKING",
+            "MAXVALUE",
+            "METHOD",
+            "MINVALUE",
+            "MODEL",
+            "MODIFY",
+            "MONITOR",
+            "NEW",
+            "NOCACHE",
+            "NOCYCLE",
+            "NOORDER",
+            "OLD",
+            "OPERATE",
+            "OPTIONS",
+            "OVERWRITE",
+            "OWNERSHIP",
+            "PARTIAL",
+            "PIPE",
+            "POLICY",
+            "PRIMARY",
+            "PROCEDURE",
+            "PROCEDURES",
+            "PUBLIC",
+            "REFERENCES",
+            "REFERENCE_USAGE",
+            "REFERENCING",
+            "RESOURCE",
+            "RETURNS",
+            "ROUTINE",
+            "ROUTINES",
+            "SEQUENCE",
+            "SEQUENCES",
+            "SERVER",
+            "SESSION_USER",
+            "SHARE",
+            "SIMPLE",
+            "SPECIFIC",
+            "STAGE",
+            "STAGES",
+            "STATEMENT",
+            "STATIC",
+            "STREAM",
+            "STREAMS",
+            "TABLESPACE",
+            "TASK",
+            "TASKS",
+            "TEMP",
+            "TEMPORARY",
+            "TRANSIENT",
+            "TRIGGER",
+            "USAGE",
+            "USE_ANY_ROLE",
+            "VIEWS",
+            "WAREHOUSE",
+        ],
+        _ => &[],
+    }
+}
+
+fn validate_dialect_reference_baseline() {
+    for dialect_kind in DialectKind::iter() {
+        let Some(dialect) = kind_to_dialect(&dialect_kind, None) else {
+            continue;
+        };
+        let actual = dialect
+            .validation_errors()
+            .into_iter()
+            .map(|error| error.missing_reference().to_string())
+            .collect::<HashSet<_>>();
+        let expected = known_missing_references(dialect_kind)
+            .iter()
+            .map(|reference| reference.to_string())
+            .collect::<HashSet<_>>();
+
+        let unexpected = actual.difference(&expected).sorted().collect_vec();
+        let stale = expected.difference(&actual).sorted().collect_vec();
+        assert!(
+            unexpected.is_empty() && stale.is_empty(),
+            "Dialect {} reference baseline changed. New missing references: {unexpected:?}. \
+             Fixed references to remove from known_missing_references: {stale:?}",
+            dialect_kind.as_ref(),
+        );
+    }
+}
+
 fn main() {
+    validate_dialect_reference_baseline();
+
     let args = std::env::args().skip(1).collect::<Vec<String>>();
 
     let mut arg_dialect = None;

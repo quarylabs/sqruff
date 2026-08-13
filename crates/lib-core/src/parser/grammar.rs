@@ -89,6 +89,10 @@ impl Ref {
 
         Ref::new(keyword)
     }
+
+    pub(crate) fn reference(&self) -> &str {
+        &self.reference
+    }
 }
 
 impl PartialEq for Ref {
@@ -105,6 +109,10 @@ impl Eq for Ref {}
 impl MatchableTrait for Ref {
     fn elements(&self) -> &[Matchable] {
         &[]
+    }
+
+    fn validation_children(&self) -> Vec<&Matchable> {
+        self.exclude.iter().chain(self.terminators.iter()).collect()
     }
 
     fn is_optional(&self) -> bool {
@@ -209,6 +217,10 @@ impl Anything {
 impl MatchableTrait for Anything {
     fn elements(&self) -> &[Matchable] {
         &[]
+    }
+
+    fn validation_children(&self) -> Vec<&Matchable> {
+        self.terminators.iter().collect()
     }
 
     fn match_segments(

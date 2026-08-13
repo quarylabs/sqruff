@@ -51,6 +51,10 @@ impl Matchable {
         Arc::make_mut(&mut self.inner)
     }
 
+    pub(crate) fn identity(&self) -> usize {
+        Arc::as_ptr(&self.inner) as usize
+    }
+
     pub fn as_conditional(&self) -> Option<&Conditional> {
         match self.inner.as_ref() {
             MatchableTraitImpl::Conditional(parser) => Some(parser),
@@ -144,6 +148,19 @@ pub trait MatchableTrait {
     }
 
     fn elements(&self) -> &[Matchable];
+
+    /// All nested matchables which can be evaluated while matching.
+    ///
+    /// Most matchers only contain `elements`; matchers with auxiliary grammar
+    /// such as exclusions, delimiters, or terminators override this method.
+    fn validation_children(&self) -> Vec<&Matchable> {
+        self.elements().iter().collect()
+    }
+
+    /// Dialect-library references selected dynamically while matching.
+    fn validation_references(&self, _dialect: &Dialect) -> Vec<&'static str> {
+        Vec::new()
+    }
 
     // Return whether this element is optional.
     fn is_optional(&self) -> bool {

@@ -461,6 +461,21 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::new("IndexColumnDefinitionSegment").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("IGNORE").to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("ABORT").to_matchable(),
+                            Ref::keyword("FAIL").to_matchable(),
+                            Ref::keyword("ROLLBACK").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -1006,7 +1021,8 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("WHEN").to_matchable(),
-                Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()]).to_matchable(),
+                optionally_bracketed(vec![Ref::new("ExpressionSegment").to_matchable()])
+                    .to_matchable(),
             ])
             .config(|config| {
                 config.optional();

@@ -4,7 +4,6 @@
 
 pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
     "ABORT",
-    "ACTION",
     "ADD",
     "AFTER",
     "ALL",
@@ -152,6 +151,7 @@ pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
 ];
 
 pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
+    "ACTION",
     "KEY",
     "INT",
     "INTEGER",

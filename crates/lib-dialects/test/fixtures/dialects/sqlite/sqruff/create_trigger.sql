@@ -1,0 +1,6 @@
+CREATE TRIGGER ok
+BEFORE INSERT ON whatever
+WHEN 1 = 1
+BEGIN
+    SELECT RAISE(ABORT, 'Son😭😭😭😭😭😭');
+END;

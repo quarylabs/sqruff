@@ -595,6 +595,18 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "CREDENTIAL",
         "SCOPED",
         "SECRET",
+        // COPY INTO (#4985)
+        "COPY",
+        "FILE_TYPE",
+        "ERRORFILE",
+        "ERRORFILE_CREDENTIAL",
+        "MAXERRORS",
+        "COMPRESSION",
+        "FIELDQUOTE",
+        "FIELDTERMINATOR",
+        "ROWTERMINATOR",
+        "FIRSTROW",
+        "AUTO_CREATE_TABLE",
     ]
     .into_iter()
     .collect()

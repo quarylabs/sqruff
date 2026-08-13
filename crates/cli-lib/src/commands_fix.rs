@@ -2,6 +2,7 @@ use crate::commands::FixArgs;
 use crate::commands::Format;
 use crate::linter;
 use sqruff_lib::core::config::FluffConfig;
+use std::io::{self, Write};
 use std::path::Path;
 
 pub(crate) fn run_fix(
@@ -74,7 +75,15 @@ pub(crate) fn run_fix_stdin(
 
     let has_unfixable_errors = result.has_unfixable_violations();
 
-    println!("{}", result.fix_string());
+    let has_fixes = result.has_violations() && result.has_fixes();
+    let output = if has_fixes {
+        result.fix_string()
+    } else {
+        read_in
+    };
+    let mut stdout = io::stdout().lock();
+    stdout.write_all(output.as_bytes()).unwrap();
+    stdout.flush().unwrap();
 
     // if all fixable violations are fixable, return 0 else return 1
     has_unfixable_errors as i32

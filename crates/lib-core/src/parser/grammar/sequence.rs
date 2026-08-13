@@ -90,6 +90,13 @@ impl MatchableTrait for Sequence {
         &self.elements
     }
 
+    fn validation_children(&self) -> Vec<&Matchable> {
+        self.elements
+            .iter()
+            .chain(self.terminators.iter())
+            .collect()
+    }
+
     fn is_optional(&self) -> bool {
         self.is_optional
     }
@@ -388,6 +395,10 @@ impl DerefMut for Bracketed {
 impl MatchableTrait for Bracketed {
     fn elements(&self) -> &[Matchable] {
         &self.elements
+    }
+
+    fn validation_children(&self) -> Vec<&Matchable> {
+        self.this.validation_children()
     }
 
     fn is_optional(&self) -> bool {

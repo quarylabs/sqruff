@@ -71,6 +71,14 @@ impl MatchableTrait for Delimited {
         &self.elements
     }
 
+    fn validation_children(&self) -> Vec<&Matchable> {
+        self.base
+            .validation_children()
+            .into_iter()
+            .chain(std::iter::once(&self.delimiter))
+            .collect()
+    }
+
     fn is_optional(&self) -> bool {
         self.optional || self.base.is_optional()
     }

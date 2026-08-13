@@ -5,6 +5,7 @@ pub mod syntax;
 
 use std::borrow::Cow;
 use std::fmt::Debug;
+use std::fmt::{Display, Formatter};
 
 use hashbrown::hash_map::Entry;
 use hashbrown::{HashMap, HashSet};
@@ -14,7 +15,7 @@ use crate::dialects::sets::DialectSetKey;
 use crate::dialects::syntax::SyntaxKind;
 use crate::helpers::ToMatchable;
 use crate::parser::lexer::{Lexer, Matcher};
-use crate::parser::matchable::Matchable;
+use crate::parser::matchable::{Matchable, MatchableTrait};
 use crate::parser::parsers::StringParser;
 use crate::parser::types::DialectElementType;
 
@@ -27,6 +28,35 @@ pub struct Dialect {
     pub bracket_collections: HashMap<&'static str, HashSet<BracketPair>>,
     lexer: Option<Lexer>,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DialectValidationError {
+    path: Vec<String>,
+    missing_reference: String,
+}
+
+impl DialectValidationError {
+    pub fn path(&self) -> &[String] {
+        &self.path
+    }
+
+    pub fn missing_reference(&self) -> &str {
+        &self.missing_reference
+    }
+}
+
+impl Display for DialectValidationError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Grammar reference path {} refers to '{}' which was not found in the dialect",
+            self.path.join(" -> "),
+            self.missing_reference,
+        )
+    }
+}
+
+impl std::error::Error for DialectValidationError {}
 
 impl PartialEq for Dialect {
     fn eq(&self, other: &Self) -> bool {
@@ -228,6 +258,69 @@ impl Dialect {
         }
     }
 
+    /// Validate references reachable from the grammar used to parse a file.
+    ///
+    /// Dialects inherit and replace grammar extensively. Validating only the
+    /// whole library would reject intentionally dormant inherited grammars, so
+    /// this follows the same graph the parser can reach from `FileSegment`.
+    pub fn validate(&self) -> Result<(), DialectValidationError> {
+        match self.validation_errors().into_iter().next() {
+            Some(error) => Err(error),
+            None => Ok(()),
+        }
+    }
+
+    /// Return every missing reference reachable from the file grammar.
+    pub fn validation_errors(&self) -> Vec<DialectValidationError> {
+        let root_name = "FileSegment";
+        let Some(DialectElementType::Matchable(root)) = self.library.get(root_name) else {
+            return vec![DialectValidationError {
+                path: vec![root_name.to_string()],
+                missing_reference: root_name.to_string(),
+            }];
+        };
+
+        let mut visited = HashSet::new();
+        let mut path = vec![root_name.to_string()];
+        let mut errors = Vec::new();
+        self.validate_matchable(root, &mut visited, &mut path, &mut errors);
+        errors
+    }
+
+    fn validate_matchable(
+        &self,
+        matchable: &Matchable,
+        visited: &mut HashSet<usize>,
+        path: &mut Vec<String>,
+        errors: &mut Vec<DialectValidationError>,
+    ) {
+        if !visited.insert(matchable.identity()) {
+            return;
+        }
+
+        if let Some(reference) = matchable.as_ref() {
+            let name = reference.reference();
+            path.push(name.to_string());
+            if let Some(DialectElementType::Matchable(target)) = self.library.get(name) {
+                self.validate_matchable(target, visited, path, errors);
+            } else {
+                errors.push(DialectValidationError {
+                    path: path.clone(),
+                    missing_reference: name.to_string(),
+                });
+            }
+            path.pop();
+        }
+
+        if let Some(grammar) = matchable.match_grammar(self) {
+            self.validate_matchable(&grammar, visited, path, errors);
+        }
+
+        for child in matchable.validation_children() {
+            self.validate_matchable(child, visited, path, errors);
+        }
+    }
+
     pub fn expand(&mut self) {
         // Temporarily take ownership of 'library' from 'self' to avoid borrow checker
         // errors during mutation.
@@ -267,3 +360,63 @@ impl Dialect {
 }
 
 pub type BracketPair = (&'static str, &'static str, &'static str, bool);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::parser::grammar::Ref;
+
+    #[test]
+    fn validate_reports_reachable_missing_reference_with_path() {
+        let mut dialect = Dialect::new();
+        dialect.add([
+            (
+                "FileSegment".into(),
+                Ref::new("StatementSegment").to_matchable().into(),
+            ),
+            (
+                "StatementSegment".into(),
+                Ref::new("MissingSegment").to_matchable().into(),
+            ),
+        ]);
+
+        let error = dialect.validate().unwrap_err();
+        assert_eq!(error.missing_reference(), "MissingSegment");
+        assert_eq!(
+            error.path(),
+            ["FileSegment", "StatementSegment", "MissingSegment"]
+        );
+        assert_eq!(
+            error.to_string(),
+            "Grammar reference path FileSegment -> StatementSegment -> MissingSegment refers to \
+             'MissingSegment' which was not found in the dialect"
+        );
+    }
+
+    #[test]
+    fn validate_ignores_unreachable_inherited_grammar() {
+        let mut dialect = Dialect::new();
+        dialect.add([
+            (
+                "FileSegment".into(),
+                Ref::new("StatementSegment").to_matchable().into(),
+            ),
+            (
+                "StatementSegment".into(),
+                Ref::new("PresentSegment").to_matchable().into(),
+            ),
+            (
+                "PresentSegment".into(),
+                Ref::keyword("SELECT").to_matchable().into(),
+            ),
+            (
+                "DormantInheritedSegment".into(),
+                Ref::new("MissingSegment").to_matchable().into(),
+            ),
+        ]);
+        dialect.add_keyword_to_set("reserved_keywords", "SELECT");
+        dialect.expand();
+
+        assert_eq!(dialect.validate(), Ok(()));
+    }
+}

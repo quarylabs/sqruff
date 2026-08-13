@@ -47,7 +47,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     trino_dialect.insert_lexer_matchers(
         // Regexp Replace w/ Lambda: https://trino.io/docs/422/functions/regexp.html
-        vec![Matcher::string("right_arrow", "->", SyntaxKind::RightArrow)],
+        vec![
+            Matcher::string("right_arrow", "->", SyntaxKind::RightArrow),
+            Matcher::string("fat_right_arrow", "=>", SyntaxKind::FatRightArrow),
+        ],
         "like_operator",
     );
 
@@ -659,20 +662,439 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    // Trino does not support these, and the inherited ANSI grammar references
+    // keywords that are not in Trino's keyword sets, which would panic on lookup.
+    trino_dialect.add([
+        (
+            "TemporaryTransientGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "PrimaryKeyGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "ForeignKeyGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "UniqueKeyGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "TemporaryGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "ExecuteArrowSegment".into(),
+            StringParser::new("=>", SyntaxKind::ExecuteArrow)
+                .to_matchable()
+                .into(),
+        ),
+    ]);
+
+    // Trino only supports a subset of the ANSI statements. Listing them
+    // explicitly avoids inheriting branches (such as sequences) whose grammar
+    // refers to keywords Trino does not define.
     trino_dialect.replace_grammar(
         "StatementSegment",
-        super::ansi::statement_segment().copy(
-            Some(vec![
-                Ref::new("AnalyzeStatementSegment").to_matchable(),
-                Ref::new("CommentOnStatementSegment").to_matchable(),
-            ]),
-            None,
-            None,
-            Some(vec![Ref::new("TransactionStatementSegment").to_matchable()]),
-            Vec::new(),
-            false,
-        ),
+        one_of(vec![
+            Ref::new("AlterTableStatementSegment").to_matchable(),
+            Ref::new("AnalyzeStatementSegment").to_matchable(),
+            Ref::new("CommentOnStatementSegment").to_matchable(),
+            Ref::new("CreateFunctionStatementSegment").to_matchable(),
+            Ref::new("CreateRoleStatementSegment").to_matchable(),
+            Ref::new("CreateSchemaStatementSegment").to_matchable(),
+            Ref::new("CreateTableStatementSegment").to_matchable(),
+            Ref::new("CreateViewStatementSegment").to_matchable(),
+            Ref::new("DeleteStatementSegment").to_matchable(),
+            Ref::new("DescribeStatementSegment").to_matchable(),
+            Ref::new("DropFunctionStatementSegment").to_matchable(),
+            Ref::new("DropRoleStatementSegment").to_matchable(),
+            Ref::new("DropSchemaStatementSegment").to_matchable(),
+            Ref::new("DropTableStatementSegment").to_matchable(),
+            Ref::new("DropViewStatementSegment").to_matchable(),
+            Ref::new("ExplainStatementSegment").to_matchable(),
+            Ref::new("InsertStatementSegment").to_matchable(),
+            Ref::new("MergeStatementSegment").to_matchable(),
+            Ref::new("SelectableGrammar").to_matchable(),
+            Ref::new("SetSchemaStatementSegment").to_matchable(),
+            Ref::new("TransactionStatementSegment").to_matchable(),
+            Ref::new("UpdateStatementSegment").to_matchable(),
+            Ref::new("UseStatementSegment").to_matchable(),
+            Ref::new("SetSessionStatementSegment").to_matchable(),
+        ])
+        .to_matchable(),
     );
+
+    // A `CREATE TABLE` statement.
+    // https://trino.io/docs/current/sql/create-table.html
+    trino_dialect.replace_grammar(
+        "CreateTableStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            Ref::keyword("TABLE").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            // Columns and comment syntax
+            Bracketed::new(vec![
+                Delimited::new(vec![
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("ColumnDefinitionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("LIKE").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("INCLUDING").to_matchable(),
+                                Ref::keyword("EXCLUDING").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("PROPERTIES").to_matchable(),
+                        ])
+                        .config(|config| {
+                            config.optional();
+                        })
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|config| {
+                config.optional();
+            })
+            .to_matchable(),
+            Ref::new("CommentClauseSegment").optional().to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("ParameterNameSegment").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|config| {
+                config.optional();
+            })
+            .to_matchable(),
+            // Create AS syntax
+            Sequence::new(vec![
+                Ref::keyword("AS").to_matchable(),
+                optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                    .to_matchable(),
+            ])
+            .config(|config| {
+                config.optional();
+            })
+            .to_matchable(),
+            // Create like syntax
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("NO").optional().to_matchable(),
+                Ref::keyword("DATA").to_matchable(),
+            ])
+            .config(|config| {
+                config.optional();
+            })
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // A column definition, e.g. for CREATE TABLE or ALTER TABLE.
+    trino_dialect.replace_grammar(
+        "ColumnDefinitionSegment",
+        Sequence::new(vec![
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("DatatypeSegment").to_matchable(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("NOT").to_matchable(),
+                    Ref::keyword("NULL").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("CommentClauseSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|config| {
+                config.max_times_per_element = Some(1);
+            })
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // A `COMMIT`, `ROLLBACK` or `START TRANSACTION` statement.
+    // https://trino.io/docs/current/sql/commit.html
+    // https://trino.io/docs/current/sql/rollback.html
+    // https://trino.io/docs/current/sql/start-transaction.html
+    trino_dialect.replace_grammar(
+        "TransactionStatementSegment",
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("COMMIT").to_matchable(),
+                Ref::keyword("WORK").optional().to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ROLLBACK").to_matchable(),
+                Ref::keyword("WORK").optional().to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("START").to_matchable(),
+                Ref::keyword("TRANSACTION").to_matchable(),
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("ISOLATION").to_matchable(),
+                        Ref::keyword("LEVEL").to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("READ").to_matchable(),
+                                Ref::keyword("UNCOMMITTED").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("READ").to_matchable(),
+                                Ref::keyword("COMMITTED").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("REPEATABLE").to_matchable(),
+                                Ref::keyword("READ").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("SERIALIZABLE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("READ").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("ONLY").to_matchable(),
+                            Ref::keyword("WRITE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // An `INSERT` statement. Trino has no `OVERWRITE`.
+    // https://trino.io/docs/current/sql/insert.html
+    trino_dialect.replace_grammar(
+        "InsertStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("INSERT").to_matchable(),
+            Ref::keyword("INTO").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            one_of(vec![
+                Ref::new("SelectableGrammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    Ref::new("SelectableGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("DefaultValuesGrammar").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // An `ALTER TABLE` statement.
+    // https://trino.io/docs/current/sql/alter-table.html
+    trino_dialect.replace_grammar(
+        "AlterTableStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("ALTER").to_matchable(),
+            Ref::keyword("TABLE").to_matchable(),
+            Ref::new("IfExistsGrammar").optional().to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("RENAME").to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("COLUMN").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("ColumnDefinitionSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("FIRST").to_matchable(),
+                        Ref::keyword("LAST").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AFTER").to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("COLUMN").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("RENAME").to_matchable(),
+                    Ref::keyword("COLUMN").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("COLUMN").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::keyword("DATA").to_matchable(),
+                            Ref::keyword("TYPE").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DROP").to_matchable(),
+                            Ref::keyword("NOT").to_matchable(),
+                            Ref::keyword("NULL").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::keyword("AUTHORIZATION").to_matchable(),
+                    one_of(vec![
+                        Ref::new("RoleReferenceSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("USER").to_matchable(),
+                            Ref::new("RoleReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ROLE").to_matchable(),
+                            Ref::new("RoleReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::keyword("PROPERTIES").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("EXECUTE").to_matchable(),
+                    Ref::new("FunctionNameSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::new("ExecuteArrowSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WHERE").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    trino_dialect.add([(
+        // A `SET SESSION` statement.
+        // https://trino.io/docs/current/sql/set-session.html
+        "SetSessionStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SetSessionStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                Ref::keyword("SESSION").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                    Ref::new("DotSegment").to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+                Ref::new("ParameterNameSegment").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     trino_dialect.add([
         // An 'ANALYZE' statement.

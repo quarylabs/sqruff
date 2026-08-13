@@ -26,8 +26,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: dealer
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -66,8 +67,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: dealer
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -119,8 +121,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: dealer
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -160,8 +163,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: dealer
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -210,8 +214,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: dealer
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -254,8 +259,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: dealer
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -333,8 +339,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: dealer
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -417,8 +424,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: dealer
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -502,8 +510,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: dealer
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -555,8 +564,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: dealer
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -597,8 +607,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: person
+            - table_reference:
+              - object_reference:
+                - naked_identifier: person
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -655,8 +666,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: person
+            - table_reference:
+              - object_reference:
+                - naked_identifier: person
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -687,8 +699,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: people
+            - table_reference:
+              - object_reference:
+                - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -730,8 +743,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: people
+            - table_reference:
+              - object_reference:
+                - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -774,8 +788,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: people
+            - table_reference:
+              - object_reference:
+                - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -821,8 +836,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: people
+            - table_reference:
+              - object_reference:
+                - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
@@ -868,8 +884,9 @@ file:
       - from_expression:
         - from_expression_element:
           - table_expression:
-            - object_reference:
-              - naked_identifier: people
+            - table_reference:
+              - object_reference:
+                - naked_identifier: people
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY

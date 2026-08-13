@@ -2046,6 +2046,40 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // T-SQL supports CREATE VIEW, ALTER VIEW, and CREATE OR ALTER VIEW.
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-view-transact-sql
+    dialect.add([(
+        "CreateViewStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateViewStatement, |_| {
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("ALTER").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CREATE").to_matchable(),
+                        Ref::keyword("OR").to_matchable(),
+                        Ref::keyword("ALTER").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("VIEW").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::new("BracketedColumnReferenceListGrammar")
+                    .optional()
+                    .to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::new("SelectableGrammar").to_matchable(),
+                Ref::new("WithNoSchemaBindingClauseSegment")
+                    .optional()
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // T-SQL CREATE PROCEDURE support
     dialect.add([
         (

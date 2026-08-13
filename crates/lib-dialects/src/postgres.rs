@@ -8297,6 +8297,138 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    postgres.add([
+        (
+            "CreateTextSearchConfigurationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateTextSearchConfigurationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("TEXT").to_matchable(),
+                    Ref::keyword("SEARCH").to_matchable(),
+                    Ref::keyword("CONFIGURATION").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Ref::keyword("PARSER").to_matchable(),
+                            Ref::keyword("COPY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterTextSearchConfigurationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterTextSearchConfigurationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("TEXT").to_matchable(),
+                    Ref::keyword("SEARCH").to_matchable(),
+                    Ref::keyword("CONFIGURATION").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("ADD").to_matchable(),
+                                Ref::keyword("ALTER").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("MAPPING").to_matchable(),
+                            Ref::keyword("FOR").to_matchable(),
+                            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                            Ref::keyword("WITH").to_matchable(),
+                            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ALTER").to_matchable(),
+                            Ref::keyword("MAPPING").to_matchable(),
+                            Ref::keyword("REPLACE").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ALTER").to_matchable(),
+                            Ref::keyword("MAPPING").to_matchable(),
+                            Ref::keyword("FOR").to_matchable(),
+                            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                            Ref::keyword("REPLACE").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DROP").to_matchable(),
+                            Ref::keyword("MAPPING").to_matchable(),
+                            Ref::new("IfExistsGrammar").optional().to_matchable(),
+                            Ref::keyword("FOR").to_matchable(),
+                            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RENAME").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("OWNER").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                Ref::keyword("CURRENT_ROLE").to_matchable(),
+                                Ref::keyword("CURRENT_USER").to_matchable(),
+                                Ref::keyword("SESSION_USER").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::keyword("SCHEMA").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropTextSearchConfigurationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropTextSearchConfigurationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("TEXT").to_matchable(),
+                    Ref::keyword("SEARCH").to_matchable(),
+                    Ref::keyword("CONFIGURATION").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::new("DropBehaviorGrammar").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     postgres
 }
 
@@ -8352,6 +8484,9 @@ pub fn statement_segment() -> Matchable {
             Ref::new("DropPublicationStatementSegment").to_matchable(),
             Ref::new("CreateTypeStatementSegment").to_matchable(),
             Ref::new("AlterTypeStatementSegment").to_matchable(),
+            Ref::new("CreateTextSearchConfigurationStatementSegment").to_matchable(),
+            Ref::new("AlterTextSearchConfigurationStatementSegment").to_matchable(),
+            Ref::new("DropTextSearchConfigurationStatementSegment").to_matchable(),
             Ref::new("AlterSchemaStatementSegment").to_matchable(),
             Ref::new("LockTableStatementSegment").to_matchable(),
             Ref::new("ClusterStatementSegment").to_matchable(),

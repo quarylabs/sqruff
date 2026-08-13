@@ -74,7 +74,7 @@ pub(crate) fn run_fix_stdin(
 
     let has_unfixable_errors = result.has_unfixable_violations();
 
-    println!("{}", result.fix_string());
+    print!("{}", result.fix_string());
 
     // if all fixable violations are fixable, return 0 else return 1
     has_unfixable_errors as i32

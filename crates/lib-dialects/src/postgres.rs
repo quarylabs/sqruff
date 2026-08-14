@@ -18,7 +18,7 @@ use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 
 use super::ansi;
-use super::postgres_keywords::POSTGRES_POSTGIS_DATATYPE_KEYWORDS;
+use super::postgres_keywords::{POSTGRES_PGVECTOR_KEYWORDS, POSTGRES_POSTGIS_DATATYPE_KEYWORDS};
 use crate::postgres_keywords::{get_keywords, postgres_keywords};
 use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
@@ -50,6 +50,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     }
 
     if dialect_config.pgvector {
+        postgres.sets_mut("unreserved_keywords").extend(
+            POSTGRES_PGVECTOR_KEYWORDS
+                .iter()
+                .map(|(keyword, _)| *keyword),
+        );
+
         postgres.replace_grammar("DatatypeSegment", build_datatype_segment_grammar(true));
 
         // Add pgvector distance operators: <-> (L2), <=> (cosine), <+> (L1), <#> (inner product)
@@ -78,6 +84,34 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     }
 
     postgres.config(|dialect| dialect.expand())
+}
+
+#[cfg(test)]
+mod tests {
+    use hashbrown::HashMap;
+    use sqruff_lib_core::value::Value;
+
+    use super::dialect;
+
+    const PGVECTOR_KEYWORDS: [&str; 3] = ["VECTOR", "HALFVEC", "SPARSEVEC"];
+
+    #[test]
+    fn pgvector_keywords_follow_extension_config() {
+        let postgres = dialect(None);
+        let unreserved_keywords = postgres.sets("unreserved_keywords");
+
+        for keyword in PGVECTOR_KEYWORDS {
+            assert!(!unreserved_keywords.contains(keyword));
+        }
+
+        let config = Value::Map(HashMap::from([("pgvector".into(), Value::Bool(true))]));
+        let postgres_with_pgvector = dialect(Some(&config));
+        let unreserved_keywords = postgres_with_pgvector.sets("unreserved_keywords");
+
+        for keyword in PGVECTOR_KEYWORDS {
+            assert!(unreserved_keywords.contains(keyword));
+        }
+    }
 }
 
 /// Build the ComparisonOperatorGrammar, optionally including pgvector operators.

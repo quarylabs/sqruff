@@ -1029,7 +1029,6 @@ pub(crate) fn postgres_keywords() -> Vec<(&'static str, &'static str)> {
         POSTGRES_NONDOCS_KEYWORDS,
         POSTGRES_POSTGIS_DATATYPE_KEYWORDS,
         POSTGRES_POSTGIS_OTHER_KEYWORDS,
-        POSTGRES_PGVECTOR_KEYWORDS,
     ])
 }
 

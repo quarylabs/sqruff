@@ -1,18 +1,18 @@
 == [models/customers.sql] FAIL
-L:  22 | P:  16 | LT02 | Expected indent of 4 spaces. [layout.indent]
-L:  42 | P:  27 | LT02 | Expected line break and indent of 4 spaces before "on".
+L:  21 | P:   1 | LT02 | Expected indent of 4 spaces. [layout.indent]
+L:  41 | P:  21 | LT02 | Expected line break and indent of 4 spaces before "on".
                        | [layout.indent]
-L:  42 | P:  31 | LT02 | Expected indent of 12 spaces. [layout.indent]
-L:  65 | P:  41 | LT01 | Expected only single space before "customers". Found " 
+L:  42 | P:   1 | LT02 | Expected indent of 12 spaces. [layout.indent]
+L:  65 | P:  11 | LT01 | Expected only single space before "customers". Found " 
                        | ". [layout.spacing]
 == [models/disabled_model.sql] SKIP: dbt model disabled
 == [models/staging/stg_incremental.sql] FAIL
-L:  10 | P:  23 | LT12 | Files must end with a single trailing newline.
-                       | [layout.end_of_file]
 L:  14 | P:   6 | JJ01 | Jinja tags should have a single whitespace on either
                        | side: `{{ref('raw_orders')}}` -> `{{ ref('raw_orders')
                        | }}` [jinja.padding]
 L:  17 | P:  49 | JJ01 | Jinja tags should have a single whitespace on either
                        | side: `{{this}}` -> `{{ this }}` [jinja.padding]
+L:  18 | P:  12 | LT12 | Files must end with a single trailing newline.
+                       | [layout.end_of_file]
 The linter processed 8 file(s).
 All Finished

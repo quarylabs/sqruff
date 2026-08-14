@@ -158,7 +158,7 @@ impl PositionMarker {
     /// Return the line and position of this marker in the source.
     pub fn source_position(&self) -> (usize, usize) {
         self.templated_file
-            .get_line_pos_of_char_pos(self.templated_slice.start, true)
+            .get_line_pos_of_char_pos(self.source_slice.start, true)
     }
 
     /// Return the line and position of this marker in the source.
@@ -305,6 +305,32 @@ mod tests {
 
     use crate::parser::markers::PositionMarker;
     use crate::templaters::TemplatedFile;
+
+    #[test]
+    fn test_source_position_uses_source_slice() {
+        let templated_file = TemplatedFile::new(
+            "source line one\nsource line two".into(),
+            "test.sql".into(),
+            Some("rendered".into()),
+            Some(vec![crate::templaters::TemplatedFileSlice::new_typed(
+                crate::templaters::TemplateSliceKind::Templated,
+                16..31,
+                0..8,
+            )]),
+            Some(vec![crate::templaters::RawFileSlice::new_typed(
+                "source line one\nsource line two".into(),
+                crate::templaters::TemplateSliceKind::Templated,
+                0,
+                None,
+                None,
+            )]),
+        )
+        .unwrap();
+        let marker = PositionMarker::new(16..31, 0..8, templated_file, None, None);
+
+        assert_eq!(marker.source_position(), (2, 1));
+        assert_eq!(marker.templated_position(), (1, 1));
+    }
 
     /// Test that we can correctly infer positions from strings.
     #[test]

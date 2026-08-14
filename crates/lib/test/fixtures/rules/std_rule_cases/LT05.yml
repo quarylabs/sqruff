@@ -724,6 +724,47 @@ test_pass_window_function:
         ) as rnk
     from foo
 
+test_jinja_block_source_line_length:
+  # https://github.com/quarylabs/sqruff/issues/3122
+  fail_str: |
+    with
+        totals as (
+            select record_id, sum(metric_value) as total_value
+            from {{ ref("upstream_metrics") }}
+            where endswith(year_code, '1')
+            group by record_id
+        )
+
+    select
+        base.*,
+        region_lookup.* exclude (region_id),
+        concept_lookup.concept_name,
+        {% if var("feature_flag_enabled", true) %}
+            optional_lookup.optional_attribute as selected_optional_attribute,
+        {% endif %}
+        totals.total_value
+    from base
+    inner join {{ ref("region_lookup") }} as region_lookup on base.region_code = region_lookup.region_id
+    left join concept_lookup as concept_lookup on base.record_id = concept_lookup.record_id
+    {% if var("feature_flag_enabled", true) %}
+        left join {{ ref("optional_lookup") }} as optional_lookup on base.optional_code = optional_lookup.optional_code
+    {% endif %}
+    left join totals as totals on base.record_id = totals.record_id
+    where base.created_at >= to_timestamp_ntz('2012-08-06')
+    order by base.record_id
+  configs:
+    core:
+      dialect: snowflake
+      templater: jinja
+      max_line_length: 88
+    rules:
+      layout.long_lines:
+        ignore_comment_clauses: true
+        ignore_comment_lines: true
+  line_numbers:
+    - 18
+    - 21
+
 test_fix_where_on_separate_line:
   # https://github.com/quarylabs/sqruff/issues/1986
   # When WHERE is on its own line, the conditions start on a new line

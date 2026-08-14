@@ -724,9 +724,9 @@ test_pass_window_function:
         ) as rnk
     from foo
 
-test_pass_jinja_block_source_line_length:
+test_jinja_block_source_line_length:
   # https://github.com/quarylabs/sqruff/issues/3122
-  pass_str: |
+  fail_str: |
     with
         totals as (
             select record_id, sum(metric_value) as total_value
@@ -744,13 +744,10 @@ test_pass_jinja_block_source_line_length:
         {% endif %}
         totals.total_value
     from base
-    inner join {{ ref("region_lookup") }} as region_lookup
-        on base.region_code = region_lookup.region_id
-    left join concept_lookup as concept_lookup
-        on base.record_id = concept_lookup.record_id
+    inner join {{ ref("region_lookup") }} as region_lookup on base.region_code = region_lookup.region_id
+    left join concept_lookup as concept_lookup on base.record_id = concept_lookup.record_id
     {% if var("feature_flag_enabled", true) %}
-        left join {{ ref("optional_lookup") }} as optional_lookup
-            on base.optional_code = optional_lookup.optional_code
+        left join {{ ref("optional_lookup") }} as optional_lookup on base.optional_code = optional_lookup.optional_code
     {% endif %}
     left join totals as totals on base.record_id = totals.record_id
     where base.created_at >= to_timestamp_ntz('2012-08-06')
@@ -764,6 +761,9 @@ test_pass_jinja_block_source_line_length:
       layout.long_lines:
         ignore_comment_clauses: true
         ignore_comment_lines: true
+  line_numbers:
+    - 18
+    - 21
 
 test_fix_where_on_separate_line:
   # https://github.com/quarylabs/sqruff/issues/1986

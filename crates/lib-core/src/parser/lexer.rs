@@ -893,7 +893,7 @@ fn iter_segments(
 
     // Now work out source slices, and add in template placeholders.
     for element in lexed_elements {
-        let consumed_element_length = 0;
+        let mut consumed_element_length = 0;
         let mut stashed_source_idx = None;
 
         for (idx, tfs) in templated_file_slices
@@ -949,9 +949,11 @@ fn iter_segments(
                     ));
 
                     // If it was an exact match, consume the templated element too.
-                    if element.template_slice.end == tfs.templated_slice.end {
-                        tfs_idx += 1
-                    }
+                    tfs_idx = if element.template_slice.end == tfs.templated_slice.end {
+                        idx + 1
+                    } else {
+                        idx
+                    };
                     // In any case, we're done with this element. Move on
                     break;
                 } else if element.template_slice.start >= tfs.templated_slice.end {
@@ -1005,6 +1007,7 @@ fn iter_segments(
                             ),
                             offset_slice(consumed_element_length, incremental_length).into(),
                         ));
+                        consumed_element_length += incremental_length;
                         // Continue to the next slice to process remaining whitespace
                         continue;
                     } else {
@@ -1013,7 +1016,11 @@ fn iter_segments(
                         // set the start yet, stash it too.
                         log::debug!("Spilling over literal slice.");
                         if stashed_source_idx.is_none() {
-                            stashed_source_idx = (element.template_slice.start + idx).into();
+                            let source_start = element.template_slice.start as isize + tfs_offset;
+                            stashed_source_idx =
+                                Some(source_start.try_into().unwrap_or_else(|_| {
+                                    panic!("Cannot convert {source_start} to usize")
+                                }));
                             log::debug!("Stashing a source start. {stashed_source_idx:?}");
                         }
                         // Continue to next slice regardless of whether we stashed
@@ -1060,9 +1067,11 @@ fn iter_segments(
                         ));
 
                         // If it was an exact match, consume the templated element too.
-                        if element.template_slice.end == tfs.templated_slice.end {
-                            tfs_idx += 1
-                        }
+                        tfs_idx = if element.template_slice.end == tfs.templated_slice.end {
+                            idx + 1
+                        } else {
+                            idx
+                        };
                         // Carry on to the next lexed element
                         break;
                     } else {

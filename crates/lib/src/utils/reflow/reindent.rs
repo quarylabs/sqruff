@@ -1306,7 +1306,7 @@ pub fn lint_indent_points(
 
 fn source_char_len(elements: &[ReflowElement]) -> usize {
     let mut char_len = 0;
-    let mut furthest_source_idx: Option<usize> = None;
+    let mut last_source_slice = None;
 
     for seg in elements.iter().flat_map(|elem| elem.segments()) {
         if seg.is_type(SyntaxKind::Indent) || seg.is_type(SyntaxKind::Dedent) {
@@ -1317,64 +1317,28 @@ fn source_char_len(elements: &[ReflowElement]) -> usize {
             break;
         };
 
-        if seg.raw().is_empty()
-            && matches!(
-                seg.block_type(),
-                Some(
-                    BlockType::BlockStart
-                        | BlockType::BlockMid
-                        | BlockType::BlockEnd
-                        | BlockType::SkippedSource
-                )
-            )
-        {
-            continue;
-        }
-
         let source_slice = pos_marker.source_slice.clone();
         let source_str = pos_marker.source_str();
 
-        if let Some(furthest_source_idx) = furthest_source_idx
-            && source_slice.start > furthest_source_idx
-            && pos_marker.templated_file.source_str[furthest_source_idx..source_slice.start]
-                .contains('\n')
-        {
+        if let Some(pos) = source_str.find('\n') {
+            char_len += pos;
             break;
         }
 
         let slice_len = source_slice.end - source_slice.start;
-        let newline_pos = source_str.find('\n');
-        let source_end = newline_pos
-            .map(|pos| source_slice.start + pos)
-            .unwrap_or(source_slice.end);
 
-        if !seg.raw().is_empty() && slice_len == 0 {
-            char_len += seg.raw().chars().count();
-        } else if slice_len != 0 {
-            let uncovered_start = furthest_source_idx
-                .map(|idx| idx.max(source_slice.start))
-                .unwrap_or(source_slice.start);
-
-            if source_end > uncovered_start {
-                if pos_marker.is_literal() && uncovered_start == source_slice.start {
-                    // Literal slices normally map one-to-one, so retain character-aware
-                    // counting for multibyte source text.
-                    let raw = newline_pos
-                        .map(|pos| &source_str[..pos])
-                        .unwrap_or(seg.raw());
-                    char_len += raw.chars().count();
-                } else {
-                    // Templated tokens can have successively larger, overlapping source
-                    // slices. Only count the portion not covered by an earlier token.
-                    char_len += source_end - uncovered_start;
-                }
+        if Some(source_slice.clone()) != last_source_slice {
+            if !seg.raw().is_empty() && slice_len == 0 {
+                char_len += seg.raw().chars().count();
+            } else if slice_len == 0 {
+                continue;
+            } else if pos_marker.is_literal() {
+                char_len += seg.raw().chars().count();
+                last_source_slice = Some(source_slice);
+            } else {
+                char_len += source_slice.end - source_slice.start;
+                last_source_slice = Some(source_slice);
             }
-
-            furthest_source_idx = Some(furthest_source_idx.unwrap_or(source_end).max(source_end));
-        }
-
-        if newline_pos.is_some() {
-            break;
         }
     }
 

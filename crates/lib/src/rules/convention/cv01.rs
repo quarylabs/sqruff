@@ -4,6 +4,7 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -14,34 +15,40 @@ pub struct RuleCV01 {
     preferred_not_equal_style: PreferredNotEqualStyle,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-enum PreferredNotEqualStyle {
-    #[default]
-    Consistent,
-    CStyle,
-    Ansi,
+crate::rule_config_enum! {
+    /// How the "not equal to" comparison should be spelled.
+    #[derive(Default)]
+    pub enum PreferredNotEqualStyle {
+        /// Either style, as long as a file sticks to one of them.
+        #[default]
+        Consistent => "consistent",
+        /// `!=`.
+        CStyle => "c_style",
+        /// `<>`.
+        Ansi => "ansi",
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `convention.not_equal` (CV01).
+    RuleCV01Config {
+        /// Which "not equal to" comparison to enforce.
+        preferred_not_equal_style: PreferredNotEqualStyle = PreferredNotEqualStyle::Consistent,
+    }
 }
 
 impl Rule for RuleCV01 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleCV01Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        if let Some(value) = config["preferred_not_equal_style"].as_string() {
-            let preferred_not_equal_style = match value {
-                "consistent" => PreferredNotEqualStyle::Consistent,
-                "c_style" => PreferredNotEqualStyle::CStyle,
-                "ansi" => PreferredNotEqualStyle::Ansi,
-                _ => {
-                    return Err(format!(
-                        "Invalid value for preferred_not_equal_style: {value}"
-                    ));
-                }
-            };
-            Ok(RuleCV01 {
-                preferred_not_equal_style,
-            }
-            .erased())
-        } else {
-            Err("Missing value for preferred_not_equal_style".to_string())
+        let config = RuleCV01Config::from_config(config)?;
+
+        Ok(RuleCV01 {
+            preferred_not_equal_style: config.preferred_not_equal_style,
         }
+        .erased())
     }
 
     fn name(&self) -> &'static str {

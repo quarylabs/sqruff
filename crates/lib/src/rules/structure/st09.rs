@@ -9,6 +9,7 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -29,30 +30,43 @@ fn normalize_identifier(raw: &str) -> SmolStr {
     }
 }
 
+crate::rule_config_enum! {
+    /// Which of the two joined tables should be referenced first.
+    #[derive(Default)]
+    pub enum PreferredFirstTable {
+        /// The table that appears earlier in the statement.
+        #[default]
+        Earlier => "earlier",
+        /// The table that appears later in the statement.
+        Later => "later",
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `structure.join_condition_order` (ST09).
+    RuleST09Config {
+        /// Which of the two joined tables a join condition should name first.
+        preferred_first_table_in_join_clause: PreferredFirstTable = PreferredFirstTable::Earlier,
+    }
+}
+
 #[derive(Default, Debug, Clone)]
 pub struct RuleST09 {
-    preferred_first_table_in_join_clause: String,
+    preferred_first_table_in_join_clause: PreferredFirstTable,
 }
 
 impl Rule for RuleST09 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleST09Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        match config["preferred_first_table_in_join_clause"].as_string() {
-            Some("earlier" | "later") => Ok(RuleST09 {
-                preferred_first_table_in_join_clause:
-                    config["preferred_first_table_in_join_clause"]
-                        .as_string()
-                        .unwrap()
-                        .to_owned(),
-            }
-            .erased()),
-            Some(value) => Err(format!(
-                "Invalid value for preferred_first_table_in_join_clause: {value}. Must be one of \
-                 [earlier, later]"
-            )),
-            None => {
-                Err("Rule ST09 expects a string for `preferred_first_table_in_join_clause`".into())
-            }
+        let config = RuleST09Config::from_config(config)?;
+
+        Ok(RuleST09 {
+            preferred_first_table_in_join_clause: config.preferred_first_table_in_join_clause,
         }
+        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -260,7 +274,7 @@ left join bar
                     .iter()
                     .position(|x| x == &second_table)
                     .unwrap()
-                && self.preferred_first_table_in_join_clause == "earlier")
+                && self.preferred_first_table_in_join_clause == PreferredFirstTable::Earlier)
                 || (table_aliases
                     .iter()
                     .position(|x| x == &first_table)
@@ -269,7 +283,7 @@ left join bar
                         .iter()
                         .position(|x| x == &second_table)
                         .unwrap()
-                    && self.preferred_first_table_in_join_clause == "later")
+                    && self.preferred_first_table_in_join_clause == PreferredFirstTable::Later)
             {
                 fixes.push(LintFix::replace(
                     first_column_reference.clone(),
@@ -394,7 +408,7 @@ mod tests {
     #[test]
     fn st09_description_matches_python() {
         let rule = RuleST09 {
-            preferred_first_table_in_join_clause: "earlier".into(),
+            preferred_first_table_in_join_clause: PreferredFirstTable::Earlier,
         };
 
         let result = format!(
@@ -417,8 +431,8 @@ mod tests {
         let err = RuleST09::default().load_from_config(&config).unwrap_err();
         assert_eq!(
             err,
-            "Invalid value for preferred_first_table_in_join_clause: middle. Must be one of \
-             [earlier, later]"
+            "Invalid value for `preferred_first_table_in_join_clause`: expected one of [earlier, \
+             later], got `middle`"
         );
     }
 

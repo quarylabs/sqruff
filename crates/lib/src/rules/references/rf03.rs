@@ -13,20 +13,45 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::analysis::query::Query;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
+crate::rule_config_enum! {
+    /// How columns of a single-table select should be referenced.
+    #[derive(Default)]
+    pub enum SingleTableReferences {
+        /// Either style is fine, as long as a statement sticks to one of them.
+        #[default]
+        Consistent => "consistent",
+        /// Always qualify references with the table name or alias.
+        Qualified => "qualified",
+        /// Never qualify references.
+        Unqualified => "unqualified",
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `references.consistent` (RF03).
+    RuleRF03Config {
+        /// How columns of a single-table select should be referenced.
+        single_table_references: SingleTableReferences = SingleTableReferences::Consistent,
+        /// The rule is disabled for some dialects; set this to enable it anyway.
+        force_enable: bool = false,
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct RuleRF03 {
-    single_table_references: Option<String>,
+    single_table_references: SingleTableReferences,
     force_enable: bool,
 }
 
 impl RuleRF03 {
     fn visit_queries(
         tables: &Tables,
-        single_table_references: &str,
+        single_table_references: SingleTableReferences,
         is_struct_dialect: bool,
         query: Query<'_>,
         _visited: &mut HashSet<ErasedSegment>,
@@ -61,7 +86,7 @@ impl RuleRF03 {
                     select_info.col_aliases,
                     single_table_references,
                     is_struct_dialect,
-                    Some("qualified".into()),
+                    Some(SingleTableReferences::Qualified),
                     fixable,
                 );
 
@@ -107,9 +132,9 @@ fn check_references(
     standalone_aliases: Vec<SmolStr>,
     references: Vec<ObjectReferenceSegment>,
     col_aliases: Vec<ColumnAliasInfo>,
-    single_table_references: &str,
+    single_table_references: SingleTableReferences,
     is_struct_dialect: bool,
-    fix_inconsistent_to: Option<String>,
+    fix_inconsistent_to: Option<SingleTableReferences>,
     fixable: bool,
 ) -> Vec<LintResult> {
     let mut acc = Vec::new();
@@ -158,8 +183,7 @@ fn check_references(
         };
 
         if let Some(fix_inconsistent_to) = fix_inconsistent_to
-            .as_ref()
-            .filter(|_| single_table_references == "consistent")
+            .filter(|_| single_table_references == SingleTableReferences::Consistent)
         {
             let results = check_references(
                 tables,
@@ -185,7 +209,7 @@ fn check_references(
 #[allow(clippy::too_many_arguments)]
 fn validate_one_reference(
     tables: &Tables,
-    single_table_references: &str,
+    single_table_references: SingleTableReferences,
     ref_: ObjectReferenceSegment,
     this_ref_type: &str,
     standalone_aliases: &[SmolStr],
@@ -215,7 +239,7 @@ fn validate_one_reference(
         return None;
     }
 
-    if single_table_references == "consistent" {
+    if single_table_references == SingleTableReferences::Consistent {
         return if !seen_ref_types.is_empty() && !seen_ref_types.contains(this_ref_type) {
             LintResult::new(
                 ref_.clone().0.into(),
@@ -235,11 +259,11 @@ fn validate_one_reference(
         };
     }
 
-    if single_table_references == this_ref_type {
+    if single_table_references.as_str() == this_ref_type {
         return None;
     }
 
-    if single_table_references == "unqualified" {
+    if single_table_references == SingleTableReferences::Unqualified {
         let fixes = if fixable {
             ref_.0
                 .segments()
@@ -299,12 +323,16 @@ fn validate_one_reference(
 }
 
 impl Rule for RuleRF03 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleRF03Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleRF03Config::from_config(config)?;
+
         Ok(RuleRF03 {
-            single_table_references: config
-                .get("single_table_references")
-                .and_then(|it| it.as_string().map(ToString::to_string)),
-            force_enable: config["force_enable"].as_bool().unwrap(),
+            single_table_references: config.single_table_references,
+            force_enable: config.force_enable,
         }
         .erased())
     }
@@ -367,20 +395,13 @@ FROM foo
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        let single_table_references =
-            self.single_table_references.as_deref().unwrap_or_else(|| {
-                context.config.raw["rules"]["single_table_references"]
-                    .as_string()
-                    .unwrap()
-            });
-
         let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
         let mut visited: HashSet<ErasedSegment> = HashSet::new();
         let is_struct_dialect = self.dialect_skip().contains(&context.dialect.name);
 
         Self::visit_queries(
             context.tables,
-            single_table_references,
+            self.single_table_references,
             is_struct_dialect,
             query,
             &mut visited,

@@ -17,6 +17,7 @@ use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -28,12 +29,37 @@ const SELECT_TYPES: SyntaxSet = SyntaxSet::new(&[
     SyntaxKind::SelectStatement,
 ]);
 
-fn config_mapping(key: &str) -> SyntaxSet {
-    match key {
-        "join" => SyntaxSet::single(SyntaxKind::JoinClause),
-        "from" => SyntaxSet::single(SyntaxKind::FromExpressionElement),
-        "both" => SyntaxSet::new(&[SyntaxKind::JoinClause, SyntaxKind::FromExpressionElement]),
-        _ => unreachable!("Invalid value for 'forbid_subquery_in': {key}"),
+crate::rule_config_enum! {
+    /// Where subqueries are not allowed.
+    #[derive(Default)]
+    pub enum ForbidSubqueryIn {
+        /// Only in join clauses.
+        #[default]
+        Join => "join",
+        /// Only in from clauses.
+        From => "from",
+        /// In both join and from clauses.
+        Both => "both",
+    }
+}
+
+impl ForbidSubqueryIn {
+    fn parent_types(self) -> SyntaxSet {
+        match self {
+            Self::Join => SyntaxSet::single(SyntaxKind::JoinClause),
+            Self::From => SyntaxSet::single(SyntaxKind::FromExpressionElement),
+            Self::Both => {
+                SyntaxSet::new(&[SyntaxKind::JoinClause, SyntaxKind::FromExpressionElement])
+            }
+        }
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `structure.subquery` (ST05).
+    RuleST05Config {
+        /// Which clauses may not contain a subquery.
+        forbid_subquery_in: ForbidSubqueryIn = ForbidSubqueryIn::Join,
     }
 }
 
@@ -47,13 +73,19 @@ struct NestedSubQuerySummary<'a> {
 
 #[derive(Clone, Debug, Default)]
 pub(crate) struct RuleST05 {
-    forbid_subquery_in: String,
+    forbid_subquery_in: ForbidSubqueryIn,
 }
 
 impl Rule for RuleST05 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleST05Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleST05Config::from_config(config)?;
+
         Ok(RuleST05 {
-            forbid_subquery_in: config["forbid_subquery_in"].as_string().unwrap().into(),
+            forbid_subquery_in: config.forbid_subquery_in,
         }
         .erased())
     }
@@ -341,7 +373,7 @@ impl RuleST05 {
     ) -> Vec<NestedSubQuerySummary<'a>> {
         let mut acc = Vec::new();
 
-        let parent_types = config_mapping(&self.forbid_subquery_in);
+        let parent_types = self.forbid_subquery_in.parent_types();
         let mut queries = vec![query.clone()];
         queries.extend(query.inner.borrow().ctes.values().cloned());
 

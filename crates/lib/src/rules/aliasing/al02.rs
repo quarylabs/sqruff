@@ -3,6 +3,7 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use super::al01::{Aliasing, RuleAL01};
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -28,18 +29,23 @@ impl RuleAL02 {
     }
 }
 
+crate::rule_config! {
+    /// Configuration for `aliasing.column` (AL02).
+    RuleAL02Config {
+        /// Whether column aliases should use the `AS` keyword.
+        aliasing: Aliasing = Aliasing::Explicit,
+    }
+}
+
 impl Rule for RuleAL02 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleAL02Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let aliasing = match config.get("aliasing").unwrap().as_string().unwrap() {
-            "explicit" => Aliasing::Explicit,
-            "implicit" => Aliasing::Implicit,
-            _ => unreachable!(),
-        };
+        let config = RuleAL02Config::from_config(config)?;
 
-        let mut rule = RuleAL02::default();
-        rule.base = rule.base.aliasing(aliasing);
-
-        Ok(rule.erased())
+        Ok(RuleAL02::default().aliasing(config.aliasing).erased())
     }
 
     fn is_fix_compatible(&self) -> bool {

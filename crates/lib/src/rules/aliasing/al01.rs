@@ -3,15 +3,30 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::reflow::sequence::{Filter, ReflowInsertPosition, ReflowSequence, TargetSide};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
-pub enum Aliasing {
-    Explicit,
-    Implicit,
+crate::rule_config_enum! {
+    /// Whether aliases should be written with or without the `AS` keyword.
+    #[derive(Default)]
+    pub enum Aliasing {
+        /// Require the `AS` keyword.
+        #[default]
+        Explicit => "explicit",
+        /// Forbid the `AS` keyword.
+        Implicit => "implicit",
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `aliasing.table` (AL01).
+    RuleAL01Config {
+        /// Whether table aliases should use the `AS` keyword.
+        aliasing: Aliasing = Aliasing::Explicit,
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -47,15 +62,15 @@ impl Default for RuleAL01 {
 }
 
 impl Rule for RuleAL01 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let aliasing = match _config.get("aliasing").unwrap().as_string().unwrap() {
-            "explicit" => Aliasing::Explicit,
-            "implicit" => Aliasing::Implicit,
-            _ => unreachable!(),
-        };
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleAL01Config::config_options()
+    }
+
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleAL01Config::from_config(config)?;
 
         Ok(RuleAL01 {
-            aliasing,
+            aliasing: config.aliasing,
             target_parent_types: const {
                 SyntaxSet::new(&[
                     SyntaxKind::FromExpressionElement,

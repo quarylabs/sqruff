@@ -10,6 +10,8 @@ use serde::Serialize;
 #[cfg(feature = "codegen-docs")]
 use sqruff_lib::core::rules::ErasedRule;
 #[cfg(feature = "codegen-docs")]
+use sqruff_lib::core::rules::config::RuleConfigOption as CoreRuleConfigOption;
+#[cfg(feature = "codegen-docs")]
 use sqruff_lib::rules::rules;
 #[cfg(feature = "codegen-docs")]
 use sqruff_lib::templaters::TEMPLATERS;
@@ -160,12 +162,49 @@ struct Rule {
     pub groups: Vec<&'static str>,
     pub has_dialects: bool,
     pub dialects: Vec<&'static str>,
+    pub config_section: String,
+    pub config_options: Vec<RuleConfigOption>,
+    pub has_config_options: bool,
+}
+
+#[cfg(feature = "codegen-docs")]
+#[derive(Debug, Clone, Serialize)]
+struct RuleConfigOption {
+    name: &'static str,
+    description: &'static str,
+    type_name: &'static str,
+    default: String,
+    allowed_values: Vec<&'static str>,
+    has_allowed_values: bool,
+}
+
+#[cfg(feature = "codegen-docs")]
+impl From<CoreRuleConfigOption> for RuleConfigOption {
+    fn from(value: CoreRuleConfigOption) -> Self {
+        RuleConfigOption {
+            name: value.name,
+            description: value.description,
+            type_name: value.type_name,
+            default: value.default,
+            has_allowed_values: !value.allowed_values.is_empty(),
+            allowed_values: value.allowed_values,
+        }
+    }
 }
 
 #[cfg(feature = "codegen-docs")]
 impl From<ErasedRule> for Rule {
     fn from(value: ErasedRule) -> Self {
+        let config_options: Vec<RuleConfigOption> = value
+            .config_options()
+            .into_iter()
+            .map(RuleConfigOption::from)
+            .collect();
+
         Rule {
+            config_section: format!("[sqruff:rules:{}]", value.config_ref()),
+            has_config_options: !config_options.is_empty(),
+            config_options,
             name: value.name(),
             name_no_periods: value.name().replace('.', ""),
             code: value.code(),

@@ -9,16 +9,24 @@ use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{IgnoreWords, RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::rules::aliasing::al04::RuleAL04;
 
-#[derive(Clone, Debug, Default)]
-pub struct RuleRF02Config {
-    ignore_words: Vec<String>,
-    ignore_words_regex: Vec<Regex>,
-    subqueries_ignore_external_references: bool,
+crate::rule_config! {
+    /// Configuration for `references.qualification` (RF02).
+    RuleRF02Config {
+        /// Comma separated list of words to ignore, compared case-insensitively.
+        ignore_words: IgnoreWords = IgnoreWords::default(),
+        /// Comma separated list of regular expressions matching words to ignore.
+        ignore_words_regex: Vec<Regex> = Vec::new(),
+        /// Whether references to tables of an outer query are ignored when
+        /// linting a subquery. When `false` a correlated subquery counts as
+        /// referencing more than one table.
+        subqueries_ignore_external_references: bool = false,
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -38,39 +46,15 @@ impl Default for RuleRF02 {
 }
 
 impl Rule for RuleRF02 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleRF02Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let ignore_words = config["ignore_words"]
-            .map(|it| {
-                it.as_array()
-                    .unwrap()
-                    .iter()
-                    .map(|it| it.as_string().unwrap().to_lowercase())
-                    .collect()
-            })
-            .unwrap_or_default();
-
-        let ignore_words_regex = config["ignore_words_regex"]
-            .map(|it| {
-                it.as_array()
-                    .unwrap()
-                    .iter()
-                    .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                    .collect()
-            })
-            .unwrap_or_default();
-
-        let subqueries_ignore_external_references = config["subqueries_ignore_external_references"]
-            .as_bool()
-            .unwrap_or(false);
-
         Ok(Self {
             base: RuleAL04 {
                 lint_references_and_aliases: Self::lint_references_and_aliases,
-                context: RuleRF02Config {
-                    ignore_words,
-                    ignore_words_regex,
-                    subqueries_ignore_external_references,
-                },
+                context: RuleRF02Config::from_config(config)?,
             },
         }
         .erased())

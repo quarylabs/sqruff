@@ -10,20 +10,37 @@ use sqruff_lib_core::parser::markers::PositionMarker;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 use sqruff_lib_core::parser::segments::fix::SourceFix;
 use sqruff_lib_core::templaters::TemplateSliceKind;
-use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups, targets_templated};
 
-#[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq, Default)]
-#[strum(serialize_all = "snake_case")]
-enum PreferredQuotedLiteralStyle {
-    #[default]
-    Consistent,
-    SingleQuotes,
-    DoubleQuotes,
+crate::rule_config_enum! {
+    /// Which quote character string literals should use.
+    #[derive(Default)]
+    pub enum PreferredQuotedLiteralStyle {
+        /// Either quote character, as long as a file sticks to one of them.
+        #[default]
+        Consistent => "consistent",
+        /// `'single quotes'`.
+        SingleQuotes => "single_quotes",
+        /// `"double quotes"`.
+        DoubleQuotes => "double_quotes",
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `convention.quoted_literals` (CV10).
+    RuleCV10Config {
+        /// Which quote character string literals should use.
+        preferred_quoted_literal_style: PreferredQuotedLiteralStyle =
+            PreferredQuotedLiteralStyle::Consistent,
+        /// The rule is disabled for dialects without both quote styles; set
+        /// this to enable it anyway.
+        force_enable: bool = false,
+    }
 }
 
 impl PreferredQuotedLiteralStyle {
@@ -56,15 +73,16 @@ pub struct RuleCV10 {
 impl Rule for RuleCV10 {
     targets_templated!();
 
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleCV10Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleCV10Config::from_config(config)?;
+
         Ok(RuleCV10 {
-            preferred_quoted_literal_style: config["preferred_quoted_literal_style"]
-                .as_string()
-                .unwrap()
-                .to_owned()
-                .parse()
-                .unwrap(),
-            force_enable: config["force_enable"].as_bool().unwrap(),
+            preferred_quoted_literal_style: config.preferred_quoted_literal_style,
+            force_enable: config.force_enable,
         }
         .erased())
     }

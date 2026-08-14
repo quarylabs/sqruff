@@ -3,9 +3,20 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+
+crate::rule_config! {
+    /// Configuration for `layout.newlines` (LT15).
+    RuleLT15Config {
+        /// How many blank lines are allowed between two statements.
+        maximum_empty_lines_between_statements: usize = 2,
+        /// How many blank lines are allowed within a statement.
+        maximum_empty_lines_inside_statements: usize = 1,
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct RuleLT15 {
@@ -15,26 +26,25 @@ pub struct RuleLT15 {
 
 impl Default for RuleLT15 {
     fn default() -> Self {
+        let config = RuleLT15Config::default();
         Self {
-            maximum_empty_lines_between_statements: 2,
-            maximum_empty_lines_inside_statements: 1,
+            maximum_empty_lines_between_statements: config.maximum_empty_lines_between_statements,
+            maximum_empty_lines_inside_statements: config.maximum_empty_lines_inside_statements,
         }
     }
 }
 
 impl Rule for RuleLT15 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleLT15Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleLT15Config::from_config(config)?;
+
         Ok(RuleLT15 {
-            maximum_empty_lines_between_statements: config
-                .get("maximum_empty_lines_between_statements")
-                .and_then(Value::as_int)
-                .map(|v| v as usize)
-                .unwrap_or(self.maximum_empty_lines_between_statements),
-            maximum_empty_lines_inside_statements: config
-                .get("maximum_empty_lines_inside_statements")
-                .and_then(Value::as_int)
-                .map(|v| v as usize)
-                .unwrap_or(self.maximum_empty_lines_inside_statements),
+            maximum_empty_lines_between_statements: config.maximum_empty_lines_between_statements,
+            maximum_empty_lines_inside_statements: config.maximum_empty_lines_inside_statements,
         }
         .erased())
     }

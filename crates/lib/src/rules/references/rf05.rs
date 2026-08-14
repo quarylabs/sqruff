@@ -4,54 +4,55 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::Value;
+use crate::core::rules::config::{IgnoreWords, RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
-use crate::utils::identifers::identifiers_policy_applicable;
+use crate::utils::identifers::{IdentifiersPolicy, identifiers_policy_applicable};
+
+crate::rule_config! {
+    /// Configuration for `references.special_chars` (RF05).
+    RuleRF05Config {
+        /// Which unquoted identifiers are checked for special characters.
+        unquoted_identifiers_policy: IdentifiersPolicy = IdentifiersPolicy::All,
+        /// Which quoted identifiers are checked for special characters.
+        quoted_identifiers_policy: IdentifiersPolicy = IdentifiersPolicy::All,
+        /// Whether identifiers may contain spaces.
+        allow_space_in_identifier: bool = false,
+        /// Extra characters allowed on top of the alphanumeric ones.
+        additional_allowed_characters: Option<String> = None,
+        /// Comma separated list of words to ignore, compared case-insensitively.
+        ignore_words: IgnoreWords = IgnoreWords::default(),
+        /// Comma separated list of regular expressions matching words to ignore.
+        ignore_words_regex: Vec<Regex> = Vec::new(),
+    }
+}
 
 #[derive(Clone, Default, Debug)]
 pub struct RuleRF05 {
-    quoted_identifiers_policy: String,
-    unquoted_identifiers_policy: String,
+    quoted_identifiers_policy: IdentifiersPolicy,
+    unquoted_identifiers_policy: IdentifiersPolicy,
     allow_space_in_identifier: bool,
-    additional_allowed_characters: String,
-    ignore_words: Vec<String>,
+    additional_allowed_characters: Option<String>,
+    ignore_words: IgnoreWords,
     ignore_words_regex: Vec<Regex>,
 }
 
 impl Rule for RuleRF05 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleRF05Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleRF05Config::from_config(config)?;
+
         Ok(RuleRF05 {
-            unquoted_identifiers_policy: config["unquoted_identifiers_policy"]
-                .as_string()
-                .unwrap()
-                .to_owned(),
-            quoted_identifiers_policy: config["quoted_identifiers_policy"]
-                .as_string()
-                .unwrap()
-                .to_owned(),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            allow_space_in_identifier: config["allow_space_in_identifier"].as_bool().unwrap(),
-            additional_allowed_characters: config["additional_allowed_characters"]
-                .map(|it| it.as_string().unwrap().to_owned())
-                .unwrap_or_default(),
+            unquoted_identifiers_policy: config.unquoted_identifiers_policy,
+            quoted_identifiers_policy: config.quoted_identifiers_policy,
+            ignore_words: config.ignore_words,
+            ignore_words_regex: config.ignore_words_regex,
+            allow_space_in_identifier: config.allow_space_in_identifier,
+            additional_allowed_characters: config.additional_allowed_characters,
         }
         .erased())
     }
@@ -112,11 +113,11 @@ CREATE TABLE DBO.ColumnNames
             return Vec::new();
         }
 
-        let mut policy = self.unquoted_identifiers_policy.as_str();
+        let mut policy = self.unquoted_identifiers_policy;
         let mut identifier = context.segment.raw().to_string();
 
         if context.segment.is_type(SyntaxKind::QuotedIdentifier) {
-            policy = self.quoted_identifiers_policy.as_str();
+            policy = self.quoted_identifiers_policy;
             identifier = identifier[1..identifier.len() - 1].to_string();
 
             if self.ignore_words.contains(&identifier.to_lowercase())
@@ -214,7 +215,11 @@ CREATE TABLE DBO.ColumnNames
 impl RuleRF05 {
     fn get_additional_allowed_characters(&self, dialect_name: DialectKind) -> HashSet<char> {
         let mut result = HashSet::new();
-        result.extend(self.additional_allowed_characters.chars());
+        result.extend(
+            self.additional_allowed_characters
+                .iter()
+                .flat_map(|characters| characters.chars()),
+        );
         if dialect_name == DialectKind::Bigquery {
             result.insert('-');
         }

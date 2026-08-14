@@ -4,7 +4,7 @@ pub mod st01;
 pub mod st02;
 pub mod st03;
 pub mod st04;
-mod st05;
+pub mod st05;
 pub mod st06;
 pub mod st07;
 pub mod st08;

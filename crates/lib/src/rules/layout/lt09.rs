@@ -6,6 +6,7 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -24,15 +25,41 @@ struct SelectTargetsInfo {
     pre_from_whitespace: Segments,
 }
 
-#[derive(Debug, Clone)]
+crate::rule_config_enum! {
+    /// When a wildcard select target forces the targets onto separate lines.
+    #[derive(Default)]
+    pub enum WildcardPolicy {
+        /// A lone `*` may share a line with the `SELECT` keyword.
+        #[default]
+        Single => "single",
+        /// A `*` always goes on its own line.
+        Multiple => "multiple",
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `layout.select_targets` (LT09).
+    RuleLT09Config {
+        /// How a wildcard select target is treated.
+        wildcard_policy: WildcardPolicy = WildcardPolicy::Single,
+    }
+}
+
+#[derive(Debug, Clone, Default)]
 pub struct RuleLT09 {
-    wildcard_policy: String,
+    wildcard_policy: WildcardPolicy,
 }
 
 impl Rule for RuleLT09 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleLT09Config::config_options()
+    }
+
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleLT09Config::from_config(config)?;
+
         Ok(RuleLT09 {
-            wildcard_policy: _config["wildcard_policy"].as_string().unwrap().to_owned(),
+            wildcard_policy: config.wildcard_policy,
         }
         .erased())
     }
@@ -106,7 +133,7 @@ FROM test_table;
         let has_wildcard = !wildcards.is_empty();
 
         if select_targets_info.select_targets.len() == 1
-            && (!has_wildcard || self.wildcard_policy == "single")
+            && (!has_wildcard || self.wildcard_policy == WildcardPolicy::Single)
         {
             return self.eval_single_select_target_element(select_targets_info, context);
         } else if !select_targets_info.select_targets.is_empty() {
@@ -513,13 +540,5 @@ impl RuleLT09 {
             None,
             None,
         )]
-    }
-}
-
-impl Default for RuleLT09 {
-    fn default() -> Self {
-        Self {
-            wildcard_policy: "single".into(),
-        }
     }
 }

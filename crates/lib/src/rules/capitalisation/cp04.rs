@@ -2,8 +2,9 @@ use hashbrown::HashMap;
 use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use super::cp01::RuleCP01;
+use super::cp01::{CapitalisationPolicy, RuleCP01};
 use crate::core::config::Value;
+use crate::core::rules::config::{IgnoreWords, RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
@@ -26,29 +27,31 @@ impl Default for RuleCP04 {
     }
 }
 
+crate::rule_config! {
+    /// Configuration for `capitalisation.literals` (CP04).
+    RuleCP04Config {
+        /// The capitalisation to enforce on `NULL` and boolean literals.
+        capitalisation_policy: CapitalisationPolicy = CapitalisationPolicy::Consistent,
+        /// Comma separated list of words to ignore, compared case-insensitively.
+        ignore_words: IgnoreWords = IgnoreWords::default(),
+        /// Comma separated list of regular expressions matching words to ignore.
+        ignore_words_regex: Vec<Regex> = Vec::new(),
+    }
+}
+
 impl Rule for RuleCP04 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleCP04Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleCP04Config::from_config(config)?;
+
         Ok(RuleCP04 {
             base: RuleCP01 {
-                capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),
-                ignore_words: config["ignore_words"]
-                    .map(|it| {
-                        it.as_array()
-                            .unwrap_or_default()
-                            .iter()
-                            .map(|it| it.as_string().unwrap().to_lowercase())
-                            .collect()
-                    })
-                    .unwrap_or_default(),
-                ignore_words_regex: config["ignore_words_regex"]
-                    .map(|it| {
-                        it.as_array()
-                            .unwrap_or_default()
-                            .iter()
-                            .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                            .collect()
-                    })
-                    .unwrap_or_default(),
+                capitalisation_policy: config.capitalisation_policy.into(),
+                ignore_words: config.ignore_words,
+                ignore_words_regex: config.ignore_words_regex,
                 ..Default::default()
             },
         }

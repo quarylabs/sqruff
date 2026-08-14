@@ -15,6 +15,7 @@ use sqruff_lib_core::utils::analysis::select::{
 };
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -28,26 +29,29 @@ struct AL05QueryData {
 type QueryKey<'a> = *const RefCell<QueryInner<'a>>;
 type AL05State<'a> = HashMap<QueryKey<'a>, AL05QueryData>;
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
-enum AliasCaseCheck {
-    #[default]
-    Dialect,
-    CaseInsensitive,
-    QuotedCaseSensitiveNakedUpper,
-    QuotedCaseSensitiveNakedLower,
-    CaseSensitive,
+crate::rule_config_enum! {
+    /// How aliases are compared with the references that use them.
+    #[derive(Default)]
+    pub enum AliasCaseCheck {
+        /// Follow the dialect's own identifier case sensitivity.
+        #[default]
+        Dialect => "dialect",
+        /// Compare aliases and references case-insensitively.
+        CaseInsensitive => "case_insensitive",
+        /// Quoted identifiers are case sensitive, naked ones fold to uppercase.
+        QuotedCaseSensitiveNakedUpper => "quoted_cs_naked_upper",
+        /// Quoted identifiers are case sensitive, naked ones fold to lowercase.
+        QuotedCaseSensitiveNakedLower => "quoted_cs_naked_lower",
+        /// Compare aliases and references case-sensitively.
+        CaseSensitive => "case_sensitive",
+    }
 }
 
-impl AliasCaseCheck {
-    fn from_config(value: &str) -> Result<Self, String> {
-        match value {
-            "dialect" => Ok(Self::Dialect),
-            "case_insensitive" => Ok(Self::CaseInsensitive),
-            "quoted_cs_naked_upper" => Ok(Self::QuotedCaseSensitiveNakedUpper),
-            "quoted_cs_naked_lower" => Ok(Self::QuotedCaseSensitiveNakedLower),
-            "case_sensitive" => Ok(Self::CaseSensitive),
-            other => Err(format!("Invalid alias_case_check value: {other}")),
-        }
+crate::rule_config! {
+    /// Configuration for `aliasing.unused` (AL05).
+    RuleAL05Config {
+        /// How aliases are matched against the references that use them.
+        alias_case_check: AliasCaseCheck = AliasCaseCheck::Dialect,
     }
 }
 
@@ -57,11 +61,15 @@ pub struct RuleAL05 {
 }
 
 impl Rule for RuleAL05 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleAL05Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleAL05Config::from_config(config)?;
+
         Ok(RuleAL05 {
-            alias_case_check: AliasCaseCheck::from_config(
-                config["alias_case_check"].as_string().unwrap(),
-            )?,
+            alias_case_check: config.alias_case_check,
         }
         .erased())
     }

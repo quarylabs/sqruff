@@ -5,47 +5,54 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{IgnoreWords, RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
+crate::rule_config! {
+    /// Configuration for `references.quoting` (RF06).
+    RuleRF06Config {
+        /// Whether identifiers should be quoted rather than unquoted.
+        prefer_quoted_identifiers: bool = false,
+        /// Whether identifiers that are also keywords should be quoted.
+        prefer_quoted_keywords: bool = false,
+        /// Comma separated list of words to ignore, compared case-insensitively.
+        ignore_words: IgnoreWords = IgnoreWords::default(),
+        /// Comma separated list of regular expressions matching words to ignore.
+        ignore_words_regex: Vec<Regex> = Vec::new(),
+        /// The rule is disabled for some dialects; set this to enable it anyway.
+        force_enable: bool = false,
+    }
+}
+
 #[derive(Default, Debug, Clone)]
 pub struct RuleRF06 {
     prefer_quoted_identifiers: bool,
     prefer_quoted_keywords: bool,
-    ignore_words: Vec<String>,
+    ignore_words: IgnoreWords,
     ignore_words_regex: Vec<Regex>,
     force_enable: bool,
 }
 
 impl Rule for RuleRF06 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleRF06Config::config_options()
+    }
+
     fn load_from_config(
         &self,
         config: &hashbrown::HashMap<String, Value>,
     ) -> Result<ErasedRule, String> {
+        let config = RuleRF06Config::from_config(config)?;
+
         Ok(Self {
-            prefer_quoted_identifiers: config["prefer_quoted_identifiers"].as_bool().unwrap(),
-            prefer_quoted_keywords: config["prefer_quoted_keywords"].as_bool().unwrap(),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            force_enable: config["force_enable"].as_bool().unwrap(),
+            prefer_quoted_identifiers: config.prefer_quoted_identifiers,
+            prefer_quoted_keywords: config.prefer_quoted_keywords,
+            ignore_words: config.ignore_words,
+            ignore_words_regex: config.ignore_words_regex,
+            force_enable: config.force_enable,
         }
         .erased())
     }

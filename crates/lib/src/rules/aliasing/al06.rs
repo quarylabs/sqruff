@@ -3,10 +3,21 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
+
+crate::rule_config! {
+    /// Configuration for `aliasing.length` (AL06).
+    RuleAL06Config {
+        /// The shortest allowed alias, or `none` for no lower bound.
+        min_alias_length: Option<usize> = None,
+        /// The longest allowed alias, or `none` for no upper bound.
+        max_alias_length: Option<usize> = None,
+    }
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct RuleAL06 {
@@ -87,10 +98,16 @@ impl RuleAL06 {
 }
 
 impl Rule for RuleAL06 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleAL06Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleAL06Config::from_config(config)?;
+
         Ok(RuleAL06 {
-            min_alias_length: config["min_alias_length"].as_int().map(|it| it as usize),
-            max_alias_length: config["max_alias_length"].as_int().map(|it| it as usize),
+            min_alias_length: config.min_alias_length,
+            max_alias_length: config.max_alias_length,
         }
         .erased())
     }

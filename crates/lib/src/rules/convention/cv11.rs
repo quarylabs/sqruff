@@ -4,16 +4,19 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
-use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
-#[derive(Debug, Copy, Clone, AsRefStr, EnumString, PartialEq, Default)]
-#[strum(serialize_all = "snake_case")]
+/// The casting style a particular expression uses.
+///
+/// This is the internal vocabulary of the rule; `None` means "not a cast" and
+/// is deliberately not offered as a configuration value.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 enum TypeCastingStyle {
     #[default]
     Consistent,
@@ -21,6 +24,42 @@ enum TypeCastingStyle {
     Convert,
     Shorthand,
     None,
+}
+
+crate::rule_config_enum! {
+    /// Which type casting syntax should be used.
+    #[derive(Default)]
+    pub enum PreferredTypeCastingStyle {
+        /// Any style, as long as a file sticks to one of them.
+        #[default]
+        Consistent => "consistent",
+        /// `CAST(x AS type)`.
+        Cast => "cast",
+        /// `CONVERT(type, x)`.
+        Convert => "convert",
+        /// `x::type`.
+        Shorthand => "shorthand",
+    }
+}
+
+impl From<PreferredTypeCastingStyle> for TypeCastingStyle {
+    fn from(value: PreferredTypeCastingStyle) -> Self {
+        match value {
+            PreferredTypeCastingStyle::Consistent => Self::Consistent,
+            PreferredTypeCastingStyle::Cast => Self::Cast,
+            PreferredTypeCastingStyle::Convert => Self::Convert,
+            PreferredTypeCastingStyle::Shorthand => Self::Shorthand,
+        }
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `convention.casting_style` (CV11).
+    RuleCV11Config {
+        /// Which type casting syntax to enforce.
+        preferred_type_casting_style: PreferredTypeCastingStyle =
+            PreferredTypeCastingStyle::Consistent,
+    }
 }
 
 #[derive(Copy, Clone)]
@@ -72,13 +111,15 @@ pub struct RuleCV11 {
 }
 
 impl Rule for RuleCV11 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleCV11Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleCV11Config::from_config(config)?;
+
         Ok(RuleCV11 {
-            preferred_type_casting_style: config["preferred_type_casting_style"]
-                .as_string()
-                .unwrap()
-                .parse()
-                .unwrap(),
+            preferred_type_casting_style: config.preferred_type_casting_style.into(),
         }
         .erased())
     }

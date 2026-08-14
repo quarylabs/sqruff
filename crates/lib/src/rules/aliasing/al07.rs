@@ -8,10 +8,19 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
+
+crate::rule_config! {
+    /// Configuration for `aliasing.forbid` (AL07).
+    RuleAL07Config {
+        /// The rule is disabled by default; set this to enable it.
+        force_enable: bool = false,
+    }
+}
 
 #[derive(Debug)]
 struct TableAliasInfo {
@@ -213,9 +222,15 @@ impl RuleAL07 {
 }
 
 impl Rule for RuleAL07 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleAL07Config::config_options()
+    }
+
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleAL07Config::from_config(config)?;
+
         Ok(RuleAL07 {
-            force_enable: _config["force_enable"].as_bool().unwrap(),
+            force_enable: config.force_enable,
         }
         .erased())
     }

@@ -13,6 +13,7 @@ use sqruff_lib_core::parser::segments::object_reference::{
 use sqruff_lib_core::utils::analysis::query::{Query, QueryInner, Selectable};
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::reference::object_ref_matches_table;
@@ -219,10 +220,24 @@ impl RuleRF01 {
     }
 }
 
+crate::rule_config! {
+    /// Configuration for `references.from` (RF01).
+    RuleRF01Config {
+        /// The rule is disabled for some dialects; set this to enable it anyway.
+        force_enable: bool = false,
+    }
+}
+
 impl Rule for RuleRF01 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleRF01Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleRF01Config::from_config(config)?;
+
         Ok(RuleRF01 {
-            force_enable: config["force_enable"].as_bool().unwrap(),
+            force_enable: config.force_enable,
         }
         .erased())
     }

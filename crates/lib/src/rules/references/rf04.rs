@@ -1,50 +1,50 @@
-use itertools::Itertools;
 use regex::Regex;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
+use crate::core::rules::config::{IgnoreWords, RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
-use crate::utils::identifers::identifiers_policy_applicable;
+use crate::utils::identifers::{IdentifiersPolicy, identifiers_policy_applicable};
+
+crate::rule_config! {
+    /// Configuration for `references.keywords` (RF04).
+    RuleRF04Config {
+        /// Which unquoted identifiers are checked against the keyword list.
+        unquoted_identifiers_policy: IdentifiersPolicy = IdentifiersPolicy::Aliases,
+        /// Which quoted identifiers are checked against the keyword list.
+        quoted_identifiers_policy: IdentifiersPolicy = IdentifiersPolicy::None,
+        /// Comma separated list of words to ignore, compared case-insensitively.
+        ignore_words: IgnoreWords = IgnoreWords::default(),
+        /// Comma separated list of regular expressions matching words to ignore.
+        ignore_words_regex: Vec<Regex> = Vec::new(),
+    }
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct RuleRF04 {
-    unquoted_identifiers_policy: String,
-    quoted_identifiers_policy: Option<String>,
-    ignore_words: Vec<String>,
+    unquoted_identifiers_policy: IdentifiersPolicy,
+    quoted_identifiers_policy: IdentifiersPolicy,
+    ignore_words: IgnoreWords,
     ignore_words_regex: Vec<Regex>,
 }
 
 impl Rule for RuleRF04 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleRF04Config::config_options()
+    }
+
     fn load_from_config(
         &self,
         config: &hashbrown::HashMap<String, crate::core::config::Value>,
     ) -> Result<ErasedRule, String> {
+        let config = RuleRF04Config::from_config(config)?;
+
         Ok(RuleRF04 {
-            unquoted_identifiers_policy: config["unquoted_identifiers_policy"]
-                .as_string()
-                .unwrap()
-                .to_owned(),
-            quoted_identifiers_policy: config["quoted_identifiers_policy"]
-                .map(|it| it.as_string().unwrap().to_string()),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect_vec()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect_vec()
-                })
-                .unwrap_or_default(),
+            unquoted_identifiers_policy: config.unquoted_identifiers_policy,
+            quoted_identifiers_policy: config.quoted_identifiers_policy,
+            ignore_words: config.ignore_words,
+            ignore_words_regex: config.ignore_words_regex,
         }
         .erased())
     }
@@ -110,7 +110,7 @@ FROM foo AS vee
         // FIXME: simplify the condition
         if (context.segment.is_type(SyntaxKind::NakedIdentifier)
             && identifiers_policy_applicable(
-                &self.unquoted_identifiers_policy,
+                self.unquoted_identifiers_policy,
                 &context.parent_stack,
             )
             && context
@@ -118,13 +118,9 @@ FROM foo AS vee
                 .sets("unreserved_keywords")
                 .contains(context.segment.raw().to_uppercase().as_str()))
             || (context.segment.is_type(SyntaxKind::QuotedIdentifier)
-                && self.quoted_identifiers_policy.as_ref().is_some_and(
-                    |quoted_identifiers_policy| {
-                        identifiers_policy_applicable(
-                            quoted_identifiers_policy,
-                            &context.parent_stack,
-                        )
-                    },
+                && identifiers_policy_applicable(
+                    self.quoted_identifiers_policy,
+                    &context.parent_stack,
                 )
                 && (context
                     .dialect

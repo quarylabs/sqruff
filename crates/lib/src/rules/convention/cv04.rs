@@ -5,6 +5,7 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -16,19 +17,27 @@ pub struct RuleCV04 {
     pub prefer_count_0: bool,
 }
 
+crate::rule_config! {
+    /// Configuration for `convention.count_rows` (CV04).
+    RuleCV04Config {
+        /// Prefer `COUNT(1)` over `COUNT(*)`.
+        prefer_count_1: bool = false,
+        /// Prefer `COUNT(0)` over `COUNT(*)`.
+        prefer_count_0: bool = false,
+    }
+}
+
 impl Rule for RuleCV04 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleCV04Config::config_options()
+    }
+
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleCV04Config::from_config(config)?;
+
         Ok(RuleCV04 {
-            prefer_count_1: _config
-                .get("prefer_count_1")
-                .unwrap_or(&Value::Bool(false))
-                .as_bool()
-                .unwrap(),
-            prefer_count_0: _config
-                .get("prefer_count_0")
-                .unwrap_or(&Value::Bool(false))
-                .as_bool()
-                .unwrap(),
+            prefer_count_1: config.prefer_count_1,
+            prefer_count_0: config.prefer_count_0,
         }
         .erased())
     }

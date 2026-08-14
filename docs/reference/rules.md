@@ -108,6 +108,13 @@ SELECT
 FROM foo AS voo
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `aliasing` | `explicit` \| `implicit` | `explicit` | Whether table aliases should use the `AS` keyword. |
+
+Set these under `[sqruff:rules:aliasing.table]` in your config file.
 
 ### aliasing.column
 
@@ -139,6 +146,13 @@ SELECT
 FROM foo
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `aliasing` | `explicit` \| `implicit` | `explicit` | Whether column aliases should use the `AS` keyword. |
+
+Set these under `[sqruff:rules:aliasing.column]` in your config file.
 
 ### aliasing.expression
 
@@ -172,6 +186,13 @@ SELECT
 FROM foo
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `allow_scalar` | `true` \| `false` | `true` | Whether a lone scalar expression may go without an alias. |
+
+Set these under `[sqruff:rules:aliasing.expression]` in your config file.
 
 ### aliasing.unique.table
 
@@ -262,6 +283,13 @@ SELECT
 FROM foo
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `alias_case_check` | `dialect` \| `case_insensitive` \| `quoted_cs_naked_upper` \| `quoted_cs_naked_lower` \| `case_sensitive` | `dialect` | How aliases are matched against the references that use them. |
+
+Set these under `[sqruff:rules:aliasing.unused]` in your config file.
 
 ### aliasing.length
 
@@ -304,6 +332,14 @@ JOIN
     ON replacement_orders.id = previous_orders.replacement_id
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `min_alias_length` | integer | `none` | The shortest allowed alias, or `none` for no lower bound. |
+| `max_alias_length` | integer | `none` | The longest allowed alias, or `none` for no upper bound. |
+
+Set these under `[sqruff:rules:aliasing.length]` in your config file.
 
 ### aliasing.forbid
 
@@ -349,6 +385,13 @@ FROM
         table1.foreign_key = table_alias.foreign_key
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `force_enable` | `true` \| `false` | `false` | The rule is disabled by default; set this to enable it. |
+
+Set these under `[sqruff:rules:aliasing.forbid]` in your config file.
 
 ### aliasing.unique.column
 
@@ -604,6 +647,13 @@ FROM bar
 INNER JOIN baz;
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `fully_qualify_join_types` | `inner` \| `outer` \| `both` | `inner` | Which types of `JOIN` clause should be fully qualified. |
+
+Set these under `[sqruff:rules:ambiguous.join]` in your config file.
 
 ### ambiguous.column_references
 
@@ -637,6 +687,13 @@ FROM foo
 ORDER BY a ASC, b DESC
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `group_by_and_order_by_style` | `consistent` \| `explicit` \| `implicit` | `consistent` | How `GROUP BY`/`ORDER BY` clauses should reference their columns. |
+
+Set these under `[sqruff:rules:ambiguous.column_references]` in your config file.
 
 ### ambiguous.set_columns
 
@@ -789,6 +846,15 @@ select
 from foo
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `capitalisation_policy` | `consistent` \| `upper` \| `lower` \| `capitalise` | `consistent` | The capitalisation to enforce on keywords. |
+| `ignore_words` | comma separated list of strings | `none` | Comma separated list of words to ignore, compared case-insensitively. |
+| `ignore_words_regex` | comma separated list of regular expressions | `none` | Comma separated list of regular expressions matching words to ignore. |
+
+Set these under `[sqruff:rules:capitalisation.keywords]` in your config file.
 
 ### capitalisation.identifiers
 
@@ -829,6 +895,16 @@ select
 from foo
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `extended_capitalisation_policy` | `consistent` \| `upper` \| `lower` \| `pascal` \| `capitalise` | `consistent` | The capitalisation to enforce on unquoted identifiers. |
+| `unquoted_identifiers_policy` | `all` \| `none` \| `aliases` \| `column_aliases` \| `table_aliases` | `all` | Which unquoted identifiers the rule applies to. |
+| `ignore_words` | comma separated list of strings | `none` | Comma separated list of words to ignore, compared case-insensitively. |
+| `ignore_words_regex` | comma separated list of regular expressions | `none` | Comma separated list of regular expressions matching words to ignore. |
+
+Set these under `[sqruff:rules:capitalisation.identifiers]` in your config file.
 
 ### capitalisation.functions
 
@@ -863,6 +939,15 @@ SELECT
 FROM foo
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `extended_capitalisation_policy` | `consistent` \| `upper` \| `lower` \| `pascal` \| `capitalise` | `consistent` | The capitalisation to enforce on function names. |
+| `ignore_words` | comma separated list of strings | `none` | Comma separated list of words to ignore, compared case-insensitively. |
+| `ignore_words_regex` | comma separated list of regular expressions | `none` | Comma separated list of regular expressions matching words to ignore. |
+
+Set these under `[sqruff:rules:capitalisation.functions]` in your config file.
 
 ### capitalisation.literals
 
@@ -909,6 +994,15 @@ select
 from foo
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `capitalisation_policy` | `consistent` \| `upper` \| `lower` \| `capitalise` | `consistent` | The capitalisation to enforce on `NULL` and boolean literals. |
+| `ignore_words` | comma separated list of strings | `none` | Comma separated list of words to ignore, compared case-insensitively. |
+| `ignore_words_regex` | comma separated list of regular expressions | `none` | Comma separated list of regular expressions matching words to ignore. |
+
+Set these under `[sqruff:rules:capitalisation.literals]` in your config file.
 
 ### capitalisation.types
 
@@ -942,6 +1036,13 @@ CREATE TABLE t (
 );
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `extended_capitalisation_policy` | `consistent` \| `upper` \| `lower` \| `pascal` \| `capitalise` | `consistent` | The capitalisation to enforce on data types. |
+
+Set these under `[sqruff:rules:capitalisation.types]` in your config file.
 
 ### convention.not_equal
 
@@ -969,6 +1070,13 @@ Ensure all "not equal to" comparisons are consistent, not mixing `!=` and `<>`.
 SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `preferred_not_equal_style` | `consistent` \| `c_style` \| `ansi` | `consistent` | Which "not equal to" comparison to enforce. |
+
+Set these under `[sqruff:rules:convention.not_equal]` in your config file.
 
 ### convention.coalesce
 
@@ -1034,6 +1142,13 @@ SELECT
 FROM foo
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `select_clause_trailing_comma` | `forbid` \| `require` | `forbid` | Whether the last select target should be followed by a comma. |
+
+Set these under `[sqruff:rules:convention.select_trailing_comma]` in your config file.
 
 ### convention.count_rows
 
@@ -1065,6 +1180,14 @@ select
 from table_a
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `prefer_count_1` | `true` \| `false` | `false` | Prefer `COUNT(1)` over `COUNT(*)`. |
+| `prefer_count_0` | `true` \| `false` | `false` | Prefer `COUNT(0)` over `COUNT(*)`. |
+
+Set these under `[sqruff:rules:convention.count_rows]` in your config file.
 
 ### convention.is_null
 
@@ -1134,6 +1257,14 @@ SELECT
     a
 FROM foo;
 ```
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `multiline_newline` | `true` \| `false` | `false` | Place the semi-colon on a new line after a multiline statement. |
+| `require_final_semicolon` | `true` \| `false` | `false` | Require the last statement of a file to be terminated. |
+
+Set these under `[sqruff:rules:convention.terminator]` in your config file.
 
 ### convention.statement_brackets
 
@@ -1257,6 +1388,15 @@ SELECT * FROM my_table WHERE 1 = 1;
 CREATE TABLE myschema.t1 (a BOOL);
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `blocked_words` | comma separated list of strings | `none` | Comma separated list of words that may not appear, compared case-insensitively. |
+| `blocked_regex` | comma separated list of regular expressions | `none` | Comma separated list of regular expressions that may not match. |
+| `match_source` | `true` \| `false` | `false` | Also apply `blocked_regex` to the pre-templating source. |
+
+Set these under `[sqruff:rules:convention.blocked_words]` in your config file.
 
 ### convention.quoted_literals
 
@@ -1292,6 +1432,14 @@ select
 from foo
 ```P        
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `preferred_quoted_literal_style` | `consistent` \| `single_quotes` \| `double_quotes` | `consistent` | Which quote character string literals should use. |
+| `force_enable` | `true` \| `false` | `false` | The rule is disabled for dialects without both quote styles; set this to enable it anyway. |
+
+Set these under `[sqruff:rules:convention.quoted_literals]` in your config file.
 
 ### convention.casting_style
 
@@ -1327,6 +1475,13 @@ SELECT
 FROM foo;
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `preferred_type_casting_style` | `consistent` \| `cast` \| `convert` \| `shorthand` | `consistent` | Which type casting syntax to enforce. |
+
+Set these under `[sqruff:rules:convention.casting_style]` in your config file.
 
 ### convention.join_condition
 
@@ -1586,6 +1741,14 @@ SELECT
     = col9 + col10 as another_relatively_long_alias
 FROM my_table
 ```
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `ignore_comment_lines` | `true` \| `false` | `false` | Ignore lines that consist entirely of a comment. |
+| `ignore_comment_clauses` | `true` \| `false` | `false` | Ignore comment clauses such as a column `COMMENT`. |
+
+Set these under `[sqruff:rules:layout.long_lines]` in your config file.
 
 ### layout.functions
 
@@ -1739,6 +1902,13 @@ SELECT
 FROM test_table;
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `wildcard_policy` | `single` \| `multiple` | `single` | How a wildcard select target is treated. |
+
+Set these under `[sqruff:rules:layout.select_targets]` in your config file.
 
 ### layout.select_modifiers
 
@@ -2015,6 +2185,14 @@ ORDER BY y
 LIMIT 5
 ;
 ```
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `maximum_empty_lines_between_statements` | integer | `2` | How many blank lines are allowed between two statements. |
+| `maximum_empty_lines_inside_statements` | integer | `1` | How many blank lines are allowed within a statement. |
+
+Set these under `[sqruff:rules:layout.newlines]` in your config file.
 
 ### references.from
 
@@ -2046,6 +2224,13 @@ SELECT
 FROM foo
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `force_enable` | `true` \| `false` | `false` | The rule is disabled for some dialects; set this to enable it anyway. |
+
+Set these under `[sqruff:rules:references.from]` in your config file.
 
 ### references.qualification
 
@@ -2077,6 +2262,15 @@ FROM foo
 LEFT JOIN vee ON vee.a = foo.a
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `ignore_words` | comma separated list of strings | `none` | Comma separated list of words to ignore, compared case-insensitively. |
+| `ignore_words_regex` | comma separated list of regular expressions | `none` | Comma separated list of regular expressions matching words to ignore. |
+| `subqueries_ignore_external_references` | `true` \| `false` | `false` | Whether references to tables of an outer query are ignored when linting a subquery. When `false` a correlated subquery counts as referencing more than one table. |
+
+Set these under `[sqruff:rules:references.qualification]` in your config file.
 
 ### references.consistent
 
@@ -2118,6 +2312,14 @@ FROM foo
 ```
 
 **Dialects where this rule is skipped:** `bigquery`, `hive`, `redshift`
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `single_table_references` | `consistent` \| `qualified` \| `unqualified` | `consistent` | How columns of a single-table select should be referenced. |
+| `force_enable` | `true` \| `false` | `false` | The rule is disabled for some dialects; set this to enable it anyway. |
+
+Set these under `[sqruff:rules:references.consistent]` in your config file.
 
 ### references.keywords
 
@@ -2149,6 +2351,16 @@ SELECT
 FROM foo AS vee
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `unquoted_identifiers_policy` | `all` \| `none` \| `aliases` \| `column_aliases` \| `table_aliases` | `aliases` | Which unquoted identifiers are checked against the keyword list. |
+| `quoted_identifiers_policy` | `all` \| `none` \| `aliases` \| `column_aliases` \| `table_aliases` | `none` | Which quoted identifiers are checked against the keyword list. |
+| `ignore_words` | comma separated list of strings | `none` | Comma separated list of words to ignore, compared case-insensitively. |
+| `ignore_words_regex` | comma separated list of regular expressions | `none` | Comma separated list of regular expressions matching words to ignore. |
+
+Set these under `[sqruff:rules:references.keywords]` in your config file.
 
 ### references.special_chars
 
@@ -2188,6 +2400,18 @@ CREATE TABLE DBO.ColumnNames
 )
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `unquoted_identifiers_policy` | `all` \| `none` \| `aliases` \| `column_aliases` \| `table_aliases` | `all` | Which unquoted identifiers are checked for special characters. |
+| `quoted_identifiers_policy` | `all` \| `none` \| `aliases` \| `column_aliases` \| `table_aliases` | `all` | Which quoted identifiers are checked for special characters. |
+| `allow_space_in_identifier` | `true` \| `false` | `false` | Whether identifiers may contain spaces. |
+| `additional_allowed_characters` | string | `none` | Extra characters allowed on top of the alphanumeric ones. |
+| `ignore_words` | comma separated list of strings | `none` | Comma separated list of words to ignore, compared case-insensitively. |
+| `ignore_words_regex` | comma separated list of regular expressions | `none` | Comma separated list of regular expressions matching words to ignore. |
+
+Set these under `[sqruff:rules:references.special_chars]` in your config file.
 
 ### references.quoting
 
@@ -2237,6 +2461,17 @@ SELECT 123 as "foo" -- For ANSI, ...
 -- or
 SELECT 123 as `foo` -- For BigQuery, MySql, ...
 ```
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `prefer_quoted_identifiers` | `true` \| `false` | `false` | Whether identifiers should be quoted rather than unquoted. |
+| `prefer_quoted_keywords` | `true` \| `false` | `false` | Whether identifiers that are also keywords should be quoted. |
+| `ignore_words` | comma separated list of strings | `none` | Comma separated list of words to ignore, compared case-insensitively. |
+| `ignore_words_regex` | comma separated list of regular expressions | `none` | Comma separated list of regular expressions matching words to ignore. |
+| `force_enable` | `true` \| `false` | `false` | The rule is disabled for some dialects; set this to enable it anyway. |
+
+Set these under `[sqruff:rules:references.quoting]` in your config file.
 
 ### structure.else_null
 
@@ -2459,6 +2694,13 @@ from a
 join c using(x)
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `forbid_subquery_in` | `join` \| `from` \| `both` | `join` | Which clauses may not contain a subquery. |
+
+Set these under `[sqruff:rules:structure.subquery]` in your config file.
 
 ### structure.column_order
 
@@ -2602,6 +2844,13 @@ left join bar
     and foo.b = bar.b
 ```
 
+**Configuration:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `preferred_first_table_in_join_clause` | `earlier` \| `later` | `earlier` | Which of the two joined tables a join condition should name first. |
+
+Set these under `[sqruff:rules:structure.join_condition_order]` in your config file.
 
 ### structure.constant_expression
 

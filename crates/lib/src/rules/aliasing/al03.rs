@@ -4,17 +4,45 @@ use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
+crate::rule_config! {
+    /// Configuration for `aliasing.expression` (AL03).
+    RuleAL03Config {
+        /// Whether a lone scalar expression may go without an alias.
+        allow_scalar: bool = true,
+    }
+}
+
 #[derive(Debug, Clone)]
-pub struct RuleAL03;
+pub struct RuleAL03 {
+    allow_scalar: bool,
+}
+
+impl Default for RuleAL03 {
+    fn default() -> Self {
+        Self {
+            allow_scalar: RuleAL03Config::default().allow_scalar,
+        }
+    }
+}
 
 impl Rule for RuleAL03 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        Ok(RuleAL03.erased())
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleAL03Config::config_options()
+    }
+
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleAL03Config::from_config(config)?;
+
+        Ok(RuleAL03 {
+            allow_scalar: config.allow_scalar,
+        }
+        .erased())
     }
 
     fn name(&self) -> &'static str {
@@ -103,12 +131,7 @@ FROM foo
             return Vec::new();
         }
 
-        if context
-            .config
-            .get("allow_scalar", "rules")
-            .as_bool()
-            .unwrap()
-        {
+        if self.allow_scalar {
             let immediate_parent = parent_stack.last().unwrap().clone();
             let elements = Segments::new(immediate_parent, None)
                 .children_where(|it| it.is_type(SyntaxKind::SelectClauseElement));

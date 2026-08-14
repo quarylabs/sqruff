@@ -16,7 +16,7 @@ pub fn rules() -> Vec<ErasedRule> {
     vec![
         al01::RuleAL01::default().erased(),
         al02::RuleAL02::default().erased(),
-        al03::RuleAL03.erased(),
+        al03::RuleAL03::default().erased(),
         al04::RuleAL04::default().erased(),
         al05::RuleAL05::default().erased(),
         al06::RuleAL06::default().erased(),

@@ -4,33 +4,48 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
-#[derive(Debug, Clone)]
-pub struct RuleCV03 {
-    select_clause_trailing_comma: String,
-}
-
-impl Default for RuleCV03 {
-    fn default() -> Self {
-        RuleCV03 {
-            select_clause_trailing_comma: "require".to_string(),
-        }
+crate::rule_config_enum! {
+    /// Whether a trailing comma is expected in a select clause.
+    #[derive(Default)]
+    pub enum SelectClauseTrailingComma {
+        /// A trailing comma is an error.
+        #[default]
+        Forbid => "forbid",
+        /// A missing trailing comma is an error.
+        Require => "require",
     }
 }
 
+crate::rule_config! {
+    /// Configuration for `convention.select_trailing_comma` (CV03).
+    RuleCV03Config {
+        /// Whether the last select target should be followed by a comma.
+        select_clause_trailing_comma: SelectClauseTrailingComma =
+            SelectClauseTrailingComma::Forbid,
+    }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct RuleCV03 {
+    select_clause_trailing_comma: SelectClauseTrailingComma,
+}
+
 impl Rule for RuleCV03 {
-    fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleCV03Config::config_options()
+    }
+
+    fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleCV03Config::from_config(config)?;
+
         Ok(RuleCV03 {
-            select_clause_trailing_comma: _config
-                .get("select_clause_trailing_comma")
-                .unwrap()
-                .as_string()
-                .unwrap()
-                .to_owned(),
+            select_clause_trailing_comma: config.select_clause_trailing_comma,
         }
         .erased())
     }
@@ -84,7 +99,7 @@ FROM foo
 
         let mut fixes = Vec::new();
 
-        if self.select_clause_trailing_comma == "forbid" {
+        if self.select_clause_trailing_comma == SelectClauseTrailingComma::Forbid {
             if last_content.is_type(SyntaxKind::Comma) {
                 if last_content.get_position_marker().is_none() {
                     fixes = vec![LintFix::delete(last_content.clone())];
@@ -122,7 +137,7 @@ FROM foo
                     None,
                 )];
             }
-        } else if self.select_clause_trailing_comma == "require"
+        } else if self.select_clause_trailing_comma == SelectClauseTrailingComma::Require
             && !last_content.is_type(SyntaxKind::Comma)
         {
             let new_comma = SegmentBuilder::comma(rule_cx.tables.next_id());

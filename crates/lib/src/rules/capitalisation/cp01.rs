@@ -7,6 +7,7 @@ use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{IgnoreWords, RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintPhase, LintResult, Rule, RuleGroups};
@@ -15,12 +16,101 @@ fn is_capitalizable(character: char) -> bool {
     character.to_lowercase().ne(character.to_uppercase())
 }
 
+crate::rule_config_enum! {
+    /// The capitalisation styles available to keywords and literals.
+    #[derive(Default)]
+    pub enum CapitalisationPolicy {
+        /// Any style, as long as the file sticks to one of them.
+        #[default]
+        Consistent => "consistent",
+        /// `UPPER CASE`.
+        Upper => "upper",
+        /// `lower case`.
+        Lower => "lower",
+        /// `Capitalised case`.
+        Capitalise => "capitalise",
+    }
+}
+
+crate::rule_config_enum! {
+    /// The capitalisation styles available to identifiers, functions and types.
+    ///
+    /// This is [`CapitalisationPolicy`] plus `pascal`.
+    #[derive(Default)]
+    pub enum ExtendedCapitalisationPolicy {
+        /// Any style, as long as the file sticks to one of them.
+        #[default]
+        Consistent => "consistent",
+        /// `UPPER CASE`.
+        Upper => "upper",
+        /// `lower case`.
+        Lower => "lower",
+        /// `PascalCase`.
+        Pascal => "pascal",
+        /// `Capitalised case`.
+        Capitalise => "capitalise",
+    }
+}
+
+impl From<CapitalisationPolicy> for ExtendedCapitalisationPolicy {
+    fn from(value: CapitalisationPolicy) -> Self {
+        match value {
+            CapitalisationPolicy::Consistent => Self::Consistent,
+            CapitalisationPolicy::Upper => Self::Upper,
+            CapitalisationPolicy::Lower => Self::Lower,
+            CapitalisationPolicy::Capitalise => Self::Capitalise,
+        }
+    }
+}
+
+/// Which set of concrete styles a `consistent` policy may settle on.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum CapitalisationPolicyName {
+    /// The styles of [`CapitalisationPolicy`].
+    #[default]
+    Capitalisation,
+    /// The styles of [`ExtendedCapitalisationPolicy`], i.e. including `pascal`.
+    Extended,
+}
+
+impl CapitalisationPolicyName {
+    /// The concrete styles a `consistent` policy may settle on, in preference
+    /// order.
+    fn candidates(self) -> &'static [ExtendedCapitalisationPolicy] {
+        match self {
+            Self::Capitalisation => &[
+                ExtendedCapitalisationPolicy::Upper,
+                ExtendedCapitalisationPolicy::Lower,
+                ExtendedCapitalisationPolicy::Capitalise,
+            ],
+            Self::Extended => &[
+                ExtendedCapitalisationPolicy::Upper,
+                ExtendedCapitalisationPolicy::Lower,
+                ExtendedCapitalisationPolicy::Pascal,
+                ExtendedCapitalisationPolicy::Capitalise,
+            ],
+        }
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `capitalisation.keywords` (CP01).
+    RuleCP01Config {
+        /// The capitalisation to enforce on keywords.
+        capitalisation_policy: CapitalisationPolicy = CapitalisationPolicy::Consistent,
+        /// Comma separated list of words to ignore, compared case-insensitively.
+        ignore_words: IgnoreWords = IgnoreWords::default(),
+        /// Comma separated list of regular expressions matching words to ignore.
+        ignore_words_regex: Vec<Regex> = Vec::new(),
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct RuleCP01 {
-    pub(crate) capitalisation_policy: String,
-    pub(crate) ignore_words: Vec<String>,
+    pub(crate) capitalisation_policy: ExtendedCapitalisationPolicy,
+    pub(crate) ignore_words: IgnoreWords,
     pub(crate) ignore_words_regex: Vec<Regex>,
-    pub(crate) cap_policy_name: String,
+    pub(crate) cap_policy_name: CapitalisationPolicyName,
     pub(crate) skip_literals: bool,
     pub(crate) exclude_parent_types: &'static [SyntaxKind],
     pub(crate) description_elem: &'static str,
@@ -29,8 +119,8 @@ pub struct RuleCP01 {
 impl Default for RuleCP01 {
     fn default() -> Self {
         Self {
-            capitalisation_policy: "consistent".into(),
-            cap_policy_name: "capitalisation_policy".into(),
+            capitalisation_policy: ExtendedCapitalisationPolicy::Consistent,
+            cap_policy_name: CapitalisationPolicyName::Capitalisation,
             skip_literals: true,
             exclude_parent_types: &[
                 SyntaxKind::DataType,
@@ -39,34 +129,24 @@ impl Default for RuleCP01 {
                 SyntaxKind::NakedIdentifier,
             ],
             description_elem: "Keywords",
-            ignore_words: Vec::new(),
+            ignore_words: IgnoreWords::default(),
             ignore_words_regex: Vec::new(),
         }
     }
 }
 
 impl Rule for RuleCP01 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleCP01Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleCP01Config::from_config(config)?;
+
         Ok(RuleCP01 {
-            capitalisation_policy: config["capitalisation_policy"].as_string().unwrap().into(),
-            ignore_words: config["ignore_words"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| it.as_string().unwrap().to_lowercase())
-                        .collect()
-                })
-                .unwrap_or_default(),
-            ignore_words_regex: config["ignore_words_regex"]
-                .map(|it| {
-                    it.as_array()
-                        .unwrap()
-                        .iter()
-                        .map(|it| Regex::new(it.as_string().unwrap()).unwrap())
-                        .collect()
-                })
-                .unwrap_or_default(),
+            capitalisation_policy: config.capitalisation_policy.into(),
+            ignore_words: config.ignore_words,
+            ignore_words_regex: config.ignore_words_regex,
             ..Default::default()
         }
         .erased())
@@ -125,10 +205,7 @@ from foo
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let parent = context.parent_stack.last().unwrap();
 
-        if self
-            .ignore_words
-            .contains(&context.segment.raw().to_lowercase())
-        {
+        if self.ignore_words.matches(context.segment.raw().as_ref()) {
             return Vec::new();
         }
 
@@ -156,8 +233,8 @@ from foo
 
         vec![handle_segment(
             self.description_elem,
-            &self.capitalisation_policy,
-            &self.cap_policy_name,
+            self.capitalisation_policy,
+            self.cap_policy_name,
             context.segment.clone(),
             context,
         )]
@@ -182,15 +259,15 @@ from foo
 }
 
 #[derive(Clone, Default)]
-struct RefutedCases(HashSet<&'static str>);
+struct RefutedCases(HashSet<ExtendedCapitalisationPolicy>);
 
 #[derive(Clone)]
-struct LatestPossibleCase(String);
+struct LatestPossibleCase(ExtendedCapitalisationPolicy);
 
 pub fn handle_segment(
     description_elem: &str,
-    extended_capitalisation_policy: &str,
-    cap_policy_name: &str,
+    extended_capitalisation_policy: ExtendedCapitalisationPolicy,
+    cap_policy_name: CapitalisationPolicyName,
     seg: ErasedSegment,
     context: &RuleContext,
 ) -> LintResult {
@@ -217,16 +294,20 @@ pub fn handle_segment(
     }
 
     if first_letter_is_lowercase {
-        refuted_cases.extend(["upper", "capitalise", "pascal"]);
+        refuted_cases.extend([
+            ExtendedCapitalisationPolicy::Upper,
+            ExtendedCapitalisationPolicy::Capitalise,
+            ExtendedCapitalisationPolicy::Pascal,
+        ]);
         if seg.raw().as_str() != seg.raw().to_lowercase() {
-            refuted_cases.insert("lower");
+            refuted_cases.insert(ExtendedCapitalisationPolicy::Lower);
         }
     } else {
-        refuted_cases.insert("lower");
+        refuted_cases.insert(ExtendedCapitalisationPolicy::Lower);
 
         let segment_raw = seg.raw();
         if segment_raw.as_str() != segment_raw.to_uppercase() {
-            refuted_cases.insert("upper");
+            refuted_cases.insert(ExtendedCapitalisationPolicy::Upper);
         }
         if segment_raw.as_str()
             != segment_raw
@@ -237,50 +318,42 @@ pub fn handle_segment(
                 .to_string()
                 + segment_raw[1..].to_lowercase().as_str()
         {
-            refuted_cases.insert("capitalise");
+            refuted_cases.insert(ExtendedCapitalisationPolicy::Capitalise);
         }
         if !segment_raw.chars().all(|c| c.is_alphanumeric()) {
-            refuted_cases.insert("pascal");
+            refuted_cases.insert(ExtendedCapitalisationPolicy::Pascal);
         }
     }
 
     context.set(RefutedCases(refuted_cases.clone()));
 
-    let concrete_policy = if extended_capitalisation_policy == "consistent" {
-        let cap_policy_opts = match cap_policy_name {
-            "capitalisation_policy" => ["upper", "lower", "capitalise"].as_slice(),
-            "extended_capitalisation_policy" => {
-                ["upper", "lower", "pascal", "capitalise"].as_slice()
+    let concrete_policy =
+        if extended_capitalisation_policy == ExtendedCapitalisationPolicy::Consistent {
+            let possible_cases = cap_policy_name
+                .candidates()
+                .iter()
+                .filter(|it| !refuted_cases.contains(*it))
+                .collect_vec();
+
+            if !possible_cases.is_empty() {
+                context.set(LatestPossibleCase(*possible_cases[0]));
+                return LintResult::new(None, Vec::new(), None, None);
+            } else {
+                context
+                    .try_get::<LatestPossibleCase>()
+                    .unwrap_or(LatestPossibleCase(ExtendedCapitalisationPolicy::Upper))
+                    .0
             }
-            _ => unimplemented!("Unknown capitalisation policy name: {cap_policy_name}"),
-        };
-
-        let possible_cases = cap_policy_opts
-            .iter()
-            .filter(|&it| !refuted_cases.contains(it))
-            .collect_vec();
-
-        if !possible_cases.is_empty() {
-            context.set(LatestPossibleCase(possible_cases[0].to_string()));
-            return LintResult::new(None, Vec::new(), None, None);
         } else {
-            context
-                .try_get::<LatestPossibleCase>()
-                .unwrap_or_else(|| LatestPossibleCase("upper".into()))
-                .0
-        }
-    } else {
-        extended_capitalisation_policy.to_string()
-    };
-
-    let concrete_policy = concrete_policy.as_str();
+            extended_capitalisation_policy
+        };
 
     let mut fixed_raw = seg.raw().to_string();
     fixed_raw = match concrete_policy {
-        "upper" => fixed_raw.to_uppercase(),
-        "lower" => fixed_raw.to_lowercase(),
-        "capitalise" => capitalize(&fixed_raw),
-        "pascal" => {
+        ExtendedCapitalisationPolicy::Upper => fixed_raw.to_uppercase(),
+        ExtendedCapitalisationPolicy::Lower => fixed_raw.to_lowercase(),
+        ExtendedCapitalisationPolicy::Capitalise => capitalize(&fixed_raw),
+        ExtendedCapitalisationPolicy::Pascal => {
             let re = lazy_regex::regex!(r"([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)");
             re.replace_all(&fixed_raw, |caps: &regex::Captures| {
                 let mut replacement_string = String::from(&caps[1]);
@@ -291,23 +364,26 @@ pub fn handle_segment(
             })
             .into()
         }
-        _ => fixed_raw,
+        ExtendedCapitalisationPolicy::Consistent => fixed_raw,
     };
 
     if fixed_raw == seg.raw().as_str() {
         LintResult::new(None, Vec::new(), None, None)
     } else {
-        let consistency = if extended_capitalisation_policy == "consistent" {
-            "consistently "
-        } else {
-            ""
-        };
-        let policy = match concrete_policy {
-            concrete_policy @ ("upper" | "lower") => format!("{concrete_policy} case."),
-            "capitalise" => "capitalised.".to_string(),
-            "pascal" => "pascal case.".to_string(),
-            _ => "".to_string(),
-        };
+        let consistency =
+            if extended_capitalisation_policy == ExtendedCapitalisationPolicy::Consistent {
+                "consistently "
+            } else {
+                ""
+            };
+        let policy =
+            match concrete_policy {
+                policy @ (ExtendedCapitalisationPolicy::Upper
+                | ExtendedCapitalisationPolicy::Lower) => format!("{policy} case."),
+                ExtendedCapitalisationPolicy::Capitalise => "capitalised.".to_string(),
+                ExtendedCapitalisationPolicy::Pascal => "pascal case.".to_string(),
+                ExtendedCapitalisationPolicy::Consistent => "".to_string(),
+            };
 
         LintResult::new(
             seg.clone().into(),

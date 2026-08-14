@@ -1,8 +1,10 @@
 use hashbrown::{HashMap, HashSet};
+use regex::Regex;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, TokenSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -10,40 +12,39 @@ use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 #[derive(Default, Clone, Debug)]
 pub struct RuleCV09 {
     blocked_words: HashSet<String>,
-    blocked_regex: Vec<regex::Regex>,
+    blocked_regex: Vec<Regex>,
     match_source: bool,
 }
 
+crate::rule_config! {
+    /// Configuration for `convention.blocked_words` (CV09).
+    RuleCV09Config {
+        /// Comma separated list of words that may not appear, compared
+        /// case-insensitively.
+        blocked_words: Vec<String> = Vec::new(),
+        /// Comma separated list of regular expressions that may not match.
+        blocked_regex: Vec<Regex> = Vec::new(),
+        /// Also apply `blocked_regex` to the pre-templating source.
+        match_source: bool = false,
+    }
+}
+
 impl Rule for RuleCV09 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleCV09Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let blocked_words = config["blocked_words"]
-            .as_array()
-            .unwrap_or_default()
-            .into_iter()
-            .map(|word| {
-                word.as_string()
-                    .map(|word| word.to_string().to_uppercase())
-                    .ok_or_else(|| "blocked_words must be a string or array of strings".to_string())
-            })
-            .collect::<Result<HashSet<_>, _>>()?;
-        let blocked_regex = config["blocked_regex"]
-            .as_array()
-            .unwrap_or_default()
-            .into_iter()
-            .map(|regex| {
-                let regex = regex.as_string();
-                if let Some(regex) = regex {
-                    Ok(regex::Regex::new(regex).map_err(|e| e.to_string())?)
-                } else {
-                    Err("blocked_regex must be an array of strings".to_string())
-                }
-            })
-            .collect::<Result<Vec<_>, _>>()?;
-        let match_source = config["match_source"].as_bool().unwrap_or_default();
+        let config = RuleCV09Config::from_config(config)?;
+
         Ok(RuleCV09 {
-            blocked_words,
-            blocked_regex,
-            match_source,
+            blocked_words: config
+                .blocked_words
+                .iter()
+                .map(|word| word.to_uppercase())
+                .collect(),
+            blocked_regex: config.blocked_regex,
+            match_source: config.match_source,
         }
         .erased())
     }

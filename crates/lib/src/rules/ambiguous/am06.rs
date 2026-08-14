@@ -2,6 +2,7 @@ use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased as _, ErasedRule, LintResult, Rule, RuleGroups};
@@ -23,22 +24,39 @@ impl Default for RuleAM06 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, strum_macros::EnumString)]
-#[strum(serialize_all = "lowercase")]
-enum GroupByAndOrderByConvention {
-    Consistent,
-    Explicit,
-    Implicit,
+crate::rule_config_enum! {
+    /// How `GROUP BY`/`ORDER BY` clauses refer to their columns.
+    #[derive(Default)]
+    pub enum GroupByAndOrderByConvention {
+        /// Either style is fine, as long as a file sticks to one of them.
+        #[default]
+        Consistent => "consistent",
+        /// Always reference columns by name.
+        Explicit => "explicit",
+        /// Always reference columns by their position in the select clause.
+        Implicit => "implicit",
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `ambiguous.column_references` (AM06).
+    RuleAM06Config {
+        /// How `GROUP BY`/`ORDER BY` clauses should reference their columns.
+        group_by_and_order_by_style: GroupByAndOrderByConvention =
+            GroupByAndOrderByConvention::Consistent,
+    }
 }
 
 impl Rule for RuleAM06 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleAM06Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleAM06Config::from_config(config)?;
+
         Ok(RuleAM06 {
-            group_by_and_order_by_style: config["group_by_and_order_by_style"]
-                .as_string()
-                .unwrap()
-                .parse()
-                .unwrap(),
+            group_by_and_order_by_style: config.group_by_and_order_by_style,
         }
         .erased())
     }

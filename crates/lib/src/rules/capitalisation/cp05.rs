@@ -1,24 +1,37 @@
 use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
-use super::cp01::handle_segment;
+use super::cp01::{CapitalisationPolicyName, ExtendedCapitalisationPolicy, handle_segment};
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 
+crate::rule_config! {
+    /// Configuration for `capitalisation.types` (CP05).
+    RuleCP05Config {
+        /// The capitalisation to enforce on data types.
+        extended_capitalisation_policy: ExtendedCapitalisationPolicy =
+            ExtendedCapitalisationPolicy::Consistent,
+    }
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct RuleCP05 {
-    extended_capitalisation_policy: String,
+    extended_capitalisation_policy: ExtendedCapitalisationPolicy,
 }
 
 impl Rule for RuleCP05 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleCP05Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleCP05Config::from_config(config)?;
+
         Ok(RuleCP05 {
-            extended_capitalisation_policy: config["extended_capitalisation_policy"]
-                .as_string()
-                .unwrap()
-                .to_string(),
+            extended_capitalisation_policy: config.extended_capitalisation_policy,
         }
         .erased())
     }
@@ -84,8 +97,8 @@ CREATE TABLE t (
 
                 results.push(handle_segment(
                     "Datatypes",
-                    &self.extended_capitalisation_policy,
-                    "extended_capitalisation_policy",
+                    self.extended_capitalisation_policy,
+                    CapitalisationPolicyName::Extended,
                     seg.clone(),
                     context,
                 ));

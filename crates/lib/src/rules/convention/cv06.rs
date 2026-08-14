@@ -6,6 +6,7 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -16,13 +17,27 @@ pub struct RuleCV06 {
     require_final_semicolon: bool,
 }
 
+crate::rule_config! {
+    /// Configuration for `convention.terminator` (CV06).
+    RuleCV06Config {
+        /// Place the semi-colon on a new line after a multiline statement.
+        multiline_newline: bool = false,
+        /// Require the last statement of a file to be terminated.
+        require_final_semicolon: bool = false,
+    }
+}
+
 impl Rule for RuleCV06 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleCV06Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let multiline_newline = config["multiline_newline"].as_bool().unwrap();
-        let require_final_semicolon = config["require_final_semicolon"].as_bool().unwrap();
+        let config = RuleCV06Config::from_config(config)?;
+
         Ok(Self {
-            multiline_newline,
-            require_final_semicolon,
+            multiline_newline: config.multiline_newline,
+            require_final_semicolon: config.require_final_semicolon,
         }
         .erased())
     }

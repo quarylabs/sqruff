@@ -4,6 +4,7 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::segments::BlockType;
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -15,11 +16,27 @@ pub struct RuleLT05 {
     ignore_comment_clauses: bool,
 }
 
+crate::rule_config! {
+    /// Configuration for `layout.long_lines` (LT05).
+    RuleLT05Config {
+        /// Ignore lines that consist entirely of a comment.
+        ignore_comment_lines: bool = false,
+        /// Ignore comment clauses such as a column `COMMENT`.
+        ignore_comment_clauses: bool = false,
+    }
+}
+
 impl Rule for RuleLT05 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleLT05Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
+        let config = RuleLT05Config::from_config(config)?;
+
         Ok(RuleLT05 {
-            ignore_comment_lines: config["ignore_comment_lines"].as_bool().unwrap(),
-            ignore_comment_clauses: config["ignore_comment_clauses"].as_bool().unwrap(),
+            ignore_comment_lines: config.ignore_comment_lines,
+            ignore_comment_clauses: config.ignore_comment_clauses,
         }
         .erased())
     }

@@ -1,13 +1,11 @@
-use std::str::FromStr;
-
 use hashbrown::HashMap;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
-use strum_macros::{AsRefStr, EnumString};
 
 use crate::core::config::Value;
+use crate::core::rules::config::{RuleConfig, RuleConfigOption};
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
@@ -17,12 +15,26 @@ pub struct RuleAM05 {
     fully_qualify_join_types: JoinType,
 }
 
-#[derive(Clone, Debug, Copy, PartialEq, Eq, Hash, AsRefStr, EnumString)]
-#[strum(serialize_all = "lowercase")]
-enum JoinType {
-    Inner,
-    Outer,
-    Both,
+crate::rule_config_enum! {
+    /// Which kinds of `JOIN` clause have to be fully qualified.
+    #[derive(Default)]
+    pub enum JoinType {
+        /// Only `INNER JOIN` has to be spelled out.
+        #[default]
+        Inner => "inner",
+        /// Only `[LEFT/RIGHT/FULL] OUTER JOIN` has to be spelled out.
+        Outer => "outer",
+        /// Both inner and outer joins have to be spelled out.
+        Both => "both",
+    }
+}
+
+crate::rule_config! {
+    /// Configuration for `ambiguous.join` (AM05).
+    RuleAM05Config {
+        /// Which types of `JOIN` clause should be fully qualified.
+        fully_qualify_join_types: JoinType = JoinType::Inner,
+    }
 }
 
 impl Default for RuleAM05 {
@@ -34,24 +46,17 @@ impl Default for RuleAM05 {
 }
 
 impl Rule for RuleAM05 {
+    fn config_options(&self) -> Vec<RuleConfigOption> {
+        RuleAM05Config::config_options()
+    }
+
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        let fully_qualify_join_types = config["fully_qualify_join_types"].as_string();
-        // TODO We will need a more complete story for all the config parsing
-        match fully_qualify_join_types {
-            None => Err("Rule AM05 expects a `fully_qualify_join_types` array".to_string()),
-            Some(join_type) => {
-                let join_type = JoinType::from_str(join_type).map_err(|_| {
-                    format!(
-                        "Rule AM05 expects a `fully_qualify_join_types` array of valid join \
-                         types. Got: {join_type}"
-                    )
-                })?;
-                Ok(RuleAM05 {
-                    fully_qualify_join_types: join_type,
-                }
-                .erased())
-            }
+        let config = RuleAM05Config::from_config(config)?;
+
+        Ok(RuleAM05 {
+            fully_qualify_join_types: config.fully_qualify_join_types,
         }
+        .erased())
     }
 
     fn name(&self) -> &'static str {

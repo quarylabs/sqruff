@@ -5,8 +5,8 @@ Port the next SQLFluff commit to sqruff.
 - Create **at most one pull request per invocation**. After publishing or
   deciding that no PR should be created, stop. Do not loop, recurse, or start
   another SQLFluff port.
-- Keep **at most five open SQLFluff port PRs** in the repository. Count the
-  matching open PRs before starting any port work. If there are already five,
+- Keep **at most fifty open SQLFluff port PRs** in the repository. Count the
+  matching open PRs before starting any port work. If there are already fifty,
   stop without creating a branch or PR and report the existing stack.
 - Every new SQLFluff port PR must extend the active PR stack. If the stack is
   empty, the new PR starts it from `main`; otherwise, the new PR targets the
@@ -32,7 +32,7 @@ Port the next SQLFluff commit to sqruff.
 
    Keep PRs whose head branch starts with `port/sqlfluff-` or whose title/body identifies them as SQLFluff ports.
 
-   Count these matching open port PRs. If the count is five or more, stop and
+   Count these matching open port PRs. If the count is fifty or more, stop and
    report the stack; do not perform the remaining steps.
 
    - If none exist, use `main` as the base branch and start from `origin/main`.
@@ -150,7 +150,7 @@ Port the next SQLFluff commit to sqruff.
 17. **Recheck the stack immediately before publishing.** Fetch again and repeat steps 2 and 8. This closes the race where another run creates a port while this run is testing.
 
     - If this exact port now exists, do not push or create a duplicate PR. Report the existing PR and stop.
-    - If there are now five or more open SQLFluff port PRs, do not push or create another PR. Report the existing stack and stop.
+    - If there are now fifty or more open SQLFluff port PRs, do not push or create another PR. Report the existing stack and stop.
     - If another port PR became the new stack tip, rebase this branch onto that tip, resolve `.sqlfluff-sha` so the commits advance in upstream order, rerun affected tests, and use the new tip as the PR base.
     - Never publish a sibling SQLFluff port PR against `main` while an open port stack exists.
 

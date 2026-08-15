@@ -1,7 +1,9 @@
-use hashbrown::HashSet;
+use std::cell::Cell;
+
+use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::errors::SQLBaseError;
+use sqruff_lib_core::errors::{ErrorStructRule, SQLBaseError};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 
 use crate::core::rules::{ErasedRule, LintResult};
@@ -214,7 +216,7 @@ impl NoQADirective {
                         } else {
                             Ok(Some(NoQADirective::LineIgnoreRules(LineIgnoreRules {
                                 line_no,
-                                line_pos: 0,
+                                line_pos,
                                 raw_string: original_comment.into(),
                                 rules,
                             })))
@@ -248,6 +250,35 @@ impl NoQADirective {
             }
         } else {
             Ok(None)
+        }
+    }
+}
+
+impl NoQADirective {
+    fn line_no(&self) -> usize {
+        match self {
+            NoQADirective::LineIgnoreAll(d) => d.line_no,
+            NoQADirective::LineIgnoreRules(d) => d.line_no,
+            NoQADirective::RangeIgnoreAll(d) => d.line_no,
+            NoQADirective::RangeIgnoreRules(d) => d.line_no,
+        }
+    }
+
+    fn line_pos(&self) -> usize {
+        match self {
+            NoQADirective::LineIgnoreAll(d) => d.line_pos,
+            NoQADirective::LineIgnoreRules(d) => d.line_pos,
+            NoQADirective::RangeIgnoreAll(d) => d.line_pos,
+            NoQADirective::RangeIgnoreRules(d) => d.line_pos,
+        }
+    }
+
+    fn raw_string(&self) -> &str {
+        match self {
+            NoQADirective::LineIgnoreAll(d) => &d.raw_string,
+            NoQADirective::LineIgnoreRules(d) => &d.raw_string,
+            NoQADirective::RangeIgnoreAll(d) => &d.raw_string,
+            NoQADirective::RangeIgnoreRules(d) => &d.raw_string,
         }
     }
 }
@@ -294,11 +325,21 @@ struct LineIgnoreRules {
 #[derive(Debug, Clone, Default)]
 pub struct IgnoreMask {
     ignore_list: Vec<NoQADirective>,
+    /// Tracks, per directive in `ignore_list`, whether the directive was ever
+    /// used to mask a violation. Held separately (rather than as a field on the
+    /// directive) so directive equality/parsing stay untouched, and behind
+    /// `Cell` so it can be marked during the immutable `is_masked` pass.
+    used: Vec<Cell<bool>>,
 }
 
 const NOQA_PREFIX: &str = "noqa";
 
 impl IgnoreMask {
+    fn new(ignore_list: Vec<NoQADirective>) -> Self {
+        let used = ignore_list.iter().map(|_| Cell::new(false)).collect();
+        IgnoreMask { ignore_list, used }
+    }
+
     /// Extract ignore mask entries from a comment segment
     fn extract_ignore_from_comment(
         comment: ErasedSegment,
@@ -354,120 +395,174 @@ impl IgnoreMask {
                 ignore_list.push(ignore_entry);
             }
         }
-        (IgnoreMask { ignore_list }, violations)
+        (IgnoreMask::new(ignore_list), violations)
     }
 
-    /// is_masked returns true if the IgnoreMask masks the violation
-    /// TODO - The parsing should also return warnings for rules that aren't used
-    pub fn is_masked(&self, violation: &impl HasViolation, rule: Option<&ErasedRule>) -> bool {
+    /// is_masked returns true if the IgnoreMask masks the violation.
+    ///
+    /// When `mark_used` is true, the directive(s) responsible for masking the
+    /// violation are recorded as "used" so that any remaining unused directives
+    /// can later be surfaced via [`IgnoreMask::generate_warnings_for_unused`].
+    pub fn is_masked(
+        &self,
+        violation: &impl HasViolation,
+        rule: Option<&ErasedRule>,
+        mark_used: bool,
+    ) -> bool {
         let Some((vline_no, vline_pos)) = violation.source_position() else {
             return true;
         };
 
-        let is_masked_by_line_rules = || {
-            for ignore in &self.ignore_list {
-                match ignore {
-                    NoQADirective::LineIgnoreAll(LineIgnoreAll { line_no, .. })
-                        if vline_no == *line_no =>
+        // Line-specific directives.
+        for (idx, ignore) in self.ignore_list.iter().enumerate() {
+            match ignore {
+                NoQADirective::LineIgnoreAll(LineIgnoreAll { line_no, .. })
+                    if vline_no == *line_no =>
+                {
+                    if mark_used {
+                        self.used[idx].set(true);
+                    }
+                    return true;
+                }
+                NoQADirective::LineIgnoreRules(LineIgnoreRules { line_no, rules, .. }) => {
+                    if vline_no == *line_no
+                        && let Some(rule) = rule
+                        && rules.contains(rule.code())
                     {
+                        if mark_used {
+                            self.used[idx].set(true);
+                        }
                         return true;
                     }
-                    NoQADirective::LineIgnoreRules(LineIgnoreRules { line_no, rules, .. }) => {
-                        if vline_no == *line_no
-                            && let Some(rule) = rule
-                            && rules.contains(rule.code())
-                        {
-                            return true;
+                }
+                _ => {}
+            }
+        }
+
+        // Range directives (`disable`/`enable`). Collect their indices along
+        // with their position so they can be evaluated in source order.
+        let mut directives: Vec<(usize, usize, usize)> = Vec::new();
+        for (idx, ignore) in self.ignore_list.iter().enumerate() {
+            match ignore {
+                NoQADirective::RangeIgnoreAll(RangeIgnoreAll {
+                    line_no, line_pos, ..
+                })
+                | NoQADirective::RangeIgnoreRules(RangeIgnoreRules {
+                    line_no, line_pos, ..
+                }) => {
+                    directives.push((*line_no, *line_pos, idx));
+                }
+                _ => {}
+            }
+        }
+
+        // Sort directives by line_no, line_pos
+        directives.sort_by(|a, b| a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
+
+        // Initialize state
+        let mut all_rules_disabled = false;
+        let mut disabled_rules = <HashSet<String>>::default();
+        // Track which directive is currently responsible for a disabled scope,
+        // so it can be marked used if it ends up masking this violation.
+        let mut responsible_all: Option<usize> = None;
+        let mut responsible_rule: HashMap<String, usize> = HashMap::default();
+
+        for (line_no, line_pos, idx) in directives {
+            // Check if the directive is before the violation
+            if line_no > vline_no {
+                break;
+            }
+            if line_no == vline_no && line_pos > vline_pos {
+                break;
+            }
+
+            // Process the directive
+            match &self.ignore_list[idx] {
+                NoQADirective::RangeIgnoreAll(RangeIgnoreAll { action, .. }) => match action {
+                    IgnoreAction::Disable => {
+                        all_rules_disabled = true;
+                        responsible_all = Some(idx);
+                    }
+                    IgnoreAction::Enable => {
+                        // An enable is "used" if it counteracts an active disable.
+                        if all_rules_disabled && mark_used {
+                            self.used[idx].set(true);
                         }
+                        all_rules_disabled = false;
+                        responsible_all = None;
                     }
-                    _ => {}
-                }
-            }
-            false
-        };
-
-        // is_masked_by_range returns true if the violation is masked by the RangeIgnoreRules and
-        // RangeIgnoreAll components in the ignore mask
-        let is_masked_by_range_rules = || {
-            // Collect RangeIgnore directives
-            let mut directives = Vec::new();
-
-            for ignore in &self.ignore_list {
-                match ignore {
-                    NoQADirective::RangeIgnoreAll(RangeIgnoreAll {
-                        line_no, line_pos, ..
-                    }) => {
-                        directives.push((line_no, line_pos, ignore));
-                    }
-                    NoQADirective::RangeIgnoreRules(RangeIgnoreRules {
-                        line_no, line_pos, ..
-                    }) => {
-                        directives.push((line_no, line_pos, ignore));
-                    }
-                    _ => {}
-                }
-            }
-
-            // Sort directives by line_no, line_pos
-            directives.sort_by(|(line_no1, line_pos1, _), (line_no2, line_pos2, _)| {
-                line_no1.cmp(line_no2).then(line_pos1.cmp(line_pos2))
-            });
-
-            // Initialize state
-            let mut all_rules_disabled = false;
-            let mut disabled_rules = <HashSet<String>>::default();
-
-            // For each directive
-            for (line_no, line_pos, ignore) in directives {
-                // Check if the directive is before the violation
-                if *line_no > vline_no {
-                    break;
-                }
-                if *line_no == vline_no && *line_pos > vline_pos {
-                    break;
-                }
-
-                // Process the directive
-                match ignore {
-                    NoQADirective::RangeIgnoreAll(RangeIgnoreAll { action, .. }) => match action {
+                },
+                NoQADirective::RangeIgnoreRules(RangeIgnoreRules { action, rules, .. }) => {
+                    match action {
                         IgnoreAction::Disable => {
-                            all_rules_disabled = true;
+                            for rule in rules {
+                                disabled_rules.insert(rule.clone());
+                                responsible_rule.insert(rule.clone(), idx);
+                            }
                         }
                         IgnoreAction::Enable => {
-                            all_rules_disabled = false;
-                        }
-                    },
-                    NoQADirective::RangeIgnoreRules(RangeIgnoreRules { action, rules, .. }) => {
-                        match action {
-                            IgnoreAction::Disable => {
-                                for rule in rules {
-                                    disabled_rules.insert(rule.clone());
+                            let mut counteracted = false;
+                            for rule in rules {
+                                if disabled_rules.remove(rule) {
+                                    counteracted = true;
                                 }
+                                responsible_rule.remove(rule);
                             }
-                            IgnoreAction::Enable => {
-                                for rule in rules {
-                                    disabled_rules.remove(rule);
-                                }
+                            if counteracted && mark_used {
+                                self.used[idx].set(true);
                             }
                         }
                     }
-                    _ => {}
                 }
+                _ => {}
             }
+        }
 
-            // Check whether the violation is masked
-            if all_rules_disabled {
-                return true;
-            } else if let Some(rule) = rule
-                && disabled_rules.contains(rule.code())
-            {
-                return true;
+        // Check whether the violation is masked
+        if all_rules_disabled {
+            if mark_used && let Some(i) = responsible_all {
+                self.used[i].set(true);
             }
+            return true;
+        } else if let Some(rule) = rule
+            && disabled_rules.contains(rule.code())
+        {
+            if mark_used && let Some(&i) = responsible_rule.get(rule.code()) {
+                self.used[i].set(true);
+            }
+            return true;
+        }
 
-            false
-        };
+        false
+    }
 
-        is_masked_by_line_rules() || is_masked_by_range_rules()
+    /// Generate a warning for every directive that never masked a violation.
+    ///
+    /// Mirrors SQLFluff's `IgnoreMask.generate_warnings_for_unused`, surfacing
+    /// `-- noqa:` comments that had no effect so they can be cleaned up.
+    pub fn generate_warnings_for_unused(&self) -> Vec<SQLBaseError> {
+        self.ignore_list
+            .iter()
+            .zip(self.used.iter())
+            .filter(|(_, used)| !used.get())
+            .map(|(directive, _)| {
+                // Strip any leading comment marker so the message reads
+                // `Unused noqa: 'noqa: CP01'` rather than including `--`.
+                let raw = directive.raw_string();
+                let text = raw.split("--").last().unwrap_or(raw).trim();
+                SQLBaseError {
+                    fixable: false,
+                    line_no: directive.line_no(),
+                    line_pos: directive.line_pos(),
+                    description: format!("Unused noqa: '{text}'"),
+                    rule: Some(ErrorStructRule {
+                        name: "noqa",
+                        code: "NOQA",
+                    }),
+                    source_slice: Default::default(),
+                }
+            })
+            .collect()
     }
 }
 
@@ -490,36 +585,33 @@ mod tests {
             rule: None,
             source_slice: Default::default(),
         };
-        let mask = IgnoreMask {
-            ignore_list: vec![NoQADirective::LineIgnoreRules(LineIgnoreRules {
-                line_no: 2,
-                line_pos: 13,
-                raw_string: "--noqa: AL02".to_string(),
-                rules: ["AL02".to_string()].into_iter().collect(),
-            })],
-        };
-        let not_mask_wrong_line = IgnoreMask {
-            ignore_list: vec![NoQADirective::LineIgnoreRules(LineIgnoreRules {
+        let mask = IgnoreMask::new(vec![NoQADirective::LineIgnoreRules(LineIgnoreRules {
+            line_no: 2,
+            line_pos: 13,
+            raw_string: "--noqa: AL02".to_string(),
+            rules: ["AL02".to_string()].into_iter().collect(),
+        })]);
+        let not_mask_wrong_line =
+            IgnoreMask::new(vec![NoQADirective::LineIgnoreRules(LineIgnoreRules {
                 line_no: 3,
                 line_pos: 13,
                 raw_string: "--noqa: AL02".to_string(),
                 rules: ["AL02".to_string()].into_iter().collect(),
-            })],
-        };
-        let not_mask_wrong_rule = IgnoreMask {
-            ignore_list: vec![NoQADirective::LineIgnoreRules(LineIgnoreRules {
+            })]);
+        let not_mask_wrong_rule =
+            IgnoreMask::new(vec![NoQADirective::LineIgnoreRules(LineIgnoreRules {
                 line_no: 3,
                 line_pos: 13,
                 raw_string: "--noqa: AL03".to_string(),
                 rules: ["AL03".to_string()].into_iter().collect(),
-            })],
-        };
+            })]);
 
-        assert!(!not_mask_wrong_line.is_masked(&error, None));
-        assert!(!not_mask_wrong_rule.is_masked(&error, None));
+        assert!(!not_mask_wrong_line.is_masked(&error, None, false));
+        assert!(!not_mask_wrong_rule.is_masked(&error, None, false));
         assert!(mask.is_masked(
             &error,
-            Some(&crate::rules::aliasing::al02::RuleAL02::default().erased())
+            Some(&crate::rules::aliasing::al02::RuleAL02::default().erased()),
+            false
         ));
     }
 
@@ -741,5 +833,108 @@ FROM foo
 
         assert_eq!(result_rule.violations().len(), 3);
         assert_eq!(result_all.violations().len(), 3);
+    }
+
+    #[test]
+    /// A directive that masks a violation is "used"; one that masks nothing is
+    /// reported by `generate_warnings_for_unused`.
+    fn test_generate_warnings_for_unused() {
+        let used = SQLBaseError {
+            fixable: true,
+            line_no: 2,
+            line_pos: 11,
+            description: "Implicit aliasing.".to_string(),
+            rule: None,
+            source_slice: Default::default(),
+        };
+        let mask = IgnoreMask::new(vec![
+            NoQADirective::LineIgnoreRules(LineIgnoreRules {
+                line_no: 2,
+                line_pos: 13,
+                raw_string: "--noqa: AL02".to_string(),
+                rules: ["AL02".to_string()].into_iter().collect(),
+            }),
+            NoQADirective::LineIgnoreRules(LineIgnoreRules {
+                line_no: 3,
+                line_pos: 13,
+                raw_string: "--noqa: AL02".to_string(),
+                rules: ["AL02".to_string()].into_iter().collect(),
+            }),
+        ]);
+
+        // Only the first directive masks a violation, so it becomes "used".
+        assert!(mask.is_masked(
+            &used,
+            Some(&crate::rules::aliasing::al02::RuleAL02::default().erased()),
+            true
+        ));
+
+        let warnings = mask.generate_warnings_for_unused();
+        assert_eq!(warnings.len(), 1);
+        assert_eq!(warnings[0].line_no, 3);
+        assert_eq!(warnings[0].rule_code(), "NOQA");
+        assert_eq!(warnings[0].description, "Unused noqa: 'noqa: AL02'");
+    }
+
+    #[test]
+    /// End-to-end: `warn_unused_ignores` surfaces a warning for an inline noqa
+    /// that never masked a violation, and stays silent when disabled.
+    fn test_linter_warn_unused_noqa() {
+        let sql = r#"SELECT
+    col_a a, --noqa: AL02
+    col_b --noqa: AL02
+FROM foo
+"#;
+
+        let linter_off = Linter::new(
+            FluffConfig::from_source(
+                r#"
+[sqruff]
+dialect = bigquery
+rules = AL02
+    "#,
+                None,
+            ),
+            None,
+            None,
+            false,
+        )
+        .unwrap();
+        let linter_on = Linter::new(
+            FluffConfig::from_source(
+                r#"
+[sqruff]
+dialect = bigquery
+rules = AL02
+warn_unused_ignores = True
+    "#,
+                None,
+            ),
+            None,
+            None,
+            false,
+        )
+        .unwrap();
+
+        // Without the option there are no NOQA warnings.
+        let result_off = linter_off.lint_string(sql, None, false).unwrap();
+        assert!(
+            result_off
+                .violations()
+                .iter()
+                .all(|v| v.rule_code() != "NOQA")
+        );
+
+        // With the option the unused directive on line 3 is reported, while the
+        // directive on line 2 (which masks a real AL02 violation) is not.
+        let result_on = linter_on.lint_string(sql, None, false).unwrap();
+        let noqa_warnings: Vec<_> = result_on
+            .violations()
+            .iter()
+            .filter(|v| v.rule_code() == "NOQA")
+            .collect();
+        assert_eq!(noqa_warnings.len(), 1);
+        assert_eq!(noqa_warnings[0].line_no, 3);
+        assert_eq!(noqa_warnings[0].description, "Unused noqa: 'noqa: AL02'");
     }
 }

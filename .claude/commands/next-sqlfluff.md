@@ -154,12 +154,33 @@ Port the next SQLFluff commit to sqruff.
     - If another port PR became the new stack tip, rebase this branch onto that tip, resolve `.sqlfluff-sha` so the commits advance in upstream order, rerun affected tests, and use the new tip as the PR base.
     - Never publish a sibling SQLFluff port PR against `main` while an open port stack exists.
 
-18. **Push and create the PR against the selected base branch:**
+18. **Push, create the PR, and add it to the GitHub stack:**
 
     ```bash
     git push -u origin port/sqlfluff-<pr-number>
     gh pr create --base <base-branch> --head port/sqlfluff-<pr-number>
     ```
+
+    After creating the PR, use `gh stack` to represent the same dependency
+    chain in GitHub's stack UI. If the existing port PRs already belong to a
+    GitHub stack, append the new PR to that stack:
+
+    ```bash
+    gh stack link <stack-number> <new-sqruff-pr-number>
+    ```
+
+    If no GitHub stack exists yet, link all open port PRs in bottom-to-top
+    merge order, ending with the new PR:
+
+    ```bash
+    gh stack link <bottom-pr-number> ... <new-sqruff-pr-number>
+    ```
+
+    `gh stack` supplements the PR base branches; it does not replace setting
+    the new PR's base to the previous stack tip. Verify the resulting order
+    with `gh stack view`. If the extension is unavailable or linking fails,
+    leave the correctly based PR in place and report that the GitHub stack UI
+    still needs to be updated.
 
     When stacking, begin the PR body with:
 

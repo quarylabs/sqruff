@@ -457,3 +457,48 @@ file:
           - quoted_identifier: '`yk`'
         - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`users`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - quoted_identifier: '`active`'
+      - data_type:
+        - data_type_identifier: tinyint
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - end_bracket: )
+      - column_constraint_segment:
+        - keyword: DEFAULT
+        - quoted_literal: '''0'''
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`users`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - column_definition:
+      - quoted_identifier: '`active`'
+      - data_type:
+        - data_type_identifier: tinyint
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - end_bracket: )
+      - column_constraint_segment:
+        - keyword: DEFAULT
+        - quoted_literal: '''0'''
+- statement_terminator: ;

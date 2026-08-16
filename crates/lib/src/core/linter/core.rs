@@ -353,10 +353,20 @@ impl Linter {
 
         // Filter violations with ignore mask
         if let Some(ignore_mask) = &ignore_mask {
-            violations.retain(|violation| !ignore_mask.is_masked(violation, None));
+            violations.retain(|violation| !ignore_mask.is_masked(violation, None, true));
         }
 
-        // TODO Need to error out unused noqas
+        // Surface warnings for `-- noqa:` directives that never masked anything,
+        // when `warn_unused_ignores` is enabled.
+        let warn_unused_ignores = self
+            .config
+            .get("warn_unused_ignores", "core")
+            .as_bool()
+            .unwrap_or(false);
+        if warn_unused_ignores && let Some(ignore_mask) = &ignore_mask {
+            violations.extend(ignore_mask.generate_warnings_for_unused());
+        }
+
         let linted_file = LintedFile::new(
             parsed_string.filename,
             patches,
@@ -473,7 +483,7 @@ impl Linter {
                                 && result.anchor_in_templated_section();
 
                             if ignore_mask.as_ref().is_none_or(|ignore_mask| {
-                                !ignore_mask.is_masked(&result, rule.into())
+                                !ignore_mask.is_masked(&result, rule.into(), is_first_linter_pass)
                             }) {
                                 if !suppress_templated_violation
                                     || (fix && !result.fixes.is_empty())

@@ -31,6 +31,12 @@ fn main() {
             // Set up the command with arguments
             let mut cmd = Command::new(sqruff_path);
             cmd.arg("lint").arg("-f").arg("human").arg(&path);
+
+            let config_path = path.with_extension("cfg");
+            if config_path.is_file() {
+                cmd.arg("--config").arg(config_path);
+            }
+
             // Set the HOME environment variable to the fake home directory
             cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
 

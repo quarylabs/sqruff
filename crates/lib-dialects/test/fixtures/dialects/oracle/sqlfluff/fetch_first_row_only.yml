@@ -1,0 +1,84 @@
+file:
+- oracle_batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column_name
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: table_name
+      - fetch_clause:
+        - keyword: fetch
+        - keyword: first
+        - keyword: row
+        - keyword: only
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column_name
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: table_name
+      - fetch_clause:
+        - keyword: fetch
+        - keyword: first
+        - keyword: rows
+        - keyword: only
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column_name
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: table_name
+      - fetch_clause:
+        - keyword: fetch
+        - keyword: first
+        - numeric_literal: '2'
+        - keyword: row
+        - keyword: only
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: column_name
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: table_name
+      - fetch_clause:
+        - keyword: fetch
+        - keyword: first
+        - numeric_literal: '2'
+        - keyword: rows
+        - keyword: only
+  - statement_terminator: ;

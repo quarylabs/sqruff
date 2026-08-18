@@ -1,0 +1,110 @@
+file:
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[table]'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - quoted_identifier: '[name]'
+          - data_type:
+            - quoted_identifier: '[varchar]'
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '100'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[month_num]'
+          - data_type:
+            - quoted_identifier: '[int]'
+          - column_constraint_segment:
+            - keyword: 'NULL'
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DISTRIBUTION
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: REPLICATE
+        - comma: ','
+        - keyword: CLUSTERED
+        - keyword: INDEX
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - quoted_identifier: '[name]'
+          - keyword: ASC
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[month_num]'
+          - keyword: ASC
+          - end_bracket: )
+        - end_bracket: )
+- statement:
+  - keyword: GO
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[table2]'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - quoted_identifier: '[name]'
+          - data_type:
+            - quoted_identifier: '[varchar]'
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '100'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[month_num]'
+          - data_type:
+            - quoted_identifier: '[int]'
+          - column_constraint_segment:
+            - keyword: 'NULL'
+        - end_bracket: )
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DISTRIBUTION
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: REPLICATE
+        - comma: ','
+        - keyword: CLUSTERED
+        - keyword: INDEX
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - quoted_identifier: '[name]'
+          - keyword: DESC
+          - comma: ','
+          - column_reference:
+            - quoted_identifier: '[month_num]'
+          - end_bracket: )
+        - end_bracket: )
+- statement:
+  - keyword: GO

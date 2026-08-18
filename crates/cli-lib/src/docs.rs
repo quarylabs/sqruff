@@ -150,6 +150,14 @@ impl From<&'static dyn sqruff_lib::templaters::Templater> for Templater {
 
 #[cfg(feature = "codegen-docs")]
 #[derive(Debug, Clone, Serialize)]
+struct RuleConfigOption {
+    name: &'static str,
+    description: &'static str,
+    default: String,
+}
+
+#[cfg(feature = "codegen-docs")]
+#[derive(Debug, Clone, Serialize)]
 struct Rule {
     pub name: &'static str,
     pub name_no_periods: String,
@@ -160,11 +168,23 @@ struct Rule {
     pub groups: Vec<&'static str>,
     pub has_dialects: bool,
     pub dialects: Vec<&'static str>,
+    pub config_options: Vec<RuleConfigOption>,
+    pub has_config_options: bool,
 }
 
 #[cfg(feature = "codegen-docs")]
 impl From<ErasedRule> for Rule {
     fn from(value: ErasedRule) -> Self {
+        let config_options: Vec<RuleConfigOption> = value
+            .config_options()
+            .into_iter()
+            .map(|(name, description, default)| RuleConfigOption {
+                name,
+                description,
+                default,
+            })
+            .collect();
+        let has_config_options = !config_options.is_empty();
         Rule {
             name: value.name(),
             name_no_periods: value.name().replace('.', ""),
@@ -179,6 +199,8 @@ impl From<ErasedRule> for Rule {
                 .iter()
                 .map(|dialect| dialect.as_ref())
                 .collect(),
+            config_options,
+            has_config_options,
         }
     }
 }

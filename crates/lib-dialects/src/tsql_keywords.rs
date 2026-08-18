@@ -547,6 +547,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "DEADLOCK_PRIORITY",
         "DATEFIRST",
         "DATEFORMAT",
+        "DAY",
         "DELAYED_DURABILITY",
         // CREATE EXTERNAL DATA SOURCE (#4634)
         "SOURCE",

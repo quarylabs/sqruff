@@ -2527,8 +2527,19 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("CLUSTERED").to_matchable(),
                     Ref::keyword("INDEX").to_matchable(),
                     Bracketed::new(vec![
-                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ASC").to_matchable(),
+                                    Ref::keyword("DESC").to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                            ])
                             .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])

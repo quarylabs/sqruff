@@ -43,6 +43,7 @@ pub fn raw_dialect() -> Dialect {
     dialect
         .sets_mut("reserved_keywords")
         .extend(tsql_keywords::tsql_additional_reserved_keywords());
+    dialect.sets_mut("reserved_keywords").remove("DAY");
     dialect
         .sets_mut("unreserved_keywords")
         .extend(tsql_keywords::tsql_additional_unreserved_keywords());

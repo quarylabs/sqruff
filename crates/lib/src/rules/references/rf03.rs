@@ -45,9 +45,13 @@ impl RuleRF03 {
                 .filter(|select_info| select_info.table_aliases.len() == 1)
             {
                 let mut fixable = true;
-                let possible_ref_tables = iter_available_targets(query.clone());
-
-                if let Some(_parent) = &RefCell::borrow(&query.inner).parent {}
+                // :TRICKY: Subqueries in the column list of a SELECT can see tables
+                // in the FROM list of the containing query. Thus, count tables
+                // visible from both this query and its parent.
+                let mut possible_ref_tables = iter_available_targets(query.clone());
+                if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
+                    possible_ref_tables.extend(iter_available_targets(parent));
+                }
 
                 if possible_ref_tables.len() > 1 {
                     fixable = false;
@@ -91,10 +95,15 @@ fn iter_available_targets(query: Query<'_>) -> Vec<SmolStr> {
         .flat_map(|selectable| {
             selectable
                 .select_info()
-                .unwrap()
-                .table_aliases
-                .iter()
-                .map(|alias| alias.ref_str.clone())
+                .into_iter()
+                .flat_map(|select_info| {
+                    select_info
+                        .table_aliases
+                        .into_iter()
+                        .map(|alias| alias.ref_str)
+                        .filter(|ref_str| !ref_str.is_empty())
+                        .collect_vec()
+                })
                 .collect_vec()
         })
         .collect_vec()

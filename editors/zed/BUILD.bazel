@@ -13,6 +13,8 @@ js_library(
             "**/*.json",
         ],
         exclude = ["target/**"],
+        # No JSON files today; keep the pattern for future additions.
+        allow_empty = True,
     ),
     visibility = ["//visibility:public"],
 )

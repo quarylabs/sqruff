@@ -133,8 +133,7 @@ file:
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
-        - column_constraint_segment:
-          - keyword: 'NULL'
+        - keyword: 'NULL'
       - comma: ','
       - column_definition:
         - naked_identifier: ts9
@@ -200,6 +199,16 @@ file:
         - keyword: 'NULL'
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
+        - keyword: ON
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts16
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - keyword: 'NULL'
         - keyword: ON
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP

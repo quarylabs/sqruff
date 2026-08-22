@@ -89,6 +89,28 @@ jobs:
             git diff MODULE.bazel.lock
             exit 1
           fi
+  zed-extension:
+    name: Zed Extension
+    runs-on: ubuntu-latest
+    needs: sqlfluff-sha-only
+    if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+      - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
+        with:
+          workspaces: editors/zed
+      # editors/zed is a standalone Cargo workspace, so it is invisible to the
+      # Bazel Rust targets and needs checking on its own. The toolchain and the
+      # wasm32-wasip2 target come from editors/zed/rust-toolchain.toml.
+      - name: Check formatting
+        run: cargo fmt --check
+        working-directory: editors/zed
+      - name: Clippy
+        run: cargo clippy --locked --target wasm32-wasip2 -- -D warnings
+        working-directory: editors/zed
+      - name: Build
+        run: cargo build --locked --release --target wasm32-wasip2
+        working-directory: editors/zed
   build-binaries:
     name: Build binaries for all platforms
     # Master pushes only need to refresh the Bazel cache; skip the binary

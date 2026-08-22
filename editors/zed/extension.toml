@@ -1,0 +1,11 @@
+id = "sqruff"
+name = "Sqruff"
+description = "SQL linting and formatting with sqruff, via the `sqruff lsp` language server."
+version = "0.2.0"
+schema_version = 1
+authors = ["Quary Labs"]
+repository = "https://github.com/quarylabs/sqruff"
+
+[language_servers.sqruff]
+name = "Sqruff"
+languages = ["SQL"]

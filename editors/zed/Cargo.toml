@@ -1,0 +1,17 @@
+[package]
+name = "zed_sqruff"
+version = "0.2.0"
+edition = "2024"
+license = "Apache-2.0"
+publish = false
+
+# Standalone workspace: Zed builds this crate for wasm32-wasip2 with its own
+# toolchain, so it deliberately stays out of the root sqruff workspace.
+[workspace]
+
+[lib]
+path = "src/sqruff.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+zed_extension_api = "0.7.0"

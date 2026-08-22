@@ -57,6 +57,14 @@ Then run without the `--dialect` flag:
 sqruff lint .
 ```
 
+## Editor integrations
+
+`sqruff` ships an LSP server (`sqruff lsp`) usable from any editor. This repo
+maintains two integrations:
+
+- VS Code: [`editors/code`](editors/code)
+- Zed: [`editors/zed`](editors/zed)
+
 ## Documentation
 
 Full documentation: [playground.quary.dev/docs](https://playground.quary.dev/docs/)

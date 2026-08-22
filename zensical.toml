@@ -9,6 +9,7 @@ nav = [
   { "Using Sqruff" = [
     { "The CLI" = "usage/lint.md" },
     { "Configuring Sqruff" = "usage/configuration.md" },
+    { "Editors" = "usage/editors.md" },
     { "dbt" = "experimental/dbt.md" },
     { "Ignore errors" = "usage/noqa.md" },
     { "Ignore files" = "usage/ignore-files.md" },

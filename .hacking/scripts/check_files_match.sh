@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Checks that files in editors/code match their root counterparts
+# Checks that files in editors/ match their root counterparts
 
 set -euo pipefail
 
@@ -19,5 +19,7 @@ exit_code=0
 
 check_match "LICENSE" "editors/code/LICENSE" || exit_code=1
 check_match "README.md" "editors/code/README.md" || exit_code=1
+# editors/zed keeps its own README, so only the LICENSE is synced.
+check_match "LICENSE" "editors/zed/LICENSE" || exit_code=1
 
 exit $exit_code

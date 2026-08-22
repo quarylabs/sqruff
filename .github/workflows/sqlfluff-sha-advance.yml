@@ -1,8 +1,9 @@
 on:
   pull_request:
-    paths:
-      - .sqlfluff-sha
+  merge_group:
 name: SQLFluff SHA Advance Check
+permissions:
+  contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -16,13 +17,16 @@ jobs:
           fetch-depth: 0
       - name: Validate SHA advance
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          # For pull requests, github.sha is the synthetic merge commit, so an
+          # unrelated stale branch inherits the current base branch's marker.
+          # Merge groups expose their candidate merge explicitly as head_sha.
+          RESULT_SHA: ${{ github.event.merge_group.head_sha || github.sha }}
         run: |
           set -euo pipefail
-          # The SHA on the PR's base branch (before this change).
+          # The SQLFluff SHA before and after the candidate merge.
           OLD=$(git show "${BASE_SHA}:.sqlfluff-sha" | tr -d '[:space:]')
-          # The SHA proposed by this PR.
-          NEW=$(tr -d '[:space:]' < .sqlfluff-sha)
+          NEW=$(git show "${RESULT_SHA}:.sqlfluff-sha" | tr -d '[:space:]')
           echo "Base .sqlfluff-sha: ${OLD}"
-          echo "PR   .sqlfluff-sha: ${NEW}"
+          echo "Result .sqlfluff-sha: ${NEW}"
           ./.hacking/scripts/check_sqlfluff_sha_advance.sh "$OLD" "$NEW"

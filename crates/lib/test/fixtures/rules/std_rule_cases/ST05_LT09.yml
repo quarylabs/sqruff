@@ -1,0 +1,58 @@
+rule: ST05,LT09
+
+test_fix_generated_cte_stays_before_first_use:
+  # https://github.com/sqlfluff/sqlfluff/issues/4137
+  # Tests multi-rule interaction: ST05 extracts the join subquery into a CTE,
+  # and LT09 reformats the SELECT targets. The generated CTE must stay before
+  # the first CTE that references it.
+  fail_str: |
+    with
+
+    cte1 as (
+        select t1.x, t2.y
+        from tbl1 t1
+        join (select x, y from tbl2) t2
+            on t1.x = t2.x
+    )
+
+    , cte2 as (
+        select x, y from tbl2 t2
+    )
+
+    select x, y from cte1
+    union all
+    select x, y from cte2
+    ;
+  fix_str: |
+    with t2 as (select
+    x,
+    y
+    from tbl2),
+    cte1 as (
+        select
+    t1.x,
+    t2.y
+        from tbl1 t1
+        join t2
+            on t1.x = t2.x
+    ),
+    cte2 as (
+        select
+    x,
+    y
+    from tbl2 t2
+    )
+    select
+    x,
+    y
+    from cte1
+    union all
+    select
+    x,
+    y
+    from cte2
+    ;
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both

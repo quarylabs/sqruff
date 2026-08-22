@@ -1,0 +1,18 @@
+load("@aspect_rules_js//js:defs.bzl", "js_library")
+
+# Export files for the root BUILD.bazel checks
+exports_files(["LICENSE"])
+
+# Source files for prettier formatting (referenced by root BUILD.bazel)
+# Wrapped in js_library to support cross-package usage with js_binary
+js_library(
+    name = "prettier_srcs",
+    srcs = glob(
+        [
+            "**/*.md",
+            "**/*.json",
+        ],
+        exclude = ["target/**"],
+    ),
+    visibility = ["//visibility:public"],
+)

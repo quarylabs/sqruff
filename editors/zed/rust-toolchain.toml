@@ -1,0 +1,8 @@
+# Zed builds this crate with `cargo build --target wasm32-wasip2` from this
+# directory, so rustup resolves the toolchain here rather than at the repo root.
+# Without a `targets` entry the build picks up the root toolchain, which has no
+# wasm target installed, and fails with "can't find crate for `core`".
+[toolchain]
+channel = "1.97.1"
+components = ["clippy", "rustfmt"]
+targets = ["wasm32-wasip2"]

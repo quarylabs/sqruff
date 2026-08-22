@@ -32,6 +32,7 @@ filegroup(
     ) + [
         "README.md",
         "//editors/code:prettier_srcs",
+        "//editors/zed:prettier_srcs",
         "//playground:prettier_srcs",
     ],
 )
@@ -56,6 +57,7 @@ prettier_bin.prettier_test(
         ":prettier_srcs",
         ".prettierrc.json",
         "//editors/code:prettier_srcs",
+        "//editors/zed:prettier_srcs",
         "//playground:prettier_srcs",
     ],
 )
@@ -79,6 +81,7 @@ prettier_bin.prettier_binary(
         ":prettier_srcs",
         ".prettierrc.json",
         "//editors/code:prettier_srcs",
+        "//editors/zed:prettier_srcs",
         "//playground:prettier_srcs",
     ],
     env = {"JS_BINARY__CHDIR": "$$BUILD_WORKSPACE_DIRECTORY"},
@@ -114,7 +117,8 @@ shellcheck_test(
     severity = "warning",
 )
 
-# Check that LICENSE and README.md are synced to editors/code
+# Check that LICENSE and README.md are synced to editors/code, and that
+# LICENSE is synced to editors/zed
 sh_test(
     name = "check_files_match",
     size = "small",
@@ -124,6 +128,7 @@ sh_test(
         "README.md",
         "//editors/code:LICENSE",
         "//editors/code:README.md",
+        "//editors/zed:LICENSE",
     ],
 )
 

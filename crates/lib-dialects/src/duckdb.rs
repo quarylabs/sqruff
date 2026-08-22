@@ -8,7 +8,8 @@ use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
-use sqruff_lib_core::parser::parsers::StringParser;
+use sqruff_lib_core::parser::node_matcher::NodeMatcher;
+use sqruff_lib_core::parser::parsers::{StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 
 use crate::{ansi, postgres};
@@ -36,6 +37,18 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "MACRO");
 
     duckdb_dialect.add([
+        (
+            "NamedParameterSegment".into(),
+            TypedParser::new(SyntaxKind::Variable, SyntaxKind::Parameter)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "DoubleEqualsSegment".into(),
+            StringParser::new("==", SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
         (
             "SingleIdentifierGrammar".into(),
             one_of(vec![
@@ -144,7 +157,34 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "FromFirstSelectStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
+                Sequence::new(vec![
+                    Ref::new("FromClauseSegment").to_matchable(),
+                    Ref::new("SelectClauseSegment").optional().to_matchable(),
+                    Ref::new("WhereClauseSegment").optional().to_matchable(),
+                    Ref::new("GroupByClauseSegment").optional().to_matchable(),
+                    Ref::new("HavingClauseSegment").optional().to_matchable(),
+                    Ref::new("NamedWindowSegment").optional().to_matchable(),
+                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                    Ref::new("LimitClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
+
+    duckdb_dialect.insert_lexer_matchers(
+        vec![Matcher::string(
+            "double_equals",
+            "==",
+            SyntaxKind::ComparisonOperator,
+        )],
+        "equals",
+    );
 
     duckdb_dialect.insert_lexer_matchers(
         vec![Matcher::string(
@@ -154,6 +194,45 @@ pub fn raw_dialect() -> Dialect {
         )],
         "divide",
     );
+
+    duckdb_dialect.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "named_parameter",
+            r"\$[a-zA-Z_][0-9a-zA-Z_]*",
+            SyntaxKind::Variable,
+        )],
+        "word",
+    );
+
+    let literal_grammar = duckdb_dialect.grammar("LiteralGrammar").copy(
+        Some(vec![Ref::new("NamedParameterSegment").to_matchable()]),
+        None,
+        None,
+        None,
+        Vec::new(),
+        false,
+    );
+    duckdb_dialect.replace_grammar("LiteralGrammar", literal_grammar);
+
+    let comparison_operator_grammar = duckdb_dialect.grammar("ComparisonOperatorGrammar").copy(
+        Some(vec![Ref::new("DoubleEqualsSegment").to_matchable()]),
+        None,
+        None,
+        None,
+        Vec::new(),
+        false,
+    );
+    duckdb_dialect.replace_grammar("ComparisonOperatorGrammar", comparison_operator_grammar);
+
+    let from_clause_terminators = duckdb_dialect.grammar("FromClauseTerminatorGrammar").copy(
+        Some(vec![Ref::keyword("SELECT").to_matchable()]),
+        None,
+        None,
+        None,
+        Vec::new(),
+        false,
+    );
+    duckdb_dialect.replace_grammar("FromClauseTerminatorGrammar", from_clause_terminators);
 
     duckdb_dialect.replace_grammar(
         "SelectClauseElementSegment",
@@ -376,6 +455,7 @@ pub fn raw_dialect() -> Dialect {
         "StatementSegment",
         postgres::statement_segment().copy(
             Some(vec![
+                Ref::new("FromFirstSelectStatementSegment").to_matchable(),
                 Ref::new("LoadStatementSegment").to_matchable(),
                 Ref::new("SummarizeStatementSegment").to_matchable(),
                 Ref::new("DescribeStatementSegment").to_matchable(),

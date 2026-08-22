@@ -89,13 +89,92 @@ jobs:
             git diff MODULE.bazel.lock
             exit 1
           fi
+  binary-affected:
+    name: Detect affected CLI binary
+    runs-on: ubuntu-latest
+    needs: sqlfluff-sha-only
+    if: github.event_name != 'push'
+    outputs:
+      binary-build-needed: ${{ steps.detect.outputs.binary-build-needed }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
+      - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # ratchet:bazel-contrib/setup-bazel@0.19.0
+        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}-affected
+          repository-cache: true
+          cache-save: false
+      - name: Detect whether the CLI binary is affected
+        id: detect
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha }}
+          SQLFLUFF_SHA_ONLY: ${{ needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only }}
+          BAZEL_DIFF_SHA256: d7bf5c6f74b582fa54b6a6da5b23f7d0e816a4c71af984645ec2d71aa8c37631
+          BAZEL_DIFF_URL: https://github.com/Tinder/bazel-diff/releases/download/v42.0.0/bazel-diff-rust-linux-amd64
+        run: |
+          set -euo pipefail
+
+          report() {
+            echo "binary-build-needed=$1" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
+          if [ "${SQLFLUFF_SHA_ONLY}" = "true" ]; then
+            echo "Only .sqlfluff-sha changed; the CLI binary is unaffected."
+            report false
+          fi
+
+          BAZEL_DIFF="${RUNNER_TEMP}/bazel-diff"
+          if ! curl --fail --location --silent --show-error \
+            "${BAZEL_DIFF_URL}" --output "${BAZEL_DIFF}"; then
+            echo "::warning::Could not download bazel-diff; building binaries as a fallback."
+            report true
+          fi
+
+          if ! echo "${BAZEL_DIFF_SHA256}  ${BAZEL_DIFF}" | sha256sum --check --status; then
+            echo "::warning::bazel-diff checksum mismatch; building binaries as a fallback."
+            report true
+          fi
+          chmod +x "${BAZEL_DIFF}"
+
+          if AFFECTED=$(BAZEL_DIFF="${BAZEL_DIFF}" BAZEL="$(command -v bazelisk)" \
+            ./.hacking/scripts/bazel_target_affected.sh \
+            "${BASE_SHA}" "${HEAD_SHA}" //crates/cli:sqruff \
+            ':(top)Cargo.lock' \
+            ':(top)Cargo.toml' \
+            ':(top)rust-toolchain' \
+            ':(top)rust-toolchain.toml' \
+            ':(glob,top).cargo/**' \
+            ':(glob,top)crates/**/Cargo.toml' \
+            ':(glob,top)crates/**/build.rs' \
+            ':(glob,top).github/actions/build-binaries/**' \
+            ':(top).hacking/scripts/bazel_target_affected.sh' \
+            ':(top).github/workflows/pr.yml'); then
+            if [ "${AFFECTED}" = "true" ]; then
+              echo "The CLI binary or its Cargo build machinery is affected; building every binary target."
+            else
+              echo "The CLI binary and its Cargo build machinery are unaffected; using no-op matrix jobs."
+            fi
+            report "${AFFECTED}"
+          fi
+
+          echo "::warning::Bazel affectedness detection failed; building binaries as a fallback."
+          report true
   build-binaries:
     name: Build binaries for all platforms
     # Master pushes only need to refresh the Bazel cache; skip the binary
     # matrix there since it does not use that cache.
-    needs: sqlfluff-sha-only
+    needs: binary-affected
     if: github.event_name != 'push'
-    runs-on: ${{ matrix.platform.os }}
+    # Preserve every required matrix check, but use a Linux runner for the
+    # inexpensive no-op path instead of allocating macOS and Windows runners.
+    runs-on: ${{ needs.binary-affected.outputs.binary-build-needed == 'true' && matrix.platform.os || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -121,13 +200,13 @@ jobs:
             target: aarch64-apple-darwin
             bin: sqruff
     steps:
-      - name: Skip build for .sqlfluff-sha-only change
-        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only == 'true'
-        run: echo "No binary build is needed when only .sqlfluff-sha changes."
+      - name: Skip unaffected binary build
+        if: needs.binary-affected.outputs.binary-build-needed != 'true'
+        run: echo "The CLI binary and its Cargo build machinery are unchanged from the comparison base."
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+        if: needs.binary-affected.outputs.binary-build-needed == 'true'
       - uses: ./.github/actions/build-binaries
-        if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+        if: needs.binary-affected.outputs.binary-build-needed == 'true'
         with:
           package: false
           publish: false

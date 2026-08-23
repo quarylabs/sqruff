@@ -2710,3 +2710,4 @@ Use only a single semicolon.
 ```sql
 SELECT 1;
 ```
+

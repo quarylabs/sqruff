@@ -9,6 +9,50 @@ file:
     - keyword: keys
 - statement_terminator: ;
 - statement:
+  - alter_owner_statement:
+    - keyword: ALTER
+    - keyword: CLUSTER
+    - object_reference:
+      - naked_identifier: dev
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: admin
+- statement_terminator: ;
+- statement:
+  - alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: mike
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - keyword: TABLES
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: joe
+- statement_terminator: ;
+- statement:
+  - alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: ROLES
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - keyword: TABLES
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: managers
+- statement_terminator: ;
+- statement:
   - alter_rename_statement:
     - keyword: ALTER
     - keyword: CONNECTION
@@ -96,6 +140,32 @@ file:
     - keyword: TO
     - object_reference:
       - naked_identifier: test2
+- statement_terminator: ;
+- statement:
+  - alter_rename_statement:
+    - keyword: ALTER
+    - keyword: CLUSTER
+    - keyword: REPLICA
+    - object_reference:
+      - naked_identifier: test
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: test2
+- statement_terminator: ;
+- statement:
+  - alter_set_cluster_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: test
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+      - naked_identifier: analytics
 - statement_terminator: ;
 - statement:
   - alter_index_statement:

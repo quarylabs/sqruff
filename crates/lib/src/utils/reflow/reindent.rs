@@ -2112,4 +2112,32 @@ mod tests {
             );
         }
     }
+
+    #[test]
+    fn test_rf01_lt09_segment_copy_isolation() {
+        use crate::core::config::FluffConfig;
+        use crate::core::linter::core::Linter;
+
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = mysql
+rules = RF01,LT09
+"#,
+            None,
+        );
+        let mut linter = Linter::new(config, None, None, true).unwrap();
+        let linted = linter
+            .lint_string_wrapped("SELECT\n    DISTINCT `FIELD`\nFROM `TABLE`;\n", false)
+            .unwrap();
+
+        assert!(
+            linted
+                .violations()
+                .iter()
+                .all(|violation| !violation.desc().contains("Unexpected exception"))
+        );
+        assert_eq!(linted.violations().len(), 1);
+        assert_eq!(linted.violations()[0].rule_code(), "LT09");
+    }
 }

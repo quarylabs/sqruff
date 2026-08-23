@@ -2603,6 +2603,17 @@ left join bar
 ```
 
 
+**Configuration:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `preferred_first_table_in_join_clause` | Whether a join condition should list the table referenced earlier or later first. | `earlier` |
+
+```ini
+[sqruff:rules:structure.join_condition_order]
+preferred_first_table_in_join_clause = earlier
+```
+
 ### structure.constant_expression
 
 Redundant constant expression.
@@ -2699,4 +2710,3 @@ Use only a single semicolon.
 ```sql
 SELECT 1;
 ```
-

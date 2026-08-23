@@ -126,6 +126,14 @@ pub fn raw_dialect() -> Dialect {
 
     exasol.add([
         (
+            // NOTE: The purpose of the password_literal is that it has different layout
+            // rules. It assumes no whitespace on either side.
+            "PasswordLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::PasswordLiteral)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "UDFParameterDotSyntaxSegment".into(),
             TypedParser::new(SyntaxKind::UdfParamDotSyntax, SyntaxKind::Identifier)
                 .to_matchable()
@@ -2932,7 +2940,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::PasswordAuth, |_| {
                 Sequence::new(vec![
                     Ref::keyword("BY").to_matchable(),
-                    Ref::new("QuotedIdentifierSegment").to_matchable(),
+                    Ref::new("PasswordLiteralSegment").to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -2944,7 +2952,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::PasswordAuth, |_| {
                 Sequence::new(vec![
                     Ref::keyword("REPLACE").to_matchable(),
-                    Ref::new("QuotedIdentifierSegment").to_matchable(),
+                    Ref::new("PasswordLiteralSegment").to_matchable(),
                 ])
                 .to_matchable()
             })

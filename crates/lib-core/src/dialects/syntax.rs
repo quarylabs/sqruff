@@ -879,6 +879,7 @@ pub enum SyntaxKind {
     PartitionbyClause,
     PartitionedBySegment,
     PasswordAuth,
+    PasswordLiteral,
     PasswordPolicyOptions,
     PasswordPolicyReference,
     PathSegment,

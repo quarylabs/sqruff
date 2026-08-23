@@ -8,7 +8,7 @@ file:
     - keyword: IDENTIFIED
     - password_auth:
       - keyword: BY
-      - quoted_identifier: '"h12_xhz"'
+      - password_literal: '"h12_xhz"'
 - statement_terminator: ;
 - statement:
   - create_user_statement:

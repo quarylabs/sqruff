@@ -103,6 +103,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | DateConstructorLiteral
         | FileLiteral
         | DollarLiteral
+        | PasswordLiteral
         | AtSignLiteral => Highlight::String,
 
         // Comments.

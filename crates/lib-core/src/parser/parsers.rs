@@ -20,7 +20,9 @@ pub struct TypedParser {
 
 impl TypedParser {
     pub fn new(template: SyntaxKind, kind: SyntaxKind) -> Self {
-        let target_types = SyntaxSet::new(&[template]);
+        // Match both the lexer token kind and the kind emitted by this parser.
+        // This allows fixed segments to be rematched during fix validation.
+        let target_types = SyntaxSet::new(&[template, kind]);
 
         Self {
             template,
@@ -57,7 +59,7 @@ impl MatchableTrait for TypedParser {
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let segment = &segments[idx as usize];
-        if segment.is_type(self.template) {
+        if self.is_first_match(segment) {
             return Ok(MatchResult {
                 span: Span {
                     start: idx,
@@ -74,6 +76,25 @@ impl MatchableTrait for TypedParser {
 
     fn cache_key(&self) -> MatchableCacheKey {
         self.cache_key
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::TypedParser;
+    use crate::dialects::syntax::SyntaxKind;
+    use crate::parser::segments::{SegmentBuilder, Tables};
+
+    #[test]
+    fn typed_parser_matches_input_and_emitted_kinds() {
+        let tables = Tables::default();
+        let parser = TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier);
+        let input = SegmentBuilder::token(tables.next_id(), "foo", SyntaxKind::Word).finish();
+        let emitted =
+            SegmentBuilder::token(tables.next_id(), "foo", SyntaxKind::NakedIdentifier).finish();
+
+        assert!(parser.is_first_match(&input));
+        assert!(parser.is_first_match(&emitted));
     }
 }
 

@@ -516,7 +516,19 @@ impl Linter {
                     }
 
                     if fix && !anchor_info.is_empty() {
-                        let (new_tree, _, _) = tree.apply_fixes(&mut anchor_info);
+                        let parser: Parser = (&self.config).into();
+                        let mut parse_context = (&parser).into();
+                        let (new_tree, _, _, valid) =
+                            tree.apply_fixes(&mut anchor_info, &mut parse_context);
+                        if !valid {
+                            log::warn!(
+                                "Fixes for {} not applied, as they would result in an unparsable \
+                                 file. Please report this as a bug with a minimal query which \
+                                 demonstrates this warning.",
+                                rule.code(),
+                            );
+                            continue;
+                        }
                         let has_source_fixes = !new_tree.get_all_source_fixes().is_empty();
 
                         // For loop detection, we check raw and whether we have source_fixes.
@@ -889,7 +901,12 @@ impl Linter {
 
 #[cfg(test)]
 mod tests {
-    use sqruff_lib_core::parser::segments::Tables;
+    use hashbrown::HashMap;
+    use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+    use sqruff_lib_core::lint_fix::LintFix;
+    use sqruff_lib_core::linter::compute_anchor_edit_info;
+    use sqruff_lib_core::parser::Parser;
+    use sqruff_lib_core::parser::segments::{SegmentBuilder, Tables};
 
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;
@@ -1033,6 +1050,46 @@ rules = all
         let parsed = linter.parse_string(&tables, "", None).unwrap();
 
         assert!(parsed.violations.is_empty());
+    }
+
+    #[test]
+    fn test_structural_fix_that_breaks_parsing_is_invalid() {
+        let config = FluffConfig::new(<_>::default(), None, None);
+        let linter = Linter::new(config, None, None, false).unwrap();
+        let tables = Tables::default();
+        let tree = linter
+            .parse_string(&tables, "SELECT 1 FROM a", None)
+            .unwrap()
+            .tree
+            .unwrap();
+        let numeric = tree
+            .recursive_crawl(
+                &SyntaxSet::single(SyntaxKind::NumericLiteral),
+                true,
+                &SyntaxSet::EMPTY,
+                true,
+            )
+            .into_iter()
+            .next()
+            .unwrap();
+        let replacement = vec![
+            SegmentBuilder::token(tables.next_id(), "1", SyntaxKind::NumericLiteral).finish(),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
+            SegmentBuilder::token(tables.next_id(), "1", SyntaxKind::NumericLiteral).finish(),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
+            SegmentBuilder::token(tables.next_id(), "1", SyntaxKind::NumericLiteral).finish(),
+        ];
+        let mut fixes = HashMap::new();
+        compute_anchor_edit_info(
+            &mut fixes,
+            vec![LintFix::replace(numeric, replacement, None)],
+        );
+        let parser: Parser = linter.config().into();
+        let mut parse_context = (&parser).into();
+
+        let (_, _, _, valid) = tree.apply_fixes(&mut fixes, &mut parse_context);
+
+        assert!(!valid);
     }
 
     // test__linter__mask_templated_violations

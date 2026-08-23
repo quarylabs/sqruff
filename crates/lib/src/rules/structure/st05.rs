@@ -196,7 +196,9 @@ join c using(x)
 
         let mut fixes = HashMap::default();
         compute_anchor_edit_info(&mut fixes, local_fixes);
-        let (new_root, _, _) = clone_map.root.apply_fixes(&mut fixes);
+        let parser: sqruff_lib_core::parser::Parser = context.config.into();
+        let mut parse_context = (&parser).into();
+        let (new_root, _, _, _) = clone_map.root.apply_fixes(&mut fixes, &mut parse_context);
 
         let clone_map = SegmentCloneMap::new(segment.first().unwrap().clone(), new_root.clone());
         for subquery_parent_slot in q {

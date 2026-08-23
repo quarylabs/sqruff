@@ -89,6 +89,13 @@ impl Matchable {
             _ => None,
         }
     }
+
+    pub fn as_node_matcher_ref(&self) -> Option<&NodeMatcher> {
+        match self.inner.as_ref() {
+            MatchableTraitImpl::NodeMatcher(parser) => Some(parser),
+            _ => None,
+        }
+    }
 }
 
 #[enum_dispatch(MatchableTrait)]

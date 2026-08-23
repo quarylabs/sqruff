@@ -413,6 +413,17 @@ pub fn raw_dialect() -> Dialect {
         ),
     );
 
+    // MySQL permits parenthesized default values in column constraints.
+    let column_constraint_default = mysql.grammar("ColumnConstraintDefaultGrammar");
+    mysql.replace_grammar(
+        "ColumnConstraintDefaultGrammar",
+        one_of(vec![
+            Bracketed::new(vec![column_constraint_default.clone()]).to_matchable(),
+            column_constraint_default,
+        ])
+        .to_matchable(),
+    );
+
     // FromClauseTerminatorGrammar - add index hints, partition, FOR, INTO.
     let from_clause_terminator = mysql.grammar("FromClauseTerminatorGrammar");
     mysql.replace_grammar(

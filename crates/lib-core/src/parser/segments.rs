@@ -1134,7 +1134,13 @@ pub fn position_segments(
         new_position = new_position.with_working_position(line_no, line_pos);
         (line_no, line_pos) = PositionMarker::infer_next_position(segment.raw(), line_no, line_pos);
 
-        let mut new_seg = if !segment.segments().is_empty() && old_position != Some(&new_position) {
+        let has_unpositioned_children = segment
+            .segments()
+            .iter()
+            .any(|child| child.get_position_marker().is_none());
+        let mut new_seg = if !segment.segments().is_empty()
+            && (old_position != Some(&new_position) || has_unpositioned_children)
+        {
             let child_segments = position_segments(segment.segments(), &new_position);
             segment.change_segments(child_segments)
         } else {
@@ -1289,6 +1295,21 @@ mod tests {
         let raw_seg = raw_seg();
 
         assert_eq!(raw_seg.raw(), "foobar");
+    }
+
+    #[test]
+    fn test_position_segments_positions_unpositioned_children() {
+        let templated_file: TemplatedFile = "'a string'".into();
+        let position = PositionMarker::new(0..10, 0..10, templated_file, None, None);
+        let raw = SegmentBuilder::token(1, "'a string'", SyntaxKind::QuotedLiteral).finish();
+        let parent =
+            SegmentBuilder::node(2, SyntaxKind::QuotedLiteral, DialectKind::Ansi, vec![raw])
+                .with_position(position.clone())
+                .finish();
+
+        let positioned = position_segments(&[parent], &position);
+
+        assert!(positioned[0].segments()[0].get_position_marker().is_some());
     }
 
     #[test]

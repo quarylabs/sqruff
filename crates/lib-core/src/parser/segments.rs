@@ -1383,6 +1383,22 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_lint_fix_edit_is_isolated_from_source_segment() {
+        let source = raw_segments().remove(0);
+        assert!(source.get_position_marker().is_some());
+
+        let fix = LintFix::replace(source.clone(), vec![source.clone()], None);
+        let LintFix::Replace { edit, .. } = fix else {
+            unreachable!();
+        };
+
+        assert!(source.get_position_marker().is_some());
+        assert!(edit[0].get_position_marker().is_none());
+        assert!(!source.is(&edit[0]));
+        assert_eq!(source.raw(), edit[0].raw());
+    }
+
     /// Regression test for issue #1884: raw_segments_with_ancestors must not
     /// create Rc reference cycles that prevent the segment tree from being
     /// deallocated.

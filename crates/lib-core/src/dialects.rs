@@ -93,6 +93,21 @@ impl Dialect {
         }
     }
 
+    /// Return the grammar used to construct a parsed node of `kind`.
+    pub fn match_grammars_for_kind(&self, kind: SyntaxKind) -> Vec<Matchable> {
+        self.library
+            .values()
+            .filter_map(|element| {
+                let DialectElementType::Matchable(matchable) = element else {
+                    return None;
+                };
+
+                let node_matcher = matchable.as_node_matcher_ref()?;
+                (node_matcher.get_type() == kind).then(|| node_matcher.match_grammar(self))
+            })
+            .collect()
+    }
+
     #[track_caller]
     pub fn replace_grammar(&mut self, name: &'static str, match_grammar: Matchable) {
         match self.library.entry(Cow::Borrowed(name)) {

@@ -138,7 +138,7 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
                     SegmentBuilder::token(
                         context.tables.next_id(),
                         replacement[0],
-                        SyntaxKind::ComparisonOperator,
+                        SyntaxKind::RawComparisonOperator,
                     )
                     .finish(),
                 ],
@@ -150,7 +150,7 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
                     SegmentBuilder::token(
                         context.tables.next_id(),
                         replacement[1],
-                        SyntaxKind::ComparisonOperator,
+                        SyntaxKind::RawComparisonOperator,
                     )
                     .finish(),
                 ],

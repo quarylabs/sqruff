@@ -108,9 +108,12 @@ from table_a
             if f_content[0].is_type(SyntaxKind::Star)
                 && (self.prefer_count_0 || self.prefer_count_1)
             {
-                let new_segment =
-                    SegmentBuilder::token(context.tables.next_id(), preferred, SyntaxKind::Literal)
-                        .finish();
+                let new_segment = SegmentBuilder::token(
+                    context.tables.next_id(),
+                    preferred,
+                    SyntaxKind::NumericLiteral,
+                )
+                .finish();
                 return vec![LintResult::new(
                     context.segment.clone().into(),
                     vec![LintFix::replace(
@@ -140,21 +143,23 @@ from table_a
                     && raw != preferred
                 {
                     let first_expression = expression_content[0].clone();
-                    let first_expression_raw = first_expression.raw();
+                    let replacement_kind = if preferred == "*" {
+                        SyntaxKind::Star
+                    } else {
+                        SyntaxKind::NumericLiteral
+                    };
 
                     return vec![LintResult::new(
                         context.segment.clone().into(),
                         vec![LintFix::replace(
                             first_expression.clone(),
                             vec![
-                                first_expression.edit(
+                                SegmentBuilder::token(
                                     context.tables.next_id(),
-                                    first_expression
-                                        .raw()
-                                        .replace(first_expression_raw.as_str(), preferred)
-                                        .into(),
-                                    None,
-                                ),
+                                    preferred,
+                                    replacement_kind,
+                                )
+                                .finish(),
                             ],
                             None,
                         )],

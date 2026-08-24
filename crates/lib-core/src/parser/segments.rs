@@ -21,7 +21,10 @@ use smol_str::SmolStr;
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::lint_fix::LintFix;
+use crate::parser::Parser;
+use crate::parser::context::ParseContext;
 use crate::parser::markers::PositionMarker;
+use crate::parser::matchable::MatchableTrait;
 use crate::parser::segments::fix::{FixPatch, SourceFix};
 use crate::parser::segments::object_reference::{ObjectReferenceKind, ObjectReferenceSegment};
 use crate::segments::AnchorEditInfo;
@@ -795,14 +798,14 @@ impl ErasedSegment {
     pub fn apply_fixes(
         &self,
         fixes: &mut HashMap<u32, AnchorEditInfo>,
-    ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>) {
+        parse_context: &mut ParseContext,
+    ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
         if fixes.is_empty() || self.segments().is_empty() {
-            return (self.clone(), Vec::new(), Vec::new());
+            return (self.clone(), Vec::new(), Vec::new(), true);
         }
 
         let mut seg_buffer = Vec::new();
         let mut has_applied_fixes = false;
-        let mut _requires_validate = false;
 
         for seg in self.segments() {
             // Look for uuid match.
@@ -826,7 +829,6 @@ impl ErasedSegment {
                 // Deletes are easy.
                 if matches!(lint_fix, LintFix::Delete { .. }) {
                     // We're just getting rid of this segment.
-                    _requires_validate = true;
                     // NOTE: We don't add the segment in this case.
                     continue;
                 }
@@ -850,19 +852,15 @@ impl ErasedSegment {
                         for s in edit {
                             seg_buffer.push(s);
                         }
-                        _requires_validate = true;
                     }
                     LintFix::CreateBefore { edit, .. } => {
                         for s in edit {
                             seg_buffer.push(s);
                         }
                         seg_buffer.push(seg.clone());
-                        _requires_validate = true;
                     }
                     LintFix::Replace { edit, .. } => {
                         let mut consumed_pos = false;
-                        let is_single_same_type =
-                            edit.len() == 1 && edit[0].class_types() == seg.class_types();
 
                         for mut s in edit {
                             if !consumed_pos && s.raw() == seg.raw() {
@@ -871,10 +869,6 @@ impl ErasedSegment {
                                     .set_position_marker(seg.get_position_marker().cloned());
                             }
                             seg_buffer.push(s);
-                        }
-
-                        if !is_single_same_type {
-                            _requires_validate = true;
                         }
                     }
                     LintFix::Delete { .. } => {
@@ -892,8 +886,10 @@ impl ErasedSegment {
 
         let seg_queue = seg_buffer;
         let mut seg_buffer = Vec::new();
+        let mut requires_validate = has_applied_fixes;
         for seg in seg_queue {
-            let (mid, pre, post) = seg.apply_fixes(fixes);
+            let (mid, pre, post, child_validated) = seg.apply_fixes(fixes, parse_context);
+            requires_validate |= !child_validated;
 
             seg_buffer.extend(pre);
             seg_buffer.push(mid);
@@ -902,7 +898,97 @@ impl ErasedSegment {
 
         let seg_buffer =
             position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
-        (self.new(seg_buffer), Vec::new(), Vec::new())
+        let new_segment = self.new(seg_buffer);
+        let validated = if requires_validate {
+            new_segment.validate_after_fixes(parse_context)
+        } else {
+            true
+        };
+
+        (new_segment, Vec::new(), Vec::new(), validated)
+    }
+
+    /// Check a structurally changed segment against the grammar that created it.
+    ///
+    /// Nodes without a match grammar defer validation to their parent. This lets
+    /// constructs such as bracketed segments be checked in the context where
+    /// their grammar is defined.
+    fn validate_after_fixes(&self, parse_context: &mut ParseContext) -> bool {
+        let grammars = parse_context
+            .dialect()
+            .match_grammars_for_kind(self.get_type());
+        if grammars.is_empty() {
+            return false;
+        }
+
+        let raw_segments = self
+            .get_raw_segments()
+            .into_iter()
+            .filter(|segment| !segment.is_meta())
+            .collect::<Vec<_>>();
+        let opening_unparsables = self
+            .recursive_crawl(
+                &SyntaxSet::single(SyntaxKind::Unparsable),
+                true,
+                &SyntaxSet::EMPTY,
+                true,
+            )
+            .len();
+
+        // File parsing has explicit recovery behavior for unmatched input, so
+        // validate it through the root parser instead of its match grammar.
+        if self.is_type(SyntaxKind::File) {
+            let parser = Parser::new(parse_context.dialect(), parse_context.indentation_config);
+            let Ok(Some(reparsed)) = parser.parse(&Tables::default(), &raw_segments) else {
+                return false;
+            };
+            let closing_unparsables = reparsed
+                .recursive_crawl(
+                    &SyntaxSet::single(SyntaxKind::Unparsable),
+                    true,
+                    &SyntaxSet::EMPTY,
+                    true,
+                )
+                .len();
+            return closing_unparsables <= opening_unparsables;
+        }
+
+        let Some(start_idx) = raw_segments.iter().position(ErasedSegment::is_code) else {
+            return false;
+        };
+        let end_idx = raw_segments
+            .iter()
+            .rposition(ErasedSegment::is_code)
+            .unwrap()
+            + 1;
+        let trimmed = &raw_segments[start_idx..end_idx];
+
+        grammars.into_iter().any(|grammar| {
+            let Ok(rematch) = grammar.match_segments(trimmed, 0, parse_context) else {
+                return false;
+            };
+            if rematch.span.start != 0 || rematch.span.end != trimmed.len() as u32 {
+                return false;
+            }
+
+            let rematched_segments =
+                rematch.apply(&Tables::default(), parse_context.dialect().name, trimmed);
+            let closing_unparsables = rematched_segments
+                .iter()
+                .map(|segment| {
+                    segment
+                        .recursive_crawl(
+                            &SyntaxSet::single(SyntaxKind::Unparsable),
+                            true,
+                            &SyntaxSet::EMPTY,
+                            true,
+                        )
+                        .len()
+                })
+                .sum::<usize>();
+
+            closing_unparsables <= opening_unparsables
+        })
     }
 }
 
@@ -1048,7 +1134,13 @@ pub fn position_segments(
         new_position = new_position.with_working_position(line_no, line_pos);
         (line_no, line_pos) = PositionMarker::infer_next_position(segment.raw(), line_no, line_pos);
 
-        let mut new_seg = if !segment.segments().is_empty() && old_position != Some(&new_position) {
+        let has_unpositioned_children = segment
+            .segments()
+            .iter()
+            .any(|child| child.get_position_marker().is_none());
+        let mut new_seg = if !segment.segments().is_empty()
+            && (old_position != Some(&new_position) || has_unpositioned_children)
+        {
             let child_segments = position_segments(segment.segments(), &new_position);
             segment.change_segments(child_segments)
         } else {
@@ -1203,6 +1295,21 @@ mod tests {
         let raw_seg = raw_seg();
 
         assert_eq!(raw_seg.raw(), "foobar");
+    }
+
+    #[test]
+    fn test_position_segments_positions_unpositioned_children() {
+        let templated_file: TemplatedFile = "'a string'".into();
+        let position = PositionMarker::new(0..10, 0..10, templated_file, None, None);
+        let raw = SegmentBuilder::token(1, "'a string'", SyntaxKind::QuotedLiteral).finish();
+        let parent =
+            SegmentBuilder::node(2, SyntaxKind::QuotedLiteral, DialectKind::Ansi, vec![raw])
+                .with_position(position.clone())
+                .finish();
+
+        let positioned = position_segments(&[parent], &position);
+
+        assert!(positioned[0].segments()[0].get_position_marker().is_some());
     }
 
     #[test]

@@ -135,8 +135,12 @@ impl RuleAL07 {
                             edits.push(SegmentBuilder::symbol(tables.next_id(), "."));
                         }
                         edits.push(
-                            SegmentBuilder::token(tables.next_id(), part, SyntaxKind::Identifier)
-                                .finish(),
+                            SegmentBuilder::token(
+                                tables.next_id(),
+                                part,
+                                SyntaxKind::NakedIdentifier,
+                            )
+                            .finish(),
                         );
                     }
                     fixes.push(LintFix::replace(

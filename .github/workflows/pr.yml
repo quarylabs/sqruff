@@ -96,7 +96,7 @@ jobs:
     if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # ratchet:Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # ratchet:Swatinem/rust-cache@v2
         with:
           workspaces: editors/zed
       # editors/zed is a standalone Cargo workspace, so it is invisible to the

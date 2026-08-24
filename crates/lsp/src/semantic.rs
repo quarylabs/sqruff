@@ -1283,8 +1283,10 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | TupleElementAccess
         | MaterializeSize
         | AlterConnectionRotateKeys
+        | AlterOwnerStatement
         | AlterRenameStatement
         | AlterSecretStatement
+        | AlterSetClusterStatement
         | AlterSourceSinkSizeStatement
         | CopyToStatement
         | CopyFromStatement
@@ -1296,6 +1298,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateSourceKafkaStatement
         | CreateSourceLoadGeneratorStatement
         | CreateSourcePostgresStatement
+        | CreateSourceWebhookStatement
+        | GrantStatement
         | ShowCreateStatement
         | ShowIndexesStatement
         | ShowMaterializedViewsStatement

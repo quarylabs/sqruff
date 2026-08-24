@@ -106,6 +106,11 @@ pub fn raw_dialect() -> Dialect {
             "InCluster".into(),
             seq(vec![kw("IN"), kw("CLUSTER"), r("ObjectReferenceSegment")]).into(),
         ),
+        ("Privileges".into(), privileges().into()),
+        (
+            "AlterOwnerStatementSegment".into(),
+            node(SyntaxKind::AlterOwnerStatement, alter_owner()).into(),
+        ),
         (
             "AlterConnectionRotateKeys".into(),
             node(
@@ -122,6 +127,14 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "AlterDefaultPrivilegesStatementSegment".into(),
+            node(
+                SyntaxKind::AlterDefaultPrivilegesStatement,
+                alter_default_privileges(),
+            )
+            .into(),
+        ),
+        (
             "AlterRenameStatementSegment".into(),
             node(
                 SyntaxKind::AlterRenameStatement,
@@ -129,6 +142,10 @@ pub fn raw_dialect() -> Dialect {
                     kw("ALTER"),
                     one_of(vec![
                         kw("CONNECTION"),
+                        seq(vec![
+                            kw("CLUSTER"),
+                            Ref::keyword("REPLICA").optional().to_matchable(),
+                        ]),
                         kw("INDEX"),
                         kw("SOURCE"),
                         kw("SINK"),
@@ -144,6 +161,10 @@ pub fn raw_dialect() -> Dialect {
                 ]),
             )
             .into(),
+        ),
+        (
+            "AlterSetClusterStatementSegment".into(),
+            node(SyntaxKind::AlterSetClusterStatement, alter_set_cluster()).into(),
         ),
         (
             "AlterIndexStatementSegment".into(),
@@ -247,10 +268,14 @@ pub fn raw_dialect() -> Dialect {
                     kw("CREATE"),
                     kw("CLUSTER"),
                     r("ObjectReferenceSegment"),
-                    optional_seq(vec![
-                        kw("REPLICAS"),
-                        Bracketed::new(vec![delimited_anything()]).to_matchable(),
-                    ]),
+                    one_of(vec![
+                        optional_seq(vec![
+                            kw("REPLICAS"),
+                            Bracketed::new(vec![delimited_anything()]).to_matchable(),
+                        ]),
+                        optional_seq(vec![Anything::new().to_matchable()]),
+                    ])
+                    .to_matchable(),
                 ]),
             )
             .into(),
@@ -348,6 +373,14 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "CreateSourceWebhookStatementSegment".into(),
+            node(
+                SyntaxKind::CreateSourceWebhookStatement,
+                create_source_webhook(),
+            )
+            .into(),
+        ),
+        (
             "CreateTypeStatementSegment".into(),
             node(SyntaxKind::CreateTypeStatement, create_type()).into(),
         ),
@@ -394,6 +427,10 @@ pub fn raw_dialect() -> Dialect {
             node(SyntaxKind::FetchStatement, fetch_statement()).into(),
         ),
         (
+            "GrantStatementSegment".into(),
+            node(SyntaxKind::GrantStatement, grant_statement()).into(),
+        ),
+        (
             "DeclareStatementSegment".into(),
             node(SyntaxKind::DeclareStatement, declare_statement()).into(),
         ),
@@ -408,10 +445,13 @@ pub fn raw_dialect() -> Dialect {
             .copy(
                 Some(
                     vec![
+                        "AlterOwnerStatementSegment",
                         "AlterConnectionRotateKeys",
+                        "AlterDefaultPrivilegesStatementSegment",
                         "AlterIndexStatementSegment",
                         "AlterRenameStatementSegment",
                         "AlterSecretStatementSegment",
+                        "AlterSetClusterStatementSegment",
                         "AlterSourceSinkSizeStatementSegment",
                         "CloseStatementSegment",
                         "CopyToStatementSegment",
@@ -426,10 +466,12 @@ pub fn raw_dialect() -> Dialect {
                         "CreateSourceKafkaStatementSegment",
                         "CreateSourceLoadGeneratorStatementSegment",
                         "CreateSourcePostgresStatementSegment",
+                        "CreateSourceWebhookStatementSegment",
                         "CreateTypeStatementSegment",
                         "CreateViewStatementSegment",
                         "DropStatementSegment",
                         "FetchStatementSegment",
+                        "GrantStatementSegment",
                         "MaterializeExplainStatementSegment",
                         "ShowStatementSegment",
                         "ShowCreateStatementSegment",
@@ -452,6 +494,98 @@ pub fn raw_dialect() -> Dialect {
             ),
     );
     materialize
+}
+
+fn privileges() -> Matchable {
+    one_of(vec![
+        kw("SELECT"),
+        kw("INSERT"),
+        kw("UPDATE"),
+        kw("DELETE"),
+        kw("CREATE"),
+        kw("USAGE"),
+        kw("CREATEROLE"),
+        kw("CREATEDB"),
+        kw("CREATECLUSTER"),
+        seq(vec![
+            kw("ALL"),
+            Ref::keyword("PRIVILEGES").optional().to_matchable(),
+        ]),
+    ])
+    .to_matchable()
+}
+
+fn alter_owner() -> Matchable {
+    seq(vec![
+        kw("ALTER"),
+        one_of(vec![
+            kw("CONNECTION"),
+            kw("CLUSTER"),
+            seq(vec![kw("CLUSTER"), kw("REPLICA")]),
+            kw("INDEX"),
+            kw("SOURCE"),
+            kw("SINK"),
+            kw("VIEW"),
+            seq(vec![kw("MATERIALIZED"), kw("VIEW")]),
+            kw("TABLE"),
+            kw("SECRET"),
+        ])
+        .to_matchable(),
+        r("ObjectReferenceSegment"),
+        kw("OWNER"),
+        kw("TO"),
+        r("ObjectReferenceSegment"),
+    ])
+}
+
+fn alter_default_privileges() -> Matchable {
+    seq(vec![
+        kw("ALTER"),
+        kw("DEFAULT"),
+        kw("PRIVILEGES"),
+        kw("FOR"),
+        one_of(vec![
+            seq(vec![
+                one_of(vec![kw("ROLE"), kw("USER")]).to_matchable(),
+                r("ObjectReferenceSegment"),
+            ]),
+            seq(vec![kw("ALL"), kw("ROLES")]),
+        ])
+        .to_matchable(),
+        optional_seq(vec![
+            kw("IN"),
+            one_of(vec![kw("SCHEMA"), kw("DATABASE")]).to_matchable(),
+            r("ObjectReferenceSegment"),
+        ]),
+        kw("GRANT"),
+        r("Privileges"),
+        kw("ON"),
+        one_of(vec![
+            kw("TABLES"),
+            kw("TYPES"),
+            kw("SECRETS"),
+            kw("CONNECTIONS"),
+            kw("DATABASES"),
+            kw("SCHEMAS"),
+            kw("CLUSTERS"),
+        ])
+        .to_matchable(),
+        kw("TO"),
+        r("ObjectReferenceSegment"),
+    ])
+}
+
+fn alter_set_cluster() -> Matchable {
+    seq(vec![
+        kw("ALTER"),
+        kw("MATERIALIZED"),
+        kw("VIEW"),
+        opt("IfExistsGrammar"),
+        r("ObjectReferenceSegment"),
+        kw("IN"),
+        kw("CLUSTER"),
+        r("ObjectReferenceSegment"),
+    ])
 }
 
 fn create_index() -> Matchable {
@@ -526,6 +660,7 @@ fn create_sink() -> Matchable {
         kw("SINK"),
         opt("IfNotExistsGrammar"),
         r("ObjectReferenceSegment"),
+        opt("InCluster"),
         kw("FROM"),
         r("ObjectReferenceSegment"),
         kw("INTO"),
@@ -551,6 +686,7 @@ fn create_source_kafka() -> Matchable {
         kw("SOURCE"),
         opt("IfNotExistsGrammar"),
         r("ObjectReferenceSegment"),
+        opt("InCluster"),
         Bracketed::new(vec![
             Delimited::new(vec![r("ColumnReferenceSegment")]).to_matchable(),
         ])
@@ -596,14 +732,21 @@ fn create_source_load_generator() -> Matchable {
         kw("SOURCE"),
         opt("IfNotExistsGrammar"),
         r("ObjectReferenceSegment"),
+        opt("InCluster"),
         kw("FROM"),
         kw("LOAD"),
         kw("GENERATOR"),
-        one_of(vec![kw("AUCTION"), kw("COUNTER"), kw("TPCH")]).to_matchable(),
+        one_of(vec![
+            kw("AUCTION"),
+            kw("COUNTER"),
+            kw("MARKETING"),
+            kw("TPCH"),
+        ])
+        .to_matchable(),
         Bracketed::new(vec![delimited_anything()])
             .config(|this| this.optional())
             .to_matchable(),
-        table_selection(),
+        optional_seq(vec![kw("FOR"), kw("ALL"), kw("TABLES")]),
         with_anything(),
     ])
 }
@@ -613,6 +756,7 @@ fn create_source_postgres() -> Matchable {
         kw("SOURCE"),
         opt("IfNotExistsGrammar"),
         r("ObjectReferenceSegment"),
+        opt("InCluster"),
         optional_seq(vec![
             kw("FROM"),
             kw("POSTGRES"),
@@ -622,6 +766,109 @@ fn create_source_postgres() -> Matchable {
         ]),
         table_selection(),
         with_anything(),
+    ])
+}
+
+fn create_source_webhook() -> Matchable {
+    seq(vec![
+        kw("CREATE"),
+        kw("SOURCE"),
+        opt("IfNotExistsGrammar"),
+        r("ObjectReferenceSegment"),
+        opt("InCluster"),
+        kw("FROM"),
+        kw("WEBHOOK"),
+        kw("BODY"),
+        kw("FORMAT"),
+        one_of(vec![kw("TEXT"), kw("JSON"), kw("BYTES")]).to_matchable(),
+        one_of(vec![
+            seq(vec![
+                kw("INCLUDE"),
+                kw("HEADER"),
+                optional_seq(vec![Anything::new().to_matchable()]),
+            ]),
+            seq(vec![
+                kw("INCLUDE"),
+                kw("HEADERS"),
+                Bracketed::new(vec![delimited_anything()]).to_matchable(),
+            ]),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        optional_seq(vec![
+            kw("CHECK"),
+            Bracketed::new(vec![
+                kw("WITH"),
+                Bracketed::new(vec![delimited_anything()]).to_matchable(),
+            ])
+            .to_matchable(),
+        ]),
+        optional_seq(vec![Anything::new().to_matchable()]),
+    ])
+}
+
+fn grant_statement() -> Matchable {
+    let object_type = || {
+        one_of(vec![
+            kw("TABLE"),
+            kw("TYPE"),
+            kw("SECRET"),
+            kw("CONNECTION"),
+            kw("DATABASE"),
+            kw("SCHEMA"),
+            kw("CLUSTER"),
+        ])
+        .config(|this| this.optional())
+        .to_matchable()
+    };
+    let references = || Delimited::new(vec![r("ObjectReferenceSegment")]).to_matchable();
+
+    seq(vec![
+        kw("GRANT"),
+        r("Privileges"),
+        kw("ON"),
+        one_of(vec![
+            seq(vec![object_type(), references()]),
+            kw("SYSTEM"),
+            seq(vec![
+                kw("ALL"),
+                one_of(vec![
+                    seq(vec![
+                        one_of(vec![
+                            kw("TABLES"),
+                            kw("TYPES"),
+                            kw("SECRETS"),
+                            kw("CONNECTIONS"),
+                        ])
+                        .to_matchable(),
+                        kw("IN"),
+                        kw("SCHEMA"),
+                        references(),
+                    ]),
+                    seq(vec![
+                        one_of(vec![
+                            kw("TABLES"),
+                            kw("TYPES"),
+                            kw("SECRETS"),
+                            kw("CONNECTIONS"),
+                            kw("SCHEMAS"),
+                        ])
+                        .to_matchable(),
+                        kw("IN"),
+                        kw("DATABASE"),
+                        references(),
+                    ]),
+                    kw("DATABASES"),
+                    kw("SCHEMAS"),
+                    kw("CLUSTERS"),
+                ])
+                .to_matchable(),
+            ]),
+        ])
+        .to_matchable(),
+        kw("TO"),
+        Ref::keyword("GROUP").optional().to_matchable(),
+        references(),
     ])
 }
 fn create_type() -> Matchable {

@@ -1,0 +1,52 @@
+file:
+- statement:
+  - grant_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: ON
+    - object_reference:
+      - naked_identifier: mv
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: joe
+    - comma: ','
+    - object_reference:
+      - naked_identifier: mike
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - comma: ','
+    - keyword: CREATE
+    - keyword: ON
+    - keyword: DATABASE
+    - object_reference:
+      - naked_identifier: materialize
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: joe
+- statement_terminator: ;
+- statement:
+  - grant_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: ON
+    - keyword: CLUSTER
+    - object_reference:
+      - naked_identifier: dev
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: joe
+- statement_terminator: ;
+- statement:
+  - grant_statement:
+    - keyword: GRANT
+    - keyword: CREATEDB
+    - keyword: ON
+    - object_reference:
+      - naked_identifier: SYSTEM
+    - keyword: TO
+    - object_reference:
+      - naked_identifier: joe
+- statement_terminator: ;

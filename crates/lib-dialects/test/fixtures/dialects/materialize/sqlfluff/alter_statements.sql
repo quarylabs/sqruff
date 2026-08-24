@@ -2,6 +2,13 @@
 -- Alter connection rotate keys
 ALTER CONNECTION test rotate keys;
 
+-- Alter owner
+ALTER CLUSTER dev OWNER TO admin;
+
+-- Alter default privileges
+ALTER DEFAULT PRIVILEGES FOR ROLE mike GRANT SELECT ON TABLES TO joe;
+ALTER DEFAULT PRIVILEGES FOR ALL ROLES GRANT SELECT ON TABLES TO managers;
+
 -- Alter name
 ALTER CONNECTION test RENAME TO test2;
 ALTER INDEX test RENAME TO test2;
@@ -11,6 +18,10 @@ ALTER SINK test RENAME TO test2;
 ALTER TABLE test RENAME TO test2;
 ALTER VIEW test RENAME TO test2;
 ALTER SECRET test RENAME TO test2;
+ALTER CLUSTER REPLICA test RENAME TO test2;
+
+-- Alter materialized view cluster
+ALTER MATERIALIZED VIEW IF EXISTS test IN CLUSTER analytics;
 
 -- Alter index enable
 ALTER INDEX test_idx SET ENABLED;

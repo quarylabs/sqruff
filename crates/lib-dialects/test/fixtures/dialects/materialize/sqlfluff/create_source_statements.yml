@@ -237,6 +237,51 @@ file:
     - keyword: CREATE
     - keyword: SOURCE
     - object_reference:
+      - naked_identifier: marketing
+    - keyword: FROM
+    - keyword: LOAD
+    - keyword: GENERATOR
+    - keyword: MARKETING
+    - bracketed:
+      - start_bracket: (
+      - word: SCALE
+      - word: FACTOR
+      - numeric_literal: '1'
+      - end_bracket: )
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - word: SIZE
+      - raw_comparison_operator: =
+      - single_quote: '''3xsmall'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+      - naked_identifier: marketing
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+      - naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: LOAD
+    - keyword: GENERATOR
+    - keyword: MARKETING
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+  - create_source_load_generator_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
       - naked_identifier: tpch
     - keyword: FROM
     - keyword: LOAD
@@ -303,6 +348,30 @@ file:
       - raw_comparison_operator: =
       - single_quote: '''3xsmall'''
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_source_postgres_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+      - naked_identifier: mz_source
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+      - naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: POSTGRES
+    - keyword: CONNECTION
+    - object_reference:
+      - naked_identifier: pg_connection
+    - bracketed:
+      - start_bracket: (
+      - word: PUBLICATION
+      - single_quote: '''mz_source'''
+      - end_bracket: )
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
 - statement_terminator: ;
 - statement:
   - create_source_postgres_statement:
@@ -396,6 +465,83 @@ file:
       - word: SIZE
       - raw_comparison_operator: =
       - single_quote: '''3xsmall'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_source_webhook_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+      - naked_identifier: my_webhook_source
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+      - naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: WEBHOOK
+    - keyword: BODY
+    - keyword: FORMAT
+    - keyword: JSON
+    - keyword: INCLUDE
+    - keyword: HEADERS
+    - bracketed:
+      - start_bracket: (
+      - word: NOT
+      - single_quote: '''authorization'''
+      - comma: ','
+      - word: NOT
+      - single_quote: '''x-api-key'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_source_webhook_statement:
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+      - naked_identifier: webhook_with_check
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+      - naked_identifier: my_cluster
+    - keyword: FROM
+    - keyword: WEBHOOK
+    - keyword: BODY
+    - keyword: FORMAT
+    - keyword: JSON
+    - word: CHECK
+    - bracketed:
+      - start_bracket: (
+      - word: WITH
+      - bracketed:
+        - start_bracket: (
+        - word: HEADERS
+        - comma: ','
+        - word: BODY
+        - word: AS
+        - word: request_body
+        - comma: ','
+        - word: SECRET
+        - word: my_webhook_shared_secret
+        - end_bracket: )
+      - word: decode
+      - bracketed:
+        - start_bracket: (
+        - word: headers
+        - json_operator: ->
+        - single_quote: '''x-signature'''
+        - comma: ','
+        - single_quote: '''base64'''
+        - end_bracket: )
+      - raw_comparison_operator: =
+      - word: hmac
+      - bracketed:
+        - start_bracket: (
+        - word: request_body
+        - comma: ','
+        - word: my_webhook_shared_secret
+        - comma: ','
+        - single_quote: '''sha256'''
+        - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:

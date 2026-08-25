@@ -500,8 +500,17 @@ pub(crate) fn tsql_future_keywords() -> HashSet<&'static str> {
 pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
     [
         // PERIOD FOR SYSTEM_TIME (temporal tables, #4654)
+        "DATA_CONSISTENCY_CHECK",
+        "HISTORY_RETENTION_PERIOD",
+        "HISTORY_TABLE",
         "PERIOD",
+        "SYSTEM_VERSIONING",
         "SYSTEM_TIME",
+        "DAYS",
+        "INFINITE",
+        "MONTHS",
+        "WEEKS",
+        "YEARS",
         // sqlcmd commands (#4653)
         "R",
         "SETVAR",

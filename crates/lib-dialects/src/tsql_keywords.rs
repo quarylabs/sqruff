@@ -110,6 +110,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> HashSet<&'static str> {
         "LEFT",
         "LIKE",
         "LINENO",
+        "LIST",
         "LOAD",
         "MERGE",
         "NATIONAL",
@@ -140,6 +141,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> HashSet<&'static str> {
         "PRINT",
         "PROC",
         "PROCEDURE",
+        "PROPERTY",
         "PUBLIC",
         "RAISERROR",
         "READ",
@@ -617,6 +619,15 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "ROWTERMINATOR",
         "FIRSTROW",
         "AUTO_CREATE_TABLE",
+        // CREATE FULLTEXT INDEX (#5274)
+        "AUTO",
+        "CHANGE_TRACKING",
+        "FILEGROUP",
+        "FULLTEXT",
+        "MANUAL",
+        "POPULATION",
+        "STATISTICAL_SEMANTICS",
+        "STOPLIST",
     ]
     .into_iter()
     .collect()

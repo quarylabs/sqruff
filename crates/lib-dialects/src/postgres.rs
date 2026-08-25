@@ -1552,7 +1552,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("IfExistsGrammar").optional().to_matchable(),
                     Delimited::new(vec![
                         Sequence::new(vec![
-                            Ref::new("FunctionNameSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
                             Ref::new("FunctionParameterListGrammar")
                                 .optional()
                                 .to_matchable(),

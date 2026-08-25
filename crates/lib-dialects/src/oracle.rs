@@ -50,6 +50,7 @@ pub fn raw_dialect() -> Dialect {
         "EXCLUSIVE",
         "EXECUTE",
         "FILE",
+        "FOR",
         "FORCE",
         "IDENTIFIED",
         "IMMEDIATE",

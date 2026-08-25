@@ -4370,6 +4370,7 @@ pub fn raw_dialect() -> Dialect {
                     .terminators(vec![
                         Ref::new("FunctionScriptTerminatorSegment").to_matchable(),
                     ])
+                    .reset_terminators()
                     .to_matchable()
             })
             .to_matchable()

@@ -292,45 +292,51 @@ impl RuleLT09 {
     ) -> Vec<LintResult> {
         let select_clause = FunctionalContext::new(context).segment();
         let parent_stack = &context.parent_stack;
+        let (Some(target_idx), Some(first_new_line_idx), Some(select_idx)) = (
+            select_targets_info.first_select_target_idx,
+            select_targets_info.first_new_line_idx,
+            select_targets_info.select_idx,
+        ) else {
+            return Vec::new();
+        };
+        let select_children = select_clause.children_all();
+        let target_seg = select_children[target_idx].clone();
 
-        if !(select_targets_info.select_idx < select_targets_info.first_new_line_idx
-            && select_targets_info.first_new_line_idx < select_targets_info.first_select_target_idx)
-        {
+        if !(select_idx < first_new_line_idx && first_new_line_idx < target_idx) {
             return Vec::new();
         }
 
-        let select_children = select_clause.children_all();
-        let mut modifier = select_children
-            .find_first_where(|seg: &ErasedSegment| seg.is_type(SyntaxKind::SelectClauseModifier));
-
-        if select_children[select_targets_info.first_select_target_idx.unwrap()]
+        if target_seg
             .descendant_type_set()
             .contains(SyntaxKind::Newline)
         {
             return Vec::new();
         }
 
+        if select_targets_info.comment_after_select_idx.is_some() {
+            return vec![LintResult::new(
+                select_clause.get(0, None).unwrap().clone().into(),
+                Vec::new(),
+                None,
+                None,
+            )];
+        }
+
         let mut insert_buff = vec![
             SegmentBuilder::whitespace(context.tables.next_id(), " "),
-            select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
+            target_seg.clone(),
         ];
-
-        if !modifier.is_empty()
-            && select_children.index(&modifier.get(0, None).unwrap())
-                < select_targets_info.first_new_line_idx
-        {
-            modifier = Segments::from_vec(Vec::new(), None);
-        }
-
-        let mut fixes = vec![LintFix::delete(
-            select_children[select_targets_info.first_select_target_idx.unwrap()].clone(),
-        )];
-        let target_idx = select_targets_info.first_select_target_idx.unwrap();
+        let mut initial_deletes = vec![target_seg.clone()];
         if target_idx > 0 && select_children[target_idx - 1].is_type(SyntaxKind::Whitespace) {
-            fixes.push(LintFix::delete(select_children[target_idx - 1].clone()));
+            initial_deletes.push(select_children[target_idx - 1].clone());
         }
 
-        let start_idx = if !modifier.is_empty() {
+        let modifier = select_children
+            .find_first_where(|seg: &ErasedSegment| seg.is_type(SyntaxKind::SelectClauseModifier));
+
+        let (start_idx, start_seg) = if !modifier.is_empty()
+            && select_children.index(&modifier[0]).unwrap() >= first_new_line_idx
+        {
             let buff = std::mem::take(&mut insert_buff);
 
             insert_buff = vec![
@@ -340,22 +346,27 @@ impl RuleLT09 {
 
             insert_buff.extend(buff);
 
-            let modifier_idx = select_children
-                .index(&modifier.get(0, None).unwrap())
-                .unwrap();
+            let modifier_idx = select_children.index(&modifier[0]).unwrap();
 
-            if select_children.len() > modifier_idx + 1
+            if select_children.len() > modifier_idx + 2
                 && select_children[modifier_idx + 2].is_whitespace()
             {
-                fixes.push(LintFix::delete(select_children[modifier_idx + 2].clone()));
+                initial_deletes.push(select_children[modifier_idx + 2].clone());
             }
 
-            fixes.push(LintFix::delete(modifier[0].clone()));
+            initial_deletes.push(modifier[0].clone());
 
-            modifier_idx
+            (modifier_idx, modifier[0].clone())
         } else {
-            select_targets_info.first_select_target_idx.unwrap()
+            (target_idx, select_children[first_new_line_idx].clone())
         };
+
+        let mut fixes = vec![LintFix::replace(
+            select_children[first_new_line_idx].clone(),
+            insert_buff,
+            None,
+        )];
+        fixes.extend(initial_deletes.into_iter().map(LintFix::delete));
 
         if !parent_stack.is_empty()
             && parent_stack
@@ -371,39 +382,66 @@ impl RuleLT09 {
                 .unwrap();
             let after_select_clause_idx = select_clause_idx + 1;
 
-            let fixes_for_move_after_select_clause =
-                |fixes: &mut Vec<LintFix>,
-                 stop_seg: ErasedSegment,
-                 delete_segments: Option<Segments>,
-                 add_newline: bool| {
-                    let start_seg = if !modifier.is_empty() {
-                        modifier[0].clone()
+            if select_stmt.segments().len() > after_select_clause_idx {
+                let mut add_newline = true;
+                let mut to_delete = vec![target_seg];
+                let next_segment = select_stmt.segments()[after_select_clause_idx].clone();
+
+                if next_segment.is_type(SyntaxKind::Newline) {
+                    let trailing_whitespace = select_children
+                        .reversed()
+                        .after(&select_children[start_idx])
+                        .take_while(|seg| seg.is_type(SyntaxKind::Whitespace));
+
+                    if !trailing_whitespace.is_empty() {
+                        let delete_last_newline = select_children
+                            [start_idx - trailing_whitespace.len() - 1]
+                            .is_type(SyntaxKind::Newline);
+
+                        if delete_last_newline {
+                            fixes.push(LintFix::delete(next_segment));
+                        }
+
+                        to_delete = trailing_whitespace.into_iter().collect_vec();
+                    }
+                } else if next_segment.is_type(SyntaxKind::Dedent) {
+                    let start_seg = if select_clause_idx == 0 {
+                        select_children.last().unwrap()
                     } else {
-                        select_children[select_targets_info.first_new_line_idx.unwrap()].clone()
+                        &select_children[select_clause_idx - 1]
                     };
 
+                    let trailing_whitespace = select_children
+                        .reversed()
+                        .after(start_seg)
+                        .take_while(|it| it.is_type(SyntaxKind::Whitespace));
+
+                    to_delete = trailing_whitespace.into_iter().collect_vec();
+                    if !to_delete.is_empty() {
+                        add_newline = to_delete.iter().any(|it| it.is_type(SyntaxKind::Newline));
+                    }
+                } else if next_segment.is_type(SyntaxKind::Whitespace) {
+                    fixes.push(LintFix::delete(next_segment));
+                }
+
+                if let Some(stop_seg) = to_delete.last() {
                     let move_after_select_clause =
-                        select_children.between_exclusive(&start_seg, &stop_seg);
-                    let mut local_fixes = Vec::new();
+                        select_children.between_exclusive(&start_seg, stop_seg);
                     let mut all_deletes = fixes
                         .iter()
                         .filter(|fix| matches!(fix, LintFix::Delete { .. }))
                         .map(|fix| fix.anchor().clone())
                         .collect_vec();
-                    for seg in delete_segments.unwrap_or_default() {
-                        fixes.push(LintFix::delete(seg.clone()));
-                        all_deletes.push(seg);
+
+                    for seg in to_delete.iter().chain(move_after_select_clause.iter()) {
+                        if !all_deletes.contains(seg) {
+                            fixes.push(LintFix::delete(seg.clone()));
+                            all_deletes.push(seg.clone());
+                        }
                     }
 
-                    let new_fixes = move_after_select_clause
-                        .iter()
-                        .filter(|it| !all_deletes.contains(it))
-                        .cloned()
-                        .map(LintFix::delete);
-                    local_fixes.extend(new_fixes);
-
                     if !move_after_select_clause.is_empty() || add_newline {
-                        local_fixes.push(LintFix::create_after(
+                        fixes.push(LintFix::create_after(
                             select_clause[0].clone(),
                             if add_newline {
                                 vec![SegmentBuilder::newline(context.tables.next_id(), "\n")]
@@ -416,95 +454,8 @@ impl RuleLT09 {
                             None,
                         ));
                     }
-
-                    local_fixes
-                };
-
-            if select_stmt.segments().len() > after_select_clause_idx {
-                if select_stmt.segments()[after_select_clause_idx].is_type(SyntaxKind::Newline) {
-                    let to_delete = select_children
-                        .reversed()
-                        .after(&select_children[start_idx])
-                        .take_while(|seg| seg.is_type(SyntaxKind::Whitespace));
-
-                    if !to_delete.is_empty() {
-                        let delete_last_newline = select_children[start_idx - to_delete.len() - 1]
-                            .is_type(SyntaxKind::Newline);
-
-                        if delete_last_newline {
-                            fixes.push(LintFix::delete(
-                                select_stmt.segments()[after_select_clause_idx].clone(),
-                            ));
-                        }
-
-                        let new_fixes = fixes_for_move_after_select_clause(
-                            &mut fixes,
-                            to_delete.last().unwrap().clone(),
-                            to_delete.into(),
-                            true,
-                        );
-                        fixes.extend(new_fixes);
-                    }
-                } else if select_stmt.segments()[after_select_clause_idx]
-                    .is_type(SyntaxKind::Whitespace)
-                {
-                    fixes.push(LintFix::delete(
-                        select_stmt.segments()[after_select_clause_idx].clone(),
-                    ));
-
-                    let new_fixes = fixes_for_move_after_select_clause(
-                        &mut fixes,
-                        select_children[select_targets_info.first_select_target_idx.unwrap()]
-                            .clone(),
-                        None,
-                        true,
-                    );
-
-                    fixes.extend(new_fixes);
-                } else if select_stmt.segments()[after_select_clause_idx]
-                    .is_type(SyntaxKind::Dedent)
-                {
-                    let start_seg = if select_clause_idx == 0 {
-                        select_children.last().unwrap()
-                    } else {
-                        &select_children[select_clause_idx - 1]
-                    };
-
-                    let to_delete = select_children
-                        .reversed()
-                        .after(start_seg)
-                        .take_while(|it| it.is_type(SyntaxKind::Whitespace));
-
-                    if !to_delete.is_empty() {
-                        let add_newline =
-                            to_delete.iter().any(|it| it.is_type(SyntaxKind::Newline));
-                        let local_fixes = fixes_for_move_after_select_clause(
-                            &mut fixes,
-                            to_delete.last().unwrap().clone(),
-                            to_delete.into(),
-                            add_newline,
-                        );
-                        fixes.extend(local_fixes);
-                    }
-                } else {
-                    let local_fixes = fixes_for_move_after_select_clause(
-                        &mut fixes,
-                        select_children[select_targets_info.first_select_target_idx.unwrap()]
-                            .clone(),
-                        None,
-                        true,
-                    );
-                    fixes.extend(local_fixes);
                 }
             }
-        }
-
-        if select_targets_info.comment_after_select_idx.is_none() {
-            fixes.push(LintFix::replace(
-                select_children[select_targets_info.first_new_line_idx.unwrap()].clone(),
-                insert_buff,
-                None,
-            ));
         }
 
         vec![LintResult::new(

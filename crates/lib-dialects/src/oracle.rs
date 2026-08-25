@@ -425,6 +425,37 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // PlusJoinSegment
+        (
+            "PlusJoinSegment".into(),
+            Bracketed::new(vec![
+                StringParser::new("+", SyntaxKind::PlusJoinSymbol).to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // PlusJoinGrammar
+        (
+            "PlusJoinGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("PlusJoinSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("PlusJoinSegment").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         // IntervalUnitsGrammar
         (
             "IntervalUnitsGrammar".into(),
@@ -3798,6 +3829,7 @@ pub fn raw_dialect() -> Dialect {
         "Expression_D_Grammar",
         Sequence::new(vec![
             one_of(vec![
+                Ref::new("PlusJoinGrammar").to_matchable(),
                 Ref::new("BareFunctionSegment").to_matchable(),
                 Ref::new("FunctionSegment").to_matchable(),
                 Ref::new("TriggerCorrelationReferenceSegment").to_matchable(),

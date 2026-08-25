@@ -122,6 +122,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | FunctionAssigner
         | SignIndicator
         | Plus
+        | PlusJoinSymbol
         | Minus
         | Divide
         | DoubleDivide

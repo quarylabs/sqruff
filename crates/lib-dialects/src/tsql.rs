@@ -848,6 +848,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateExternalTableStatementSegment").to_matchable(),
             Ref::new("DropExternalTableStatementSegment").to_matchable(),
             Ref::new("CopyIntoTableStatementSegment").to_matchable(),
+            Ref::new("CreateFullTextIndexStatementSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),
@@ -1395,6 +1396,132 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                 ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // CREATE FULLTEXT INDEX (#5274)
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-fulltext-index-transact-sql
+    dialect.add([(
+        "CreateFullTextIndexStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateFulltextIndexStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("FULLTEXT").to_matchable(),
+                Ref::keyword("INDEX").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("TYPE").to_matchable(),
+                                    Ref::keyword("COLUMN").to_matchable(),
+                                    Ref::new("DatatypeSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("LANGUAGE").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("NumericLiteralSegment").to_matchable(),
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("STATISTICAL_SEMANTICS").to_matchable(),
+                            ])
+                            .config(|this| this.max_times_per_element = Some(1))
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("KEY").to_matchable(),
+                    Ref::keyword("INDEX").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    // catalog / filegroup option
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Delimited::new(vec![
+                            AnyNumberOf::new(vec![
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("FILEGROUP").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.max_times_per_element = Some(1))
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.allow_trailing())
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                // WITH option
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("CHANGE_TRACKING").to_matchable(),
+                                Ref::new("EqualsSegment").optional().to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("MANUAL").to_matchable(),
+                                    Ref::keyword("AUTO").to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::keyword("OFF").to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("NO").to_matchable(),
+                                            Ref::keyword("POPULATION").to_matchable(),
+                                        ])
+                                        .config(|this| this.optional())
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("STOPLIST").to_matchable(),
+                                Ref::new("EqualsSegment").optional().to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("OFF").to_matchable(),
+                                    Ref::keyword("SYSTEM").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("SEARCH").to_matchable(),
+                                Ref::keyword("PROPERTY").to_matchable(),
+                                Ref::keyword("LIST").to_matchable(),
+                                Ref::new("EqualsSegment").optional().to_matchable(),
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
                 .to_matchable(),
             ])
             .to_matchable()

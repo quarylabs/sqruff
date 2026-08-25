@@ -1186,6 +1186,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | OracleOrderByClause
         | EngineType
         | PartitionSegment
+        | DistributedBy
         | DistributionSegment
         | IndexDefinition
         | CreateRoutineLoadStatement

@@ -3,8 +3,8 @@ file:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - function_name:
-      - function_name_identifier: sqrt
+    - object_reference:
+      - naked_identifier: sqrt
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -16,8 +16,8 @@ file:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - function_name:
-      - function_name_identifier: sqrt
+    - object_reference:
+      - naked_identifier: sqrt
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -25,8 +25,8 @@ file:
           - keyword: integer
         - end_bracket: )
     - comma: ','
-    - function_name:
-      - function_name_identifier: sqrt
+    - object_reference:
+      - naked_identifier: sqrt
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -38,15 +38,15 @@ file:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - function_name:
-      - function_name_identifier: update_employee_salaries
+    - object_reference:
+      - naked_identifier: update_employee_salaries
 - statement_terminator: ;
 - statement:
   - drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - function_name:
-      - function_name_identifier: update_employee_salaries
+    - object_reference:
+      - naked_identifier: update_employee_salaries
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -58,8 +58,8 @@ file:
     - keyword: FUNCTION
     - keyword: IF
     - keyword: EXISTS
-    - function_name:
-      - function_name_identifier: foo
+    - object_reference:
+      - naked_identifier: foo
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
@@ -73,4 +73,14 @@ file:
         - data_type:
           - keyword: text
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: f_name
+    - keyword: CASCADE
 - statement_terminator: ;

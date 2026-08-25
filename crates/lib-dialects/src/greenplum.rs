@@ -11,6 +11,7 @@ use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::RegexParser;
 
@@ -49,6 +50,32 @@ pub fn raw_dialect() -> Dialect {
             )
             .to_matchable(),
         ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    greenplum.add([(
+        "DistributedBySegment".into(),
+        NodeMatcher::new(SyntaxKind::DistributedBy, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DISTRIBUTED").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("RANDOMLY").to_matchable(),
+                    Ref::keyword("REPLICATED").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("BY").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -293,26 +320,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("TablespaceReferenceSegment").to_matchable(),
                     ])
                     .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("DISTRIBUTED").to_matchable(),
-                        one_of(vec![
-                            Ref::keyword("RANDOMLY").to_matchable(),
-                            Ref::keyword("REPLICATED").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("BY").to_matchable(),
-                                Bracketed::new(vec![
-                                    Delimited::new(vec![
-                                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("DistributedBySegment").to_matchable(),
                 ])
                 .to_matchable(),
             ])
@@ -320,6 +328,42 @@ pub fn raw_dialect() -> Dialect {
         })
         .to_matchable(),
     );
+
+    greenplum.replace_grammar(
+        "CreateTableAsStatementSegment",
+        greenplum
+            .grammar("CreateTableAsStatementSegment")
+            .match_grammar(&greenplum)
+            .unwrap()
+            .copy(
+                Some(vec![
+                    Ref::new("DistributedBySegment").optional().to_matchable(),
+                ]),
+                None,
+                None,
+                None,
+                vec![],
+                false,
+            ),
+    );
+
+    for grammar_name in ["UnorderedSelectStatementSegment", "SelectStatementSegment"] {
+        greenplum.replace_grammar(
+            grammar_name,
+            greenplum
+                .grammar(grammar_name)
+                .match_grammar(&greenplum)
+                .unwrap()
+                .copy(
+                    None,
+                    None,
+                    None,
+                    None,
+                    vec![Ref::new("DistributedBySegment").to_matchable()],
+                    false,
+                ),
+        );
+    }
 
     greenplum
 }

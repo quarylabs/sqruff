@@ -904,6 +904,7 @@ pub enum SyntaxKind {
     PivotSegment,
     Placeholder,
     Plus,
+    PlusJoinSymbol,
     PlusPriorInverse,
     PostTableExpression,
     PostgisOperator,

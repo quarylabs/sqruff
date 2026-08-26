@@ -9,7 +9,7 @@ use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser};
+use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -3485,7 +3485,8 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("INTERVAL").to_matchable(),
             ])
             .to_matchable(),
-            Ref::new("QuotedLiteralSegment").to_matchable(),
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::DateConstructorLiteral)
+                .to_matchable(),
             Sequence::new(vec![
                 Ref::new("IntervalUnitsGrammar").to_matchable(),
                 Sequence::new(vec![

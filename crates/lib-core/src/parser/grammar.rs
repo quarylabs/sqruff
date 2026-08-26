@@ -185,6 +185,7 @@ impl MatchableTrait for Ref {
 pub struct Anything {
     cache_key: MatchableCacheKey,
     terminators: Vec<Matchable>,
+    reset_terminators: bool,
 }
 
 impl PartialEq for Anything {
@@ -205,11 +206,17 @@ impl Anything {
         Self {
             cache_key: next_matchable_cache_key(),
             terminators: Vec::new(),
+            reset_terminators: false,
         }
     }
 
     pub fn terminators(mut self, terminators: Vec<Matchable>) -> Self {
         self.terminators = terminators;
+        self
+    }
+
+    pub fn reset_terminators(mut self) -> Self {
+        self.reset_terminators = true;
         self
     }
 }
@@ -234,7 +241,9 @@ impl MatchableTrait for Anything {
         }
 
         let mut terminators = self.terminators.clone();
-        terminators.extend_from_slice(&parse_context.terminators);
+        if !self.reset_terminators {
+            terminators.extend_from_slice(&parse_context.terminators);
+        }
 
         greedy_match(segments, idx, parse_context, &terminators, false, true)
     }

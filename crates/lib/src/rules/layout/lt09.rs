@@ -383,7 +383,7 @@ impl RuleLT09 {
             let after_select_clause_idx = select_clause_idx + 1;
 
             if select_stmt.segments().len() > after_select_clause_idx {
-                let mut add_newline = true;
+                let add_newline = true;
                 let mut to_delete = vec![target_seg];
                 let next_segment = select_stmt.segments()[after_select_clause_idx].clone();
 
@@ -403,22 +403,6 @@ impl RuleLT09 {
                         }
 
                         to_delete = trailing_whitespace.into_iter().collect_vec();
-                    }
-                } else if next_segment.is_type(SyntaxKind::Dedent) {
-                    let start_seg = if select_clause_idx == 0 {
-                        select_children.last().unwrap()
-                    } else {
-                        &select_children[select_clause_idx - 1]
-                    };
-
-                    let trailing_whitespace = select_children
-                        .reversed()
-                        .after(start_seg)
-                        .take_while(|it| it.is_type(SyntaxKind::Whitespace));
-
-                    to_delete = trailing_whitespace.into_iter().collect_vec();
-                    if !to_delete.is_empty() {
-                        add_newline = to_delete.iter().any(|it| it.is_type(SyntaxKind::Newline));
                     }
                 } else if next_segment.is_type(SyntaxKind::Whitespace) {
                     fixes.push(LintFix::delete(next_segment));

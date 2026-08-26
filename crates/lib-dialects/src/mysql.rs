@@ -12,7 +12,6 @@ use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
-use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 
 use super::ansi;
@@ -3897,7 +3896,6 @@ pub fn raw_dialect() -> Dialect {
         "UnorderedSelectStatementSegment",
         Sequence::new(vec![
             Ref::new("SelectClauseSegment").to_matchable(),
-            MetaSegment::dedent().to_matchable(),
             Ref::new("IntoClauseSegment").optional().to_matchable(),
             Ref::new("FromClauseSegment").optional().to_matchable(),
             Ref::new("SelectPartitionClauseSegment")
@@ -3934,7 +3932,6 @@ pub fn raw_dialect() -> Dialect {
         "SelectStatementSegment",
         Sequence::new(vec![
             Ref::new("SelectClauseSegment").to_matchable(),
-            MetaSegment::dedent().to_matchable(),
             Ref::new("IntoClauseSegment").optional().to_matchable(),
             Ref::new("FromClauseSegment").optional().to_matchable(),
             Ref::new("SelectPartitionClauseSegment")

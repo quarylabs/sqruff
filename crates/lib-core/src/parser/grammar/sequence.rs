@@ -15,19 +15,58 @@ use crate::parser::match_result::{MatchResult, Matched, Span};
 use crate::parser::matchable::{
     Matchable, MatchableCacheKey, MatchableTrait, next_matchable_cache_key,
 };
-use crate::parser::segments::ErasedSegment;
+use crate::parser::segments::{BlockType, ErasedSegment};
 use crate::parser::types::ParseMode;
 
+/// Position any new meta segments relative to the non code section.
+///
+/// It's important that we position the new meta segments appropriately
+/// around any templated sections and any whitespace so that indentation
+/// behaviour works as expected.
+///
+/// There are four valid locations (which may overlap).
+/// 1. Before any non-code
+/// 2. Before the first block templated section (if it's a block opener).
+/// 3. After the last block templated section (if it's a block closer).
+/// 4. After any non code.
+///
+/// If all the metas have a positive indent value then they should go in
+/// position 1 or 3, otherwise we're in position 2 or 4. Within each of
+/// those scenarios it depends on whether an appropriate block end exists.
 fn flush_metas(
-    tpre_nc_idx: u32,
+    pre_nc_idx: u32,
     post_nc_idx: u32,
     meta_buffer: Vec<SyntaxKind>,
-    _segments: &[ErasedSegment],
+    segments: &[ErasedSegment],
 ) -> Vec<(u32, SyntaxKind)> {
     let meta_idx = if meta_buffer.iter().all(|it| it.indent_val() >= 0) {
-        tpre_nc_idx
+        let mut meta_idx = pre_nc_idx;
+        for idx in (pre_nc_idx + 1..=post_nc_idx).rev() {
+            let seg = &segments[idx as usize - 1];
+            if seg.is_type(SyntaxKind::Placeholder) {
+                if seg.block_type() == Some(BlockType::BlockEnd) {
+                    meta_idx = idx;
+                } else {
+                    meta_idx = pre_nc_idx;
+                }
+                break;
+            }
+        }
+        meta_idx
     } else {
-        post_nc_idx
+        let mut meta_idx = post_nc_idx;
+        for idx in pre_nc_idx..post_nc_idx {
+            let seg = &segments[idx as usize];
+            if seg.is_type(SyntaxKind::Placeholder) {
+                if seg.block_type() == Some(BlockType::BlockStart) {
+                    meta_idx = idx;
+                } else {
+                    meta_idx = post_nc_idx;
+                }
+                break;
+            }
+        }
+        meta_idx
     };
     meta_buffer.into_iter().map(|it| (meta_idx, it)).collect()
 }

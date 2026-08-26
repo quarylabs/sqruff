@@ -503,6 +503,7 @@ pub fn raw_dialect() -> Dialect {
                 this.optional();
             })
             .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
         ])
         .to_matchable(),
     );
@@ -536,7 +537,6 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::new("SelectClauseSegment").to_matchable(),
-                            MetaSegment::dedent().to_matchable(),
                             Ref::new("FromClauseSegment").optional().to_matchable(),
                         ])
                         .to_matchable(),
@@ -584,7 +584,6 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::new("SelectClauseSegment").to_matchable(),
-                            MetaSegment::dedent().to_matchable(),
                             Ref::new("FromClauseSegment").optional().to_matchable(),
                         ])
                         .to_matchable(),

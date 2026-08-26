@@ -2435,6 +2435,12 @@ pub fn raw_dialect() -> Dialect {
                             .to_matchable(),
                         ])
                         .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                         // Azure Synapse table options
                         Sequence::new(vec![
                             Ref::keyword("WITH").to_matchable(),
@@ -2548,6 +2554,59 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
             // Other table options
+            Sequence::new(vec![
+                Ref::keyword("SYSTEM_VERSIONING").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("HISTORY_TABLE").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("TableReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("HISTORY_RETENTION_PERIOD").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("INFINITE").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::new("NumericLiteralSegment").optional().to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("DAYS").to_matchable(),
+                                            Ref::keyword("WEEKS").to_matchable(),
+                                            Ref::keyword("MONTHS").to_matchable(),
+                                            Ref::keyword("YEARS").to_matchable(),
+                                        ])
+                                        .config(|this| this.optional())
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("CommaSegment").to_matchable(),
+                                Ref::keyword("DATA_CONSISTENCY_CHECK").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ON").to_matchable(),
+                                    Ref::keyword("OFF").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("PARTITION").to_matchable(),
                 Bracketed::new(vec![

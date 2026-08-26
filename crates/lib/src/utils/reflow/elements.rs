@@ -370,7 +370,12 @@ impl ReflowPoint {
                     new_point,
                 )
             } else {
-                let new_indent = SegmentBuilder::whitespace(tables.next_id(), desired_indent);
+                // Work out the new segments. Always a newline, only whitespace
+                // if there's a non zero indent.
+                let mut new_segs = vec![new_newline];
+                if !desired_indent.is_empty() {
+                    new_segs.push(SegmentBuilder::whitespace(tables.next_id(), desired_indent));
+                }
 
                 if before.is_none() && after.is_none() {
                     unimplemented!(
@@ -379,10 +384,7 @@ impl ReflowPoint {
                         self.segments
                     );
                 } else if let Some(before) = before {
-                    let fix = LintFix::create_before(
-                        before.clone(),
-                        vec![new_newline.clone(), new_indent.clone()],
-                    );
+                    let fix = LintFix::create_before(before.clone(), new_segs.clone());
 
                     (
                         vec![LintResult::new(
@@ -395,15 +397,11 @@ impl ReflowPoint {
                             )),
                             source.map(ToOwned::to_owned),
                         )],
-                        ReflowPoint::new(vec![new_newline, new_indent]),
+                        ReflowPoint::new(new_segs),
                     )
                 } else {
                     let after = after.unwrap();
-                    let fix = LintFix::create_after(
-                        after.clone(),
-                        vec![new_newline.clone(), new_indent.clone()],
-                        None,
-                    );
+                    let fix = LintFix::create_after(after.clone(), new_segs.clone(), None);
                     let description = format!(
                         "Expected line break and {} after {:?}.",
                         indent_description(desired_indent),
@@ -417,7 +415,7 @@ impl ReflowPoint {
                             Some(description),
                             source.map(ToOwned::to_owned),
                         )],
-                        ReflowPoint::new(vec![new_newline, new_indent]),
+                        ReflowPoint::new(new_segs),
                     )
                 }
             }

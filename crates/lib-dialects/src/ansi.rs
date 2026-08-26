@@ -4230,7 +4230,6 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
                 Sequence::new(vec![
                     Ref::new("SelectClauseSegment").to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),
                     Ref::new("WhereClauseSegment").optional().to_matchable(),
                     Ref::new("GroupByClauseSegment").optional().to_matchable(),
@@ -5223,7 +5222,6 @@ pub fn explainable_stmt() -> AnyNumberOf {
 pub fn get_unordered_select_statement_segment_grammar() -> Matchable {
     Sequence::new(vec![
         Ref::new("SelectClauseSegment").to_matchable(),
-        MetaSegment::dedent().to_matchable(),
         Ref::new("FromClauseSegment").optional().to_matchable(),
         Ref::new("WhereClauseSegment").optional().to_matchable(),
         Ref::new("GroupByClauseSegment").optional().to_matchable(),
@@ -5274,6 +5272,7 @@ pub fn select_clause_segment() -> Matchable {
         Delimited::new(vec![Ref::new("SelectClauseElementSegment").to_matchable()])
             .config(|this| this.allow_trailing())
             .to_matchable(),
+        MetaSegment::dedent().to_matchable(),
     ])
     .terminators(vec![
         Ref::new("SelectClauseTerminatorGrammar").to_matchable(),

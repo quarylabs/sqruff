@@ -2216,3 +2216,40 @@ test_fail_issue_4680:
         {% else %}
         col1 > 0
       {% endif %}
+
+test_pass_templated_join:
+  # See: https://github.com/sqlfluff/sqlfluff/issues/5290
+  ignored: "jinja is not supported"
+  pass_str: |
+    select *
+    from a
+    {% if True %}
+        left join b using(x)
+    {% endif %}
+
+test_inconsistent_indent:
+  # In specific circumstances the indentation algorithm can behave
+  # unexpectedly, this is a test case to catch one, where the
+  # fix was unexpected.
+  # https://github.com/sqlfluff/sqlfluff/issues/5277
+  ignored: "jinja is not supported"
+  fail_str: |
+    WITH x AS (
+        SELECT
+            o.p AS p
+            {% for action in ["a", "b"] %}
+                , n.campaign_count_{{ action }}
+        {% endfor %}
+        FROM o
+    )
+    SELECT * FROM x
+  fix_str: |
+    WITH x AS (
+        SELECT
+            o.p AS p
+            {% for action in ["a", "b"] %}
+                , n.campaign_count_{{ action }}
+            {% endfor %}
+        FROM o
+    )
+    SELECT * FROM x

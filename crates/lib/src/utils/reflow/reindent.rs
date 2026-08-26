@@ -1579,10 +1579,11 @@ fn fix_long_line_with_comment(
     let prev_elems: Vec<ReflowElement>;
 
     if let Some(idx) = last_indent_idx {
-        new_point = ReflowPoint::new(vec![
-            SegmentBuilder::newline(tables.next_id(), "\n"),
-            SegmentBuilder::whitespace(tables.next_id(), current_indent),
-        ]);
+        let mut new_segments = vec![SegmentBuilder::newline(tables.next_id(), "\n")];
+        if !current_indent.is_empty() {
+            new_segments.push(SegmentBuilder::whitespace(tables.next_id(), current_indent));
+        }
+        new_point = ReflowPoint::new(new_segments);
         prev_elems = elements[..=idx].to_vec();
 
         // Use the last segment of the indent point as anchor for create_after.

@@ -209,18 +209,48 @@ impl RuleLT09 {
     ) -> Vec<LintResult> {
         let mut fixes = Vec::new();
 
-        for (i, select_target) in enumerate(select_targets_info.select_targets.iter()) {
-            let base_segment = if i == 0 {
-                segment.clone()
-            } else {
-                select_targets_info.select_targets[i - 1].clone()
-            };
+        let select_clause_raws = segment.get_raw_segments();
+        let mut previous_code: Option<ErasedSegment> = None;
 
-            if let Some((_, _)) = base_segment
+        for (i, select_target) in enumerate(select_targets_info.select_targets.iter()) {
+            let target_start_line = select_target.get_position_marker().unwrap().working_line_no;
+
+            let target_raws = select_target.get_raw_segments();
+            let target_initial_code = target_raws
+                .iter()
+                .find(|it| it.is_code())
+                .expect("select target has no code segment");
+
+            // Find the last code segment in the select clause that sits strictly
+            // before this target's initial code segment (and strictly after the
+            // previously matched code segment). Comparing against the previous
+            // target's *end* line is more robust for multiline targets than
+            // comparing the previous target's *start* line.
+            let start_index = previous_code
+                .as_ref()
+                .and_then(|prev| select_clause_raws.iter().position(|it| it == prev))
+                .map_or(0, |idx| idx + 1);
+            let stop_index = select_clause_raws
+                .iter()
+                .position(|it| it == target_initial_code)
+                .unwrap_or(select_clause_raws.len());
+
+            let previous_code_seg = select_clause_raws[start_index..stop_index]
+                .iter()
+                .rfind(|it| it.is_code())
+                .cloned()
+                .expect("no previous code segment found before select target");
+
+            let previous_end_line = previous_code_seg
                 .get_position_marker()
-                .zip(select_target.get_position_marker())
-                .filter(|(a, b)| a.working_line_no == b.working_line_no)
-            {
+                .unwrap()
+                .working_line_no;
+            previous_code = Some(previous_code_seg);
+
+            // Check whether this target *starts* on the same line that the
+            // previous one *ends* on. If they are on the same line, insert a
+            // newline.
+            if target_start_line == previous_end_line {
                 let mut start_seg = select_targets_info.select_idx.unwrap();
                 let modifier =
                     segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseModifier]) });

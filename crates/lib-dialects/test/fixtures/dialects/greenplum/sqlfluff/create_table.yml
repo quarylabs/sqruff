@@ -48,13 +48,14 @@ file:
           - raw_comparison_operator: =
         - numeric_literal: '5'
         - end_bracket: )
-      - keyword: DISTRIBUTED
-      - keyword: BY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: txn_id
-        - end_bracket: )
+      - distributed_by:
+        - keyword: DISTRIBUTED
+        - keyword: BY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: txn_id
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -100,13 +101,14 @@ file:
           - raw_comparison_operator: =
         - boolean_literal: 'true'
         - end_bracket: )
-      - keyword: DISTRIBUTED
-      - keyword: BY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: txn_id
-        - end_bracket: )
+      - distributed_by:
+        - keyword: DISTRIBUTED
+        - keyword: BY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: txn_id
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -139,13 +141,14 @@ file:
         - data_type:
           - keyword: int
         - end_bracket: )
-      - keyword: DISTRIBUTED
-      - keyword: BY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: txn_id
-        - end_bracket: )
+      - distributed_by:
+        - keyword: DISTRIBUTED
+        - keyword: BY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: txn_id
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -178,8 +181,9 @@ file:
         - data_type:
           - keyword: int
         - end_bracket: )
-      - keyword: DISTRIBUTED
-      - keyword: RANDOMLY
+      - distributed_by:
+        - keyword: DISTRIBUTED
+        - keyword: RANDOMLY
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -212,8 +216,9 @@ file:
         - data_type:
           - keyword: int
         - end_bracket: )
-      - keyword: DISTRIBUTED
-      - keyword: REPLICATED
+      - distributed_by:
+        - keyword: DISTRIBUTED
+        - keyword: REPLICATED
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -255,13 +260,14 @@ file:
           - raw_comparison_operator: =
         - properties_naked_identifier: column
         - end_bracket: )
-      - keyword: DISTRIBUTED
-      - keyword: BY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: id
-        - end_bracket: )
+      - distributed_by:
+        - keyword: DISTRIBUTED
+        - keyword: BY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -288,11 +294,12 @@ file:
           - raw_comparison_operator: =
         - quoted_identifier: '"zstd"'
         - end_bracket: )
-      - keyword: DISTRIBUTED
-      - keyword: BY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: id
-        - end_bracket: )
+      - distributed_by:
+        - keyword: DISTRIBUTED
+        - keyword: BY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
 - statement_terminator: ;

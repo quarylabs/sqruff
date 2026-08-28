@@ -173,3 +173,95 @@ file:
             - plus_join_symbol: +
             - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: table_a
+        - comma: ','
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: table_b
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: column_a
+          - bracketed:
+            - start_bracket: (
+            - plus_join_symbol: +
+            - end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - function:
+            - oracle_function_name:
+              - function_name_identifier: nvl
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: column_b
+                - comma: ','
+                - expression:
+                  - numeric_literal: '1'
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: table_a
+        - comma: ','
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: table_b
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - function:
+            - oracle_function_name:
+              - function_name_identifier: nvl
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: column_b
+                - comma: ','
+                - expression:
+                  - numeric_literal: '1'
+                - end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: column_a
+          - bracketed:
+            - start_bracket: (
+            - plus_join_symbol: +
+            - end_bracket: )
+  - statement_terminator: ;

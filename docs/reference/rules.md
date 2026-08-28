@@ -1372,6 +1372,9 @@ Jinja tags should have a single whitespace on either side.
 
 **Fixable:** Yes
 
+This rule is only active if the `jinja` templater (or one of its subclasses,
+like the `dbt` templater) is used for the current file.
+
 **Anti-pattern**
 
 Jinja tags with either no whitespace or very long whitespace are hard to read.

@@ -26,6 +26,16 @@ impl Rule for RuleLT03 {
 
     fn long_description(&self) -> &'static str {
         r#"
+The configuration for whether operators should be `trailing` or `leading` is part of layout configuration. The default configuration is:
+
+```cfg
+[sqlfluff:layout:type:binary_operator]
+line_position = leading
+
+[sqlfluff:layout:type:comparison_operator]
+line_position = leading
+```
+
 **Anti-pattern**
 
 In this example, if line_position = leading (or unspecified, as is the default), then the operator + should not be at the end of the second line.

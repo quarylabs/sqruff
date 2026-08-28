@@ -135,7 +135,7 @@ impl ReflowPoint {
     pub(crate) fn get_indent_segment_vals(&self, exclude_block_indents: bool) -> Vec<isize> {
         self.segments
             .iter()
-            .filter(|seg| seg.is_type(SyntaxKind::Indent))
+            .filter(|seg| matches!(seg.get_type(), SyntaxKind::Indent | SyntaxKind::Dedent))
             .filter(|seg| !(exclude_block_indents && seg.block_uuid().is_some()))
             .map(|seg| seg.indent_val() as isize)
             .collect()

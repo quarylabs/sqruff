@@ -801,3 +801,43 @@ file:
             end;
           $$
 - statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: data_wrapper
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: SETOF
+    - data_type:
+      - data_type_identifier: data
+    - function_definition:
+      - keyword: STABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: LEAKPROOF
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: data
+      - statement_terminator: ;
+      - keyword: END
+      - statement_terminator: ;

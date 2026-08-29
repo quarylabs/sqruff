@@ -334,6 +334,42 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // ObjectReferenceSegment / ColumnReferenceSegment
+    //
+    // Oracle allows whitespace between the identifier, the dot delimiter and the
+    // following identifier (e.g. `a. column_b`), so unlike the ANSI base grammar
+    // these references permit gaps.
+    oracle.add([
+        (
+            "ObjectReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::ObjectReference, |_| {
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    .config(|this| {
+                        this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                        this.terminators =
+                            vec![Ref::new("ObjectReferenceTerminatorGrammar").to_matchable()];
+                    })
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ColumnReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnReference, |_| {
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    .config(|this| {
+                        this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                        this.terminators =
+                            vec![Ref::new("ObjectReferenceTerminatorGrammar").to_matchable()];
+                    })
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // ---- Grammar additions ----
     oracle.add([
         // AtSignSegment

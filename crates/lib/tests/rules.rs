@@ -38,6 +38,8 @@ struct TestCase {
     name: String,
     ignored: Option<String>,
     line_numbers: Option<Vec<usize>>,
+    #[serde(default)]
+    expect_no_fix: bool,
     #[serde(flatten)]
     kind: TestCaseKind,
     #[serde(default)]
@@ -256,6 +258,19 @@ dialect = {dialect}
                     assert_eq!(
                         &actual_line_numbers, expected_line_numbers,
                         "Unexpected violation lines in case '{}'",
+                        case.name
+                    );
+                }
+                if case.expect_no_fix {
+                    let fixed = state
+                        .linter
+                        .lint_string_wrapped(&fail_str, true)
+                        .unwrap()
+                        .fix_string();
+                    pretty_assertions::assert_eq!(
+                        fixed,
+                        fail_str,
+                        "Unexpected fix in case '{}'",
                         case.name
                     );
                 }

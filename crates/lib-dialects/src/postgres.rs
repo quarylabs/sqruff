@@ -2328,6 +2328,7 @@ pub fn raw_dialect() -> Dialect {
                     this.allow_trailing = true;
                 })
                 .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
         ])
         .config(|this| {
             this.terminators = vec![

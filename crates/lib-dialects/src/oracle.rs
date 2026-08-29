@@ -3722,7 +3722,6 @@ pub fn raw_dialect() -> Dialect {
         "UnorderedSelectStatementSegment",
         Sequence::new(vec![
             Ref::new("SelectClauseSegment").to_matchable(),
-            MetaSegment::dedent().to_matchable(),
             one_of(vec![
                 Ref::new("IntoClauseSegment").to_matchable(),
                 Ref::new("BulkCollectIntoClauseSegment").to_matchable(),
@@ -3766,7 +3765,6 @@ pub fn raw_dialect() -> Dialect {
         "SelectStatementSegment",
         Sequence::new(vec![
             Ref::new("SelectClauseSegment").to_matchable(),
-            MetaSegment::dedent().to_matchable(),
             one_of(vec![
                 Ref::new("IntoClauseSegment").to_matchable(),
                 Ref::new("BulkCollectIntoClauseSegment").to_matchable(),

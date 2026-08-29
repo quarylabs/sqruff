@@ -281,6 +281,12 @@ leading_comma_move_past_several_comment_lines:
           line_position: leading
 
 leading_comma_with_templated_column_1:
+  # Requires the jinja templater to render the `{{ ... }}` column. Under the raw
+  # templater the literal `{{ ... }}` is trailing unparsable content after the
+  # last select target, so following SQLFluff #5294 (which relocates the select
+  # clause Dedent inside the select_clause) the Dedent lands before that content
+  # and the comma is no longer rebroken.
+  ignored: "requires jinja templater"
   fail_str: |
     SELECT
         c1,

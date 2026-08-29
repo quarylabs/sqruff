@@ -882,6 +882,7 @@ fn replace_core_grammars(dialect: &mut Dialect) {
             Delimited::new(vec![Ref::new("SelectClauseElementSegment").to_matchable()])
                 .config(|this| this.allow_trailing())
                 .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
         ])
         .terminators(vec![
             kw("FROM"),

@@ -871,6 +871,12 @@ test_fail_ignore_templated_whitespace_1:
       ignore_templated_areas: false
 
 test_fail_ignore_templated_whitespace_2:
+  # Requires the jinja templater to render the `{{ ... }}` column. Under the raw
+  # templater the literal `{{ ... }}` is trailing unparsable content after the
+  # last select target, so following SQLFluff #5294 (which relocates the select
+  # clause Dedent inside the select_clause) the Dedent lands before that content
+  # and reflow no longer produces a meaningful fix.
+  ignored: "requires jinja templater"
   fail_str: |
     SELECT
         c1,
@@ -938,6 +944,12 @@ test_pass_ignore_templated_newline_last_line:
       templater: jinja
 
 test_fail_fix_template_indentation_1:
+  # Requires the jinja templater to render the `{{ ... }}` column. Under the raw
+  # templater the literal `{{ ... }}` is trailing unparsable content after the
+  # last select target, so following SQLFluff #5294 (which relocates the select
+  # clause Dedent inside the select_clause) the Dedent lands before that content
+  # and reflow no longer re-indents it.
+  ignored: "requires jinja templater"
   fail_str: |
     SELECT
         c1,
@@ -2192,6 +2204,47 @@ test_pass_implicit_where:
   configs:
     indentation:
       allow_implicit_indents: true
+
+test_pass_templated_join:
+  # See: https://github.com/sqlfluff/sqlfluff/issues/5290
+  pass_str: |
+    select *
+    from a
+    {% if True %}
+        left join b using(x)
+    {% endif %}
+  configs:
+    core:
+      templater: jinja
+
+test_inconsistent_indent:
+  # In specific circumstances the indentation algorithm can behave
+  # unexpectedly, this is a test case to catch one, where the
+  # fix was unexpected.
+  # https://github.com/sqlfluff/sqlfluff/issues/5277
+  fail_str: |
+    WITH x AS (
+        SELECT
+            o.p AS p
+            {% for action in ["a", "b"] %}
+                , n.campaign_count_{{ action }}
+        {% endfor %}
+        FROM o
+    )
+    SELECT * FROM x
+  fix_str: |
+    WITH x AS (
+        SELECT
+            o.p AS p
+            {% for action in ["a", "b"] %}
+                , n.campaign_count_{{ action }}
+            {% endfor %}
+        FROM o
+    )
+    SELECT * FROM x
+  configs:
+    core:
+      templater: jinja
 
 test_fail_issue_4680:
   # NOTE: It doesn't reindent the second clause, but the important

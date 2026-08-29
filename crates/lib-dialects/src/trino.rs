@@ -421,7 +421,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "UnorderedSelectStatementSegment",
         Sequence::new(vec![
             Ref::new("SelectClauseSegment").to_matchable(),
-            MetaSegment::dedent().to_matchable(),
             Ref::new("FromClauseSegment").optional().to_matchable(),
             Ref::new("WhereClauseSegment").optional().to_matchable(),
             Ref::new("GroupByClauseSegment").optional().to_matchable(),

@@ -77,7 +77,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("ASYMMETRIC", "reserved"),
     ("AT", "non-reserved"),
     ("ATAN", "not-keyword"),
-    ("ATOMIC", "not-keyword"),
+    ("ATOMIC", "non-reserved"),
     ("ATTACH", "non-reserved"),
     ("ATTRIBUTE", "non-reserved"),
     ("ATTRIBUTES", "not-keyword"),

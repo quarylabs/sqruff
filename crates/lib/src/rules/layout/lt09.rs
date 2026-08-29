@@ -237,7 +237,10 @@ impl RuleLT09 {
 
             let previous_code_seg = select_clause_raws[start_index..stop_index]
                 .iter()
-                .rfind(|it| it.is_code())
+                // A comma separates select targets rather than belonging to either
+                // one. In leading-comma style it sits on the current target's line,
+                // so it must not be treated as the previous target's final code.
+                .rfind(|it| it.is_code() && !it.is_type(SyntaxKind::Comma))
                 .cloned()
                 .expect("no previous code segment found before select target");
 

@@ -373,3 +373,18 @@ test_multiline_expressions:
     COUNT(DISTINCT name) AS e2,
     COUNT(DISTINCT city) AS e3
     FROM some_table;
+
+test_leading_commas:
+  pass_str: |
+    SELECT
+        a
+        , b
+        , COUNT(
+            DISTINCT id) AS c
+        , d
+    FROM some_table;
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading

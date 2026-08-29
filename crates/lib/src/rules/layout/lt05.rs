@@ -6,7 +6,7 @@ use sqruff_lib_core::parser::segments::BlockType;
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, RootOnlyCrawler};
-use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups, targets_templated};
 use crate::utils::reflow::sequence::ReflowSequence;
 
 #[derive(Debug, Default, Clone)]
@@ -68,6 +68,9 @@ FROM my_table
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Layout]
     }
+
+    targets_templated!();
+
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut results = ReflowSequence::from_root(&context.segment, context.config)
             .break_long_lines(context.tables)

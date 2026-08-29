@@ -789,6 +789,16 @@ test_pass_window_function:
         ) as rnk
     from foo
 
+test_fail_no_fix_long_templated:
+  # Test we fail but don't try and fix a long templated line
+  fail_str: |
+    select
+        '{{ "', '".join(["foo", "bar", "whatever", "whatever", "whatever", "whatever"]) }}'
+  expect_no_fix: true
+  configs:
+    core:
+      templater: jinja
+
 test_jinja_block_source_line_length:
   # https://github.com/quarylabs/sqruff/issues/3122
   fail_str: |

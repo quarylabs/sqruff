@@ -39,6 +39,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 r"@[a-zA-Z_][\w]*",
                 SyntaxKind::AtSignLiteral,
             ),
+            Matcher::regex(
+                "double_at_sign_literal",
+                r"@@[a-zA-Z_][\w]*",
+                SyntaxKind::DoubleAtSignLiteral,
+            ),
         ],
         "equals",
     );
@@ -146,6 +151,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             TypedParser::new(SyntaxKind::AtSignLiteral, SyntaxKind::AtSignLiteral)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "DoubleAtSignLiteralSegment".into(),
+            TypedParser::new(
+                SyntaxKind::DoubleAtSignLiteral,
+                SyntaxKind::DoubleAtSignLiteral,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "DefaultDeclareOptionsGrammar".into(),
@@ -689,6 +703,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("LoopStatementSegment").to_matchable(),
                 Ref::new("IfStatementSegment").to_matchable(),
                 Ref::new("CreateProcedureStatementSegment").to_matchable(),
+                Ref::new("BeginStatementSegment").to_matchable(),
             ])
             .to_matchable()
         })
@@ -1365,6 +1380,53 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `BEGIN...EXCEPTION...END` statement.
+            // https://cloud.google.com/bigquery/docs/reference/standard-sql/procedural-language#beginexceptionend
+            "BeginStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::BeginStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("BEGIN").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("StatementSegment").to_matchable(),
+                        Ref::new("DelimiterGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("EXCEPTION").to_matchable(),
+                        Ref::keyword("WHEN").to_matchable(),
+                        Ref::keyword("ERROR").to_matchable(),
+                        Ref::keyword("THEN").to_matchable(),
+                        MetaSegment::indent().to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("StatementSegment").to_matchable(),
+                            Ref::new("DelimiterGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("END").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // BigQuery supports usage of system-level variables, which are prefixed
+            // with @@. These are also used in exception blocks in the @@error object.
+            // https://cloud.google.com/bigquery/docs/reference/system-variables
+            "SystemVariableSegment".into(),
+            NodeMatcher::new(SyntaxKind::SystemVariable, |_| {
+                Ref::new("DoubleAtSignLiteralSegment").to_matchable()
             })
             .to_matchable()
             .into(),
@@ -2534,7 +2596,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             dialect
                 .grammar("LiteralGrammar")
                 .copy(
-                    Some(vec![Ref::new("ParameterizedSegment").to_matchable()]),
+                    Some(vec![
+                        Ref::new("ParameterizedSegment").to_matchable(),
+                        Ref::new("SystemVariableSegment").to_matchable(),
+                    ]),
                     None,
                     None,
                     None,

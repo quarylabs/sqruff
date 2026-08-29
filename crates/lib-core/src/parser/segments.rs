@@ -673,7 +673,10 @@ impl ErasedSegment {
             self.raw().hash(&mut hasher);
 
             if let Some(marker) = &self.get_position_marker() {
-                marker.source_position().hash(&mut hasher);
+                // NOTE: We use the start of the source slice because it's
+                // the lowest cost way of getting a reliable location in the
+                // source file for deduplication.
+                marker.source_slice.start.hash(&mut hasher);
             } else {
                 None::<usize>.hash(&mut hasher);
             }

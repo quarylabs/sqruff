@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -12,6 +13,7 @@ use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::types::ParseMode;
 
 use super::ansi;
@@ -210,6 +212,22 @@ pub fn raw_dialect() -> Dialect {
             SyntaxKind::SystemVariable,
         )
         .to_matchable()
+        .into(),
+    )]);
+
+    // NakedIdentifierSegment - allow a bare `_` as an identifier in MySQL.
+    mysql.add([(
+        "NakedIdentifierSegment".into(),
+        SegmentGenerator::new(|dialect| {
+            // Generate the anti template from the set of reserved keywords
+            let reserved_keywords = dialect.sets("reserved_keywords");
+            let pattern = reserved_keywords.iter().join("|");
+            let anti_template = format!("^({pattern})$");
+
+            RegexParser::new("([A-Z0-9_]*[A-Z][A-Z0-9_]*)|_", SyntaxKind::NakedIdentifier)
+                .anti_template(&anti_template)
+                .to_matchable()
+        })
         .into(),
     )]);
 

@@ -57,3 +57,17 @@ file:
       - raw_comparison_operator: =
     - parameter: utf8mb4_unicode_ci
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - naked_identifier: _
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: a
+        - data_type:
+          - data_type_identifier: int
+      - end_bracket: )
+- statement_terminator: ;

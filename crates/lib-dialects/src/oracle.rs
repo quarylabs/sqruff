@@ -440,7 +440,11 @@ pub fn raw_dialect() -> Dialect {
             "PlusJoinGrammar".into(),
             one_of(vec![
                 Sequence::new(vec![
-                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Ref::new("FunctionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::new("EqualsSegment").to_matchable(),
                     Ref::new("ColumnReferenceSegment").to_matchable(),
                     Ref::new("PlusJoinSegment").to_matchable(),
@@ -450,7 +454,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("ColumnReferenceSegment").to_matchable(),
                     Ref::new("PlusJoinSegment").to_matchable(),
                     Ref::new("EqualsSegment").to_matchable(),
-                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Ref::new("FunctionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])

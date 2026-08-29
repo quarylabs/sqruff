@@ -89,6 +89,9 @@ impl Rule for RuleJJ01 {
 
     fn long_description(&self) -> &'static str {
         r#"
+This rule is only active if the `jinja` templater (or one of its subclasses,
+like the `dbt` templater) is used for the current file.
+
 **Anti-pattern**
 
 Jinja tags with either no whitespace or very long whitespace are hard to read.
@@ -122,6 +125,15 @@ SELECT {{ a }} from {{ ref('foo') }};
 
         // Check if this is a templated file (not just a plain SQL file)
         if !templated_file.is_templated() {
+            return Vec::new();
+        }
+
+        // We also only work with setups which use the jinja templater or a
+        // derivative of that (like the dbt templater). Otherwise return empty.
+        if !matches!(
+            context.config.templater_kind().map(|kind| kind.as_str()),
+            Ok("jinja" | "dbt")
+        ) {
             return Vec::new();
         }
 

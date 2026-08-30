@@ -2691,12 +2691,9 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                         Ref::new("ColumnDefinitionSegment").to_matchable(),
                         one_of(vec![
+                            Ref::keyword("FIRST").to_matchable(),
                             Sequence::new(vec![
-                                one_of(vec![
-                                    Ref::keyword("FIRST").to_matchable(),
-                                    Ref::keyword("AFTER").to_matchable(),
-                                ])
-                                .to_matchable(),
+                                Ref::keyword("AFTER").to_matchable(),
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                             ])
                             .to_matchable(),
@@ -2712,12 +2709,9 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("COLUMN").optional().to_matchable(),
                         Ref::new("ColumnDefinitionSegment").to_matchable(),
                         one_of(vec![
+                            Ref::keyword("FIRST").to_matchable(),
                             Sequence::new(vec![
-                                one_of(vec![
-                                    Ref::keyword("FIRST").to_matchable(),
-                                    Ref::keyword("AFTER").to_matchable(),
-                                ])
-                                .to_matchable(),
+                                Ref::keyword("AFTER").to_matchable(),
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                             ])
                             .to_matchable(),

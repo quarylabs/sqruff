@@ -542,3 +542,29 @@ file:
           - naked_identifier: baz
         - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_stage_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: your_stage_name
+    - keyword: URL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bucket_path: '''s3://your_s3_bucket/your_path_in_s3'''
+- statement_terminator: ;
+- statement:
+  - create_stage_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: your_stage_name
+    - keyword: URL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bucket_path: '''s3://your-s3-bucket/your-path-in-s3'''
+- statement_terminator: ;

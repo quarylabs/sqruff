@@ -192,7 +192,16 @@ impl std::fmt::Display for IndentLine {
     }
 }
 
-fn revise_comment_lines(lines: &mut [IndentLine], elements: &ReflowSequenceType) {
+fn revise_comment_lines(
+    lines: &mut Vec<IndentLine>,
+    elements: &ReflowSequenceType,
+    ignore_comment_lines: bool,
+) {
+    if ignore_comment_lines {
+        lines.retain(|line| !line.is_all_comments(elements));
+        return;
+    }
+
     let mut comment_line_buffer = Vec::new();
     let mut changes = Vec::new();
 
@@ -1273,6 +1282,7 @@ pub fn lint_indent_points(
     single_indent: &str,
     _skip_indentation_in: HashSet<String>,
     allow_implicit_indents: bool,
+    ignore_comment_lines: bool,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let (mut lines, imbalanced_indent_locs) = map_line_buffers(&elements, allow_implicit_indents);
 
@@ -1282,7 +1292,7 @@ pub fn lint_indent_points(
 
     revise_skipped_source_lines(&mut lines, &elements);
     revise_templated_lines(&mut lines, &elements);
-    revise_comment_lines(&mut lines, &elements);
+    revise_comment_lines(&mut lines, &elements, ignore_comment_lines);
 
     for line in lines {
         if line.is_source_only_template_line(&elements) {

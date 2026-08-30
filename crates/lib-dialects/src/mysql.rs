@@ -1522,6 +1522,28 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // DeleteTargetTableSegment.
+    // A target table used in a `DELETE` statement, permitting a trailing `.*`
+    // after each table name in multi-table delete syntax.
+    // https://dev.mysql.com/doc/refman/8.0/en/delete.html
+    mysql.add([(
+        "DeleteTargetTableSegment".into(),
+        NodeMatcher::new(SyntaxKind::DeleteTargetTable, |_| {
+            Sequence::new(vec![
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("DotSegment").to_matchable(),
+                    Ref::new("StarSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // DeleteStatementSegment.
     mysql.replace_grammar(
         "DeleteStatementSegment",
@@ -1534,7 +1556,7 @@ pub fn raw_dialect() -> Dialect {
                 // DELETE FROM ... USING ...
                 Sequence::new(vec![
                     Ref::keyword("FROM").to_matchable(),
-                    Delimited::new(vec![Ref::new("TableReferenceSegment").to_matchable()])
+                    Delimited::new(vec![Ref::new("DeleteTargetTableSegment").to_matchable()])
                         .config(|this| {
                             this.base.terminators = vec![Ref::keyword("USING").to_matchable()]
                         })
@@ -1550,7 +1572,7 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
                 // DELETE ... FROM ...
                 Sequence::new(vec![
-                    Delimited::new(vec![Ref::new("TableReferenceSegment").to_matchable()])
+                    Delimited::new(vec![Ref::new("DeleteTargetTableSegment").to_matchable()])
                         .config(|this| {
                             this.base.terminators = vec![Ref::keyword("FROM").to_matchable()]
                         })

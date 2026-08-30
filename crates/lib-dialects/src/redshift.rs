@@ -866,6 +866,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("DropBehaviorGrammar").optional().to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("APPEND").to_matchable(),
+                        Ref::keyword("FROM").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Ref::keyword("IGNOREEXTRA").optional().to_matchable(),
+                        Ref::keyword("FILLTARGET").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

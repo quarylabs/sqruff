@@ -4,7 +4,7 @@ file:
     - keyword: create
     - keyword: database
     - keyword: role
-    - object_reference:
+    - database_role_reference:
       - naked_identifier: dbname
       - dot: .
       - naked_identifier: rolename

@@ -858,6 +858,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "DatabaseRoleReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::DatabaseRoleReference, |_| {
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("DotSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "LiteralGrammar".into(),
             snowflake_dialect
                 .grammar("LiteralGrammar")
@@ -3481,6 +3498,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                             ])
                             .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("DATABASE").to_matchable(),
+                                Ref::keyword("ROLE").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
@@ -3532,6 +3554,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             ])
                             .to_matchable(),
                             Sequence::new(vec![
+                                Ref::keyword("DATABASE").to_matchable(),
+                                Ref::keyword("ROLE").to_matchable(),
+                                Ref::new("DatabaseRoleReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
                                 Ref::keyword("OWNERSHIP").to_matchable(),
                                 Ref::keyword("ON").to_matchable(),
                                 Ref::keyword("USER").to_matchable(),
@@ -3551,13 +3579,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::keyword("TO").to_matchable(),
-                        Ref::keyword("USER").optional().to_matchable(),
-                        Ref::keyword("ROLE").optional().to_matchable(),
-                        Ref::keyword("SHARE").optional().to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("USER").to_matchable(),
+                            Ref::keyword("ROLE").to_matchable(),
+                            Ref::keyword("SHARE").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("DATABASE").to_matchable(),
+                                Ref::keyword("ROLE").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                         Delimited::new(vec![
                             one_of(vec![
                                 Ref::new("RoleReferenceSegment").to_matchable(),
                                 Ref::new("FunctionSegment").to_matchable(),
+                                Ref::new("DatabaseRoleReferenceSegment").to_matchable(),
                                 Ref::keyword("PUBLIC").to_matchable(),
                             ])
                             .to_matchable(),
@@ -3638,6 +3676,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             ])
                             .to_matchable(),
                             Sequence::new(vec![
+                                Ref::keyword("DATABASE").to_matchable(),
+                                Ref::keyword("ROLE").to_matchable(),
+                                Ref::new("DatabaseRoleReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
                                 Ref::keyword("OWNERSHIP").to_matchable(),
                                 Ref::keyword("ON").to_matchable(),
                                 Ref::keyword("USER").to_matchable(),
@@ -3656,9 +3700,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::keyword("FROM").to_matchable(),
-                        Ref::keyword("USER").optional().to_matchable(),
-                        Ref::keyword("ROLE").optional().to_matchable(),
-                        Ref::keyword("SHARE").optional().to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("USER").to_matchable(),
+                            Ref::keyword("ROLE").to_matchable(),
+                            Ref::keyword("SHARE").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("DATABASE").to_matchable(),
+                                Ref::keyword("ROLE").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                         Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
                             .to_matchable(),
                         Ref::new("DropBehaviorGrammar").optional().to_matchable(),
@@ -3746,7 +3799,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("DATABASE").to_matchable(),
                     Ref::keyword("ROLE").to_matchable(),
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::new("DatabaseRoleReferenceSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("COMMENT").to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),

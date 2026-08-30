@@ -24,10 +24,54 @@ loops and placeholders.
 # from .python_templater import FluffConfig, Linter
 # from .python_templater import SQLFluffSkipFile, SQLFluffUserError, SQLTemplaterError
 # from .python_templater import BaseSegment, RawFileSlice, TemplatedFile
-from jinja2 import UndefinedError
+from typing import Optional
+
 import pytest
-from sqruff.templaters.jinja_templater import DummyUndefined
+from jinja2 import Environment, UndefinedError
+
+from sqruff.templaters.jinja_templater import DummyUndefined, JinjaTemplater
+from sqruff.templaters.jinja_templater_tracers import JinjaAnalyzer
+from sqruff.templaters.python_templater import FluffConfig
 # from .jinja_templater_tracers import JinjaAnalyzer, JinjaTagConfiguration
+
+
+class ConfigAwareJinjaTemplater(JinjaTemplater):
+    """Record the config supplied when constructing an analyzer."""
+
+    analyzer_config: Optional[FluffConfig] = None
+
+    def _get_jinja_analyzer(
+        self,
+        raw_str: str,
+        env: Environment,
+        config: Optional[FluffConfig] = None,
+    ) -> JinjaAnalyzer:
+        self.analyzer_config = config
+        return super()._get_jinja_analyzer(raw_str, env, config)
+
+
+def test_jinja_analyzer_receives_config():
+    """Derived analyzers receive the active templater configuration."""
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_templater_paths=[],
+        jinja_loader_search_path=[],
+        jinja_apply_dbt_builtins=False,
+        jinja_ignore_templating=False,
+        jinja_library_paths=[],
+        dbt_profile=None,
+        dbt_profiles_dir=None,
+        dbt_target=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+    )
+    templater = ConfigAwareJinjaTemplater()
+
+    templater.slice_file("SELECT 1", lambda value: value, config=config)
+
+    assert templater.analyzer_config is config
+
 
 # JINJA_STRING = (
 #     "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, "

@@ -4366,6 +4366,26 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "UnorderedSetExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetExpression, |_| {
+                Sequence::new(vec![
+                    Ref::new("NonSetSelectableGrammar").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SetOperatorSegment").to_matchable(),
+                            Ref::new("NonSetSelectableGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.min_times(1))
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "SetExpressionSegment".into(),
             NodeMatcher::new(SyntaxKind::SetExpression, |_| {
                 Sequence::new(vec![
@@ -5106,6 +5126,15 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
                 Bracketed::new(vec![Ref::new("NonSetSelectableGrammar").to_matchable()])
                     .to_matchable(),
+                Ref::new("BracketedSetExpressionGrammar").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "BracketedSetExpressionGrammar".into(),
+            Bracketed::new(vec![
+                Ref::new("UnorderedSetExpressionSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),

@@ -1139,6 +1139,12 @@ pub fn raw_dialect() -> Dialect {
             "NonWithNonSelectableGrammar".into(),
             one_of(vec![]).to_matchable().into(),
         ),
+        (
+            "BracketedSetExpressionGrammar".into(),
+            Bracketed::new(vec![Ref::new("SetExpressionSegment").to_matchable()])
+                .to_matchable()
+                .into(),
+        ),
     ]);
 
     postgres.add([

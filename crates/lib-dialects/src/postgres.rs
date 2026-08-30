@@ -4539,36 +4539,39 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("ObjectReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("TO").to_matchable(),
-                            Delimited::new(vec![
-                                one_of(vec![
-                                    Ref::new("RoleReferenceSegment").to_matchable(),
-                                    Ref::keyword("PUBLIC").to_matchable(),
-                                    Ref::keyword("CURRENT_ROLE").to_matchable(),
-                                    Ref::keyword("CURRENT_USER").to_matchable(),
-                                    Ref::keyword("SESSION_USER").to_matchable(),
+                        any_set_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("TO").to_matchable(),
+                                Delimited::new(vec![
+                                    one_of(vec![
+                                        Ref::new("RoleReferenceSegment").to_matchable(),
+                                        Ref::keyword("PUBLIC").to_matchable(),
+                                        Ref::keyword("CURRENT_ROLE").to_matchable(),
+                                        Ref::keyword("CURRENT_USER").to_matchable(),
+                                        Ref::keyword("SESSION_USER").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
                             .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("USING").to_matchable(),
+                                Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("WITH").to_matchable(),
+                                Ref::keyword("CHECK").to_matchable(),
+                                Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("USING").to_matchable(),
-                            Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
-                                .to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("WITH").to_matchable(),
-                            Ref::keyword("CHECK").to_matchable(),
-                            Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
-                                .to_matchable(),
-                        ])
-                        .config(|this| this.optional())
+                        .config(|this| {
+                            this.min_times = 1;
+                        })
                         .to_matchable(),
                     ])
                     .to_matchable(),

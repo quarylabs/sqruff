@@ -324,84 +324,57 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     snowflake_dialect.add([
         (
             "ParameterAssignerSegment".into(),
-            StringParser::new(
-                "=>",
-                SyntaxKind::ParameterAssigner
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("=>", SyntaxKind::ParameterAssigner)
+                .to_matchable()
+                .into(),
         ),
         (
             "FunctionAssignerSegment".into(),
-            StringParser::new(
-                "->",
-                SyntaxKind::FunctionAssigner
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("->", SyntaxKind::FunctionAssigner)
+                .to_matchable()
+                .into(),
         ),
         (
             "WalrusOperatorSegment".into(),
-            StringParser::new(
-                ":=",
-                SyntaxKind::AssignmentOperator
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new(":=", SyntaxKind::AssignmentOperator)
+                .to_matchable()
+                .into(),
         ),
         (
             "QuotedStarSegment".into(),
-            StringParser::new(
-                "'*'",
-                SyntaxKind::QuotedStar
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("'*'", SyntaxKind::QuotedStar)
+                .to_matchable()
+                .into(),
         ),
         (
             "NakedSemiStructuredElementSegment".into(),
-            RegexParser::new(
-                "[A-Z0-9_]*",
-                SyntaxKind::SemiStructuredElement
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new("[A-Z0-9_]*", SyntaxKind::SemiStructuredElement)
+                .to_matchable()
+                .into(),
         ),
         (
             "QuotedSemiStructuredElementSegment".into(),
-            TypedParser::new(
-                SyntaxKind::DoubleQuote,
-                SyntaxKind::SemiStructuredElement,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::SemiStructuredElement)
+                .to_matchable()
+                .into(),
         ),
         (
             "ColumnIndexIdentifierSegment".into(),
-            RegexParser::new(
-                r"\$[0-9]+",
-                SyntaxKind::ColumnIndexIdentifierSegment
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r"\$[0-9]+", SyntaxKind::ColumnIndexIdentifierSegment)
+                .to_matchable()
+                .into(),
         ),
         (
             "LocalVariableNameSegment".into(),
-            RegexParser::new(
-                r"[a-zA-Z0-9_]*",
-                SyntaxKind::Variable
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r"[a-zA-Z0-9_]*", SyntaxKind::Variable)
+                .to_matchable()
+                .into(),
         ),
         (
             "ReferencedVariableNameSegment".into(),
-            RegexParser::new(
-                r"\$[A-Z_][A-Z0-9_]*",
-                SyntaxKind::Variable
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r"\$[A-Z_][A-Z0-9_]*", SyntaxKind::Variable)
+                .to_matchable()
+                .into(),
         ),
         (
             "WarehouseType".into(),
@@ -413,16 +386,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .filter(|it| !it.contains('-'))
                         .map_into()
                         .collect_vec(),
-                    SyntaxKind::WarehouseSize
-                ).to_matchable(),
+                    SyntaxKind::WarehouseSize,
+                )
+                .to_matchable(),
                 MultiStringParser::new(
                     snowflake_dialect
                         .sets("warehouse_types")
                         .into_iter()
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
-                    SyntaxKind::WarehouseSize
-                ).to_matchable()
+                    SyntaxKind::WarehouseSize,
+                )
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -437,16 +412,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .filter(|it| !it.contains('-'))
                         .map_into()
                         .collect_vec(),
-                   SyntaxKind::WarehouseSize
-                ).to_matchable(),
+                    SyntaxKind::WarehouseSize,
+                )
+                .to_matchable(),
                 MultiStringParser::new(
                     snowflake_dialect
                         .sets("warehouse_sizes")
                         .into_iter()
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
-                    SyntaxKind::WarehouseSize
-                ).to_matchable()
+                    SyntaxKind::WarehouseSize,
+                )
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -460,17 +437,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .into_iter()
                         .map_into()
                         .collect_vec(),
-                   SyntaxKind::CompressionType
-
-                ).to_matchable(),
+                    SyntaxKind::CompressionType,
+                )
+                .to_matchable(),
                 MultiStringParser::new(
                     snowflake_dialect
                         .sets("compression_types")
                         .into_iter()
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
-                   SyntaxKind::CompressionType
-                ).to_matchable()
+                    SyntaxKind::CompressionType,
+                )
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -485,16 +463,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .filter(|it| !it.contains('-'))
                         .map_into()
                         .collect_vec(),
-                   SyntaxKind::ScalingPolicy
-                ).to_matchable(),
+                    SyntaxKind::ScalingPolicy,
+                )
+                .to_matchable(),
                 MultiStringParser::new(
                     snowflake_dialect
                         .sets("warehouse_scaling_policies")
                         .into_iter()
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
-                   SyntaxKind::ScalingPolicy
-                ).to_matchable()
+                    SyntaxKind::ScalingPolicy,
+                )
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -503,7 +483,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "ValidationModeOptionSegment".into(),
             RegexParser::new(
                 r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
-                SyntaxKind::ValidationModeOption
+                SyntaxKind::ValidationModeOption,
             )
             .to_matchable()
             .into(),
@@ -512,110 +492,98 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "CopyOptionOnErrorSegment".into(),
             RegexParser::new(
                 r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
-                SyntaxKind::CopyOnErrorOption
+                SyntaxKind::CopyOnErrorOption,
             )
             .to_matchable()
             .into(),
         ),
         (
             "DoubleQuotedUDFBody".into(),
-            TypedParser::new(
-                SyntaxKind::DoubleQuote,
-                SyntaxKind::UdfBody,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::UdfBody)
+                .to_matchable()
+                .into(),
         ),
         (
             "SingleQuotedUDFBody".into(),
-            TypedParser::new(
-                SyntaxKind::SingleQuote,
-                SyntaxKind::UdfBody,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::UdfBody)
+                .to_matchable()
+                .into(),
         ),
         (
             "DollarQuotedUDFBody".into(),
-            TypedParser::new(
-                SyntaxKind::DollarQuote,
-                SyntaxKind::UdfBody,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::DollarQuote, SyntaxKind::UdfBody)
+                .to_matchable()
+                .into(),
         ),
         (
             "StagePath".into(),
-            RegexParser::new(
-                r"(?:@[^\s;)]+|'@[^']+')",
-                SyntaxKind::StagePath
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r"(?:@[^\s;)]+|'@[^']+')", SyntaxKind::StagePath)
+                .to_matchable()
+                .into(),
         ),
         (
             "S3Path".into(),
-            RegexParser::new(
-                r"'s3://.*'",
-                SyntaxKind::BucketPath
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r"'s3://.*'", SyntaxKind::BucketPath)
+                .to_matchable()
+                .into(),
         ),
         (
             "GCSPath".into(),
-            RegexParser::new(
-                r"'gcs://.*",
-                SyntaxKind::BucketPath
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r"'gcs://.*", SyntaxKind::BucketPath)
+                .to_matchable()
+                .into(),
         ),
         (
             "AzureBlobStoragePath".into(),
-            RegexParser::new(
-                r"'azure://.*",
-                SyntaxKind::BucketPath
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r"'azure://.*", SyntaxKind::BucketPath)
+                .to_matchable()
+                .into(),
         ),
         (
             "UnquotedFilePath".into(),
-            TypedParser::new(
-                SyntaxKind::UnquotedFilePath,
-                SyntaxKind::UnquotedFilePath,
-            )
-            .to_matchable()
-            .into(),
+            TypedParser::new(SyntaxKind::UnquotedFilePath, SyntaxKind::UnquotedFilePath)
+                .to_matchable()
+                .into(),
         ),
         (
             "SnowflakeEncryptionOption".into(),
             MultiStringParser::new(
                 vec!["'SNOWFLAKE_FULL'".into(), "'SNOWFLAKE_SSE'".into()],
-                SyntaxKind::StageEncryptionOption
-            ).to_matchable().into(),
+                SyntaxKind::StageEncryptionOption,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "S3EncryptionOption".into(),
             MultiStringParser::new(
-                vec!["'AWS_CSE'".into(), "'AWS_SSE_S3'".into(), "'AWS_SSE_KMS'".into()],
-                SyntaxKind::StageEncryptionOption
-            ).to_matchable().into(),
+                vec![
+                    "'AWS_CSE'".into(),
+                    "'AWS_SSE_S3'".into(),
+                    "'AWS_SSE_KMS'".into(),
+                ],
+                SyntaxKind::StageEncryptionOption,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "GCSEncryptionOption".into(),
             MultiStringParser::new(
                 vec!["'GCS_SSE_KMS'".into()],
-                SyntaxKind::StageEncryptionOption
-            ).to_matchable().into(),
+                SyntaxKind::StageEncryptionOption,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "AzureBlobStorageEncryptionOption".into(),
             MultiStringParser::new(
                 vec!["'AZURE_CSE'".into()],
-                SyntaxKind::StageEncryptionOption
-            ).to_matchable().into(),
+                SyntaxKind::StageEncryptionOption,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "FileType".into(),
@@ -627,37 +595,33 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .filter(|it| !it.contains('-'))
                         .map_into()
                         .collect_vec(),
-                   SyntaxKind::FileType
-                ).to_matchable(),
+                    SyntaxKind::FileType,
+                )
+                .to_matchable(),
                 MultiStringParser::new(
                     snowflake_dialect
                         .sets("file_types")
                         .into_iter()
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
-                  SyntaxKind::FileType
-                ).to_matchable()
+                    SyntaxKind::FileType,
+                )
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
         ),
         (
             "IntegerSegment".into(),
-            RegexParser::new(
-                r"[0-9]+",
-                SyntaxKind::IntegerLiteral
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r"[0-9]+", SyntaxKind::IntegerLiteral)
+                .to_matchable()
+                .into(),
         ),
         (
             "SystemFunctionName".into(),
-            RegexParser::new(
-                r"SYSTEM\$([A-Za-z0-9_]*)",
-                SyntaxKind::SystemFunctionName
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r"SYSTEM\$([A-Za-z0-9_]*)", SyntaxKind::SystemFunctionName)
+                .to_matchable()
+                .into(),
         ),
         (
             "GroupByContentsGrammar".into(),
@@ -667,67 +631,63 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     // Can `GROUP BY 1`
                     Ref::new("NumericLiteralSegment").to_matchable(),
                     // Can `GROUP BY coalesce(col, 1)`
-                    Ref::new("ExpressionSegment").to_matchable(),]).to_matchable(),]).config(|this|this.terminators = vec![
-                Ref::keyword("ORDER").to_matchable(),
-                Ref::keyword("LIMIT").to_matchable(),
-                Ref::keyword("FETCH").to_matchable(),
-                Ref::keyword("OFFSET").to_matchable(),
-                Ref::keyword("HAVING").to_matchable(),
-                Ref::keyword("QUALIFY").to_matchable(),
-                Ref::keyword("WINDOW").to_matchable(),]).to_matchable().into()
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| {
+                this.terminators = vec![
+                    Ref::keyword("ORDER").to_matchable(),
+                    Ref::keyword("LIMIT").to_matchable(),
+                    Ref::keyword("FETCH").to_matchable(),
+                    Ref::keyword("OFFSET").to_matchable(),
+                    Ref::keyword("HAVING").to_matchable(),
+                    Ref::keyword("QUALIFY").to_matchable(),
+                    Ref::keyword("WINDOW").to_matchable(),
+                ]
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "LimitLiteralGrammar".into(),
             one_of(vec![
                 Ref::new("NumericLiteralSegment").to_matchable(),
                 Ref::keyword("NULL").to_matchable(),
-                Ref::new("QuotedLiteralSegment").to_matchable()
-            ]).to_matchable().into()
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "StartExcludeBracketSegment".into(),
-            StringParser::new(
-                "{-",
-                SyntaxKind::StartExcludeBracket
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("{-", SyntaxKind::StartExcludeBracket)
+                .to_matchable()
+                .into(),
         ),
         (
             "EndExcludeBracketSegment".into(),
-            StringParser::new(
-                "-}",
-                SyntaxKind::EndExcludeBracket
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("-}", SyntaxKind::EndExcludeBracket)
+                .to_matchable()
+                .into(),
         ),
         (
             "QuestionMarkSegment".into(),
-            StringParser::new(
-                "?",
-                SyntaxKind::QuestionMark
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("?", SyntaxKind::QuestionMark)
+                .to_matchable()
+                .into(),
         ),
         (
             "CaretSegment".into(),
-            StringParser::new(
-                "^",
-                SyntaxKind::Caret
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("^", SyntaxKind::Caret)
+                .to_matchable()
+                .into(),
         ),
         (
             "DollarSegment".into(),
-            StringParser::new(
-                "$",
-                SyntaxKind::Dollar
-            )
-            .to_matchable()
-            .into(),
+            StringParser::new("$", SyntaxKind::Dollar)
+                .to_matchable()
+                .into(),
         ),
         (
             "PatternQuantifierGrammar".into(),
@@ -741,31 +701,51 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("NumericLiteralSegment").to_matchable(),
                             Sequence::new(vec![
                                 Ref::new("NumericLiteralSegment").to_matchable(),
-                                Ref::new("CommaSegment").to_matchable(),]).to_matchable(),
+                                Ref::new("CommaSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                             Sequence::new(vec![
                                 Ref::new("CommaSegment").to_matchable(),
-                                Ref::new("NumericLiteralSegment").to_matchable(),]).to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                             Sequence::new(vec![
                                 Ref::new("NumericLiteralSegment").to_matchable(),
                                 Ref::new("CommaSegment").to_matchable(),
-                                Ref::new("NumericLiteralSegment").to_matchable(),]).to_matchable(),]).to_matchable(),]).config(|this| {
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| {
                         this.bracket_type = "curly";
                         this.bracket_pairs_set = "bracket_pairs";
-                    }).to_matchable()
-                ]).to_matchable(),
-                Ref::new("QuestionMarkSegment").optional().to_matchable()
-            ]).config(|this| {
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("QuestionMarkSegment").optional().to_matchable(),
+            ])
+            .config(|this| {
                 this.allow_gaps = false;
-            }).to_matchable().into()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "PatternSymbolGrammar".into(),
             Sequence::new(vec![
                 Ref::new("SingleIdentifierGrammar").to_matchable(),
-                Ref::new("PatternQuantifierGrammar").optional().to_matchable()
-            ]).config(|this| {
+                Ref::new("PatternQuantifierGrammar")
+                    .optional()
+                    .to_matchable(),
+            ])
+            .config(|this| {
                 this.allow_gaps = false;
-            }).to_matchable().into()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "PatternOperatorGrammar".into(),
@@ -775,33 +755,62 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     one_of(vec![
                         Bracketed::new(vec![
                             one_of(vec![
-                                AnyNumberOf::new(vec![Ref::new("PatternOperatorGrammar").to_matchable(),]).to_matchable(),
-                                Delimited::new(
-                                    vec![
-                                        Ref::new("PatternOperatorGrammar").to_matchable(),]
-                                )
-                                .config(|this|this.delimiter(Ref::new("BitwiseOrSegment"))).to_matchable(),]).to_matchable(),]).config(|this| {
+                                AnyNumberOf::new(vec![
+                                    Ref::new("PatternOperatorGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Delimited::new(vec![
+                                    Ref::new("PatternOperatorGrammar").to_matchable(),
+                                ])
+                                .config(|this| this.delimiter(Ref::new("BitwiseOrSegment")))
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| {
                             this.bracket_type = "exclude";
                             this.bracket_pairs_set = "bracket_pairs";
-                        }).to_matchable(),
+                        })
+                        .to_matchable(),
                         Bracketed::new(vec![
                             one_of(vec![
-                                AnyNumberOf::new(vec![Ref::new("PatternOperatorGrammar").to_matchable(),]).to_matchable(),
-                                Delimited::new(
-                                    vec![
-                                        Ref::new("PatternOperatorGrammar").to_matchable(),]
-                                )
-                                .config(|this|this.delimiter(Ref::new("BitwiseOrSegment"))).to_matchable(),]).to_matchable(),]).to_matchable(),
+                                AnyNumberOf::new(vec![
+                                    Ref::new("PatternOperatorGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Delimited::new(vec![
+                                    Ref::new("PatternOperatorGrammar").to_matchable(),
+                                ])
+                                .config(|this| this.delimiter(Ref::new("BitwiseOrSegment")))
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("PERMUTE").to_matchable(),
-                            Bracketed::new(vec![Delimited::new(
-                                vec![
-                                    Ref::new("PatternSymbolGrammar").to_matchable(),]
-                            ).to_matchable(),]).to_matchable(),]).to_matchable(),]).to_matchable(),
-                    Ref::new("PatternQuantifierGrammar").optional().to_matchable()
-                ]).config(|this| {
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("PatternSymbolGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("PatternQuantifierGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .config(|this| {
                     this.allow_gaps = false;
-                }).to_matchable(),]).to_matchable().into()
+                })
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "ContextHeadersGrammar".into(),
@@ -826,8 +835,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::keyword("LAST_QUERY_ID").to_matchable(),
                 Ref::keyword("LAST_TRANSACTION").to_matchable(),
                 Ref::keyword("LOCALTIME").to_matchable(),
-                Ref::keyword("LOCALTIMESTAMP").to_matchable(),]).to_matchable().into()
-        )
+                Ref::keyword("LOCALTIMESTAMP").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     snowflake_dialect.add([

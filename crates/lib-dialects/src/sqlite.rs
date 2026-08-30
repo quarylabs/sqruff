@@ -6,7 +6,7 @@ use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_br
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
-use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::lexer::{Cursor, Matcher, Pattern};
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{StringParser, TypedParser};
@@ -32,6 +32,28 @@ pub fn raw_dialect() -> Dialect {
     let sqlite_dialect = super::ansi::raw_dialect();
     let mut sqlite_dialect = sqlite_dialect;
     sqlite_dialect.name = DialectKind::Sqlite;
+
+    // SQLite permits an unterminated C-style comment at the end of input.
+    // Keep ANSI's nested-comment handling while accepting EOF as a terminator.
+    sqlite_dialect.patch_lexer_matchers(vec![
+        Matcher::native(
+            "block_comment",
+            sqlite_block_comment,
+            SyntaxKind::BlockComment,
+        )
+        .subdivider(Pattern::legacy(
+            "newline",
+            |_| true,
+            r"\r\n|\n",
+            SyntaxKind::Newline,
+        ))
+        .post_subdivide(Pattern::legacy(
+            "whitespace",
+            |_| true,
+            r"[^\S\r\n]+",
+            SyntaxKind::Whitespace,
+        )),
+    ]);
 
     // Add lexer matchers for SQLite blob literals (X'...' or x'...')
     // These must be inserted before single_quote to take precedence
@@ -1265,4 +1287,29 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     sqlite_dialect
+}
+
+fn sqlite_block_comment(cursor: &mut Cursor) -> bool {
+    if cursor.shift() != '/' || cursor.shift() != '*' {
+        return false;
+    }
+
+    let mut depth = 1usize;
+    loop {
+        match cursor.shift() {
+            '\0' => return true,
+            '/' if cursor.peek() == '*' => {
+                cursor.shift();
+                depth += 1;
+            }
+            '*' if cursor.peek() == '/' => {
+                cursor.shift();
+                depth -= 1;
+                if depth == 0 {
+                    return true;
+                }
+            }
+            _ => {}
+        }
+    }
 }

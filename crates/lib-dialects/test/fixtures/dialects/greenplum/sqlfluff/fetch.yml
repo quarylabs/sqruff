@@ -1,0 +1,10 @@
+file:
+- statement:
+  - fetch_statement:
+    - keyword: FETCH
+    - keyword: FORWARD
+    - numeric_literal: '5'
+    - keyword: FROM
+    - table_reference:
+      - naked_identifier: mycursor
+- statement_terminator: ;

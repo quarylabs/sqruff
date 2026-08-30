@@ -1,0 +1,12 @@
+file:
+- statement:
+  - close_statement:
+    - keyword: CLOSE
+    - table_reference:
+      - naked_identifier: portala
+- statement_terminator: ;
+- statement:
+  - close_statement:
+    - keyword: CLOSE
+    - keyword: ALL
+- statement_terminator: ;

@@ -1568,21 +1568,19 @@ pub fn raw_dialect() -> Dialect {
         (
             "GroupingExpressionList".into(),
             NodeMatcher::new(SyntaxKind::GroupingExpressionList, |_| {
-                Sequence::new(vec![
-                    MetaSegment::indent().to_matchable(),
-                    Delimited::new(vec![
-                        one_of(vec![
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                            Ref::new("ExpressionSegment").to_matchable(),
-                            Bracketed::new(vec![]).to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("GroupByClauseTerminatorGrammar").to_matchable(),
+                Delimited::new(vec![
+                    one_of(vec![
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Bracketed::new(vec![]).to_matchable(),
                     ])
                     .to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
                 ])
+                .config(|this| {
+                    this.terminators =
+                        vec![Ref::new("GroupByClauseTerminatorGrammar").to_matchable()];
+                })
                 .to_matchable()
             })
             .to_matchable()
@@ -2005,28 +2003,25 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("GROUP").to_matchable(),
                     Ref::keyword("BY").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     one_of(vec![
                         Ref::new("CubeRollupClauseSegment").to_matchable(),
-                        Sequence::new(vec![
-                            MetaSegment::indent().to_matchable(),
-                            Delimited::new(vec![
-                                one_of(vec![
-                                    Ref::new("ColumnReferenceSegment").to_matchable(),
-                                    Ref::new("NumericLiteralSegment").to_matchable(),
-                                    Ref::new("ExpressionSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
                             ])
-                            .config(|this| {
-                                this.terminators =
-                                    vec![Ref::new("GroupByClauseTerminatorGrammar").to_matchable()];
-                            })
                             .to_matchable(),
-                            MetaSegment::dedent().to_matchable(),
                         ])
+                        .config(|this| {
+                            this.terminators =
+                                vec![Ref::new("GroupByClauseTerminatorGrammar").to_matchable()];
+                        })
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
             })

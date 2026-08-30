@@ -1574,6 +1574,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("PutStatementSegment").to_matchable(),
                 Ref::new("RemoveStatementSegment").to_matchable(),
                 Ref::new("CreateDatabaseFromShareStatementSegment").to_matchable(),
+                Ref::new("CreateDatabaseRoleStatementSegment").to_matchable(),
                 Ref::new("AlterRoleStatementSegment").to_matchable(),
                 Ref::new("AlterStorageIntegrationSegment").to_matchable(),
                 Ref::new("ExecuteImmediateClauseSegment").to_matchable(),
@@ -3730,6 +3731,29 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateDatabaseRoleStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateDatabaseRoleStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("DATABASE").to_matchable(),
+                    Ref::keyword("ROLE").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COMMENT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

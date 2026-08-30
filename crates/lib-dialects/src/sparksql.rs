@@ -1069,6 +1069,7 @@ pub fn raw_dialect() -> Dialect {
                                 one_of(vec![
                                     Ref::new("ColumnDefinitionSegment").to_matchable(),
                                     Ref::new("GeneratedColumnDefinitionSegment").to_matchable(),
+                                    Ref::new("TableConstraintSegment").to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Ref::new("CommentGrammar").optional().to_matchable(),
@@ -1539,11 +1540,13 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec![
                         Sequence::new(vec![
                             Ref::keyword("COLUMN").to_matchable(),
+                            Ref::new("IfExistsGrammar").optional().to_matchable(),
                             Ref::new("ColumnReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("COLUMNS").to_matchable(),
+                            Ref::new("IfExistsGrammar").optional().to_matchable(),
                             Bracketed::new(vec![
                                 Delimited::new(vec![
                                     AnyNumberOf::new(vec![
@@ -1992,11 +1995,6 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
-
-    sparksql_dialect.add([(
-        "CreateHiveFormatTableStatementSegment".into(),
-        hive_dialect.grammar("CreateTableStatementSegment").into(),
-    )]);
 
     // SparkSQL supports CTEs with DML statements (INSERT, UPDATE, DELETE, etc.)
     // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
@@ -3366,7 +3364,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("AlterDatabaseStatementSegment").to_matchable(),
                 Ref::new("AlterTableStatementSegment").to_matchable(),
                 Ref::new("AlterViewStatementSegment").to_matchable(),
-                Ref::new("CreateHiveFormatTableStatementSegment").to_matchable(),
+                Ref::new("CreateTableStatementSegment").to_matchable(),
                 Ref::new("MsckRepairTableStatementSegment").to_matchable(),
                 Ref::new("UseDatabaseStatementSegment").to_matchable(),
                 Ref::new("AddFileSegment").to_matchable(),
@@ -3745,7 +3743,7 @@ pub fn raw_dialect() -> Dialect {
                 })
                 .to_matchable(),
             Ref::new("SetClauseListSegment").to_matchable(),
-            Ref::new("WhereClauseSegment").to_matchable(),
+            Ref::new("WhereClauseSegment").optional().to_matchable(),
         ])
         .to_matchable(),
     );

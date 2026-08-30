@@ -5216,7 +5216,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("ROW").to_matchable(),
                     Ref::keyword("ACCESS").to_matchable(),
                     Ref::keyword("POLICY").to_matchable(),
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
                     Ref::keyword("ON").to_matchable(),
                     Bracketed::new(vec![
                         Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
@@ -5964,7 +5964,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("ROW").to_matchable(),
                     Ref::keyword("ACCESS").to_matchable(),
                     Ref::keyword("POLICY").to_matchable(),
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
                     Ref::keyword("ON").to_matchable(),
                     Bracketed::new(vec![
                         Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
@@ -7068,7 +7068,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("ROW").to_matchable(),
                             Ref::keyword("ACCESS").to_matchable(),
                             Ref::keyword("POLICY").to_matchable(),
-                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
                         Ref::new("TagBracketedEqualsSegment").to_matchable(),

@@ -1061,3 +1061,69 @@ file:
               - table_reference:
                 - naked_identifier: raw
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: EXAMPLE_TABLE_WITH_RLS
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: EXAMPLE
+        - data_type:
+          - data_type_identifier: VARCHAR
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: my_db
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: rls_policy
+    - keyword: ON
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: EXAMPLE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: EXAMPLE_TABLE_WITH_RLS
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: EXAMPLE
+        - data_type:
+          - data_type_identifier: VARCHAR
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: rls_policy
+    - keyword: ON
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: EXAMPLE
+      - end_bracket: )
+- statement_terminator: ;

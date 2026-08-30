@@ -149,7 +149,7 @@ file:
           - naked_identifier: parent_po
         - keyword: IS
         - keyword: NOT
-        - keyword: 'NULL'
+        - null_literal: 'NULL'
 - statement_terminator: ;
 - statement:
   - create_index_statement:
@@ -175,5 +175,5 @@ file:
           - naked_identifier: c
         - keyword: IS
         - keyword: NOT
-        - keyword: 'NULL'
+        - null_literal: 'NULL'
 - statement_terminator: ;

@@ -537,6 +537,17 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "IsDistinctFromGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("IS").to_matchable(),
+                Ref::keyword("NOT").optional().to_matchable(),
+                Ref::keyword("DISTINCT").to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ComparisonOperatorGrammar".into(),
             one_of(vec![
                 Ref::new("EqualsSegment").to_matchable(),
@@ -546,19 +557,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("LessThanOrEqualToSegment").to_matchable(),
                 Ref::new("NotEqualToSegment").to_matchable(),
                 Ref::new("LikeOperatorSegment").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("IS").to_matchable(),
-                    Ref::keyword("DISTINCT").to_matchable(),
-                    Ref::keyword("FROM").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("IS").to_matchable(),
-                    Ref::keyword("NOT").to_matchable(),
-                    Ref::keyword("DISTINCT").to_matchable(),
-                    Ref::keyword("FROM").to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("IsDistinctFromGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),

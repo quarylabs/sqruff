@@ -558,13 +558,13 @@ file:
             - naked_identifier: p1
           - keyword: IS
           - keyword: NOT
-          - keyword: 'NULL'
+          - null_literal: 'NULL'
           - binary_operator: AND
           - column_reference:
             - naked_identifier: p2
           - keyword: IS
           - keyword: NOT
-          - keyword: 'NULL'
+          - null_literal: 'NULL'
         - keyword: THEN
         - function_body:
           - function_if_branch:

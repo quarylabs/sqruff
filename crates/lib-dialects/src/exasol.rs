@@ -304,14 +304,7 @@ pub fn raw_dialect() -> Dialect {
         RegexParser::new("\\\"?[A-Z][A-Z0-9_]*\\\"?", SyntaxKind::Parameter).to_matchable(),
     );
     exasol.replace_grammar("LikeGrammar", Ref::keyword("LIKE").to_matchable());
-    exasol.replace_grammar(
-        "IsClauseGrammar",
-        one_of(vec![
-            Ref::keyword("NULL").to_matchable(),
-            Ref::new("BooleanLiteralGrammar").to_matchable(),
-        ])
-        .to_matchable(),
-    );
+    exasol.replace_grammar("NanLiteralSegment", Nothing::new().to_matchable());
     exasol.replace_grammar(
         "SelectClauseSegmentGrammar",
         Sequence::new(vec![

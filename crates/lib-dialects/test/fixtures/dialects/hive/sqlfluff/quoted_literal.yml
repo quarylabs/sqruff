@@ -11,8 +11,7 @@ file:
         - column_reference:
           - quoted_identifier: '`timestamp`'
         - alias_expression:
-          - alias_operator:
-            - keyword: as
+          - keyword: as
           - quoted_identifier: '`timestamp`'
     - from_clause:
       - keyword: FROM

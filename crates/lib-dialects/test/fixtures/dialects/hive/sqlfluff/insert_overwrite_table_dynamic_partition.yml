@@ -31,8 +31,7 @@ file:
         - select_clause_element:
           - quoted_literal: '''test_bar'''
           - alias_expression:
-            - alias_operator:
-              - keyword: AS
+            - keyword: AS
             - naked_identifier: b
       - from_clause:
         - keyword: FROM
@@ -67,15 +66,13 @@ file:
         - select_clause_element:
           - quoted_literal: '''test_foo'''
           - alias_expression:
-            - alias_operator:
-              - keyword: AS
+            - keyword: AS
             - naked_identifier: a
         - comma: ','
         - select_clause_element:
           - quoted_literal: '''test_bar'''
           - alias_expression:
-            - alias_operator:
-              - keyword: AS
+            - keyword: AS
             - naked_identifier: b
       - from_clause:
         - keyword: FROM

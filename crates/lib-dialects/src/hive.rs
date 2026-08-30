@@ -1155,6 +1155,26 @@ pub fn raw_dialect() -> Dialect {
     );
 
     hive_dialect.replace_grammar(
+        "AliasExpressionSegment",
+        Sequence::new(vec![
+            Ref::keyword("AS").optional().to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar")
+                        .optional()
+                        .to_matchable(),
+                    Bracketed::new(vec![Ref::new("SingleIdentifierListSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    hive_dialect.replace_grammar(
         "FromExpressionElementSegment",
         Sequence::new(vec![
             Ref::new("PreTableFunctionKeywordsGrammar")

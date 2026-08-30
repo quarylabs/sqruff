@@ -323,6 +323,15 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "NotOperatorGrammar".into(),
+            one_of(vec![
+                Ref::keyword("NOT").to_matchable(),
+                StringParser::new("!", SyntaxKind::NotOperator).to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "SingleIdentifierGrammar".into(),
             one_of(vec![
                 Ref::new("NakedIdentifierSegment").to_matchable(),

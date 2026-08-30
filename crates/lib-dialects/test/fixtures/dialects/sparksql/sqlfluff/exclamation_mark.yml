@@ -1,0 +1,48 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - not_operator: '!'
+          - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - not_operator: '!'
+          - null_literal: 'NULL'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: tab
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - not_operator: '!'
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: col
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+            - numeric_literal: '0'
+          - end_bracket: )
+- statement_terminator: ;

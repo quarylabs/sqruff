@@ -7,7 +7,7 @@ pub(crate) mod utils;
 use std::borrow::Cow;
 use std::io::{Stderr, Write};
 
-use anstyle::{AnsiColor, Effects, Style};
+use anstyle::{AnsiColor, Color, Effects, Style};
 use sqruff_lib::Formatter;
 use sqruff_lib::core::linter::linted_file::LintedFile;
 use sqruff_lib_core::errors::SQLBaseError;
@@ -16,7 +16,10 @@ use crate::formatters::utils::{
     colorize_helper, should_produce_plain_output, split_string_on_spaces,
 };
 
-const LIGHT_GREY: Style = AnsiColor::Black.on_default().effects(Effects::BOLD);
+const LIGHT_GREY: Style = Style::new()
+    .fg_color(Some(Color::Ansi(AnsiColor::Black)))
+    .bg_color(Some(Color::Ansi(AnsiColor::White)))
+    .effects(Effects::BOLD);
 
 pub(crate) struct OutputStreamFormatter {
     output_stream: Option<Stderr>,
@@ -192,11 +195,19 @@ impl Status {
 
 #[cfg(test)]
 mod tests {
-    use anstyle::AnsiColor;
+    use anstyle::{AnsiColor, Color};
     use fancy_regex::Regex;
     use sqruff_lib_core::errors::{ErrorStructRule, SQLBaseError};
 
-    use crate::formatters::{OutputStreamFormatter, utils::split_string_on_spaces};
+    use crate::formatters::{LIGHT_GREY, OutputStreamFormatter, utils::split_string_on_spaces};
+
+    #[test]
+    fn test_light_grey_uses_white_background() {
+        assert_eq!(
+            LIGHT_GREY.get_bg_color(),
+            Some(Color::Ansi(AnsiColor::White))
+        );
+    }
 
     #[test]
     fn test_short_string() {

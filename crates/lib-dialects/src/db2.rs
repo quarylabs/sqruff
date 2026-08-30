@@ -64,6 +64,10 @@ pub fn raw_dialect() -> Dialect {
         "PreTableFunctionKeywordsGrammar",
         one_of(vec![Ref::keyword("LATERAL").to_matchable()]).to_matchable(),
     );
+    db2_dialect.replace_grammar(
+        "BracketedSetExpressionGrammar",
+        Bracketed::new(vec![Ref::new("SetExpressionSegment").to_matchable()]).to_matchable(),
+    );
 
     for terminator_grammar in [
         "FromClauseTerminatorGrammar",

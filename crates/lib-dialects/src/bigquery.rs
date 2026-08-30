@@ -645,34 +645,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
-    dialect.replace_grammar("SetExpressionSegment", {
-        Sequence::new(vec![
-            one_of(vec![
-                Ref::new("NonSetSelectableGrammar").to_matchable(),
-                Bracketed::new(vec![Ref::new("SetExpressionSegment").to_matchable()])
-                    .to_matchable(),
-            ])
-            .to_matchable(),
-            AnyNumberOf::new(vec![
-                Sequence::new(vec![
-                    Ref::new("SetOperatorSegment").to_matchable(),
-                    one_of(vec![
-                        Ref::new("NonSetSelectableGrammar").to_matchable(),
-                        Bracketed::new(vec![Ref::new("SetExpressionSegment").to_matchable()])
-                            .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .config(|this| this.min_times = 1)
-            .to_matchable(),
-            Ref::new("OrderByClauseSegment").optional().to_matchable(),
-            Ref::new("LimitClauseSegment").optional().to_matchable(),
-            Ref::new("NamedWindowSegment").optional().to_matchable(),
-        ])
-        .to_matchable()
-    });
+    dialect.replace_grammar(
+        "BracketedSetExpressionGrammar",
+        Bracketed::new(vec![Ref::new("SetExpressionSegment").to_matchable()]).to_matchable(),
+    );
 
     dialect.replace_grammar("SelectStatementSegment", {
         ansi::select_statement().copy(

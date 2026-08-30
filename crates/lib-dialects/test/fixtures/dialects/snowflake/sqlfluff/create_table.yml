@@ -942,3 +942,51 @@ file:
                 - data_type_identifier: TIMESTAMP_NTZ
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: EXAMPLE_TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: EXAMPLE
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - column_constraint_segment:
+          - keyword: AUTOINCREMENT
+          - keyword: START
+          - numeric_literal: '1'
+          - keyword: INCREMENT
+          - numeric_literal: '1'
+          - keyword: ORDER
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: EXAMPLE_TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: EXAMPLE
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - column_constraint_segment:
+          - keyword: AUTOINCREMENT
+          - keyword: START
+          - numeric_literal: '1'
+          - keyword: INCREMENT
+          - numeric_literal: '1'
+          - keyword: NOORDER
+      - end_bracket: )
+- statement_terminator: ;

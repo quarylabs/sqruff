@@ -1003,9 +1003,13 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            // Some dialects do not support ON or USING with CROSS JOIN.
+            "ConditionalCrossJoinKeywordsGrammar".into(),
+            Ref::keyword("CROSS").to_matchable().into(),
+        ),
+        (
             "JoinTypeKeywordsGrammar".into(),
             one_of(vec![
-                Ref::keyword("CROSS").to_matchable(),
                 Ref::keyword("INNER").to_matchable(),
                 Sequence::new(vec![
                     one_of(vec![
@@ -1018,7 +1022,15 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
             ])
-            .config(|this| this.optional())
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ConditionalJoinKeywordsGrammar".into(),
+            one_of(vec![
+                Ref::new("JoinTypeKeywordsGrammar").to_matchable(),
+                Ref::new("ConditionalCrossJoinKeywordsGrammar").to_matchable(),
+            ])
             .to_matchable()
             .into(),
         ),
@@ -1035,23 +1047,22 @@ pub fn raw_dialect() -> Dialect {
             "NaturalJoinKeywordsGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("NATURAL").to_matchable(),
-                one_of(vec![
-                    // Note: NATURAL joins do not support CROSS joins
-                    Ref::keyword("INNER").to_matchable(),
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::keyword("LEFT").to_matchable(),
-                            Ref::keyword("RIGHT").to_matchable(),
-                            Ref::keyword("FULL").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::keyword("OUTER").optional().to_matchable(),
-                    ])
-                    .config(|this| this.optional())
+                Ref::new("JoinTypeKeywordsGrammar")
+                    .optional()
                     .to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UnconditionalCrossJoinKeywordsGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "UnconditionalJoinKeywordsGrammar".into(),
+            one_of(vec![
+                Ref::new("NaturalJoinKeywordsGrammar").to_matchable(),
+                Ref::new("UnconditionalCrossJoinKeywordsGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -2353,7 +2364,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::JoinClause, |_| {
                 one_of(vec![
                     Sequence::new(vec![
-                        Ref::new("JoinTypeKeywordsGrammar")
+                        Ref::new("ConditionalJoinKeywordsGrammar")
                             .optional()
                             .to_matchable(),
                         Ref::new("JoinKeywordsGrammar").to_matchable(),
@@ -2393,7 +2404,7 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
-                        Ref::new("NaturalJoinKeywordsGrammar").to_matchable(),
+                        Ref::new("UnconditionalJoinKeywordsGrammar").to_matchable(),
                         Ref::new("JoinKeywordsGrammar").to_matchable(),
                         MetaSegment::indent().to_matchable(),
                         Ref::new("JoinTargetGrammar").to_matchable(),
@@ -4517,6 +4528,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("FromClauseTerminatorGrammar").to_matchable(),
                             Ref::new("SamplingExpressionSegment").to_matchable(),
                             Ref::new("JoinLikeClauseGrammar").to_matchable(),
+                            Ref::new("JoinClauseSegment").to_matchable(),
                             LookaheadExclude::new("WITH", "(").to_matchable(),
                         ]))
                         .optional()

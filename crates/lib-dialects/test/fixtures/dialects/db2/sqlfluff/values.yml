@@ -214,21 +214,18 @@ file:
           - keyword: CROSS
           - keyword: JOIN
           - from_expression_element:
-            - table_expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: LATERAL
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - data_type:
-                        - data_type_identifier: VALUES
-                      - numeric_literal: '0'
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '1'
-                    - end_bracket: )
+            - keyword: LATERAL
+            - bracketed:
+              - start_bracket: (
+              - table_expression:
+                - values_clause:
+                  - keyword: VALUES
+                  - expression:
+                    - numeric_literal: '0'
+                  - comma: ','
+                  - expression:
+                    - numeric_literal: '1'
+              - end_bracket: )
             - alias_expression:
               - alias_operator:
                 - keyword: AS

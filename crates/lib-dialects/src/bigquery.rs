@@ -353,8 +353,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "ConditionalCrossJoinKeywordsGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
             "NaturalJoinKeywordsGrammar".into(),
             Nothing::new().to_matchable().into(),
+        ),
+        (
+            "UnconditionalCrossJoinKeywordsGrammar".into(),
+            Ref::keyword("CROSS").to_matchable().into(),
         ),
         (
             "AccessorGrammar".into(),

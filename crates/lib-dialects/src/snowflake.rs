@@ -66,6 +66,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("SamplingExpressionSegment").to_matchable(),
                     Ref::new("ChangesClauseSegment").to_matchable(),
                     Ref::new("JoinLikeClauseGrammar").to_matchable(),
+                    Ref::new("JoinClauseSegment").to_matchable(),
                     Ref::keyword("CROSS").to_matchable(),
                 ]))
                 .optional()
@@ -91,7 +92,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "JoinClauseSegment",
         one_of(vec![
             Sequence::new(vec![
-                Ref::new("JoinTypeKeywordsGrammar")
+                Ref::new("ConditionalJoinKeywordsGrammar")
                     .optional()
                     .to_matchable(),
                 Ref::new("JoinKeywordsGrammar").to_matchable(),
@@ -130,7 +131,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             ])
             .to_matchable(),
             Sequence::new(vec![
-                Ref::new("NaturalJoinKeywordsGrammar").to_matchable(),
+                Ref::new("UnconditionalJoinKeywordsGrammar").to_matchable(),
                 Ref::new("JoinKeywordsGrammar").to_matchable(),
                 MetaSegment::indent().to_matchable(),
                 Ref::new("FromExpressionElementSegment").to_matchable(),

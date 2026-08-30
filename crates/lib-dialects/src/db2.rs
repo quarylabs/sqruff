@@ -3,12 +3,12 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{
     AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
@@ -36,6 +36,8 @@ pub fn raw_dialect() -> Dialect {
     let mut db2_dialect = super::ansi::dialect(None);
     db2_dialect.name = DialectKind::Db2;
 
+    db2_dialect.sets_mut("reserved_keywords").remove("NATURAL");
+
     for kw in UNRESERVED_KEYWORDS {
         db2_dialect.add_keyword_to_set("unreserved_keywords", kw);
     }
@@ -47,6 +49,20 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("NamedArgumentSegment").to_matchable(),
         ])
         .to_matchable(),
+    );
+
+    db2_dialect.replace_grammar(
+        "ConditionalCrossJoinKeywordsGrammar",
+        Nothing::new().to_matchable(),
+    );
+    db2_dialect.replace_grammar("NaturalJoinKeywordsGrammar", Nothing::new().to_matchable());
+    db2_dialect.replace_grammar(
+        "UnconditionalCrossJoinKeywordsGrammar",
+        Ref::keyword("CROSS").to_matchable(),
+    );
+    db2_dialect.replace_grammar(
+        "PreTableFunctionKeywordsGrammar",
+        one_of(vec![Ref::keyword("LATERAL").to_matchable()]).to_matchable(),
     );
 
     for terminator_grammar in [

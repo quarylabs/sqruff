@@ -501,6 +501,7 @@ pub(crate) fn tsql_future_keywords() -> HashSet<&'static str> {
 /// T-SQL additional unreserved keywords (to be added to ANSI keywords)
 pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
     [
+        "ACTION",
         // PERIOD FOR SYSTEM_TIME (temporal tables, #4654)
         "DATA_CONSISTENCY_CHECK",
         "HISTORY_RETENTION_PERIOD",

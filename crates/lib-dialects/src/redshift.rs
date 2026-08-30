@@ -999,8 +999,8 @@ pub fn raw_dialect() -> Dialect {
                             .to_matchable(),
                             Ref::keyword("REFERENCES").to_matchable(),
                             Ref::new("TableReferenceSegment").to_matchable(),
-                            Sequence::new(vec![
-                                Bracketed::new(vec![
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
                                     Ref::new("ColumnReferenceSegment").to_matchable(),
                                 ])
                                 .to_matchable(),

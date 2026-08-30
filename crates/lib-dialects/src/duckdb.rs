@@ -31,11 +31,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 pub fn raw_dialect() -> Dialect {
     let ansi_dialect = ansi::raw_dialect();
     let postgres_dialect = postgres::dialect(None);
+    let postgres_non_set_selectable = postgres_dialect.grammar("NonSetSelectableGrammar");
     let mut duckdb_dialect = postgres_dialect;
     duckdb_dialect.name = DialectKind::Duckdb;
 
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "SUMMARIZE");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "MACRO");
+    duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT");
+    duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT_LONGER");
+    duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT_WIDER");
+    duckdb_dialect.add_keyword_to_set("reserved_keywords", "UNPIVOT");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "VIRTUAL");
 
     duckdb_dialect.add([
@@ -178,6 +183,35 @@ pub fn raw_dialect() -> Dialect {
     );
 
     duckdb_dialect.replace_grammar(
+        "JoinLikeClauseGrammar",
+        Sequence::new(vec![
+            AnyNumberOf::new(vec![
+                Ref::new("FromPivotExpressionSegment").to_matchable(),
+                Ref::new("FromUnpivotExpressionSegment").to_matchable(),
+            ])
+            .config(|this| this.min_times = 1)
+            .to_matchable(),
+            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "NonSetSelectableGrammar",
+        postgres_non_set_selectable.copy(
+            Some(vec![
+                Ref::new("SimplifiedPivotExpressionSegment").to_matchable(),
+                Ref::new("SimplifiedUnpivotExpressionSegment").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
+    duckdb_dialect.replace_grammar(
         "ColumnConstraintSegment",
         Sequence::new(vec![
             one_of(vec![
@@ -289,6 +323,222 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
+    duckdb_dialect.add([
+        (
+            "ColumnsExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnsExpression, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("COLUMNS").to_matchable(),
+                    Bracketed::new(vec![Ref::new("SelectClauseElementSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FromPivotExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::FromPivotExpression, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("PIVOT").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("FunctionSegment").to_matchable(),
+                                Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("FOR").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Ref::keyword("IN").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("GroupByClauseSegment").optional().to_matchable(),
+                        Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                        Ref::new("LimitClauseSegment").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SimplifiedPivotExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::SimplifiedPivot, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("PIVOT").to_matchable(),
+                        Ref::keyword("PIVOT_WIDER").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("TableExpressionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("IN").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("USING").to_matchable(),
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("FunctionSegment").to_matchable(),
+                                Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("GroupByClauseSegment").optional().to_matchable(),
+                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                    Ref::new("LimitClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FromUnpivotExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::FromUnpivotExpression, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("UNPIVOT").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INCLUDE").to_matchable(),
+                        Ref::keyword("NULLS").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("FOR").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Ref::keyword("IN").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![
+                                        Sequence::new(vec![
+                                            optionally_bracketed(vec![
+                                                Delimited::new(vec![
+                                                    Ref::new("SingleIdentifierGrammar")
+                                                        .to_matchable(),
+                                                ])
+                                                .to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                            Ref::new("AliasExpressionSegment")
+                                                .optional()
+                                                .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Ref::new("ColumnsExpressionSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.min_times = 1)
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SimplifiedUnpivotExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::SimplifiedUnpivot, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("UNPIVOT").to_matchable(),
+                        Ref::keyword("PIVOT_LONGER").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("TableExpressionSegment").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![
+                                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ColumnsExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("INTO").to_matchable(),
+                    Ref::keyword("NAME").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::keyword("VALUE").to_matchable(),
+                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                        .to_matchable(),
+                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                    Ref::new("LimitClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     duckdb_dialect.replace_grammar(
         "SelectClauseElementSegment",
@@ -556,6 +806,8 @@ pub fn raw_dialect() -> Dialect {
         "StatementSegment",
         postgres::statement_segment().copy(
             Some(vec![
+                Ref::new("SimplifiedPivotExpressionSegment").to_matchable(),
+                Ref::new("SimplifiedUnpivotExpressionSegment").to_matchable(),
                 Ref::new("LoadStatementSegment").to_matchable(),
                 Ref::new("SummarizeStatementSegment").to_matchable(),
                 Ref::new("DescribeStatementSegment").to_matchable(),

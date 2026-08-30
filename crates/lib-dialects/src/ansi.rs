@@ -1618,7 +1618,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("NEXT").to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::new("NumericLiteralSegment").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("ExpressionSegment")
+                            .exclude(Ref::keyword("ROW"))
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     one_of(vec![
                         Ref::keyword("ROW").to_matchable(),
                         Ref::keyword("ROWS").to_matchable(),

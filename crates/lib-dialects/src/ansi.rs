@@ -1026,10 +1026,16 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            // Extensible in individual dialects.
+            "NonStandardJoinTypeKeywordsGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
             "ConditionalJoinKeywordsGrammar".into(),
             one_of(vec![
                 Ref::new("JoinTypeKeywordsGrammar").to_matchable(),
                 Ref::new("ConditionalCrossJoinKeywordsGrammar").to_matchable(),
+                Ref::new("NonStandardJoinTypeKeywordsGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -1059,10 +1065,16 @@ pub fn raw_dialect() -> Dialect {
             Nothing::new().to_matchable().into(),
         ),
         (
+            // Some dialects support a row-by-row horizontal join between tables.
+            "HorizontalJoinKeywordsGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
             "UnconditionalJoinKeywordsGrammar".into(),
             one_of(vec![
                 Ref::new("NaturalJoinKeywordsGrammar").to_matchable(),
                 Ref::new("UnconditionalCrossJoinKeywordsGrammar").to_matchable(),
+                Ref::new("HorizontalJoinKeywordsGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),

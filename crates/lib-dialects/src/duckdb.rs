@@ -41,6 +41,10 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT_LONGER");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT_WIDER");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "UNPIVOT");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "ANTI");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "ASOF");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "POSITIONAL");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "SEMI");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "VIRTUAL");
 
     duckdb_dialect.add([
@@ -209,6 +213,31 @@ pub fn raw_dialect() -> Dialect {
             Vec::new(),
             false,
         ),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "NonStandardJoinTypeKeywordsGrammar",
+        one_of(vec![
+            Ref::keyword("ANTI").to_matchable(),
+            Ref::keyword("SEMI").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ASOF").to_matchable(),
+                one_of(vec![
+                    Ref::new("JoinTypeKeywordsGrammar").to_matchable(),
+                    Ref::keyword("ANTI").to_matchable(),
+                    Ref::keyword("SEMI").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "HorizontalJoinKeywordsGrammar",
+        Ref::keyword("POSITIONAL").to_matchable(),
     );
 
     duckdb_dialect.replace_grammar(

@@ -19,8 +19,7 @@ file:
               - naked_identifier: c
             - end_square_bracket: ']'
         - alias_expression:
-          - alias_operator:
-            - keyword: as
+          - keyword: as
           - naked_identifier: arr
     - from_clause:
       - keyword: from
@@ -68,8 +67,7 @@ file:
                         - end_square_bracket: ']'
                   - end_bracket: )
           - alias_expression:
-            - alias_operator:
-              - keyword: as
+            - keyword: as
             - naked_identifier: t
             - bracketed:
               - start_bracket: (
@@ -150,8 +148,7 @@ file:
             - quoted_literal: '''c'''
             - end_square_bracket: ']'
         - alias_expression:
-          - alias_operator:
-            - keyword: as
+          - keyword: as
           - naked_identifier: arr
     - from_clause:
       - keyword: from
@@ -178,8 +175,7 @@ file:
             - null_literal: 'null'
             - end_square_bracket: ']'
         - alias_expression:
-          - alias_operator:
-            - keyword: as
+          - keyword: as
           - naked_identifier: arr
     - from_clause:
       - keyword: from
@@ -203,8 +199,7 @@ file:
             - start_square_bracket: '['
             - end_square_bracket: ']'
         - alias_expression:
-          - alias_operator:
-            - keyword: as
+          - keyword: as
           - naked_identifier: arr
     - from_clause:
       - keyword: from

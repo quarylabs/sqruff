@@ -417,8 +417,8 @@ file:
         - join_clause:
           - keyword: CROSS
           - keyword: JOIN
-          - keyword: LATERAL
           - from_expression_element:
+            - keyword: LATERAL
             - table_expression:
               - function:
                 - function_name:

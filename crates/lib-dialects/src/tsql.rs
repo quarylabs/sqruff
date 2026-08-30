@@ -5,11 +5,11 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
@@ -37,6 +37,15 @@ pub fn raw_dialect() -> Dialect {
     // Start with ANSI SQL as the base dialect and customize for T-SQL
     let mut dialect = ansi::raw_dialect();
     dialect.name = DialectKind::Tsql;
+
+    dialect.replace_grammar(
+        "ConditionalCrossJoinKeywordsGrammar",
+        Nothing::new().to_matchable(),
+    );
+    dialect.replace_grammar(
+        "NaturalJoinKeywordsGrammar",
+        Ref::keyword("CROSS").to_matchable(),
+    );
 
     // Extend ANSI keywords with T-SQL specific keywords
     // IMPORTANT: Don't clear ANSI keywords as they contain fundamental SQL keywords
@@ -1910,6 +1919,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("FromClauseTerminatorGrammar").to_matchable(),
                     Ref::new("SamplingExpressionSegment").to_matchable(),
                     Ref::new("JoinLikeClauseGrammar").to_matchable(),
+                    Ref::new("JoinClauseSegment").to_matchable(),
                     LookaheadExclude::new("WITH", "(").to_matchable(), // Prevents WITH from being parsed as alias when followed by (
                 ]))
                 .optional()
@@ -1937,7 +1947,7 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec![
             // Standard JOIN syntax
             Sequence::new(vec![
-                Ref::new("JoinTypeKeywordsGrammar")
+                Ref::new("ConditionalJoinKeywordsGrammar")
                     .optional()
                     .to_matchable(),
                 Ref::new("JoinKeywordsGrammar").to_matchable(),
@@ -1977,7 +1987,7 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             // NATURAL JOIN
             Sequence::new(vec![
-                Ref::new("NaturalJoinKeywordsGrammar").to_matchable(),
+                Ref::new("UnconditionalJoinKeywordsGrammar").to_matchable(),
                 Ref::new("JoinKeywordsGrammar").to_matchable(),
                 MetaSegment::indent().to_matchable(),
                 Ref::new("FromExpressionElementSegment").to_matchable(),

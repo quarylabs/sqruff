@@ -8,7 +8,7 @@ use sqruff_lib_core::parser::grammar::anyof::{
 };
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
-use sqruff_lib_core::parser::grammar::{Anything, Ref};
+use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
@@ -1000,15 +1000,18 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("NOTNULL").to_matchable().into(),
         ),
         (
-            "JoinKeywordsGrammar".into(),
-            Sequence::new(vec![
-                Ref::keyword("JOIN").to_matchable(),
-                Sequence::new(vec![Ref::keyword("LATERAL").to_matchable()])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-            ])
-            .to_matchable()
-            .into(),
+            "PreTableFunctionKeywordsGrammar".into(),
+            one_of(vec![Ref::keyword("LATERAL").to_matchable()])
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "ConditionalCrossJoinKeywordsGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "UnconditionalCrossJoinKeywordsGrammar".into(),
+            Ref::keyword("CROSS").to_matchable().into(),
         ),
         (
             "SelectClauseTerminatorGrammar".into(),

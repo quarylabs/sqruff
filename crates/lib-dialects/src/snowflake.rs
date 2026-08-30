@@ -4679,6 +4679,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ORDER").to_matchable(),
+                    Ref::keyword("NOORDER").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![

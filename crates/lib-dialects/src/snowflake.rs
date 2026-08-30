@@ -5945,6 +5945,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             ])
             .to_matchable(),
             Ref::new("TemporaryGrammar").optional().to_matchable(),
+            Ref::keyword("MATERIALIZED").optional().to_matchable(),
             Ref::keyword("VIEW").to_matchable(),
             Ref::new("IfNotExistsGrammar").optional().to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),
@@ -5953,6 +5954,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Delimited::new(vec![
                         Sequence::new(vec![
                             Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("WITH").optional().to_matchable(),
+                                Ref::keyword("MASKING").to_matchable(),
+                                Ref::keyword("POLICY").to_matchable(),
+                                Ref::new("FunctionNameSegment").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("USING").to_matchable(),
+                                    Bracketed::new(vec![
+                                        Delimited::new(vec![
+                                            one_of(vec![
+                                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                                Ref::new("ExpressionSegment").to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
                             Ref::new("CommentClauseSegment").optional().to_matchable(),
                         ])
                         .to_matchable(),

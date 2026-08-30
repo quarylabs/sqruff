@@ -2165,12 +2165,32 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
+                    StringParser::new("RETURN", SyntaxKind::Keyword).to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
                     Ref::keyword("BEGIN").to_matchable(),
                     Ref::keyword("ATOMIC").to_matchable(),
-                    Ref::new("SelectStatementSegment").to_matchable(),
-                    Ref::new("SemicolonSegment").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("InsertStatementSegment").to_matchable(),
+                            Ref::new("SemicolonSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("UpdateStatementSegment").to_matchable(),
+                            Ref::new("SemicolonSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("SelectStatementSegment").to_matchable(),
+                            Ref::new("SemicolonSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::keyword("END").to_matchable(),
-                    Ref::new("SemicolonSegment").to_matchable(),
                 ])
                 .to_matchable(),
             ])

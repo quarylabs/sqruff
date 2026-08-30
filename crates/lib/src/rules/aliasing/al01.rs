@@ -1,4 +1,5 @@
 use hashbrown::HashMap;
+use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
@@ -103,6 +104,17 @@ FROM foo AS voo
     }
 
     fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
+        // Oracle does not allow AS for table aliases. AL02 delegates its column
+        // alias evaluation to this implementation, so distinguish AL01 by its
+        // table-parent target rather than by the concrete Rust type.
+        if rule_cx.dialect.name == DialectKind::Oracle
+            && self
+                .target_parent_types
+                .contains(SyntaxKind::FromExpressionElement)
+        {
+            return Vec::new();
+        }
+
         let last_seg = rule_cx.parent_stack.last().unwrap();
         let last_seg_ty = last_seg.get_type();
 

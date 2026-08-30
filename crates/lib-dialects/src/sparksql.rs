@@ -1848,6 +1848,7 @@ pub fn raw_dialect() -> Dialect {
             "UnpivotClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::UnpivotClause, |_| {
                 Sequence::new(vec![
+                    MetaSegment::indent().to_matchable(),
                     Ref::keyword("UNPIVOT").to_matchable(),
                     Sequence::new(vec![
                         one_of(vec![
@@ -1879,67 +1880,73 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "SingleValueColumnUnpivotSegment".into(),
-            Sequence::new(vec![
-                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                Ref::keyword("FOR").to_matchable(),
-                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                Ref::keyword("IN").to_matchable(),
-                Bracketed::new(vec![
-                    MetaSegment::indent().to_matchable(),
-                    Delimited::new(vec![
-                        Sequence::new(vec![
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+            NodeMatcher::new(SyntaxKind::UnpivotSingleColumn, |_| {
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::keyword("IN").to_matchable(),
+                    Bracketed::new(vec![
+                        MetaSegment::indent().to_matchable(),
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
                     ])
+                    .config(|config| {
+                        config.parse_mode = ParseMode::Greedy;
+                    })
                     .to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
                 ])
-                .config(|config| {
-                    config.parse_mode = ParseMode::Greedy;
-                })
-                .to_matchable(),
-            ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "MultiValueColumnUnpivotSegment".into(),
-            Sequence::new(vec![
-                Bracketed::new(vec![
-                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
-                        .to_matchable(),
-                ])
-                .to_matchable(),
-                MetaSegment::indent().to_matchable(),
-                Ref::keyword("FOR").to_matchable(),
-                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                Ref::keyword("IN").to_matchable(),
-                Bracketed::new(vec![
+            NodeMatcher::new(SyntaxKind::UnpivotMultiColumn, |_| {
+                Sequence::new(vec![
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                     MetaSegment::indent().to_matchable(),
-                    Delimited::new(vec![
-                        Sequence::new(vec![
-                            Bracketed::new(vec![
-                                MetaSegment::indent().to_matchable(),
-                                Delimited::new(vec![
-                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::keyword("IN").to_matchable(),
+                    Bracketed::new(vec![
+                        MetaSegment::indent().to_matchable(),
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Bracketed::new(vec![
+                                    MetaSegment::indent().to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
+                                Ref::new("AliasExpressionSegment").optional().to_matchable(),
                             ])
                             .to_matchable(),
-                            Ref::new("AliasExpressionSegment").optional().to_matchable(),
                         ])
                         .to_matchable(),
                     ])
+                    .config(|config| {
+                        config.parse_mode = ParseMode::Greedy;
+                    })
                     .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
-                .config(|config| {
-                    config.parse_mode = ParseMode::Greedy;
-                })
-                .to_matchable(),
-                MetaSegment::dedent().to_matchable(),
-            ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -3618,9 +3625,6 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("FromClauseTerminatorGrammar").to_matchable(),
                     Ref::new("JoinLikeClauseGrammar").to_matchable(),
                 ]))
-                .optional()
-                .to_matchable(),
-            Ref::new("SamplingExpressionSegment")
                 .optional()
                 .to_matchable(),
             AnyNumberOf::new(vec![Ref::new("LateralViewClauseSegment").to_matchable()])

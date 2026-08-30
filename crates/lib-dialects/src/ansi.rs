@@ -636,6 +636,15 @@ pub fn raw_dialect() -> Dialect {
             Nothing::new().to_matchable().into(),
         ),
         (
+            "ColumnsExpressionNameGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            // Uses a dedicated grammar so function-layout rules can identify it.
+            "ColumnsExpressionGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
             "BinaryOperatorGrammar".into(),
             one_of(vec![
                 Ref::new("ArithmeticBinaryOperatorGrammar").to_matchable(),
@@ -1431,6 +1440,7 @@ pub fn raw_dialect() -> Dialect {
             "FunctionSegment".into(),
             NodeMatcher::new(SyntaxKind::Function, |_| {
                 one_of(vec![
+                    Ref::new("ColumnsExpressionGrammar").to_matchable(),
                     Sequence::new(vec![
                         Ref::new("DatePartFunctionNameSegment").to_matchable(),
                         Ref::new("DateTimeFunctionContentsSegment").to_matchable(),
@@ -1441,6 +1451,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("FunctionNameSegment")
                                 .exclude(one_of(vec![
                                     Ref::new("DatePartFunctionNameSegment").to_matchable(),
+                                    Ref::new("ColumnsExpressionFunctionNameSegment").to_matchable(),
                                     Ref::new("ValuesClauseSegment").to_matchable(),
                                 ]))
                                 .to_matchable(),
@@ -1452,6 +1463,22 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ColumnsExpressionFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                Ref::new("ColumnsExpressionNameGrammar").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ColumnsExpressionFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnsExpression, |_| {
+                Nothing::new().to_matchable()
             })
             .to_matchable()
             .into(),

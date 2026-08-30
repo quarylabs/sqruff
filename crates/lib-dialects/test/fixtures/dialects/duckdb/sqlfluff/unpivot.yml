@@ -36,24 +36,25 @@ file:
       - table_reference:
         - naked_identifier: monthly_sales
     - keyword: ON
-    - columns_expression:
+    - function_name:
       - keyword: COLUMNS
-      - bracketed:
-        - start_bracket: (
-        - select_clause_element:
-          - wildcard_expression:
-            - wildcard_identifier:
-              - star: '*'
-          - keyword: EXCLUDE
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: empid
-            - comma: ','
-            - column_reference:
-              - naked_identifier: dept
-            - end_bracket: )
-        - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - columns_expression:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+          - wildcard_exclude:
+            - keyword: EXCLUDE
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: empid
+              - comma: ','
+              - column_reference:
+                - naked_identifier: dept
+              - end_bracket: )
+      - end_bracket: )
     - keyword: INTO
     - keyword: NAME
     - naked_identifier: month
@@ -120,24 +121,25 @@ file:
             - table_reference:
               - naked_identifier: monthly_sales
           - keyword: ON
-          - columns_expression:
+          - function_name:
             - keyword: COLUMNS
-            - bracketed:
-              - start_bracket: (
-              - select_clause_element:
-                - wildcard_expression:
-                  - wildcard_identifier:
-                    - star: '*'
-                - keyword: EXCLUDE
-                - bracketed:
-                  - start_bracket: (
-                  - column_reference:
-                    - naked_identifier: empid
-                  - comma: ','
-                  - column_reference:
-                    - naked_identifier: dept
-                  - end_bracket: )
-              - end_bracket: )
+          - bracketed:
+            - start_bracket: (
+            - columns_expression:
+              - wildcard_expression:
+                - wildcard_identifier:
+                  - star: '*'
+                - wildcard_exclude:
+                  - keyword: EXCLUDE
+                  - bracketed:
+                    - start_bracket: (
+                    - column_reference:
+                      - naked_identifier: empid
+                    - comma: ','
+                    - column_reference:
+                      - naked_identifier: dept
+                    - end_bracket: )
+            - end_bracket: )
           - keyword: INTO
           - keyword: NAME
           - naked_identifier: month
@@ -211,24 +213,25 @@ file:
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - columns_expression:
+              - function_name:
                 - keyword: COLUMNS
-                - bracketed:
-                  - start_bracket: (
-                  - select_clause_element:
-                    - wildcard_expression:
-                      - wildcard_identifier:
-                        - star: '*'
-                    - keyword: EXCLUDE
-                    - bracketed:
-                      - start_bracket: (
-                      - column_reference:
-                        - naked_identifier: empid
-                      - comma: ','
-                      - column_reference:
-                        - naked_identifier: dept
-                      - end_bracket: )
-                  - end_bracket: )
+              - bracketed:
+                - start_bracket: (
+                - columns_expression:
+                  - wildcard_expression:
+                    - wildcard_identifier:
+                      - star: '*'
+                    - wildcard_exclude:
+                      - keyword: EXCLUDE
+                      - bracketed:
+                        - start_bracket: (
+                        - column_reference:
+                          - naked_identifier: empid
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: dept
+                        - end_bracket: )
+                - end_bracket: )
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

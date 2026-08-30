@@ -49,6 +49,12 @@ pub fn raw_dialect() -> Dialect {
 
     duckdb_dialect.add([
         (
+            "LambdaArrowSegment".into(),
+            StringParser::new("->", SyntaxKind::LambdaArrow)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "SingleIdentifierGrammar".into(),
             one_of(vec![
                 Ref::new("NakedIdentifierSegment").to_matchable(),
@@ -241,6 +247,34 @@ pub fn raw_dialect() -> Dialect {
     );
 
     duckdb_dialect.replace_grammar(
+        "FunctionContentsExpressionGrammar",
+        one_of(vec![
+            Ref::new("LambdaExpressionSegment").to_matchable(),
+            Ref::new("NamedArgumentSegment").to_matchable(),
+            Ref::new("ExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "ColumnsExpressionNameGrammar",
+        Ref::keyword("COLUMNS").to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "ColumnsExpressionGrammar",
+        Sequence::new(vec![
+            Ref::new("ColumnsExpressionFunctionNameSegment").to_matchable(),
+            Bracketed::new(vec![
+                Ref::new("ColumnsExpressionFunctionContentsSegment").to_matchable(),
+            ])
+            .config(|this| this.parse_mode = ParseMode::Greedy)
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
         "ColumnConstraintSegment",
         Sequence::new(vec![
             one_of(vec![
@@ -355,12 +389,100 @@ pub fn raw_dialect() -> Dialect {
 
     duckdb_dialect.add([
         (
-            "ColumnsExpressionSegment".into(),
-            NodeMatcher::new(SyntaxKind::ColumnsExpression, |_| {
+            "WildcardExcludeExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::WildcardExclude, |_| {
                 Sequence::new(vec![
-                    Ref::keyword("COLUMNS").to_matchable(),
-                    Bracketed::new(vec![Ref::new("SelectClauseElementSegment").to_matchable()])
+                    Ref::keyword("EXCLUDE").to_matchable(),
+                    one_of(vec![
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
                         .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "WildcardReplaceExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::WildcardReplace, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("REPLACE").to_matchable(),
+                    one_of(vec![
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "WildcardExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::WildcardExpression, |_| {
+                Sequence::new(vec![
+                    Ref::new("WildcardIdentifierSegment").to_matchable(),
+                    Ref::new("WildcardExcludeExpressionSegment")
+                        .optional()
+                        .to_matchable(),
+                    Ref::new("WildcardReplaceExpressionSegment")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ColumnsExpressionFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnsExpression, |_| {
+                one_of(vec![
+                    Ref::new("WildcardExpressionSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("LambdaExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LambdaExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::LambdaFunction, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("ParameterNameSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ParameterNameSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("LambdaArrowSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -505,7 +627,7 @@ pub fn raw_dialect() -> Dialect {
                                                 .to_matchable(),
                                         ])
                                         .to_matchable(),
-                                        Ref::new("ColumnsExpressionSegment").to_matchable(),
+                                        Ref::new("ColumnsExpressionGrammar").to_matchable(),
                                     ])
                                     .to_matchable(),
                                 ])
@@ -550,7 +672,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("AliasExpressionSegment").optional().to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("ColumnsExpressionSegment").to_matchable(),
+                        Ref::new("ColumnsExpressionGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::keyword("INTO").to_matchable(),
@@ -572,46 +694,7 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.replace_grammar(
         "SelectClauseElementSegment",
         one_of(vec![
-            Sequence::new(vec![
-                Ref::new("WildcardExpressionSegment").to_matchable(),
-                one_of(vec![
-                    Sequence::new(vec![
-                        Ref::keyword("EXCLUDE").to_matchable(),
-                        one_of(vec![
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                            Bracketed::new(vec![
-                                Delimited::new(vec![
-                                    Ref::new("ColumnReferenceSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("REPLACE").to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![
-                                Sequence::new(vec![
-                                    Ref::new("BaseExpressionElementGrammar").to_matchable(),
-                                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .config(|config| {
-                    config.optional();
-                })
-                .to_matchable(),
-            ])
-            .to_matchable(),
+            Ref::new("WildcardExpressionSegment").to_matchable(),
             Sequence::new(vec![
                 Ref::new("BaseExpressionElementGrammar").to_matchable(),
                 Ref::new("AliasExpressionSegment").optional().to_matchable(),

@@ -74,6 +74,18 @@ FROM foo
             return Vec::new();
         }
 
+        // COLUMNS() expands to multiple output columns. Nested functions such
+        // as MIN(COLUMNS(*)) therefore cannot have a single meaningful alias.
+        if !children
+            .recursive_crawl(
+                const { &SyntaxSet::new(&[SyntaxKind::ColumnsExpression]) },
+                true,
+            )
+            .is_empty()
+        {
+            return Vec::new();
+        }
+
         let casts = children
             .children_all()
             .filter(|it: &ErasedSegment| it.is_type(SyntaxKind::CastExpression));

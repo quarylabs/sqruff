@@ -408,6 +408,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
             &single_indent,
             <_>::default(),
             self.reflow_config.allow_implicit_indents,
+            self.reflow_config.ignore_comment_lines,
         );
 
         Self {

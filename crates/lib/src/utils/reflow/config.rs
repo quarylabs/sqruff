@@ -166,6 +166,7 @@ pub struct ReflowConfig {
     pub(crate) hanging_indents: bool,
     pub(crate) allow_implicit_indents: bool,
     pub(crate) trailing_comments: TrailingComments,
+    pub(crate) ignore_comment_lines: bool,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -321,6 +322,9 @@ impl ReflowConfig {
                 .as_bool()
                 .unwrap(),
             trailing_comments,
+            ignore_comment_lines: config.raw["indentation"]["ignore_comment_lines"]
+                .as_bool()
+                .unwrap(),
         }
     }
 }

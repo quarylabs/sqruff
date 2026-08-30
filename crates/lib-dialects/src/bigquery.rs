@@ -1392,10 +1392,21 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("BEGIN").to_matchable(),
                     MetaSegment::indent().to_matchable(),
-                    Sequence::new(vec![
-                        Ref::new("StatementSegment").to_matchable(),
-                        Ref::new("DelimiterGrammar").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("StatementSegment").to_matchable(),
+                            Ref::new("DelimiterGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
+                    .config(|this| {
+                        this.min_times = 1;
+                        this.terminators = vec![
+                            Ref::keyword("END").to_matchable(),
+                            Ref::keyword("EXCEPTION").to_matchable(),
+                        ];
+                        this.parse_mode = ParseMode::Greedy;
+                    })
                     .to_matchable(),
                     MetaSegment::dedent().to_matchable(),
                     Sequence::new(vec![
@@ -1404,10 +1415,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("ERROR").to_matchable(),
                         Ref::keyword("THEN").to_matchable(),
                         MetaSegment::indent().to_matchable(),
-                        Sequence::new(vec![
-                            Ref::new("StatementSegment").to_matchable(),
-                            Ref::new("DelimiterGrammar").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("StatementSegment").to_matchable(),
+                                Ref::new("DelimiterGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
+                        .config(|this| {
+                            this.min_times = 1;
+                            this.terminators = vec![Ref::keyword("END").to_matchable()];
+                            this.parse_mode = ParseMode::Greedy;
+                        })
                         .to_matchable(),
                         MetaSegment::dedent().to_matchable(),
                     ])

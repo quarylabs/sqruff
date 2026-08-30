@@ -3,13 +3,15 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
+use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::StringParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
+use sqruff_lib_core::parser::types::ParseMode;
 
 use crate::{ansi, postgres};
 use sqruff_lib_core::dialects::init::DialectConfig;
@@ -144,6 +146,21 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "QualifyClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("QUALIFY").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    optionally_bracketed(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     duckdb_dialect.insert_lexer_matchers(
@@ -204,6 +221,51 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
         ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "SelectStatementSegment",
+        ansi::select_statement().copy(
+            Some(vec![
+                Ref::new("QualifyClauseSegment").optional().to_matchable(),
+            ]),
+            None,
+            Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "UnorderedSelectStatementSegment",
+        Sequence::new(vec![
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("SelectClauseSegment").to_matchable(),
+                    Ref::new("FromClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("FromClauseSegment").to_matchable(),
+                    Ref::new("SelectClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("WhereClauseSegment").optional().to_matchable(),
+            Ref::new("GroupByClauseSegment").optional().to_matchable(),
+            Ref::new("HavingClauseSegment").optional().to_matchable(),
+            Ref::new("NamedWindowSegment").optional().to_matchable(),
+            Ref::new("QualifyClauseSegment").optional().to_matchable(),
+        ])
+        .terminators(vec![
+            Ref::new("SetOperatorSegment").to_matchable(),
+            Ref::new("OrderByClauseSegment").to_matchable(),
+            Ref::new("LimitClauseSegment").to_matchable(),
+        ])
+        .config(|this| this.parse_mode(ParseMode::GreedyOnceStarted))
         .to_matchable(),
     );
 

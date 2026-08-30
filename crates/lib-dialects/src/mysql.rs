@@ -686,68 +686,58 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("TIMESTAMP").to_matchable(),
                     ])
                     .to_matchable(),
-                    Sequence::new(vec![
-                        Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Sequence::new(vec![Ref::keyword("NOT").to_matchable()])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                        Ref::keyword("NULL").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("DEFAULT").to_matchable(),
-                        one_of(vec![
-                            Sequence::new(vec![
-                                one_of(vec![
-                                    Ref::keyword("CURRENT_TIMESTAMP").to_matchable(),
-                                    Ref::keyword("NOW").to_matchable(),
+                    // Precision
+                    Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    // Allow NULL/NOT NULL, DEFAULT, and ON UPDATE in any order
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Sequence::new(vec![Ref::keyword("NOT").to_matchable()])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                            Ref::keyword("NULL").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DEFAULT").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::keyword("CURRENT_TIMESTAMP").to_matchable(),
+                                        Ref::keyword("NOW").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Bracketed::new(vec![
+                                        Ref::new("NumericLiteralSegment").optional().to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::keyword("UPDATE").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("CURRENT_TIMESTAMP").to_matchable(),
+                                Ref::keyword("NOW").to_matchable(),
                                 Bracketed::new(vec![
                                     Ref::new("NumericLiteralSegment").optional().to_matchable(),
                                 ])
                                 .config(|this| this.optional())
                                 .to_matchable(),
                             ])
-                            .to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("ON").to_matchable(),
-                            Ref::keyword("UPDATE").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            one_of(vec![
-                                Ref::keyword("CURRENT_TIMESTAMP").to_matchable(),
-                                Ref::keyword("NOW").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Bracketed::new(vec![
-                                Ref::new("NumericLiteralSegment").optional().to_matchable(),
-                            ])
                             .config(|this| this.optional())
                             .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
-                                .to_matchable(),
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),

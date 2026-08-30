@@ -12,9 +12,8 @@ file:
         - keyword: DATETIME
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+        - keyword: NOT
+        - keyword: 'NULL'
       - comma: ','
       - column_definition:
         - naked_identifier: ts1
@@ -125,7 +124,8 @@ file:
         - keyword: CURRENT_TIMESTAMP
         - bracketed:
           - start_bracket: (
-          - numeric_literal: '6'
+          - expression:
+            - numeric_literal: '6'
           - end_bracket: )
       - comma: ','
       - column_definition:
@@ -133,8 +133,7 @@ file:
         - keyword: TIMESTAMP
         - keyword: 'NULL'
         - keyword: DEFAULT
-        - column_constraint_segment:
-          - keyword: 'NULL'
+        - keyword: 'NULL'
       - comma: ','
       - column_definition:
         - naked_identifier: ts9

@@ -391,3 +391,37 @@ file:
         - naked_identifier: feedback_score
       - keyword: cascade
 - statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: the_schema
+      - dot: .
+      - naked_identifier: the_table
+    - alter_table_action_segment:
+      - keyword: APPEND
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: the_schema
+        - dot: .
+        - naked_identifier: the_temp_table
+      - keyword: IGNOREEXTRA
+      - keyword: FILLTARGET
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: the_schema
+      - dot: .
+      - naked_identifier: the_table
+    - alter_table_action_segment:
+      - keyword: APPEND
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: the_schema
+        - dot: .
+        - naked_identifier: the_temp_table
+- statement_terminator: ;

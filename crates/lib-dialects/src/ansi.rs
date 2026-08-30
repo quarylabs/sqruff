@@ -5029,6 +5029,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("TypedStructLiteralSegment").to_matchable(),
                     Ref::new("ArrayExpressionSegment").to_matchable(),
                     Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("OverlapsClauseSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
                         Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),

@@ -3994,6 +3994,32 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // SET NAMES statement — https://dev.mysql.com/doc/refman/8.0/en/set-names.html
+    mysql.add([(
+        "SetNamesStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SetNamesStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                Ref::keyword("NAMES").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("DEFAULT").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("COLLATE").to_matchable(),
+                    Ref::new("CollationReferenceSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // StatementSegment - override to add MySQL-specific statements
     // ============================================================
 
@@ -4038,6 +4064,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("ReplaceSegment").to_matchable(),
                 Ref::new("AlterDatabaseStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
+                Ref::new("SetNamesStatementSegment").to_matchable(),
             ]),
             None,
             None,

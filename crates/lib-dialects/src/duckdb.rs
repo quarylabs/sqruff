@@ -2,10 +2,10 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
@@ -36,6 +36,7 @@ pub fn raw_dialect() -> Dialect {
 
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "SUMMARIZE");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "MACRO");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "VIRTUAL");
 
     duckdb_dialect.add([
         (
@@ -56,6 +57,10 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
             .into(),
+        ),
+        (
+            "CreateTableAsStatementSegment".into(),
+            Nothing::new().to_matchable().into(),
         ),
         (
             "UnionGrammar".into(),
@@ -170,6 +175,119 @@ pub fn raw_dialect() -> Dialect {
             SyntaxKind::DoubleDivide,
         )],
         "divide",
+    );
+
+    duckdb_dialect.replace_grammar(
+        "ColumnConstraintSegment",
+        Sequence::new(vec![
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::keyword("NULL").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("CHECK").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DEFAULT").to_matchable(),
+                    one_of(vec![
+                        Ref::new("LiteralGrammar").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("UNIQUE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("PRIMARY").to_matchable(),
+                    Ref::keyword("KEY").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("COLLATE").to_matchable(),
+                    Ref::new("CollationReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "CreateTableStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            Ref::new("TemporaryGrammar").optional().to_matchable(),
+            Ref::keyword("TABLE").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("AS").to_matchable(),
+                    optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                one_of(vec![
+                                    Sequence::new(vec![
+                                        Ref::new("DatatypeSegment").to_matchable(),
+                                        AnyNumberOf::new(vec![
+                                            Ref::new("ColumnConstraintSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::new("DatatypeSegment")
+                                            .exclude(Ref::keyword("AS"))
+                                            .optional()
+                                            .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("GENERATED").to_matchable(),
+                                            Ref::keyword("ALWAYS").to_matchable(),
+                                        ])
+                                        .config(|this| this.optional())
+                                        .to_matchable(),
+                                        Ref::keyword("AS").to_matchable(),
+                                        Bracketed::new(vec![
+                                            Ref::new("ExpressionSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("STORED").to_matchable(),
+                                            Ref::keyword("VIRTUAL").to_matchable(),
+                                        ])
+                                        .config(|this| this.optional())
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("TableConstraintSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
     );
 
     duckdb_dialect.replace_grammar(

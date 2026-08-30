@@ -2607,6 +2607,25 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // T-SQL CREATE USER from/for an existing login.
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-user-transact-sql
+    dialect.replace_grammar(
+        "CreateUserStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::keyword("USER").to_matchable(),
+            Ref::new("RoleReferenceSegment").to_matchable(),
+            one_of(vec![
+                Ref::keyword("FROM").to_matchable(),
+                Ref::keyword("FOR").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("LOGIN").to_matchable(),
+            Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // T-SQL CREATE ROLE with optional AUTHORIZATION clause
     // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-role-transact-sql
     dialect.replace_grammar(

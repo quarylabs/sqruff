@@ -1,0 +1,23 @@
+file:
+- statement:
+  - create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: user_name
+    - keyword: FOR
+    - keyword: LOGIN
+    - object_reference:
+      - naked_identifier: login_name
+- statement_terminator: ;
+- statement:
+  - create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: user_name
+    - keyword: FROM
+    - keyword: LOGIN
+    - object_reference:
+      - naked_identifier: login_name
+- statement_terminator: ;

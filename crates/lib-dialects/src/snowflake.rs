@@ -1003,15 +1003,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
-            "TemporaryTransientGrammar".into(),
-            one_of(vec![
-                Ref::new("TemporaryGrammar").to_matchable(),
-                Ref::keyword("TRANSIENT").to_matchable(),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
             "BaseExpressionElementGrammar".into(),
             snowflake_dialect
                 .grammar("BaseExpressionElementGrammar")
@@ -5039,9 +5030,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Ref::new("TemporaryTransientGrammar")
                 .optional()
                 .to_matchable(),
+            Ref::keyword("DYNAMIC").optional().to_matchable(),
             Ref::keyword("TABLE").to_matchable(),
             Ref::new("IfNotExistsGrammar").optional().to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("TARGET_LAG").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("WAREHOUSE").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
             any_set_of(vec![
                 Sequence::new(vec![
                     Bracketed::new(vec![

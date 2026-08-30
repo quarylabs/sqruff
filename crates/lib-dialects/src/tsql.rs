@@ -37,6 +37,7 @@ pub fn raw_dialect() -> Dialect {
     // Start with ANSI SQL as the base dialect and customize for T-SQL
     let mut dialect = ansi::raw_dialect();
     dialect.name = DialectKind::Tsql;
+    dialect.replace_grammar("NanLiteralSegment", Nothing::new().to_matchable());
 
     dialect.replace_grammar(
         "ConditionalCrossJoinKeywordsGrammar",

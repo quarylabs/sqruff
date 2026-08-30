@@ -524,13 +524,23 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
-            "IsClauseGrammar".into(),
-            one_of(vec![
-                Ref::keyword("NULL").to_matchable(),
-                Ref::new("BooleanLiteralGrammar").to_matchable(),
+            "IsDistinctFromGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("IS").to_matchable(),
+                Ref::keyword("NOT").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DISTINCT").to_matchable(),
+                    Ref::keyword("FROM").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
+        ),
+        (
+            "NanLiteralSegment".into(),
+            Nothing::new().to_matchable().into(),
         ),
     ]);
     sqlite_dialect.add([(

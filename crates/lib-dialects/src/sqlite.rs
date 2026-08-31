@@ -824,12 +824,35 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("UPDATE").to_matchable(),
-                    Ref::new("TableReferenceSegment").to_matchable(),
-                    Ref::new("AliasExpressionSegment")
-                        .exclude(Ref::keyword("SET"))
-                        .optional()
+                    Sequence::new(vec![
+                        Ref::keyword("OR").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("ABORT").to_matchable(),
+                            Ref::keyword("FAIL").to_matchable(),
+                            Ref::keyword("IGNORE").to_matchable(),
+                            Ref::keyword("REPLACE").to_matchable(),
+                            Ref::keyword("ROLLBACK").to_matchable(),
+                        ])
                         .to_matchable(),
-                    Ref::new("SetClauseListSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                    Ref::keyword("SET").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),
                     Ref::new("WhereClauseSegment").optional().to_matchable(),
                     Ref::new("ReturningClauseSegment").optional().to_matchable(),

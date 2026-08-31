@@ -17,17 +17,15 @@ file:
       - keyword: UPDATE
       - table_reference:
         - naked_identifier: orders
-      - set_clause_list:
-        - keyword: SET
-        - set_clause:
-          - column_reference:
-            - naked_identifier: address
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - column_reference:
-            - naked_identifier: new
-            - dot: .
-            - naked_identifier: address
+      - keyword: SET
+      - naked_identifier: address
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - column_reference:
+          - naked_identifier: new
+          - dot: .
+          - naked_identifier: address
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -62,17 +60,15 @@ file:
       - keyword: UPDATE
       - table_reference:
         - naked_identifier: customer
-      - set_clause_list:
-        - keyword: SET
-        - set_clause:
-          - column_reference:
-            - naked_identifier: cust_addr
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - column_reference:
-            - naked_identifier: NEW
-            - dot: .
-            - naked_identifier: cust_addr
+      - keyword: SET
+      - naked_identifier: cust_addr
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - column_reference:
+          - naked_identifier: NEW
+          - dot: .
+          - naked_identifier: cust_addr
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -270,14 +266,12 @@ file:
       - keyword: UPDATE
       - table_reference:
         - naked_identifier: y
-      - set_clause_list:
-        - keyword: SET
-        - set_clause:
-          - column_reference:
-            - naked_identifier: z
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - boolean_literal: 'TRUE'
+      - keyword: SET
+      - naked_identifier: z
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - expression:
+        - boolean_literal: 'TRUE'
       - where_clause:
         - keyword: WHERE
         - expression:

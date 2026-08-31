@@ -202,4 +202,14 @@ file:
         - keyword: ON
         - keyword: UPDATE
         - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+        - naked_identifier: ts16
+        - keyword: TIMESTAMP
+        - keyword: 'NULL'
+        - keyword: DEFAULT
+        - keyword: 'NULL'
+        - keyword: ON
+        - keyword: UPDATE
+        - keyword: CURRENT_TIMESTAMP
       - end_bracket: )

@@ -718,6 +718,7 @@ pub fn raw_dialect() -> Dialect {
                                 .to_matchable(),
                                 Ref::new("NumericLiteralSegment").to_matchable(),
                                 Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::keyword("NULL").to_matchable(),
                             ])
                             .config(|this| this.optional())
                             .to_matchable(),

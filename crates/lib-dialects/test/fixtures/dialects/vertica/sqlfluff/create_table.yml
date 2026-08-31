@@ -127,6 +127,124 @@ file:
   - create_table_statement:
     - create_table_statement:
       - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: orders
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: orderkey
+        - data_type:
+          - data_type:
+            - keyword: INT
+        - column_encoding:
+          - keyword: ENCODING
+          - encoding_type: AUTO
+        - comma: ','
+        - column_reference:
+          - naked_identifier: custkey
+        - data_type:
+          - data_type:
+            - keyword: INT
+        - comma: ','
+        - column_reference:
+          - naked_identifier: prodkey
+        - data_type:
+          - data_type:
+            - sized_array_type:
+              - array_type:
+                - array_type:
+                  - keyword: ARRAY
+              - array_accessor:
+                - start_square_bracket: '['
+                - expression:
+                  - function:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: VARCHAR
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '10'
+                        - end_bracket: )
+                - end_square_bracket: ']'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: orderprices
+        - data_type:
+          - data_type:
+            - sized_array_type:
+              - array_type:
+                - array_type:
+                  - keyword: ARRAY
+              - array_accessor:
+                - start_square_bracket: '['
+                - expression:
+                  - function:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: DECIMAL
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - numeric_literal: '12'
+                        - comma: ','
+                        - expression:
+                          - numeric_literal: '2'
+                        - end_bracket: )
+                - end_square_bracket: ']'
+        - comma: ','
+        - column_reference:
+          - naked_identifier: orderdate
+        - data_type:
+          - data_type:
+            - keyword: DATE
+        - end_bracket: )
+      - partitionby_clause:
+        - keyword: partition
+        - keyword: by
+        - expression:
+          - cast_expression:
+            - cast_expression:
+              - column_reference:
+                - naked_identifier: orderdate
+              - casting_operator: '::'
+              - data_type:
+                - data_type:
+                  - keyword: date
+        - groupby_clause:
+          - groupby_clause:
+            - keyword: group
+            - keyword: by
+            - expression:
+              - function:
+                - function:
+                  - function_name:
+                    - function_name_identifier: CALENDAR_HIERARCHY_DAY
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - cast_expression:
+                        - cast_expression:
+                          - column_reference:
+                            - naked_identifier: orderdate
+                          - casting_operator: '::'
+                          - data_type:
+                            - data_type:
+                              - keyword: DATE
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '3'
+                    - comma: ','
+                    - expression:
+                      - numeric_literal: '2'
+                    - end_bracket: )
+        - keyword: REORGANIZE
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
       - keyword: TEMPORARY
       - keyword: TABLE
       - table_reference:

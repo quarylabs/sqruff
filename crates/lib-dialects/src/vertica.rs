@@ -66,6 +66,15 @@ pub fn raw_dialect() -> Dialect {
         )],
         "divide",
     );
+    vertica.insert_lexer_matchers(
+        vec![Matcher::legacy(
+            "escaped_single_quote",
+            |s| s.starts_with("E'") || s.starts_with("e'"),
+            r"(?s)[eE](('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\(?<!')(?:'')*')'(?!'))",
+            SyntaxKind::EscapedSingleQuote,
+        )],
+        "like_operator",
+    );
 
     // Keywords.
     vertica
@@ -229,9 +238,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("TO").to_matchable(),
                     Sequence::new(vec![
                         Ref::new("IntervalUnitsGrammar").to_matchable(),
-                        Bracketed::new(vec![Ref::new("IntegerSegment").to_matchable()])
-                            .config(|this| this.optional())
-                            .to_matchable(),
+                        Ref::new("BracketedArguments").optional().to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -405,10 +412,20 @@ pub fn raw_dialect() -> Dialect {
 
     vertica.replace_grammar(
         "PostFunctionGrammar",
-        one_of(vec![
+        any_set_of(vec![
             Ref::new("OverClauseSegment").to_matchable(),
             Ref::new("FilterClauseGrammar").to_matchable(),
             Ref::new("WithinGroupClauseSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    vertica.replace_grammar(
+        "QuotedLiteralSegment",
+        one_of(vec![
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral).to_matchable(),
+            TypedParser::new(SyntaxKind::EscapedSingleQuote, SyntaxKind::QuotedLiteral)
+                .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -894,30 +911,18 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                 ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("GROUP").to_matchable(),
-                    Ref::keyword("BY").to_matchable(),
-                    one_of(vec![
-                        Ref::new("FunctionSegment").to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![
-                                one_of(vec![
-                                    Ref::new("ColumnReferenceSegment").to_matchable(),
-                                    Ref::new("NumericLiteralSegment").to_matchable(),
-                                    Ref::new("ExpressionSegment").to_matchable(),
-                                    Ref::new("ShorthandCastSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
+                .config(|this| {
+                    this.terminators = vec![
+                        Sequence::new(vec![
+                            Ref::keyword("GROUP").to_matchable(),
+                            Ref::keyword("BY").to_matchable(),
                         ])
                         .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .config(|this| this.optional())
+                        Ref::keyword("REORGANIZE").to_matchable(),
+                    ];
+                })
                 .to_matchable(),
+                Ref::new("GroupByClauseSegment").optional().to_matchable(),
                 Ref::keyword("REORGANIZE").optional().to_matchable(),
             ])
             .to_matchable()
@@ -2272,9 +2277,7 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("FLOAT").to_matchable(),
-                    Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
-                        .config(|this| this.optional())
-                        .to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
                 ])
                 .to_matchable(),
                 Ref::keyword("FLOAT8").to_matchable(),
@@ -2293,17 +2296,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("MONEY").to_matchable(),
                     ])
                     .to_matchable(),
-                    Bracketed::new(vec![
-                        Ref::new("IntegerSegment").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::new("CommaSegment").to_matchable(),
-                            Ref::new("IntegerSegment").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
@@ -2353,7 +2346,6 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("ArrayTypeSegment").to_matchable(),
                     Ref::new("SizedArrayTypeSegment").to_matchable(),
                 ])
-                .config(|this| this.optional())
                 .to_matchable(),
                 Sequence::new(vec![
                     one_of(vec![
@@ -2615,23 +2607,49 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
-                    AnyNumberOf::new(vec![Ref::new("PostFunctionGrammar").to_matchable()])
-                        .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("AS").to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
-                                .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    any_set_of(vec![Ref::new("PostFunctionGrammar").to_matchable()]).to_matchable(),
                 ])
                 .to_matchable(),
             ])
             .to_matchable()
         })
+        .to_matchable(),
+    );
+
+    vertica.replace_grammar(
+        "AliasExpressionSegment",
+        one_of(vec![
+            Sequence::new(vec![
+                MetaSegment::indent().to_matchable(),
+                Ref::new("AsAliasOperatorSegment").optional().to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Bracketed::new(vec![
+                            Ref::new("SingleIdentifierListSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                MetaSegment::indent().to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable(),
+        ])
         .to_matchable(),
     );
 

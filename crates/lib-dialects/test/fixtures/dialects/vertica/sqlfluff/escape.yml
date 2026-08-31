@@ -5,11 +5,29 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - expression:
-            - data_type:
-              - data_type:
-                - data_type_identifier: E
-            - quoted_literal: '''\'''''
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: replace
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: some_field
+                - comma: ','
+                - expression:
+                  - quoted_literal: e'\r\n'
+                - comma: ','
+                - expression:
+                  - quoted_literal: ''', '''
+                - end_bracket: )
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: table_name
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -17,11 +35,29 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - expression:
-            - data_type:
-              - data_type:
-                - data_type_identifier: E
-            - quoted_literal: ''''''''''
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: replace
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: some_field
+                - comma: ','
+                - expression:
+                  - quoted_literal: E'\r\n'
+                - comma: ','
+                - expression:
+                  - quoted_literal: ''', '''
+                - end_bracket: )
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: table_name
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -29,11 +65,7 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - expression:
-            - data_type:
-              - data_type:
-                - data_type_identifier: E
-            - quoted_literal: '''''''\'''''
+          - quoted_literal: E'\''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -41,11 +73,7 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - expression:
-            - data_type:
-              - data_type:
-                - data_type_identifier: E
-            - quoted_literal: '''\\\'''''''''
+          - quoted_literal: E''''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -53,14 +81,26 @@ file:
       - select_clause:
         - keyword: SELECT
         - select_clause_element:
-          - expression:
-            - data_type:
-              - data_type:
-                - data_type_identifier: E
-            - quoted_literal: |-
-                '
+          - quoted_literal: E'''\''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - quoted_literal: E'\\\''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - quoted_literal: |-
+              E'
 
-                \\
-                ''
-                \\'
+              \\
+              ''
+              \\'
 - statement_terminator: ;

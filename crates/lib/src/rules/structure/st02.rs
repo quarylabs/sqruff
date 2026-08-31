@@ -177,7 +177,7 @@ from fancy_table
 
                 let column_reference_segment_raw_upper = match array_accessor_segment {
                     Some(array_accessor_segment) => {
-                        column_reference_segment.raw().to_lowercase()
+                        column_reference_segment.raw().to_uppercase()
                             + &array_accessor_segment.raw().to_uppercase()
                     }
                     None => column_reference_segment.raw().to_uppercase(),

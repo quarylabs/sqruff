@@ -14,8 +14,8 @@ file:
         - data_type:
           - data_type_identifier: INT64
         - end_bracket: )
-    - keyword: BEGIN
-    - procedure_statements:
+    - begin_statement:
+      - keyword: BEGIN
       - statement:
         - select_statement:
           - select_clause:
@@ -29,7 +29,7 @@ file:
                     - start_bracket: (
                     - end_bracket: )
       - statement_terminator: ;
-    - keyword: END
+      - keyword: END
 - statement_terminator: ;
 - multi_statement_segment:
   - create_procedure_statement:
@@ -45,8 +45,8 @@ file:
       - bracketed:
         - start_bracket: (
         - end_bracket: )
-    - keyword: BEGIN
-    - procedure_statements:
+    - begin_statement:
+      - keyword: BEGIN
       - statement:
         - select_statement:
           - select_clause:
@@ -65,7 +65,7 @@ file:
                     - dot: .
                     - naked_identifier: myTable
       - statement_terminator: ;
-    - keyword: END
+      - keyword: END
 - statement_terminator: ;
 - multi_statement_segment:
   - create_procedure_statement:
@@ -87,8 +87,8 @@ file:
         - data_type:
           - data_type_identifier: INT64
         - end_bracket: )
-    - keyword: BEGIN
-    - procedure_statements:
+    - begin_statement:
+      - keyword: BEGIN
       - statement:
         - set_segment:
           - keyword: SET
@@ -102,7 +102,7 @@ file:
             - column_reference:
               - naked_identifier: delta
       - statement_terminator: ;
-    - keyword: END
+      - keyword: END
 - statement_terminator: ;
 - multi_statement_segment:
   - create_procedure_statement:
@@ -124,8 +124,8 @@ file:
         - data_type:
           - data_type_identifier: INT64
         - end_bracket: )
-    - keyword: BEGIN
-    - procedure_statements:
+    - begin_statement:
+      - keyword: BEGIN
       - statement:
         - create_table_statement:
           - keyword: CREATE
@@ -276,7 +276,7 @@ file:
           - table_reference:
             - naked_identifier: DataForTargetDate
       - statement_terminator: ;
-    - keyword: END
+      - keyword: END
 - statement_terminator: ;
 - multi_statement_segment:
   - create_procedure_statement:
@@ -292,8 +292,8 @@ file:
       - bracketed:
         - start_bracket: (
         - end_bracket: )
-    - keyword: BEGIN
-    - procedure_statements:
+    - begin_statement:
+      - keyword: BEGIN
       - statement:
         - declare_segment:
           - keyword: DECLARE
@@ -356,7 +356,7 @@ file:
                         - naked_identifier: id
                     - end_bracket: )
       - statement_terminator: ;
-    - keyword: END
+      - keyword: END
 - statement_terminator: ;
 - multi_statement_segment:
   - create_procedure_statement:
@@ -375,8 +375,8 @@ file:
         - data_type:
           - data_type_identifier: STRING
         - end_bracket: )
-    - keyword: BEGIN
-    - procedure_statements:
+    - begin_statement:
+      - keyword: BEGIN
       - statement:
         - declare_segment:
           - keyword: DECLARE
@@ -450,7 +450,7 @@ file:
                         - naked_identifier: name
                     - end_bracket: )
       - statement_terminator: ;
-    - keyword: END
+      - keyword: END
 - statement_terminator: ;
 - multi_statement_segment:
   - create_procedure_statement:
@@ -474,8 +474,8 @@ file:
         - data_type:
           - data_type_identifier: STRING
         - end_bracket: )
-    - keyword: BEGIN
-    - procedure_statements:
+    - begin_statement:
+      - keyword: BEGIN
       - statement:
         - set_segment:
           - keyword: SET
@@ -542,7 +542,7 @@ file:
                         - naked_identifier: name
                     - end_bracket: )
       - statement_terminator: ;
-    - keyword: END
+      - keyword: END
 - statement_terminator: ;
 - multi_statement_segment:
   - create_procedure_statement:
@@ -573,8 +573,8 @@ file:
           - raw_comparison_operator: =
         - boolean_literal: 'TRUE'
         - end_bracket: )
-    - keyword: BEGIN
-    - procedure_statements:
+    - begin_statement:
+      - keyword: BEGIN
       - statement:
         - select_statement:
           - select_clause:
@@ -583,7 +583,7 @@ file:
               - column_reference:
                 - naked_identifier: p_param
       - statement_terminator: ;
-    - keyword: END
+      - keyword: END
 - statement_terminator: ;
 - multi_statement_segment:
   - create_procedure_statement:
@@ -602,8 +602,8 @@ file:
         - data_type:
           - data_type_identifier: STRING
         - end_bracket: )
-    - keyword: BEGIN
-    - procedure_statements:
+    - begin_statement:
+      - keyword: BEGIN
       - statement:
         - return_statement:
           - keyword: RETURN
@@ -633,5 +633,162 @@ file:
             - column_reference:
               - naked_identifier: error_message
       - statement_terminator: ;
-    - keyword: END
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+      - naked_identifier: place_name
+      - dot: .
+      - procedure_name_identifier: proc_name
+    - procedure_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: _log
+        - data_type:
+          - struct_type:
+            - keyword: STRUCT
+            - struct_type_schema:
+              - start_angle_bracket: <
+              - parameter: Process_ID
+              - data_type:
+                - data_type_identifier: STRING
+              - comma: ','
+              - parameter: Debug
+              - data_type:
+                - data_type_identifier: INT64
+              - end_angle_bracket: '>'
+        - end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+        - declare_segment:
+          - keyword: DECLARE
+          - naked_identifier: _source_table
+          - data_type:
+            - data_type_identifier: STRING
+      - statement_terminator: ;
+      - multi_statement_segment:
+        - begin_statement:
+          - keyword: BEGIN
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - naked_identifier: _metric_id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1001'
+          - statement_terminator: ;
+          - statement:
+            - call_statement:
+              - keyword: CALL
+              - procedure_name:
+                - naked_identifier: some_place
+                - dot: .
+                - procedure_name_identifier: some_name1
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: _some_id
+                - end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+      - naked_identifier: place_name
+      - dot: .
+      - procedure_name_identifier: proc_name
+    - procedure_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: _log
+        - data_type:
+          - struct_type:
+            - keyword: STRUCT
+            - struct_type_schema:
+              - start_angle_bracket: <
+              - parameter: Process_ID
+              - data_type:
+                - data_type_identifier: STRING
+              - comma: ','
+              - parameter: Debug
+              - data_type:
+                - data_type_identifier: INT64
+              - end_angle_bracket: '>'
+        - end_bracket: )
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: strict_mode
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - boolean_literal: 'TRUE'
+        - comma: ','
+        - parameter: description
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: |-
+            '''
+            Author:
+            '''
+        - end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+        - declare_segment:
+          - keyword: DECLARE
+          - naked_identifier: _source_table
+          - data_type:
+            - data_type_identifier: STRING
+      - statement_terminator: ;
+      - multi_statement_segment:
+        - begin_statement:
+          - keyword: BEGIN
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - naked_identifier: _metric_id
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1001'
+          - statement_terminator: ;
+          - statement:
+            - call_statement:
+              - keyword: CALL
+              - procedure_name:
+                - naked_identifier: some_place
+                - dot: .
+                - procedure_name_identifier: some_name1
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: _some_id
+                - end_bracket: )
+          - statement_terminator: ;
+          - keyword: EXCEPTION
+          - keyword: WHEN
+          - keyword: ERROR
+          - keyword: THEN
+          - statement:
+            - raise_statement:
+              - keyword: RAISE
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+      - keyword: END
 - statement_terminator: ;

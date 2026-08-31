@@ -201,4 +201,5 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "BINARY",
     "NOCASE",
     "RTRIM",
+    "STORED",
 ];

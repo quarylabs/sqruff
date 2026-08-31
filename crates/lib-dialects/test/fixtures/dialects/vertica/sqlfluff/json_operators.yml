@@ -1,0 +1,42 @@
+file:
+- statement:
+  - select_statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: mapjsonextractor
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''{"data":'''
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - column_reference:
+                    - naked_identifier: col
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - quoted_literal: '''}'''
+                - keyword: using
+                - keyword: parameters
+                - parameter: flatten_maps
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - boolean_literal: 'false'
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: as
+            - naked_identifier: mapped
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: prepared

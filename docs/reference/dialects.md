@@ -26,6 +26,7 @@ Sqruff currently supports the following SQL dialects:
 - [teradata](#teradata)
 - [trino](#trino)
 - [tsql](#tsql)
+- [vertica](#vertica)
 
 ## Details
 
@@ -302,6 +303,18 @@ T-SQL dialect for Microsoft SQL Server and Azure SQL.
 **Configuration:**
 ```ini
 [sqruff:dialect:tsql]
+```
+
+
+### vertica
+
+Vertica SQL dialect for the columnar analytics database.
+
+**Documentation:** [https://docs.vertica.com/latest/en/](https://docs.vertica.com/latest/en/)
+
+**Configuration:**
+```ini
+[sqruff:dialect:vertica]
 ```
 
 

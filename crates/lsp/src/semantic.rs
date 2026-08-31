@@ -1315,7 +1315,24 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SetQueryBandStatement
         | TdColumnAttributeConstraint
         | TdPartitioningLevel
-        | TdTableConstraint => return None,
+        | TdTableConstraint
+        | ColumnEncoding
+        | ColumnSetSegment
+        | CopyColumnOptions
+        | CopyOptionsForColumns
+        | CreateProjectionStatement
+        | CreateTableLikeStatement
+        | DiskQuotaSegment
+        | DropProjectionStatement
+        | EncodingType
+        | KsafeSegment
+        | NullCastingOperator
+        | NullEqualsOperator
+        | SchemaPrivilegesSegment
+        | SegmentedbyClause
+        | TimeseriesClauseStatement
+        | TransactionalStatement
+        | WithinGroupClauseStatement => return None,
     };
 
     Some(highlight)

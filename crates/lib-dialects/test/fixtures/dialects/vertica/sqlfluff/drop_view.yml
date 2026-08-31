@@ -1,0 +1,17 @@
+file:
+- statement:
+  - drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: myview
+- statement_terminator: ;
+- statement:
+  - drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: myview
+- statement_terminator: ;

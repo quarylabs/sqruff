@@ -1,0 +1,61 @@
+file:
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: ms
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+      - naked_identifier: dbadmin
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+    - comma: ','
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s2
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s3
+    - comma: ','
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s4
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+    - keyword: DEFAULT
+    - schema_privileges_segment:
+      - keyword: INCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+    - keyword: DEFAULT
+    - schema_privileges_segment:
+      - keyword: EXCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;

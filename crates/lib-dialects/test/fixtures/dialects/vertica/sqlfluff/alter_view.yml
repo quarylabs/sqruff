@@ -1,0 +1,49 @@
+file:
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: view1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: view2
+    - keyword: RENAME
+    - keyword: TO
+    - parameter: view3
+    - comma: ','
+    - parameter: view4
+- statement_terminator: ;
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: view1
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: Alice
+- statement_terminator: ;
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: view1
+    - keyword: SET
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: s1
+- statement_terminator: ;
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: view1
+    - schema_privileges_segment:
+      - keyword: INCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;

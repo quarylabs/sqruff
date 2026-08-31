@@ -78,6 +78,10 @@ mod trino_keywords;
 pub mod tsql;
 #[cfg(feature = "tsql")]
 mod tsql_keywords;
+#[cfg(feature = "vertica")]
+pub mod vertica;
+#[cfg(feature = "vertica")]
+mod vertica_keywords;
 
 /// Returns dialect-specific configuration options for the given dialect kind.
 /// Each entry is (option_name, description, default_value).
@@ -129,6 +133,8 @@ pub fn dialect_config_options(
         DialectKind::Trino => trino::TrinoDialectConfig::config_options(),
         #[cfg(feature = "tsql")]
         DialectKind::Tsql => tsql::TSQLDialectConfig::config_options(),
+        #[cfg(feature = "vertica")]
+        DialectKind::Vertica => vertica::VerticaDialectConfig::config_options(),
         _ => vec![],
     }
 }
@@ -179,6 +185,8 @@ pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dia
         DialectKind::Trino => trino::dialect(config),
         #[cfg(feature = "tsql")]
         DialectKind::Tsql => tsql::dialect(config),
+        #[cfg(feature = "vertica")]
+        DialectKind::Vertica => vertica::dialect(config),
         _ => return None,
     })
 }

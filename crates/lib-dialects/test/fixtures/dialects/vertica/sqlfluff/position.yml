@@ -1,0 +1,24 @@
+file:
+- statement:
+  - select_statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function:
+              - function_name:
+                - function_name_identifier: POSITION
+              - bracketed:
+                - start_bracket: (
+                - data_type:
+                  - data_type:
+                    - keyword: VARBINARY
+                - quoted_literal: '''456'''
+                - keyword: IN
+                - data_type:
+                  - data_type:
+                    - keyword: VARBINARY
+                - quoted_literal: '''123456789'''
+                - end_bracket: )
+- statement_terminator: ;

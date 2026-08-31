@@ -1,0 +1,66 @@
+file:
+- statement:
+  - select_statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: E
+            - quoted_literal: '''\'''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: E
+            - quoted_literal: ''''''''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: E
+            - quoted_literal: '''''''\'''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: E
+            - quoted_literal: '''\\\'''''''''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - data_type:
+              - data_type:
+                - data_type_identifier: E
+            - quoted_literal: |-
+                '
+
+                \\
+                ''
+                \\'
+- statement_terminator: ;

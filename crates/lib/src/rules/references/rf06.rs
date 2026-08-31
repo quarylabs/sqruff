@@ -296,7 +296,8 @@ fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'stati
         | DialectKind::Snowflake
         | DialectKind::Sqlite
         | DialectKind::Teradata
-        | DialectKind::Trino => Some(("\"", "\"")),
+        | DialectKind::Trino
+        | DialectKind::Vertica => Some(("\"", "\"")),
         DialectKind::Bigquery
         | DialectKind::Databricks
         | DialectKind::Hive
@@ -336,6 +337,7 @@ mod tests {
             (DialectKind::Teradata, Some(("\"", "\""))),
             (DialectKind::Trino, Some(("\"", "\""))),
             (DialectKind::Tsql, Some(("[", "]"))),
+            (DialectKind::Vertica, Some(("\"", "\""))),
         ];
 
         for (dialect, expected) in expectations {

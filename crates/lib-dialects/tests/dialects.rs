@@ -94,7 +94,6 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "DEFERRED",
             "EACH",
             "FUNCTIONS",
-            "IMMEDIATE",
             "INITIALLY",
             "INSTANCE",
             "INSTEAD",

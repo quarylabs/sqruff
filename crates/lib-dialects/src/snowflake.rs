@@ -1384,6 +1384,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "unreserved_keywords",
         SNOWFLAKE_UNRESERVED_KEYWORDS,
     );
+    snowflake_dialect.sets_mut("unreserved_keywords").extend([
+        "MAIN_FILE",
+        "QUERY_WAREHOUSE",
+        "ROOT_LOCATION",
+        "STREAMLIT",
+        "STREAMLITS",
+    ]);
 
     snowflake_dialect.sets_mut("reserved_keywords").clear();
     snowflake_dialect.update_keywords_set_from_multiline_string(
@@ -1744,6 +1751,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("MergeStatementSegment").to_matchable(),
                 Ref::new("CopyIntoTableStatementSegment").to_matchable(),
                 Ref::new("CopyIntoLocationStatementSegment").to_matchable(),
+                Ref::new("CopyFilesIntoLocationStatementSegment").to_matchable(),
                 Ref::new("FormatTypeOptions").to_matchable(),
                 Ref::new("AlterWarehouseStatementSegment").to_matchable(),
                 Ref::new("AlterShareStatementSegment").to_matchable(),
@@ -1757,7 +1765,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateStageSegment").to_matchable(),
                 Ref::new("AlterStageSegment").to_matchable(),
                 Ref::new("CreateStreamStatementSegment").to_matchable(),
+                Ref::new("CreateStreamlitStatementSegment").to_matchable(),
                 Ref::new("AlterStreamStatementSegment").to_matchable(),
+                Ref::new("AlterStreamlitStatementSegment").to_matchable(),
                 Ref::new("UnsetStatementSegment").to_matchable(),
                 Ref::new("UndropStatementSegment").to_matchable(),
                 Ref::new("CommentStatementSegment").to_matchable(),
@@ -3502,6 +3512,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     "ROUTINE",
                     "SEQUENCE",
                     "STREAM",
+                    "STREAMLIT",
                     "TASK",
                     "PIPE",
                 ];
@@ -7508,6 +7519,49 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "CopyFilesIntoLocationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CopyFilesIntoLocationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("COPY").to_matchable(),
+                    Ref::keyword("FILES").to_matchable(),
+                    Ref::keyword("INTO").to_matchable(),
+                    Ref::new("StorageLocation").to_matchable(),
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::new("StorageLocation").to_matchable(),
+                    any_set_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("FILES").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("PATTERN").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DETAILED_OUTPUT").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "StorageLocation".into(),
             NodeMatcher::new(SyntaxKind::StorageLocation, |_| {
                 one_of(vec![
@@ -8154,6 +8208,47 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "CreateStreamlitStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateStreamlitStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("STREAMLIT").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ROOT_LOCATION").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("StagePath").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("MAIN_FILE").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("QUERY_WAREHOUSE").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("CommentEqualsClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "AlterStreamStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::AlterStreamStatement, |_| {
                 Sequence::new(vec![
@@ -8198,6 +8293,59 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::keyword("COMMENT").to_matchable(),
                             ])
                             .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterStreamlitStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterStreamlitStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("STREAMLIT").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("ROOT_LOCATION").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("StagePath").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("MAIN_FILE").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("QUERY_WAREHOUSE").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Ref::new("CommentEqualsClauseSegment")
+                                .optional()
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RENAME").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -8370,6 +8518,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("STAGES").to_matchable(),
                     Ref::keyword("PIPES").to_matchable(),
                     Ref::keyword("STREAMS").to_matchable(),
+                    Ref::keyword("STREAMLITS").to_matchable(),
                     Ref::keyword("TASKS").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("USER").to_matchable(),
@@ -9175,6 +9324,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
+                            Ref::keyword("STREAMLIT").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
                             Ref::keyword("TASK").to_matchable(),
                             Ref::new("ObjectReferenceSegment").to_matchable(),
                         ])
@@ -9352,6 +9506,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("SHARE").to_matchable(),
                         Ref::keyword("PIPE").to_matchable(),
                         Ref::keyword("STREAM").to_matchable(),
+                        Ref::keyword("STREAMLIT").to_matchable(),
                         Ref::keyword("TASK").to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("NETWORK").to_matchable(),
@@ -9733,6 +9888,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                                 Ref::keyword("STAGE").to_matchable(),
                                 Ref::keyword("STREAM").to_matchable(),
+                                Ref::keyword("STREAMLIT").to_matchable(),
                                 Ref::keyword("TAG").to_matchable(),
                                 Ref::keyword("TASK").to_matchable(),
                             ])

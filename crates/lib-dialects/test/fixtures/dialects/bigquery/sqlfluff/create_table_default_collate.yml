@@ -1,0 +1,89 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - data_type_identifier: INT64
+      - end_bracket: )
+    - default_collate:
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - quoted_literal: '''und:ci'''
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: example
+      - dash: '-'
+      - naked_identifier: project
+      - dot: .
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - data_type_identifier: INT64
+        - options_segment:
+          - keyword: OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - parameter: description
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '"example"'
+            - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: y
+        - data_type:
+          - data_type_identifier: INT64
+        - options_segment:
+          - keyword: OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - parameter: description
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '"example"'
+            - end_bracket: )
+      - end_bracket: )
+    - default_collate:
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - quoted_literal: '''und:ci'''
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+        - column_reference:
+          - naked_identifier: x
+      - comma: ','
+      - expression:
+        - column_reference:
+          - naked_identifier: y
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: description
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '"example"'
+        - end_bracket: )
+- statement_terminator: ;

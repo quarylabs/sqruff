@@ -3,11 +3,12 @@ use crate::sparksql;
 use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::Config;
-use sqruff_lib_core::parser::grammar::anyof::one_of;
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
+use sqruff_lib_core::parser::parsers::TypedParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::{
     dialects::{Dialect, init::DialectKind},
@@ -47,6 +48,152 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .extend(["TIMEDIFF"]);
 
     databricks.add([
+        (
+            "DoubleQuotedUDFBody".into(),
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::UdfBody)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "SingleQuotedUDFBody".into(),
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::UdfBody)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "DollarQuotedUDFBody".into(),
+            TypedParser::new(SyntaxKind::DollarQuote, SyntaxKind::UdfBody)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "FunctionParameterListGrammarWithComments".into(),
+            NodeMatcher::new(SyntaxKind::FunctionParameterListWithComments, |_| {
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("FunctionParameterGrammar").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("DEFAULT").to_matchable(),
+                                    Ref::new("LiteralGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("CommentClauseSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DatabricksFunctionDefinitionGrammar".into(),
+            NodeMatcher::new(SyntaxKind::FunctionDefinition, |_| {
+                Sequence::new(vec![
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("LANGUAGE").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("SQL").to_matchable(),
+                                Ref::keyword("PYTHON").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("DETERMINISTIC").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("NOT").to_matchable(),
+                                Ref::keyword("DETERMINISTIC").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("CommentClauseSegment").to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("CONTAINS").to_matchable(),
+                                Ref::keyword("SQL").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("READS").to_matchable(),
+                                Ref::keyword("SQL").to_matchable(),
+                                Ref::keyword("DATA").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("AS").to_matchable(),
+                            one_of(vec![
+                                Ref::new("DoubleQuotedUDFBody").to_matchable(),
+                                Ref::new("SingleQuotedUDFBody").to_matchable(),
+                                Ref::new("DollarQuotedUDFBody").to_matchable(),
+                                Bracketed::new(vec![
+                                    one_of(vec![
+                                        Ref::new("SelectStatementSegment").to_matchable(),
+                                        Ref::new("ExpressionSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RETURN").to_matchable(),
+                            one_of(vec![
+                                Ref::new("WithCompoundStatementSegment").to_matchable(),
+                                Ref::new("SelectStatementSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateDatabricksFunctionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateFunctionStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::new("TemporaryGrammar").optional().to_matchable(),
+                    Ref::keyword("FUNCTION").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("FunctionNameSegment").to_matchable(),
+                    Ref::new("FunctionParameterListGrammarWithComments").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("RETURNS").to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("DatabricksFunctionDefinitionGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "PrincipalIdentifierSegment".into(),
             one_of(vec![
@@ -647,6 +794,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .unwrap()
             .copy(
                 Some(vec![
+                    Ref::new("CreateDatabricksFunctionStatementSegment").to_matchable(),
                     Ref::new("AlterCatalogStatementSegment").to_matchable(),
                     Ref::new("CreateCatalogStatementSegment").to_matchable(),
                     Ref::new("DropCatalogStatementSegment").to_matchable(),

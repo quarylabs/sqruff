@@ -1931,6 +1931,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::new("ForSystemTimeAsOfSegment")
+                    .optional()
+                    .to_matchable(),
             ])
             .config(|this| this.optional())
             .to_matchable(),

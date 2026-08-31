@@ -3621,7 +3621,11 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("CHARACTER").to_matchable(),
                         Ref::keyword("SET").to_matchable(),
                         Ref::new("EqualsSegment").optional().to_matchable(),
-                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![

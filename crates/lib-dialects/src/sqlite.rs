@@ -193,11 +193,15 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("ExpressionSegment").to_matchable().into(),
         ),
         (
-            "BooleanBinaryOperatorGrammar".into(),
-            one_of(vec![
-                Ref::new("AndOperatorGrammar").to_matchable(),
-                Ref::new("OrOperatorGrammar").to_matchable(),
-                Ref::keyword("REGEXP").to_matchable(),
+            "PatternMatchingGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("NOT").optional().to_matchable(),
+                one_of(vec![
+                    Ref::keyword("GLOB").to_matchable(),
+                    Ref::keyword("REGEXP").to_matchable(),
+                    Ref::keyword("MATCH").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),

@@ -762,6 +762,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateMaterializedViewAsReplicaOfStatementSegment").to_matchable(),
                 Ref::new("AlterMaterializedViewStatementSegment").to_matchable(),
                 Ref::new("DropMaterializedViewStatementSegment").to_matchable(),
+                Ref::new("CreateRowAccessPolicyStatementSegment").to_matchable(),
             ]),
             None,
             None,
@@ -1861,6 +1862,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "GrantToSegment".into(),
+            NodeMatcher::new(SyntaxKind::GrantToSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("GRANT").to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "OptionsSegment".into(),
             NodeMatcher::new(SyntaxKind::OptionsSegment, |_| {
                 Sequence::new(vec![
@@ -2353,6 +2371,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("VIEW").to_matchable(),
                     Ref::new("IfExistsGrammar").optional().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateRowAccessPolicyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateRowAccessPolicyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("ROW").to_matchable(),
+                    Ref::keyword("ACCESS").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("GrantToSegment").optional().to_matchable(),
+                    Ref::keyword("FILTER").to_matchable(),
+                    Ref::keyword("USING").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })

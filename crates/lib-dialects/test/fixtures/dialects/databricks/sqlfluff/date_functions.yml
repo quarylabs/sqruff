@@ -171,9 +171,7 @@ file:
           - function_contents:
             - bracketed:
               - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: DAYOFYEAR
+              - date_part: DAYOFYEAR
               - comma: ','
               - expression:
                 - numeric_literal: '5'

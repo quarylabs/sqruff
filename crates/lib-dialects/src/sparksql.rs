@@ -117,6 +117,7 @@ pub fn raw_dialect() -> Dialect {
         "DAY",
         "DAYS",
         "DD",
+        "DAYOFYEAR",
         "HOUR",
         "HOURS",
         "MINUTE",

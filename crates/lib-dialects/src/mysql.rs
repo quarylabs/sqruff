@@ -625,17 +625,23 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // ============================================================
-    // MySQL-specific arithmetic operators (DIV, bitwise ops)
+    // MySQL-specific arithmetic operators (DIV, MOD, and bitwise ops)
     // ============================================================
 
-    mysql.add([(
-        "DivBinaryOperatorSegment".into(),
-        NodeMatcher::new(SyntaxKind::BinaryOperator, |_| {
-            Ref::keyword("DIV").to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
+    mysql.add([
+        (
+            "DivOperatorSegment".into(),
+            StringParser::new("DIV", SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "ModOperatorSegment".into(),
+            StringParser::new("MOD", SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
+        ),
+    ]);
 
     mysql.replace_grammar(
         "ArithmeticBinaryOperatorGrammar",
@@ -650,7 +656,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BitwiseXorSegment").to_matchable(),
             Ref::new("BitwiseLShiftSegment").to_matchable(),
             Ref::new("BitwiseRShiftSegment").to_matchable(),
-            Ref::new("DivBinaryOperatorSegment").to_matchable(),
+            Ref::new("DivOperatorSegment").to_matchable(),
+            Ref::new("ModOperatorSegment").to_matchable(),
         ])
         .to_matchable(),
     );

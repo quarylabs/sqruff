@@ -146,6 +146,24 @@ pub fn raw_dialect() -> Dialect {
         )],
     );
 
+    sparksql_dialect.replace_grammar(
+        "DateTimeLiteralGrammar",
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::keyword("DATE").to_matchable(),
+                Ref::keyword("TIME").to_matchable(),
+                Ref::keyword("TIMESTAMP").to_matchable(),
+                Ref::keyword("INTERVAL").to_matchable(),
+                Ref::keyword("TIMESTAMP_LTZ").to_matchable(),
+                Ref::keyword("TIMESTAMP_NTZ").to_matchable(),
+            ])
+            .to_matchable(),
+            TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::DateConstructorLiteral)
+                .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     sparksql_dialect.add([
         (
             "SelectClauseTerminatorGrammar".into(),

@@ -1,0 +1,22 @@
+file:
+- statement:
+  - create_assignment_statement:
+    - keyword: CREATE
+    - keyword: ASSIGNMENT
+    - table_reference:
+      - quoted_identifier: '`example_project.region-us.example-reservation.example-assignment`'
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: assignee
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''projects/my_project'''
+        - comma: ','
+        - parameter: job_type
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''QUERY'''
+        - end_bracket: )
+- statement_terminator: ;

@@ -766,11 +766,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("DropMaterializedViewStatementSegment").to_matchable(),
                 Ref::new("DropProcedureStatementSegment").to_matchable(),
                 Ref::new("UndropSchemaStatementSegment").to_matchable(),
+                Ref::new("AlterOrganizationStatementSegment").to_matchable(),
+                Ref::new("AlterProjectStatementSegment").to_matchable(),
                 Ref::new("CreateSearchIndexStatementSegment").to_matchable(),
                 Ref::new("CreateVectorIndexStatementSegment").to_matchable(),
                 Ref::new("CreateRowAccessPolicyStatementSegment").to_matchable(),
+                Ref::new("AlterBiCapacityStatementSegment").to_matchable(),
                 Ref::new("CreateCapacityStatementSegment").to_matchable(),
+                Ref::new("AlterCapacityStatementSegment").to_matchable(),
                 Ref::new("CreateReservationStatementSegment").to_matchable(),
+                Ref::new("AlterReservationStatementSegment").to_matchable(),
                 Ref::new("CreateAssignmentStatementSegment").to_matchable(),
             ]),
             None,
@@ -2455,6 +2460,35 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     dialect.add([
         (
+            "AlterOrganizationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterOrganizationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("ORGANIZATION").to_matchable(),
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterProjectStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterProjectStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("PROJECT").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "CreateSearchIndexStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateSearchIndexStatement, |_| {
                 Sequence::new(vec![
@@ -2542,6 +2576,21 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "AlterBiCapacityStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterBiCapacityStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("BI_CAPACITY").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "CreateCapacityStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateCapacityStatement, |_| {
                 Sequence::new(vec![
@@ -2556,12 +2605,42 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "AlterCapacityStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterCapacityStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("CAPACITY").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "CreateReservationStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateReservationStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
                     Ref::keyword("RESERVATION").to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterReservationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterReservationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("RESERVATION").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::keyword("SET").to_matchable(),
                     Ref::new("OptionsSegment").to_matchable(),
                 ])
                 .to_matchable()

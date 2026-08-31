@@ -765,6 +765,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("AlterMaterializedViewStatementSegment").to_matchable(),
                 Ref::new("DropMaterializedViewStatementSegment").to_matchable(),
                 Ref::new("CreateRowAccessPolicyStatementSegment").to_matchable(),
+                Ref::new("CreateCapacityStatementSegment").to_matchable(),
+                Ref::new("CreateReservationStatementSegment").to_matchable(),
+                Ref::new("CreateAssignmentStatementSegment").to_matchable(),
             ]),
             None,
             None,
@@ -2338,6 +2341,48 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     dialect.add([
+        (
+            "CreateCapacityStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateCapacityStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("CAPACITY").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateReservationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateReservationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("RESERVATION").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateAssignmentStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateAssignmentStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("ASSIGNMENT").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "AlterSchemaStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::AlterSchemaStatement, |_| {

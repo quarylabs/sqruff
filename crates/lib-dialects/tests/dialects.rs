@@ -87,7 +87,6 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
     match dialect {
         DialectKind::Bigquery => &[
             "ACTION",
-            "ASSIGNMENT",
             "BEFORE",
             "CONSTRUCTOR",
             "DEFERRABLE",

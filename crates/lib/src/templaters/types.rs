@@ -87,6 +87,7 @@ impl TemplaterKind {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PlaceholderStyle {
     Colon,
+    ColonOptionalQuotes,
     ColonNoSpaces,
     NumericColon,
     At,
@@ -104,6 +105,7 @@ impl PlaceholderStyle {
     pub const fn all() -> &'static [Self] {
         &[
             Self::Colon,
+            Self::ColonOptionalQuotes,
             Self::ColonNoSpaces,
             Self::NumericColon,
             Self::At,
@@ -121,6 +123,7 @@ impl PlaceholderStyle {
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::Colon => "colon",
+            Self::ColonOptionalQuotes => "colon_optional_quotes",
             Self::ColonNoSpaces => "colon_nospaces",
             Self::NumericColon => "numeric_colon",
             Self::At => "at",
@@ -138,6 +141,7 @@ impl PlaceholderStyle {
     pub const fn regex_pattern(self) -> &'static str {
         match self {
             Self::Colon => r"(?<![:\w\\]):(?P<param_name>\w+)(?!:)",
+            Self::ColonOptionalQuotes => r#"(?<!:):(?P<quotation>['"]?)(?P<param_name>[\w_]+)\1"#,
             Self::ColonNoSpaces => r"(?<!:):(?P<param_name>\w+)",
             Self::NumericColon => r"(?<![:\w\\]):(?P<param_name>\d+)",
             Self::At => r"(?<![:\w\\])@(?P<param_name>\w+)",
@@ -159,6 +163,7 @@ impl PlaceholderStyle {
     pub fn from_name(s: &str) -> Result<Self, String> {
         match s {
             "colon" => Ok(Self::Colon),
+            "colon_optional_quotes" => Ok(Self::ColonOptionalQuotes),
             "colon_nospaces" => Ok(Self::ColonNoSpaces),
             "numeric_colon" => Ok(Self::NumericColon),
             "at" => Ok(Self::At),

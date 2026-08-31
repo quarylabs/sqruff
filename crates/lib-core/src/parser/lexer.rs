@@ -689,6 +689,7 @@ fn block_type_from(kind: TemplateSliceKind) -> BlockType {
     match kind {
         TemplateSliceKind::Literal => BlockType::Literal,
         TemplateSliceKind::Templated => BlockType::Templated,
+        TemplateSliceKind::Escaped => BlockType::Templated,
         TemplateSliceKind::Comment => BlockType::Comment,
         TemplateSliceKind::BlockStart => BlockType::BlockStart,
         TemplateSliceKind::BlockMid => BlockType::BlockMid,
@@ -1029,7 +1030,9 @@ fn iter_segments(
                 }
             } else if matches!(
                 tfs.slice_kind(),
-                TemplateSliceKind::Templated | TemplateSliceKind::BlockStart
+                TemplateSliceKind::Templated
+                    | TemplateSliceKind::BlockStart
+                    | TemplateSliceKind::Escaped
             ) {
                 // Found a templated slice. Does it have length in the templated file?
                 // If it doesn't, then we'll pick it up next.

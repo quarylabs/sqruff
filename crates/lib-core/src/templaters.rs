@@ -15,6 +15,7 @@ use crate::slice_helpers::zero_slice;
 pub enum TemplateSliceKind {
     Literal,
     Templated,
+    Escaped,
     Comment,
     BlockStart,
     BlockMid,
@@ -26,6 +27,7 @@ impl TemplateSliceKind {
         match self {
             Self::Literal => "literal",
             Self::Templated => "templated",
+            Self::Escaped => "escaped",
             Self::Comment => "comment",
             Self::BlockStart => "block_start",
             Self::BlockMid => "block_mid",
@@ -44,6 +46,7 @@ impl TemplateSliceKind {
         match value {
             "literal" => Ok(Self::Literal),
             "templated" => Ok(Self::Templated),
+            "escaped" => Ok(Self::Escaped),
             "comment" => Ok(Self::Comment),
             "block_start" => Ok(Self::BlockStart),
             "block_mid" => Ok(Self::BlockMid),
@@ -1483,6 +1486,10 @@ mod tests {
             TemplateSliceKind::from_slice_type("block_start").unwrap(),
             TemplateSliceKind::BlockStart
         );
+        assert_eq!(
+            TemplateSliceKind::from_slice_type("escaped").unwrap(),
+            TemplateSliceKind::Escaped
+        );
     }
 
     #[test]
@@ -1501,8 +1508,11 @@ mod tests {
             None,
             None,
         );
+        let escaped =
+            RawFileSlice::new_typed("{{".to_string(), TemplateSliceKind::Escaped, 0, None, None);
 
         assert!(comment.is_source_only_slice());
         assert!(!literal.is_source_only_slice());
+        assert!(!escaped.is_source_only_slice());
     }
 }

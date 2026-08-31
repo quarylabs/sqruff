@@ -2188,29 +2188,10 @@ pub fn raw_dialect() -> Dialect {
     // CallStoredProcedureSegment.
     mysql.add([(
         "CallStoredProcedureSegment".into(),
-        NodeMatcher::new(SyntaxKind::CallSegment, |_| {
+        NodeMatcher::new(SyntaxKind::CallStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("CALL").to_matchable(),
-                one_of(vec![
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    Ref::new("QuotedIdentifierSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                Bracketed::new(vec![
-                    AnyNumberOf::new(vec![
-                        Delimited::new(vec![
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                            Ref::new("DoubleQuotedLiteralSegment").to_matchable(),
-                            Ref::new("SessionVariableNameSegment").to_matchable(),
-                            Ref::new("LocalVariableNameSegment").to_matchable(),
-                            Ref::new("FunctionSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("FunctionSegment").to_matchable(),
             ])
             .to_matchable()
         })

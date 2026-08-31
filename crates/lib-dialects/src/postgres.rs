@@ -3919,6 +3919,7 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
+                    Ref::keyword("CASCADE").optional().to_matchable(),
                 ])
                 .to_matchable()
             })

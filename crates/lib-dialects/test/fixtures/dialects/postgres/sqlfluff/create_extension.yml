@@ -57,6 +57,17 @@ file:
       - naked_identifier: from_named
 - statement_terminator: ;
 - statement:
+  - create_extension_statement:
+    - keyword: CREATE
+    - keyword: EXTENSION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - extension_reference:
+      - naked_identifier: aws_lambda
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
   - drop_extension_statement:
     - keyword: DROP
     - keyword: EXTENSION

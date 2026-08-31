@@ -793,6 +793,24 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    dialect.add([(
+        "ReconfigureStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::ReconfigureStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("RECONFIGURE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("OVERRIDE").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
@@ -859,6 +877,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropExternalTableStatementSegment").to_matchable(),
             Ref::new("CopyIntoTableStatementSegment").to_matchable(),
             Ref::new("CreateFullTextIndexStatementSegment").to_matchable(),
+            Ref::new("ReconfigureStatementSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),

@@ -8548,6 +8548,204 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "CreateForeignTableGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("FOREIGN").to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ForeignTableColumnConstraintSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CONSTRAINT").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("NOT").optional().to_matchable(),
+                            Ref::keyword("NULL").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CHECK").to_matchable(),
+                            Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                                .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("NO").to_matchable(),
+                                Ref::keyword("INHERIT").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DEFAULT").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ShorthandCastSegment").to_matchable(),
+                                Ref::new("LiteralGrammar").to_matchable(),
+                                Ref::new("FunctionSegment").to_matchable(),
+                                Ref::new("BareFunctionSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("GENERATED").to_matchable(),
+                            Ref::keyword("ALWAYS").to_matchable(),
+                            Ref::keyword("AS").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                            Ref::keyword("STORED").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ForeignTableTableConstraintSegment".into(),
+            NodeMatcher::new(SyntaxKind::TableConstraint, |_| {
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CONSTRAINT").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("CHECK").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NO").to_matchable(),
+                        Ref::keyword("INHERIT").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateForeignTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateForeignTableStatement, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("CreateForeignTableGrammar").to_matchable(),
+                        Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                one_of(vec![
+                                    Sequence::new(vec![
+                                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                                        Ref::new("DatatypeSegment").to_matchable(),
+                                        Ref::new("OptionsGrammar").optional().to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("COLLATE").to_matchable(),
+                                            Ref::new("CollationReferenceSegment").to_matchable(),
+                                        ])
+                                        .config(|this| this.optional())
+                                        .to_matchable(),
+                                        AnyNumberOf::new(vec![
+                                            Ref::new("ForeignTableColumnConstraintSegment")
+                                                .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::new("ForeignTableTableConstraintSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("INHERITS").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("TableReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Ref::keyword("SERVER").to_matchable(),
+                        Ref::new("ServerReferenceSegment").to_matchable(),
+                        Ref::new("OptionsGrammar").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("CreateForeignTableGrammar").to_matchable(),
+                        Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Ref::keyword("PARTITION").to_matchable(),
+                        Ref::keyword("OF").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                one_of(vec![
+                                    Sequence::new(vec![
+                                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("WITH").to_matchable(),
+                                            Ref::keyword("OPTIONS").to_matchable(),
+                                        ])
+                                        .config(|this| this.optional())
+                                        .to_matchable(),
+                                        AnyNumberOf::new(vec![
+                                            Ref::new("ForeignTableColumnConstraintSegment")
+                                                .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::new("ForeignTableTableConstraintSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("FOR").to_matchable(),
+                                Ref::keyword("VALUES").to_matchable(),
+                                Ref::new("PartitionBoundSpecSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("DEFAULT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("SERVER").to_matchable(),
+                        Ref::new("ServerReferenceSegment").to_matchable(),
+                        Ref::new("OptionsGrammar").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             // Statics Reference
             "StatisticsReferenceSegment".into(),
             Ref::new("ObjectReferenceSegment").to_matchable().into(),
@@ -8908,6 +9106,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("CreateServerStatementSegment").to_matchable(),
             Ref::new("CreateUserMappingStatementSegment").to_matchable(),
             Ref::new("ImportForeignSchemaStatementSegment").to_matchable(),
+            Ref::new("CreateForeignTableStatementSegment").to_matchable(),
         ]),
         None,
         None,

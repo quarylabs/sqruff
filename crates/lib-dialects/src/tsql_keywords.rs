@@ -141,7 +141,6 @@ pub(crate) fn tsql_additional_reserved_keywords() -> HashSet<&'static str> {
         "PRINT",
         "PROC",
         "PROCEDURE",
-        "PROPERTY",
         "PUBLIC",
         "RAISERROR",
         "READ",
@@ -567,6 +566,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "USER_DB",
         "CONNECTION_OPTIONS",
         "PUSHDOWN",
+        "PROPERTY",
         // Function names that can be used as identifiers
         "NEWID",
         // T-SQL priority and format values

@@ -4,3 +4,5 @@ select
     'Tabellen' as Objekt,
     Count(*) as Anzahl
 from dbo.sql_modules;
+
+SELECT PROPERTY FROM example_table;

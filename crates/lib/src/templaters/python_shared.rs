@@ -12,7 +12,7 @@ pub struct PythonFluffConfig {
     templater_unwrap_wrapped_queries: bool,
 
     jinja_templater_paths: Vec<String>,
-    jinja_loader_search_path: Option<String>,
+    jinja_loader_search_path: Vec<String>,
     jinja_apply_dbt_builtins: bool,
     jinja_ignore_templating: Option<bool>,
     jinja_library_paths: Vec<String>,
@@ -51,8 +51,15 @@ impl From<&FluffConfig> for PythonFluffConfig {
                 .unwrap_or_default(),
             jinja_loader_search_path: value
                 .templater_value(TemplaterKind::Jinja, "loader_search_path")
-                .and_then(|value| value.as_string())
-                .map(ToString::to_string),
+                .map(|value| {
+                    value
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|value| value.as_string().unwrap().to_string())
+                        .collect()
+                })
+                .unwrap_or_default(),
             jinja_apply_dbt_builtins: value
                 .templater_value(TemplaterKind::Jinja, "apply_dbt_builtins")
                 .and_then(|value| value.as_bool())
@@ -156,7 +163,7 @@ mod tests {
             python_fluff_config.jinja_templater_paths,
             Vec::<String>::new()
         );
-        assert_eq!(python_fluff_config.jinja_loader_search_path, None);
+        assert!(python_fluff_config.jinja_loader_search_path.is_empty());
         assert!(python_fluff_config.jinja_apply_dbt_builtins);
         assert_eq!(python_fluff_config.jinja_ignore_templating, None);
     }
@@ -175,6 +182,39 @@ library_paths = ./my_library
         assert_eq!(
             python_fluff_config.jinja_library_paths,
             vec!["./my_library".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_jinja_loader_search_paths_are_serialized_as_a_list() {
+        let config_path = std::env::temp_dir()
+            .join("sqruff-loader-search-path")
+            .join(".sqruff");
+        let source = r#"
+[sqruff]
+templater = jinja
+[sqruff:templater:jinja]
+loader_search_path = search_a, search_b/subdir
+"#;
+        let config = FluffConfig::from_source(source, Some(&config_path));
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert_eq!(
+            python_fluff_config.jinja_loader_search_path,
+            vec![
+                config_path
+                    .parent()
+                    .unwrap()
+                    .join("search_a")
+                    .to_string_lossy()
+                    .to_string(),
+                config_path
+                    .parent()
+                    .unwrap()
+                    .join("search_b/subdir")
+                    .to_string_lossy()
+                    .to_string(),
+            ]
         );
     }
 

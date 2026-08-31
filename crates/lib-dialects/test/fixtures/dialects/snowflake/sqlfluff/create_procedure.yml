@@ -433,3 +433,33 @@ file:
   - scripting_block_statement:
     - keyword: END
 - statement_terminator: ;
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_IF_NOT_EXISTS
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: JAVASCRIPT
+    - keyword: AS
+    - udf_body: |-
+        $$
+            return 1;
+        $$
+- statement_terminator: ;

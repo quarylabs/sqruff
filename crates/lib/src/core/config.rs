@@ -599,6 +599,8 @@ fn parse_ini_config_elems(
 
                 if name_lowercase == "load_macros_from_path" {
                     unimplemented!()
+                } else if name_lowercase == "loader_search_path" {
+                    value = resolve_comma_separated_config_paths(value, config_path);
                 } else if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir") {
                     value = resolve_relative_config_path(value, config_path);
                 }
@@ -659,7 +661,9 @@ fn collect_toml_config_elems(
                 }
 
                 let mut value = toml_value_to_config_value(value);
-                if name.ends_with("_path") || name.ends_with("_dir") {
+                if name == "loader_search_path" {
+                    value = resolve_comma_separated_config_paths(value, config_path);
+                } else if name.ends_with("_path") || name.ends_with("_dir") {
                     value = resolve_relative_config_path(value, config_path);
                 }
 
@@ -735,6 +739,19 @@ fn resolve_relative_config_path(mut value: Value, config_path: Option<&Path>) ->
         value = Value::String(path.into());
     }
     value
+}
+
+fn resolve_comma_separated_config_paths(value: Value, config_path: Option<&Path>) -> Value {
+    let Some(Value::Array(paths)) = split_string_or_array(&value) else {
+        return value;
+    };
+
+    Value::Array(
+        paths
+            .into_iter()
+            .map(|path| resolve_relative_config_path(path, config_path))
+            .collect(),
+    )
 }
 
 fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, Value> {
@@ -898,6 +915,107 @@ library_path = none
         );
 
         assert!(config.get("library_path", "core").is_none());
+    }
+
+    #[test]
+    fn test_jinja_loader_search_path_resolves_each_ini_path() {
+        let config_path = std::env::temp_dir()
+            .join("sqruff-loader-search-path")
+            .join(".sqruff");
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff:templater:jinja]
+loader_search_path = search_a, search_b/subdir
+"#,
+            Some(&config_path),
+        );
+
+        let paths = config
+            .raw
+            .get("templater")
+            .unwrap()
+            .as_map()
+            .unwrap()
+            .get("jinja")
+            .unwrap()
+            .as_map()
+            .unwrap()
+            .get("loader_search_path")
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|value| value.as_string().unwrap().to_string())
+            .collect::<Vec<_>>();
+        assert_eq!(
+            paths,
+            vec![
+                config_path
+                    .parent()
+                    .unwrap()
+                    .join("search_a")
+                    .to_string_lossy()
+                    .to_string(),
+                config_path
+                    .parent()
+                    .unwrap()
+                    .join("search_b/subdir")
+                    .to_string_lossy()
+                    .to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_jinja_loader_search_path_resolves_toml_array() {
+        let config_path = std::env::temp_dir()
+            .join("sqruff-loader-search-path")
+            .join("pyproject.toml");
+        let config = FluffConfig::from_source(
+            r#"
+[tool.sqruff.templater.jinja]
+loader_search_path = ["search_a", "search_b/subdir"]
+"#,
+            Some(&config_path),
+        );
+
+        let paths = config
+            .raw
+            .get("templater")
+            .unwrap()
+            .as_map()
+            .unwrap()
+            .get("jinja")
+            .unwrap()
+            .as_map()
+            .unwrap()
+            .get("loader_search_path")
+            .unwrap()
+            .as_array()
+            .unwrap();
+        assert_eq!(paths.len(), 2);
+        assert_eq!(
+            paths[0].as_string(),
+            Some(
+                config_path
+                    .parent()
+                    .unwrap()
+                    .join("search_a")
+                    .to_string_lossy()
+                    .as_ref()
+            )
+        );
+        assert_eq!(
+            paths[1].as_string(),
+            Some(
+                config_path
+                    .parent()
+                    .unwrap()
+                    .join("search_b/subdir")
+                    .to_string_lossy()
+                    .as_ref()
+            )
+        );
     }
 
     #[test]

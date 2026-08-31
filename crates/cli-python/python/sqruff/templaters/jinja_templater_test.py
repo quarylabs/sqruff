@@ -73,6 +73,44 @@ def test_jinja_analyzer_receives_config():
     assert templater.analyzer_config is config
 
 
+def test_jinja_loader_search_path_does_not_load_macros_globally(tmp_path):
+    """Loader paths support multiple/nested imports without global macros."""
+    search_a = tmp_path / "search_a"
+    search_b = tmp_path / "search_b"
+    (search_a / "subdir").mkdir(parents=True)
+    search_b.mkdir()
+    (search_a / "search_a.sql").write_text("{% macro value() %}search_a{% endmacro %}")
+    (search_a / "subdir" / "nested.sql").write_text(
+        "{% macro value() %}nested{% endmacro %}"
+    )
+    (search_b / "search_b.sql").write_text("{% macro value() %}search_b{% endmacro %}")
+
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_templater_paths=[],
+        jinja_loader_search_path=[str(search_a), str(search_b)],
+        jinja_apply_dbt_builtins=False,
+        jinja_ignore_templating=False,
+        jinja_library_paths=[],
+        dbt_profile=None,
+        dbt_profiles_dir=None,
+        dbt_target=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+    )
+    env = JinjaTemplater()._get_jinja_env(config)
+    template = env.from_string(
+        "{% import 'search_a.sql' as a %}"
+        "{% import 'subdir/nested.sql' as nested %}"
+        "{% import 'search_b.sql' as b %}"
+        "{{ a.value() }}/{{ nested.value() }}/{{ b.value() }}"
+    )
+
+    assert template.render() == "search_a/nested/search_b"
+    assert "value" not in env.globals
+
+
 # JINJA_STRING = (
 #     "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, "
 #     "{% endif %}{% endfor %} WHERE {{condition}}\n\n"

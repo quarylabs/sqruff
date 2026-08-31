@@ -89,6 +89,29 @@ library_path = ./my_library
 ignore_templating = False
 ```
 
+## Jinja Loader Search Path
+
+`loader_search_path` accepts a comma-separated list of directories for Jinja
+[`include`](https://jinja.palletsprojects.com/en/stable/templates/#include) and
+[`import`](https://jinja.palletsprojects.com/en/stable/templates/#import)
+statements. Locations are relative to the configuration file. For example:
+
+```ini
+[sqruff:templater:jinja]
+loader_search_path = included_templates,other_templates
+```
+
+The configured directories and their subdirectories are available to Jinja.
+Given `included_templates/subdir/my_template.sql`, include it relative to its
+configured search root:
+
+```jinja
+{% include 'subdir/my_template.sql' %}
+```
+
+Macros found only through `loader_search_path` are not loaded into the global
+namespace. Import them explicitly when needed.
+
 ## Template Variables (Context)
 
 Define template variables in the `[sqruff:templater:jinja:context]` section:

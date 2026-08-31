@@ -79,9 +79,10 @@ file:
           - column_reference:
             - naked_identifier: uuid
           - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: index_granularity
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '8192'
+      - settings_clause:
+        - keyword: SETTINGS
+        - naked_identifier: index_granularity
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '8192'
 - statement_terminator: ;

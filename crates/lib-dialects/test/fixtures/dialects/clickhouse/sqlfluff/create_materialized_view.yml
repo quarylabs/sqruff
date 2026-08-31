@@ -671,11 +671,12 @@ file:
           - keyword: INTERVAL
           - numeric_literal: '1'
           - date_part: MONTH
-    - keyword: SETTINGS
-    - naked_identifier: index_granularity
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '8192'
+    - settings_clause:
+      - keyword: SETTINGS
+      - naked_identifier: index_granularity
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '8192'
     - keyword: AS
     - select_statement:
       - select_clause:

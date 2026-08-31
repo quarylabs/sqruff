@@ -1364,11 +1364,12 @@ file:
         - naked_identifier: z
       - binary_operator: +
       - numeric_literal: '10'
-    - keyword: SETTINGS
-    - naked_identifier: abc
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '1'
+    - settings_clause:
+      - keyword: SETTINGS
+      - naked_identifier: abc
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -1411,11 +1412,12 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - boolean_literal: 'true'
-    - keyword: SETTINGS
-    - naked_identifier: mutations_sync
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '1'
+    - settings_clause:
+      - keyword: SETTINGS
+      - naked_identifier: mutations_sync
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -1538,11 +1540,12 @@ file:
             - bracketed:
               - start_bracket: (
               - end_bracket: )
-    - keyword: SETTINGS
-    - naked_identifier: mutations_sync
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '2'
+    - settings_clause:
+      - keyword: SETTINGS
+      - naked_identifier: mutations_sync
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '2'
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -1575,11 +1578,12 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - boolean_literal: 'true'
-    - keyword: SETTINGS
-    - naked_identifier: mutations_sync
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '1'
+    - settings_clause:
+      - keyword: SETTINGS
+      - naked_identifier: mutations_sync
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -1692,9 +1696,10 @@ file:
         - comparison_operator:
           - raw_comparison_operator: <
         - quoted_literal: '''2023-01-01'''
-    - keyword: SETTINGS
-    - naked_identifier: mutations_sync
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - numeric_literal: '2'
+    - settings_clause:
+      - keyword: SETTINGS
+      - naked_identifier: mutations_sync
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '2'
 - statement_terminator: ;

@@ -90,7 +90,7 @@ impl PlaceholderTemplater {
             };
 
             let last_literal_length = span.start - last_pos_raw;
-            let replacement = template_config
+            let mut replacement = template_config
                 .and_then(|config| config.get(&param_name))
                 .map_or(Ok(param_name.clone()), |v| {
                     match (v.as_string(), v.as_int(), v.as_bool()) {
@@ -106,6 +106,10 @@ impl PlaceholderTemplater {
                         ))),
                     }
                 })?;
+
+            if let Some(quotation) = cap.name("quotation") {
+                replacement = format!("{}{replacement}{}", quotation.as_str(), quotation.as_str());
+            }
 
             // Add the literal to the slices
             template_slices.push(TemplatedFileSlice::new(
@@ -325,7 +329,7 @@ param_style = colon",
     #[test]
     fn test_all_the_known_styles() {
         // in, param_style, expected_out, values
-        let cases: [PlaceholderCase<'_>; 19] = [
+        let cases: [PlaceholderCase<'_>; 20] = [
             (
                 "SELECT * FROM f, o, o WHERE a < 10\n\n",
                 "colon",
@@ -384,6 +388,24 @@ AND date > '2020-10-01'
                     ("user_id", "42"),
                     ("start_date", "'2020-01-01'"),
                     ("city_ids", "(1, 2, 3)"),
+                ],
+            ),
+            (
+                r#"
+SELECT user_mail, city_id, :"custom_column"
+FROM users_data
+WHERE userid = :user_id AND date > :'start_date'
+"#,
+                "colon_optional_quotes",
+                r#"
+SELECT user_mail, city_id, "PascalCaseColumn"
+FROM users_data
+WHERE userid = 42 AND date > '2021-10-01'
+"#,
+                vec![
+                    ("user_id", "42"),
+                    ("custom_column", "PascalCaseColumn"),
+                    ("start_date", "2021-10-01"),
                 ],
             ),
             (

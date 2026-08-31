@@ -12,6 +12,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
+use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
@@ -2390,6 +2391,64 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    dialect.add([(
+        "ComputedColumnDefinitionSegment".into(),
+        NodeMatcher::new(SyntaxKind::ComputedColumnDefinition, |_| {
+            Sequence::new(vec![
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                optionally_bracketed(vec![
+                    one_of(vec![
+                        Ref::new("FunctionSegment").to_matchable(),
+                        Ref::new("BareFunctionSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("PERSISTED").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NOT").to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                AnyNumberOf::new(vec![Ref::new("ColumnConstraintSegment").to_matchable()])
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    let alter_table_options = dialect.grammar("AlterTableOptionsGrammar").copy(
+        Some(vec![
+            Sequence::new(vec![
+                Ref::keyword("ADD").to_matchable(),
+                Delimited::new(vec![
+                    one_of(vec![
+                        Ref::new("ComputedColumnDefinitionSegment").to_matchable(),
+                        Ref::new("ColumnDefinitionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ]),
+        Some(0),
+        None,
+        None,
+        Vec::new(),
+        false,
+    );
+    dialect.replace_grammar("AlterTableOptionsGrammar", alter_table_options);
+
     // Add T-SQL variable support to LiteralGrammar
     dialect.add([(
         "LiteralGrammar".into(),
@@ -2788,6 +2847,7 @@ pub fn raw_dialect() -> Dialect {
                             Delimited::new(vec![
                                 one_of(vec![
                                     Ref::new("TableConstraintSegment").to_matchable(),
+                                    Ref::new("ComputedColumnDefinitionSegment").to_matchable(),
                                     Ref::new("ColumnDefinitionSegment").to_matchable(),
                                     Ref::new("PeriodSegment").to_matchable(),
                                 ])

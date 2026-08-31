@@ -1,0 +1,85 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Products
+    - keyword: ADD
+    - computed_column_definition:
+      - naked_identifier: RetailValue
+      - keyword: AS
+      - expression:
+        - column_reference:
+          - quoted_identifier: '[QtyAvailable]'
+        - binary_operator: '*'
+        - column_reference:
+          - naked_identifier: UnitPrice
+        - binary_operator: '*'
+        - numeric_literal: '1.5'
+      - keyword: PERSISTED
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Products
+    - keyword: ADD
+    - computed_column_definition:
+      - naked_identifier: RetailValue
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: QtyAvailable
+          - binary_operator: '*'
+          - column_reference:
+            - quoted_identifier: '[UnitPrice]'
+          - binary_operator: '*'
+          - numeric_literal: '1.5'
+        - end_bracket: )
+      - keyword: PERSISTED
+      - keyword: NOT
+      - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Products
+    - keyword: ADD
+    - computed_column_definition:
+      - naked_identifier: InventoyDate
+      - keyword: AS
+      - function:
+        - function_name:
+          - function_name_identifier: CAST
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - quoted_identifier: '[InventoryTs]'
+            - keyword: AS
+            - data_type:
+              - data_type_identifier: date
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - keyword: GO

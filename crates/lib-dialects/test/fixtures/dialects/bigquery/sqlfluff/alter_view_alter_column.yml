@@ -1,0 +1,47 @@
+file:
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_view
+    - keyword: ALTER
+    - keyword: COLUMN
+    - naked_identifier: x
+    - keyword: SET
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: description
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '"example"'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - quoted_identifier: '`example-project.example_dataset.example_view`'
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: x
+    - keyword: SET
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: description
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '"example"'
+        - end_bracket: )
+- statement_terminator: ;

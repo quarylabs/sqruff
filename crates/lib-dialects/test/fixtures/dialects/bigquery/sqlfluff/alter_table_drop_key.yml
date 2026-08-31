@@ -1,0 +1,25 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - keyword: DROP
+    - keyword: PRIMARY
+    - keyword: KEY
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`example-project.example_dataset.example_table`'
+    - keyword: DROP
+    - keyword: PRIMARY
+    - keyword: KEY
+    - keyword: IF
+    - keyword: EXISTS
+- statement_terminator: ;

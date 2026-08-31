@@ -349,10 +349,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "NakedSemiStructuredElementSegment".into(),
-            RegexParser::new(
-                "[a-zA-Z_][a-zA-Z0-9_$]*",
-                SyntaxKind::SemiStructuredElement,
-            )
+            RegexParser::new("[a-zA-Z_][a-zA-Z0-9_$]*", SyntaxKind::SemiStructuredElement)
                 .to_matchable()
                 .into(),
         ),
@@ -6124,9 +6121,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                                 ])
                                                 .config(|this| this.optional())
                                                 .to_matchable(),
-                                                Ref::keyword("FORCE")
-                                                    .optional()
-                                                    .to_matchable(),
+                                                Ref::keyword("FORCE").optional().to_matchable(),
                                             ])
                                             .to_matchable(),
                                             Sequence::new(vec![

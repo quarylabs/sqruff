@@ -6241,6 +6241,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             ])
                             .config(|this| this.optional())
                             .to_matchable(),
+                            Ref::new("TagBracketedEqualsSegment")
+                                .optional()
+                                .to_matchable(),
                             Ref::new("CommentClauseSegment").optional().to_matchable(),
                         ])
                         .to_matchable(),

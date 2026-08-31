@@ -1,0 +1,62 @@
+file:
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - naked_identifier: example_dataset
+    - keyword: SET
+    - default_collate:
+      - keyword: DEFAULT
+      - keyword: COLLATE
+      - quoted_literal: '"und:ci"'
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - naked_identifier: example_dataset
+    - keyword: SET
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: description
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '""'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - naked_identifier: example_dataset
+    - keyword: ADD
+    - keyword: REPLICA
+    - column_reference:
+      - quoted_identifier: '`EU`'
+    - options_segment:
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - parameter: location
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - quoted_identifier: '`eu`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - naked_identifier: example_dataset
+    - keyword: DROP
+    - keyword: REPLICA
+    - column_reference:
+      - quoted_identifier: '`EU`'
+- statement_terminator: ;

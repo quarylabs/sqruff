@@ -759,6 +759,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("ContinueStatementSegment").to_matchable(),
                 Ref::new("RaiseStatementSegment").to_matchable(),
                 Ref::new("AlterViewStatementSegment").to_matchable(),
+                Ref::new("AlterSchemaStatementSegment").to_matchable(),
                 Ref::new("CreateMaterializedViewStatementSegment").to_matchable(),
                 Ref::new("CreateMaterializedViewAsReplicaOfStatementSegment").to_matchable(),
                 Ref::new("AlterMaterializedViewStatementSegment").to_matchable(),
@@ -2337,6 +2338,45 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     dialect.add([
+        (
+            "AlterSchemaStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterSchemaStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("SCHEMA").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            one_of(vec![
+                                Ref::new("DefaultCollateSegment").to_matchable(),
+                                Ref::new("OptionsSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ADD").to_matchable(),
+                            Ref::keyword("REPLICA").to_matchable(),
+                            Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                            Ref::new("OptionsSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DROP").to_matchable(),
+                            Ref::keyword("REPLICA").to_matchable(),
+                            Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "AlterViewStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::AlterViewStatement, |_| {

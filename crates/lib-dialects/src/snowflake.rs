@@ -2326,6 +2326,19 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::new("AlterTableTableColumnActionSegment").to_matchable(),
+                // UNSET table options
+                Sequence::new(vec![
+                    Ref::keyword("UNSET").to_matchable(),
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::keyword("COMMENT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
         ])

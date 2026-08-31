@@ -764,6 +764,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateMaterializedViewAsReplicaOfStatementSegment").to_matchable(),
                 Ref::new("AlterMaterializedViewStatementSegment").to_matchable(),
                 Ref::new("DropMaterializedViewStatementSegment").to_matchable(),
+                Ref::new("DropProcedureStatementSegment").to_matchable(),
+                Ref::new("UndropSchemaStatementSegment").to_matchable(),
                 Ref::new("CreateRowAccessPolicyStatementSegment").to_matchable(),
                 Ref::new("CreateCapacityStatementSegment").to_matchable(),
                 Ref::new("CreateReservationStatementSegment").to_matchable(),
@@ -2026,6 +2028,35 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     dialect.replace_grammar(
+        "DropTableStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("DROP").to_matchable(),
+            one_of(vec![
+                Ref::keyword("SNAPSHOT").to_matchable(),
+                Ref::keyword("EXTERNAL").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::keyword("TABLE").to_matchable(),
+            Ref::new("IfExistsGrammar").optional().to_matchable(),
+            Delimited::new(vec![Ref::new("TableReferenceSegment").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    dialect.replace_grammar(
+        "DropFunctionStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("DROP").to_matchable(),
+            Ref::keyword("TABLE").optional().to_matchable(),
+            Ref::keyword("FUNCTION").to_matchable(),
+            Ref::new("IfExistsGrammar").optional().to_matchable(),
+            Ref::new("FunctionNameSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    dialect.replace_grammar(
         "CreateTableStatementSegment",
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),
@@ -2341,6 +2372,34 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     dialect.add([
+        (
+            "DropProcedureStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropProcedureStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("PROCEDURE").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ProcedureNameSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UndropSchemaStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::UndropSchemaStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("UNDROP").to_matchable(),
+                    Ref::keyword("SCHEMA").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("SchemaReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "CreateCapacityStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateCapacityStatement, |_| {

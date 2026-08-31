@@ -507,11 +507,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("ProcedureNameSegment").to_matchable(),
                     Ref::new("ProcedureParameterListSegment").to_matchable(),
                     Ref::new("OptionsSegment").optional().to_matchable(),
-                    Ref::keyword("BEGIN").to_matchable(),
-                    MetaSegment::indent().to_matchable(),
-                    Ref::new("ProcedureStatements").to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
-                    Ref::keyword("END").to_matchable(),
+                    Ref::new("BeginStatementSegment")
+                        .reset_terminators()
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -861,7 +859,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                 ];
-                this.parse_mode = ParseMode::Greedy;
+                this.reset_terminators = true;
             })
             .to_matchable()
         })
@@ -909,7 +907,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .config(|this| {
                     this.terminators = vec![Ref::keyword("UNTIL").to_matchable()];
-                    this.parse_mode = ParseMode::Greedy;
+                    this.reset_terminators = true;
                 })
                 .to_matchable()
             })
@@ -958,7 +956,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                     ];
-                    this.parse_mode = ParseMode::Greedy;
+                    this.reset_terminators = true;
                 })
                 .to_matchable()
             })
@@ -1025,7 +1023,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                     ];
-                    this.parse_mode = ParseMode::Greedy;
+                    this.reset_terminators = true;
                 })
                 .to_matchable()
             })
@@ -1053,7 +1051,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::WhileStatements, |_| {
                 AnyNumberOf::new(vec![
                     Sequence::new(vec![
-                        Ref::new("StatementSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("StatementSegment").to_matchable(),
+                            Ref::new("MultiStatementSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                         Ref::new("DelimiterGrammar").to_matchable(),
                     ])
                     .to_matchable(),
@@ -1066,7 +1068,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                     ];
-                    this.parse_mode = ParseMode::Greedy;
+                    this.reset_terminators = true;
                 })
                 .to_matchable()
             })
@@ -1447,49 +1449,66 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "BeginStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::BeginStatement, |_| {
                 Sequence::new(vec![
-                    Ref::keyword("BEGIN").to_matchable(),
-                    MetaSegment::indent().to_matchable(),
-                    AnyNumberOf::new(vec![
-                        Sequence::new(vec![
-                            Ref::new("StatementSegment").to_matchable(),
-                            Ref::new("DelimiterGrammar").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.min_times = 1;
-                        this.terminators = vec![
-                            Ref::keyword("END").to_matchable(),
-                            Ref::keyword("EXCEPTION").to_matchable(),
-                        ];
-                        this.parse_mode = ParseMode::Greedy;
-                    })
-                    .to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
                     Sequence::new(vec![
-                        Ref::keyword("EXCEPTION").to_matchable(),
-                        Ref::keyword("WHEN").to_matchable(),
-                        Ref::keyword("ERROR").to_matchable(),
-                        Ref::keyword("THEN").to_matchable(),
+                        Ref::new("SingleIdentifierFullGrammar").to_matchable(),
+                        Ref::new("ColonSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("BEGIN").to_matchable(),
+                    Sequence::new(vec![
                         MetaSegment::indent().to_matchable(),
                         AnyNumberOf::new(vec![
                             Sequence::new(vec![
-                                Ref::new("StatementSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("StatementSegment").to_matchable(),
+                                    Ref::new("MultiStatementSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
                                 Ref::new("DelimiterGrammar").to_matchable(),
                             ])
                             .to_matchable(),
                         ])
                         .config(|this| {
                             this.min_times = 1;
-                            this.terminators = vec![Ref::keyword("END").to_matchable()];
-                            this.parse_mode = ParseMode::Greedy;
+                            this.terminators = vec![Ref::keyword("EXCEPTION").to_matchable()];
+                            this.reset_terminators = true;
                         })
                         .to_matchable(),
                         MetaSegment::dedent().to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("EXCEPTION").to_matchable(),
+                            Ref::keyword("WHEN").to_matchable(),
+                            Ref::keyword("ERROR").to_matchable(),
+                            Ref::keyword("THEN").to_matchable(),
+                            MetaSegment::indent().to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::new("StatementSegment").to_matchable(),
+                                        Ref::new("MultiStatementSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::new("DelimiterGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| {
+                                this.min_times = 1;
+                                this.reset_terminators = true;
+                            })
+                            .to_matchable(),
+                            MetaSegment::dedent().to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
                     Ref::keyword("END").to_matchable(),
+                    Ref::new("SingleIdentifierFullGrammar")
+                        .optional()
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -1508,6 +1527,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    dialect.replace_grammar(
+        "TransactionStatementSegment",
+        NodeMatcher::new(SyntaxKind::TransactionStatement, |_| {
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("BEGIN").to_matchable(),
+                    Ref::keyword("COMMIT").to_matchable(),
+                    Ref::keyword("ROLLBACK").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("TRANSACTION").optional().to_matchable(),
+            ])
+            .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
 
     dialect.replace_grammar("DatatypeSegment", {
         one_of(vec![

@@ -28,8 +28,8 @@ file:
           - raw_comparison_operator: =
         - boolean_literal: 'TRUE'
         - end_bracket: )
-    - keyword: BEGIN
-    - procedure_statements:
+    - begin_statement:
+      - keyword: BEGIN
       - statement:
         - select_statement:
           - select_clause:
@@ -38,5 +38,5 @@ file:
               - column_reference:
                 - naked_identifier: p_param
       - statement_terminator: ;
-    - keyword: END
+      - keyword: END
 - statement_terminator: ;

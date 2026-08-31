@@ -76,3 +76,35 @@ RAISE;
 RAISE USING MESSAGE = "Test";
 RAISE USING MESSAGE = error_message;
 END;
+
+CREATE OR REPLACE PROCEDURE place_name.proc_name(
+    _log STRUCT<Process_ID STRING, Debug INT64>
+)
+BEGIN
+    DECLARE _source_table STRING;
+
+    BEGIN
+        SET _metric_id = 1001;
+        CALL some_place.some_name1(_some_id);
+    END;
+END;
+
+CREATE OR REPLACE PROCEDURE place_name.proc_name(
+    _log STRUCT<Process_ID STRING, Debug INT64>
+)
+OPTIONS (
+    strict_mode = TRUE,
+    description = '''
+Author:
+'''
+)
+BEGIN
+    DECLARE _source_table STRING;
+
+    BEGIN
+        SET _metric_id = 1001;
+        CALL some_place.some_name1(_some_id);
+    EXCEPTION WHEN ERROR THEN
+        RAISE;
+    END;
+END;

@@ -765,7 +765,10 @@ fn crawl_indent_points(
                 last_line_break_idx = idx.into();
             }
 
-            if elements[idx + 1].class_types().intersects(
+            // Delay indentation across comments and invisible template markers: neither
+            // represents source text that can be meaningfully indented before.
+            let next_element = &elements[idx + 1];
+            if next_element.class_types().intersects(
                 const {
                     &SyntaxSet::new(&[
                         SyntaxKind::Comment,
@@ -773,7 +776,9 @@ fn crawl_indent_points(
                         SyntaxKind::BlockComment,
                     ])
                 },
-            ) {
+            ) || (next_element.class_types().contains(SyntaxKind::Placeholder)
+                && next_element.segments()[0].source_str().is_empty())
+            {
                 cached_indent_stats = indent_stats.clone().into();
                 cached_point = indent_point.clone().into();
 
@@ -1954,8 +1959,13 @@ impl Iterator for Range {
 mod tests {
     use pretty_assertions::assert_eq;
     use sqruff_lib::core::test_functions::parse_ansi_string;
+    use sqruff_lib_core::dialects::syntax::SyntaxKind;
+    use sqruff_lib_core::parser::segments::{BlockType, SegmentBuilder, TemplateInfo};
 
-    use super::{IndentLine, IndentPoint};
+    use super::{IndentLine, IndentPoint, crawl_indent_points};
+    use crate::utils::reflow::config::ReflowConfig;
+    use crate::utils::reflow::depth_map::DepthInfo;
+    use crate::utils::reflow::elements::{ReflowBlock, ReflowPoint};
     use crate::utils::reflow::sequence::ReflowSequence;
 
     #[test]
@@ -1974,6 +1984,50 @@ mod tests {
 
             assert_eq!(indent_out, elem.get_indent().as_deref());
         }
+    }
+
+    #[test]
+    fn test_crawl_indent_points_delays_empty_source_template_placeholder() {
+        let config = ReflowConfig::default();
+        let depth_info = DepthInfo {
+            stack_depth: 0,
+            stack_hashes: Vec::new(),
+            stack_hash_set: Default::default(),
+            stack_class_types: Vec::new(),
+            stack_positions: Default::default(),
+        };
+        let block = |segment| ReflowBlock::from_config(segment, &config, depth_info.clone()).into();
+
+        let invisible_marker = SegmentBuilder::token(3, "", SyntaxKind::Placeholder)
+            .with_template_info(TemplateInfo {
+                block_type: BlockType::Templated,
+                block_uuid: None,
+                source_str: "".into(),
+                is_template: false,
+            })
+            .finish();
+
+        let elements = vec![
+            ReflowPoint::new(Vec::new()).into(),
+            block(SegmentBuilder::keyword(1, "SELECT")),
+            ReflowPoint::new(vec![
+                SegmentBuilder::token(2, "", SyntaxKind::Indent).finish(),
+            ])
+            .into(),
+            block(invisible_marker),
+            ReflowPoint::new(Vec::new()).into(),
+            block(SegmentBuilder::keyword(4, "1")),
+            ReflowPoint::new(Vec::new()).into(),
+            block(SegmentBuilder::token(5, "", SyntaxKind::EndOfFile).finish()),
+        ];
+
+        let points = crawl_indent_points(&elements, false);
+        let point_impulses = points
+            .iter()
+            .map(|point| (point.idx, point.indent_impulse))
+            .collect::<Vec<_>>();
+
+        assert_eq!(point_impulses, vec![(0, 0), (2, 0), (4, 1), (6, 0)]);
     }
 
     #[test]

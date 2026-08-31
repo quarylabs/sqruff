@@ -1,0 +1,114 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t_table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - data_type_identifier: INT64
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: x
+          - end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t_table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: y
+        - data_type:
+          - data_type_identifier: STRING
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: y
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: t_table2
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: y
+          - end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+      - comma: ','
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t_table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - data_type_identifier: INT64
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: x
+          - end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+      - comma: ','
+      - column_definition:
+        - naked_identifier: y
+        - data_type:
+          - data_type_identifier: STRING
+      - comma: ','
+      - table_constraint:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: y
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: t_table2
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: y
+          - end_bracket: )
+        - keyword: NOT
+        - keyword: ENFORCED
+      - comma: ','
+      - column_definition:
+        - naked_identifier: _other
+        - data_type:
+          - data_type_identifier: STRING
+      - end_bracket: )
+- statement_terminator: ;

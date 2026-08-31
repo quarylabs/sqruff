@@ -384,11 +384,21 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "PrimaryKeyGrammar".into(),
-            Nothing::new().to_matchable().into(),
+            Sequence::new(vec![
+                Ref::keyword("PRIMARY").to_matchable(),
+                Ref::keyword("KEY").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "ForeignKeyGrammar".into(),
-            Nothing::new().to_matchable().into(),
+            Sequence::new(vec![
+                Ref::keyword("FOREIGN").to_matchable(),
+                Ref::keyword("KEY").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
         ),
     ]);
 
@@ -1773,6 +1783,33 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "TableConstraintSegment".into(),
+            NodeMatcher::new(SyntaxKind::TableConstraint, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("PrimaryKeyGrammar").to_matchable(),
+                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                        Ref::keyword("NOT").to_matchable(),
+                        Ref::keyword("ENFORCED").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("ForeignKeyGrammar").to_matchable(),
+                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                        Ref::keyword("REFERENCES").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                        Ref::keyword("NOT").to_matchable(),
+                        Ref::keyword("ENFORCED").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     dialect.replace_grammar(
@@ -1811,9 +1848,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable(),
             Sequence::new(vec![
                 Bracketed::new(vec![
-                    Delimited::new(vec![Ref::new("ColumnDefinitionSegment").to_matchable()])
-                        .config(|this| this.allow_trailing())
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("ColumnDefinitionSegment").to_matchable(),
+                            Ref::new("TableConstraintSegment").to_matchable(),
+                        ])
                         .to_matchable(),
+                    ])
+                    .config(|this| this.allow_trailing())
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])

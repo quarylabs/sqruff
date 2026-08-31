@@ -39,12 +39,18 @@ pub fn raw_dialect() -> Dialect {
     let mut dialect = ansi::raw_dialect();
     dialect.name = DialectKind::Tsql;
     dialect.sets_mut("unreserved_keywords").extend([
+        "ABORT_AFTER_WAIT",
+        "BLOCKERS",
         "COLUMNSTORE_ARCHIVE",
         "COMPRESSION_DELAY",
         "DROP_EXISTING",
+        "MAX_DURATION",
         "MAXDOP",
         "MINUTES",
         "PARTITIONS",
+        "SWITCH",
+        "TRUNCATE_TARGET",
+        "WAIT_AT_LOW_PRIORITY",
     ]);
     dialect.replace_grammar("NanLiteralSegment", Nothing::new().to_matchable());
 
@@ -930,6 +936,82 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    dialect.add([(
+        "AlterTableSwitchStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterTableSwitchStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("ALTER").to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::keyword("SWITCH").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("TO").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    one_of(vec![
+                        Bracketed::new(vec![
+                            Ref::keyword("WAIT_AT_LOW_PRIORITY").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Sequence::new(vec![
+                                        Ref::keyword("MAX_DURATION").to_matchable(),
+                                        Ref::new("EqualsSegment").to_matchable(),
+                                        Ref::new("NumericLiteralSegment").to_matchable(),
+                                        Ref::keyword("MINUTES").optional().to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("ABORT_AFTER_WAIT").to_matchable(),
+                                        Ref::new("EqualsSegment").to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("NONE").to_matchable(),
+                                            Ref::keyword("SELF").to_matchable(),
+                                            Ref::keyword("BLOCKERS").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Bracketed::new(vec![
+                            Ref::keyword("TRUNCATE_TARGET").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("ON").to_matchable(),
+                                Ref::keyword("OFF").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("DelimiterGrammar").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
@@ -961,6 +1043,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateTableStatementSegment").to_matchable(),
             Ref::new("CreateRoleStatementSegment").to_matchable(),
             Ref::new("DropRoleStatementSegment").to_matchable(),
+            Ref::new("AlterTableSwitchStatementSegment").to_matchable(),
             Ref::new("AlterTableStatementSegment").to_matchable(),
             Ref::new("CreateSchemaStatementSegment").to_matchable(),
             Ref::new("SetSchemaStatementSegment").to_matchable(),

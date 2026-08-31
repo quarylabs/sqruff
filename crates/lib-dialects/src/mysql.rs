@@ -184,6 +184,11 @@ pub fn raw_dialect() -> Dialect {
         "YEAR",
     ]);
 
+    mysql.sets_mut("date_part_function_name").clear();
+    mysql
+        .sets_mut("date_part_function_name")
+        .extend(["EXTRACT", "TIMESTAMPADD", "TIMESTAMPDIFF"]);
+
     // ============================================================
     // Grammar replacements (overriding ANSI)
     // ============================================================

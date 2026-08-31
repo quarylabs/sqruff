@@ -998,6 +998,10 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateFullTextIndexStatementSegment").to_matchable(),
             Ref::new("CreateColumnstoreIndexStatementSegment").to_matchable(),
             Ref::new("ReconfigureStatementSegment").to_matchable(),
+            Ref::new("CreatePartitionFunctionSegment").to_matchable(),
+            Ref::new("AlterPartitionFunctionSegment").to_matchable(),
+            Ref::new("CreatePartitionSchemeSegment").to_matchable(),
+            Ref::new("AlterPartitionSchemeSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),
@@ -3105,6 +3109,117 @@ pub fn raw_dialect() -> Dialect {
         })
         .into(),
     )]);
+
+    dialect.add([
+        (
+            "CreatePartitionFunctionSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreatePartitionFunctionStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::keyword("FUNCTION").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()]).to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::keyword("RANGE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("LEFT").to_matchable(),
+                        Ref::keyword("RIGHT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::keyword("VALUES").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterPartitionFunctionSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterPartitionFunctionStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::keyword("FUNCTION").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Bracketed::new(vec![]).to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SPLIT").to_matchable(),
+                            Ref::keyword("RANGE").to_matchable(),
+                            Bracketed::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("MERGE").to_matchable(),
+                            Ref::keyword("RANGE").to_matchable(),
+                            Bracketed::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreatePartitionSchemeSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreatePartitionSchemeStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::keyword("SCHEME").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::keyword("ALL").optional().to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                Ref::keyword("PRIMARY").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterPartitionSchemeSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterPartitionSchemeStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::keyword("SCHEME").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::keyword("NEXT").to_matchable(),
+                    Ref::keyword("USED").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     // expand() must be called after all grammar modifications
 

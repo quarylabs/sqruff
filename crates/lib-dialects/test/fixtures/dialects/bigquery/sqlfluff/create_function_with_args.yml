@@ -4,73 +4,15 @@ file:
     - keyword: CREATE
     - keyword: FUNCTION
     - function_name:
-      - function_name_identifier: add
-    - function_parameter_list:
-      - bracketed:
-        - start_bracket: (
-        - end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-      - data_type_identifier: integer
-    - function_definition:
-      - keyword: AS
-      - udf_body: '''select $1 + $2;'''
-      - keyword: LANGUAGE
-      - naked_identifier: SQL
-- statement_terminator: ;
-- statement:
-  - drop_function_statement:
-    - keyword: DROP
-    - keyword: FUNCTION
-    - function_name:
-      - naked_identifier: myproject
-      - dot: .
-      - naked_identifier: mydataset
-      - dot: .
-      - function_name_identifier: addfunc
-- statement_terminator: ;
-- statement:
-  - create_function_statement:
-    - keyword: CREATE
-    - keyword: FUNCTION
-    - function_name:
       - naked_identifier: example_dataset
       - dot: .
       - function_name_identifier: exampleFunction
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
-        - end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-      - data_type_identifier: STRING
-    - function_definition:
-      - keyword: AS
-      - bracketed:
-        - start_bracket: (
-        - expression:
-          - quoted_literal: '"example"'
-        - end_bracket: )
-      - options_segment:
-        - keyword: OPTIONS
-        - bracketed:
-          - start_bracket: (
-          - parameter: description
-          - comparison_operator:
-            - raw_comparison_operator: =
-          - quoted_literal: '"example"'
-          - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - create_function_statement:
-    - keyword: CREATE
-    - keyword: TEMP
-    - keyword: FUNCTION
-    - function_name:
-      - function_name_identifier: exampleFunction
-    - function_parameter_list:
-      - bracketed:
-        - start_bracket: (
+        - parameter: x
+        - data_type:
+          - data_type_identifier: FLOAT64
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
@@ -80,10 +22,55 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-          - numeric_literal: '1.234'
+          - column_reference:
+            - naked_identifier: x
           - binary_operator: '*'
-          - numeric_literal: '5.678'
+          - column_reference:
+            - naked_identifier: x
         - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: '`example-project.example_dataset.exampleFunction`'
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: x
+        - data_type:
+          - data_type_identifier: INTEGER
+        - comma: ','
+        - parameter: y
+        - data_type:
+          - data_type_identifier: INTEGER
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: INTEGER
+    - function_definition:
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: x
+          - binary_operator: '*'
+          - column_reference:
+            - naked_identifier: y
+        - end_bracket: )
+      - options_segment:
+        - keyword: OPTIONS
+        - bracketed:
+          - start_bracket: (
+          - parameter: description
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '"foo"'
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_function_statement:
@@ -95,16 +82,58 @@ file:
     - function_parameter_list:
       - bracketed:
         - start_bracket: (
+        - parameter: x
+        - data_type:
+          - data_type_identifier: BIGNUMERIC
         - end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-      - data_type_identifier: BOOL
     - function_definition:
       - keyword: AS
       - bracketed:
         - start_bracket: (
         - expression:
-          - boolean_literal: 'TRUE'
+          - column_reference:
+            - naked_identifier: x
+          - binary_operator: +
+          - column_reference:
+            - naked_identifier: x
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: exampleFunction
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: x
+        - data_type:
+          - data_type_identifier: STRING
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: STRING
+    - function_definition:
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: CONCAT
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: x
+                - comma: ','
+                - expression:
+                  - column_reference:
+                    - naked_identifier: x
+                - end_bracket: )
         - end_bracket: )
       - options_segment:
         - keyword: OPTIONS

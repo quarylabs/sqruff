@@ -49,3 +49,41 @@ file:
           - keyword: UNIQUE
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: user_id
+        - data_type:
+          - data_type_identifier: INTEGER
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: ASC
+          - keyword: AUTOINCREMENT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: users
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: user_id
+        - data_type:
+          - data_type_identifier: INTEGER
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: DESC
+          - keyword: AUTOINCREMENT
+      - end_bracket: )
+- statement_terminator: ;

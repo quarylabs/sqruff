@@ -722,6 +722,11 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            // Hookpoint for dialect-specific pattern matching operators.
+            "PatternMatchingGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
             "UnionGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("UNION").to_matchable(),
@@ -4900,6 +4905,11 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("Expression_B_Grammar").to_matchable(),
                             Ref::keyword("AND").to_matchable(),
                             Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("PatternMatchingGrammar").to_matchable(),
+                            Ref::new("Expression_A_Grammar").to_matchable(),
                         ])
                         .to_matchable(),
                         // Additional sequences and grammar rules can be added here

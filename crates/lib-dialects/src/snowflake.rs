@@ -1183,6 +1183,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         one_of(vec![
                             Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
                             Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                            Ref::new("BindVariableSegment").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -1774,6 +1775,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateProcedureStatementSegment").to_matchable(),
                 Ref::new("AlterProcedureStatementSegment").to_matchable(),
                 Ref::new("ScriptingBlockStatementSegment").to_matchable(),
+                Ref::new("ForInLoopSegment").to_matchable(),
                 Ref::new("ScriptingLetStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
                 Ref::new("ShowStatementSegment").to_matchable(),
@@ -4302,15 +4304,96 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "ScriptingBlockStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::ScriptingBlockStatement, |_| {
-                one_of(vec![
-                    Sequence::new(vec![
-                        Ref::keyword("BEGIN").to_matchable(),
-                        Delimited::new(vec![Ref::new("StatementSegment").to_matchable()])
-                            .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("BEGIN").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("StatementSegment").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("DelimiterGrammar").to_matchable(),
+                            Ref::new("StatementSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
+                    .config(|this| {
+                        this.terminators = vec![
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::new("DelimiterGrammar").to_matchable(),
+                                    Ref::keyword("END").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|terminator| {
+                                terminator.exclude = Some(
+                                    Sequence::new(vec![
+                                        Ref::new("DelimiterGrammar").to_matchable(),
+                                        Ref::keyword("END").to_matchable(),
+                                        Ref::keyword("FOR").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                );
+                            })
+                            .to_matchable(),
+                        ];
+                    })
                     .to_matchable(),
-                    Sequence::new(vec![Ref::keyword("END").to_matchable()]).to_matchable(),
+                    Ref::new("DelimiterGrammar").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Ref::keyword("END").to_matchable(),
                 ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ForInLoopSegment".into(),
+            NodeMatcher::new(SyntaxKind::ForInStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::new("LocalVariableNameSegment").to_matchable(),
+                    Ref::keyword("IN").to_matchable(),
+                    Ref::new("LocalVariableNameSegment").to_matchable(),
+                    Ref::keyword("DO").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("StatementSegment").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("DelimiterGrammar").to_matchable(),
+                            Ref::new("StatementSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.terminators = vec![
+                            Sequence::new(vec![
+                                Ref::new("DelimiterGrammar").to_matchable(),
+                                Ref::keyword("END").to_matchable(),
+                                Ref::keyword("FOR").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ];
+                    })
+                    .to_matchable(),
+                    Ref::new("DelimiterGrammar").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Ref::keyword("END").to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "BindVariableSegment".into(),
+            NodeMatcher::new(SyntaxKind::BindVariable, |_| {
+                Sequence::new(vec![
+                    Ref::new("ColonSegment").to_matchable(),
+                    Ref::new("LocalVariableNameSegment").to_matchable(),
+                ])
+                .config(|this| this.disallow_gaps())
                 .to_matchable()
             })
             .to_matchable()

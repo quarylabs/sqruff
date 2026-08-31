@@ -1002,6 +1002,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AlterPartitionFunctionSegment").to_matchable(),
             Ref::new("CreatePartitionSchemeSegment").to_matchable(),
             Ref::new("AlterPartitionSchemeSegment").to_matchable(),
+            Ref::new("CreateMasterKeySegment").to_matchable(),
+            Ref::new("AlterMasterKeySegment").to_matchable(),
+            Ref::new("DropMasterKeySegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),
@@ -3213,6 +3216,102 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("NEXT").to_matchable(),
                     Ref::keyword("USED").to_matchable(),
                     Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    dialect.add([
+        (
+            "CreateMasterKeySegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateMasterKeyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("MASTER").to_matchable(),
+                    Ref::keyword("KEY").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ENCRYPTION").to_matchable(),
+                        Ref::keyword("BY").to_matchable(),
+                        Ref::keyword("PASSWORD").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MasterKeyEncryptionSegment".into(),
+            NodeMatcher::new(SyntaxKind::MasterKeyEncryptionOption, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("SERVICE").to_matchable(),
+                        Ref::keyword("MASTER").to_matchable(),
+                        Ref::keyword("KEY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterMasterKeySegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterMasterKeyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("MASTER").to_matchable(),
+                    Ref::keyword("KEY").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("FORCE").optional().to_matchable(),
+                            Ref::keyword("REGENERATE").to_matchable(),
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("ENCRYPTION").to_matchable(),
+                            Ref::keyword("BY").to_matchable(),
+                            Ref::new("MasterKeyEncryptionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("ADD").to_matchable(),
+                                Ref::keyword("DROP").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("ENCRYPTION").to_matchable(),
+                            Ref::keyword("BY").to_matchable(),
+                            Ref::new("MasterKeyEncryptionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropMasterKeySegment".into(),
+            NodeMatcher::new(SyntaxKind::DropMasterKeyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("MASTER").to_matchable(),
+                    Ref::keyword("KEY").to_matchable(),
                 ])
                 .to_matchable()
             })

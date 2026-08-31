@@ -503,7 +503,12 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "ACTION",
         "APPEND",
         "PERSISTED",
+        "FORCE",
+        "MASTER",
+        "PASSWORD",
+        "REGENERATE",
         "SCHEME",
+        "SERVICE",
         "SPLIT",
         "USED",
         // PERIOD FOR SYSTEM_TIME (temporal tables, #4654)

@@ -2034,6 +2034,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     Ref::keyword("TIMESTAMP").to_matchable(),
                                     Ref::keyword("OFFSET").to_matchable(),
                                     Ref::keyword("STATEMENT").to_matchable(),
+                                    Ref::keyword("STREAM").to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Ref::new("ParameterAssignerSegment").to_matchable(),

@@ -217,7 +217,7 @@ pub fn handle_segment(
     }
 
     if first_letter_is_lowercase {
-        refuted_cases.extend(["upper", "capitalise", "pascal"]);
+        refuted_cases.extend(["upper", "capitalise", "pascal", "snake"]);
         if seg.raw().as_str() != seg.raw().to_lowercase() {
             refuted_cases.insert("lower");
         }
@@ -240,7 +240,7 @@ pub fn handle_segment(
             refuted_cases.insert("capitalise");
         }
         if !segment_raw.chars().all(|c| c.is_alphanumeric()) {
-            refuted_cases.insert("pascal");
+            refuted_cases.extend(["pascal", "snake"]);
         }
     }
 
@@ -250,7 +250,7 @@ pub fn handle_segment(
         let cap_policy_opts = match cap_policy_name {
             "capitalisation_policy" => ["upper", "lower", "capitalise"].as_slice(),
             "extended_capitalisation_policy" => {
-                ["upper", "lower", "pascal", "capitalise"].as_slice()
+                ["upper", "lower", "pascal", "capitalise", "snake"].as_slice()
             }
             _ => unimplemented!("Unknown capitalisation policy name: {cap_policy_name}"),
         };
@@ -291,6 +291,24 @@ pub fn handle_segment(
             })
             .into()
         }
+        "snake" => {
+            let chars = fixed_raw.chars().collect_vec();
+            let mut snake = String::with_capacity(fixed_raw.len());
+            for (index, ch) in chars.iter().copied().enumerate() {
+                if index > 0 {
+                    let previous = chars[index - 1];
+                    let lower_or_digit_to_upper =
+                        (previous.is_lowercase() || previous.is_ascii_digit()) && ch.is_uppercase();
+                    let letter_to_digit = previous.is_alphabetic() && ch.is_ascii_digit();
+                    let digit_to_letter = previous.is_ascii_digit() && ch.is_alphabetic();
+                    if lower_or_digit_to_upper || letter_to_digit || digit_to_letter {
+                        snake.push('_');
+                    }
+                }
+                snake.extend(ch.to_lowercase());
+            }
+            snake
+        }
         _ => fixed_raw,
     };
 
@@ -306,6 +324,7 @@ pub fn handle_segment(
             concrete_policy @ ("upper" | "lower") => format!("{concrete_policy} case."),
             "capitalise" => "capitalised.".to_string(),
             "pascal" => "pascal case.".to_string(),
+            "snake" => "snake case.".to_string(),
             _ => "".to_string(),
         };
 

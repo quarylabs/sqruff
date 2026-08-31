@@ -45,7 +45,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 r#"(<<<->|<->>>|<<->|<->>|<->|<<%|%>>|%>|<%|%)"#,
                 SyntaxKind::LikeOperator,
             )],
-            "like_operator",
+            "postgis_operator",
         );
     }
 
@@ -65,7 +65,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 r#"(<->|<=>|<\+>|<#>)"#,
                 SyntaxKind::PgvectorOperator,
             )],
-            "greater_than",
+            "postgis_operator",
         );
 
         // Register PgvectorOperatorSegment as a comparison operator
@@ -141,6 +141,7 @@ fn build_comparison_operator_grammar(pgvector: bool) -> Matchable {
         Ref::new("NotExtendRightSegment").to_matchable(),
         Ref::new("NotExtendLeftSegment").to_matchable(),
         Ref::new("AdjacentSegment").to_matchable(),
+        Ref::new("PostgisOperatorSegment").to_matchable(),
     ];
 
     if pgvector {
@@ -506,6 +507,11 @@ pub fn raw_dialect() -> Dialect {
             r#"->>?|#>>?|@[>@?]|<@|\?[|&]?|#-"#,
             SyntaxKind::JsonOperator
         ),
+        Matcher::regex(
+            "postgis_operator",
+            r#"&&&|&<\||<<\||@|\|&>|\|>>|~=|<->|\|=\||<#>|<<->>|<<#>>"#,
+            SyntaxKind::PostgisOperator
+        ),
         Matcher::string(
             "at",
             "@",
@@ -611,6 +617,12 @@ pub fn raw_dialect() -> Dialect {
         (
             "JsonOperatorSegment".into(),
             TypedParser::new(SyntaxKind::JsonOperator, SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "PostgisOperatorSegment".into(),
+            TypedParser::new(SyntaxKind::PostgisOperator, SyntaxKind::BinaryOperator)
                 .to_matchable()
                 .into(),
         ),

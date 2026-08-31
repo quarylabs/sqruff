@@ -2260,6 +2260,12 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("SemicolonSegment").to_matchable(),
                         ])
                         .to_matchable(),
+                        Sequence::new(vec![
+                            StringParser::new("RETURN", SyntaxKind::Keyword).to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                            Ref::new("SemicolonSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::keyword("END").to_matchable(),

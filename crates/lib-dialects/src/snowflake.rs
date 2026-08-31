@@ -349,7 +349,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "NakedSemiStructuredElementSegment".into(),
-            RegexParser::new("[A-Z0-9_]*", SyntaxKind::SemiStructuredElement)
+            RegexParser::new(
+                "[a-zA-Z_][a-zA-Z0-9_$]*",
+                SyntaxKind::SemiStructuredElement,
+            )
                 .to_matchable()
                 .into(),
         ),

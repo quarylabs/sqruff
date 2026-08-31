@@ -1064,6 +1064,26 @@ file:
 - statement:
   - create_table_statement:
     - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - keyword: IDENTIFIER
+      - bracketed:
+        - start_bracket: (
+        - bind_variable:
+          - colon: ':'
+          - variable: SOME_TABLE
+        - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: AMOUNT
+        - data_type:
+          - data_type_identifier: NUMBER
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
     - keyword: OR
     - keyword: REPLACE
     - keyword: TABLE

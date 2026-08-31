@@ -751,6 +751,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("SetStatementSegment").to_matchable(),
                 Ref::new("ExportStatementSegment").to_matchable(),
                 Ref::new("CreateExternalTableStatementSegment").to_matchable(),
+                Ref::new("CreateSnapshotTableStatementSegment").to_matchable(),
                 Ref::new("AssertStatementSegment").to_matchable(),
                 Ref::new("CallStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
@@ -770,6 +771,53 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             false,
         ),
     );
+
+    dialect.add([
+        (
+            "ForSystemTimeAsOfSegment".into(),
+            NodeMatcher::new(SyntaxKind::ForSystemTimeAsOfSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FOR").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("SYSTEM_TIME").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SYSTEM").to_matchable(),
+                            Ref::keyword("TIME").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::keyword("OF").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateSnapshotTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateSnapshotTableStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("SNAPSHOT").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::keyword("CLONE").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("ForSystemTimeAsOfSegment")
+                        .optional()
+                        .to_matchable(),
+                    Ref::new("OptionsSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     dialect.add([(
         "AssertStatementSegment".into(),
@@ -2673,23 +2721,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "PostTableExpressionGrammar".into(),
             Sequence::new(vec![
-                Sequence::new(vec![
-                    Ref::keyword("FOR").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("SYSTEM_TIME").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("SYSTEM").to_matchable(),
-                            Ref::keyword("TIME").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
+                Ref::new("ForSystemTimeAsOfSegment")
+                    .optional()
                     .to_matchable(),
-                    Ref::keyword("AS").to_matchable(),
-                    Ref::keyword("OF").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("WITH").to_matchable(),
                     Ref::keyword("OFFSET").to_matchable(),

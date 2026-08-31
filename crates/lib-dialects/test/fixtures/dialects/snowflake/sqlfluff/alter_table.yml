@@ -323,3 +323,27 @@ file:
         - function_name_identifier: my_masking_policy
       - keyword: FORCE
 - statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: SAMPLE_DB
+      - dot: .
+      - naked_identifier: SAMPLE_SCHEMA
+      - dot: .
+      - naked_identifier: TBL
+    - keyword: UNSET
+    - parameter: COMMENT
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: UNSET
+    - parameter: COMMENT
+    - comma: ','
+    - parameter: DATA_RETENTION_TIME_IN_DAYS
+- statement_terminator: ;

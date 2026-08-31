@@ -6121,9 +6121,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                                 ])
                                                 .config(|this| this.optional())
                                                 .to_matchable(),
-                                                Ref::keyword("FORCE")
-                                                    .optional()
-                                                    .to_matchable(),
+                                                Ref::keyword("FORCE").optional().to_matchable(),
                                             ])
                                             .to_matchable(),
                                             Sequence::new(vec![

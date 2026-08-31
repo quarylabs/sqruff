@@ -1835,7 +1835,13 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("LateralViewClauseSegment").to_matchable(),
             ])
             .to_matchable(),
-            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+            Ref::new("AliasExpressionSegment")
+                .exclude(one_of(vec![
+                    Ref::new("FromClauseTerminatorGrammar").to_matchable(),
+                    Ref::new("JoinLikeClauseGrammar").to_matchable(),
+                ]))
+                .optional()
+                .to_matchable(),
         ])
         .to_matchable()
         .into(),

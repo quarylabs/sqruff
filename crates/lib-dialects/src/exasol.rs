@@ -2046,7 +2046,6 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("INTO").optional().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
                     AnyNumberOf::new(vec![
-                        Ref::new("ValuesInsertClauseSegment").to_matchable(),
                         Ref::new("ValuesRangeClauseSegment").to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("DEFAULT").to_matchable(),
@@ -2057,35 +2056,6 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("BracketedColumnReferenceListGrammar")
                             .optional()
                             .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "ValuesInsertClauseSegment".into(),
-            NodeMatcher::new(SyntaxKind::ValuesInsertClause, |_| {
-                Sequence::new(vec![
-                    Ref::keyword("VALUES").to_matchable(),
-                    Delimited::new(vec![
-                        Bracketed::new(vec![
-                            NodeMatcher::new(SyntaxKind::ValuesClauseElements, |_| {
-                                Delimited::new(vec![
-                                    Ref::new("LiteralGrammar").to_matchable(),
-                                    Ref::new("IntervalExpressionSegment").to_matchable(),
-                                    Ref::new("FunctionSegment").to_matchable(),
-                                    Ref::new("BareFunctionSegment").to_matchable(),
-                                    Ref::keyword("DEFAULT").to_matchable(),
-                                    Ref::new("SelectableGrammar").to_matchable(),
-                                ])
-                                .to_matchable()
-                            })
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])

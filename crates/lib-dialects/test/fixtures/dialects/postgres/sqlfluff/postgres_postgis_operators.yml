@@ -1,0 +1,181 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: '&&&'
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: overlaps_3d
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: '&<|'
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: overbelow
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: <<|
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: below
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: '@'
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: contained
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: '|&>'
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: overabove
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: '|>>'
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: above
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: ~=
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: equality
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: <->
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: distance
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: trajectory1
+          - binary_operator: '|=|'
+          - column_reference:
+            - naked_identifier: trajectory2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: closest_approach
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: <#>
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: bounding_box_distance
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: <<->>
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: n_d_centroid_distance
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: geom1
+          - binary_operator: <<#>>
+          - column_reference:
+            - naked_identifier: geom2
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: n_d_bounding_box_distance
+- statement_terminator: ;

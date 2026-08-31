@@ -1,0 +1,12 @@
+SELECT geom1 &&& geom2 AS overlaps_3d;
+SELECT geom1 &<| geom2 AS overbelow;
+SELECT geom1 <<| geom2 AS below;
+SELECT geom1 @ geom2 AS contained;
+SELECT geom1 |&> geom2 AS overabove;
+SELECT geom1 |>> geom2 AS above;
+SELECT geom1 ~= geom2 AS equality;
+SELECT geom1 <-> geom2 AS distance;
+SELECT trajectory1 |=| trajectory2 AS closest_approach;
+SELECT geom1 <#> geom2 AS bounding_box_distance;
+SELECT geom1 <<->> geom2 AS n_d_centroid_distance;
+SELECT geom1 <<#>> geom2 AS n_d_bounding_box_distance;

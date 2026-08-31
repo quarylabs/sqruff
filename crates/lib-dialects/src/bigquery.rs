@@ -766,6 +766,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("DropMaterializedViewStatementSegment").to_matchable(),
                 Ref::new("DropProcedureStatementSegment").to_matchable(),
                 Ref::new("UndropSchemaStatementSegment").to_matchable(),
+                Ref::new("CreateSearchIndexStatementSegment").to_matchable(),
+                Ref::new("CreateVectorIndexStatementSegment").to_matchable(),
                 Ref::new("CreateRowAccessPolicyStatementSegment").to_matchable(),
                 Ref::new("CreateCapacityStatementSegment").to_matchable(),
                 Ref::new("CreateReservationStatementSegment").to_matchable(),
@@ -2372,6 +2374,65 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     dialect.add([
+        (
+            "CreateSearchIndexStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateSearchIndexStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("SEARCH").to_matchable(),
+                    Ref::keyword("INDEX").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("IndexReferenceSegment").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("ALL").to_matchable(),
+                                Ref::keyword("COLUMNS").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Delimited::new(vec![
+                                Ref::new("IndexColumnDefinitionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("OptionsSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateVectorIndexStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateVectorIndexStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("VECTOR").to_matchable(),
+                    Ref::keyword("INDEX").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("IndexReferenceSegment").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Ref::new("IndexColumnDefinitionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "DropProcedureStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DropProcedureStatement, |_| {

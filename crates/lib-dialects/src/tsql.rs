@@ -1002,6 +1002,92 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // T-SQL CREATE TRIGGER uses ON before the event timing and supports
+    // CREATE OR ALTER.
+    dialect.replace_grammar(
+        "CreateTriggerStatementSegment",
+        NodeMatcher::new(SyntaxKind::CreateTrigger, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("OR").to_matchable(),
+                    Ref::keyword("ALTER").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("TRIGGER").to_matchable(),
+                Ref::new("TriggerReferenceSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                one_of(vec![
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ALL").to_matchable(),
+                        Ref::keyword("SERVER").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("DATABASE").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        one_of(vec![
+                            Ref::keyword("ENCRYPTION").to_matchable(),
+                            Ref::keyword("NATIVE_COMPILATION").to_matchable(),
+                            Ref::keyword("SCHEMABINDING").to_matchable(),
+                            Ref::new("ExecuteAsClauseGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("FOR").to_matchable(),
+                        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("AFTER").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INSTEAD").to_matchable(),
+                        Ref::keyword("OF").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Delimited::new(vec![
+                    Ref::keyword("INSERT").to_matchable(),
+                    Ref::keyword("UPDATE").to_matchable(),
+                    Ref::keyword("DELETE").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("APPEND").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NOT").to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::keyword("REPLICATION").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::new("ProcedureDefinitionGrammar").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
     // IDENTITY = '...' [, SECRET = '...'] used by credential-related statements.
     dialect.add([(
         "CredentialGrammar".into(),

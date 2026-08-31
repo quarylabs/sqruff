@@ -37,6 +37,14 @@ pub fn raw_dialect() -> Dialect {
     // Start with ANSI SQL as the base dialect and customize for T-SQL
     let mut dialect = ansi::raw_dialect();
     dialect.name = DialectKind::Tsql;
+    dialect.sets_mut("unreserved_keywords").extend([
+        "COLUMNSTORE_ARCHIVE",
+        "COMPRESSION_DELAY",
+        "DROP_EXISTING",
+        "MAXDOP",
+        "MINUTES",
+        "PARTITIONS",
+    ]);
     dialect.replace_grammar("NanLiteralSegment", Nothing::new().to_matchable());
 
     dialect.replace_grammar(
@@ -811,6 +819,116 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    dialect.add([(
+        "CreateColumnstoreIndexStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateColumnstoreIndexStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("CLUSTERED").to_matchable(),
+                    Ref::keyword("NONCLUSTERED").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("COLUMNSTORE").to_matchable(),
+                Ref::keyword("INDEX").to_matchable(),
+                Ref::new("IndexReferenceSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::new("BracketedColumnReferenceListGrammar")
+                    .optional()
+                    .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ORDER").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("WhereClauseSegment").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("DROP_EXISTING").to_matchable(),
+                                Ref::new("EqualsSegment").optional().to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ON").to_matchable(),
+                                    Ref::keyword("OFF").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("MAXDOP").to_matchable(),
+                                Ref::new("EqualsSegment").optional().to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("ONLINE").to_matchable(),
+                                Ref::new("EqualsSegment").optional().to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ON").to_matchable(),
+                                    Ref::keyword("OFF").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("COMPRESSION_DELAY").to_matchable(),
+                                Ref::new("EqualsSegment").optional().to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::keyword("MINUTES").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("DATA_COMPRESSION").to_matchable(),
+                                Ref::new("EqualsSegment").optional().to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("COLUMNSTORE").to_matchable(),
+                                    Ref::keyword("COLUMNSTORE_ARCHIVE").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ON").to_matchable(),
+                                    Ref::keyword("PARTITIONS").to_matchable(),
+                                    Bracketed::new(vec![
+                                        Delimited::new(vec![
+                                            Ref::new("NumericLiteralSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("TO").to_matchable(),
+                                            Ref::new("NumericLiteralSegment").to_matchable(),
+                                        ])
+                                        .config(|this| this.optional())
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
@@ -877,6 +995,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropExternalTableStatementSegment").to_matchable(),
             Ref::new("CopyIntoTableStatementSegment").to_matchable(),
             Ref::new("CreateFullTextIndexStatementSegment").to_matchable(),
+            Ref::new("CreateColumnstoreIndexStatementSegment").to_matchable(),
             Ref::new("ReconfigureStatementSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])

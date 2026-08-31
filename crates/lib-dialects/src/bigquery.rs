@@ -1385,6 +1385,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
+                Ref::new("OptionsSegment").optional().to_matchable(),
             ])
             .to_matchable(),
         ])

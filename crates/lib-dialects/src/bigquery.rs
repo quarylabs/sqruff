@@ -1885,6 +1885,33 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    dialect.add([(
+        "DefaultCollateSegment".into(),
+        NodeMatcher::new(SyntaxKind::DefaultCollate, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DEFAULT").to_matchable(),
+                Ref::keyword("COLLATE").to_matchable(),
+                Ref::new("LiteralGrammar").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.replace_grammar(
+        "CreateSchemaStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::keyword("SCHEMA").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Ref::new("DefaultCollateSegment").optional().to_matchable(),
+            Ref::new("OptionsSegment").optional().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     dialect.replace_grammar(
         "CreateTableStatementSegment",
         Sequence::new(vec![
@@ -1923,6 +1950,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             ])
             .config(|this| this.optional())
             .to_matchable(),
+            Ref::new("DefaultCollateSegment").optional().to_matchable(),
             Ref::new("PartitionBySegment").optional().to_matchable(),
             Ref::new("ClusterBySegment").optional().to_matchable(),
             Ref::new("OptionsSegment").optional().to_matchable(),

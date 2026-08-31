@@ -2061,6 +2061,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("BY").to_matchable(),
                     MetaSegment::indent().to_matchable(),
                     one_of(vec![
+                        Ref::keyword("ALL").to_matchable(),
                         Ref::new("CubeRollupClauseSegment").to_matchable(),
                         Delimited::new(vec![
                             one_of(vec![

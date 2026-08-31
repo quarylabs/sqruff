@@ -1,9 +1,12 @@
 file:
 - statement:
-  - call_segment:
+  - call_statement:
     - keyword: CALL
-    - naked_identifier: somefunction
-    - bracketed:
-      - start_bracket: (
-      - end_bracket: )
+    - function:
+      - function_name:
+        - function_name_identifier: somefunction
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
 - statement_terminator: ;

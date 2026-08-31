@@ -906,3 +906,13 @@ file:
             - table_reference:
               - naked_identifier: foo
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+        - alias_expression:
+          - keyword: AS
+          - naked_identifier: bar
+- statement_terminator: ;

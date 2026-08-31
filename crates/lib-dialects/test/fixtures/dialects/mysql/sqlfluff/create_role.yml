@@ -1,0 +1,11 @@
+file:
+- statement:
+  - create_role_statement:
+    - keyword: CREATE
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - role_reference:
+      - quoted_identifier: '''example-role'''
+- statement_terminator: ;

@@ -3078,6 +3078,7 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
                     Ref::keyword("ROLE").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::new("RoleReferenceSegment").to_matchable(),
                 ])
                 .to_matchable()

@@ -303,7 +303,14 @@ pub fn raw_dialect() -> Dialect {
         "ParameterNameSegment",
         RegexParser::new("\\\"?[A-Z][A-Z0-9_]*\\\"?", SyntaxKind::Parameter).to_matchable(),
     );
-    exasol.replace_grammar("LikeGrammar", Ref::keyword("LIKE").to_matchable());
+    exasol.replace_grammar(
+        "LikeGrammar",
+        one_of(vec![
+            Ref::keyword("LIKE").to_matchable(),
+            Ref::keyword("REGEXP_LIKE").to_matchable(),
+        ])
+        .to_matchable(),
+    );
     exasol.replace_grammar("NanLiteralSegment", Nothing::new().to_matchable());
     exasol.replace_grammar(
         "SelectClauseSegmentGrammar",

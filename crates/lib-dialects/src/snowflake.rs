@@ -9769,8 +9769,17 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("DatatypeSegment").to_matchable(),
                         one_of(vec![
                             Ref::new("TimeZoneGrammar").to_matchable(),
-                            AnyNumberOf::new(vec![Ref::new("ArrayAccessorSegment").to_matchable()])
+                            Sequence::new(vec![
+                                AnyNumberOf::new(vec![
+                                    Ref::new("ArrayAccessorSegment").to_matchable(),
+                                ])
                                 .to_matchable(),
+                                AnyNumberOf::new(vec![
+                                    Ref::new("SemiStructuredAccessorSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),

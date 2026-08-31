@@ -87,6 +87,19 @@ pub fn raw_dialect() -> Dialect {
         "question",
     );
 
+    // SQLite JSON path operators must be lexed before the greater-than token.
+    sqlite_dialect.insert_lexer_matchers(
+        vec![
+            Matcher::string(
+                "inline_path_operator",
+                "->>",
+                SyntaxKind::InlinePathOperator,
+            ),
+            Matcher::string("column_path_operator", "->", SyntaxKind::ColumnPathOperator),
+        ],
+        "greater_than",
+    );
+
     sqlite_dialect.sets_mut("reserved_keywords").clear();
     sqlite_dialect
         .sets_mut("reserved_keywords")
@@ -150,6 +163,18 @@ pub fn raw_dialect() -> Dialect {
         (
             "QuestionMarkSegment".into(),
             StringParser::new("?", SyntaxKind::QuestionMark)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "ColumnPathOperatorSegment".into(),
+            StringParser::new("->", SyntaxKind::ColumnPathOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "InlinePathOperatorSegment".into(),
+            StringParser::new("->>", SyntaxKind::ColumnPathOperator)
                 .to_matchable()
                 .into(),
         ),
@@ -586,6 +611,70 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    let base_column_reference =
+        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+            .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
+            .to_matchable();
+    let json_path_operator = one_of(vec![
+        Ref::new("ColumnPathOperatorSegment").to_matchable(),
+        Ref::new("InlinePathOperatorSegment").to_matchable(),
+    ])
+    .to_matchable();
+
+    sqlite_dialect.replace_grammar(
+        "ColumnReferenceSegment",
+        one_of(vec![
+            Sequence::new(vec![
+                one_of(vec![
+                    base_column_reference.clone(),
+                    Ref::new("FunctionSegment").to_matchable(),
+                    Ref::new("BareFunctionSegment").to_matchable(),
+                    Ref::new("LiteralGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        json_path_operator.clone(),
+                        one_of(vec![
+                            Ref::new("LiteralGrammar").to_matchable(),
+                            Ref::new("QuotedIdentifierSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.min_times(1))
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            base_column_reference,
+        ])
+        .to_matchable(),
+    );
+
+    let base_table_reference = sqlite_dialect
+        .grammar("TableReferenceSegment")
+        .match_grammar(&sqlite_dialect)
+        .unwrap()
+        .clone();
+    sqlite_dialect.replace_grammar(
+        "TableReferenceSegment",
+        one_of(vec![
+            Sequence::new(vec![
+                one_of(vec![
+                    base_table_reference.clone(),
+                    Ref::new("LiteralGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                json_path_operator,
+                Ref::new("LiteralGrammar").to_matchable(),
+            ])
+            .to_matchable(),
+            base_table_reference,
+        ])
+        .to_matchable(),
+    );
 
     sqlite_dialect.replace_grammar(
         "DatatypeSegment",

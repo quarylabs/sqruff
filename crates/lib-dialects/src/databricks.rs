@@ -6,9 +6,10 @@ use sqruff_lib_core::helpers::Config;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
+use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::TypedParser;
+use sqruff_lib_core::parser::parsers::{StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::{
     dialects::{Dialect, init::DialectKind},
@@ -47,6 +48,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .sets_mut("date_part_function_name")
         .extend(["TIMEDIFF"]);
 
+    databricks.insert_lexer_matchers(
+        vec![Matcher::string("right_arrow", "=>", SyntaxKind::RightArrow)],
+        "equals",
+    );
+
     databricks.add([
         (
             "DoubleQuotedUDFBody".into(),
@@ -65,6 +71,25 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             TypedParser::new(SyntaxKind::DollarQuote, SyntaxKind::UdfBody)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "RightArrowSegment".into(),
+            StringParser::new("=>", SyntaxKind::RightArrow)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "NamedArgumentSegment".into(),
+            NodeMatcher::new(SyntaxKind::NamedArgument, |_| {
+                Sequence::new(vec![
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("RightArrowSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "FunctionParameterListGrammarWithComments".into(),
@@ -747,6 +772,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    databricks.replace_grammar(
+        "FunctionContentsExpressionGrammar",
+        one_of(vec![
+            Ref::new("ExpressionSegment").to_matchable(),
+            Ref::new("NamedArgumentSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     // A reference to an object.
     databricks.replace_grammar(

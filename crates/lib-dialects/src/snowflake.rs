@@ -9100,9 +9100,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("EXECUTE").to_matchable(),
                     Ref::keyword("IMMEDIATE").to_matchable(),
+                    Ref::keyword("FROM").optional().to_matchable(),
                     one_of(vec![
                         Ref::new("QuotedLiteralSegment").to_matchable(),
                         Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                        Ref::new("StorageLocation").to_matchable(),
                         Sequence::new(vec![
                             Ref::new("ColonSegment").to_matchable(),
                             Ref::new("LocalVariableNameSegment").to_matchable(),

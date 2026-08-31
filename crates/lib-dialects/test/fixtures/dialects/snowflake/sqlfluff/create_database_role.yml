@@ -1,0 +1,15 @@
+file:
+- statement:
+  - create_database_role_statement:
+    - keyword: create
+    - keyword: database
+    - keyword: role
+    - object_reference:
+      - naked_identifier: dbname
+      - dot: .
+      - naked_identifier: rolename
+    - keyword: comment
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''TEST'''
+- statement_terminator: ;

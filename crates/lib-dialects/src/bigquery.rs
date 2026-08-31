@@ -2125,7 +2125,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 // SET OPTIONS
                 Sequence::new(vec![
                     Ref::keyword("SET").to_matchable(),
-                    Ref::new("OptionsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("OptionsSegment").to_matchable(),
+                        Ref::new("DefaultCollateSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
                 // ADD COLUMN
@@ -2222,6 +2226,28 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("COLUMN").to_matchable(),
                         Ref::new("IfExistsGrammar").optional().to_matchable(),
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                // DROP CONSTRAINT
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("DROP").to_matchable(),
+                        Ref::keyword("CONSTRAINT").to_matchable(),
+                        Ref::new("IfExistsGrammar").optional().to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                // DROP PRIMARY KEY
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("DROP").to_matchable(),
+                        Ref::keyword("PRIMARY").to_matchable(),
+                        Ref::keyword("KEY").to_matchable(),
+                        Ref::new("IfExistsGrammar").optional().to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -2604,8 +2630,26 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("VIEW").to_matchable(),
                     Ref::new("IfExistsGrammar").optional().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
-                    Ref::keyword("SET").to_matchable(),
-                    Ref::new("OptionsSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("OptionsSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("ALTER").to_matchable(),
+                                Ref::keyword("COLUMN").to_matchable(),
+                                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Ref::keyword("SET").to_matchable(),
+                                Ref::new("OptionsSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

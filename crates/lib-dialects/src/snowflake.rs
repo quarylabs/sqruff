@@ -374,6 +374,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .sets_mut("warehouse_scaling_policies")
         .extend(["STANDARD", "ECONOMY"]);
 
+    snowflake_dialect
+        .sets_mut("refreshmode_types")
+        .extend(["AUTO", "FULL", "INCREMENTAL"]);
+    snowflake_dialect
+        .sets_mut("initialize_types")
+        .extend(["ON_CREATE", "ON_SCHEDULE"]);
+
     // Snowflake supports CTEs with DML statements (INSERT, UPDATE, DELETE, MERGE)
     // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
     snowflake_dialect.add([(
@@ -521,6 +528,32 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 )
                 .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "RefreshModeType".into(),
+            MultiStringParser::new(
+                snowflake_dialect
+                    .sets("refreshmode_types")
+                    .into_iter()
+                    .map_into()
+                    .collect_vec(),
+                SyntaxKind::Keyword,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "InitializeType".into(),
+            MultiStringParser::new(
+                snowflake_dialect
+                    .sets("initialize_types")
+                    .into_iter()
+                    .map_into()
+                    .collect_vec(),
+                SyntaxKind::InitializeType,
+            )
             .to_matchable()
             .into(),
         ),
@@ -1385,8 +1418,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         SNOWFLAKE_UNRESERVED_KEYWORDS,
     );
     snowflake_dialect.sets_mut("unreserved_keywords").extend([
+        "INITIALIZE",
         "MAIN_FILE",
         "QUERY_WAREHOUSE",
+        "REFRESH_MODE",
         "ROOT_LOCATION",
         "STREAMLIT",
         "STREAMLITS",
@@ -5331,6 +5366,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::keyword("TARGET_LAG").to_matchable(),
                 Ref::new("EqualsSegment").to_matchable(),
                 Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("REFRESH_MODE").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("RefreshModeType").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("INITIALIZE").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("InitializeType").to_matchable(),
             ])
             .config(|this| this.optional())
             .to_matchable(),

@@ -761,6 +761,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("RaiseStatementSegment").to_matchable(),
                 Ref::new("AlterViewStatementSegment").to_matchable(),
                 Ref::new("CreateMaterializedViewStatementSegment").to_matchable(),
+                Ref::new("CreateMaterializedViewAsReplicaOfStatementSegment").to_matchable(),
                 Ref::new("AlterMaterializedViewStatementSegment").to_matchable(),
                 Ref::new("DropMaterializedViewStatementSegment").to_matchable(),
             ]),
@@ -2264,6 +2265,28 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .to_matchable()
             })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateMaterializedViewAsReplicaOfStatementSegment".into(),
+            NodeMatcher::new(
+                SyntaxKind::CreateMaterializedViewAsReplicaOfStatement,
+                |_| {
+                    Sequence::new(vec![
+                        Ref::keyword("CREATE").to_matchable(),
+                        Ref::keyword("MATERIALIZED").to_matchable(),
+                        Ref::keyword("VIEW").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Ref::new("OptionsSegment").optional().to_matchable(),
+                        Ref::keyword("AS").to_matchable(),
+                        Ref::keyword("REPLICA").to_matchable(),
+                        Ref::keyword("OF").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable()
+                },
+            )
             .to_matchable()
             .into(),
         ),

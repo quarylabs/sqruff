@@ -502,6 +502,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
     [
         "ACTION",
         "APPEND",
+        "PERSISTED",
         // PERIOD FOR SYSTEM_TIME (temporal tables, #4654)
         "DATA_CONSISTENCY_CHECK",
         "HISTORY_RETENTION_PERIOD",

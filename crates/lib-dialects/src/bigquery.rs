@@ -750,6 +750,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("ExportStatementSegment").to_matchable(),
                 Ref::new("CreateExternalTableStatementSegment").to_matchable(),
                 Ref::new("CreateSnapshotTableStatementSegment").to_matchable(),
+                Ref::new("ExecuteImmediateSegment").to_matchable(),
                 Ref::new("AssertStatementSegment").to_matchable(),
                 Ref::new("CallStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
@@ -1827,6 +1828,57 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                     ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExecuteImmediateSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExecuteImmediate, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXECUTE").to_matchable(),
+                    Ref::keyword("IMMEDIATE").to_matchable(),
+                    optionally_bracketed(vec![
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("SingleIdentifierFullGrammar").to_matchable(),
+                            Ref::new("FunctionSegment").to_matchable(),
+                            Ref::new("CaseExpressionSegment").to_matchable(),
+                            Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INTO").to_matchable(),
+                        Delimited::new(vec![
+                            Ref::new("SingleIdentifierFullGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("USING").to_matchable(),
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("AS").to_matchable(),
+                                    Ref::new("SingleIdentifierFullGrammar").to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
                     .to_matchable(),
                 ])
                 .to_matchable()

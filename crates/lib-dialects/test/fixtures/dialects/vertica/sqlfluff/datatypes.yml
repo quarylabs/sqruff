@@ -216,10 +216,22 @@ file:
         - data_type:
           - data_type:
             - keyword: float
-            - bracketed:
-              - start_bracket: (
-              - numeric_literal: '7'
-              - end_bracket: )
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '7'
+                - end_bracket: )
+        - comma: ','
+        - column_reference:
+          - naked_identifier: bbb
+        - data_type:
+          - data_type:
+            - keyword: float
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '7'
+                - end_bracket: )
         - comma: ','
         - column_reference:
           - naked_identifier: c
@@ -331,22 +343,24 @@ file:
         - data_type:
           - data_type:
             - keyword: DECIMAL
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '5'
-              - end_bracket: )
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - end_bracket: )
         - comma: ','
         - column_reference:
           - naked_identifier: ggg
         - data_type:
           - data_type:
             - keyword: DECIMAL
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '5'
-              - comma: ','
-              - integer_literal: '2'
-              - end_bracket: )
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
         - comma: ','
         - column_reference:
           - naked_identifier: h
@@ -359,22 +373,37 @@ file:
         - data_type:
           - data_type:
             - keyword: NUMERIC
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '5'
-              - end_bracket: )
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - end_bracket: )
         - comma: ','
         - column_reference:
           - naked_identifier: hhh
         - data_type:
           - data_type:
             - keyword: NUMERIC
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '5'
-              - comma: ','
-              - integer_literal: '2'
-              - end_bracket: )
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
+        - comma: ','
+        - column_reference:
+          - naked_identifier: hhhh
+        - data_type:
+          - data_type:
+            - keyword: NUMERIC
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
         - comma: ','
         - column_reference:
           - naked_identifier: i
@@ -387,22 +416,24 @@ file:
         - data_type:
           - data_type:
             - keyword: NUMBER
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '5'
-              - end_bracket: )
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - end_bracket: )
         - comma: ','
         - column_reference:
           - naked_identifier: iii
         - data_type:
           - data_type:
             - keyword: NUMBER
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '5'
-              - comma: ','
-              - integer_literal: '2'
-              - end_bracket: )
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
         - comma: ','
         - column_reference:
           - naked_identifier: j
@@ -415,22 +446,24 @@ file:
         - data_type:
           - data_type:
             - keyword: MONEY
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '5'
-              - end_bracket: )
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - end_bracket: )
         - comma: ','
         - column_reference:
           - naked_identifier: jjj
         - data_type:
           - data_type:
             - keyword: MONEY
-            - bracketed:
-              - start_bracket: (
-              - integer_literal: '5'
-              - comma: ','
-              - integer_literal: '2'
-              - end_bracket: )
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '5'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
         - end_bracket: )
 - statement_terminator: ;
 - statement:

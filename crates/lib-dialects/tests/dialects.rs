@@ -165,9 +165,7 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "SPECIFIC",
             "STATIC",
         ],
-        DialectKind::Sqlite => &[
-            "BINDING", "DATA", "INTERVAL", "MATCHED", "PARTIAL", "SCHEMA", "SIMPLE",
-        ],
+        DialectKind::Sqlite => &["BINDING", "DATA", "MATCHED", "PARTIAL", "SCHEMA", "SIMPLE"],
         DialectKind::Starrocks => &["BITMAP", "OPTIMIZER_COSTS"],
         DialectKind::Trino => &["BINDING", "LANGUAGE", "RETURNS"],
         _ => &[],

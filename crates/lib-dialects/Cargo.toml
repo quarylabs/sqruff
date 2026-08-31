@@ -39,6 +39,7 @@ default = [
     "teradata",
     "trino",
     "tsql",
+    "vertica",
 ]
 athena = []
 bigquery = []
@@ -61,6 +62,7 @@ starrocks = ["mysql"]
 teradata = []
 trino = []
 tsql = []
+vertica = []
 
 [dependencies]
 sqruff-lib-core.workspace = true

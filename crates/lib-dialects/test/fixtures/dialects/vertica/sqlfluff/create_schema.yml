@@ -1,0 +1,36 @@
+file:
+- statement:
+  - create_schema_statement:
+    - create_schema_statement:
+      - keyword: CREATE
+      - keyword: SCHEMA
+      - table_reference:
+        - object_reference:
+          - naked_identifier: s1
+- statement_terminator: ;
+- statement:
+  - create_schema_statement:
+    - create_schema_statement:
+      - keyword: CREATE
+      - keyword: SCHEMA
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - table_reference:
+        - object_reference:
+          - naked_identifier: s2
+- statement_terminator: ;
+- statement:
+  - create_schema_statement:
+    - create_schema_statement:
+      - keyword: CREATE
+      - keyword: SCHEMA
+      - table_reference:
+        - object_reference:
+          - naked_identifier: s3
+      - keyword: DEFAULT
+      - schema_privileges_segment:
+        - keyword: INCLUDE
+        - keyword: SCHEMA
+        - keyword: PRIVILEGES
+- statement_terminator: ;

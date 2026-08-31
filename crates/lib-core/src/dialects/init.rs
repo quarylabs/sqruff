@@ -116,6 +116,7 @@ pub enum DialectKind {
     Teradata,
     Trino,
     Tsql,
+    Vertica,
 }
 
 impl DialectKind {
@@ -144,6 +145,7 @@ impl DialectKind {
             DialectKind::Teradata => "teradata",
             DialectKind::Trino => "trino",
             DialectKind::Tsql => "tsql",
+            DialectKind::Vertica => "vertica",
         }
     }
 
@@ -178,6 +180,7 @@ impl DialectKind {
             DialectKind::Teradata => "Teradata SQL dialect for the Teradata analytics platform.",
             DialectKind::Trino => "Trino (formerly PrestoSQL) dialect for distributed SQL queries.",
             DialectKind::Tsql => "T-SQL dialect for Microsoft SQL Server and Azure SQL.",
+            DialectKind::Vertica => "Vertica SQL dialect for the columnar analytics database.",
         }
     }
 
@@ -226,6 +229,7 @@ impl DialectKind {
             DialectKind::Tsql => {
                 Some("https://learn.microsoft.com/en-us/sql/t-sql/language-reference")
             }
+            DialectKind::Vertica => Some("https://docs.vertica.com/latest/en/"),
         }
     }
 }

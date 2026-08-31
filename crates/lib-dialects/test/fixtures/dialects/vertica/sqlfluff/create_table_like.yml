@@ -1,0 +1,24 @@
+file:
+- statement:
+  - create_table_like_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: All_Customers
+    - keyword: like
+    - table_reference:
+      - naked_identifier: Premium_Customer
+- statement_terminator: ;
+- statement:
+  - create_table_like_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: newstates
+    - keyword: LIKE
+    - table_reference:
+      - naked_identifier: states
+    - like_option_segment:
+      - keyword: INCLUDING
+      - keyword: PROJECTIONS
+- statement_terminator: ;

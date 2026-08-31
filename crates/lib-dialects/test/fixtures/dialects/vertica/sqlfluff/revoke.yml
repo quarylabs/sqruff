@@ -1,0 +1,14 @@
+file:
+- statement:
+  - access_statement:
+    - keyword: REVOKE
+    - keyword: SELECT
+    - keyword: ON
+    - object_reference:
+      - naked_identifier: s1
+      - dot: .
+      - naked_identifier: t1
+    - keyword: FROM
+    - object_reference:
+      - naked_identifier: u3
+- statement_terminator: ;

@@ -2900,7 +2900,12 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec![
             // T-SQL alias equals pattern: AliasName = Expression
             Sequence::new(vec![
-                Ref::new("NakedIdentifierSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("QuotedIdentifierSegment").to_matchable(),
+                    Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::new("EqualAliasOperatorSegment").to_matchable(),
                 one_of(vec![
                     Ref::new("ColumnReferenceSegment").to_matchable(),

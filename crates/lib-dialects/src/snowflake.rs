@@ -7655,7 +7655,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("STORAGE_INTEGRATION").to_matchable(),
                             Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
@@ -7814,7 +7818,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Sequence::new(vec![
                                     Ref::keyword("AZURE_SAS_TOKEN").to_matchable(),
                                     Ref::new("EqualsSegment").to_matchable(),
-                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                        Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
@@ -7984,7 +7992,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                                 // External Azure Blob Storage stage
                                 Sequence::new(vec![
-                                    Ref::new("AzureBlobStoragePath").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("AzureBlobStoragePath").to_matchable(),
+                                        Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                     Ref::new("AzureBlobStorageExternalStageParameters")
                                         .optional()
                                         .to_matchable(),

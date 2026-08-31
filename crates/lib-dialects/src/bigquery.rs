@@ -705,6 +705,19 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .into(),
     )]);
 
+    dialect.add([(
+        "ViewColumnDefinitionSegment".into(),
+        NodeMatcher::new(SyntaxKind::ColumnDefinition, |_| {
+            Sequence::new(vec![
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Ref::new("OptionsSegment").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     dialect.replace_grammar(
         "FileSegment",
         Sequence::new(vec![
@@ -2122,9 +2135,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Ref::keyword("VIEW").to_matchable(),
             Ref::new("IfNotExistsGrammar").optional().to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),
-            Ref::new("BracketedColumnReferenceListGrammar")
-                .optional()
-                .to_matchable(),
+            Bracketed::new(vec![
+                Delimited::new(vec![Ref::new("ViewColumnDefinitionSegment").to_matchable()])
+                    .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
             Ref::new("OptionsSegment").optional().to_matchable(),
             Ref::keyword("AS").to_matchable(),
             optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),

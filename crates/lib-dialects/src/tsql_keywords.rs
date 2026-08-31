@@ -604,6 +604,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "SCHEMABINDING",
         "CALLER",
         "OWNER",
+        "OVERRIDE",
         // CREATE DATABASE SCOPED CREDENTIAL keywords
         "CREDENTIAL",
         "SCOPED",

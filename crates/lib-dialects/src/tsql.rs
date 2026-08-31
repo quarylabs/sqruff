@@ -116,7 +116,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.insert_lexer_matchers(
         vec![Matcher::regex(
             "unquoted_relative_sql_file_path",
-            r"[.\w\\/#-]+\.[sS][qQ][lL]",
+            r"[.\w\\/#-]+\.[sS][qQ][lL](?-u:\b)",
             SyntaxKind::UnquotedRelativeSqlFilePath,
         )],
         "back_quote",

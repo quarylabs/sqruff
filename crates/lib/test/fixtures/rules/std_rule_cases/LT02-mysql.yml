@@ -1,0 +1,15 @@
+rule: LT02
+
+test_pass_mysql_on_update_column_indent:
+  pass_str: |
+    CREATE TABLE person (
+        id BIGINT PRIMARY KEY,
+        name VARCHAR(255),
+        age INT,
+        last_updated_time TIMESTAMP
+            DEFAULT CURRENT_TIMESTAMP
+            ON UPDATE CURRENT_TIMESTAMP
+    );
+  configs:
+    core:
+      dialect: mysql

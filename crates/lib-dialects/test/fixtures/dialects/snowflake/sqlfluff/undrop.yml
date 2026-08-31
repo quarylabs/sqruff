@@ -21,3 +21,11 @@ file:
     - table_reference:
       - naked_identifier: t2
 - statement_terminator: ;
+- statement:
+  - undrop_statement:
+    - keyword: UNDROP
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+      - naked_identifier: my_external_volume
+- statement_terminator: ;

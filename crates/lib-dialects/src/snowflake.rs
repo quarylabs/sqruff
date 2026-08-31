@@ -25,6 +25,76 @@ use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(SnowflakeDialectConfig {});
 
+fn external_volume_storage_location() -> Matchable {
+    Bracketed::new(vec![
+        Ref::keyword("NAME").to_matchable(),
+        Ref::new("EqualsSegment").to_matchable(),
+        Ref::new("QuotedLiteralSegment").to_matchable(),
+        any_set_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("STORAGE_PROVIDER").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("S3").to_matchable(),
+                    Ref::keyword("AZURE").to_matchable(),
+                    Ref::keyword("GCS").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("STORAGE_AWS_ROLE_ARN").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("STORAGE_BASE_URL").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("STORAGE_AWS_EXTERNAL_ID").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("AZURE_TENANT_ID").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ENCRYPTION").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Bracketed::new(vec![
+                    Ref::keyword("TYPE").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("S3EncryptionOption").to_matchable(),
+                        Ref::new("GCSEncryptionOption").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("KMS_KEY_ID").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable()
+}
+
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure
     let _dialect_config: SnowflakeDialectConfig = config
@@ -562,6 +632,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     "'AWS_CSE'".into(),
                     "'AWS_SSE_S3'".into(),
                     "'AWS_SSE_KMS'".into(),
+                    "'NONE'".into(),
                 ],
                 SyntaxKind::StageEncryptionOption,
             )
@@ -571,7 +642,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "GCSEncryptionOption".into(),
             MultiStringParser::new(
-                vec!["'GCS_SSE_KMS'".into()],
+                vec!["'GCS_SSE_KMS'".into(), "'NONE'".into()],
                 SyntaxKind::StageEncryptionOption,
             )
             .to_matchable()
@@ -869,6 +940,119 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .config(|this| this.optional())
                     .to_matchable(),
                     Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExternalVolumeReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExternalVolumeReference, |_| {
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    .config(|this| {
+                        this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                        this.disallow_gaps();
+                        this.terminators =
+                            vec![Ref::new("ObjectReferenceTerminatorGrammar").to_matchable()];
+                    })
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropExternalVolumeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropExternalVolumeStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("EXTERNAL").to_matchable(),
+                    Ref::keyword("VOLUME").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ExternalVolumeReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateExternalVolumeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateExternalVolumeStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("EXTERNAL").to_matchable(),
+                    Ref::keyword("VOLUME").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("ExternalVolumeReferenceSegment").to_matchable(),
+                    Ref::keyword("STORAGE_LOCATIONS").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![external_volume_storage_location()]).to_matchable(),
+                    ])
+                    .to_matchable(),
+                    any_set_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ALLOW_WRITES").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("COMMENT").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterExternalVolumeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterExternalVolumeStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("EXTERNAL").to_matchable(),
+                    Ref::keyword("VOLUME").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ExternalVolumeReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ADD").to_matchable(),
+                            Ref::keyword("STORAGE_LOCATION").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            external_volume_storage_location(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REMOVE").to_matchable(),
+                            Ref::keyword("STORAGE_LOCATION").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::keyword("ALLOW_WRITES").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::keyword("COMMENT").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -1605,6 +1789,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("AlterDatabaseSegment").to_matchable(),
                 Ref::new("AlterMaskingPolicySegment").to_matchable(),
                 Ref::new("AlterNetworkPolicyStatementSegment").to_matchable(),
+                Ref::new("CreateExternalVolumeStatementSegment").to_matchable(),
+                Ref::new("DropExternalVolumeStatementSegment").to_matchable(),
+                Ref::new("AlterExternalVolumeStatementSegment").to_matchable(),
             ]),
             None,
             None,
@@ -8199,6 +8386,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("GRANTS").to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("EXTERNAL").to_matchable(),
+                        Ref::keyword("VOLUMES").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ]);
 
                 let object_scope_types = one_of(vec![
@@ -8926,6 +9118,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
+                            Ref::keyword("EXTERNAL").to_matchable(),
+                            Ref::keyword("VOLUME").to_matchable(),
+                            Ref::new("ExternalVolumeReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
                             Ref::keyword("VIEW").to_matchable(),
                             Ref::new("TableReferenceSegment").to_matchable(),
                         ])
@@ -9110,6 +9308,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("TABLE").to_matchable(),
                             Ref::new("TableReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("EXTERNAL").to_matchable(),
+                            Ref::keyword("VOLUME").to_matchable(),
+                            Ref::new("ExternalVolumeReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
                     ])

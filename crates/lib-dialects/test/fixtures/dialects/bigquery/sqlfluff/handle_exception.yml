@@ -163,12 +163,12 @@ file:
           - export_option: overwrite
           - comparison_operator:
             - raw_comparison_operator: =
-          - keyword: 'true'
+          - boolean_literal: 'true'
           - comma: ','
           - export_option: header
           - comparison_operator:
             - raw_comparison_operator: =
-          - keyword: 'true'
+          - boolean_literal: 'true'
           - comma: ','
           - export_option: field_delimiter
           - comparison_operator:

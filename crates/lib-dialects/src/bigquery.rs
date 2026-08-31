@@ -2999,19 +2999,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                         .to_matchable(),
                                     StringParser::new("format", SyntaxKind::ExportOption)
                                         .to_matchable(),
-                                    StringParser::new("uri", SyntaxKind::ExportOption)
-                                        .to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("QuotedLiteralSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                one_of(vec![
                                     StringParser::new("header", SyntaxKind::ExportOption)
                                         .to_matchable(),
                                     StringParser::new("overwrite", SyntaxKind::ExportOption)
+                                        .to_matchable(),
+                                    StringParser::new("uri", SyntaxKind::ExportOption)
                                         .to_matchable(),
                                     StringParser::new(
                                         "use_avro_logical_types",
@@ -3021,11 +3013,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 ])
                                 .to_matchable(),
                                 Ref::new("EqualsSegment").to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("TRUE").to_matchable(),
-                                    Ref::keyword("FALSE").to_matchable(),
-                                ])
-                                .to_matchable(),
+                                Ref::new("BaseExpressionElementGrammar").to_matchable(),
                             ])
                             .to_matchable(),
                         ])

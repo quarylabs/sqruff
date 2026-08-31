@@ -293,11 +293,12 @@ file:
         - keyword: BY
         - column_reference:
           - naked_identifier: id
-      - keyword: SETTINGS
-      - naked_identifier: index_granularity
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '8192'
+      - settings_clause:
+        - keyword: SETTINGS
+        - naked_identifier: index_granularity
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '8192'
 - statement_terminator: ;
 - statement:
   - alter_table_statement:

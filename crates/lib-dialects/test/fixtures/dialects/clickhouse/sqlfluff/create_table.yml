@@ -96,11 +96,12 @@ file:
                 - column_reference:
                   - naked_identifier: EventDate
               - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: index_granularity
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '8192'
+      - settings_clause:
+        - keyword: SETTINGS
+        - naked_identifier: index_granularity
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '8192'
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -208,11 +209,12 @@ file:
           - column_reference:
             - naked_identifier: EventType
           - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: index_granularity
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '8192'
+      - settings_clause:
+        - keyword: SETTINGS
+        - naked_identifier: index_granularity
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '8192'
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -306,16 +308,17 @@ file:
             - column_reference:
               - naked_identifier: hits
           - end_bracket: )
-      - keyword: SETTINGS
-      - naked_identifier: fsync_after_insert
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '0'
-      - comma: ','
-      - naked_identifier: fsync_directories
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '0'
+      - settings_clause:
+        - keyword: SETTINGS
+        - naked_identifier: fsync_after_insert
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '0'
+        - comma: ','
+        - naked_identifier: fsync_directories
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
   - create_table_statement:

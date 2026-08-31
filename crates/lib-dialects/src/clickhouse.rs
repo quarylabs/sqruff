@@ -1010,26 +1010,29 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     clickhouse_dialect.add([(
         "SettingsClauseSegment".into(),
-        Sequence::new(vec![
-            Ref::keyword("SETTINGS").to_matchable(),
-            Delimited::new(vec![
-                Sequence::new(vec![
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
-                    Ref::new("EqualsSegment").to_matchable(),
-                    one_of(vec![
+        NodeMatcher::new(SyntaxKind::SettingsClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SETTINGS").to_matchable(),
+                Delimited::new(vec![
+                    Sequence::new(vec![
                         Ref::new("NakedIdentifierSegment").to_matchable(),
-                        Ref::new("NumericLiteralSegment").to_matchable(),
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
+                    .config(|this| this.optional())
                     .to_matchable(),
                 ])
-                .config(|this| this.optional())
                 .to_matchable(),
             ])
-            .to_matchable(),
-        ])
-        .config(|this| this.optional())
+            .config(|this| this.optional())
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);

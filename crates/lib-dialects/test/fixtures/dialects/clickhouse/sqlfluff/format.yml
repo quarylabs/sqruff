@@ -86,9 +86,10 @@ file:
         - quoted_literal: '''1'''
     - keyword: FORMAT
     - word: CSV
-    - keyword: SETTINGS
-    - naked_identifier: format_csv_delimiter
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: ''','''
+    - settings_clause:
+      - keyword: SETTINGS
+      - naked_identifier: format_csv_delimiter
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: ''','''
 - statement_terminator: ;

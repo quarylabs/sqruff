@@ -3,7 +3,8 @@
 //! Configuration reaches the linter as loosely typed [`Value`]s read from the
 //! `.sqruff` file. The helpers here turn a section of that raw config into a
 //! typed struct, validating every field up front and reporting a user facing
-//! error when a value is missing or has the wrong shape. This is the same
+//! error when a value has the wrong shape. Missing values use the typed
+//! declaration's default, making that declaration the source of truth. This is the same
 //! approach the SQL dialects take with
 //! [`dialect_config!`](crate::dialect_config), extended so that a field can be
 //! any type implementing [`ConfigField`] rather than just a boolean.
@@ -15,8 +16,42 @@ use crate::value::Value;
 /// A section of raw configuration values, keyed by option name.
 pub type ConfigMap = HashMap<String, Value>;
 
+/// The shape of a typed configuration option.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ConfigKind {
+    Boolean,
+    Integer,
+    String,
+    StringList,
+    Enum(&'static [&'static str]),
+}
+
+impl ConfigKind {
+    pub fn description(self) -> String {
+        match self {
+            Self::Boolean => "boolean".into(),
+            Self::Integer => "integer".into(),
+            Self::String => "string".into(),
+            Self::StringList => "list of strings".into(),
+            Self::Enum(values) => format!("one of: {}", values.join(", ")),
+        }
+    }
+}
+
+/// Metadata for one typed configuration option.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ConfigOption {
+    pub name: &'static str,
+    pub description: &'static str,
+    pub default: String,
+    pub kind: ConfigKind,
+}
+
 /// A value that can be read from a configuration file into a typed field.
 pub trait ConfigField: Sized {
+    /// The machine-readable shape of this field.
+    fn kind() -> ConfigKind;
+
     /// Describes what this field accepts, e.g. `a boolean` or
     /// `one of [earlier, later]`. Used in error messages.
     fn expected() -> String;
@@ -30,6 +65,10 @@ pub trait ConfigField: Sized {
 }
 
 impl ConfigField for bool {
+    fn kind() -> ConfigKind {
+        ConfigKind::Boolean
+    }
+
     fn expected() -> String {
         "a boolean".into()
     }
@@ -44,6 +83,10 @@ impl ConfigField for bool {
 }
 
 impl ConfigField for i32 {
+    fn kind() -> ConfigKind {
+        ConfigKind::Integer
+    }
+
     fn expected() -> String {
         "an integer".into()
     }
@@ -58,6 +101,10 @@ impl ConfigField for i32 {
 }
 
 impl ConfigField for String {
+    fn kind() -> ConfigKind {
+        ConfigKind::String
+    }
+
     fn expected() -> String {
         "a string".into()
     }
@@ -71,25 +118,55 @@ impl ConfigField for String {
     }
 }
 
+impl ConfigField for Vec<String> {
+    fn kind() -> ConfigKind {
+        ConfigKind::StringList
+    }
+
+    fn expected() -> String {
+        "a list of strings".into()
+    }
+
+    fn parse(value: &Value) -> Option<Self> {
+        value
+            .as_array()?
+            .iter()
+            .map(|item| item.as_string().map(ToOwned::to_owned))
+            .collect()
+    }
+
+    fn render(&self) -> String {
+        self.join(",")
+    }
+}
+
 /// Reads a single field out of a raw configuration section.
-///
-/// `context` names whatever owns the configuration (for example `Rule ST09`)
-/// so that a missing option points at the thing that needed it.
-pub fn parse_field<T: ConfigField>(
-    context: &str,
-    field: &str,
-    config: &ConfigMap,
-) -> Result<T, String> {
+pub fn parse_field<T: ConfigField>(field: &str, config: &ConfigMap) -> Result<Option<T>, String> {
     match config.get(field) {
-        Some(value) if !value.is_none() => T::parse(value).ok_or_else(|| {
+        Some(value) if !value.is_none() => T::parse(value).map(Some).ok_or_else(|| {
             format!(
                 "Invalid value for {field}: {}. Must be {}",
                 describe(value),
                 T::expected()
             )
         }),
-        _ => Err(format!("{context} expects {} for `{field}`", T::expected())),
+        _ => Ok(None),
     }
+}
+
+/// Rejects misspelled or otherwise unsupported keys.
+pub fn validate_keys(
+    context: &str,
+    config: &ConfigMap,
+    expected: &[&'static str],
+) -> Result<(), String> {
+    if let Some(key) = config.keys().find(|key| !expected.contains(&key.as_str())) {
+        return Err(format!(
+            "Unknown configuration option `{key}` for {context}. Expected one of [{}]",
+            expected.join(", ")
+        ));
+    }
+    Ok(())
 }
 
 /// Renders a raw config value for inclusion in an error message.
@@ -160,6 +237,10 @@ macro_rules! config_enum {
         }
 
         impl $crate::config::ConfigField for $name {
+            fn kind() -> $crate::config::ConfigKind {
+                $crate::config::ConfigKind::Enum(Self::VARIANTS)
+            }
+
             fn expected() -> String {
                 format!("one of [{}]", Self::VARIANTS.join(", "))
             }
@@ -219,27 +300,36 @@ macro_rules! typed_config {
 
         impl $name {
             /// Parses and validates the configuration section, returning a
-            /// user facing error for the first invalid option.
+            /// user facing error for the first invalid option. Missing fields
+            /// retain their declared defaults.
             pub fn from_config(config: &$crate::config::ConfigMap) -> Result<Self, String> {
-                Ok(Self {
-                    $($field: $crate::config::parse_field::<$ty>(
-                        $context,
+                $crate::config::validate_keys(
+                    $context,
+                    config,
+                    &[$(stringify!($field),)*],
+                )?;
+                let mut parsed = Self::default();
+                $(
+                    if let Some(value) = $crate::config::parse_field::<$ty>(
                         stringify!($field),
                         config,
-                    )?,)*
-                })
+                    )? {
+                        parsed.$field = value;
+                    }
+                )*
+                Ok(parsed)
             }
 
-            /// The options this configuration accepts, as
-            /// `(name, description, default)`.
-            pub fn config_options() -> Vec<(&'static str, &'static str, String)> {
+            /// The options this configuration accepts.
+            pub fn config_options() -> Vec<$crate::config::ConfigOption> {
                 let defaults = Self::default();
                 vec![
-                    $((
-                        stringify!($field),
-                        $desc,
-                        $crate::config::ConfigField::render(&defaults.$field),
-                    ),)*
+                    $($crate::config::ConfigOption {
+                        name: stringify!($field),
+                        description: $desc,
+                        default: $crate::config::ConfigField::render(&defaults.$field),
+                        kind: <$ty as $crate::config::ConfigField>::kind(),
+                    },)*
                 ]
             }
         }
@@ -271,6 +361,10 @@ mod tests {
             flavour: Flavour = Flavour::Sweet, "Which flavour to enforce.",
             /// Whether to be strict.
             strict: bool = false, "Whether to be strict.",
+            /// Maximum attempts.
+            attempts: i32 = 3, "How many times to try.",
+            /// Labels to include.
+            labels: Vec<String> = vec!["stable".into()], "Labels to include.",
         }
     );
 
@@ -293,7 +387,9 @@ mod tests {
             parsed,
             TestConfig {
                 flavour: Flavour::Sour,
-                strict: true
+                strict: true,
+                attempts: 3,
+                labels: vec!["stable".into()],
             }
         );
     }
@@ -324,10 +420,37 @@ mod tests {
     }
 
     #[test]
-    fn rejects_a_missing_value() {
-        let err = TestConfig::from_config(&config(&[("strict", Value::Bool(false))])).unwrap_err();
+    fn uses_defaults_for_missing_values() {
+        let parsed = TestConfig::from_config(&config(&[("strict", Value::Bool(true))])).unwrap();
 
-        assert_eq!(err, "Rule XX01 expects one of [sweet, sour] for `flavour`");
+        assert_eq!(parsed.flavour, Flavour::Sweet);
+        assert!(parsed.strict);
+        assert_eq!(parsed.attempts, 3);
+        assert_eq!(parsed.labels, vec!["stable"]);
+    }
+
+    #[test]
+    fn parses_integer_and_list_fields() {
+        let parsed = TestConfig::from_config(&config(&[
+            ("attempts", Value::Int(5)),
+            ("labels", Value::String("fast,safe".into())),
+        ]))
+        .unwrap();
+
+        assert_eq!(parsed.attempts, 5);
+        assert_eq!(parsed.labels, vec!["fast", "safe"]);
+    }
+
+    #[test]
+    fn rejects_unknown_fields() {
+        let err = TestConfig::from_config(&config(&[("flavor", Value::String("sour".into()))]))
+            .unwrap_err();
+
+        assert_eq!(
+            err,
+            "Unknown configuration option `flavor` for Rule XX01. Expected one of [flavour, \
+             strict, attempts, labels]"
+        );
     }
 
     #[test]
@@ -335,8 +458,30 @@ mod tests {
         assert_eq!(
             TestConfig::config_options(),
             vec![
-                ("flavour", "Which flavour to enforce.", "sweet".to_string()),
-                ("strict", "Whether to be strict.", "false".to_string()),
+                ConfigOption {
+                    name: "flavour",
+                    description: "Which flavour to enforce.",
+                    default: "sweet".into(),
+                    kind: ConfigKind::Enum(&["sweet", "sour"]),
+                },
+                ConfigOption {
+                    name: "strict",
+                    description: "Whether to be strict.",
+                    default: "false".into(),
+                    kind: ConfigKind::Boolean,
+                },
+                ConfigOption {
+                    name: "attempts",
+                    description: "How many times to try.",
+                    default: "3".into(),
+                    kind: ConfigKind::Integer,
+                },
+                ConfigOption {
+                    name: "labels",
+                    description: "Labels to include.",
+                    default: "stable".into(),
+                    kind: ConfigKind::StringList,
+                },
             ]
         );
     }

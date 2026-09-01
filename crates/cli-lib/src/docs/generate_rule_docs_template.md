@@ -23,10 +23,10 @@ The following rules are available in this create. This list is generated from th
 {% if rule.has_config_options %}
 **Configuration:**
 
-| Option | Description | Default |
-|--------|-------------|---------|
+| Option | Accepted value | Description | Default |
+|--------|----------------|-------------|---------|
 {%- for option in rule.config_options %}
-| `{{ option.name }}` | {{ option.description }} | `{{ option.default }}` |
+| `{{ option.name }}` | {{ option.value }} | {{ option.description }} | `{{ option.default }}` |
 {%- endfor %}
 
 ```ini

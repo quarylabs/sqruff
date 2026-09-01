@@ -819,6 +819,41 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             ),
     );
 
+    // Databricks allows PIVOT aggregates without aliases, so FOR must not be
+    // consumed as an implicit alias before the pivot's FOR clause.
+    databricks.replace_grammar(
+        "AliasExpressionSegment",
+        Sequence::new(vec![
+            Ref::keyword("AS").optional().to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar")
+                        .optional()
+                        .to_matchable(),
+                    Bracketed::new(vec![Ref::new("SingleIdentifierListSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+            ])
+            .config(|config| {
+                config.exclude = one_of(vec![
+                    Ref::keyword("LATERAL").to_matchable(),
+                    Ref::new("JoinTypeKeywords").to_matchable(),
+                    Ref::keyword("WINDOW").to_matchable(),
+                    Ref::keyword("PIVOT").to_matchable(),
+                    Ref::keyword("KEYS").to_matchable(),
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                ])
+                .to_matchable()
+                .into();
+            })
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // Override statement segment
     databricks.replace_grammar(
         "StatementSegment",

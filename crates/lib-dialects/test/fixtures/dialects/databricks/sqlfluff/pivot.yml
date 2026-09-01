@@ -492,3 +492,83 @@ file:
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: year
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: region
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: q1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: q2
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: q3
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: q4
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: sales
+        - pivot_clause:
+          - keyword: PIVOT
+          - bracketed:
+            - start_bracket: (
+            - function:
+              - function_name:
+                - function_name_identifier: sum
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: sales
+                  - end_bracket: )
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: q1
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: q2
+              - comma: ','
+              - expression:
+                - numeric_literal: '3'
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: q3
+              - comma: ','
+              - expression:
+                - numeric_literal: '4'
+              - alias_expression:
+                - keyword: AS
+                - naked_identifier: q4
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;

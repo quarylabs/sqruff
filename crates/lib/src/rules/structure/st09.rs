@@ -62,7 +62,7 @@ impl Rule for RuleST09 {
         .erased())
     }
 
-    fn config_options(&self) -> Vec<(&'static str, &'static str, String)> {
+    fn config_options(&self) -> Vec<sqruff_lib_core::config::ConfigOption> {
         RuleST09Config::config_options()
     }
 
@@ -444,14 +444,11 @@ mod tests {
     }
 
     #[test]
-    fn st09_load_from_config_rejects_a_missing_value() {
-        let err = RuleST09::default()
-            .load_from_config(&HashMap::new())
-            .unwrap_err();
-        assert_eq!(
-            err,
-            "Rule ST09 expects one of [earlier, later] for \
-             `preferred_first_table_in_join_clause`"
+    fn st09_load_from_config_uses_default_for_a_missing_value() {
+        assert!(
+            RuleST09::default()
+                .load_from_config(&HashMap::new())
+                .is_ok()
         );
     }
 
@@ -459,12 +456,13 @@ mod tests {
     fn st09_reports_its_config_options() {
         assert_eq!(
             RuleST09::default().config_options(),
-            vec![(
-                "preferred_first_table_in_join_clause",
-                "Whether a join condition should list the table referenced earlier or later \
-                 first.",
-                "earlier".to_string()
-            )]
+            vec![sqruff_lib_core::config::ConfigOption {
+                name: "preferred_first_table_in_join_clause",
+                description: "Whether a join condition should list the table referenced earlier or later \
+                     first.",
+                default: "earlier".into(),
+                kind: sqruff_lib_core::config::ConfigKind::Enum(&["earlier", "later"]),
+            }]
         );
     }
 }

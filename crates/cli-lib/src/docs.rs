@@ -154,6 +154,7 @@ struct RuleConfigOption {
     name: &'static str,
     description: &'static str,
     default: String,
+    value: String,
 }
 
 #[cfg(feature = "codegen-docs")]
@@ -178,10 +179,11 @@ impl From<ErasedRule> for Rule {
         let config_options: Vec<RuleConfigOption> = value
             .config_options()
             .into_iter()
-            .map(|(name, description, default)| RuleConfigOption {
-                name,
-                description,
-                default,
+            .map(|option| RuleConfigOption {
+                name: option.name,
+                description: option.description,
+                default: option.default,
+                value: option.kind.description(),
             })
             .collect();
         let has_config_options = !config_options.is_empty();

@@ -769,14 +769,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("AlterOrganizationStatementSegment").to_matchable(),
                 Ref::new("AlterProjectStatementSegment").to_matchable(),
                 Ref::new("CreateSearchIndexStatementSegment").to_matchable(),
+                Ref::new("DropSearchIndexStatementSegment").to_matchable(),
                 Ref::new("CreateVectorIndexStatementSegment").to_matchable(),
+                Ref::new("DropVectorIndexStatementSegment").to_matchable(),
                 Ref::new("CreateRowAccessPolicyStatementSegment").to_matchable(),
+                Ref::new("DropRowAccessPolicyStatementSegment").to_matchable(),
                 Ref::new("AlterBiCapacityStatementSegment").to_matchable(),
                 Ref::new("CreateCapacityStatementSegment").to_matchable(),
                 Ref::new("AlterCapacityStatementSegment").to_matchable(),
+                Ref::new("DropCapacityStatementSegment").to_matchable(),
                 Ref::new("CreateReservationStatementSegment").to_matchable(),
                 Ref::new("AlterReservationStatementSegment").to_matchable(),
+                Ref::new("DropReservationStatementSegment").to_matchable(),
                 Ref::new("CreateAssignmentStatementSegment").to_matchable(),
+                Ref::new("DropAssignmentStatementSegment").to_matchable(),
             ]),
             None,
             None,
@@ -2548,6 +2554,40 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "DropSearchIndexStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropSearchIndexStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("SEARCH").to_matchable(),
+                    Ref::keyword("INDEX").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("IndexReferenceSegment").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropVectorIndexStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropVectorIndexStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("VECTOR").to_matchable(),
+                    Ref::keyword("INDEX").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("IndexReferenceSegment").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "DropProcedureStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DropProcedureStatement, |_| {
                 Sequence::new(vec![
@@ -2620,6 +2660,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "DropCapacityStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropCapacityStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("CAPACITY").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "CreateReservationStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateReservationStatement, |_| {
                 Sequence::new(vec![
@@ -2649,6 +2703,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "DropReservationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropReservationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("RESERVATION").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "CreateAssignmentStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateAssignmentStatement, |_| {
                 Sequence::new(vec![
@@ -2656,6 +2724,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("ASSIGNMENT").to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropAssignmentStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropAssignmentStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("ASSIGNMENT").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -2829,6 +2911,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("USING").to_matchable(),
                     Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
                         .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropRowAccessPolicyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropRowAccessPolicyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("ROW").to_matchable(),
+                    Ref::keyword("ACCESS").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
                 ])
                 .to_matchable()
             })

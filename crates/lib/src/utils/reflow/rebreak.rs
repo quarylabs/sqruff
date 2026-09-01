@@ -123,6 +123,18 @@ pub enum LinePosition {
     Strict,
 }
 
+fn first_create_anchor(
+    elem_buff: &ReflowSequenceType,
+    loc_range: impl Iterator<Item = isize>,
+) -> Vec<ErasedSegment> {
+    loc_range
+        .filter_map(|idx| elem_buff.get(idx as usize))
+        .map(ReflowElement::segments)
+        .find(|segments| !segments.is_empty())
+        .map(<[ErasedSegment]>::to_vec)
+        .unwrap_or_else(|| panic!("Could not find anchor for creation."))
+}
+
 impl RebreakLocation {
     /// Expand a span to a location.
     pub fn from_span(span: RebreakSpan, elements: &ReflowSequenceType) -> Option<Self> {
@@ -449,23 +461,13 @@ pub fn rebreak_sequence(
                     "after",
                 );
 
-                let mut create_anchor = None;
-                for i in 0..loc.next.pre_code_pt_idx {
-                    let idx = loc.next.pre_code_pt_idx - i;
-                    if let Some(elem) = elem_buff.get(idx as usize)
-                        && let Some(segments) = elem.segments().last()
-                    {
-                        create_anchor = Some(segments.clone());
-                        break;
-                    }
-                }
-
-                if create_anchor.is_none() {
-                    panic!("Could not find anchor for creation.");
-                }
+                let create_anchor = first_create_anchor(
+                    &elem_buff,
+                    (loc.next.adj_pt_idx..=loc.next.pre_code_pt_idx).rev(),
+                );
 
                 fixes.push(LintFix::create_after(
-                    create_anchor.unwrap(),
+                    create_anchor.last().unwrap().clone(),
                     vec![loc.target.clone()],
                     None,
                 ));
@@ -532,10 +534,23 @@ pub fn rebreak_sequence(
                     "before",
                 );
 
-                fixes.push(LintFix::create_before(
-                    elem_buff[loc.prev.pre_code_pt_idx as usize].segments()[0].clone(),
-                    vec![loc.target.clone()],
-                ));
+                let lead_create_anchor =
+                    first_create_anchor(&elem_buff, loc.prev.pre_code_pt_idx..=loc.prev.adj_pt_idx);
+                if let Some(prev_code_anchor) = lead_create_anchor
+                    .iter()
+                    .find(|segment| !segment.is_type(SyntaxKind::Dedent))
+                {
+                    fixes.push(LintFix::create_before(
+                        prev_code_anchor.clone(),
+                        vec![loc.target.clone()],
+                    ));
+                } else {
+                    fixes.push(LintFix::create_after(
+                        lead_create_anchor.last().unwrap().clone(),
+                        vec![loc.target.clone()],
+                        None,
+                    ));
+                }
 
                 reorder_and_insert(&mut elem_buff, &loc, new_point);
 

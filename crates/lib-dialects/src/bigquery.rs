@@ -783,6 +783,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("DropReservationStatementSegment").to_matchable(),
                 Ref::new("CreateAssignmentStatementSegment").to_matchable(),
                 Ref::new("DropAssignmentStatementSegment").to_matchable(),
+                Ref::new("DropTableFunctionStatementSegment").to_matchable(),
+                Ref::new("CreateTableFunctionStatementSegment").to_matchable(),
             ]),
             None,
             None,
@@ -2068,6 +2070,83 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ])
         .to_matchable(),
     );
+
+    dialect.add([
+        (
+            "CreateTableFunctionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateTableFunctionStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::keyword("FUNCTION").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Ref::new("ColumnDefinitionSegment").to_matchable(),
+                            ])
+                            .config(|this| {
+                                this.optional();
+                                this.allow_trailing();
+                            })
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("RETURNS").to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    Ref::new("DatatypeSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| {
+                            this.bracket_type = "angle";
+                            this.bracket_pairs_set = "angle_bracket_pairs";
+                        })
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AS").to_matchable(),
+                        optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropTableFunctionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropTableFunctionStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::keyword("FUNCTION").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Delimited::new(vec![Ref::new("TableReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     dialect.replace_grammar(
         "CreateTableStatementSegment",

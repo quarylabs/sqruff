@@ -80,6 +80,53 @@ file:
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+        - naked_identifier: column_1
+      - data_type:
+        - data_type_identifier: varchar
+      - comma: ','
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+        - naked_identifier: column_2
+      - data_type:
+        - data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+        - naked_identifier: column_1
+      - data_type:
+        - data_type_identifier: varchar
+      - comma: ','
+      - column_reference:
+        - naked_identifier: column_2
+      - data_type:
+        - data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
       - column_reference:
         - naked_identifier: my_column
       - data_type:

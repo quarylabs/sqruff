@@ -625,9 +625,10 @@ fn parse_ini_config_elems(
                 let mut value: Value = value.as_deref().unwrap_or_default().parse().unwrap();
                 let name_lowercase = name.to_lowercase();
 
-                if name_lowercase == "load_macros_from_path" {
-                    unimplemented!()
-                } else if name_lowercase == "loader_search_path" {
+                if matches!(
+                    name_lowercase.as_str(),
+                    "load_macros_from_path" | "exclude_macros_from_path" | "loader_search_path"
+                ) {
                     value = resolve_comma_separated_config_paths(value, config_path);
                 } else if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir") {
                     value = resolve_relative_config_path(value, config_path);
@@ -684,12 +685,11 @@ fn collect_toml_config_elems(
                 collect_toml_config_elems(table, section_path, config_path, buff);
             }
             value => {
-                if name == "load_macros_from_path" {
-                    unimplemented!()
-                }
-
                 let mut value = toml_value_to_config_value(value);
-                if name == "loader_search_path" {
+                if matches!(
+                    name.as_str(),
+                    "load_macros_from_path" | "exclude_macros_from_path" | "loader_search_path"
+                ) {
                     value = resolve_comma_separated_config_paths(value, config_path);
                 } else if name.ends_with("_path") || name.ends_with("_dir") {
                     value = resolve_relative_config_path(value, config_path);
@@ -1048,6 +1048,95 @@ loader_search_path = search_a, search_b/subdir
                     .to_string(),
             ]
         );
+    }
+
+    #[test]
+    fn test_jinja_macro_paths_resolve_each_ini_path() {
+        let config_path = std::env::temp_dir()
+            .join("sqruff-macro-paths")
+            .join(".sqruff");
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff:templater:jinja]
+load_macros_from_path = macros, shared/macros.sql
+exclude_macros_from_path = macros/excluded, shared/ignored.sql
+"#,
+            Some(&config_path),
+        );
+
+        for (key, relative_paths) in [
+            ("load_macros_from_path", ["macros", "shared/macros.sql"]),
+            (
+                "exclude_macros_from_path",
+                ["macros/excluded", "shared/ignored.sql"],
+            ),
+        ] {
+            let paths = config
+                .raw
+                .get("templater")
+                .unwrap()
+                .as_map()
+                .unwrap()
+                .get("jinja")
+                .unwrap()
+                .as_map()
+                .unwrap()
+                .get(key)
+                .unwrap()
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|value| value.as_string().unwrap().to_string())
+                .collect::<Vec<_>>();
+            let expected = relative_paths
+                .into_iter()
+                .map(|path| {
+                    config_path
+                        .parent()
+                        .unwrap()
+                        .join(path)
+                        .to_string_lossy()
+                        .to_string()
+                })
+                .collect::<Vec<_>>();
+            assert_eq!(paths, expected);
+        }
+    }
+
+    #[test]
+    fn test_jinja_macro_paths_resolve_toml_arrays() {
+        let config_path = std::env::temp_dir()
+            .join("sqruff-macro-paths")
+            .join("pyproject.toml");
+        let config = FluffConfig::from_source(
+            r#"
+[tool.sqruff.templater.jinja]
+load_macros_from_path = ["macros", "shared/macros.sql"]
+exclude_macros_from_path = ["macros/excluded", "shared/ignored.sql"]
+"#,
+            Some(&config_path),
+        );
+
+        for key in ["load_macros_from_path", "exclude_macros_from_path"] {
+            let paths = config
+                .raw
+                .get("templater")
+                .unwrap()
+                .as_map()
+                .unwrap()
+                .get("jinja")
+                .unwrap()
+                .as_map()
+                .unwrap()
+                .get(key)
+                .unwrap()
+                .as_array()
+                .unwrap();
+            assert_eq!(paths.len(), 2);
+            assert!(paths.iter().all(|value| {
+                Path::new(value.as_string().unwrap()).starts_with(config_path.parent().unwrap())
+            }));
+        }
     }
 
     #[test]

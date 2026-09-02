@@ -59,7 +59,7 @@ The following rules are available in this create. This list is generated from th
 | LT15 | [layout.newlines](#layoutnewlines) | Too many consecutive blank lines. | 
 | RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | 
 | RF02 | [references.qualification](#referencesqualification) | References should be qualified if select has more than one referenced table/view. | 
-| RF03 | [references.consistent](#referencesconsistent) | References should be consistent in statements with a single table. | 
+| RF03 | [references.consistent](#referencesconsistent) | Column references should be qualified consistently in single table statements. | 
 | RF04 | [references.keywords](#referenceskeywords) | Keywords should not be used as identifiers. | 
 | RF05 | [references.special_chars](#referencesspecial_chars) | Do not use special characters in identifiers. | 
 | RF06 | [references.quoting](#referencesquoting) | Unnecessary quoted identifier. | 
@@ -2100,7 +2100,7 @@ LEFT JOIN vee ON vee.a = foo.a
 
 ### references.consistent
 
-References should be consistent in statements with a single table.
+Column references should be qualified consistently in single table statements.
 
 **Code:** `RF03`
 
@@ -2110,7 +2110,7 @@ References should be consistent in statements with a single table.
 
 **Anti-pattern**
 
-In this example, only the field b is referenced.
+In this example, only the reference to `b` is qualified.
 
 ```sql
 SELECT
@@ -2121,7 +2121,7 @@ FROM foo
 
 **Best practice**
 
-Add or remove references to all fields.
+Either all column references should be qualified, or all unqualified.
 
 ```sql
 SELECT

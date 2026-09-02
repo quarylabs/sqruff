@@ -350,14 +350,14 @@ impl Rule for RuleRF03 {
     }
 
     fn description(&self) -> &'static str {
-        "References should be consistent in statements with a single table."
+        "Column references should be qualified consistently in single table statements."
     }
 
     fn long_description(&self) -> &'static str {
         r#"
 **Anti-pattern**
 
-In this example, only the field b is referenced.
+In this example, only the reference to `b` is qualified.
 
 ```sql
 SELECT
@@ -368,7 +368,7 @@ FROM foo
 
 **Best practice**
 
-Add or remove references to all fields.
+Either all column references should be qualified, or all unqualified.
 
 ```sql
 SELECT

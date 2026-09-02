@@ -419,15 +419,45 @@ sh_test(
     tags = ["exclusive"],
 )
 
-# Cargo check - type-check all crates with all features, tests, and benches
-# This replicates the "Rust Check" GitHub action job
-# Uses vendored dependencies for hermetic builds
+# Cargo compiler checks share one writable target directory. Keeping these in a
+# single Bazel test lets Cargo reuse dependency artifacts between check, clippy,
+# and the per-feature cargo-hack checks.
 cargo_test(
-    name = "cargo_check",
+    name = "cargo_compile_checks",
     python_venv = ":python_deps",
+    size = "enormous",
     srcs = [":cargo_srcs"],
+    tools = ["@cargo_hack//:cargo-hack"],
     vendor = ":cargo_deps",
-    script = "cargo check --all --all-features --tests --benches --locked --offline",
+    script = """
+echo "::group::Cargo check"
+cargo check --all --all-features --tests --benches --locked --offline
+echo "::endgroup::"
+
+echo "::group::Cargo clippy"
+cargo clippy --all --all-features --offline -- -D warnings
+echo "::endgroup::"
+
+echo "::group::Cargo hack"
+cargo hack check --each-feature --exclude-features=codegen-docs --offline
+echo "::endgroup::"
+""",
+)
+
+# Preserve the existing test labels while running the shared compilation target.
+test_suite(
+    name = "cargo_check",
+    tests = [":cargo_compile_checks"],
+)
+
+test_suite(
+    name = "cargo_clippy",
+    tests = [":cargo_compile_checks"],
+)
+
+test_suite(
+    name = "cargo_hack_check",
+    tests = [":cargo_compile_checks"],
 )
 
 # Cargo build release - build release binaries with all features
@@ -440,16 +470,6 @@ cargo_test(
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",
     script = "cargo build --locked --release --all-features --offline",
-)
-
-# Cargo clippy - run clippy with all features
-# Uses vendored dependencies for hermetic builds
-cargo_test(
-    name = "cargo_clippy",
-    python_venv = ":python_deps",
-    srcs = [":cargo_srcs"],
-    vendor = ":cargo_deps",
-    script = "cargo clippy --all --all-features --offline -- -D warnings",
 )
 
 # Cargo fmt check - verify code formatting
@@ -494,19 +514,6 @@ cargo test --manifest-path ./crates/cli/Cargo.toml --locked --offline
 #   //crates/lineage:lineage-test
 cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --exclude sqruff-sqlinference --exclude lineage --locked --offline
 """,
-)
-
-# Cargo hack check - verify each feature compiles in isolation
-# This ensures no feature combination is broken
-# Uses vendored dependencies for hermetic builds
-cargo_test(
-    name = "cargo_hack_check",
-    size = "enormous",
-    srcs = [":cargo_srcs"],
-    python_venv = ":python_deps",
-    tools = ["@cargo_hack//:cargo-hack"],
-    vendor = ":cargo_deps",
-    script = "cargo hack check --each-feature --exclude-features=codegen-docs --offline",
 )
 
 # Zensical docs build - verify documentation builds successfully

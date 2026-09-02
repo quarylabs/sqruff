@@ -14,7 +14,7 @@ use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::{
     dialects::{Dialect, init::DialectKind},
     helpers::ToMatchable,
-    parser::grammar::{Ref, sequence::Sequence},
+    parser::grammar::{Anything, Ref, sequence::Sequence},
     value::Value,
 };
 
@@ -772,6 +772,75 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
+    databricks.replace_grammar(
+        "GeneratedColumnDefinitionSegment",
+        Sequence::new(vec![
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("DatatypeSegment").to_matchable(),
+            Bracketed::new(vec![Anything::new().to_matchable()])
+                .config(|config| config.optional())
+                .to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("GENERATED").to_matchable(),
+                    Ref::keyword("ALWAYS").to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Ref::new("FunctionSegment").to_matchable(),
+                            Ref::new("BareFunctionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("GENERATED").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ALWAYS").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("BY").to_matchable(),
+                            Ref::keyword("DEFAULT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::keyword("IDENTITY").to_matchable(),
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("START").to_matchable(),
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("INCREMENT").to_matchable(),
+                            Ref::keyword("BY").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            AnyNumberOf::new(vec![
+                Ref::new("ColumnConstraintSegment")
+                    .optional()
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     databricks.replace_grammar(
         "FunctionContentsExpressionGrammar",

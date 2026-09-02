@@ -1,0 +1,7 @@
+file:
+- statement:
+  - use_statement:
+    - keyword: use
+    - database_reference:
+      - naked_identifier: my_db
+- statement_terminator: ;

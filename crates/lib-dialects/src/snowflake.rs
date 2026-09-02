@@ -2714,6 +2714,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                         Delimited::new(vec![
                             Sequence::new(vec![
+                                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                                 Ref::new("DatatypeSegment").to_matchable(),
                                 one_of(vec![

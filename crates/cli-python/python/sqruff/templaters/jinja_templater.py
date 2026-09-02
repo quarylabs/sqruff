@@ -438,7 +438,12 @@ class JinjaTemplater(PythonTemplater):
 
         """
         if config:
-            macros_path = config.jinja_templater_paths
+            if key == "load_macros_from_path":
+                macros_path = config.jinja_templater_paths
+            elif key == "exclude_macros_from_path":
+                macros_path = config.jinja_exclude_macros_from_path
+            else:
+                return None
             if macros_path:
                 return macros_path
         return None

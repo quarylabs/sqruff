@@ -55,6 +55,7 @@ def test_jinja_analyzer_receives_config():
     config = FluffConfig(
         templater_unwrap_wrapped_queries=False,
         jinja_templater_paths=[],
+        jinja_exclude_macros_from_path=[],
         jinja_loader_search_path=[],
         jinja_apply_dbt_builtins=False,
         jinja_ignore_templating=False,
@@ -88,6 +89,7 @@ def test_jinja_loader_search_path_does_not_load_macros_globally(tmp_path):
     config = FluffConfig(
         templater_unwrap_wrapped_queries=False,
         jinja_templater_paths=[],
+        jinja_exclude_macros_from_path=[],
         jinja_loader_search_path=[str(search_a), str(search_b)],
         jinja_apply_dbt_builtins=False,
         jinja_ignore_templating=False,
@@ -109,6 +111,41 @@ def test_jinja_loader_search_path_does_not_load_macros_globally(tmp_path):
 
     assert template.render() == "search_a/nested/search_b"
     assert "value" not in env.globals
+
+
+def test_jinja_exclude_macros_from_path(tmp_path):
+    """Excluded macro files are not parsed or loaded into the global context."""
+    macros = tmp_path / "macros"
+    excluded = macros / "excluded"
+    excluded.mkdir(parents=True)
+    (macros / "included.sql").write_text(
+        "{% macro foo1() %}101{% endmacro %}{% macro foo2() %}102{% endmacro %}"
+    )
+    (excluded / "custom_tag.sql").write_text(
+        "{% materialization custom, default %}{% endmaterialization %}"
+    )
+    (excluded / "overrides.sql").write_text(
+        "{% macro foo1() %}105{% endmacro %}{% macro foo2() %}106{% endmacro %}"
+    )
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_templater_paths=[str(macros)],
+        jinja_exclude_macros_from_path=[str(excluded)],
+        jinja_loader_search_path=[],
+        jinja_apply_dbt_builtins=False,
+        jinja_ignore_templating=False,
+        jinja_library_paths=[],
+        dbt_profile=None,
+        dbt_profiles_dir=None,
+        dbt_target=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+    )
+
+    _, _, render = JinjaTemplater().construct_render_func(config=config)
+
+    assert render("{{ foo1() }}/{{ foo2() }}") == "101/102"
 
 
 # JINJA_STRING = (

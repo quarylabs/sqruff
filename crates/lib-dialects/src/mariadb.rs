@@ -46,6 +46,13 @@ pub fn raw_dialect() -> Dialect {
         }
     }
 
+    // MariaDB additionally supports PERSISTENT generated columns.
+    // https://mariadb.com/kb/en/generated-columns/
+    mariadb.replace_grammar(
+        "ColumnConstraintSegment",
+        mysql::column_constraint_grammar(true),
+    );
+
     // `CREATE [OR REPLACE] USER`.
     // https://mariadb.com/kb/en/create-user/
     mariadb.replace_grammar(

@@ -114,6 +114,7 @@ use_repo(rust, "rust_toolchains")
 
 register_toolchains("@rust_toolchains//:all")
 register_toolchains("@rules_rust_pyo3//toolchains:toolchain")
+register_toolchains("//:wasm_bindgen_cli_only_toolchain")
 
 # Required for WASM cross-compilation
 register_toolchains("@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm32_toolchain")

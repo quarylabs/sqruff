@@ -29,7 +29,7 @@ jobs:
       - name: Install LLD
         run: sudo apt-get update --yes && sudo apt-get install --yes lld
       - name: Build website
-        run: bazelisk build //:website
+        run: bazelisk build --config=release //:website
       - name: Setup Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # ratchet:actions/configure-pages@v6.0.0
       - name: Upload artifact

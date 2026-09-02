@@ -1,0 +1,3 @@
+SELECT ID
+FROM dbo.tableX (NOLOCK);
+GO

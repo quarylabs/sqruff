@@ -2142,6 +2142,11 @@ pub fn raw_dialect() -> Dialect {
         "TableExpressionSegment",
         one_of(vec![
             Ref::new("ValuesClauseSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::new("PostTableExpressionGrammar").to_matchable(),
+            ])
+            .to_matchable(),
             Ref::new("BareFunctionSegment").to_matchable(),
             Ref::new("OpenJsonSegment").to_matchable(),
             Ref::new("FunctionSegment").to_matchable(),
@@ -2157,12 +2162,13 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Table hints support - Example: SELECT * FROM Users WITH (NOLOCK)
+    // Table hints support - Examples: SELECT * FROM Users WITH (NOLOCK) and
+    // SELECT * FROM Users (NOLOCK)
     dialect.add([
         (
             "TableHintSegment".into(),
             Sequence::new(vec![
-                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("WITH").optional().to_matchable(),
                 Bracketed::new(vec![
                     Delimited::new(vec![Ref::new("TableHintElement").to_matchable()])
                         .to_matchable(),

@@ -1161,54 +1161,7 @@ pub fn raw_dialect() -> Dialect {
     // InsertStatementSegment.
     mysql.replace_grammar(
         "InsertStatementSegment",
-        Sequence::new(vec![
-            Ref::keyword("INSERT").to_matchable(),
-            one_of(vec![
-                Ref::keyword("LOW_PRIORITY").to_matchable(),
-                Ref::keyword("DELAYED").to_matchable(),
-                Ref::keyword("HIGH_PRIORITY").to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
-            Ref::keyword("IGNORE").optional().to_matchable(),
-            Ref::keyword("INTO").optional().to_matchable(),
-            Ref::new("TableReferenceSegment").to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("PARTITION").to_matchable(),
-                Bracketed::new(vec![Ref::new("SingleIdentifierListSegment").to_matchable()])
-                    .to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
-            Ref::new("BracketedColumnReferenceListGrammar")
-                .optional()
-                .to_matchable(),
-            any_set_of(vec![
-                one_of(vec![
-                    Ref::new("ValuesClauseSegment").to_matchable(),
-                    Ref::new("SetClauseListSegment").to_matchable(),
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::new("SelectableGrammar").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("TABLE").to_matchable(),
-                                Ref::new("TableReferenceSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::new("InsertRowAliasSegment").optional().to_matchable(),
-                Ref::new("UpsertClauseListSegment")
-                    .optional()
-                    .to_matchable(),
-            ])
-            .to_matchable(),
-        ])
-        .to_matchable(),
+        insert_statement_grammar(true, false),
     );
 
     // DeleteTargetTableSegment.
@@ -1234,58 +1187,7 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // DeleteStatementSegment.
-    mysql.replace_grammar(
-        "DeleteStatementSegment",
-        Sequence::new(vec![
-            Ref::keyword("DELETE").to_matchable(),
-            Ref::keyword("LOW_PRIORITY").optional().to_matchable(),
-            Ref::keyword("QUICK").optional().to_matchable(),
-            Ref::keyword("IGNORE").optional().to_matchable(),
-            one_of(vec![
-                // DELETE FROM ... USING ...
-                Sequence::new(vec![
-                    Ref::keyword("FROM").to_matchable(),
-                    Delimited::new(vec![Ref::new("DeleteTargetTableSegment").to_matchable()])
-                        .config(|this| {
-                            this.base.terminators = vec![Ref::keyword("USING").to_matchable()]
-                        })
-                        .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("USING").to_matchable(),
-                        Delimited::new(vec![Ref::new("FromExpressionSegment").to_matchable()])
-                            .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::new("WhereClauseSegment").optional().to_matchable(),
-                ])
-                .to_matchable(),
-                // DELETE ... FROM ...
-                Sequence::new(vec![
-                    Delimited::new(vec![Ref::new("DeleteTargetTableSegment").to_matchable()])
-                        .config(|this| {
-                            this.base.terminators = vec![Ref::keyword("FROM").to_matchable()]
-                        })
-                        .to_matchable(),
-                    Ref::new("FromClauseSegment").to_matchable(),
-                    Ref::new("WhereClauseSegment").optional().to_matchable(),
-                ])
-                .to_matchable(),
-                // Simple DELETE FROM ...
-                Sequence::new(vec![
-                    Ref::new("FromClauseSegment").to_matchable(),
-                    Ref::new("SelectPartitionClauseSegment")
-                        .optional()
-                        .to_matchable(),
-                    Ref::new("WhereClauseSegment").optional().to_matchable(),
-                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
-                    Ref::new("LimitClauseSegment").optional().to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-        ])
-        .to_matchable(),
-    );
+    mysql.replace_grammar("DeleteStatementSegment", delete_statement_grammar(false));
 
     // DeclareStatement.
     mysql.add([(
@@ -3155,47 +3057,7 @@ pub fn raw_dialect() -> Dialect {
     mysql.add([(
         "ReplaceSegment".into(),
         NodeMatcher::new(SyntaxKind::ReplaceStatement, |_| {
-            Sequence::new(vec![
-                Ref::keyword("REPLACE").to_matchable(),
-                one_of(vec![
-                    Ref::keyword("LOW_PRIORITY").to_matchable(),
-                    Ref::keyword("DELAYED").to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
-                Ref::keyword("INTO").optional().to_matchable(),
-                Ref::new("TableReferenceSegment").to_matchable(),
-                Ref::new("SelectPartitionClauseSegment")
-                    .optional()
-                    .to_matchable(),
-                one_of(vec![
-                    Sequence::new(vec![
-                        Ref::new("BracketedColumnReferenceListGrammar")
-                            .optional()
-                            .to_matchable(),
-                        Ref::new("ValuesClauseSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::new("SetClauseListSegment").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::new("BracketedColumnReferenceListGrammar")
-                            .optional()
-                            .to_matchable(),
-                        one_of(vec![
-                            Ref::new("SelectableGrammar").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("TABLE").to_matchable(),
-                                Ref::new("TableReferenceSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable()
+            replace_statement_grammar(true, false)
         })
         .to_matchable()
         .into(),
@@ -3636,38 +3498,7 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // SelectStatementSegment - add ORDER BY, LIMIT, named window, INTO, FOR.
-    mysql.replace_grammar(
-        "SelectStatementSegment",
-        Sequence::new(vec![
-            Ref::new("SelectClauseSegment").to_matchable(),
-            Ref::new("IntoClauseSegment").optional().to_matchable(),
-            Ref::new("FromClauseSegment").optional().to_matchable(),
-            Ref::new("SelectPartitionClauseSegment")
-                .optional()
-                .to_matchable(),
-            Ref::new("IndexHintClauseSegment").optional().to_matchable(),
-            Ref::new("WhereClauseSegment").optional().to_matchable(),
-            Ref::new("GroupByClauseSegment").optional().to_matchable(),
-            Ref::new("HavingClauseSegment").optional().to_matchable(),
-            Ref::new("OverlapsClauseSegment").optional().to_matchable(),
-            Ref::new("OrderByClauseSegment").optional().to_matchable(),
-            Ref::new("LimitClauseSegment").optional().to_matchable(),
-            Ref::new("NamedWindowSegment").optional().to_matchable(),
-            Ref::new("IntoClauseSegment").optional().to_matchable(),
-            Ref::new("ForClauseSegment").optional().to_matchable(),
-        ])
-        .terminators(vec![
-            Ref::new("SetOperatorSegment").to_matchable(),
-            Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
-            Ref::new("WithDataClauseSegment").to_matchable(),
-            Ref::new("UpsertClauseListSegment").to_matchable(),
-            Ref::new("WithCheckOptionSegment").to_matchable(),
-        ])
-        .config(|this| {
-            this.parse_mode(ParseMode::GreedyOnceStarted);
-        })
-        .to_matchable(),
-    );
+    mysql.replace_grammar("SelectStatementSegment", select_statement_grammar(false));
 
     // ============================================================
     // RETURN statement (#4693) — https://dev.mysql.com/doc/refman/8.0/en/return.html
@@ -4080,6 +3911,232 @@ pub(crate) fn column_constraint_grammar(allow_persistent: bool) -> Matchable {
         ])
         .to_matchable(),
     ])
+    .to_matchable()
+}
+
+/// Build the `INSERT` grammar shared by MySQL and MariaDB. MySQL accepts a
+/// `TABLE` source, while MariaDB supports a trailing `RETURNING` clause.
+pub(crate) fn insert_statement_grammar(
+    allow_table_source: bool,
+    allow_returning: bool,
+) -> Matchable {
+    let select_source = if allow_table_source {
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::new("SelectableGrammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable()
+    } else {
+        Ref::new("SelectStatementSegment").to_matchable()
+    };
+
+    let mut insert_clauses = vec![
+        one_of(vec![
+            Ref::new("ValuesClauseSegment").to_matchable(),
+            Ref::new("SetClauseListSegment").to_matchable(),
+            select_source,
+        ])
+        .to_matchable(),
+        Ref::new("InsertRowAliasSegment").optional().to_matchable(),
+        Ref::new("UpsertClauseListSegment")
+            .optional()
+            .to_matchable(),
+    ];
+    if allow_returning {
+        insert_clauses.push(Ref::new("ReturningClauseSegment").optional().to_matchable());
+    }
+
+    Sequence::new(vec![
+        Ref::keyword("INSERT").to_matchable(),
+        one_of(vec![
+            Ref::keyword("LOW_PRIORITY").to_matchable(),
+            Ref::keyword("DELAYED").to_matchable(),
+            Ref::keyword("HIGH_PRIORITY").to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        Ref::keyword("IGNORE").optional().to_matchable(),
+        Ref::keyword("INTO").optional().to_matchable(),
+        Ref::new("TableReferenceSegment").to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("PARTITION").to_matchable(),
+            Bracketed::new(vec![Ref::new("SingleIdentifierListSegment").to_matchable()])
+                .to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        Ref::new("BracketedColumnReferenceListGrammar")
+            .optional()
+            .to_matchable(),
+        any_set_of(insert_clauses).to_matchable(),
+    ])
+    .to_matchable()
+}
+
+/// Build the `DELETE` grammar shared by MySQL and MariaDB. MariaDB supports
+/// `RETURNING` on the single-table form.
+pub(crate) fn delete_statement_grammar(allow_returning: bool) -> Matchable {
+    let mut simple_delete = vec![
+        Ref::new("FromClauseSegment").to_matchable(),
+        Ref::new("SelectPartitionClauseSegment")
+            .optional()
+            .to_matchable(),
+        Ref::new("WhereClauseSegment").optional().to_matchable(),
+        Ref::new("OrderByClauseSegment").optional().to_matchable(),
+        Ref::new("LimitClauseSegment").optional().to_matchable(),
+    ];
+    if allow_returning {
+        simple_delete.push(Ref::new("ReturningClauseSegment").optional().to_matchable());
+    }
+
+    Sequence::new(vec![
+        Ref::keyword("DELETE").to_matchable(),
+        Ref::keyword("LOW_PRIORITY").optional().to_matchable(),
+        Ref::keyword("QUICK").optional().to_matchable(),
+        Ref::keyword("IGNORE").optional().to_matchable(),
+        one_of(vec![
+            // DELETE FROM ... USING ...
+            Sequence::new(vec![
+                Ref::keyword("FROM").to_matchable(),
+                Delimited::new(vec![Ref::new("DeleteTargetTableSegment").to_matchable()])
+                    .config(|this| {
+                        this.base.terminators = vec![Ref::keyword("USING").to_matchable()]
+                    })
+                    .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("USING").to_matchable(),
+                    Delimited::new(vec![Ref::new("FromExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("WhereClauseSegment").optional().to_matchable(),
+            ])
+            .to_matchable(),
+            // DELETE ... FROM ...
+            Sequence::new(vec![
+                Delimited::new(vec![Ref::new("DeleteTargetTableSegment").to_matchable()])
+                    .config(|this| {
+                        this.base.terminators = vec![Ref::keyword("FROM").to_matchable()]
+                    })
+                    .to_matchable(),
+                Ref::new("FromClauseSegment").to_matchable(),
+                Ref::new("WhereClauseSegment").optional().to_matchable(),
+            ])
+            .to_matchable(),
+            // Simple DELETE FROM ...
+            Sequence::new(simple_delete).to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable()
+}
+
+/// Build the `REPLACE` grammar shared by MySQL and MariaDB. MySQL accepts a
+/// `TABLE` source, while MariaDB supports a trailing `RETURNING` clause.
+pub(crate) fn replace_statement_grammar(
+    allow_table_source: bool,
+    allow_returning: bool,
+) -> Matchable {
+    let select_source = if allow_table_source {
+        one_of(vec![
+            Ref::new("SelectableGrammar").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable()
+    } else {
+        Ref::new("SelectStatementSegment").to_matchable()
+    };
+
+    let mut items = vec![
+        Ref::keyword("REPLACE").to_matchable(),
+        one_of(vec![
+            Ref::keyword("LOW_PRIORITY").to_matchable(),
+            Ref::keyword("DELAYED").to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        Ref::keyword("INTO").optional().to_matchable(),
+        Ref::new("TableReferenceSegment").to_matchable(),
+        Ref::new("SelectPartitionClauseSegment")
+            .optional()
+            .to_matchable(),
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::new("BracketedColumnReferenceListGrammar")
+                    .optional()
+                    .to_matchable(),
+                Ref::new("ValuesClauseSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("SetClauseListSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("BracketedColumnReferenceListGrammar")
+                    .optional()
+                    .to_matchable(),
+                select_source,
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    ];
+    if allow_returning {
+        items.push(Ref::new("ReturningClauseSegment").optional().to_matchable());
+    }
+
+    Sequence::new(items).to_matchable()
+}
+
+/// Build the `SELECT` grammar shared by MySQL and MariaDB. A MariaDB select
+/// used as an INSERT or REPLACE source must stop before `RETURNING`.
+pub(crate) fn select_statement_grammar(allow_returning: bool) -> Matchable {
+    let mut terminators = vec![
+        Ref::new("SetOperatorSegment").to_matchable(),
+        Ref::new("UpsertClauseListSegment").to_matchable(),
+        Ref::new("WithCheckOptionSegment").to_matchable(),
+    ];
+    if allow_returning {
+        terminators.push(Ref::new("ReturningClauseSegment").to_matchable());
+    } else {
+        terminators.insert(
+            1,
+            Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
+        );
+        terminators.insert(2, Ref::new("WithDataClauseSegment").to_matchable());
+    }
+
+    Sequence::new(vec![
+        Ref::new("SelectClauseSegment").to_matchable(),
+        Ref::new("IntoClauseSegment").optional().to_matchable(),
+        Ref::new("FromClauseSegment").optional().to_matchable(),
+        Ref::new("SelectPartitionClauseSegment")
+            .optional()
+            .to_matchable(),
+        Ref::new("IndexHintClauseSegment").optional().to_matchable(),
+        Ref::new("WhereClauseSegment").optional().to_matchable(),
+        Ref::new("GroupByClauseSegment").optional().to_matchable(),
+        Ref::new("HavingClauseSegment").optional().to_matchable(),
+        Ref::new("OverlapsClauseSegment").optional().to_matchable(),
+        Ref::new("OrderByClauseSegment").optional().to_matchable(),
+        Ref::new("LimitClauseSegment").optional().to_matchable(),
+        Ref::new("NamedWindowSegment").optional().to_matchable(),
+        Ref::new("IntoClauseSegment").optional().to_matchable(),
+        Ref::new("ForClauseSegment").optional().to_matchable(),
+    ])
+    .terminators(terminators)
+    .config(|this| {
+        this.parse_mode(ParseMode::GreedyOnceStarted);
+    })
     .to_matchable()
 }
 

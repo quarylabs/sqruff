@@ -1763,6 +1763,91 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    // CREATE EVENT TABLE.
+    // https://docs.snowflake.com/en/sql-reference/sql/create-event-table
+    snowflake_dialect.add([(
+        "CreateEventTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateEventTableStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                Ref::keyword("EVENT").to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                any_set_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CLUSTER").to_matchable(),
+                        Ref::keyword("BY").to_matchable(),
+                        one_of(vec![
+                            Ref::new("FunctionSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DATA_RETENTION_TIME_IN_DAYS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("MAX_DATA_EXTENSION_TIME_IN_DAYS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CHANGE_TRACKING").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("BooleanLiteralGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DEFAULT_DDL_COLLATION").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COPY").to_matchable(),
+                        Ref::keyword("GRANTS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("ROW").to_matchable(),
+                        Ref::keyword("ACCESS").to_matchable(),
+                        Ref::keyword("POLICY").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("TagBracketedEqualsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     snowflake_dialect.replace_grammar(
         "StatementSegment",
         ansi::statement_segment().copy(
@@ -1776,6 +1861,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("AlterProcedureStatementSegment").to_matchable(),
                 Ref::new("ScriptingBlockStatementSegment").to_matchable(),
                 Ref::new("ForInLoopSegment").to_matchable(),
+                Ref::new("CreateEventTableStatementSegment").to_matchable(),
                 Ref::new("ScriptingLetStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
                 Ref::new("ShowStatementSegment").to_matchable(),
@@ -8628,6 +8714,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     Ref::new("QuotedLiteralSegment").to_matchable(),
                                     Ref::new("NumericLiteralSegment").to_matchable(),
                                     Ref::new("NakedIdentifierSegment").to_matchable(),
+                                    Ref::new("TableReferenceSegment").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])

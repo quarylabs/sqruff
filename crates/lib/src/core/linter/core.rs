@@ -6,7 +6,7 @@ use std::sync::{Arc, OnceLock};
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;
-use crate::core::linter::common::{BatchRenderedResult, ParsedString, RenderedFile};
+use crate::core::linter::common::{BatchRenderedResult, ParsedString, ParsedVariant, RenderedFile};
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::noqa::IgnoreMask;
@@ -210,6 +210,7 @@ impl Linter {
                         None,
                     )
                     .expect("Creating raw TemplatedFile should not fail"),
+                    alternate_templated_files: Vec::new(),
                     templater_violations: vec![SQLTemplaterError::new(format!(
                         "Failed to template file {fname}: {err}"
                     ))],
@@ -245,6 +246,7 @@ impl Linter {
                             None,
                         )
                         .expect("Creating raw TemplatedFile should not fail"),
+                        alternate_templated_files: Vec::new(),
                         templater_violations: vec![],
                         filename: fname.clone(),
                         source_str,
@@ -270,18 +272,37 @@ impl Linter {
             .collect();
 
         // Process all files in batch
-        let results = self
-            .templater
-            .process(&file_refs, &self.config, &self.formatter);
+        let results =
+            self.templater
+                .process_with_variants(&file_refs, &self.config, &self.formatter);
 
         // Convert results to BatchRenderedResults, preserving order
         results
             .into_iter()
             .zip(files.iter())
             .map(|(result, (source_str, fname))| match result {
-                Ok(templated_file) => BatchRenderedResult::Rendered(RenderedFile {
-                    templated_file,
-                    templater_violations: vec![],
+                Ok(mut templated_files) if !templated_files.is_empty() => {
+                    BatchRenderedResult::Rendered(RenderedFile {
+                        templated_file: templated_files.remove(0),
+                        alternate_templated_files: templated_files,
+                        templater_violations: vec![],
+                        filename: fname.clone(),
+                        source_str: source_str.clone(),
+                    })
+                }
+                Ok(_) => BatchRenderedResult::Rendered(RenderedFile {
+                    templated_file: TemplatedFile::new(
+                        source_str.clone(),
+                        fname.clone(),
+                        None,
+                        None,
+                        None,
+                    )
+                    .expect("Creating raw TemplatedFile should not fail"),
+                    alternate_templated_files: Vec::new(),
+                    templater_violations: vec![SQLTemplaterError::new(format!(
+                        "Templater returned no variants for file {fname}"
+                    ))],
                     filename: fname.clone(),
                     source_str: source_str.clone(),
                 }),
@@ -307,6 +328,7 @@ impl Linter {
                             None,
                         )
                         .expect("Creating raw TemplatedFile should not fail"),
+                        alternate_templated_files: Vec::new(),
                         templater_violations: vec![SQLTemplaterError::new(format!(
                             "Failed to template file {fname}: {err}"
                         ))],
@@ -350,6 +372,15 @@ impl Linter {
             None => (Vec::new(), None, Vec::new()),
         };
         violations.extend(initial_linting_errors.into_iter().map_into());
+
+        for alternate_variant in parsed_string.alternate_variants {
+            violations.extend(alternate_variant.violations);
+            if let Some(tree) = alternate_variant.tree {
+                let (_, _, alternate_linting_errors) =
+                    self.lint_fix_parsed(tables, tree, &alternate_variant.templated_file, fix)?;
+                violations.extend(alternate_linting_errors.into_iter().map_into());
+            }
+        }
 
         // Filter violations with ignore mask
         if let Some(ignore_mask) = &ignore_mask {
@@ -567,21 +598,25 @@ impl Linter {
         }
 
         let templater_violations = vec![];
-        let mut results = self.templater.process(
+        let mut results = self.templater.process_with_variants(
             &[(sql.as_ref(), filename.as_str())],
             config,
             &self.formatter,
         );
 
         match results.pop() {
-            Some(Ok(templated_file)) => Ok(RenderedFile {
-                templated_file,
+            Some(Ok(mut templated_files)) if !templated_files.is_empty() => Ok(RenderedFile {
+                templated_file: templated_files.remove(0),
+                alternate_templated_files: templated_files,
                 templater_violations,
                 filename,
                 source_str: sql.to_string(),
             }),
             Some(Err(err)) => Err(SQLFluffUserError::new(format!(
                 "Failed to template file {filename} with error {err:?}"
+            ))),
+            Some(Ok(_)) => Err(SQLFluffUserError::new(format!(
+                "Templater returned no variants for file {filename}"
             ))),
             None => Err(SQLFluffUserError::new(format!(
                 "Templater returned no results for file {filename}"
@@ -607,16 +642,36 @@ impl Linter {
                 templated_file: rendered.templated_file,
                 filename: rendered.filename,
                 source_str: rendered.source_str,
+                alternate_variants: Vec::new(),
             };
         }
 
+        let alternate_variants = rendered
+            .alternate_templated_files
+            .into_iter()
+            .map(|templated_file| self.parse_templated_variant(tables, templated_file))
+            .collect();
+        let primary = self.parse_templated_variant(tables, rendered.templated_file);
+
+        ParsedString {
+            tree: primary.tree,
+            violations: primary.violations,
+            templated_file: primary.templated_file,
+            filename: rendered.filename,
+            source_str: rendered.source_str,
+            alternate_variants,
+        }
+    }
+
+    fn parse_templated_variant(
+        &self,
+        tables: &Tables,
+        templated_file: TemplatedFile,
+    ) -> ParsedVariant {
         let mut violations = Vec::new();
-        let tokens = if rendered.templated_file.is_templated() {
-            let (t, lvs) = Self::lex_templated_file(
-                tables,
-                rendered.templated_file.clone(),
-                &self.config.dialect,
-            );
+        let tokens = if templated_file.is_templated() {
+            let (t, lvs) =
+                Self::lex_templated_file(tables, templated_file.clone(), &self.config.dialect);
             if !lvs.is_empty() {
                 unimplemented!("violations.extend(lvs);")
             }
@@ -635,12 +690,10 @@ impl Linter {
             parsed = None;
         };
 
-        ParsedString {
+        ParsedVariant {
             tree: parsed,
             violations,
-            templated_file: rendered.templated_file,
-            filename: rendered.filename,
-            source_str: rendered.source_str,
+            templated_file,
         }
     }
 
@@ -1163,6 +1216,7 @@ rules = all
                 None,
             )
             .unwrap(),
+            alternate_templated_files: Vec::new(),
             templater_violations: vec![SQLTemplaterError::new(
                 "Failed to template file: dbt project not found".to_string(),
             )],

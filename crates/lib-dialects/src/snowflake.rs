@@ -2916,8 +2916,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("DROP").to_matchable(),
                         Ref::keyword("COLUMN").optional().to_matchable(),
-                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                            ])
                             .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     // Add or Modify column

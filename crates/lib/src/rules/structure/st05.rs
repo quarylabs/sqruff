@@ -151,8 +151,6 @@ join c using(x)
         let mut subquery_parent = None;
 
         let mut local_fixes = Vec::new();
-        let mut q = Vec::new();
-
         for result in results {
             let (lint_result, from_expression, alias_name, subquery_parent_slot) = result;
             subquery_parent = Some(subquery_parent_slot.clone());
@@ -173,8 +171,6 @@ join c using(x)
                 None,
             ));
 
-            q.push(subquery_parent_slot);
-
             let bracketed_ctas = parent_stack
                 .base
                 .iter()
@@ -194,16 +190,31 @@ join c using(x)
             return lint_results;
         }
 
-        let mut fixes = HashMap::default();
-        compute_anchor_edit_info(&mut fixes, local_fixes);
         let parser: sqruff_lib_core::parser::Parser = context.config.into();
         let mut parse_context = (&parser).into();
-        let (new_root, _, _, _) = clone_map.root.apply_fixes(&mut fixes, &mut parse_context);
-
-        let clone_map = SegmentCloneMap::new(segment.first().unwrap().clone(), new_root.clone());
-        for subquery_parent_slot in q {
-            ctes.replace_with_clone(subquery_parent_slot, &clone_map);
+        for cte in &mut ctes.ctes {
+            let mut segments = cte.segments().to_vec();
+            let Some(subquery_idx) = segments
+                .iter()
+                .rposition(|segment| segment.get_position_marker().is_some())
+            else {
+                continue;
+            };
+            let mut cte_fixes = HashMap::default();
+            compute_anchor_edit_info(&mut cte_fixes, local_fixes.clone());
+            let (new_subquery, _, _, _) =
+                segments[subquery_idx].apply_fixes(&mut cte_fixes, &mut parse_context);
+            segments[subquery_idx] = new_subquery;
+            let mut builder =
+                SegmentBuilder::node(cte.id(), cte.get_type(), context.dialect.name, segments);
+            if let Some(position) = cte.get_position_marker() {
+                builder = builder.with_position(position.clone());
+            }
+            *cte = builder.finish();
         }
+        let mut fixes = HashMap::default();
+        compute_anchor_edit_info(&mut fixes, local_fixes);
+        let (new_root, _, _, _) = clone_map.root.apply_fixes(&mut fixes, &mut parse_context);
 
         let _segment = Segments::new(new_root, None);
         let output_select = if is_with {
@@ -571,25 +582,6 @@ impl CTEBuilder {
             from_clause_children,
             from_segment,
         )
-    }
-}
-
-impl CTEBuilder {
-    pub(crate) fn replace_with_clone(
-        &mut self,
-        segment: ErasedSegment,
-        clone_map: &SegmentCloneMap,
-    ) {
-        for (idx, cte) in enumerate(&self.ctes) {
-            if cte
-                .recursive_crawl_all(false)
-                .into_iter()
-                .any(|seg| segment.is(&seg))
-            {
-                self.ctes[idx] = clone_map[&self.ctes[idx]].clone();
-                return;
-            }
-        }
     }
 }
 

@@ -840,80 +840,7 @@ pub fn raw_dialect() -> Dialect {
     // CreateUserStatementSegment.
     mysql.replace_grammar("CreateUserStatementSegment", create_user_grammar(false));
 
-    // ColumnConstraintSegment - add CHARACTER SET and COLLATE.
-    // We inline the ANSI grammar here rather than using mysql.grammar() which would
-    // embed a NodeMatcher directly (NodeMatcher doesn't support cache_key).
-    mysql.replace_grammar(
-        "ColumnConstraintSegment",
-        Sequence::new(vec![
-            Sequence::new(vec![
-                Ref::keyword("CONSTRAINT").to_matchable(),
-                Ref::new("ObjectReferenceSegment").to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
-            one_of(vec![
-                Sequence::new(vec![
-                    Ref::keyword("NOT").optional().to_matchable(),
-                    Ref::keyword("NULL").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("CHECK").to_matchable(),
-                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
-                        .to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("DEFAULT").to_matchable(),
-                    Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::new("PrimaryKeyGrammar").to_matchable(),
-                Ref::new("UniqueKeyGrammar").to_matchable(),
-                Ref::new("AutoIncrementGrammar").to_matchable(),
-                Ref::new("ReferenceDefinitionGrammar").to_matchable(),
-                Ref::new("CommentClauseSegment").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("COLLATE").to_matchable(),
-                    Ref::new("CollationReferenceSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                // MySQL-specific: CHARACTER SET and COLLATE with NakedIdentifier
-                Sequence::new(vec![
-                    Ref::keyword("CHARACTER").to_matchable(),
-                    Ref::keyword("SET").to_matchable(),
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("COLLATE").to_matchable(),
-                    Ref::new("CollationReferenceSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Sequence::new(vec![
-                        Ref::keyword("GENERATED").to_matchable(),
-                        Ref::keyword("ALWAYS").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                    Ref::keyword("AS").to_matchable(),
-                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
-                        .to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("STORED").to_matchable(),
-                        Ref::keyword("VIRTUAL").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-        ])
-        .to_matchable(),
-    );
+    mysql.replace_grammar("ColumnConstraintSegment", column_constraint_grammar(false));
 
     // IndexTypeGrammar.
     mysql.add([(
@@ -4076,6 +4003,84 @@ pub(crate) fn create_table_options() -> Matchable {
     .to_matchable();
 
     AnyNumberOf::new(vec![table_option(true), partition_by]).to_matchable()
+}
+
+/// Build the column constraint grammar shared by MySQL and MariaDB. MariaDB
+/// additionally permits `PERSISTENT` generated columns.
+pub(crate) fn column_constraint_grammar(allow_persistent: bool) -> Matchable {
+    let mut generated_column_types = vec![
+        Ref::keyword("STORED").to_matchable(),
+        Ref::keyword("VIRTUAL").to_matchable(),
+    ];
+    if allow_persistent {
+        generated_column_types.push(Ref::keyword("PERSISTENT").to_matchable());
+    }
+
+    // We inline the ANSI grammar here rather than using mysql.grammar() which would
+    // embed a NodeMatcher directly (NodeMatcher doesn't support cache_key).
+    Sequence::new(vec![
+        Sequence::new(vec![
+            Ref::keyword("CONSTRAINT").to_matchable(),
+            Ref::new("ObjectReferenceSegment").to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("NOT").optional().to_matchable(),
+                Ref::keyword("NULL").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("CHECK").to_matchable(),
+                Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()]).to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("DEFAULT").to_matchable(),
+                Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("PrimaryKeyGrammar").to_matchable(),
+            Ref::new("UniqueKeyGrammar").to_matchable(),
+            Ref::new("AutoIncrementGrammar").to_matchable(),
+            Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+            Ref::new("CommentClauseSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("COLLATE").to_matchable(),
+                Ref::new("CollationReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            // MySQL-specific: CHARACTER SET and COLLATE with NakedIdentifier
+            Sequence::new(vec![
+                Ref::keyword("CHARACTER").to_matchable(),
+                Ref::keyword("SET").to_matchable(),
+                Ref::new("NakedIdentifierSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("COLLATE").to_matchable(),
+                Ref::new("CollationReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("GENERATED").to_matchable(),
+                    Ref::keyword("ALWAYS").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()]).to_matchable(),
+                one_of(generated_column_types)
+                    .config(|this| this.optional())
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable()
 }
 
 /// Build the `CREATE TABLE` grammar shared by MySQL and MariaDB. `column_block`

@@ -108,6 +108,7 @@ rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = "2024",
     extra_target_triples = ["wasm32-unknown-unknown"],
+    rustfmt_version = "1.97.1",
     versions = ["1.97.1"],
 )
 use_repo(rust, "rust_toolchains")

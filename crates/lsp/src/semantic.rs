@@ -622,6 +622,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | UnicodeSingleQuote
         | EscapedSingleQuote
         | UnicodeDoubleQuote
+        | UnicodeEscapeValue
         | At
         | FileKeyword
         | SemiStructuredElement

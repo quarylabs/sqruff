@@ -1722,6 +1722,28 @@ pub fn raw_dialect() -> Dialect {
                             this.optional();
                         })
                         .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("EXTENSION").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("PARALLEL").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ON").to_matchable(),
+                                    Ref::keyword("OFF").to_matchable(),
+                                    Ref::keyword("TRUE").to_matchable(),
+                                    Ref::keyword("FALSE").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| {
+                                this.optional();
+                            })
+                            .to_matchable(),
+                        ])
+                        .config(|this| {
+                            this.optional();
+                        })
+                        .to_matchable(),
                         one_of(vec![
                             Sequence::new(vec![
                                 Ref::keyword("DELIMITER").to_matchable(),

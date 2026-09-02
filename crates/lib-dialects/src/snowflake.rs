@@ -2212,6 +2212,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::FromUnpivotExpression, |_| {
                 Sequence::new(vec![
                     Ref::keyword("UNPIVOT").to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("INCLUDE").to_matchable(),
+                            Ref::keyword("EXCLUDE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("NULLS").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     Bracketed::new(vec![
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
                         Ref::keyword("FOR").to_matchable(),

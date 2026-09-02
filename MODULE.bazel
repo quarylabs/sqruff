@@ -123,6 +123,9 @@ crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
 crate.from_cargo(
     name = "crates",
     cargo_lockfile = "//:Cargo.lock",
+    # Regenerate with CARGO_BAZEL_REPIN=1 bazelisk query
+    # --guard_against_concurrent_changes=off '@crates//:all'.
+    lockfile = "//:cargo-bazel-lock.json",
     manifests = [
         "//:Cargo.toml",
         "//crates/cli:Cargo.toml",

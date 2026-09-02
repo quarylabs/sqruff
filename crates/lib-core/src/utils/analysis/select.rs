@@ -28,7 +28,7 @@ pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegm
         .recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
             true,
-            const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
+            const { &SyntaxSet::new(&[SyntaxKind::SelectStatement, SyntaxKind::MergeStatement]) },
             true,
         )
         .into_iter()

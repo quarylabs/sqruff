@@ -1,5 +1,5 @@
-# Build with optimizations
-build --compilation_mode=opt
+# Build published artifacts with optimizations
+build:release --compilation_mode=opt
 
 # Use remote cache for CI (can be configured per-environment)
 # build --remote_cache=...

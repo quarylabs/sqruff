@@ -1575,20 +1575,46 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     snowflake_dialect.add([(
         "ConnectByClauseSegment".into(),
         NodeMatcher::new(SyntaxKind::ConnectbyClause, |_| {
-            Sequence::new(vec![
-                Ref::keyword("START").to_matchable(),
-                Ref::keyword("WITH").to_matchable(),
-                Ref::new("ExpressionSegment").to_matchable(),
-                Ref::keyword("CONNECT").to_matchable(),
-                Ref::keyword("BY").to_matchable(),
-                Delimited::new(vec![
-                    Sequence::new(vec![
-                        Ref::keyword("PRIOR").optional().to_matchable(),
-                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::keyword("PRIOR").optional().to_matchable(),
-                        Ref::new("ColumnReferenceSegment").to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("START").to_matchable(),
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::keyword("CONNECT").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("PRIOR").optional().to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::keyword("PRIOR").optional().to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("CONNECT").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("PRIOR").optional().to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.delimiter(Ref::keyword("AND")))
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("START").to_matchable(),
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
                     .to_matchable(),
                 ])
                 .to_matchable(),

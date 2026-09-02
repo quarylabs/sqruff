@@ -88,4 +88,18 @@ pub trait Templater: Send + Sync {
         config: &FluffConfig,
         formatter: &Option<Arc<dyn Formatter>>,
     ) -> Vec<Result<TemplatedFile, SQLFluffUserError>>;
+
+    /// Process files and return every useful rendering of each source file.
+    /// Templaters without variant support return their single normal rendering.
+    fn process_with_variants(
+        &self,
+        files: &[(&str, &str)],
+        config: &FluffConfig,
+        formatter: &Option<Arc<dyn Formatter>>,
+    ) -> Vec<Result<Vec<TemplatedFile>, SQLFluffUserError>> {
+        self.process(files, config, formatter)
+            .into_iter()
+            .map(|result| result.map(|templated_file| vec![templated_file]))
+            .collect()
+    }
 }

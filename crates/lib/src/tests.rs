@@ -365,6 +365,7 @@ fn test_reindent_no_false_positive_in_jinja_for_loop() {
     // module imports `sqruff_lib` as an external crate at the top of the file).
     let rendered = crate::core::linter::common::RenderedFile {
         templated_file,
+        alternate_templated_files: Vec::new(),
         templater_violations: vec![],
         filename: "a.sql".to_string(),
         source_str: source.to_string(),
@@ -619,6 +620,7 @@ fn test_lt12_reports_missing_source_newline_after_jinja_block() {
 
     let rendered = crate::core::linter::common::RenderedFile {
         templated_file,
+        alternate_templated_files: Vec::new(),
         templater_violations: vec![],
         filename: "a.sql".to_string(),
         source_str: source.to_string(),
@@ -902,6 +904,7 @@ fn test_lt12_reports_extra_rendered_newline_before_jinja_block() {
 
     let rendered = crate::core::linter::common::RenderedFile {
         templated_file,
+        alternate_templated_files: Vec::new(),
         templater_violations: vec![],
         filename: "a.sql".to_string(),
         source_str: source.to_string(),

@@ -1011,6 +1011,7 @@ class JinjaTemplater(PythonTemplater):
         *,
         in_str: str,
         fname: str,
+        context: Optional[Dict[str, Any]] = None,
         config: Optional[FluffConfig] = None,
         # formatter: Optional[FormatterInterface] = None,
     ) -> Iterator[Tuple[TemplatedFile, List[SQLTemplaterError]]]:
@@ -1036,6 +1037,7 @@ class JinjaTemplater(PythonTemplater):
         templated_file, violations = self.process(
             in_str=in_str,
             fname=fname,
+            context=context,
             config=config,
         )
         yield templated_file, violations
@@ -1064,7 +1066,9 @@ class JinjaTemplater(PythonTemplater):
 
         # NOTE: No validation required as all validation done in the `.process()`
         # call above.
-        _, _, render_func = self.construct_render_func(fname=fname, config=config)
+        _, _, render_func = self.construct_render_func(
+            fname=fname, config=config, context=context
+        )
 
         for raw_sliced, sliced_file, templated_str in self._handle_unreached_code(
             in_str, render_func, uncovered_literal_idxs, config=config
@@ -1255,3 +1259,25 @@ def process_from_rust(
     if errors != []:
         raise ValueError
     return output
+
+
+def process_variants_from_rust(
+    string: str,
+    fname: str,
+    config_string: str,
+    live_context: Dict[str, Any],
+) -> List[TemplatedFile]:
+    """Process the call from Rust and return all useful render variants."""
+    templater = JinjaTemplater(override_context=live_context)
+    config = fluff_config_from_json(config_string)
+    outputs: List[TemplatedFile] = []
+    for output, errors in templater.process_with_variants(
+        in_str=string,
+        fname=fname,
+        context=live_context,
+        config=config,
+    ):
+        if errors:
+            raise ValueError
+        outputs.append(output)
+    return outputs

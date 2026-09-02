@@ -40,6 +40,36 @@ impl JinjaTemplater {
         .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {e:?}")))?;
         Ok(templated_file)
     }
+
+    fn process_single_with_variants(
+        &self,
+        in_str: &str,
+        f_name: &str,
+        config: &FluffConfig,
+    ) -> Result<Vec<TemplatedFile>, SQLFluffUserError> {
+        Python::attach(|py| -> PyResult<Vec<TemplatedFile>> {
+            let main_module = PyModule::import(py, "sqruff.templaters.jinja_templater")?;
+            let fun: Py<PyAny> = main_module.getattr("process_variants_from_rust")?.into();
+
+            let py_dict = config.to_python_context(py, TemplaterKind::Jinja).unwrap();
+            let python_fluff_config = PythonFluffConfig::from(config);
+            let returned = fun.call1(
+                py,
+                (
+                    in_str.to_string(),
+                    f_name.to_string(),
+                    python_fluff_config.to_json_string(),
+                    py_dict,
+                ),
+            )?;
+            returned
+                .extract::<Vec<PythonTemplatedFile>>(py)?
+                .into_iter()
+                .map(|templated_file| templated_file.to_templated_file())
+                .collect()
+        })
+        .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {e:?}")))
+    }
 }
 
 impl Templater for JinjaTemplater {
@@ -194,11 +224,24 @@ SELECT "{{ "2000-01-01" | ds }}";
             .map(|(content, fname)| self.process_single(content, fname, config))
             .collect()
     }
+
+    fn process_with_variants(
+        &self,
+        files: &[(&str, &str)],
+        config: &FluffConfig,
+        _: &Option<Arc<dyn Formatter>>,
+    ) -> Vec<Result<Vec<TemplatedFile>, SQLFluffUserError>> {
+        files
+            .iter()
+            .map(|(content, fname)| self.process_single_with_variants(content, fname, config))
+            .collect()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::core::config::FluffConfig;
+    use crate::core::linter::core::Linter;
 
     use super::*;
 
@@ -229,6 +272,41 @@ FROM events
             processed.templated(),
             "\n\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , click_item\n    \nFROM events\n"
         )
+    }
+
+    #[test]
+    fn test_jinja_lints_all_render_variants() {
+        let source = r#"-- exercise both branches
+select 1 AS foo, {% if 1 > 2 %}2 AS boo{% else %}3 AS boo{% endif %}"#;
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = ansi
+templater = jinja
+rules = CP01
+ignore_templated_areas = False
+"#,
+            None,
+        );
+
+        let variants = JinjaTemplater
+            .process_with_variants(&[(source, "test.sql")], &config, &None)
+            .remove(0)
+            .unwrap();
+        assert_eq!(variants.len(), 2);
+
+        let linter = Linter::new(config, None, None, false).unwrap();
+        let linted = linter
+            .lint_string(source, Some("test.sql".to_string()), false)
+            .unwrap();
+        let positions = linted
+            .violations()
+            .iter()
+            .filter(|violation| violation.rule_code() == "CP01")
+            .map(|violation| (violation.line_no, violation.line_pos))
+            .collect::<Vec<_>>();
+
+        assert_eq!(positions, vec![(2, 10), (2, 34), (2, 52)]);
     }
 
     #[test]

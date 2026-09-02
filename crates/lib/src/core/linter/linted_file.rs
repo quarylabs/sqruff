@@ -26,6 +26,16 @@ impl LintedFile {
         mut violations: Vec<SQLBaseError>,
         ignore_mask: Option<IgnoreMask>,
     ) -> Self {
+        let mut seen = HashSet::new();
+        violations.retain(|violation| {
+            seen.insert((
+                violation.line_no,
+                violation.line_pos,
+                violation.rule_code(),
+                violation.description.clone(),
+                violation.source_slice.clone(),
+            ))
+        });
         violations.sort_by_key(|v| (v.line_no, v.line_pos));
 
         Self {

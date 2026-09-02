@@ -364,9 +364,16 @@ impl Default for FluffConfigIndentation {
 pub struct ConfigLoader;
 
 impl ConfigLoader {
+    fn user_home_dir() -> Option<PathBuf> {
+        std::env::var_os("HOME")
+            .or_else(|| std::env::var_os("USERPROFILE"))
+            .map(PathBuf::from)
+    }
+
     fn iter_config_locations_up_to_path(
         path: &Path,
         working_path: Option<&Path>,
+        home_path: Option<&Path>,
         _ignore_local_config: bool,
     ) -> impl Iterator<Item = PathBuf> {
         let mut given_path = std::path::absolute(path).unwrap();
@@ -381,9 +388,29 @@ impl ConfigLoader {
         let resolve = |path: &Path| path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
         let mut paths = Vec::new();
 
+        let home_path = home_path
+            .map(|path| std::path::absolute(path).unwrap())
+            .or_else(Self::user_home_dir)
+            .map(|path| std::path::absolute(path).unwrap());
+        if let Some(home_path) = home_path
+            && let Ok(relative_path) = working_path.strip_prefix(&home_path)
+        {
+            let mut path_to_visit = home_path;
+            paths.push(resolve(&path_to_visit));
+            for component in relative_path.components() {
+                path_to_visit.push(component.as_os_str());
+                if path_to_visit != working_path {
+                    paths.push(resolve(&path_to_visit));
+                }
+            }
+        }
+
         if let Some(mut path_to_visit) = common_path::common_path(&given_path, &working_path) {
             loop {
-                paths.push(resolve(&path_to_visit));
+                let path = resolve(&path_to_visit);
+                if paths.last() != Some(&path) {
+                    paths.push(path);
+                }
                 if path_to_visit == given_path {
                     break;
                 }
@@ -434,7 +461,8 @@ impl ConfigLoader {
                 Vec::new()
             }
         } else {
-            let configs = Self::iter_config_locations_up_to_path(path, None, ignore_local_config);
+            let configs =
+                Self::iter_config_locations_up_to_path(path, None, None, ignore_local_config);
             configs
                 .map(|path| self.try_load_config_at_path(path))
                 .collect::<Result<Vec<_>, _>>()?
@@ -760,7 +788,14 @@ fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, 
 
     for dict in config_stack {
         for (key, value) in dict {
-            result.insert(key, value);
+            match (result.get_mut(&key), value) {
+                (Some(Value::Map(existing)), Value::Map(incoming)) => {
+                    *existing = nested_combine(vec![std::mem::take(existing), incoming]);
+                }
+                (_, value) => {
+                    result.insert(key, value);
+                }
+            }
         }
     }
 
@@ -806,6 +841,7 @@ mod tests {
         let paths = ConfigLoader::iter_config_locations_up_to_path(
             &nested.join("query.sql"),
             Some(&root),
+            Some(&root),
             false,
         )
         .collect::<Vec<_>>();
@@ -817,6 +853,54 @@ mod tests {
                 root.join("config").canonicalize().unwrap(),
                 nested.canonicalize().unwrap(),
             ]
+        );
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_parent_configs_are_loaded_from_home_to_working_directory() {
+        let root = temp_config_dir("parent-search");
+        let home = root.join("home");
+        let project = home.join("project");
+        let working = project.join("nested");
+        fs::create_dir_all(&working).unwrap();
+
+        fs::write(
+            home.join(".sqruff"),
+            "[sqruff]\ndialect = mysql\nexclude_rules = AM01\n",
+        )
+        .unwrap();
+        fs::write(project.join(".sqruff"), "[sqruff]\nmax_line_length = 91\n").unwrap();
+        fs::write(working.join(".sqruff"), "[sqruff]\ndialect = postgres\n").unwrap();
+
+        let locations = ConfigLoader::iter_config_locations_up_to_path(
+            &working.join("query.sql"),
+            Some(&working),
+            Some(&home),
+            false,
+        )
+        .collect::<Vec<_>>();
+        assert_eq!(
+            locations,
+            vec![
+                home.canonicalize().unwrap(),
+                project.canonicalize().unwrap(),
+                working.canonicalize().unwrap(),
+            ]
+        );
+
+        let configs = locations
+            .into_iter()
+            .map(|path| ConfigLoader.try_load_config_at_path(path).unwrap())
+            .collect();
+        let config = FluffConfig::new(nested_combine(configs), None, None);
+
+        assert_eq!(config.get_dialect().name, DialectKind::Postgres);
+        assert_eq!(config.raw["core"]["max_line_length"].as_int(), Some(91));
+        assert_eq!(
+            config.raw["core"]["rule_denylist"].as_array().unwrap(),
+            &[Value::String("AM01".into())]
         );
 
         fs::remove_dir_all(root).unwrap();

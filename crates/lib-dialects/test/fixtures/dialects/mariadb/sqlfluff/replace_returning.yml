@@ -12,6 +12,15 @@ file:
         - comma: ','
         - numeric_literal: '2'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -26,6 +35,15 @@ file:
         - comma: ','
         - keyword: DEFAULT
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -47,6 +65,15 @@ file:
         - comma: ','
         - numeric_literal: '22'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -68,6 +95,15 @@ file:
         - comma: ','
         - numeric_literal: '22'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -90,6 +126,15 @@ file:
         - comma: ','
         - numeric_literal: '2'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -121,6 +166,15 @@ file:
         - comma: ','
         - numeric_literal: '22'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -136,6 +190,15 @@ file:
         - comma: ','
         - numeric_literal: '2'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -151,6 +214,15 @@ file:
         - comma: ','
         - numeric_literal: '2'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -167,6 +239,15 @@ file:
         - comma: ','
         - numeric_literal: '2'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -188,6 +269,15 @@ file:
         - comma: ','
         - numeric_literal: '2'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -209,6 +299,15 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '2'
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -231,6 +330,15 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '2'
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -253,6 +361,15 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '2'
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -276,6 +393,15 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '2'
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -304,6 +430,15 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - numeric_literal: '2'
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;
 - statement:
   - replace_statement:
@@ -324,4 +459,13 @@ file:
             - table_expression:
               - table_reference:
                 - naked_identifier: table_name
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col2
 - statement_terminator: ;

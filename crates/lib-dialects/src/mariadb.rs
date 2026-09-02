@@ -7,11 +7,15 @@
 
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::{DialectConfig, DialectKind};
+use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::node_matcher::NodeMatcher;
+use sqruff_lib_core::parser::segments::meta::MetaSegment;
+use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::value::Value;
 
 use super::mysql;
@@ -51,6 +55,48 @@ pub fn raw_dialect() -> Dialect {
     mariadb.replace_grammar(
         "ColumnConstraintSegment",
         mysql::column_constraint_grammar(true),
+    );
+
+    // MariaDB's INSERT, single-table DELETE, and REPLACE statements support a
+    // trailing RETURNING clause.
+    // https://mariadb.com/kb/en/insertreturning/
+    // https://mariadb.com/kb/en/deletereturning/
+    // https://mariadb.com/kb/en/replacereturning/
+    mariadb.add([(
+        "ReturningClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::ReturningClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("RETURNING").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                Delimited::new(vec![Ref::new("SelectClauseElementSegment").to_matchable()])
+                    .config(|this| this.allow_trailing())
+                    .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .terminators(vec![
+                Ref::new("SelectClauseTerminatorGrammar").to_matchable(),
+            ])
+            .config(|this| this.parse_mode(ParseMode::GreedyOnceStarted))
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    mariadb.replace_grammar(
+        "DeleteStatementSegment",
+        mysql::delete_statement_grammar(true),
+    );
+    mariadb.replace_grammar(
+        "InsertStatementSegment",
+        mysql::insert_statement_grammar(false, true),
+    );
+    mariadb.replace_grammar(
+        "ReplaceSegment",
+        mysql::replace_statement_grammar(false, true),
+    );
+    mariadb.replace_grammar(
+        "SelectStatementSegment",
+        mysql::select_statement_grammar(true),
     );
 
     // `CREATE [OR REPLACE] USER`.

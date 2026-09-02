@@ -392,3 +392,89 @@ file:
         }
         $$
 - statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: google_translate_python
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: sentence
+        - data_type:
+          - data_type_identifier: STRING
+        - comma: ','
+        - parameter: language
+        - data_type:
+          - data_type_identifier: STRING
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: STRING
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''3.8'''
+    - keyword: HANDLER
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''get_translation'''
+    - keyword: EXTERNAL_ACCESS_INTEGRATIONS
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+        - naked_identifier: google_apis_access_integration
+      - comma: ','
+      - object_reference:
+        - naked_identifier: my_integration
+      - end_bracket: )
+    - keyword: PACKAGES
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''snowflake-snowpark-python'''
+      - comma: ','
+      - quoted_literal: '''requests'''
+      - end_bracket: )
+    - keyword: SECRETS
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''cred'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: oauth_token
+      - comma: ','
+      - quoted_literal: '''cred2'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: DATA_STAGE
+        - dot: .
+        - naked_identifier: AWS_SECRET_KEY
+      - end_bracket: )
+    - keyword: AS
+    - udf_body: |-
+        $$
+        import _snowflake
+        import requests
+        import json
+        session = requests.Session()
+        def get_translation(sentence, language):
+          token = _snowflake.get_oauth_access_token('cred')
+          url = "https://translation.googleapis.com/language/translate/v2"
+          data = {'q': sentence,'target': language}
+          response = session.post(url, json = data, headers = {"Authorization": "Bearer " + token})
+          return response.json()['data']['translations'][0]['translatedText']
+        $$
+- statement_terminator: ;

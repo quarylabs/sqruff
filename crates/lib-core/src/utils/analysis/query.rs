@@ -319,8 +319,13 @@ impl<'me> Query<'me> {
         } else if segment.is_type(SyntaxKind::SetExpression) {
             selectables.extend(
                 segment
-                    .children(const { &SyntaxSet::new(&[SyntaxKind::SelectStatement]) })
-                    .cloned()
+                    .recursive_crawl(
+                        const { &SyntaxSet::single(SyntaxKind::SelectStatement) },
+                        false,
+                        &SyntaxSet::EMPTY,
+                        false,
+                    )
+                    .into_iter()
                     .map(|selectable| Selectable {
                         selectable,
                         dialect,

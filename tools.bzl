@@ -89,6 +89,26 @@ _UV_PLATFORMS = {
     },
 }
 
+_KEEP_SORTED_VERSION = "0.10.0"
+_KEEP_SORTED_PLATFORMS = {
+    "linux_amd64": {
+        "url": "https://github.com/google/keep-sorted/releases/download/v{version}/keep-sorted_linux_amd64",
+        "sha256": "079710c01619cc3dc11c9ddce18ac8db8d86701e7d12f9c5b62b8c4c4a664cca",
+    },
+    "linux_arm64": {
+        "url": "https://github.com/google/keep-sorted/releases/download/v{version}/keep-sorted_linux_arm64",
+        "sha256": "fcb5543fcacaef8edd092f34182f137838e042125812ef0a22035e10f6698577",
+    },
+    "darwin_amd64": {
+        "url": "https://github.com/google/keep-sorted/releases/download/v{version}/keep-sorted_darwin_amd64",
+        "sha256": "1525efdae5bf90781367da4143c2f41a9b0add3b8ebc84de42ff7f9d574c7680",
+    },
+    "darwin_arm64": {
+        "url": "https://github.com/google/keep-sorted/releases/download/v{version}/keep-sorted_darwin_arm64",
+        "sha256": "713c2ea4a36304a185fde532db6d1f9303e4207bff1c641cf2a23e4a29479f2b",
+    },
+}
+
 def _get_platform(repository_ctx):
     """Detect the current platform."""
     os_name = repository_ctx.os.name.lower()
@@ -190,11 +210,43 @@ _uv_repo = repository_rule(
     attrs = {},
 )
 
+def _keep_sorted_repo_impl(repository_ctx):
+    platform = _get_platform(repository_ctx)
+    config = _KEEP_SORTED_PLATFORMS.get(platform)
+    if not config:
+        fail("Unsupported platform for keep-sorted: {}".format(platform))
+
+    url = config["url"].format(version = _KEEP_SORTED_VERSION)
+
+    repository_ctx.download(
+        url = url,
+        output = "keep-sorted.bin",
+        sha256 = config["sha256"],
+        executable = True,
+    )
+    repository_ctx.file(
+        "BUILD.bazel",
+        """load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+
+sh_binary(
+    name = "keep-sorted",
+    srcs = ["keep-sorted.bin"],
+    visibility = ["//visibility:public"],
+)
+""",
+    )
+
+_keep_sorted_repo = repository_rule(
+    implementation = _keep_sorted_repo_impl,
+    attrs = {},
+)
+
 def _tools_impl(module_ctx):
     _ratchet_repo(name = "ratchet")
     _cargo_machete_repo(name = "cargo_machete")
     _cargo_hack_repo(name = "cargo_hack")
     _uv_repo(name = "uv")
+    _keep_sorted_repo(name = "keep_sorted")
 
 tools = module_extension(
     implementation = _tools_impl,

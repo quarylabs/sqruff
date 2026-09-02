@@ -506,13 +506,13 @@ cargo_test(
 # Build Python extension (maturin uses the vendored cargo + pre-cached venv)
 (cd crates/cli-python && maturin develop --locked --offline)
 
-# Run cargo tests (same as GitHub Action)
-cargo test --manifest-path ./crates/cli/Cargo.toml --locked --offline
 # Crates that don't need the Python/maturin setup run natively via rust_test:
 #   //crates/lib-core:sqruff-lib-core-test
 #   //crates/sqlinference:sqruff-sqlinference-test
 #   //crates/lineage:lineage-test
-cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --exclude sqruff-sqlinference --exclude lineage --locked --offline
+# Enable every library feature explicitly, while leaving the sqruff CLI on its
+# default features. The CLI's codegen-docs feature changes its runtime behavior.
+cargo test --all --features sqruff-lib/parser,sqruff-lib/python,sqruff-cli-lib/parser,sqruff-cli-lib/codegen-docs --exclude sqruff-lib-core --exclude sqruff-sqlinference --exclude lineage --locked --offline
 """,
 )
 

@@ -104,6 +104,7 @@ pub enum DialectKind {
     Exasol,
     Greenplum,
     Hive,
+    Mariadb,
     Materialize,
     Mysql,
     Oracle,
@@ -133,6 +134,7 @@ impl DialectKind {
             DialectKind::Exasol => "exasol",
             DialectKind::Greenplum => "greenplum",
             DialectKind::Hive => "hive",
+            DialectKind::Mariadb => "mariadb",
             DialectKind::Mysql => "mysql",
             DialectKind::Materialize => "materialize",
             DialectKind::Oracle => "oracle",
@@ -166,6 +168,7 @@ impl DialectKind {
             DialectKind::Exasol => "Exasol SQL dialect for the Exasol analytics database.",
             DialectKind::Greenplum => "Greenplum SQL dialect, a massively parallel Postgres.",
             DialectKind::Hive => "Apache Hive SQL dialect for data warehousing.",
+            DialectKind::Mariadb => "MariaDB SQL dialect, a community-developed fork of MySQL.",
             DialectKind::Mysql => "MySQL SQL dialect for the popular open-source database.",
             DialectKind::Materialize => "Materialize SQL dialect for the streaming data warehouse.",
             DialectKind::Oracle => "Oracle SQL dialect for Oracle Database.",
@@ -211,6 +214,7 @@ impl DialectKind {
                 Some("https://docs.vmware.com/en/VMware-Greenplum/index.html")
             }
             DialectKind::Hive => Some("https://hive.apache.org/docs/latest/language/"),
+            DialectKind::Mariadb => Some("https://mariadb.com/kb/en/sql-statements-structure/"),
             DialectKind::Mysql => Some("https://dev.mysql.com/doc/"),
             DialectKind::Materialize => Some("https://materialize.com/docs/sql/"),
             DialectKind::Oracle => {

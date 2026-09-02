@@ -1,0 +1,46 @@
+file:
+- statement:
+  - set_names_statement:
+    - keyword: SET
+    - keyword: NAMES
+    - naked_identifier: utf8mb4
+- statement_terminator: ;
+- statement:
+  - set_names_statement:
+    - keyword: SET
+    - keyword: NAMES
+    - quoted_literal: '''utf8'''
+- statement_terminator: ;
+- statement:
+  - set_names_statement:
+    - keyword: SET
+    - keyword: NAMES
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+  - set_names_statement:
+    - keyword: SET
+    - keyword: NAMES
+    - naked_identifier: ascii
+    - keyword: COLLATE
+    - collation_reference:
+      - naked_identifier: ascii_bin
+- statement_terminator: ;
+- statement:
+  - set_names_statement:
+    - keyword: SET
+    - keyword: NAMES
+    - quoted_literal: '''ascii'''
+    - keyword: COLLATE
+    - collation_reference:
+      - quoted_literal: '''ascii_bin'''
+- statement_terminator: ;
+- statement:
+  - set_names_statement:
+    - keyword: SET
+    - keyword: NAMES
+    - naked_identifier: ascii
+    - keyword: COLLATE
+    - collation_reference:
+      - quoted_literal: '''ascii_bin'''
+- statement_terminator: ;

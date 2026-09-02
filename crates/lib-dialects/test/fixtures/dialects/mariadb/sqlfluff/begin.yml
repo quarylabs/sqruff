@@ -1,0 +1,18 @@
+file:
+- statement:
+  - transaction_statement:
+    - naked_identifier: blocks
+    - colon: ':'
+    - keyword: BEGIN
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - transaction_statement:
+    - keyword: END
+    - naked_identifier: blocks
+- statement_terminator: '~'

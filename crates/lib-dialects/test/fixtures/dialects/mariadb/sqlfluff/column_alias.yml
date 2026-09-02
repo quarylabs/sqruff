@@ -1,0 +1,23 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - quoted_identifier: '`one`'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '2'
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - quoted_identifier: '''two'''
+- statement_terminator: ;

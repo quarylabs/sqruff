@@ -46,8 +46,7 @@ file:
             - quoted_literal: '''test'''
           - comma: ','
           - expression:
-            - column_reference:
-              - variable: '@test1'
+            - variable: '@test1'
           - comma: ','
           - expression:
             - column_reference:

@@ -6,8 +6,7 @@ file:
       - bracketed:
         - start_bracket: (
         - expression:
-          - column_reference:
-            - variable: '@x'
+          - variable: '@x'
           - comparison_operator:
             - raw_comparison_operator: =
           - numeric_literal: '0'

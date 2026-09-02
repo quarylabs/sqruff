@@ -115,8 +115,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - expression:
-          - column_reference:
-            - variable: '@sum'
+          - variable: '@sum'
           - binary_operator: +
           - column_reference:
             - naked_identifier: NEW
@@ -384,8 +383,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - expression:
-          - column_reference:
-            - variable: '@sum'
+          - variable: '@sum'
           - binary_operator: +
           - column_reference:
             - naked_identifier: NEW
@@ -419,8 +417,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - expression:
-          - column_reference:
-            - variable: '@sum'
+          - variable: '@sum'
           - binary_operator: +
           - column_reference:
             - naked_identifier: NEW

@@ -47,10 +47,15 @@ impl RuleRF03 {
                 let mut fixable = true;
                 // :TRICKY: Subqueries in the column list of a SELECT can see tables
                 // in the FROM list of the containing query. Thus, count tables
-                // visible from both this query and its parent.
-                let mut possible_ref_tables = iter_available_targets(query.clone());
-                if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
-                    possible_ref_tables.extend(iter_available_targets(parent));
+                // at the *parent* query level. Only check if it is a subquery of the
+                // parent.
+                let mut possible_ref_tables = iter_available_targets(query.clone(), None);
+                let (parent, is_subquery) = {
+                    let query_inner = RefCell::borrow(&query.inner);
+                    (query_inner.parent.clone(), query_inner.is_subquery)
+                };
+                if is_subquery && let Some(parent) = parent {
+                    possible_ref_tables.extend(iter_available_targets(parent, Some(query.clone())));
                 }
 
                 if possible_ref_tables.len() > 1 {
@@ -88,7 +93,15 @@ impl RuleRF03 {
     }
 }
 
-fn iter_available_targets(query: Query<'_>) -> Vec<SmolStr> {
+fn iter_available_targets(query: Query<'_>, subquery: Option<Query<'_>>) -> Vec<AliasInfo> {
+    let subquery_selectable = subquery.as_ref().and_then(|subquery| {
+        RefCell::borrow(&subquery.inner)
+            .selectables
+            .first()
+            .map(|selectable| selectable.selectable.clone())
+    });
+    let has_subquery = subquery.is_some();
+
     RefCell::borrow(&query.inner)
         .selectables
         .iter()
@@ -100,8 +113,20 @@ fn iter_available_targets(query: Query<'_>) -> Vec<SmolStr> {
                     select_info
                         .table_aliases
                         .into_iter()
-                        .map(|alias| alias.ref_str)
-                        .filter(|ref_str| !ref_str.is_empty())
+                        .filter(|alias| {
+                            if let Some(subquery_selectable) = &subquery_selectable
+                                && !alias
+                                    .from_expression_element
+                                    .path_to(subquery_selectable)
+                                    .is_empty()
+                            {
+                                // Skip the subquery alias itself.
+                                return false;
+                            }
+
+                            (has_subquery && alias.object_reference.is_none())
+                                || !alias.ref_str.is_empty()
+                        })
                         .collect_vec()
                 })
                 .collect_vec()
@@ -249,17 +274,19 @@ fn validate_one_reference(
     }
 
     if single_table_references == "unqualified" {
-        let fixes = if fixable {
-            ref_.0
-                .segments()
-                .iter()
-                .take(2)
-                .cloned()
-                .map(LintFix::delete)
-                .collect::<Vec<_>>()
-        } else {
-            Vec::new()
-        };
+        // If unqualified and not fixable, there is no error.
+        if !fixable {
+            return None;
+        }
+
+        let fixes = ref_
+            .0
+            .segments()
+            .iter()
+            .take(2)
+            .cloned()
+            .map(LintFix::delete)
+            .collect::<Vec<_>>();
 
         return LintResult::new(
             ref_.0.clone().into(),

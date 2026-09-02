@@ -1,0 +1,10 @@
+file:
+- statement:
+  - resignal_segment:
+    - keyword: resignal
+    - keyword: set
+    - keyword: message_text
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''test message'''
+- statement_terminator: ;

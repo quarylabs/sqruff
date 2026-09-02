@@ -1,0 +1,123 @@
+file:
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: LOGS
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: BINARY
+    - keyword: LOGS
+    - comma: ','
+    - keyword: ENGINE
+    - keyword: LOGS
+    - comma: ','
+    - keyword: ERROR
+    - keyword: LOGS
+    - comma: ','
+    - keyword: GENERAL
+    - keyword: LOGS
+    - comma: ','
+    - keyword: HOSTS
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: LOCAL
+    - keyword: HOSTS
+    - comma: ','
+    - keyword: QUERY
+    - keyword: CACHE
+    - comma: ','
+    - keyword: TABLE_STATISTICS
+    - comma: ','
+    - keyword: INDEX_STATISTICS
+    - comma: ','
+    - keyword: USER_STATISTICS
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: STATUS
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: RELAY
+    - keyword: LOGS
+    - object_reference:
+      - naked_identifier: my_channel
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: RELAY
+    - keyword: LOGS
+    - keyword: FOR
+    - keyword: CHANNEL
+    - object_reference:
+      - naked_identifier: my_channel
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - keyword: WITH
+    - keyword: READ
+    - keyword: LOCK
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+      - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+      - naked_identifier: table1
+    - comma: ','
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+      - naked_identifier: table1
+    - comma: ','
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: WITH
+    - keyword: READ
+    - keyword: LOCK
+- statement_terminator: ;
+- statement:
+  - flush_statement:
+    - keyword: FLUSH
+    - keyword: TABLES
+    - table_reference:
+      - naked_identifier: table1
+    - comma: ','
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: FOR
+    - keyword: EXPORT
+- statement_terminator: ;

@@ -1,0 +1,90 @@
+file:
+- statement:
+  - repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+  - repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+  - repair_table_statement:
+    - keyword: REPAIR
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+  - repair_table_statement:
+    - keyword: REPAIR
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+  - repair_table_statement:
+    - keyword: REPAIR
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+- statement_terminator: ;
+- statement:
+  - repair_table_statement:
+    - keyword: REPAIR
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table1
+    - comma: ','
+    - table_reference:
+      - naked_identifier: some_table2
+- statement_terminator: ;
+- statement:
+  - repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: QUICK
+- statement_terminator: ;
+- statement:
+  - repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+  - repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: USE_FRM
+- statement_terminator: ;
+- statement:
+  - repair_table_statement:
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - keyword: QUICK
+    - keyword: EXTENDED
+    - keyword: USE_FRM
+- statement_terminator: ;

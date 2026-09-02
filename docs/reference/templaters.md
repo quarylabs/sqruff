@@ -188,6 +188,9 @@ apply_dbt_builtins = True
 # Paths to load macros from (comma-separated list of directories/files)
 load_macros_from_path = ./macros
 
+# Paths beneath the macro load paths to exclude
+exclude_macros_from_path = ./macros/excluded
+
 # Paths for Jinja2 FileSystemLoader to search for templates
 loader_search_path = ./templates
 
@@ -197,6 +200,14 @@ library_path = ./my_library
 # Set to True to ignore templating errors (useful for partial linting)
 ignore_templating = False
 ```
+
+## Jinja Macro Paths
+
+`load_macros_from_path` loads macros from the configured files and directories,
+including their subdirectories, into the Jinja global namespace.
+`exclude_macros_from_path` accepts paths in the same format and skips matching
+macro files. This is useful when a macro tree contains custom Jinja tags that
+sqruff should not parse.
 
 ## Jinja Loader Search Path
 

@@ -21,6 +21,7 @@ class FluffConfig(NamedTuple):
     templater_unwrap_wrapped_queries: bool
 
     jinja_templater_paths: List[str]
+    jinja_exclude_macros_from_path: List[str]
     jinja_loader_search_path: List[str]
     jinja_apply_dbt_builtins: bool
     jinja_ignore_templating: bool

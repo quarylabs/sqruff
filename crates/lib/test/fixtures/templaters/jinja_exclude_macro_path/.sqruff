@@ -1,0 +1,6 @@
+[sqruff]
+templater = jinja
+
+[sqruff:templater:jinja]
+load_macros_from_path = macros
+exclude_macros_from_path = macros/macros_exclude

@@ -1188,6 +1188,7 @@ pub enum SyntaxKind {
     UndropSchemaStatement,
     UndropStatement,
     UnicodeDoubleQuote,
+    UnicodeEscapeValue,
     UnicodeSingleQuote,
     Unlexable,
     UnlistenStatement,

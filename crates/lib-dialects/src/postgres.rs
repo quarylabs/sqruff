@@ -479,21 +479,20 @@ pub fn raw_dialect() -> Dialect {
     );
 
     postgres.insert_lexer_matchers(vec![
-        Matcher::legacy(
+        Matcher::regex(
             "unicode_single_quote",
-            |s| s.starts_with("U&'"),
-            r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?",
+            r"(?si)U&'([^']|'')*'(\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?",
             SyntaxKind::UnicodeSingleQuote
         ),
         Matcher::legacy(
             "escaped_single_quote",
-            |s| s.starts_with("E'"),
-            r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\(?<!')(?:'')*')'(?!'))",
+            |s| s.get(..2).is_some_and(|prefix| prefix.eq_ignore_ascii_case("E'")),
+            r"(?si)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\(?<!')(?:'')*')'(?!'))",
             SyntaxKind::EscapedSingleQuote
         ),
         Matcher::regex(
             "unicode_double_quote",
-            r#"(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?"#,
+            r#"(?si)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?"#,
             SyntaxKind::UnicodeDoubleQuote
         ),
         // Verbatim from sqlfluff#6323, which fixed `@?`, `@@`, `?|` and `?&` (we
@@ -904,8 +903,13 @@ pub fn raw_dialect() -> Dialect {
             "QuotedLiteralSegment".into(),
             one_of(vec![
                 Sequence::new(vec![
-                    TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
-                        .to_matchable(),
+                    one_of(vec![
+                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
+                            .to_matchable(),
+                        TypedParser::new(SyntaxKind::EscapedSingleQuote, SyntaxKind::QuotedLiteral)
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                     AnyNumberOf::new(vec![
                         Ref::new("MultilineConcatenateDelimiterGrammar").to_matchable(),
                         TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral)
@@ -919,31 +923,26 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     AnyNumberOf::new(vec![
                         Ref::new("MultilineConcatenateDelimiterGrammar").to_matchable(),
-                        TypedParser::new(SyntaxKind::BitStringLiteral, SyntaxKind::QuotedLiteral)
+                        RegexParser::new(r"(?i)'[0-9a-f]*'", SyntaxKind::QuotedLiteral)
                             .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
                 .to_matchable(),
-                Delimited::new(vec![
+                Sequence::new(vec![
                     TypedParser::new(SyntaxKind::UnicodeSingleQuote, SyntaxKind::QuotedLiteral)
                         .to_matchable(),
                     AnyNumberOf::new(vec![
                         Ref::new("MultilineConcatenateDelimiterGrammar").to_matchable(),
-                        TypedParser::new(SyntaxKind::UnicodeSingleQuote, SyntaxKind::QuotedLiteral)
-                            .to_matchable(),
+                        RegexParser::new(r"'([^']|'')*'", SyntaxKind::QuotedLiteral).to_matchable(),
                     ])
                     .to_matchable(),
-                ])
-                .to_matchable(),
-                Delimited::new(vec![
-                    TypedParser::new(SyntaxKind::EscapedSingleQuote, SyntaxKind::QuotedLiteral)
-                        .to_matchable(),
-                    AnyNumberOf::new(vec![
-                        Ref::new("MultilineConcatenateDelimiterGrammar").to_matchable(),
-                        TypedParser::new(SyntaxKind::EscapedSingleQuote, SyntaxKind::QuotedLiteral)
+                    Sequence::new(vec![
+                        Ref::keyword("UESCAPE").to_matchable(),
+                        RegexParser::new(r"'[^0-9A-Fa-f'+\-\s)]'", SyntaxKind::UnicodeEscapeValue)
                             .to_matchable(),
                     ])
+                    .config(|this| this.optional())
                     .to_matchable(),
                 ])
                 .to_matchable(),

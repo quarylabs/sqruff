@@ -5012,6 +5012,20 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "Expression_D_Potential_Select_Statement_Without_Brackets".into(),
+            one_of(vec![
+                Ref::new("SelectStatementSegment").to_matchable(),
+                Ref::new("LiteralGrammar").to_matchable(),
+                Ref::new("IntervalExpressionSegment").to_matchable(),
+                Ref::new("TypedStructLiteralSegment").to_matchable(),
+                Ref::new("ArrayExpressionSegment").to_matchable(),
+                Ref::new("ColumnReferenceSegment").to_matchable(),
+                Ref::new("OverlapsClauseSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "Expression_D_Grammar".into(),
             Sequence::new(vec![
                 one_of(vec![
@@ -5034,13 +5048,8 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|this| this.parse_mode(ParseMode::Greedy))
                     .to_matchable(),
-                    Ref::new("SelectStatementSegment").to_matchable(),
-                    Ref::new("LiteralGrammar").to_matchable(),
-                    Ref::new("IntervalExpressionSegment").to_matchable(),
-                    Ref::new("TypedStructLiteralSegment").to_matchable(),
-                    Ref::new("ArrayExpressionSegment").to_matchable(),
-                    Ref::new("ColumnReferenceSegment").to_matchable(),
-                    Ref::new("OverlapsClauseSegment").to_matchable(),
+                    Ref::new("Expression_D_Potential_Select_Statement_Without_Brackets")
+                        .to_matchable(),
                     Sequence::new(vec![
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
                         Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),

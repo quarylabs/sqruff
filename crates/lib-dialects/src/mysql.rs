@@ -499,6 +499,20 @@ pub fn raw_dialect() -> Dialect {
         ),
     );
 
+    let potential_select =
+        mysql.grammar("Expression_D_Potential_Select_Statement_Without_Brackets");
+    mysql.replace_grammar(
+        "Expression_D_Potential_Select_Statement_Without_Brackets",
+        potential_select.copy(
+            Some(vec![Ref::new("SessionVariableNameSegment").to_matchable()]),
+            Some(0),
+            None,
+            None,
+            vec![],
+            false,
+        ),
+    );
+
     // DateTimeLiteralGrammar - MySQL allows optional keyword.
     mysql.replace_grammar(
         "DateTimeLiteralGrammar",

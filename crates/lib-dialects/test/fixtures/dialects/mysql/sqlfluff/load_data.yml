@@ -200,8 +200,7 @@ file:
       - naked_identifier: column2
     - comparison_operator:
       - raw_comparison_operator: =
-    - column_reference:
-      - variable: '@var1'
+    - variable: '@var1'
     - binary_operator: /
     - numeric_literal: '100'
 - statement_terminator: ;

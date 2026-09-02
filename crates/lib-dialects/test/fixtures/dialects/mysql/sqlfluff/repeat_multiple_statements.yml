@@ -9,8 +9,7 @@ file:
         - comparison_operator:
           - raw_comparison_operator: =
         - expression:
-          - column_reference:
-            - variable: '@a'
+          - variable: '@a'
           - binary_operator: +
           - numeric_literal: '1'
 - statement_terminator: ;
@@ -25,8 +24,7 @@ file:
   - repeat_statement:
     - keyword: until
     - expression:
-      - column_reference:
-        - variable: '@a'
+      - variable: '@a'
       - comparison_operator:
         - raw_comparison_operator: '>'
       - numeric_literal: '5'

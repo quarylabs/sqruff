@@ -80,7 +80,7 @@ FROM cte1
         for reference in context.segment.recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::TableReference]) },
             true,
-            const { &SyntaxSet::single(SyntaxKind::WithCompoundStatement) },
+            const { &SyntaxSet::EMPTY },
             true,
         ) {
             remaining_ctes.shift_remove(&reference.raw().to_uppercase_smolstr());

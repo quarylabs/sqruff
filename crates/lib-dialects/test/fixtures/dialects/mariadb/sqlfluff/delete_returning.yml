@@ -1,0 +1,62 @@
+file:
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: a
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: foo
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''bar'''
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - naked_identifier: a
+            - dot: .
+            - star: '*'
+- statement_terminator: ;
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: a
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: foo
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''bar'''
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: baz
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: abaz
+- statement_terminator: ;

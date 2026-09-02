@@ -35,6 +35,19 @@ file:
         - comma: ','
         - numeric_literal: '6'
         - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -86,6 +99,19 @@ file:
               - alias_operator:
                 - keyword: AS
               - naked_identifier: dt
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -146,6 +172,19 @@ file:
             - naked_identifier: t2
             - dot: .
             - naked_identifier: b
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -218,6 +257,19 @@ file:
               - column_reference:
                 - naked_identifier: b
             - end_bracket: )
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -283,6 +335,19 @@ file:
           - binary_operator: +
           - column_reference:
             - naked_identifier: n
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -346,6 +411,19 @@ file:
           - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: e
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -405,6 +483,19 @@ file:
           - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: e
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -457,6 +548,19 @@ file:
             - naked_identifier: t2
             - dot: .
             - naked_identifier: b
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
 - statement_terminator: ;
 - statement:
   - insert_statement:
@@ -526,4 +630,17 @@ file:
           - binary_operator: +
           - column_reference:
             - naked_identifier: p
+    - returning_clause:
+      - keyword: RETURNING
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: c
 - statement_terminator: ;

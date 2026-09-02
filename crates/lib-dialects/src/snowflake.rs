@@ -4758,6 +4758,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Sequence::new(vec![Ref::keyword("SECURE").to_matchable()])
                         .config(|this| this.optional())
                         .to_matchable(),
+                    Sequence::new(vec![Ref::keyword("AGGREGATE").to_matchable()])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                     Ref::keyword("FUNCTION").to_matchable(),
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::new("FunctionNameSegment").to_matchable(),

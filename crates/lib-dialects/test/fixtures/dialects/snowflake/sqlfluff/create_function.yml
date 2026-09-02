@@ -478,3 +478,39 @@ file:
           return response.json()['data']['translations'][0]['translatedText']
         $$
 - statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: aggregate
+    - keyword: function
+    - function_name:
+      - function_name_identifier: addone
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: i
+        - data_type:
+          - data_type_identifier: int
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+      - data_type_identifier: int
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''3.8'''
+    - keyword: handler
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''addone_py'''
+    - keyword: as
+    - udf_body: |-
+        $$
+        def addone_py(i):
+          return i+1
+        $$
+- statement_terminator: ;

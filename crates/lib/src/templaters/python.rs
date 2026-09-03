@@ -12,6 +12,7 @@ use crate::Formatter;
 use crate::core::config::FluffConfig;
 use crate::templaters::ProcessingMode;
 use crate::templaters::TemplaterKind;
+use crate::templaters::metadata::PYTHON_TEMPLATER as METADATA;
 use crate::templaters::python_shared::PythonFluffConfig;
 use std::sync::Arc;
 
@@ -53,35 +54,11 @@ impl PythonTemplater {
 
 impl Templater for PythonTemplater {
     fn name(&self) -> &'static str {
-        "python"
+        METADATA.name
     }
 
     fn description(&self) -> &'static str {
-        r"**Note:** This templater currently does not work by default in the CLI and needs custom set up to work.
-
-The Python templater uses native Python f-strings. An example would be as follows:
-
-```sql
-SELECT * FROM {blah}
-```
-
-With the following config:
-
-```
-[sqruff]
-templater = python
-
-[sqruff:templater:python:context]
-blah = foo
-```
-
-Before parsing the sql will be transformed to:
-
-```sql
-SELECT * FROM foo
-```
-
-At the moment, dot notation is not supported in the templater."
+        METADATA.description
     }
 
     fn processing_mode(&self) -> ProcessingMode {

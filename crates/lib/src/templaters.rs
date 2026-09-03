@@ -17,6 +17,7 @@ use crate::templaters::python::PythonTemplater;
 pub mod dbt;
 #[cfg(feature = "python")]
 pub mod jinja;
+pub mod metadata;
 pub mod placeholder;
 #[cfg(feature = "python")]
 pub mod python;
@@ -26,6 +27,7 @@ pub mod raw;
 pub mod types;
 
 pub use types::{PlaceholderStyle, TemplaterKind};
+pub use metadata::{PYTHON_TEMPLATERS, TemplaterMetadata};
 
 pub static RAW_TEMPLATER: RawTemplater = RawTemplater;
 pub static PLACEHOLDER_TEMPLATER: PlaceholderTemplater = PlaceholderTemplater;

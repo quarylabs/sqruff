@@ -644,6 +644,79 @@ fn test_lt12_reports_missing_source_newline_after_jinja_block() {
     assert!(!lt12.is_empty(), "expected LT12 violation");
 }
 
+/// Ports the SQLFluff regression test for the LT02/LT04 interaction where the
+/// rebreak logic previously deleted dedent markers alongside the preceding
+/// whitespace, leaving indentation adrift after the comma was relocated.
+///
+/// See <https://github.com/sqlfluff/sqlfluff/pull/6068>.
+#[test]
+fn test_rules_std_lt02_lt04_interaction_indentation_leading() {
+    let config = FluffConfig::from_source(
+        r#"
+[sqruff]
+dialect = snowflake
+rules = LT02, LT04
+
+[sqruff:layout:type:comma]
+spacing_before = touch
+line_position = leading
+"#,
+        None,
+    );
+    let mut lnt = Linter::new(config, None, None, true).unwrap();
+
+    let in_sql = "SELECT
+    acct_id,
+    date_x,
+    't' AS test,
+
+    CASE
+        WHEN condition_1 = '1' THEN ''
+        ELSE condition_1
+    END AS case_1,
+
+    CASE
+        WHEN condition_2 = '2' THEN ''
+        ELSE condition_2
+    END AS case_2,
+    dollar_amt,
+FROM
+    table_x";
+
+    let out_sql = "SELECT
+    acct_id
+    , date_x
+    , 't' AS test
+
+    , CASE
+        WHEN condition_1 = '1' THEN ''
+        ELSE condition_1
+    END AS case_1
+
+    , CASE
+        WHEN condition_2 = '2' THEN ''
+        ELSE condition_2
+    END AS case_2
+    , dollar_amt,
+FROM
+    table_x";
+
+    let linted = lnt.lint_string_wrapped(in_sql, true).unwrap();
+
+    let rule_codes: std::collections::HashSet<_> = linted
+        .violations()
+        .iter()
+        .map(|v| v.rule_code().to_string())
+        .collect();
+    assert_eq!(
+        rule_codes,
+        std::collections::HashSet::from(["LT04".to_string()]),
+        "only LT04 should fire once the fix skips dedent segments",
+    );
+
+    assert_eq!(linted.fix_string(), out_sql);
+}
+
 #[test]
 fn test_sqlite_create_temp_view_body_indent() {
     let config = FluffConfig::new(

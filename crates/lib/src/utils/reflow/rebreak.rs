@@ -448,7 +448,9 @@ pub fn rebreak_sequence(
             } else {
                 fixes.push(LintFix::delete(loc.target.clone()));
                 for seg in elem_buff[loc.prev.adj_pt_idx as usize].segments() {
-                    fixes.push(LintFix::delete(seg.clone()));
+                    if !seg.is_type(SyntaxKind::Dedent) {
+                        fixes.push(LintFix::delete(seg.clone()));
+                    }
                 }
 
                 let (new_results, new_point) = ReflowPoint::new(Vec::new()).respace_point(

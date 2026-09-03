@@ -27,6 +27,10 @@ fn ui_github() {
 
             cmd.arg("lint");
             cmd.arg(path.to_str().unwrap());
+            let config_path = path.with_extension("cfg");
+            if config_path.is_file() {
+                cmd.arg("--config").arg(config_path);
+            }
             // Set the HOME environment variable to the fake home directory
             cmd.env("HOME", manifest_dir());
             cmd.env("GITHUB_ACTIONS", "true");

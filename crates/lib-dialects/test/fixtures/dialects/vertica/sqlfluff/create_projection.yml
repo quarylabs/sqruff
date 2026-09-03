@@ -34,9 +34,9 @@ file:
       - keyword: SEGMENTED
       - keyword: BY
       - function:
-        - function:
-          - function_name:
-            - function_name_identifier: hash
+        - function_name:
+          - function_name_identifier: hash
+        - function_contents:
           - bracketed:
             - start_bracket: (
             - expression:

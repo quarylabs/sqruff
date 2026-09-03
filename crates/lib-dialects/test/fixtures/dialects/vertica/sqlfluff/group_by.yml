@@ -10,9 +10,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: SUM
+            - function_name:
+              - function_name_identifier: SUM
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -51,9 +51,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: MAX
+            - function_name:
+              - function_name_identifier: MAX
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -89,9 +89,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: MAX
+            - function_name:
+              - function_name_identifier: MAX
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -119,9 +119,9 @@ file:
         - keyword: HAVING
         - expression:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: MAX
+            - function_name:
+              - function_name_identifier: MAX
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -147,16 +147,16 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: SUM
+            - function_name:
+              - function_name_identifier: SUM
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
                   - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: apply_sum
+                    - function_name:
+                      - function_name_identifier: apply_sum
+                    - function_contents:
                       - bracketed:
                         - start_bracket: (
                         - expression:

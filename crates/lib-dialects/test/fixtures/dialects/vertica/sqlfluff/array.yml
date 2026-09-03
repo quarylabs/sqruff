@@ -91,9 +91,9 @@ file:
                 - start_square_bracket: '['
                 - expression:
                   - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: varchar
+                    - function_name:
+                      - function_name_identifier: varchar
+                    - function_contents:
                       - bracketed:
                         - start_bracket: (
                         - expression:
@@ -142,9 +142,9 @@ file:
             - array_literal:
               - start_square_bracket: '['
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: row
+                - function_name:
+                  - function_name_identifier: row
+                - function_contents:
                   - bracketed:
                     - start_bracket: (
                     - expression:
@@ -155,9 +155,9 @@ file:
                     - end_bracket: )
               - comma: ','
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: row
+                - function_name:
+                  - function_name_identifier: row
+                - function_contents:
                   - bracketed:
                     - start_bracket: (
                     - expression:
@@ -205,9 +205,9 @@ file:
             - array_literal:
               - start_square_bracket: '['
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: row
+                - function_name:
+                  - function_name_identifier: row
+                - function_contents:
                   - bracketed:
                     - start_bracket: (
                     - expression:

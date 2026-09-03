@@ -51,9 +51,9 @@ file:
           - comma: ','
           - select_clause_element:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: LISTAGG
+              - function_name:
+                - function_name_identifier: LISTAGG
+              - function_contents:
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -75,17 +75,17 @@ file:
                     - raw_comparison_operator: =
                   - quoted_literal: ''' | '''
                   - end_bracket: )
-                - within_group_clause_statement:
-                  - keyword: WITHIN
-                  - keyword: GROUP
-                  - bracketed:
-                    - start_bracket: (
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: city
-                    - end_bracket: )
+              - within_group_clause_statement:
+                - keyword: WITHIN
+                - keyword: GROUP
+                - bracketed:
+                  - start_bracket: (
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: city
+                  - end_bracket: )
             - alias_expression:
               - naked_identifier: CityAndState
         - from_clause:

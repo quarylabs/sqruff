@@ -25,9 +25,9 @@ file:
               - comma: ','
               - select_clause_element:
                 - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: SUM
+                  - function_name:
+                    - function_name_identifier: SUM
+                  - function_contents:
                     - bracketed:
                       - start_bracket: (
                       - expression:
@@ -129,9 +129,9 @@ file:
                       - keyword: SELECT
                       - select_clause_element:
                         - function:
-                          - function:
-                            - function_name:
-                              - function_name_identifier: MAX
+                          - function_name:
+                            - function_name_identifier: MAX
+                          - function_contents:
                             - bracketed:
                               - start_bracket: (
                               - expression:
@@ -180,9 +180,9 @@ file:
               - comma: ','
               - select_clause_element:
                 - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: SUM
+                  - function_name:
+                    - function_name_identifier: SUM
+                  - function_contents:
                     - bracketed:
                       - start_bracket: (
                       - expression:
@@ -297,9 +297,9 @@ file:
           - comma: ','
           - select_clause_element:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: SUM
+              - function_name:
+                - function_name_identifier: SUM
+              - function_contents:
                 - bracketed:
                   - start_bracket: (
                   - expression:
@@ -400,9 +400,9 @@ file:
             - keyword: BY
             - expression:
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: ROLLUP
+                - function_name:
+                  - function_name_identifier: ROLLUP
+                - function_contents:
                   - bracketed:
                     - start_bracket: (
                     - expression:
@@ -425,9 +425,9 @@ file:
           - comma: ','
           - expression:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: GROUPING_ID
+              - function_name:
+                - function_name_identifier: GROUPING_ID
+              - function_contents:
                 - bracketed:
                   - start_bracket: (
                   - end_bracket: )
@@ -475,9 +475,9 @@ file:
                 - comma: ','
                 - select_clause_element:
                   - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: SUM
+                    - function_name:
+                      - function_name_identifier: SUM
+                    - function_contents:
                       - bracketed:
                         - start_bracket: (
                         - expression:

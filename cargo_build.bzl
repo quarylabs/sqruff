@@ -280,13 +280,12 @@ python_venv = rule(
 )
 
 def _python_venv_provider_impl(ctx):
-    """Wrapper that provides PythonVenvInfo from python_venv output."""
+    """Wraps a single Python environment directory in PythonVenvInfo."""
     venv_files = ctx.attr.venv[DefaultInfo].files.to_list()
-    venv_dir = None
-
-    for f in venv_files:
-        if f.is_directory and f.basename == "python_venv":
-            venv_dir = f
+    venv_dirs = [f for f in venv_files if f.is_directory]
+    if len(venv_dirs) != 1:
+        fail("Expected exactly one Python environment directory")
+    venv_dir = venv_dirs[0]
 
     return [
         DefaultInfo(files = depset(venv_files)),
@@ -300,7 +299,7 @@ python_venv_provider = rule(
     attrs = {
         "venv": attr.label(
             mandatory = True,
-            doc = "python_venv target",
+            doc = "Target providing one Python environment directory",
         ),
     },
 )

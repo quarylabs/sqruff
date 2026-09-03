@@ -451,22 +451,6 @@ echo "::endgroup::"
 """,
 )
 
-# Preserve the existing test labels while running the shared compilation target.
-test_suite(
-    name = "cargo_check",
-    tests = [":cargo_compile_checks"],
-)
-
-test_suite(
-    name = "cargo_clippy",
-    tests = [":cargo_compile_checks"],
-)
-
-test_suite(
-    name = "cargo_hack_check",
-    tests = [":cargo_compile_checks"],
-)
-
 # Cargo build release - build release binaries with all features
 # This replicates the "Compile" GitHub action job
 # Uses vendored dependencies for hermetic builds

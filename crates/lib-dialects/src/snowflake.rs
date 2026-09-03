@@ -6508,11 +6508,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     one_of(vec![
                         Ref::new("SelectStatementSegment").to_matchable(),
                         Sequence::new(vec![
-                            Bracketed::new(vec![
-                                Ref::new("FunctionContentsGrammar").to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
+                            Ref::new("FunctionContentsSegment").to_matchable(),
                             Ref::keyword("RETURNS").to_matchable(),
                             Ref::new("DatatypeSegment").to_matchable(),
                             Ref::new("FunctionAssignerSegment").to_matchable(),
@@ -10199,13 +10195,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::keyword("CALL").to_matchable(),
                 Sequence::new(vec![
                     Ref::new("FunctionNameSegment").to_matchable(),
-                    Bracketed::new(vec![
-                        Ref::new("FunctionContentsGrammar")
-                            .optional()
-                            .to_matchable(),
-                    ])
-                    .config(|this| this.parse_mode(ParseMode::Greedy))
-                    .to_matchable(),
+                    Ref::new("FunctionContentsSegment").to_matchable(),
                 ])
                 .to_matchable(),
             ])

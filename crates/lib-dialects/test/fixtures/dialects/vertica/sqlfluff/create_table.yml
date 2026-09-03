@@ -81,9 +81,9 @@ file:
                 - start_square_bracket: '['
                 - expression:
                   - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: VARCHAR
+                    - function_name:
+                      - function_name_identifier: VARCHAR
+                    - function_contents:
                       - bracketed:
                         - start_bracket: (
                         - expression:
@@ -103,9 +103,9 @@ file:
                 - start_square_bracket: '['
                 - expression:
                   - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: DECIMAL
+                    - function_name:
+                      - function_name_identifier: DECIMAL
+                    - function_contents:
                       - bracketed:
                         - start_bracket: (
                         - expression:
@@ -159,9 +159,9 @@ file:
                 - start_square_bracket: '['
                 - expression:
                   - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: VARCHAR
+                    - function_name:
+                      - function_name_identifier: VARCHAR
+                    - function_contents:
                       - bracketed:
                         - start_bracket: (
                         - expression:
@@ -181,9 +181,9 @@ file:
                 - start_square_bracket: '['
                 - expression:
                   - function:
-                    - function:
-                      - function_name:
-                        - function_name_identifier: DECIMAL
+                    - function_name:
+                      - function_name_identifier: DECIMAL
+                    - function_contents:
                       - bracketed:
                         - start_bracket: (
                         - expression:
@@ -218,9 +218,9 @@ file:
             - keyword: by
             - expression:
               - function:
-                - function:
-                  - function_name:
-                    - function_name_identifier: CALENDAR_HIERARCHY_DAY
+                - function_name:
+                  - function_name_identifier: CALENDAR_HIERARCHY_DAY
+                - function_contents:
                   - bracketed:
                     - start_bracket: (
                     - expression:

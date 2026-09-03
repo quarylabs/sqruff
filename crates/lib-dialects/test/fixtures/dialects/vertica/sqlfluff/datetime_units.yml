@@ -12,9 +12,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: MILLENNIUM
@@ -50,9 +50,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: CENTURY
@@ -88,9 +88,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: DECADE
@@ -126,9 +126,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: EPOCH
@@ -164,9 +164,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: YEAR
@@ -202,9 +202,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: ISOYEAR
@@ -240,9 +240,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: QUARTER
@@ -278,9 +278,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: MONTH
@@ -316,9 +316,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: WEEK
@@ -354,9 +354,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: ISOWEEK
@@ -392,9 +392,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: ISODOW
@@ -430,9 +430,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: DOW
@@ -468,9 +468,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: DOY
@@ -506,9 +506,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: DAY
@@ -544,9 +544,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: HOUR
@@ -582,9 +582,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: MINUTE
@@ -620,9 +620,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: SECOND
@@ -658,9 +658,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: MILLISECONDS
@@ -696,9 +696,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: MICROSECONDS
@@ -734,9 +734,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -776,9 +776,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: TIMEZONE_HOUR
@@ -814,9 +814,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: extract
+            - function_name:
+              - function_name_identifier: extract
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - date_part: TIMEZONE_MINUTE
@@ -887,9 +887,9 @@ file:
         - select_clause_element:
           - expression:
             - function:
-              - function:
-                - function_name:
-                  - function_name_identifier: NOW
+              - function_name:
+                - function_name_identifier: NOW
+              - function_contents:
                 - bracketed:
                   - start_bracket: (
                   - end_bracket: )

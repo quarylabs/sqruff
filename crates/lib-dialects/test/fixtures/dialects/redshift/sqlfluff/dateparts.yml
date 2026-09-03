@@ -7,14 +7,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: millennium
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: millennium
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -31,14 +32,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: millennia
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: millennia
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -55,14 +57,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: mil
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: mil
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -79,14 +82,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: mils
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: mils
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -103,14 +107,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: century
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: century
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -127,14 +132,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: centuries
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: centuries
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -151,14 +157,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: c
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: c
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -175,14 +182,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: cent
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: cent
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -199,14 +207,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: cents
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: cents
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -223,14 +232,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: decade
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: decade
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -247,14 +257,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: decades
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: decades
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -271,14 +282,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: dec
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: dec
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -295,14 +307,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: date_part
-          - bracketed:
-            - start_bracket: (
-            - date_part: decs
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: decs
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -319,14 +332,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: epoch
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: epoch
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -343,14 +357,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: year
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: year
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -367,14 +382,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: years
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: years
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -391,14 +407,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: y
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: y
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -415,14 +432,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: yr
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: yr
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -439,14 +457,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: yrs
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: yrs
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -463,14 +482,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: quarter
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: quarter
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -487,14 +507,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: quarters
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: quarters
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -511,14 +532,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: qtr
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: qtr
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -535,14 +557,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: qtrs
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: qtrs
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -559,14 +582,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: month
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: month
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -583,14 +607,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: months
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: months
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -607,14 +632,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: mon
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: mon
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -631,14 +657,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: mons
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: mons
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -655,14 +682,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: week
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: week
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -679,14 +707,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: weeks
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: weeks
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -703,14 +732,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: w
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: w
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -727,14 +757,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: dayofweek
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: dayofweek
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -751,14 +782,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: dow
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: dow
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -775,14 +807,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: dw
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: dw
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -799,14 +832,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: weekday
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: weekday
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -823,14 +857,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: dayofyear
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: dayofyear
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -847,14 +882,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: doy
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: doy
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -871,14 +907,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: dy
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: dy
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -895,14 +932,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: yearday
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: yearday
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -919,14 +957,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: day
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: day
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -943,14 +982,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: days
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: days
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -967,14 +1007,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: d
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: d
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -991,14 +1032,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: hour
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: hour
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1015,14 +1057,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: hours
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: hours
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1039,14 +1082,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: h
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: h
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1063,14 +1107,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: hr
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: hr
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1087,14 +1132,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: hrs
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: hrs
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1111,14 +1157,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: minute
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: minute
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1135,14 +1182,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: minutes
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: minutes
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1159,14 +1207,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: m
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: m
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1183,14 +1232,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: min
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: min
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1207,14 +1257,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: mins
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: mins
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1231,14 +1282,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: second
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: second
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1255,14 +1307,15 @@ file:
         - function:
           - function_name:
             - function_name_identifier: extract
-          - bracketed:
-            - start_bracket: (
-            - date_part: seconds
-            - keyword: from
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: seconds
+              - keyword: from
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1279,17 +1332,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: s
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: s
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1306,17 +1360,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: sec
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: sec
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1333,17 +1388,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: secs
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: secs
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1360,17 +1416,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: millisecond
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: millisecond
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1387,17 +1444,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: milliseconds
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: milliseconds
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1414,17 +1472,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: ms
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: ms
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1441,17 +1500,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: msec
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: msec
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1468,17 +1528,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: msecs
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: msecs
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1495,17 +1556,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: msecond
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: msecond
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1522,17 +1584,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: mseconds
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: mseconds
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1549,17 +1612,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: millisec
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: millisec
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1576,17 +1640,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: millisecs
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: millisecs
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1603,17 +1668,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: millisecon
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: millisecon
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1630,17 +1696,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: microsecond
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: microsecond
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1657,17 +1724,18 @@ file:
         - function:
           - function_name:
             - function_name_identifier: dateadd
-          - bracketed:
-            - start_bracket: (
-            - date_part: microseconds
-            - comma: ','
-            - expression:
-              - numeric_literal: '123'
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: microseconds
+              - comma: ','
+              - expression:
+                - numeric_literal: '123'
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1684,18 +1752,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: microsec
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: microsec
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1712,18 +1781,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: microsecs
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: microsecs
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1740,18 +1810,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: microsecond
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: microsecond
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1768,18 +1839,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: usecond
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: usecond
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1796,18 +1868,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: useconds
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: useconds
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1824,18 +1897,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: us
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: us
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1852,18 +1926,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: usec
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: usec
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1880,18 +1955,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: usecs
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: usecs
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1908,18 +1984,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: timezone
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: timezone
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1936,18 +2013,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: timezone_hour
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: timezone_hour
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:
@@ -1964,18 +2042,19 @@ file:
         - function:
           - function_name:
             - function_name_identifier: datediff
-          - bracketed:
-            - start_bracket: (
-            - date_part: timezone_minute
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: foo
-            - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: bar
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: timezone_minute
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: foo
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: bar
+              - end_bracket: )
     - from_clause:
       - keyword: from
       - from_expression:

@@ -15,11 +15,12 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: percentile_cont
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - numeric_literal: '0.20'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '0.20'
+                    - end_bracket: )
                 - withingroup_clause:
                   - keyword: within
                   - keyword: group
@@ -53,11 +54,12 @@ file:
         - function:
           - function_name:
             - function_name_identifier: percentile_cont
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - numeric_literal: '0.40'
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '0.40'
+              - end_bracket: )
           - withingroup_clause:
             - keyword: within
             - keyword: group

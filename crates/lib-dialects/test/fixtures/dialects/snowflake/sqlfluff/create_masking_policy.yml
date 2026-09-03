@@ -13,15 +13,16 @@ file:
       - dot: .
       - naked_identifier: example_MASKING_POLICY
     - keyword: AS
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: val
-      - expression:
-        - column_reference:
-          - naked_identifier: VARCHAR
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: val
+        - expression:
+          - column_reference:
+            - naked_identifier: VARCHAR
+        - end_bracket: )
     - keyword: RETURNS
     - data_type:
       - data_type_identifier: VARCHAR
@@ -65,15 +66,16 @@ file:
     - object_reference:
       - naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: val
-      - expression:
-        - column_reference:
-          - naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: val
+        - expression:
+          - column_reference:
+            - naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
       - data_type_identifier: string
@@ -116,15 +118,16 @@ file:
     - object_reference:
       - naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: val
-      - expression:
-        - column_reference:
-          - naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: val
+        - expression:
+          - column_reference:
+            - naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
       - data_type_identifier: string
@@ -167,15 +170,16 @@ file:
     - object_reference:
       - naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: val
-      - expression:
-        - column_reference:
-          - naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: val
+        - expression:
+          - column_reference:
+            - naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
       - data_type_identifier: string
@@ -218,15 +222,16 @@ file:
     - object_reference:
       - naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: val
-      - expression:
-        - column_reference:
-          - naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: val
+        - expression:
+          - column_reference:
+            - naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
       - data_type_identifier: string
@@ -269,15 +274,16 @@ file:
     - object_reference:
       - naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: val
-      - expression:
-        - column_reference:
-          - naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: val
+        - expression:
+          - column_reference:
+            - naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
       - data_type_identifier: string
@@ -329,15 +335,16 @@ file:
     - object_reference:
       - naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: val
-      - expression:
-        - column_reference:
-          - naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: val
+        - expression:
+          - column_reference:
+            - naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
       - data_type_identifier: string
@@ -413,15 +420,16 @@ file:
     - object_reference:
       - naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: val
-      - expression:
-        - column_reference:
-          - naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: val
+        - expression:
+          - column_reference:
+            - naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
       - data_type_identifier: string
@@ -482,15 +490,16 @@ file:
     - object_reference:
       - naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: val
-      - expression:
-        - column_reference:
-          - naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: val
+        - expression:
+          - column_reference:
+            - naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
       - data_type_identifier: string
@@ -542,15 +551,16 @@ file:
     - object_reference:
       - naked_identifier: email_mask
     - keyword: as
-    - bracketed:
-      - start_bracket: (
-      - expression:
-        - column_reference:
-          - naked_identifier: val
-      - expression:
-        - column_reference:
-          - naked_identifier: string
-      - end_bracket: )
+    - function_contents:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: val
+        - expression:
+          - column_reference:
+            - naked_identifier: string
+        - end_bracket: )
     - keyword: returns
     - data_type:
       - data_type_identifier: string

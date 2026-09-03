@@ -32,9 +32,9 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                       - function:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: MAX
+                        - function_name:
+                          - function_name_identifier: MAX
+                        - function_contents:
                           - bracketed:
                             - start_bracket: (
                             - expression:
@@ -56,9 +56,9 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                       - function:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: MAX
+                        - function_name:
+                          - function_name_identifier: MAX
+                        - function_contents:
                           - bracketed:
                             - start_bracket: (
                             - expression:
@@ -80,9 +80,9 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                       - function:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: MAX
+                        - function_name:
+                          - function_name_identifier: MAX
+                        - function_contents:
                           - bracketed:
                             - start_bracket: (
                             - expression:
@@ -152,9 +152,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: SUM
+            - function_name:
+              - function_name_identifier: SUM
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -193,9 +193,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: MAX
+            - function_name:
+              - function_name_identifier: MAX
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -223,9 +223,9 @@ file:
         - keyword: HAVING
         - expression:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: MAX
+            - function_name:
+              - function_name_identifier: MAX
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -275,9 +275,9 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                       - function:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: MAX
+                        - function_name:
+                          - function_name_identifier: MAX
+                        - function_contents:
                           - bracketed:
                             - start_bracket: (
                             - expression:
@@ -299,9 +299,9 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                       - function:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: MAX
+                        - function_name:
+                          - function_name_identifier: MAX
+                        - function_contents:
                           - bracketed:
                             - start_bracket: (
                             - expression:
@@ -323,9 +323,9 @@ file:
                     - keyword: SELECT
                     - select_clause_element:
                       - function:
-                        - function:
-                          - function_name:
-                            - function_name_identifier: MAX
+                        - function_name:
+                          - function_name_identifier: MAX
+                        - function_contents:
                           - bracketed:
                             - start_bracket: (
                             - expression:
@@ -413,28 +413,28 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: PolygonPoint
+            - function_name:
+              - function_name_identifier: PolygonPoint
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
                   - column_reference:
                     - naked_identifier: geom
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
+            - over_clause:
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - partitionby_clause:
                     - partitionby_clause:
-                      - partitionby_clause:
-                        - keyword: PARTITION
-                        - keyword: BY
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: geom
-                  - end_bracket: )
+                      - keyword: PARTITION
+                      - keyword: BY
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: geom
+                - end_bracket: )
           - alias_expression:
             - alias_operator:
               - keyword: AS
@@ -463,9 +463,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: AVG
+            - function_name:
+              - function_name_identifier: AVG
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -497,9 +497,9 @@ file:
                       - comma: ','
                       - select_clause_element:
                         - function:
-                          - function:
-                            - function_name:
-                              - function_name_identifier: TS_FIRST_VALUE
+                          - function_name:
+                            - function_name_identifier: TS_FIRST_VALUE
+                          - function_contents:
                             - bracketed:
                               - start_bracket: (
                               - expression:

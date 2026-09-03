@@ -24,9 +24,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
       - merge_tree_order_by_clause:
         - keyword: order
         - keyword: by
@@ -69,9 +70,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
       - merge_tree_order_by_clause:
         - keyword: ORDER
         - keyword: BY
@@ -138,25 +140,26 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: date
-          - comma: ','
-          - expression:
-            - bracketed:
-              - start_bracket: (
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
               - column_reference:
-                - naked_identifier: UserId
-              - comma: ','
-              - column_reference:
-                - naked_identifier: EventType
-              - end_bracket: )
-          - comma: ','
-          - expression:
-            - numeric_literal: '8192'
-          - end_bracket: )
+                - naked_identifier: date
+            - comma: ','
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: UserId
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: EventType
+                - end_bracket: )
+            - comma: ','
+            - expression:
+              - numeric_literal: '8192'
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -232,20 +235,21 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: Merge
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - function:
-              - function_name:
-                - function_name_identifier: currentDatabase
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-          - comma: ','
-          - expression:
-            - quoted_literal: '''^WatchLog'''
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: currentDatabase
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - quoted_literal: '''^WatchLog'''
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -263,20 +267,21 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: Merge
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - function:
-              - function_name:
-                - function_name_identifier: currentDatabase
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - end_bracket: )
-          - comma: ','
-          - expression:
-            - quoted_literal: '''^WatchLog'''
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: currentDatabase
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+              - quoted_literal: '''^WatchLog'''
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -294,20 +299,21 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: Distributed
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: logs
-          - comma: ','
-          - expression:
-            - column_reference:
-              - naked_identifier: default
-          - comma: ','
-          - expression:
-            - column_reference:
-              - naked_identifier: hits
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: logs
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: default
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: hits
+            - end_bracket: )
       - settings_clause:
         - keyword: SETTINGS
         - naked_identifier: fsync_after_insert
@@ -402,9 +408,10 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: MergeTree
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -572,20 +579,21 @@ file:
       - table_engine_function:
         - function_name:
           - function_name_identifier: Distributed
-        - bracketed:
-          - start_bracket: (
-          - expression:
-            - column_reference:
-              - naked_identifier: cluster
-          - comma: ','
-          - expression:
-            - column_reference:
-              - naked_identifier: default
-          - comma: ','
-          - expression:
-            - column_reference:
-              - naked_identifier: hits
-          - end_bracket: )
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: cluster
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: default
+            - comma: ','
+            - expression:
+              - column_reference:
+                - naked_identifier: hits
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:

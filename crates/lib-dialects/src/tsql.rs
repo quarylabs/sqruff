@@ -14,7 +14,7 @@ use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -2108,6 +2108,12 @@ pub fn raw_dialect() -> Dialect {
     // Add variable reference support for T-SQL @ and @@ variables
     dialect.add([
         (
+            "LeadingDotSegment".into(),
+            StringParser::new(".", SyntaxKind::LeadingDot)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "TsqlVariableSegment".into(),
             TypedParser::new(SyntaxKind::TsqlVariable, SyntaxKind::TsqlVariable)
                 .to_matchable()
@@ -2137,6 +2143,25 @@ pub fn raw_dialect() -> Dialect {
         "TableReferenceSegment",
         one_of(vec![
             Ref::new("ObjectReferenceSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("LeadingDotSegment").to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar")
+                            .optional()
+                            .to_matchable(),
+                        Ref::new("DotSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| {
+                    this.min_times(0);
+                    this.max_times(2);
+                })
+                .to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+            ])
+            .to_matchable(),
             Ref::new("TsqlVariableSegment").to_matchable(),
         ])
         .to_matchable(),

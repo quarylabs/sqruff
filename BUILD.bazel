@@ -321,6 +321,13 @@ python_venv_provider(
     venv = ":python_venv",
 )
 
+# Compiler-only Cargo actions need Python and libpython for PyO3, but not the
+# hundreds of MB of test dependencies layered onto the standalone runtime.
+python_venv_provider(
+    name = "python_runtime",
+    venv = ":pytest_py312_python",
+)
+
 # Rust format check
 rustfmt_test(
     name = "rustfmt_check",
@@ -344,7 +351,7 @@ cargo_test(
         "docs/reference/templaters.md",
     ],
     vendor = ":cargo_deps",
-    python_venv = ":python_deps",
+    python_venv = ":python_runtime",
     script = """
 # Build the codegen binary
 cargo build --bin sqruff -F codegen-docs --locked --offline
@@ -389,7 +396,7 @@ cargo_run(
         "docs/reference/templaters.md",
     ],
     vendor = ":cargo_deps",
-    python_venv = ":python_deps",
+    python_venv = ":python_runtime",
     script = """
 # Build the codegen binary
 cargo build --bin sqruff -F codegen-docs --locked --offline
@@ -424,7 +431,7 @@ sh_test(
 # and the per-feature cargo-hack checks.
 cargo_test(
     name = "cargo_compile_checks",
-    python_venv = ":python_deps",
+    python_venv = ":python_runtime",
     size = "enormous",
     srcs = [":cargo_srcs"],
     tools = ["@cargo_hack//:cargo-hack"],
@@ -465,7 +472,7 @@ test_suite(
 # Uses vendored dependencies for hermetic builds
 cargo_test(
     name = "cargo_build_release",
-    python_venv = ":python_deps",
+    python_venv = ":python_runtime",
     size = "enormous",
     srcs = [":cargo_srcs"],
     vendor = ":cargo_deps",

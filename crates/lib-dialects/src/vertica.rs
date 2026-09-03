@@ -2568,51 +2568,32 @@ pub fn raw_dialect() -> Dialect {
 
     vertica.replace_grammar(
         "FunctionSegment",
-        NodeMatcher::new(SyntaxKind::Function, |_| {
-            one_of(vec![
+        one_of(vec![
+            Sequence::new(vec![
                 Sequence::new(vec![
-                    Sequence::new(vec![
-                        Ref::new("DatePartFunctionNameSegment").to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![
-                                Ref::new("DatetimeUnitSegment").to_matchable(),
-                                Ref::new("FunctionContentsGrammar")
-                                    .optional()
-                                    .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .config(|this| this.parse_mode(ParseMode::Greedy))
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::new("ColumnsExpressionGrammar").to_matchable(),
-                Sequence::new(vec![
-                    Sequence::new(vec![
-                        Ref::new("FunctionNameSegment")
-                            .exclude(one_of(vec![
-                                Ref::new("DatePartFunctionNameSegment").to_matchable(),
-                                Ref::new("ColumnsExpressionFunctionNameSegment").to_matchable(),
-                                Ref::new("ValuesClauseSegment").to_matchable(),
-                            ]))
-                            .to_matchable(),
-                        Bracketed::new(vec![
-                            Ref::new("FunctionContentsGrammar")
-                                .optional()
-                                .to_matchable(),
-                        ])
-                        .config(|this| this.parse_mode(ParseMode::Greedy))
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    any_set_of(vec![Ref::new("PostFunctionGrammar").to_matchable()]).to_matchable(),
+                    Ref::new("DatePartFunctionNameSegment").to_matchable(),
+                    Ref::new("DateTimeFunctionContentsSegment").to_matchable(),
                 ])
                 .to_matchable(),
             ])
-            .to_matchable()
-        })
+            .to_matchable(),
+            Ref::new("ColumnsExpressionGrammar").to_matchable(),
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::new("FunctionNameSegment")
+                        .exclude(one_of(vec![
+                            Ref::new("DatePartFunctionNameSegment").to_matchable(),
+                            Ref::new("ColumnsExpressionFunctionNameSegment").to_matchable(),
+                            Ref::new("ValuesClauseSegment").to_matchable(),
+                        ]))
+                        .to_matchable(),
+                    Ref::new("FunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                any_set_of(vec![Ref::new("PostFunctionGrammar").to_matchable()]).to_matchable(),
+            ])
+            .to_matchable(),
+        ])
         .to_matchable(),
     );
 

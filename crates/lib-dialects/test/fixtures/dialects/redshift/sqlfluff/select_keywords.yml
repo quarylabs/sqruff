@@ -74,12 +74,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: trim
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: datname
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: datname
+                - end_bracket: )
           - alias_expression:
             - naked_identifier: db_name
         - comma: ','
@@ -87,12 +88,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: trim
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: nspname
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: nspname
+                - end_bracket: )
           - alias_expression:
             - naked_identifier: schema_name
         - comma: ','
@@ -100,12 +102,13 @@ file:
           - function:
             - function_name:
               - function_name_identifier: trim
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: relname
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: relname
+                - end_bracket: )
           - alias_expression:
             - naked_identifier: table_name
       - from_clause:

@@ -39,12 +39,13 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: AVG
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: price
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: price
+                  - end_bracket: )
             - keyword: FOR
             - column_reference:
               - naked_identifier: partname
@@ -102,10 +103,11 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: COUNT
-              - bracketed:
-                - start_bracket: (
-                - star: '*'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - star: '*'
+                  - end_bracket: )
             - keyword: FOR
             - column_reference:
               - naked_identifier: quality
@@ -163,10 +165,11 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: COUNT
-              - bracketed:
-                - start_bracket: (
-                - star: '*'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - star: '*'
+                  - end_bracket: )
             - alias_expression:
               - keyword: AS
               - naked_identifier: count
@@ -247,10 +250,11 @@ file:
               - function:
                 - function_name:
                   - function_name_identifier: COUNT
-                - bracketed:
-                  - start_bracket: (
-                  - star: '*'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - star: '*'
+                    - end_bracket: )
               - alias_expression:
                 - keyword: AS
                 - naked_identifier: num_ate_food
@@ -308,10 +312,11 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: COUNT
-              - bracketed:
-                - start_bracket: (
-                - star: '*'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - star: '*'
+                  - end_bracket: )
             - keyword: FOR
             - column_reference:
               - naked_identifier: color
@@ -366,10 +371,11 @@ file:
             - function:
               - function_name:
                 - function_name_identifier: COUNT
-              - bracketed:
-                - start_bracket: (
-                - star: '*'
-                - end_bracket: )
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - star: '*'
+                  - end_bracket: )
             - keyword: FOR
             - column_reference:
               - naked_identifier: quality

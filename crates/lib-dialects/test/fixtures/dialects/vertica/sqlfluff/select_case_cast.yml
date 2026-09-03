@@ -106,9 +106,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: cast
+            - function_name:
+              - function_name_identifier: cast
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:

@@ -18,32 +18,32 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: mapkeys
+            - function_name:
+              - function_name_identifier: mapkeys
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
                   - column_reference:
                     - naked_identifier: some_data
                 - end_bracket: )
-              - over_clause:
-                - keyword: over
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
+            - over_clause:
+              - keyword: over
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - partitionby_clause:
                     - partitionby_clause:
-                      - partitionby_clause:
-                        - keyword: partition
-                        - keyword: by
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: col_1
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: col2
-                  - end_bracket: )
+                      - keyword: partition
+                      - keyword: by
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: col_1
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: col2
+                - end_bracket: )
           - alias_expression:
             - keyword: as
             - bracketed:

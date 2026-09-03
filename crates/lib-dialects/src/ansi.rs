@@ -4684,9 +4684,12 @@ pub fn raw_dialect() -> Dialect {
             "FunctionContentsSegment".into(),
             NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
                 Sequence::new(vec![
-                    Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
-                        .config(|this| this.optional())
-                        .to_matchable(),
+                    Bracketed::new(vec![
+                        Ref::new("FunctionContentsGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

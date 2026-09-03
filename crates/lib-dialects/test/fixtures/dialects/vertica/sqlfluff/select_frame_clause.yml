@@ -18,9 +18,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: ARGMAX
+            - function_name:
+              - function_name_identifier: ARGMAX
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -31,18 +31,18 @@ file:
                   - column_reference:
                     - naked_identifier: product_name
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: dev_group
-                      - keyword: ASC
-                  - end_bracket: )
+            - over_clause:
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: dev_group
+                    - keyword: ASC
+                - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -70,9 +70,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: ARGMIN
+            - function_name:
+              - function_name_identifier: ARGMIN
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -83,18 +83,18 @@ file:
                   - column_reference:
                     - naked_identifier: product_name
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: dev_group
-                      - keyword: ASC
-                  - end_bracket: )
+            - over_clause:
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: dev_group
+                    - keyword: ASC
+                - end_bracket: )
       - from_clause:
         - keyword: FROM
         - from_expression:
@@ -116,9 +116,9 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: SUM
+            - function_name:
+              - function_name_identifier: SUM
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
@@ -133,16 +133,16 @@ file:
             - cast_expression:
               - cast_expression:
                 - function:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: AVG
+                  - function_name:
+                    - function_name_identifier: AVG
+                  - function_contents:
                     - bracketed:
                       - start_bracket: (
                       - expression:
                         - function:
-                          - function:
-                            - function_name:
-                              - function_name_identifier: SUM
+                          - function_name:
+                            - function_name_identifier: SUM
+                          - function_contents:
                             - bracketed:
                               - start_bracket: (
                               - expression:
@@ -150,26 +150,26 @@ file:
                                   - naked_identifier: product_price
                               - end_bracket: )
                       - end_bracket: )
-                    - over_clause:
-                      - keyword: OVER
-                      - bracketed:
-                        - start_bracket: (
-                        - window_specification:
-                          - orderby_clause:
-                            - keyword: ORDER
-                            - keyword: BY
-                            - column_reference:
-                              - naked_identifier: calendar_month_number_in_year
+                  - over_clause:
+                    - keyword: OVER
+                    - bracketed:
+                      - start_bracket: (
+                      - window_specification:
+                        - orderby_clause:
+                          - keyword: ORDER
+                          - keyword: BY
+                          - column_reference:
+                            - naked_identifier: calendar_month_number_in_year
+                        - frame_clause:
                           - frame_clause:
-                            - frame_clause:
-                              - keyword: ROWS
-                              - keyword: BETWEEN
-                              - numeric_literal: '2'
-                              - keyword: PRECEDING
-                              - keyword: AND
-                              - numeric_literal: '2'
-                              - keyword: FOLLOWING
-                        - end_bracket: )
+                            - keyword: ROWS
+                            - keyword: BETWEEN
+                            - numeric_literal: '2'
+                            - keyword: PRECEDING
+                            - keyword: AND
+                            - numeric_literal: '2'
+                            - keyword: FOLLOWING
+                      - end_bracket: )
                 - casting_operator: '::'
                 - data_type:
                   - data_type:
@@ -253,59 +253,59 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: RANK
+            - function_name:
+              - function_name_identifier: RANK
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
+            - over_clause:
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - partitionby_clause:
                     - partitionby_clause:
-                      - partitionby_clause:
-                        - keyword: PARTITION
-                        - keyword: BY
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: employee_region
-                    - orderby_clause:
-                      - keyword: ORDER
+                      - keyword: PARTITION
                       - keyword: BY
-                      - column_reference:
-                        - naked_identifier: annual_salary
-                  - end_bracket: )
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: employee_region
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: annual_salary
+                - end_bracket: )
           - alias_expression:
             - naked_identifier: Rank
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: DENSE_RANK
+            - function_name:
+              - function_name_identifier: DENSE_RANK
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
+            - over_clause:
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - partitionby_clause:
                     - partitionby_clause:
-                      - partitionby_clause:
-                        - keyword: PARTITION
-                        - keyword: BY
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: employee_region
-                    - orderby_clause:
-                      - keyword: ORDER
+                      - keyword: PARTITION
                       - keyword: BY
-                      - column_reference:
-                        - naked_identifier: annual_salary
-                  - end_bracket: )
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: employee_region
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: annual_salary
+                - end_bracket: )
           - alias_expression:
             - quoted_identifier: '"Dense Rank"'
       - from_clause:
@@ -335,38 +335,38 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: PERCENTILE_CONT
+            - function_name:
+              - function_name_identifier: PERCENTILE_CONT
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
                   - numeric_literal: '0.5'
                 - end_bracket: )
-              - within_group_clause_statement:
-                - keyword: WITHIN
-                - keyword: GROUP
-                - bracketed:
-                  - start_bracket: (
-                  - orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                      - naked_identifier: annual_income
-                  - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
+            - within_group_clause_statement:
+              - keyword: WITHIN
+              - keyword: GROUP
+              - bracketed:
+                - start_bracket: (
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: annual_income
+                - end_bracket: )
+            - over_clause:
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - partitionby_clause:
                     - partitionby_clause:
-                      - partitionby_clause:
-                        - keyword: PARTITION
-                        - keyword: BY
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: customer_state
-                  - end_bracket: )
+                      - keyword: PARTITION
+                      - keyword: BY
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: customer_state
+                - end_bracket: )
           - alias_expression:
             - alias_operator:
               - keyword: AS
@@ -420,26 +420,26 @@ file:
         - comma: ','
         - select_clause_element:
           - function:
-            - function:
-              - function_name:
-                - function_name_identifier: STDDEV
+            - function_name:
+              - function_name_identifier: STDDEV
+            - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
                   - column_reference:
                     - naked_identifier: annual_salary
                 - end_bracket: )
-              - over_clause:
-                - keyword: OVER
-                - bracketed:
-                  - start_bracket: (
-                  - window_specification:
-                    - orderby_clause:
-                      - keyword: ORDER
-                      - keyword: BY
-                      - column_reference:
-                        - naked_identifier: hire_date
-                  - end_bracket: )
+            - over_clause:
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: hire_date
+                - end_bracket: )
           - alias_expression:
             - alias_operator:
               - keyword: as

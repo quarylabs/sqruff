@@ -15,7 +15,6 @@ use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::RegexParser;
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
-use sqruff_lib_core::parser::types::ParseMode;
 
 use crate::redshift_keywords::{REDSHIFT_RESERVED_KEYWORDS, REDSHIFT_UNRESERVED_KEYWORDS};
 use sqruff_lib_core::dialects::init::DialectConfig;
@@ -3261,14 +3260,29 @@ pub fn raw_dialect() -> Dialect {
             ),
     );
 
-    redshift_dialect.add([(
-        "ConvertFunctionNameSegment".into(),
-        NodeMatcher::new(SyntaxKind::FunctionName, |_| {
-            Sequence::new(vec![Ref::keyword("CONVERT").to_matchable()]).to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
+    redshift_dialect.add([
+        (
+            "ConvertFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                Sequence::new(vec![Ref::keyword("CONVERT").to_matchable()]).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ConvertFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     redshift_dialect.replace_grammar(
         "FunctionSegment",
@@ -3276,19 +3290,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Sequence::new(vec![
                     Ref::new("DatePartFunctionNameSegment").to_matchable(),
-                    Bracketed::new(vec![
-                        Delimited::new(vec![
-                            Ref::new("DatetimeUnitSegment").to_matchable(),
-                            Ref::new("FunctionContentsGrammar")
-                                .optional()
-                                .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.parse_mode = ParseMode::Greedy;
-                    })
-                    .to_matchable(),
+                    Ref::new("DateTimeFunctionContentsSegment").to_matchable(),
                 ])
                 .to_matchable(),
             ])
@@ -3316,15 +3318,7 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
-                    Bracketed::new(vec![
-                        Ref::new("FunctionContentsGrammar")
-                            .optional()
-                            .to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.parse_mode = ParseMode::Greedy;
-                    })
-                    .to_matchable(),
+                    Ref::new("FunctionContentsSegment").to_matchable(),
                 ])
                 .to_matchable(),
                 Ref::new("PostFunctionGrammar").optional().to_matchable(),
@@ -3332,12 +3326,7 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Sequence::new(vec![
                 Ref::new("ConvertFunctionNameSegment").to_matchable(),
-                Bracketed::new(vec![
-                    Ref::new("DatatypeSegment").to_matchable(),
-                    Ref::new("CommaSegment").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("ConvertFunctionContentsSegment").to_matchable(),
             ])
             .to_matchable(),
         ])

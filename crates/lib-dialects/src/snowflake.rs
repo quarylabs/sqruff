@@ -455,6 +455,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .into(),
         ),
         (
+            "ExceptionCodeSegment".into(),
+            Sequence::new(vec![
+                Ref::new("NegativeSegment").to_matchable(),
+                RegexParser::new(r"20[0-9]{3}", SyntaxKind::ExceptionCode).to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ReferencedVariableNameSegment".into(),
             RegexParser::new(r"\$[A-Z_][A-Z0-9_]*", SyntaxKind::Variable)
                 .to_matchable()
@@ -1895,6 +1904,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("ForInLoopSegment").to_matchable(),
                 Ref::new("CreateEventTableStatementSegment").to_matchable(),
                 Ref::new("ScriptingLetStatementSegment").to_matchable(),
+                Ref::new("ScriptingDeclareStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
                 Ref::new("ShowStatementSegment").to_matchable(),
                 Ref::new("AlterAccountStatementSegment").to_matchable(),
@@ -4752,6 +4762,91 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ScriptingDeclareStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ScriptingDeclareStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DECLARE").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("LocalVariableNameSegment")
+                                .exclude(Ref::keyword("BEGIN"))
+                                .to_matchable(),
+                            one_of(vec![
+                                // Variable assignment
+                                one_of(vec![
+                                    Sequence::new(vec![
+                                        Ref::new("DatatypeSegment").to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("DEFAULT").to_matchable(),
+                                            Ref::new("WalrusOperatorSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Ref::new("ExpressionSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Sequence::new(vec![
+                                        one_of(vec![
+                                            Ref::keyword("DEFAULT").to_matchable(),
+                                            Ref::new("WalrusOperatorSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Ref::new("ExpressionSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                // Cursor assignment
+                                Sequence::new(vec![
+                                    Ref::keyword("CURSOR").to_matchable(),
+                                    Ref::keyword("FOR").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("LocalVariableNameSegment").to_matchable(),
+                                        Ref::new("SelectableGrammar").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                // Resultset assignment
+                                Sequence::new(vec![
+                                    Ref::keyword("RESULTSET").to_matchable(),
+                                    Ref::new("WalrusOperatorSegment").to_matchable(),
+                                    Bracketed::new(vec![
+                                        Ref::new("SelectableGrammar").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                // Exception assignment
+                                Sequence::new(vec![
+                                    Ref::keyword("EXCEPTION").to_matchable(),
+                                    Bracketed::new(vec![
+                                        Delimited::new(vec![
+                                            Ref::new("ExceptionCodeSegment").to_matchable(),
+                                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("DelimiterGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.min_times = 1)
+                    .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Ref::new("ScriptingBlockStatementSegment").to_matchable(),
                 ])
                 .to_matchable()
             })

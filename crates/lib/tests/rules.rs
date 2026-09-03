@@ -122,6 +122,9 @@ fn process_file(state: &mut RuleTestState, path: &Path, verbose: bool) {
     state.linter.config_mut().raw.extend(state.core.clone());
     state.linter.config_mut().reload_reflow();
 
+    // Reuse the expensive dialect, templater, and rule-pack setup for cases
+    // with identical configurations while keeping each configuration isolated.
+    let mut configured_linters = Vec::new();
     for case in file.cases {
         if verbose {
             println!("Processing case: {}", case.name);
@@ -145,16 +148,20 @@ fn process_file(state: &mut RuleTestState, path: &Path, verbose: bool) {
             continue;
         }
 
-        let has_config = !case.configs.is_empty();
         let rule = &file.rule;
-        if has_config {
-            *state.linter.config_mut() = FluffConfig::new(case.configs.clone(), None, None);
-            state.linter.config_mut().raw.extend(state.core.clone());
+        let configured_linter_index = if case.configs.is_empty() {
+            None
+        } else if let Some(index) = configured_linters
+            .iter()
+            .position(|(configs, _)| configs == &case.configs)
+        {
+            Some(index)
+        } else {
+            let mut config = FluffConfig::new(case.configs.clone(), None, None);
+            config.raw.extend(state.core.clone());
 
             if let Some(core) = case.configs.get("core").and_then(|it| it.as_map()) {
-                state
-                    .linter
-                    .config_mut()
+                config
                     .raw
                     .get_mut("core")
                     .unwrap()
@@ -163,7 +170,7 @@ fn process_file(state: &mut RuleTestState, path: &Path, verbose: bool) {
                     .extend(core.clone());
             }
 
-            for (config, value) in &case
+            for (config_name, value) in &case
                 .configs
                 .get("rules")
                 .cloned()
@@ -172,47 +179,49 @@ fn process_file(state: &mut RuleTestState, path: &Path, verbose: bool) {
                 .cloned()
                 .unwrap_or_default()
             {
-                if INDENT_CONFIG.contains(&config.as_str()) {
-                    state
-                        .linter
-                        .config_mut()
+                if INDENT_CONFIG.contains(&config_name.as_str()) {
+                    config
                         .raw
                         .get_mut("indentation")
                         .unwrap()
                         .as_map_mut()
                         .unwrap()
-                        .insert(config.clone(), value.clone());
+                        .insert(config_name.clone(), value.clone());
                 }
             }
 
-            state.linter.config_mut().reload_reflow();
+            config.reload_reflow();
 
-            // Recreate linter with proper templater after all config is set up
-            let templater = match Linter::get_templater(state.linter.config()) {
+            let templater = match Linter::get_templater(&config) {
                 Ok(t) => t,
                 Err(e) => {
                     if std::env::var("SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS").is_ok() {
                         println!("Skipping case '{}': {}", case.name, e);
-                        *state.linter.config_mut() = FluffConfig::default();
-                        state.linter.config_mut().raw.extend(state.core.clone());
-                        state.linter.config_mut().reload_reflow();
                         continue;
                     } else {
                         panic!(
                             "Unsupported templater in case '{}': {}. \
-                             Set SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS=1 to skip these tests.",
+                                 Set SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS=1 to skip these tests.",
                             case.name, e
                         );
                     }
                 }
             };
-            state.linter =
-                Linter::new(state.linter.config().clone(), None, Some(templater), true).unwrap();
-        }
+            configured_linters.push((
+                case.configs.clone(),
+                Linter::new(config, None, Some(templater), true).unwrap(),
+            ));
+            Some(configured_linters.len() - 1)
+        };
+
+        let linter = match configured_linter_index {
+            Some(index) => &mut configured_linters[index].1,
+            None => &mut state.linter,
+        };
 
         match case.kind {
             TestCaseKind::Pass { pass_str } => {
-                let result = state.linter.lint_string_wrapped(&pass_str, false).unwrap();
+                let result = linter.lint_string_wrapped(&pass_str, false).unwrap();
                 let error_string = format!(
                     r#"
 The following test test can be used to recreate the issue:
@@ -247,7 +256,7 @@ dialect = {dialect}
                 assert_eq!(&result.violations(), &[], "{}", error_string);
             }
             TestCaseKind::Fail { fail_str } => {
-                let file = state.linter.lint_string_wrapped(&fail_str, false).unwrap();
+                let file = linter.lint_string_wrapped(&fail_str, false).unwrap();
                 assert_ne!(&file.violations(), &[]);
                 if let Some(expected_line_numbers) = &case.line_numbers {
                     let actual_line_numbers = file
@@ -262,8 +271,7 @@ dialect = {dialect}
                     );
                 }
                 if case.expect_no_fix {
-                    let fixed = state
-                        .linter
+                    let fixed = linter
                         .lint_string_wrapped(&fail_str, true)
                         .unwrap()
                         .fix_string();
@@ -281,7 +289,7 @@ dialect = {dialect}
                     "Fail and fix strings should not be equal"
                 );
 
-                let linted = state.linter.lint_string_wrapped(&fail_str, true).unwrap();
+                let linted = linter.lint_string_wrapped(&fail_str, true).unwrap();
                 if let Some(expected_line_numbers) = &case.line_numbers {
                     let actual_line_numbers = linted
                         .violations()
@@ -298,19 +306,6 @@ dialect = {dialect}
 
                 pretty_assertions::assert_eq!(actual, fix_str);
             }
-        }
-
-        if has_config {
-            *state.linter.config_mut() = FluffConfig::default();
-            state.linter.config_mut().raw.extend(state.core.clone());
-            state.linter.config_mut().reload_reflow();
-
-            // Recreate linter with default templater to avoid leaking
-            // the custom templater (e.g. placeholder) into subsequent tests.
-            let templater = Linter::get_templater(state.linter.config())
-                .expect("Default config should have a valid templater");
-            state.linter =
-                Linter::new(state.linter.config().clone(), None, Some(templater), true).unwrap();
         }
     }
 }

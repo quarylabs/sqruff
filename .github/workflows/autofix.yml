@@ -38,16 +38,16 @@ jobs:
           repository-cache: true
 
       - name: Run rustfmt
-        run: bazelisk run @rules_rust//:rustfmt
+        run: bazelisk run --lockfile_mode=error @rules_rust//:rustfmt
 
       - name: Run Prettier
-        run: bazelisk run //:prettier_fix
+        run: bazelisk run --lockfile_mode=error //:prettier_fix
 
       - name: Run ruff
-        run: bazelisk run //:ruff_fix
+        run: bazelisk run --lockfile_mode=error //:ruff_fix
 
       - name: Regenerate docs
-        run: bazelisk run //:codegen_docs_fix
+        run: bazelisk run --lockfile_mode=error //:codegen_docs_fix
 
       - name: Check for changes
         id: changes

@@ -305,11 +305,7 @@ impl RuleST05 {
 
             ctes.insert_cte(new_cte);
 
-            if nsq.query.inner.borrow().selectables.len() != 1 {
-                continue;
-            }
-
-            let select = nsq.query.inner.borrow().selectables[0].clone().selectable;
+            let select = nsq.selectable.selectable.clone();
             let anchor = anchor.recursive_crawl(
                 const {
                     &SyntaxSet::new(&[
@@ -340,7 +336,7 @@ impl RuleST05 {
                 res,
                 nsq.table_alias.from_expression_element,
                 alias_name.clone(),
-                nsq.query.inner.borrow().selectables[0].clone().selectable,
+                nsq.selectable.selectable.clone(),
             ));
         }
 

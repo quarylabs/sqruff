@@ -26,8 +26,8 @@ pub mod python_shared;
 pub mod raw;
 pub mod types;
 
-pub use types::{PlaceholderStyle, TemplaterKind};
 pub use metadata::{PYTHON_TEMPLATERS, TemplaterMetadata};
+pub use types::{PlaceholderStyle, TemplaterKind};
 
 pub static RAW_TEMPLATER: RawTemplater = RawTemplater;
 pub static PLACEHOLDER_TEMPLATER: PlaceholderTemplater = PlaceholderTemplater;

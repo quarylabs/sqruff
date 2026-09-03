@@ -1,0 +1,22 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - boolean_literal: 'TRUE'
+          - keyword: IS
+          - null_literal: UNKNOWN
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - boolean_literal: 'TRUE'
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: UNKNOWN
+- statement_terminator: ;

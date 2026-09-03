@@ -569,6 +569,11 @@ pub fn raw_dialect() -> Dialect {
         .sets_mut("unreserved_keywords")
         .retain(|keyword| !not_keywords.contains(keyword));
 
+    postgres.replace_grammar(
+        "UnknownLiteralSegment",
+        StringParser::new("UNKNOWN", SyntaxKind::NullLiteral).to_matchable(),
+    );
+
     // Add datetime units
     postgres.sets_mut("datetime_units").extend([
         "CENTURY",

@@ -1,0 +1,18 @@
+file:
+- statement:
+  - keyword: BEGIN
+  - keyword: TRY
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+  - statement_terminator: ;
+  - keyword: END
+  - keyword: TRY
+  - keyword: BEGIN
+  - keyword: CATCH
+  - keyword: END
+  - keyword: CATCH
+- statement_terminator: ;

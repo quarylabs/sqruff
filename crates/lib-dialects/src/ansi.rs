@@ -5045,9 +5045,9 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("ExpressionSegment").to_matchable(),
                             Ref::new("SelectableGrammar").to_matchable(),
                             Delimited::new(vec![
+                                Ref::new("LiteralGrammar").to_matchable(),
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                                 Ref::new("FunctionSegment").to_matchable(),
-                                Ref::new("LiteralGrammar").to_matchable(),
                                 Ref::new("LocalAliasSegment").to_matchable(),
                             ])
                             .to_matchable(),

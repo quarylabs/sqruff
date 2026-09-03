@@ -10,11 +10,9 @@ file:
               - start_bracket: (
               - numeric_literal: '1'
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''two'''
+              - quoted_literal: '''two'''
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''2024-01-01'''
+              - quoted_literal: '''2024-01-01'''
               - end_bracket: )
             - casting_operator: '::'
             - data_type:
@@ -50,11 +48,9 @@ file:
               - start_bracket: (
               - numeric_literal: '1'
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''two'''
+              - quoted_literal: '''two'''
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''2024-01-01'''
+              - quoted_literal: '''2024-01-01'''
               - end_bracket: )
             - casting_operator: '::'
             - data_type:
@@ -90,11 +86,9 @@ file:
               - start_bracket: (
               - numeric_literal: '1'
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''two'''
+              - quoted_literal: '''two'''
               - comma: ','
-              - column_reference:
-                - quoted_identifier: '''2024-01-01'''
+              - quoted_literal: '''2024-01-01'''
               - end_bracket: )
             - casting_operator: '::'
             - data_type:

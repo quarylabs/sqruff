@@ -5,7 +5,7 @@ use sqruff_lib_core::templaters::TemplatedFile;
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;
-use crate::templaters::{ProcessingMode, Templater};
+use crate::templaters::{ProcessingMode, Templater, TemplaterDocumentation};
 
 #[derive(Default)]
 pub struct RawTemplater;
@@ -21,7 +21,7 @@ impl RawTemplater {
     }
 }
 
-impl Templater for RawTemplater {
+impl TemplaterDocumentation for RawTemplater {
     fn name(&self) -> &'static str {
         "raw"
     }
@@ -29,7 +29,9 @@ impl Templater for RawTemplater {
     fn description(&self) -> &'static str {
         r"The raw templater simply returns the input string as the output string. It passes through the input string unchanged and is useful if you need no templating. It is the default templater."
     }
+}
 
+impl Templater for RawTemplater {
     fn processing_mode(&self) -> ProcessingMode {
         ProcessingMode::Parallel
     }

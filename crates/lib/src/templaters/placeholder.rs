@@ -9,7 +9,7 @@ use sqruff_lib_core::templaters::{
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;
-use crate::templaters::{PlaceholderStyle, ProcessingMode, Templater};
+use crate::templaters::{PlaceholderStyle, ProcessingMode, Templater, TemplaterDocumentation};
 
 #[derive(Default)]
 pub struct PlaceholderTemplater;
@@ -185,7 +185,7 @@ impl PlaceholderTemplater {
     }
 }
 
-impl Templater for PlaceholderTemplater {
+impl TemplaterDocumentation for PlaceholderTemplater {
     fn name(&self) -> &'static str {
         "placeholder"
     }
@@ -283,7 +283,9 @@ the named parameter param_name will be used as the key to replace, if missing, t
 
 Also consider making a pull request to the project to have your style added, it may be useful to other people and simplify your configuration."#
     }
+}
 
+impl Templater for PlaceholderTemplater {
     fn processing_mode(&self) -> ProcessingMode {
         ProcessingMode::Parallel
     }

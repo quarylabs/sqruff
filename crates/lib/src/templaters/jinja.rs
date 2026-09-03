@@ -1,16 +1,28 @@
+#[cfg(feature = "python")]
 use super::Templater;
+use super::TemplaterDocumentation;
+#[cfg(feature = "python")]
 use super::python::PythonTemplatedFile;
+#[cfg(feature = "python")]
 use crate::core::config::FluffConfig;
+#[cfg(feature = "python")]
 use crate::templaters::python_shared::PythonFluffConfig;
+#[cfg(feature = "python")]
 use crate::templaters::{Formatter, ProcessingMode, TemplaterKind};
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::{Py, PyAny, Python};
+#[cfg(feature = "python")]
 use sqruff_lib_core::errors::SQLFluffUserError;
+#[cfg(feature = "python")]
 use sqruff_lib_core::templaters::TemplatedFile;
+#[cfg(feature = "python")]
 use std::sync::Arc;
 
 pub struct JinjaTemplater;
 
+#[cfg(feature = "python")]
 impl JinjaTemplater {
     fn process_single(
         &self,
@@ -72,7 +84,7 @@ impl JinjaTemplater {
     }
 }
 
-impl Templater for JinjaTemplater {
+impl TemplaterDocumentation for JinjaTemplater {
     fn name(&self) -> &'static str {
         "jinja"
     }
@@ -208,7 +220,10 @@ Now, `ds` can be used in SQL:
 SELECT "{{ "2000-01-01" | ds }}";
 ```"#
     }
+}
 
+#[cfg(feature = "python")]
+impl Templater for JinjaTemplater {
     fn processing_mode(&self) -> ProcessingMode {
         ProcessingMode::Sequential
     }
@@ -238,7 +253,7 @@ SELECT "{{ "2000-01-01" | ds }}";
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "python"))]
 mod tests {
     use crate::core::config::FluffConfig;
     use crate::core::linter::core::Linter;

@@ -5,20 +5,15 @@ use sqruff_lib_core::templaters::TemplatedFile;
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;
+use crate::templaters::dbt::DBTTemplater;
+use crate::templaters::jinja::JinjaTemplater;
 use crate::templaters::placeholder::PlaceholderTemplater;
+use crate::templaters::python::PythonTemplater;
 use crate::templaters::raw::RawTemplater;
 
-#[cfg(feature = "python")]
-use crate::templaters::jinja::JinjaTemplater;
-#[cfg(feature = "python")]
-use crate::templaters::python::PythonTemplater;
-
-#[cfg(feature = "python")]
 pub mod dbt;
-#[cfg(feature = "python")]
 pub mod jinja;
 pub mod placeholder;
-#[cfg(feature = "python")]
 pub mod python;
 #[cfg(feature = "python")]
 pub mod python_shared;
@@ -29,12 +24,19 @@ pub use types::{PlaceholderStyle, TemplaterKind};
 
 pub static RAW_TEMPLATER: RawTemplater = RawTemplater;
 pub static PLACEHOLDER_TEMPLATER: PlaceholderTemplater = PlaceholderTemplater;
-#[cfg(feature = "python")]
 pub static PYTHON_TEMPLATER: PythonTemplater = PythonTemplater;
-#[cfg(feature = "python")]
 pub static JINJA_TEMPLATER: JinjaTemplater = JinjaTemplater;
-#[cfg(feature = "python")]
-pub static DBT_TEMPLATER: dbt::DBTTemplater = dbt::DBTTemplater;
+pub static DBT_TEMPLATER: DBTTemplater = DBTTemplater;
+
+/// Documentation for every templater, including templaters whose runtime
+/// implementation requires the optional Python feature.
+pub static TEMPLATER_DOCS: [&'static dyn TemplaterDocumentation; 5] = [
+    &RAW_TEMPLATER,
+    &PLACEHOLDER_TEMPLATER,
+    &PYTHON_TEMPLATER,
+    &JINJA_TEMPLATER,
+    &DBT_TEMPLATER,
+];
 
 // templaters returns all the templaters that are available in the library
 #[cfg(feature = "python")]
@@ -64,13 +66,17 @@ pub enum ProcessingMode {
     Batch,
 }
 
-pub trait Templater: Send + Sync {
+/// Documentation that is available without compiling a templater's runtime
+/// dependencies.
+pub trait TemplaterDocumentation: Send + Sync {
     /// The name of the templater.
     fn name(&self) -> &'static str;
 
     /// Description of the templater.
     fn description(&self) -> &'static str;
+}
 
+pub trait Templater: TemplaterDocumentation {
     /// Returns the processing mode for this templater.
     fn processing_mode(&self) -> ProcessingMode;
 
@@ -101,5 +107,20 @@ pub trait Templater: Send + Sync {
             .into_iter()
             .map(|result| result.map(|templated_file| vec![templated_file]))
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::TEMPLATER_DOCS;
+
+    #[test]
+    fn documentation_lists_every_templater() {
+        let names = TEMPLATER_DOCS
+            .iter()
+            .map(|templater| templater.name())
+            .collect::<Vec<_>>();
+
+        assert_eq!(names, ["raw", "placeholder", "python", "jinja", "dbt"]);
     }
 }

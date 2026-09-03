@@ -12,7 +12,7 @@ use sqruff_lib::core::rules::ErasedRule;
 #[cfg(feature = "codegen-docs")]
 use sqruff_lib::rules::rules;
 #[cfg(feature = "codegen-docs")]
-use sqruff_lib::templaters::TEMPLATERS;
+use sqruff_lib::templaters::{TEMPLATER_DOCS, TemplaterDocumentation};
 #[cfg(feature = "codegen-docs")]
 use sqruff_lib_core::dialects::init::DialectKind;
 #[cfg(feature = "codegen-docs")]
@@ -57,7 +57,7 @@ pub(crate) fn codegen_docs() {
     env.add_template("templaters", TEMPLATERS_TEMPLATE).unwrap();
 
     let tmpl = env.get_template("templaters").unwrap();
-    let templaters = TEMPLATERS
+    let templaters = TEMPLATER_DOCS
         .into_iter()
         .map(Templater::from)
         .collect::<Vec<_>>();
@@ -139,8 +139,8 @@ impl From<DialectKind> for Dialect {
 }
 
 #[cfg(feature = "codegen-docs")]
-impl From<&'static dyn sqruff_lib::templaters::Templater> for Templater {
-    fn from(value: &'static dyn sqruff_lib::templaters::Templater) -> Self {
+impl From<&'static dyn TemplaterDocumentation> for Templater {
+    fn from(value: &'static dyn TemplaterDocumentation) -> Self {
         Templater {
             name: value.name(),
             description: value.description(),

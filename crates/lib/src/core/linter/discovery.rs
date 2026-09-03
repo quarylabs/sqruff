@@ -3,14 +3,158 @@
 //! The main public method here is [`paths_from_path`], which takes a potentially
 //! ambiguous path and resolves it into specific file references.
 
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
-use hashbrown::{HashMap, HashSet};
-use itertools::Itertools;
+use hashbrown::HashSet;
+#[cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))]
+use ignore::gitignore::Gitignore;
 use sqruff_lib_core::helpers;
 use walkdir::WalkDir;
+
+#[cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))]
+struct IgnoreSpecRecord {
+    root: PathBuf,
+    source: PathBuf,
+    matcher: Gitignore,
+}
+
+#[cfg(any(target_arch = "wasm32", target_arch = "wasm64"))]
+struct IgnoreSpecRecord;
+
+fn absolute_path(path: &Path) -> PathBuf {
+    if path.is_absolute() {
+        helpers::normalize(path)
+    } else {
+        helpers::normalize(&std::env::current_dir().unwrap().join(path))
+    }
+}
+
+fn config_search_directories(target_path: &Path, working_path: &Path) -> Vec<PathBuf> {
+    let target_dir = if target_path.is_file() {
+        target_path.parent().unwrap_or(target_path)
+    } else {
+        target_path
+    };
+
+    let Some(common_path) = target_dir
+        .ancestors()
+        .find(|candidate| working_path.starts_with(candidate))
+    else {
+        return vec![working_path.to_path_buf(), target_dir.to_path_buf()];
+    };
+
+    let mut directories = Vec::new();
+    let mut current = Some(target_dir);
+    while let Some(directory) = current {
+        directories.push(directory.to_path_buf());
+        if directory == common_path {
+            break;
+        }
+        current = directory.parent();
+    }
+    directories.reverse();
+    directories
+}
+
+#[cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))]
+fn load_ignorefile(path: &Path) -> Option<IgnoreSpecRecord> {
+    let (matcher, error) = Gitignore::new(path);
+    if let Some(error) = error {
+        log::warn!(
+            "Unable to fully load ignore file {}: {error}",
+            path.display()
+        );
+    }
+
+    Some(IgnoreSpecRecord {
+        root: path.parent()?.to_path_buf(),
+        source: path.to_path_buf(),
+        matcher,
+    })
+}
+
+#[cfg(any(target_arch = "wasm32", target_arch = "wasm64"))]
+fn load_ignorefile(_path: &Path) -> Option<IgnoreSpecRecord> {
+    None
+}
+
+#[cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))]
+fn check_ignore_specs<'a>(
+    absolute_path: &Path,
+    is_dir: bool,
+    ignore_specs: &'a [IgnoreSpecRecord],
+) -> Option<&'a Path> {
+    for record in ignore_specs {
+        if absolute_path.starts_with(&record.root)
+            && record
+                .matcher
+                .matched_path_or_any_parents(absolute_path, is_dir)
+                .is_ignore()
+        {
+            return Some(&record.source);
+        }
+    }
+    None
+}
+
+#[cfg(any(target_arch = "wasm32", target_arch = "wasm64"))]
+fn check_ignore_specs<'a>(
+    _absolute_path: &Path,
+    _is_dir: bool,
+    _ignore_specs: &'a [IgnoreSpecRecord],
+) -> Option<&'a Path> {
+    None
+}
+
+fn load_ignore_specs(
+    path: &Path,
+    working_path: &Path,
+    ignore_file_name: &str,
+    ignorer: Option<&(dyn Fn(&Path) -> bool + Send + Sync)>,
+) -> Vec<IgnoreSpecRecord> {
+    let absolute_target = absolute_path(path);
+    let absolute_working_path = absolute_path(working_path);
+    let mut ignore_paths = Vec::new();
+
+    for search_path in config_search_directories(&absolute_target, &absolute_working_path) {
+        let candidate = search_path.join(ignore_file_name);
+        if candidate.is_file() {
+            ignore_paths.push(candidate);
+        }
+    }
+
+    if path.is_dir() {
+        let entries = WalkDir::new(path)
+            .sort_by_file_name()
+            .into_iter()
+            .filter_entry(|entry| match ignorer {
+                Some(ignorer) => !ignorer(entry.path()),
+                None => true,
+            })
+            .filter_map(Result::ok);
+
+        for entry in entries {
+            if entry.file_type().is_file() && entry.file_name() == ignore_file_name {
+                ignore_paths.push(absolute_path(entry.path()));
+            }
+        }
+    }
+
+    let mut seen = HashSet::new();
+    ignore_paths.retain(|path| seen.insert(path.clone()));
+    ignore_paths.sort_by_key(|path| path.components().count());
+    ignore_paths
+        .iter()
+        .filter_map(|path| load_ignorefile(path))
+        .collect()
+}
+
+fn matches_file_extension(path: &Path, valid_extensions: &[String]) -> bool {
+    let lowercase_path = path.to_string_lossy().to_lowercase();
+    valid_extensions
+        .iter()
+        .any(|extension| lowercase_path.ends_with(extension))
+}
 
 /// Return SQL file paths from a potentially ambiguous path.
 pub fn paths_from_path(
@@ -25,8 +169,13 @@ pub fn paths_from_path(
     let ignore_file_name = ignore_file_name.unwrap_or_else(|| String::from(".sqlfluffignore"));
     let ignore_non_existent_files = ignore_non_existent_files.unwrap_or(false);
     let ignore_files = ignore_files.unwrap_or(true);
-    let _working_path =
-        working_path.unwrap_or_else(|| std::env::current_dir().unwrap().display().to_string());
+    let working_path = PathBuf::from(
+        working_path.unwrap_or_else(|| std::env::current_dir().unwrap().display().to_string()),
+    );
+    let lower_file_exts = target_file_exts
+        .iter()
+        .map(|extension| extension.to_lowercase())
+        .collect::<Vec<_>>();
 
     let Ok(metadata) = std::fs::metadata(&path) else {
         if ignore_non_existent_files {
@@ -36,121 +185,76 @@ pub fn paths_from_path(
         }
     };
 
-    // Files referred to exactly are also ignored if matched, but we warn users
-    // when that happens.
-    let is_exact_file = metadata.is_file();
-
-    let mut path_walk = if is_exact_file {
-        let path = Path::new(&path);
-        let dirpath = path.parent().unwrap().to_str().unwrap().to_string();
-        let files = vec![path.file_name().unwrap().to_str().unwrap().to_string()];
-        vec![(dirpath, None, files)]
+    let ignore_specs = if ignore_files {
+        load_ignore_specs(&path, &working_path, &ignore_file_name, ignorer)
     } else {
-        let walkdir = WalkDir::new(&path);
-        let entries: Vec<_> = if let Some(ignorer) = ignorer {
-            // Apply the ignorer during traversal to skip ignored directories entirely.
-            walkdir
-                .into_iter()
-                .filter_entry(|entry| {
-                    let should_ignore = ignorer(entry.path());
-                    if should_ignore {
-                        let path_type = if entry.file_type().is_dir() {
-                            "directory"
-                        } else {
-                            "file"
-                        };
-                        log::debug!(
-                            "Skipping {} '{}' during file discovery traversal",
-                            path_type,
-                            entry.path().display()
-                        );
-                    }
-                    !should_ignore
-                })
-                .filter_map(Result::ok)
-                .collect()
-        } else {
-            walkdir.into_iter().filter_map(Result::ok).collect()
-        };
-
-        // Group entries by directory to maintain the original data structure.
-        let mut dir_files: HashMap<String, Vec<String>> = HashMap::new();
-
-        for entry in entries {
-            if entry.file_type().is_file() {
-                let dirpath = entry.path().parent().unwrap().to_str().unwrap().to_string();
-                let filename = entry.file_name().to_str().unwrap().to_string();
-                dir_files.entry(dirpath).or_default().push(filename);
-            }
-        }
-
-        dir_files
-            .into_iter()
-            .map(|(dirpath, files)| (dirpath, None, files))
-            .collect_vec()
+        Vec::new()
     };
 
-    // TODO: Discover ignore files between `path` and `working_path`.
-    let ignore_file_paths: Vec<String> = Vec::new();
-
-    // Add paths that could contain ignore files to the path walk.
-    let path_walk_ignore_file: Vec<(String, Option<()>, Vec<String>)> = ignore_file_paths
-        .iter()
-        .map(|ignore_file_path| {
-            let ignore_file_path = Path::new(ignore_file_path);
-            let dir_name = ignore_file_path
-                .parent()
-                .unwrap()
-                .to_str()
-                .unwrap()
-                .to_string();
-            let file_name = vec![
-                ignore_file_path
-                    .file_name()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string(),
-            ];
-
-            (dir_name, None, file_name)
-        })
-        .collect();
-
-    path_walk.extend(path_walk_ignore_file);
-
-    let mut buffer = Vec::new();
-    let mut ignores = HashMap::new();
-
-    for (dirpath, _, filenames) in path_walk {
-        for fname in filenames {
-            let fpath = Path::new(&dirpath).join(&fname);
-
-            if ignore_files && fname == ignore_file_name {
-                let file = File::open(&fpath).unwrap();
-                let lines = BufReader::new(file).lines();
-                let spec = lines.map_while(Result::ok);
-                ignores.insert(dirpath.clone(), spec.collect::<Vec<String>>());
-                continue;
-            }
-
-            for ext in target_file_exts {
-                if fname.to_lowercase().ends_with(ext) {
-                    buffer.push(fpath.clone());
-                }
-            }
+    if metadata.is_file() {
+        if !matches_file_extension(&path, &lower_file_exts) {
+            return Vec::new();
         }
+        if ignorer.is_some_and(|ignorer| ignorer(&path)) {
+            return Vec::new();
+        }
+
+        let absolute_file = absolute_path(&path);
+        if let Some(ignore_file) = check_ignore_specs(&absolute_file, false, &ignore_specs) {
+            let display_ignore_file = ignore_file
+                .strip_prefix(absolute_path(&working_path))
+                .unwrap_or(ignore_file);
+            log::warn!(
+                "Exact file path {} was given but it was ignored by a pattern in {}; re-run with ignore files disabled to process it",
+                path.display(),
+                display_ignore_file.display()
+            );
+            return Vec::new();
+        }
+
+        return vec![helpers::normalize(&path).to_string_lossy().to_string()];
     }
 
-    let mut filtered_buffer = HashSet::new();
+    let mut files = WalkDir::new(&path)
+        .sort_by_file_name()
+        .into_iter()
+        .filter_entry(|entry| {
+            let externally_ignored = ignorer.is_some_and(|ignorer| ignorer(entry.path()));
+            let internally_ignored = check_ignore_specs(
+                &absolute_path(entry.path()),
+                entry.file_type().is_dir(),
+                &ignore_specs,
+            )
+            .is_some();
 
-    for fpath in buffer {
-        let npath = helpers::normalize(&fpath).to_str().unwrap().to_string();
-        filtered_buffer.insert(npath);
-    }
-
-    let mut files = filtered_buffer.into_iter().collect_vec();
+            if externally_ignored || internally_ignored {
+                let path_type = if entry.file_type().is_dir() {
+                    "directory"
+                } else {
+                    "file"
+                };
+                log::debug!(
+                    "Skipping {} '{}' during file discovery traversal",
+                    path_type,
+                    entry.path().display()
+                );
+                false
+            } else {
+                true
+            }
+        })
+        .filter_map(Result::ok)
+        .filter(|entry| {
+            entry.file_type().is_file() && matches_file_extension(entry.path(), &lower_file_exts)
+        })
+        .map(|entry| {
+            helpers::normalize(entry.path())
+                .to_string_lossy()
+                .to_string()
+        })
+        .collect::<Vec<_>>();
     files.sort();
+    files.dedup();
     files
 }
 
@@ -234,10 +338,73 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_linter_path_from_paths_specific_bad_ext() {
+        let paths = paths_from_path(
+            "test/fixtures/linter/sqlfluffignore/.sqlfluffignore".into(),
+            None,
+            None,
+            None,
+            None,
+            &[".sql".into()],
+            None,
+        );
+        assert!(paths.is_empty());
+    }
+
+    #[test]
+    fn test_linter_path_from_paths_explicit_ignore() {
+        let paths = paths_from_path(
+            "test/fixtures/linter/sqlfluffignore/path_a/query_a.sql".into(),
+            None,
+            Some(true),
+            Some(true),
+            Some("test/fixtures/linter/sqlfluffignore".into()),
+            &[".sql".into()],
+            None,
+        );
+        assert!(paths.is_empty());
+    }
+
+    #[test]
+    fn test_linter_path_from_paths_nested_ignore_files() {
+        let paths = normalise_paths(paths_from_path(
+            "test/fixtures/linter/sqlfluffignore".into(),
+            None,
+            None,
+            None,
+            None,
+            &[".sql".into()],
+            None,
+        ));
+        assert_eq!(
+            paths,
+            &["test.fixtures.linter.sqlfluffignore.path_b.query_b.sql"]
+        );
+    }
+
+    #[test]
+    fn test_linter_path_from_paths_ignore_files_disabled() {
+        let paths = normalise_paths(paths_from_path(
+            "test/fixtures/linter/sqlfluffignore".into(),
+            None,
+            None,
+            Some(false),
+            None,
+            &[".sql".into()],
+            None,
+        ));
+        assert_eq!(
+            paths,
+            &[
+                "test.fixtures.linter.sqlfluffignore.path_a.query_a.sql",
+                "test.fixtures.linter.sqlfluffignore.path_b.query_b.sql",
+                "test.fixtures.linter.sqlfluffignore.path_b.query_c.sql",
+            ]
+        );
+    }
+
     // test__linter__path_from_paths__not_exist
     // test__linter__path_from_paths__not_exist_ignore
-    // test__linter__path_from_paths__explicit_ignore
-    // test__linter__path_from_paths__sqlfluffignore_current_directory
     // test__linter__path_from_paths__dot
-    // test__linter__path_from_paths__ignore
 }

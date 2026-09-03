@@ -115,19 +115,15 @@ impl Linter {
         let mut expanded_paths = Vec::new();
 
         for path in paths {
-            if path.is_file() {
-                expanded_paths.push(path.to_string_lossy().to_string());
-            } else {
-                expanded_paths.extend(paths_from_path(
-                    path,
-                    None,
-                    None,
-                    None,
-                    None,
-                    self.config.sql_file_exts(),
-                    Some(ignorer),
-                ));
-            };
+            expanded_paths.extend(paths_from_path(
+                path,
+                None,
+                None,
+                None,
+                None,
+                self.config.sql_file_exts(),
+                Some(ignorer),
+            ));
         }
 
         let paths: Vec<String> = expanded_paths

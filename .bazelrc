@@ -22,6 +22,7 @@ build:lint --@aspect_rules_lint//lint:fail_on_violation
 common --experimental_isolated_extension_usages
 
 # CI-specific settings
+common:ci --lockfile_mode=error
 build:ci --color=yes
 build:ci --curses=no
 build:ci --show_timestamps

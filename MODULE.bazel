@@ -7,9 +7,9 @@ module(
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 
-# Platform-aware tool downloads (ratchet, cargo-machete, cargo-hack, uv)
+# Platform-aware tool downloads
 tools = use_extension("//:tools.bzl", "tools")
-use_repo(tools, "cargo_hack", "cargo_machete", "ratchet", "uv")
+use_repo(tools, "cargo_hack", "cargo_machete", "keep_sorted", "ratchet", "uv")
 
 bazel_dep(name = "aspect_rules_js", version = "3.2.2")
 bazel_dep(name = "rules_nodejs", version = "6.7.3")
@@ -39,20 +39,15 @@ use_repo(python, "python_3_12", "python_versions")
 register_toolchains("@python_versions//:all")
 
 bazel_dep(name = "aspect_rules_lint", version = "2.5.0")
-bazel_dep(name = "rules_go", version = "0.60.0", repo_name = "io_bazel_rules_go")
+# Keep rules_lint's transitive rules_buf dependency on a Bazel 9-compatible
+# rules_go release. keep-sorted itself uses the prebuilt binary above.
+bazel_dep(name = "rules_go", version = "0.60.0")
 bazel_dep(name = "rules_cc", version = "0.2.17")
-bazel_dep(name = "gazelle", version = "0.50.0")
 bazel_dep(name = "rules_rust", version = "0.68.1")
 bazel_dep(name = "rules_rust_wasm_bindgen", version = "0.68.1")
 bazel_dep(name = "rules_rust_pyo3", version = "0.68.1")
 bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "rules_shellcheck", version = "0.4.0")
-
-# Fetch rules_lint's supported keep-sorted dependency in isolation from the
-# repository's other Go dependencies.
-keep_sorted_deps = use_extension("@gazelle//:extensions.bzl", "go_deps", isolate = True)
-keep_sorted_deps.from_file(go_mod = "@aspect_rules_lint//lint/keep-sorted:go.mod")
-use_repo(keep_sorted_deps, "com_github_google_keep_sorted")
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
 node.toolchain(node_version = "22.22.0")

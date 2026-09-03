@@ -1,23 +1,71 @@
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PySlice;
+#[cfg(feature = "python")]
 use pyo3::{Borrowed, Py, PyAny, Python};
+#[cfg(feature = "python")]
 use sqruff_lib_core::errors::SQLFluffUserError;
+#[cfg(feature = "python")]
 use sqruff_lib_core::templaters::{
     RawFileSlice, TemplateSliceKind, TemplatedFile, TemplatedFileSlice, char_idx_to_byte_idx,
     char_to_byte_indices,
 };
 
+#[cfg(feature = "python")]
 use super::Templater;
+use super::TemplaterDocumentation;
+#[cfg(feature = "python")]
 use crate::Formatter;
+#[cfg(feature = "python")]
 use crate::core::config::FluffConfig;
+#[cfg(feature = "python")]
 use crate::templaters::ProcessingMode;
+#[cfg(feature = "python")]
 use crate::templaters::TemplaterKind;
+#[cfg(feature = "python")]
 use crate::templaters::python_shared::PythonFluffConfig;
+#[cfg(feature = "python")]
 use std::sync::Arc;
 
 #[derive(Default)]
 pub struct PythonTemplater;
 
+impl TemplaterDocumentation for PythonTemplater {
+    fn name(&self) -> &'static str {
+        "python"
+    }
+
+    fn description(&self) -> &'static str {
+        r"**Note:** This templater currently does not work by default in the CLI and needs custom set up to work.
+
+The Python templater uses native Python f-strings. An example would be as follows:
+
+```sql
+SELECT * FROM {blah}
+```
+
+With the following config:
+
+```
+[sqruff]
+templater = python
+
+[sqruff:templater:python:context]
+blah = foo
+```
+
+Before parsing the sql will be transformed to:
+
+```sql
+SELECT * FROM foo
+```
+
+At the moment, dot notation is not supported in the templater."
+    }
+}
+
+#[cfg(feature = "python")]
 impl PythonTemplater {
     fn process_single(
         &self,
@@ -51,39 +99,8 @@ impl PythonTemplater {
     }
 }
 
+#[cfg(feature = "python")]
 impl Templater for PythonTemplater {
-    fn name(&self) -> &'static str {
-        "python"
-    }
-
-    fn description(&self) -> &'static str {
-        r"**Note:** This templater currently does not work by default in the CLI and needs custom set up to work.
-
-The Python templater uses native Python f-strings. An example would be as follows:
-
-```sql
-SELECT * FROM {blah}
-```
-
-With the following config:
-
-```
-[sqruff]
-templater = python
-
-[sqruff:templater:python:context]
-blah = foo
-```
-
-Before parsing the sql will be transformed to:
-
-```sql
-SELECT * FROM foo
-```
-
-At the moment, dot notation is not supported in the templater."
-    }
-
     fn processing_mode(&self) -> ProcessingMode {
         ProcessingMode::Sequential
     }
@@ -101,6 +118,7 @@ At the moment, dot notation is not supported in the templater."
     }
 }
 
+#[cfg(feature = "python")]
 #[derive(Debug)]
 struct PythonTemplatedFileSlice {
     slice_type: String,
@@ -108,6 +126,7 @@ struct PythonTemplatedFileSlice {
     templated_slice: std::ops::Range<usize>,
 }
 
+#[cfg(feature = "python")]
 impl<'a, 'py> FromPyObject<'a, 'py> for PythonTemplatedFileSlice {
     type Error = PyErr;
 
@@ -148,6 +167,7 @@ impl<'a, 'py> FromPyObject<'a, 'py> for PythonTemplatedFileSlice {
     }
 }
 
+#[cfg(feature = "python")]
 #[derive(Debug)]
 struct PythonRawFileSlice {
     raw: String,
@@ -156,6 +176,7 @@ struct PythonRawFileSlice {
     block_idx: usize,
 }
 
+#[cfg(feature = "python")]
 impl<'a, 'py> FromPyObject<'a, 'py> for PythonRawFileSlice {
     type Error = PyErr;
 
@@ -174,6 +195,7 @@ impl<'a, 'py> FromPyObject<'a, 'py> for PythonRawFileSlice {
     }
 }
 
+#[cfg(feature = "python")]
 #[derive(FromPyObject, Debug)]
 pub struct PythonTemplatedFile {
     source_str: String,
@@ -183,6 +205,7 @@ pub struct PythonTemplatedFile {
     raw_sliced: Option<Vec<PythonRawFileSlice>>,
 }
 
+#[cfg(feature = "python")]
 impl PythonTemplatedFile {
     pub fn to_templated_file(&self) -> PyResult<TemplatedFile> {
         // Python uses character-based indices, but Rust uses byte-based indices.
@@ -258,7 +281,7 @@ impl PythonTemplatedFile {
 }
 
 // Working on tests
-#[cfg(test)]
+#[cfg(all(test, feature = "python"))]
 mod tests {
     use super::*;
 

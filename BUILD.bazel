@@ -351,7 +351,6 @@ cargo_test(
         "docs/reference/templaters.md",
     ],
     vendor = ":cargo_deps",
-    python_venv = ":python_runtime",
     script = """
 # Build the codegen binary
 cargo build --bin sqruff -F codegen-docs --locked --offline
@@ -396,7 +395,6 @@ cargo_run(
         "docs/reference/templaters.md",
     ],
     vendor = ":cargo_deps",
-    python_venv = ":python_runtime",
     script = """
 # Build the codegen binary
 cargo build --bin sqruff -F codegen-docs --locked --offline

@@ -1,18 +1,30 @@
+#[cfg(feature = "python")]
 use super::Templater;
+use super::TemplaterDocumentation;
+#[cfg(feature = "python")]
 use super::python::PythonTemplatedFile;
+#[cfg(feature = "python")]
 use crate::core::config::FluffConfig;
+#[cfg(feature = "python")]
 use crate::templaters::python_shared::PythonFluffConfig;
+#[cfg(feature = "python")]
 use crate::templaters::{Formatter, ProcessingMode, TemplaterKind};
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use pyo3::types::PyList;
+#[cfg(feature = "python")]
 use pyo3::{Py, PyAny, Python};
+#[cfg(feature = "python")]
 use sqruff_lib_core::errors::SQLFluffUserError;
+#[cfg(feature = "python")]
 use sqruff_lib_core::templaters::TemplatedFile;
+#[cfg(feature = "python")]
 use std::sync::Arc;
 
 pub struct DBTTemplater;
 
-impl Templater for DBTTemplater {
+impl TemplaterDocumentation for DBTTemplater {
     fn name(&self) -> &'static str {
         "dbt"
     }
@@ -117,7 +129,10 @@ WHERE created_at > '2024-01-01'
 
 The linter then operates on this compiled SQL."#
     }
+}
 
+#[cfg(feature = "python")]
+impl Templater for DBTTemplater {
     fn processing_mode(&self) -> ProcessingMode {
         ProcessingMode::Batch
     }

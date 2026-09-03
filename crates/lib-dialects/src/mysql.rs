@@ -458,7 +458,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // FromClauseTerminatorGrammar - add index hints, partition, FOR, INTO.
+    // FromClauseTerminatorGrammar - add index hints, partition, FOR, check options, INTO.
     let from_clause_terminator = mysql.grammar("FromClauseTerminatorGrammar");
     mysql.replace_grammar(
         "FromClauseTerminatorGrammar",
@@ -469,6 +469,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("ForClauseSegment").to_matchable(),
                 Ref::new("SetOperatorSegment").to_matchable(),
                 Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
+                Ref::new("WithCheckOptionSegment").to_matchable(),
                 Ref::new("IntoClauseSegment").to_matchable(),
             ]),
             None,
@@ -2510,14 +2511,8 @@ pub fn raw_dialect() -> Dialect {
                     .optional()
                     .to_matchable(),
                 Ref::keyword("AS").to_matchable(),
-                optionally_bracketed(vec![
-                    one_of(vec![
-                        Ref::new("SelectStatementSegment").to_matchable(),
-                        Ref::new("SetExpressionSegment").to_matchable(),
-                    ])
+                optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
                     .to_matchable(),
-                ])
-                .to_matchable(),
                 Ref::new("WithCheckOptionSegment").optional().to_matchable(),
             ])
             .to_matchable()
@@ -2562,14 +2557,7 @@ pub fn raw_dialect() -> Dialect {
                 .optional()
                 .to_matchable(),
             Ref::keyword("AS").to_matchable(),
-            optionally_bracketed(vec![
-                one_of(vec![
-                    Ref::new("SelectStatementSegment").to_matchable(),
-                    Ref::new("SetExpressionSegment").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
+            optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
             Ref::new("WithCheckOptionSegment").optional().to_matchable(),
         ])
         .to_matchable(),
@@ -3488,6 +3476,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("IntoClauseSegment").to_matchable(),
             Ref::new("ForClauseSegment").to_matchable(),
             Ref::new("IndexHintClauseSegment").to_matchable(),
+            Ref::new("WithCheckOptionSegment").to_matchable(),
             Ref::new("SelectPartitionClauseSegment").to_matchable(),
             Ref::new("UpsertClauseListSegment").to_matchable(),
         ])

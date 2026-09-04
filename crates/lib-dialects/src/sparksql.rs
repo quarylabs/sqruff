@@ -4369,136 +4369,71 @@ pub fn raw_dialect() -> Dialect {
             "ShowObjectGrammar".into(),
             one_of(vec![
                 Sequence::new(vec![
-                    one_of(vec![
-                        Ref::new("ShowFunctionsGrammar").to_matchable(),
-                        Ref::new("ShowViewsGrammar").to_matchable(),
-                        Ref::new("ShowTablesGrammar").to_matchable(),
-                        Ref::new("ShowDatabasesSchemasGrammar").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("CREATE").to_matchable(),
-                            Ref::keyword("TABLE").to_matchable(),
-                            Ref::new("TableExpressionSegment").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("AS").to_matchable(),
-                                Ref::keyword("SERDE").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("COLUMNS").to_matchable(),
-                            Ref::keyword("IN").to_matchable(),
-                            Ref::new("TableExpressionSegment").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("IN").to_matchable(),
-                                Ref::new("DatabaseReferenceSegment").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            one_of(vec![
-                                Ref::keyword("USER").to_matchable(),
-                                Ref::keyword("SYSTEM").to_matchable(),
-                                Ref::keyword("ALL").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
-                            Ref::keyword("FUNCTIONS").to_matchable(),
-                            one_of(vec![
-                                Sequence::new(vec![
-                                    Ref::new("DatabaseReferenceSegment").to_matchable(),
-                                    Ref::new("DotSegment").to_matchable(),
-                                    Ref::new("FunctionNameSegment").to_matchable(),
-                                ])
-                                .config(|config| {
-                                    config.disallow_gaps();
-                                    config.optional();
-                                })
-                                .to_matchable(),
-                                Ref::new("FunctionNameSegment").optional().to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("LIKE").to_matchable(),
-                                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("PARTITIONS").to_matchable(),
-                            Ref::new("TableReferenceSegment").to_matchable(),
-                            Ref::new("PartitionSpecGrammar").optional().to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("TABLE").to_matchable(),
-                            Ref::keyword("EXTENDED").to_matchable(),
-                            Sequence::new(vec![
-                                one_of(vec![
-                                    Ref::keyword("IN").to_matchable(),
-                                    Ref::keyword("FROM").to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::new("DatabaseReferenceSegment").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
-                            Ref::keyword("LIKE").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                            Ref::new("PartitionSpecGrammar").optional().to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("TBLPROPERTIES").to_matchable(),
-                            Ref::new("TableReferenceSegment").to_matchable(),
-                            Ref::new("BracketedPropertyNameListGrammar")
-                                .optional()
-                                .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("VIEWS").to_matchable(),
-                            Sequence::new(vec![
-                                one_of(vec![
-                                    Ref::keyword("FROM").to_matchable(),
-                                    Ref::keyword("IN").to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::new("DatabaseReferenceSegment").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("LIKE").to_matchable(),
-                                Ref::new("QuotedLiteralSegment").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("TableExpressionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AS").to_matchable(),
+                        Ref::keyword("SERDE").to_matchable(),
                     ])
+                    .config(|config| {
+                        config.optional();
+                    })
                     .to_matchable(),
                 ])
                 .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("COLUMNS").to_matchable(),
+                    Ref::keyword("IN").to_matchable(),
+                    Ref::new("TableExpressionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("IN").to_matchable(),
+                        Ref::new("DatabaseReferenceSegment").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("PARTITIONS").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("PartitionSpecGrammar").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::keyword("EXTENDED").to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("FROM").to_matchable(),
+                            Ref::keyword("IN").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("DatabaseReferenceSegment").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                    Ref::keyword("LIKE").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("PartitionSpecGrammar").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("TBLPROPERTIES").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("BracketedPropertyNameListGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("ShowDatabasesSchemasGrammar").to_matchable(),
+                Ref::new("ShowFunctionsGrammar").to_matchable(),
+                Ref::new("ShowTablesGrammar").to_matchable(),
+                Ref::new("ShowViewsGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),

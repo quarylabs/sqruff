@@ -912,6 +912,19 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "FirstOrAfterGrammar".into(),
+            one_of(vec![
+                Ref::keyword("FIRST").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("AFTER").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "PropertiesNakedIdentifierSegment".into(),
             RegexParser::new(
                 "[A-Z0-9]*[A-Z][A-Z0-9]*",
@@ -1471,18 +1484,7 @@ pub fn raw_dialect() -> Dialect {
                         Delimited::new(vec![
                             Sequence::new(vec![
                                 Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("FIRST").to_matchable(),
-                                    Sequence::new(vec![
-                                        Ref::keyword("AFTER").to_matchable(),
-                                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                                .to_matchable(),
+                                Ref::new("FirstOrAfterGrammar").optional().to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -1533,18 +1535,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("TYPE").optional().to_matchable(),
                     Ref::new("DatatypeSegment").optional().to_matchable(),
                     Ref::new("CommentGrammar").optional().to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("FIRST").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("AFTER").to_matchable(),
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .config(|config| {
-                        config.optional();
-                    })
-                    .to_matchable(),
+                    Ref::new("FirstOrAfterGrammar").optional().to_matchable(),
                     Sequence::new(vec![
                         one_of(vec![
                             Ref::keyword("SET").to_matchable(),

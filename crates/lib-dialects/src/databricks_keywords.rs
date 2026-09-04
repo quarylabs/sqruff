@@ -29,6 +29,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "MANAGED",
     "MASK",
     "NORELY",
+    "NOVALIDATE",
     "OPTIMIZATION",
     "OPTIMIZE",
     "PREDICTIVE",

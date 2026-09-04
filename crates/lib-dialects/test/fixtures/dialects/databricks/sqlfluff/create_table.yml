@@ -19,6 +19,104 @@ file:
         - data_type:
           - primitive_type:
             - keyword: STRING
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_always_as_expression
+        - data_type:
+          - primitive_type:
+            - keyword: DATE
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - function:
+            - function_name:
+              - function_name_identifier: CAST
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: birth_date
+                - keyword: AS
+                - data_type:
+                  - primitive_type:
+                    - keyword: DATE
+                - end_bracket: )
+          - end_bracket: )
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_by_default
+        - data_type:
+          - primitive_type:
+            - keyword: BIGINT
+        - keyword: GENERATED
+        - keyword: BY
+        - keyword: DEFAULT
+        - keyword: AS
+        - keyword: IDENTITY
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_always
+        - data_type:
+          - primitive_type:
+            - keyword: BIGINT
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - keyword: IDENTITY
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_column_start_with
+        - data_type:
+          - primitive_type:
+            - keyword: BIGINT
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - keyword: IDENTITY
+        - bracketed:
+          - start_bracket: (
+          - keyword: START
+          - keyword: WITH
+          - numeric_literal: '10'
+          - end_bracket: )
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_column_increment_by
+        - data_type:
+          - primitive_type:
+            - keyword: BIGINT
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - keyword: IDENTITY
+        - bracketed:
+          - start_bracket: (
+          - keyword: INCREMENT
+          - keyword: BY
+          - numeric_literal: '5'
+          - end_bracket: )
+      - comma: ','
+      - generated_column_definition:
+        - naked_identifier: generated_column_start_with_increment_by
+        - data_type:
+          - primitive_type:
+            - keyword: BIGINT
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - keyword: IDENTITY
+        - bracketed:
+          - start_bracket: (
+          - keyword: START
+          - keyword: WITH
+          - numeric_literal: '10'
+          - keyword: INCREMENT
+          - keyword: BY
+          - numeric_literal: '5'
+          - end_bracket: )
       - end_bracket: )
     - using_clause:
       - keyword: USING

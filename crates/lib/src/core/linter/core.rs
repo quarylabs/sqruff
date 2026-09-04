@@ -30,7 +30,7 @@ pub struct Linter {
     config: FluffConfig,
     formatter: Option<Arc<dyn Formatter>>,
     templater: &'static dyn Templater,
-    rules: OnceLock<Vec<ErasedRule>>,
+    rulepack: OnceLock<RulePack>,
 
     /// include_parse_errors is a flag to indicate whether to include parse errors in the output
     include_parse_errors: bool,
@@ -51,7 +51,7 @@ impl Linter {
             config,
             formatter,
             templater,
-            rules: OnceLock::new(),
+            rulepack: OnceLock::new(),
             include_parse_errors,
         })
     }
@@ -433,10 +433,19 @@ impl Linter {
                 .get("disable_noqa", "core")
                 .as_bool()
                 .unwrap_or(false);
-            if disable_noqa {
+            let disable_noqa_except = self
+                .config
+                .get("disable_noqa_except", "core")
+                .as_string()
+                .filter(|value| !value.is_empty());
+            if disable_noqa && disable_noqa_except.is_none() {
                 (None, Vec::new())
             } else {
-                let (ignore_mask, errors) = IgnoreMask::from_tree(&tree);
+                let reference_map = Self::allowed_rule_ref_map(
+                    self.rulepack()?.reference_map(),
+                    disable_noqa_except,
+                );
+                let (ignore_mask, errors) = IgnoreMask::from_tree(&tree, &reference_map);
                 (Some(ignore_mask), errors)
             }
         };
@@ -757,17 +766,55 @@ impl Linter {
     }
 
     pub fn config_mut(&mut self) -> &mut FluffConfig {
-        self.rules = OnceLock::new();
+        self.rulepack = OnceLock::new();
         &mut self.config
     }
 
-    pub fn rules(&self) -> Result<&[ErasedRule], SQLFluffUserError> {
-        if let Some(rules) = self.rules.get() {
-            return Ok(rules);
+    fn rulepack(&self) -> Result<&RulePack, SQLFluffUserError> {
+        if let Some(rulepack) = self.rulepack.get() {
+            return Ok(rulepack);
         }
-        let rulepack = self.get_rulepack()?;
-        let _ = self.rules.set(rulepack.rules);
-        Ok(self.rules.get().unwrap())
+        let _ = self.rulepack.set(self.get_rulepack()?);
+        Ok(self.rulepack.get().unwrap())
+    }
+
+    pub fn rules(&self) -> Result<&[ErasedRule], SQLFluffUserError> {
+        Ok(&self.rulepack()?.rules)
+    }
+
+    fn allowed_rule_ref_map(
+        reference_map: &HashMap<&'static str, HashSet<&'static str>>,
+        disable_noqa_except: Option<&str>,
+    ) -> HashMap<&'static str, HashSet<&'static str>> {
+        let Some(disable_noqa_except) = disable_noqa_except else {
+            return reference_map.clone();
+        };
+
+        let mut output_map = reference_map.clone();
+        for special_rule in ["PRS", "LXR", "TMP"] {
+            output_map.insert(special_rule, HashSet::from([special_rule]));
+        }
+
+        let mut allowed_rules = HashSet::new();
+        for rule_ref in disable_noqa_except.split(',').map(str::trim) {
+            let pattern = glob::Pattern::new(rule_ref).ok();
+            for (reference, codes) in &output_map {
+                if pattern
+                    .as_ref()
+                    .is_some_and(|pattern| pattern.matches(reference))
+                {
+                    allowed_rules.extend(codes.iter().copied());
+                }
+            }
+        }
+
+        output_map
+            .into_iter()
+            .map(|(reference, codes)| {
+                let codes = codes.intersection(&allowed_rules).copied().collect();
+                (reference, codes)
+            })
+            .collect()
     }
 
     pub fn formatter(&self) -> Option<&Arc<dyn Formatter>> {

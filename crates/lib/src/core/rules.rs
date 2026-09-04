@@ -292,12 +292,16 @@ pub struct RuleManifest {
 #[derive(Clone)]
 pub struct RulePack {
     pub(crate) rules: Vec<ErasedRule>,
-    _reference_map: HashMap<&'static str, HashSet<&'static str>>,
+    reference_map: HashMap<&'static str, HashSet<&'static str>>,
 }
 
 impl RulePack {
     pub fn rules(&self) -> Vec<ErasedRule> {
         self.rules.clone()
+    }
+
+    pub fn reference_map(&self) -> &HashMap<&'static str, HashSet<&'static str>> {
+        &self.reference_map
     }
 }
 
@@ -442,7 +446,7 @@ impl RuleSet {
 
         Ok(RulePack {
             rules: instantiated_rules,
-            _reference_map: reference_map,
+            reference_map,
         })
     }
 }

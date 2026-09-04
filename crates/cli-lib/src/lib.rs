@@ -101,6 +101,15 @@ where
         }
     }
 
+    if let Some(disable_noqa_except) = cli.disable_noqa_except
+        && let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut)
+    {
+        core.insert(
+            "disable_noqa_except".to_string(),
+            Value::String(disable_noqa_except.into()),
+        );
+    }
+
     let current_path = std::env::current_dir().unwrap();
     let ignore_file = IgnoreFile::new_from_root(&current_path).unwrap();
     let ignore_file = Arc::new(ignore_file);

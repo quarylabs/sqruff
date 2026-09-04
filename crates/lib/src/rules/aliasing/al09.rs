@@ -84,16 +84,13 @@ FROM table;
                             .child(const { &SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) })
                             .is_some())
                     {
-                        let Some(whitespace) = clause_element
-                            .child(const { &SyntaxSet::new(&[SyntaxKind::Whitespace]) })
-                        else {
-                            return Vec::new();
-                        };
+                        let whitespace = clause_element
+                            .child(const { &SyntaxSet::new(&[SyntaxKind::Whitespace]) });
 
                         let column_identifier = if let Some(quoted_identifier) =
                             column.child(const { &SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) })
                         {
-                            quoted_identifier.clone()
+                            Some(quoted_identifier.clone())
                         } else {
                             column
                                 .children(
@@ -105,8 +102,7 @@ FROM table;
                                     },
                                 )
                                 .last()
-                                .expect("No naked_identifier found")
-                                .clone()
+                                .cloned()
                         };
 
                         let alias_identifier = alias_expression
@@ -115,8 +111,30 @@ FROM table;
                                 alias_expression.child(
                                     const { &SyntaxSet::new(&[SyntaxKind::QuotedIdentifier]) },
                                 )
-                            })
-                            .expect("identifier is none");
+                            });
+
+                        let syntax_parts_found = (
+                            whitespace.is_some(),
+                            column_identifier.is_some(),
+                            alias_identifier.is_some(),
+                        );
+                        let (Some(whitespace), Some(column_identifier), Some(alias_identifier)) =
+                            (whitespace, column_identifier, alias_identifier)
+                        else {
+                            log::warn!(
+                                "AL09 found unexpected syntax in an alias expression. Unable to \
+                                 determine if this is a self-alias. Please report this as a bug on \
+                                 GitHub.\n\nDebug details: dialect: {:?}, whitespace: {}, \
+                                 column_identifier: {}, alias_identifier: {}, alias_expression: \
+                                 {:?}.",
+                                context.dialect.name,
+                                syntax_parts_found.0,
+                                syntax_parts_found.1,
+                                syntax_parts_found.2,
+                                clause_element.raw(),
+                            );
+                            continue;
+                        };
 
                         if column_identifier
                             .raw()

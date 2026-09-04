@@ -461,6 +461,7 @@ cargo_test(
 # Crates that don't need the Python/maturin setup run natively via rust_test:
 #   //crates/cli:cli_tests
 #   //crates/lib-dialects:dialect_tests
+#   //crates/lib-dialects:sqruff-lib-dialects-test
 #   //crates/lib-core:sqruff-lib-core-test
 #   //crates/sqlinference:sqruff-sqlinference-test
 #   //crates/lineage:lineage-test
@@ -474,6 +475,7 @@ test_suite(
         ":cargo_workspace_tests",
         "//crates/cli:cli_tests",
         "//crates/lib-dialects:dialect_tests",
+        "//crates/lib-dialects:sqruff-lib-dialects-test",
     ],
 )
 

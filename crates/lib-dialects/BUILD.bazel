@@ -1,5 +1,5 @@
 load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test_suite")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test", "rust_test_suite")
 
 exports_files([
     "Cargo.toml",
@@ -41,6 +41,14 @@ rust_library(
     deps = all_crate_deps(normal = True) + [
         "//crates/lib-core:sqruff-lib-core",
     ],
+)
+
+rust_test(
+    name = "sqruff-lib-dialects-test",
+    crate = ":sqruff-lib-dialects",
+    crate_features = ALL_FEATURES,
+    proc_macro_deps = all_crate_deps(proc_macro_dev = True),
+    deps = all_crate_deps(normal_dev = True),
 )
 
 rust_test_suite(

@@ -218,15 +218,16 @@ for src in {srcs}; do
 done
 cd "$WORK_DIR"
 
-# Install test dependencies into the Python installation.
-# Use --extra test (not --extra dev) to avoid large tools like ruff
-# that are provided separately by Bazel.
+# Install test and Cargo build dependencies into the Python installation.
+# Keep Cargo-only tools such as maturin out of the version-matrix pytest
+# environments, while avoiding development tools such as ruff that Bazel
+# provides separately.
 # Use --prefix to force scripts (maturin, pytest, etc.) into <prefix>/bin/
 # regardless of the Python's sysconfig scheme (which may differ for
 # standalone/relocated Python builds).
 "$UV_BIN" pip install --python "$WORK_DIR/python/bin/python3" \
     --prefix "$WORK_DIR/python" \
-    -r pyproject.toml --extra test
+    -r pyproject.toml --extra test --extra cargo-test
 
 # Verify key tools were installed to the expected location
 test -f "$WORK_DIR/python/bin/maturin" || \

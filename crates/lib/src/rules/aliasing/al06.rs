@@ -119,7 +119,7 @@ FROM orders as o
 
 Avoid aliases. Avoid short aliases when aliases are necessary.
 
-See also: Rule_AL07.
+See also: [AL07](#aliasingforbid).
 
 ```sql
 SELECT

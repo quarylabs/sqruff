@@ -800,6 +800,18 @@ Inconsistent capitalisation of unquoted identifiers.
 
 **Fixable:** Yes
 
+This rule applies to all unquoted identifiers, whether references or aliases, and
+whether they refer to columns or other objects such as tables or schemas.
+
+**Note:** In most dialects, unquoted identifiers are treated as case-insensitive,
+so the fixes proposed by this rule do not change the interpretation of the query.
+However, some databases—notably BigQuery and ClickHouse—use the casing of
+unquoted identifiers when determining the casing of column headings in results.
+
+Because this behavior is limited to a few dialects and is not widely understood,
+it is considered an antipattern. If identifier case matters, quote the identifier.
+If you or your organization intentionally rely on this behavior, disable this rule.
+
 **Anti-pattern**
 
 In this example, unquoted identifier `a` is in lower-case but `B` is in upper-case.
@@ -811,6 +823,17 @@ select
 from foo
 ```
 
+In this more complicated example, references and aliases for columns and tables
+use mixed capitalization. That inconsistency is acceptable for quoted identifiers,
+but not for unquoted identifiers.
+
+```sql
+select
+    col_1 + Col_2 as COL_3,
+    "COL_4" as Col_5
+from Foo as BAR
+```
+
 **Best practice**
 
 Ensure all unquoted identifiers are either in upper-case or in lower-case.
@@ -819,14 +842,21 @@ Ensure all unquoted identifiers are either in upper-case or in lower-case.
 select
     a,
     b
-from foo
+from foo;
 
--- Also good
+-- ...also good...
 
 select
     A,
     B
-from foo
+from foo;
+
+-- ...or for comparison with our more complex example, this too:
+
+select
+    col_1 + col_2 as col_3,
+    "COL_4" as col_5
+from foo as bar
 ```
 
 

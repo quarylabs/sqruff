@@ -11,7 +11,11 @@ Sqruff currently supports the following SQL dialects:
 {% for dialect in dialects %}
 ### {{ dialect.name }}
 
-{{ dialect.description }}
+{{ dialect.description }}{% if dialect.default_casing %}
+
+**Default Casing:** {{ dialect.default_casing }}{% endif %}{% if dialect.quotes %}
+
+**Quotes:** {{ dialect.quotes }}{% endif %}
 {% if dialect.doc_url %}
 **Documentation:** [{{ dialect.doc_url }}]({{ dialect.doc_url }})
 {% endif %}

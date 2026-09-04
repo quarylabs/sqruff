@@ -972,7 +972,7 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec![
                 TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
                     .to_matchable(),
-                TypedParser::new(SyntaxKind::UnicodeDoubleQuote, SyntaxKind::QuotedLiteral)
+                TypedParser::new(SyntaxKind::UnicodeDoubleQuote, SyntaxKind::QuotedIdentifier)
                     .to_matchable(),
             ])
             .to_matchable()

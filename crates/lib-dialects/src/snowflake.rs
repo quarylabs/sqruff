@@ -7214,6 +7214,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("EMPTY_FIELD_AS_NULL").to_matchable(),
                             Ref::keyword("SKIP_BYTE_ORDER_MARK").to_matchable(),
                             Ref::keyword("TRIM_SPACE").to_matchable(),
+                            Ref::keyword("PARSE_HEADER").to_matchable(),
                         ])
                         .to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),

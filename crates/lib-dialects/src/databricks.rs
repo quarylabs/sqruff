@@ -633,21 +633,85 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            // Alter Volume Statement.
+            // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-alter-volume.html
+            "AlterVolumeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterVolumeStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("VOLUME").to_matchable(),
+                    Ref::new("VolumeReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("RENAME").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("VolumeReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("SetOwnerGrammar").to_matchable(),
+                        Ref::new("SetTagsGrammar").to_matchable(),
+                        Ref::new("UnsetTagsGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // Create Volume Statement.
+            // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-volume.html
+            "CreateVolumeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateVolumeStatement, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CREATE").to_matchable(),
+                        Ref::keyword("VOLUME").to_matchable(),
+                        Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                        Ref::new("VolumeReferenceSegment").to_matchable(),
+                        Ref::new("CommentGrammar").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CREATE").to_matchable(),
+                        Ref::keyword("EXTERNAL").to_matchable(),
+                        Ref::keyword("VOLUME").to_matchable(),
+                        Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                        Ref::new("VolumeReferenceSegment").to_matchable(),
+                        Ref::new("LocationGrammar").to_matchable(),
+                        Ref::new("CommentGrammar").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             // Drop Volume Statement.
             // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-drop-volume.html
             "DropVolumeStatementSegment".into(),
-            Sequence::new(vec![
-                Ref::keyword("DROP").to_matchable(),
-                Ref::keyword("VOLUME").to_matchable(),
-                Ref::new("IfExistsGrammar").optional().to_matchable(),
-                Ref::new("VolumeReferenceSegment").to_matchable(),
-            ])
+            NodeMatcher::new(SyntaxKind::DropVolumeStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("VOLUME").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("VolumeReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
         (
             "VolumeReferenceSegment".into(),
-            Ref::new("ObjectReferenceSegment").to_matchable().into(),
+            NodeMatcher::new(SyntaxKind::VolumeReference, |_| {
+                Ref::new("ObjectReferenceSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-describe-volume.html
@@ -747,42 +811,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("QuotedLiteralSegment").to_matchable(),
                     Ref::keyword("NULL").to_matchable(),
                 ])
-                .to_matchable(),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-show-schemas.html
-        // Differences between this and the SparkSQL version:
-        // - Support for `FROM`|`IN` at the catalog level
-        // - `LIKE` keyword is optional
-        (
-            "ShowDatabasesSchemasGrammar".into(),
-            Sequence::new(vec![
-                one_of(vec![
-                    Ref::keyword("DATABASES").to_matchable(),
-                    Ref::keyword("SCHEMAS").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    one_of(vec![
-                        Ref::keyword("FROM").to_matchable(),
-                        Ref::keyword("IN").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::new("DatabaseReferenceSegment").to_matchable(),
-                ])
-                .config(|config| {
-                    config.optional();
-                })
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("LIKE").optional().to_matchable(),
-                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                ])
-                .config(|config| {
-                    config.optional();
-                })
                 .to_matchable(),
             ])
             .to_matchable()
@@ -1637,8 +1665,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("CreateCatalogStatementSegment").to_matchable(),
                     Ref::new("DropCatalogStatementSegment").to_matchable(),
                     Ref::new("UseCatalogStatementSegment").to_matchable(),
-                    Ref::new("CreateDatabaseStatementSegment").to_matchable(),
+                    Ref::new("AlterVolumeStatementSegment").to_matchable(),
+                    Ref::new("CreateVolumeStatementSegment").to_matchable(),
                     Ref::new("DropVolumeStatementSegment").to_matchable(),
+                    Ref::new("CreateDatabaseStatementSegment").to_matchable(),
                     Ref::new("SetTimeZoneStatementSegment").to_matchable(),
                     Ref::new("OptimizeTableStatementSegment").to_matchable(),
                     Ref::new("CommentOnStatementSegment").to_matchable(),

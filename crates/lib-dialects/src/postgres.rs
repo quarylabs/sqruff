@@ -7664,6 +7664,118 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| this.optional());
 
+                let _postgres9_compatible_stdin_options = Sequence::new(vec![
+                    Ref::keyword("WITH").optional().to_matchable(),
+                    any_set_of(vec![
+                        Sequence::new(vec![Ref::keyword("BINARY").to_matchable()]).to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DELIMITER").to_matchable(),
+                            Ref::keyword("AS").optional().to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NULL").to_matchable(),
+                            Ref::keyword("AS").optional().to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CSV").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("HEADER").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("QUOTE").to_matchable(),
+                                    Ref::keyword("AS").optional().to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ESCAPE").to_matchable(),
+                                    Ref::keyword("AS").optional().to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("FORCE").to_matchable(),
+                                    Ref::keyword("NOT").to_matchable(),
+                                    Ref::keyword("NULL").to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional());
+
+                let _postgres9_compatible_stdout_options = Sequence::new(vec![
+                    Ref::keyword("WITH").optional().to_matchable(),
+                    any_set_of(vec![
+                        Sequence::new(vec![Ref::keyword("BINARY").to_matchable()]).to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DELIMITER").to_matchable(),
+                            Ref::keyword("AS").optional().to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NULL").to_matchable(),
+                            Ref::keyword("AS").optional().to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CSV").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("HEADER").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("QUOTE").to_matchable(),
+                                    Ref::keyword("AS").optional().to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ESCAPE").to_matchable(),
+                                    Ref::keyword("AS").optional().to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("FORCE").to_matchable(),
+                                    Ref::keyword("QUOTE").to_matchable(),
+                                    one_of(vec![
+                                        Bracketed::new(vec![
+                                            Delimited::new(vec![
+                                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Ref::new("StarSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional());
+
                 Sequence::new(vec![
                     Ref::keyword("COPY").to_matchable(),
                     one_of(vec![
@@ -7685,6 +7797,17 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
+                            _table_definition.clone().to_matchable(),
+                            Ref::keyword("FROM").to_matchable(),
+                            one_of(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::keyword("STDIN").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            _postgres9_compatible_stdin_options.to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
                             one_of(vec![
                                 _table_definition.clone().to_matchable(),
                                 Bracketed::new(vec![
@@ -7700,6 +7823,24 @@ pub fn raw_dialect() -> Dialect {
                             ])
                             .to_matchable(),
                             _option.to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                _table_definition.to_matchable(),
+                                Bracketed::new(vec![
+                                    Ref::new("UnorderedSelectStatementSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            one_of(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::keyword("STDOUT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            _postgres9_compatible_stdout_options.to_matchable(),
                         ])
                         .to_matchable(),
                     ])

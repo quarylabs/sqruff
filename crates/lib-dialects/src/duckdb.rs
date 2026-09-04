@@ -271,6 +271,24 @@ pub fn raw_dialect() -> Dialect {
     );
 
     duckdb_dialect.replace_grammar(
+        "ListComprehensionGrammar",
+        Ref::new("ListComprehensionExpressionSegment").to_matchable(),
+    );
+
+    let base_expression = duckdb_dialect.grammar("BaseExpressionElementGrammar");
+    duckdb_dialect.replace_grammar(
+        "BaseExpressionElementGrammar",
+        base_expression.copy(
+            Some(vec![Ref::new("ListComprehensionGrammar").to_matchable()]),
+            Some(0),
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
+    duckdb_dialect.replace_grammar(
         "ColumnConstraintSegment",
         Sequence::new(vec![
             one_of(vec![
@@ -483,6 +501,36 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("LambdaArrowSegment").to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
                 ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ListComprehensionExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::ListComprehension, |_| {
+                Bracketed::new(vec![
+                    one_of(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .config(|this| {
+                            this.terminators = vec![Ref::keyword("FOR").to_matchable()];
+                        })
+                        .to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                    Ref::keyword("IN").to_matchable(),
+                    one_of(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .config(|this| {
+                            this.terminators = vec![Ref::keyword("IF").to_matchable()];
+                        })
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("IF").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .config(|this| this.bracket_type("square"))
                 .to_matchable()
             })
             .to_matchable()

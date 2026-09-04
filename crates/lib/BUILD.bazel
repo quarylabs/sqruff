@@ -41,6 +41,7 @@ WASM_CRATE_NAMES = [
     "common-path",
     "configparser",
     "fancy-regex",
+    "glob",
     "hashbrown",
     "ignore",
     "indexmap",

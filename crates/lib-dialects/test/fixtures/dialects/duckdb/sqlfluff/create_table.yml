@@ -703,3 +703,63 @@ file:
           - bare_function: CURRENT_DATE
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: s
+      - data_type:
+        - struct_type:
+          - keyword: STRUCT
+          - struct_type_schema:
+            - bracketed:
+              - start_bracket: (
+              - parameter: val
+              - data_type:
+                - data_type_identifier: STRING
+              - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: s
+      - data_type:
+        - struct_type:
+          - keyword: STRUCT
+          - struct_type_schema:
+            - bracketed:
+              - start_bracket: (
+              - parameter: val
+              - data_type:
+                - data_type_identifier: STRING
+              - comma: ','
+              - parameter: s1
+              - data_type:
+                - struct_type:
+                  - keyword: STRUCT
+                  - struct_type_schema:
+                    - bracketed:
+                      - start_bracket: (
+                      - parameter: ival
+                      - data_type:
+                        - keyword: INT
+                      - comma: ','
+                      - parameter: jval
+                      - data_type:
+                        - keyword: INT
+                      - end_bracket: )
+              - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

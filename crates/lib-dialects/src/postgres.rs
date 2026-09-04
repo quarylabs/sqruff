@@ -333,6 +333,7 @@ fn build_datatype_segment_grammar(pgvector: bool) -> Matchable {
         one_of(vec![
             Ref::new("WellKnownTextGeometrySegment").to_matchable(),
             Ref::new("DateTimeTypeIdentifier").to_matchable(),
+            Ref::new("StructTypeSegment").to_matchable(),
             Sequence::new(vec![one_of(known_types).to_matchable()]).to_matchable(),
             Ref::new("DatatypeIdentifierSegment").to_matchable(),
         ])

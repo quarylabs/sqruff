@@ -648,6 +648,10 @@ pub fn raw_dialect() -> Dialect {
             Nothing::new().to_matchable().into(),
         ),
         (
+            "ListComprehensionGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
             "BinaryOperatorGrammar".into(),
             one_of(vec![
                 Ref::new("ArithmeticBinaryOperatorGrammar").to_matchable(),
@@ -5086,6 +5090,7 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Ref::new("LocalAliasSegment").to_matchable(),
+                    Ref::new("ListComprehensionGrammar").to_matchable(),
                 ])
                 .config(|this| this.terminators = vec![Ref::new("CommaSegment").to_matchable()])
                 .to_matchable(),

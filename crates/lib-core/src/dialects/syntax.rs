@@ -708,6 +708,7 @@ pub enum SyntaxKind {
     LabelSegment,
     Lambda,
     LambdaArrow,
+    LambdaExpression,
     LambdaFunction,
     LanguageClause,
     LateralViewClause,

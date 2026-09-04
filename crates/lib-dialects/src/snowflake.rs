@@ -1144,6 +1144,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("DatetimeUnitSegment").to_matchable(),
                 Ref::new("NamedParameterExpressionSegment").to_matchable(),
                 Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                Ref::new("LambdaExpressionSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::new("ExpressionSegment").to_matchable(),
                     Sequence::new(vec![
@@ -1423,6 +1424,38 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::keyword("FETCH").to_matchable(),
                 Ref::keyword("OFFSET").to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // https://docs.snowflake.com/en/user-guide/querying-semistructured#lambda-expressions
+            "LambdaExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::LambdaExpression, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                                    Ref::new("DatatypeSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("FunctionAssignerSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

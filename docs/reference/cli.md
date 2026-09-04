@@ -37,6 +37,7 @@ sqruff is a sql formatter and linter
 * `--parsing-errors` — Show parse errors
 
   Default value: `false`
+* `--disable-noqa-except <DISABLE_NOQA_EXCEPT>` — Ignore all but the listed rules in inline `noqa` comments
 
 
 

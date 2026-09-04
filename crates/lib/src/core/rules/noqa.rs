@@ -1,7 +1,7 @@
 use std::cell::Cell;
 
+use glob::Pattern;
 use hashbrown::{HashMap, HashSet};
-use itertools::Itertools;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{ErrorStructRule, SQLBaseError};
 use sqruff_lib_core::parser::segments::ErasedSegment;
@@ -10,11 +10,19 @@ use crate::core::rules::{ErasedRule, LintResult};
 
 pub trait HasViolation {
     fn source_position(&self) -> Option<(usize, usize)>;
+
+    fn rule_code(&self) -> Option<&str> {
+        None
+    }
 }
 
 impl HasViolation for SQLBaseError {
     fn source_position(&self) -> Option<(usize, usize)> {
         Some((self.line_no, self.line_pos))
+    }
+
+    fn rule_code(&self) -> Option<&str> {
+        self.rule.as_ref().map(|rule| rule.code)
     }
 }
 
@@ -112,6 +120,7 @@ impl NoQADirective {
         // TODO eventually could refactor the type
         line_no: usize,
         line_pos: usize,
+        reference_map: &HashMap<&'static str, HashSet<&'static str>>,
     ) -> Result<Option<Self>, SQLBaseError> {
         // Comment lines can also have noqa e.g.
         //     --dafhsdkfwdiruweksdkjdaffldfsdlfjksd -- noqa: LT05
@@ -139,30 +148,14 @@ impl NoQADirective {
                                 action: IgnoreAction::Disable,
                             })))
                         } else {
-                            let rules: HashSet<_> = comment
-                                .split(",")
-                                .map(|rule| rule.trim().to_string())
-                                .filter(|rule| !rule.is_empty())
-                                .collect();
-                            if rules.is_empty() {
-                                Err(SQLBaseError {
-                                    fixable: false,
-                                    line_no,
-                                    line_pos,
-                                    description: "Malformed 'noqa' section. Expected 'noqa: <rule>[,...] | all'"
-                                        .into(),
-                                    rule: None,
-                                    source_slice: Default::default(),
-                                })
-                            } else {
-                                Ok(Some(NoQADirective::RangeIgnoreRules(RangeIgnoreRules {
-                                    line_no,
-                                    line_pos,
-                                    raw_string: original_comment.into(),
-                                    action: IgnoreAction::Disable,
-                                    rules,
-                                })))
-                            }
+                            let rules = Self::expand_rule_references(comment, reference_map);
+                            Ok(Some(NoQADirective::RangeIgnoreRules(RangeIgnoreRules {
+                                line_no,
+                                line_pos,
+                                raw_string: original_comment.into(),
+                                action: IgnoreAction::Disable,
+                                rules,
+                            })))
                         }
                     } else if let Some(comment) = comment.strip_prefix("enable=") {
                         let comment = comment.trim();
@@ -174,53 +167,23 @@ impl NoQADirective {
                                 raw_string: original_comment.to_string(),
                             })))
                         } else {
-                            let rules: HashSet<_> = comment
-                                .split(",")
-                                .map(|rule| rule.trim().to_string())
-                                .filter(|rule| !rule.is_empty())
-                                .collect();
-                            if rules.is_empty() {
-                                Err(SQLBaseError {
-                                    fixable: false,
-                                    line_no,
-                                    line_pos,
-                                    description:
-                                        "Malformed 'noqa' section. Expected 'noqa: <rule>[,...]'"
-                                            .to_string(),
-                                    rule: None,
-                                    source_slice: Default::default(),
-                                })
-                            } else {
-                                Ok(Some(NoQADirective::RangeIgnoreRules(RangeIgnoreRules {
-                                    line_no,
-                                    line_pos,
-                                    raw_string: original_comment.to_string(),
-                                    action: IgnoreAction::Enable,
-                                    rules,
-                                })))
-                            }
-                        }
-                    } else if !comment.is_empty() {
-                        let rules = comment.split(",").map_into().collect::<HashSet<String>>();
-                        if rules.is_empty() {
-                            Err(SQLBaseError {
-                                fixable: false,
+                            let rules = Self::expand_rule_references(comment, reference_map);
+                            Ok(Some(NoQADirective::RangeIgnoreRules(RangeIgnoreRules {
                                 line_no,
                                 line_pos,
-                                description:
-                                    "Malformed 'noqa' section. Expected 'noqa: <rule>[,...] | all'"
-                                        .into(),
-                                rule: None,
-                                source_slice: Default::default(),
-                            })
-                        } else {
-                            Ok(Some(NoQADirective::LineIgnoreRules(LineIgnoreRules {
-                                line_no,
-                                line_pos,
-                                raw_string: original_comment.into(),
+                                raw_string: original_comment.to_string(),
+                                action: IgnoreAction::Enable,
                                 rules,
                             })))
                         }
+                    } else if !comment.is_empty() {
+                        let rules = Self::expand_rule_references(comment, reference_map);
+                        Ok(Some(NoQADirective::LineIgnoreRules(LineIgnoreRules {
+                            line_no,
+                            line_pos,
+                            raw_string: original_comment.into(),
+                            rules,
+                        })))
                     } else {
                         Err(SQLBaseError {
                             fixable: false,
@@ -251,6 +214,41 @@ impl NoQADirective {
         } else {
             Ok(None)
         }
+    }
+
+    /// Expand rule codes, names, groups, and glob expressions to rule codes.
+    /// Unknown references are retained for special errors such as PRS, LXR,
+    /// and TMP, matching SQLFluff's `noqa` behavior.
+    fn expand_rule_references(
+        rule_part: &str,
+        reference_map: &HashMap<&'static str, HashSet<&'static str>>,
+    ) -> HashSet<String> {
+        let mut expanded_rules = HashSet::new();
+
+        for rule_ref in rule_part
+            .split(',')
+            .map(str::trim)
+            .filter(|r| !r.is_empty())
+        {
+            let pattern = Pattern::new(rule_ref).ok();
+            let mut matched = false;
+
+            for (reference, codes) in reference_map {
+                if pattern
+                    .as_ref()
+                    .is_some_and(|pattern| pattern.matches(reference))
+                {
+                    expanded_rules.extend(codes.iter().map(|code| (*code).to_string()));
+                    matched = true;
+                }
+            }
+
+            if !matched {
+                expanded_rules.insert(rule_ref.to_string());
+            }
+        }
+
+        expanded_rules
     }
 }
 
@@ -343,6 +341,7 @@ impl IgnoreMask {
     /// Extract ignore mask entries from a comment segment
     fn extract_ignore_from_comment(
         comment: ErasedSegment,
+        reference_map: &HashMap<&'static str, HashSet<&'static str>>,
     ) -> Result<Option<NoQADirective>, SQLBaseError> {
         // Trim any whitespace
         let mut comment_content = comment.raw().trim();
@@ -367,13 +366,16 @@ impl IgnoreMask {
                 source_slice: Default::default(),
             })?
             .source_position();
-        NoQADirective::parse_from_comment(comment_content, line_no, line_pos)
+        NoQADirective::parse_from_comment(comment_content, line_no, line_pos, reference_map)
     }
 
     /// Parse a `noqa` directive from an erased segment.
     ///
     /// TODO - The output IgnoreMask should be validated against the ruleset.
-    pub fn from_tree(tree: &ErasedSegment) -> (IgnoreMask, Vec<SQLBaseError>) {
+    pub fn from_tree(
+        tree: &ErasedSegment,
+        reference_map: &HashMap<&'static str, HashSet<&'static str>>,
+    ) -> (IgnoreMask, Vec<SQLBaseError>) {
         let mut ignore_list: Vec<NoQADirective> = vec![];
         let mut violations: Vec<SQLBaseError> = vec![];
         for comment in tree.recursive_crawl(
@@ -388,7 +390,7 @@ impl IgnoreMask {
             &SyntaxSet::new(&[]),
             false,
         ) {
-            let ignore_entry = IgnoreMask::extract_ignore_from_comment(comment);
+            let ignore_entry = IgnoreMask::extract_ignore_from_comment(comment, reference_map);
             if let Err(err) = ignore_entry {
                 violations.push(err);
             } else if let Ok(Some(ignore_entry)) = ignore_entry {
@@ -413,6 +415,10 @@ impl IgnoreMask {
             return true;
         };
 
+        let rule_code = rule
+            .map(|rule| rule.code())
+            .or_else(|| violation.rule_code());
+
         // Line-specific directives.
         for (idx, ignore) in self.ignore_list.iter().enumerate() {
             match ignore {
@@ -426,8 +432,8 @@ impl IgnoreMask {
                 }
                 NoQADirective::LineIgnoreRules(LineIgnoreRules { line_no, rules, .. }) => {
                     if vline_no == *line_no
-                        && let Some(rule) = rule
-                        && rules.contains(rule.code())
+                        && let Some(rule_code) = rule_code
+                        && rules.contains(rule_code)
                     {
                         if mark_used {
                             self.used[idx].set(true);
@@ -524,10 +530,10 @@ impl IgnoreMask {
                 self.used[i].set(true);
             }
             return true;
-        } else if let Some(rule) = rule
-            && disabled_rules.contains(rule.code())
+        } else if let Some(rule_code) = rule_code
+            && disabled_rules.contains(rule_code)
         {
-            if mark_used && let Some(&i) = responsible_rule.get(rule.code()) {
+            if mark_used && let Some(&i) = responsible_rule.get(rule_code) {
                 self.used[i].set(true);
             }
             return true;
@@ -697,8 +703,9 @@ mod tests {
             ),
         ];
 
+        let reference_map = HashMap::new();
         for (input, expected) in test_cases {
-            let result = NoQADirective::parse_from_comment(input, 0, 0);
+            let result = NoQADirective::parse_from_comment(input, 0, 0, &reference_map);
             match expected {
                 Ok(_) => assert_eq!(result.unwrap(), expected.unwrap()),
                 Err(err) => {
@@ -789,6 +796,55 @@ FROM foo
 
         assert_eq!(result_without_disabled.violations().len(), 1);
         assert_eq!(result_with_disabled.violations().len(), 2);
+    }
+
+    #[test]
+    fn test_linter_disable_noqa_except() {
+        fn linter(disable_noqa_except: &str, disable_noqa: bool) -> Linter {
+            Linter::new(
+                FluffConfig::from_source(
+                    &format!(
+                        r#"
+[sqruff]
+dialect = ansi
+rules = AL02, CP01
+disable_noqa = {disable_noqa}
+disable_noqa_except = {disable_noqa_except}
+"#
+                    ),
+                    None,
+                ),
+                None,
+                None,
+                false,
+            )
+            .unwrap()
+        }
+
+        let sql = r#"
+SELECT
+    col_a a, --noqa: AL02
+    col_b b --noqa: aliasing
+from foo; --noqa: CP01
+"#;
+
+        let al02_result = linter("AL02", false).lint_string(sql, None, false).unwrap();
+        let al02_violations = al02_result.violations();
+        assert_eq!(al02_violations.len(), 1, "{al02_violations:#?}");
+        assert_eq!(al02_violations[0].rule.as_ref().unwrap().code, "CP01");
+
+        let core_result = linter("core", false).lint_string(sql, None, false).unwrap();
+        assert!(core_result.violations().is_empty());
+
+        let wildcard_result = linter("AL*", false).lint_string(sql, None, false).unwrap();
+        let wildcard_violations = wildcard_result.violations();
+        assert_eq!(wildcard_violations.len(), 1);
+        assert_eq!(wildcard_violations[0].rule.as_ref().unwrap().code, "CP01");
+
+        let priority_result = linter("AL02", true).lint_string(sql, None, false).unwrap();
+        let priority_violations = priority_result.violations();
+        assert_eq!(priority_violations.len(), 1);
+        assert_eq!(priority_violations[0].rule.as_ref().unwrap().code, "CP01");
     }
 
     #[test]

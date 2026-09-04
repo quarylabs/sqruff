@@ -26,6 +26,9 @@ pub struct Cli {
     /// Show parse errors.
     #[arg(long, global = true, default_value = "false")]
     pub parsing_errors: bool,
+    /// Ignore all but the listed rules in inline `noqa` comments.
+    #[arg(long, global = true)]
+    pub disable_noqa_except: Option<String>,
 }
 
 #[derive(Debug, Subcommand)]
@@ -114,5 +117,18 @@ impl Default for Format {
         } else {
             Format::Human
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_disable_noqa_except() {
+        let cli =
+            Cli::try_parse_from(["sqruff", "lint", "--disable-noqa-except", "CP01", "-"]).unwrap();
+
+        assert_eq!(cli.disable_noqa_except.as_deref(), Some("CP01"));
     }
 }

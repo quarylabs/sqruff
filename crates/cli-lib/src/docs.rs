@@ -29,9 +29,8 @@ const TEMPLATERS_TEMPLATE: &str = include_str!("docs/generate_templater_docs_tem
 const DIALECTS_TEMPLATE: &str = include_str!("docs/generate_dialect_docs_template.md");
 
 #[cfg(feature = "codegen-docs")]
-pub(crate) fn codegen_docs() {
-    let docs_dir = Path::new("docs").join("reference");
-    std::fs::create_dir_all(&docs_dir).unwrap();
+pub(crate) fn codegen_docs(docs_dir: &Path) {
+    std::fs::create_dir_all(docs_dir).unwrap();
 
     // CLI Docs
     let markdown: String = clap_markdown::help_markdown::<Cli>();

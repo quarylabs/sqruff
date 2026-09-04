@@ -2249,12 +2249,25 @@ Unnecessary quoted identifier.
 
 **Fixable:** Yes
 
+This rule checks whether quoted identifiers can be safely unquoted. By default,
+quotes are removed only when the unquoted identifier resolves to the same case in
+the selected dialect. Set `case_sensitive = False` to remove quotes regardless of
+identifier case; identifiers containing spaces, special characters, or keywords
+remain quoted.
+
+Uppercase-folding dialects such as Snowflake, BigQuery, TSQL, and Oracle can safely
+unquote identifiers such as `"FOO"`. Lowercase-folding dialects such as Athena,
+Hive, and Postgres can safely unquote `"foo"`. Case-insensitive dialects such as
+DuckDB and SparkSQL can safely unquote any otherwise-valid identifier.
+
 **Anti-pattern**
 
-In this example, a valid unquoted identifier, that is also not a reserved keyword, is needlessly quoted.
+In these examples, valid identifiers in each dialect's default case are needlessly
+quoted.
 
 ```sql
-SELECT 123 as "foo"
+SELECT "foo" as "bar";  -- Lowercase dialects such as Postgres
+SELECT "FOO" as "BAR";  -- Uppercase dialects such as Snowflake
 ```
 
 **Best practice**
@@ -2262,7 +2275,12 @@ SELECT 123 as "foo"
 Use unquoted identifiers where possible.
 
 ```sql
-SELECT 123 as foo
+SELECT foo as bar;
+SELECT FOO as BAR;
+
+-- Case-sensitive identifiers and identifiers which cannot be unquoted retain
+-- their quotes.
+SELECT "Case_Sensitive_Identifier", "Identifier with spaces", "SELECT";
 ```
 
 When `prefer_quoted_identifiers = True`, the quotes are always necessary, no matter if the identifier is valid, a reserved keyword, or contains special characters.

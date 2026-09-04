@@ -14,7 +14,7 @@ use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{CaseFold, RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::value::Value;
@@ -449,6 +449,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
                 RegexParser::new("[A-Z0-9_]*[A-Z_][A-Z0-9_]*", SyntaxKind::NakedIdentifier)
                     .anti_template(&anti_template)
+                    .casefold(CaseFold::Lower)
                     .to_matchable()
             })
             .into(),

@@ -221,10 +221,26 @@ impl MatchableTrait for StringParser {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CaseFold {
+    Upper,
+    Lower,
+}
+
+impl CaseFold {
+    pub fn apply(self, value: &str) -> String {
+        match self {
+            Self::Upper => value.to_uppercase(),
+            Self::Lower => value.to_lowercase(),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct RegexParser {
     pub template: Regex,
     pub anti_template: Option<Regex>,
+    pub casefold: Option<CaseFold>,
     kind: SyntaxKind,
     cache_key: MatchableCacheKey,
 }
@@ -237,6 +253,7 @@ impl PartialEq for RegexParser {
                 .as_ref()
                 .zip(other.anti_template.as_ref())
                 .is_some_and(|(lhs, rhs)| lhs.as_str() == rhs.as_str())
+            && self.casefold == other.casefold
             && self.kind == other.kind
     }
 }
@@ -248,6 +265,7 @@ impl RegexParser {
         Self {
             template: template_pattern,
             anti_template: None,
+            casefold: None,
             kind,
             cache_key: next_matchable_cache_key(),
         }
@@ -255,6 +273,11 @@ impl RegexParser {
 
     pub fn anti_template(mut self, anti_template: &str) -> Self {
         self.anti_template = Regex::new(&format!("(?i){anti_template}")).unwrap().into();
+        self
+    }
+
+    pub fn casefold(mut self, casefold: CaseFold) -> Self {
+        self.casefold = Some(casefold);
         self
     }
 }

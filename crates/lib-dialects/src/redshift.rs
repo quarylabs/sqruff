@@ -12,7 +12,7 @@ use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::RegexParser;
+use sqruff_lib_core::parser::parsers::{CaseFold, RegexParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 
@@ -175,6 +175,7 @@ pub fn raw_dialect() -> Dialect {
                     SyntaxKind::NakedIdentifier,
                 )
                 .anti_template(&anti_template)
+                .casefold(CaseFold::Lower)
                 .to_matchable()
             })
             .into(),

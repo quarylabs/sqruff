@@ -1,11 +1,12 @@
-use std::fs;
-use std::path::PathBuf;
-
-use assert_cmd::Command;
 use expect_test::expect_file;
+use std::fs;
 
-fn main() {
-    let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+mod common;
+use common::{manifest_dir, sqruff_command};
+
+#[test]
+fn ui_with_python() {
+    let mut test_dir = manifest_dir();
     test_dir.push("tests/python");
 
     // Iterate over each test file in the directory
@@ -19,24 +20,8 @@ fn main() {
             .and_then(|e| e.to_str())
             .is_some_and(|ext| ext == "sql" || ext == "hql")
         {
-            // Check if we have a virtual environment at the project root
-            let mut venv_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-            venv_path.push("../../.venv");
-            if !venv_path.exists() {
-                panic!(
-                    "Virtual environment not found at project root. Please create a .venv directory and run 'maturin develop'"
-                );
-            }
-            // Check if sqruff script exists in the virtual environment
-            let mut sqruff_path = venv_path.clone();
-            sqruff_path.push("bin/sqruff");
-            if !sqruff_path.exists() {
-                panic!(
-                    "sqruff script not found in .venv/bin/sqruff. Please run 'maturin develop' in the virtual environment"
-                );
-            }
             // Set up the command with arguments
-            let mut cmd = Command::new(sqruff_path);
+            let mut cmd = sqruff_command();
             cmd.arg("lint")
                 .arg("-f")
                 .arg("human")
@@ -44,7 +29,7 @@ fn main() {
                 .arg("tests/python/.sqruff")
                 .arg(&path);
             // Set the HOME environment variable to the fake home directory
-            let home_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            let home_path = manifest_dir();
             cmd.env("HOME", home_path);
 
             // Run the command and capture the output

@@ -3,15 +3,38 @@ load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
 load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
-load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
+load("@rules_rust//rust:defs.bzl", "rust_clippy", "rust_library_group", "rustfmt_test")
+load("@rules_rust_pyo3//:defs.bzl", "rust_pyo3_toolchain")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
-load(":cargo_build.bzl", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
+load(":cargo_build.bzl", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv_provider", "uv_python_install", "uv_python_venv")
 load(":linters.bzl", "keep_sorted_test")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
+
+# rules_rust_pyo3 ships a Rust-side PyO3 toolchain pinned to the version used
+# to build the rules themselves. Point it at the workspace's Cargo-resolved
+# PyO3 instead so extension and application crates never link two versions.
+rust_library_group(
+    name = "workspace_pyo3",
+    deps = ["@crates//:pyo3"],
+)
+
+rust_pyo3_toolchain(
+    name = "workspace_rust_pyo3_toolchain_impl",
+    pyo3 = ":workspace_pyo3",
+    # Stub generation is disabled for our extension, so this required slot is
+    # deliberately backed by the same crate rather than a second PyO3 version.
+    pyo3_introspection = ":workspace_pyo3",
+)
+
+toolchain(
+    name = "workspace_rust_pyo3_toolchain",
+    toolchain = ":workspace_rust_pyo3_toolchain_impl",
+    toolchain_type = "@rules_rust_pyo3//:rust_toolchain_type",
+)
 
 # Prettier configuration and pnpm workspace files
 exports_files([
@@ -305,21 +328,12 @@ cargo_vendor_provider(
     vendor = ":cargo_vendor",
 )
 
-# Pre-cache Python venv with all dev dependencies (cached until pyproject.toml changes)
-# Uses the Bazel-managed Python 3.12 interpreter and uv for fast pip installs
-python_venv(
-    name = "python_venv",
-    srcs = [
-        "pyproject.toml",
-    ],
-    python = ["@python_3_12//:files"],
-    uv = ["@uv//:uv"],
-)
-
-# Provider wrapper for Python venv
+# Reuse the Python 3.12 pytest environment for Cargo and PyO3 integration
+# tests instead of caching a second copy of the same dependencies.
 python_venv_provider(
     name = "python_deps",
-    venv = ":python_venv",
+    venv = ":pytest_py312_venv",
+    visibility = ["//visibility:public"],
 )
 
 # Compiler-only Cargo actions need Python and libpython for PyO3, but not the
@@ -435,9 +449,6 @@ cargo_test(
 )
 
 # Cargo test - run workspace tests that have not migrated to native Bazel rules.
-# Uses the registered rules_rust toolchain and pre-cached Python venv
-# for fully sandboxed execution
-# Python venv provides maturin, pytest, jinja2, dbt, etc.
 cargo_test(
     name = "cargo_workspace_tests",
     size = "enormous",
@@ -445,25 +456,21 @@ cargo_test(
         ":cargo_srcs",
         "pyproject.toml",
         "uv.lock",
-        "//crates/cli-python:machete_srcs",
-        "//crates/cli-python:pyproject.toml",
         "//crates/cli-python:python_srcs",
-        "//crates/cli-python:test_fixtures",
         "//crates/lib:test_fixtures",
         "//crates/lib-dialects:test_fixtures",
     ],
     vendor = ":cargo_deps",
     python_venv = ":python_deps",
     script = """
-# Build Python extension (maturin uses the vendored cargo + pre-cached venv)
-(cd crates/cli-python && maturin develop --locked --offline)
-
 # Crates that don't need the Python/maturin setup run natively via rust_test:
 #   //crates/cli:cli_tests
+#   //crates/cli-python:cli_python_tests
 #   //crates/lib-core:sqruff-lib-core-test
 #   //crates/sqlinference:sqruff-sqlinference-test
 #   //crates/lineage:lineage-test
-cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --exclude sqruff-sqlinference --exclude lineage --locked --offline
+export PYTHONPATH="$PWD/crates/cli-python/python${PYTHONPATH:+:$PYTHONPATH}"
+cargo test --all --all-features --exclude sqruff --exclude sqruff-cli-python --exclude sqruff-lib-core --exclude sqruff-sqlinference --exclude lineage --locked --offline
 """,
 )
 
@@ -472,6 +479,7 @@ test_suite(
     tests = [
         ":cargo_workspace_tests",
         "//crates/cli:cli_tests",
+        "//crates/cli-python:cli_python_tests",
     ],
 )
 
@@ -597,12 +605,12 @@ sh_test(
         data = [
             ":pytest_py{}_venv".format(version.replace(".", "")),
             "//crates/cli-python:python_srcs",
-            "//crates/cli-python:test_fixtures",
+            "//crates/cli-python:dbt_test_fixtures",
         ],
         env = {
+            "PYTEST_EXTRA_ARG": "--cov" if version == "3.12" else "--no-cov",
             "PYTHON_VENV": "$(rlocationpath :pytest_py{}_venv)".format(version.replace(".", "")),
         },
-        tags = ["exclusive"],
     )
     for version in [
         "3.10",

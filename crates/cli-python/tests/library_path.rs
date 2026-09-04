@@ -1,21 +1,15 @@
-use std::path::Path;
+mod common;
+use common::{manifest_dir, sqruff_command};
 
-use assert_cmd::Command;
-
-fn main() {
-    let crate_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let sqruff_path = crate_dir.join("../../.venv/bin/sqruff");
-    assert!(
-        sqruff_path.is_file(),
-        "sqruff script not found in .venv/bin; run `maturin develop` first"
-    );
-
+#[test]
+fn library_path() {
+    let crate_dir = manifest_dir();
     let fixture_dir = crate_dir.join("tests/library_path");
     let library_path = fixture_dir.join("custom_library");
 
-    let mut cmd = Command::new(&sqruff_path);
-    cmd.current_dir(crate_dir)
-        .env("HOME", crate_dir)
+    let mut cmd = sqruff_command();
+    cmd.current_dir(&crate_dir)
+        .env("HOME", &crate_dir)
         .arg("lint")
         .arg("--format")
         .arg("none")
@@ -27,10 +21,10 @@ fn main() {
 
     cmd.assert().success();
 
-    let mut configured_filter_cmd = Command::new(&sqruff_path);
+    let mut configured_filter_cmd = sqruff_command();
     configured_filter_cmd
-        .current_dir(crate_dir)
-        .env("HOME", crate_dir)
+        .current_dir(&crate_dir)
+        .env("HOME", &crate_dir)
         .arg("lint")
         .arg("--format")
         .arg("none")
@@ -40,10 +34,10 @@ fn main() {
 
     configured_filter_cmd.assert().success();
 
-    let mut disabled_cmd = Command::new(&sqruff_path);
+    let mut disabled_cmd = sqruff_command();
     disabled_cmd
-        .current_dir(crate_dir)
-        .env("HOME", crate_dir)
+        .current_dir(&crate_dir)
+        .env("HOME", &crate_dir)
         .arg("lint")
         .arg("--format")
         .arg("none")

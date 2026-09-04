@@ -7,54 +7,12 @@ edition.workspace = true
 license.workspace = true
 rust-version = "1.96"
 
-crate-type = ["cdylib"]
-
 [lints]
 workspace = true
 
-[[test]]
-name = "fix_return_code"
-harness = false
-
-[[test]]
-name = "fix_parse_errors"
-harness = false
-
-[[test]]
-name = "config_not_found"
-harness = false
-
-[[test]]
-name = "configure_rule"
-harness = false
-
-[[test]]
-name = "ui"
-harness = false
-
-[[test]]
-name = "ui_with_python"
-harness = false
-
-[[test]]
-name = "ui_with_jinja"
-harness = false
-
-[[test]]
-name = "library_path"
-harness = false
-
-[[test]]
-name = "ui_with_dbt"
-harness = false
-
-[[test]]
-name = "ui_github"
-harness = false
-
-[[test]]
-name = "ui_json"
-harness = false
+[lib]
+crate-type = ["cdylib"]
+test = false
 
 [dependencies]
 sqruff-cli-lib.workspace = true

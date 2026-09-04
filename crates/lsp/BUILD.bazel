@@ -15,6 +15,19 @@ rust_library(
     ],
 )
 
+# Variant linked against the Python-enabled sqruff library.
+rust_library(
+    name = "sqruff-lsp-python",
+    srcs = glob(["src/**/*.rs"]),
+    crate_name = "sqruff_lsp",
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    visibility = ["//visibility:public"],
+    deps = all_crate_deps(normal = True) + [
+        "//crates/lib-core:sqruff-lib-core",
+        "//crates/lib:sqruff-lib-python",
+    ],
+)
+
 # Crate deps for WASM build - explicit list to avoid pyo3 which doesn't support WASM
 LSP_WASM_CRATE_NAMES = [
     "console_error_panic_hook",

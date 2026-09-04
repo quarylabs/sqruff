@@ -1,7 +1,60 @@
+load("@crates//:defs.bzl", "all_crate_deps")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+load("@rules_rust//rust:defs.bzl", "rust_test_suite")
+load("@rules_rust_pyo3//:defs.bzl", "pyo3_extension")
+
 exports_files([
     "Cargo.toml",
     "pyproject.toml",
 ])
+
+pyo3_extension(
+    name = "python/sqruff/_lib_name",
+    srcs = ["src/lib.rs"],
+    compilation_mode = "current",
+    crate_name = "sqruff_cli_python",
+    stubs = False,
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    deps = all_crate_deps(normal = True) + [
+        "//crates/cli-lib:sqruff-cli-lib-python",
+    ],
+)
+
+py_library(
+    name = "sqruff_python_package",
+    srcs = glob(["python/**/*.py"]),
+    imports = ["python"],
+    visibility = ["//visibility:public"],
+    deps = [":python/sqruff/_lib_name"],
+)
+
+py_binary(
+    name = "sqruff-python",
+    srcs = ["python/sqruff/main.py"],
+    main = "python/sqruff/main.py",
+    visibility = ["//visibility:public"],
+    deps = [":sqruff_python_package"],
+)
+
+# Cargo and Bazel both discover the integration tests from tests/*.rs.
+rust_test_suite(
+    name = "cli_python_tests",
+    srcs = glob(["tests/*.rs"]),
+    shared_srcs = glob(["tests/common/**/*.rs"]),
+    data = [
+        ":sqruff-python",
+        ":test_fixtures",
+        "//:python_deps",
+        "Cargo.toml",
+    ],
+    deps = all_crate_deps(normal_dev = True),
+    env = {
+        "SQRUFF_PYTHON_BIN": "$(rootpath :sqruff-python)",
+        "SQRUFF_PYTHONPATH": "$(rootpath //:python_deps)/lib/python3.12/site-packages",
+        "SQRUFF_PYTHON_TEST_MANIFEST": "$(rootpath :Cargo.toml)",
+    },
+    size = "large",
+)
 
 # Python source files for linting
 filegroup(
@@ -11,6 +64,12 @@ filegroup(
 )
 
 # Test fixtures for Python tests
+filegroup(
+    name = "dbt_test_fixtures",
+    srcs = glob(["tests/dbt_sample/**/*"]),
+    visibility = ["//visibility:public"],
+)
+
 filegroup(
     name = "test_fixtures",
     srcs = glob(

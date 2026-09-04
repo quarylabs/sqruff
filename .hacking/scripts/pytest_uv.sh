@@ -29,6 +29,10 @@ export PYTHONPATH="$SITE_PACKAGES${PYTHONPATH:+:$PYTHONPATH}"
 
 # Run pytest using the cached venv's Python
 echo "Running pytest..."
-"$PYTHON_BIN" -m pytest
+PYTEST_ARGS=()
+if [[ -n "${PYTEST_EXTRA_ARG:-}" ]]; then
+    PYTEST_ARGS+=("$PYTEST_EXTRA_ARG")
+fi
+"$PYTHON_BIN" -m pytest "${PYTEST_ARGS[@]}"
 
 echo "All Python tests passed!"

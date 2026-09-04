@@ -1,12 +1,9 @@
 use core::str;
-use std::path::{Path, PathBuf};
 
-use assert_cmd::Command;
+mod common;
+use common::{manifest_dir, sqruff_command};
 
-fn main() {
-    fix_return_code();
-}
-
+#[test]
 fn fix_return_code() {
     // Tests needed
     // STDIN
@@ -18,29 +15,12 @@ fn fix_return_code() {
     // - Fix, fix everything -> 0
     // - Fix, fix some not all -> 1
 
-    let cargo_folder = Path::new(env!("CARGO_MANIFEST_DIR"));
-    // Check if we have a virtual environment at the project root
-    let mut venv_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    venv_path.push("../../.venv");
-    if !venv_path.exists() {
-        panic!(
-            "Virtual environment not found at project root. Please create a .venv directory and run 'maturin develop'"
-        );
-    }
-    // Check if sqruff script exists in the virtual environment
-    let mut sqruff_path = venv_path.clone();
-    sqruff_path.push("bin/sqruff");
-    if !sqruff_path.exists() {
-        panic!(
-            "sqruff script not found in .venv/bin/sqruff. Please run 'maturin develop' in the virtual environment"
-        );
-    }
-
+    let cargo_folder = manifest_dir();
     // STDIN - do nothing
-    let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    let mut cmd = sqruff_command();
+    cmd.env("HOME", manifest_dir());
     cmd.arg("fix").arg("-f").arg("human").arg("-");
-    cmd.current_dir(cargo_folder);
+    cmd.current_dir(&cargo_folder);
     cmd.write_stdin("SELECT foo FROM bar;\n");
 
     // Run the command and capture the output
@@ -56,8 +36,8 @@ fn fix_return_code() {
 
     // STDIN - nothing to fix
     let config_file = cargo_folder.join("tests/fix_return_code/fix_everything.cfg");
-    let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    let mut cmd = sqruff_command();
+    cmd.env("HOME", manifest_dir());
     cmd.arg("fix")
         .arg("-f")
         .arg("human")
@@ -75,8 +55,8 @@ fn fix_return_code() {
     assert_eq!(stderr_str, "");
     assert_eq!(output.status.code().unwrap(), 0);
 
-    let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    let mut cmd = sqruff_command();
+    cmd.env("HOME", manifest_dir());
     cmd.arg("fix")
         .arg("-f")
         .arg("human")
@@ -94,8 +74,8 @@ fn fix_return_code() {
 
     // STDIN - fix everything
     let config_file = cargo_folder.join("tests/fix_return_code/fix_everything.cfg");
-    let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    let mut cmd = sqruff_command();
+    cmd.env("HOME", manifest_dir());
     cmd.arg("fix")
         .arg("-f")
         .arg("human")
@@ -118,8 +98,8 @@ fn fix_return_code() {
 
     // STDIN - fix some not all
     let config_file = cargo_folder.join("tests/fix_return_code/fix_some.cfg");
-    let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    let mut cmd = sqruff_command();
+    cmd.env("HOME", manifest_dir());
     cmd.arg("fix")
         .arg("-f")
         .arg("human")

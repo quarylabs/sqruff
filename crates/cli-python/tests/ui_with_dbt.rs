@@ -1,37 +1,24 @@
-use std::path::PathBuf;
-
-use assert_cmd::Command;
 use expect_test::expect_file;
 
-fn main() {
-    let sample_dbt_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+mod common;
+use common::{copy_dir, manifest_dir, sqruff_command};
+
+#[test]
+fn ui_with_dbt() {
+    let source_dbt_dir = manifest_dir()
         .parent()
         .unwrap()
         .parent()
         .unwrap()
         .join("crates/cli-python/tests/dbt_sample/");
-    let output_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/dbt");
+    let temp_dir = tempfile::tempdir().unwrap();
+    let sample_dbt_dir = temp_dir.path().join("dbt_sample");
+    copy_dir(&source_dbt_dir, &sample_dbt_dir);
+    let output_dir = manifest_dir().join("tests/dbt");
     // Create the output directory
     std::fs::create_dir_all(&output_dir).unwrap();
 
-    // Check if we have a virtual environment at the project root
-    let mut venv_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    venv_path.push("../../.venv");
-    if !venv_path.exists() {
-        panic!(
-            "Virtual environment not found at project root. Please create a .venv directory and run 'maturin develop'"
-        );
-    }
-    // Check if sqruff script exists in the virtual environment
-    let mut sqruff_path = venv_path.clone();
-    sqruff_path.push("bin/sqruff");
-    if !sqruff_path.exists() {
-        panic!(
-            "sqruff script not found in .venv/bin/sqruff. Please run 'maturin develop' in the virtual environment"
-        );
-    }
-
-    let mut cmd = Command::new(sqruff_path);
+    let mut cmd = sqruff_command();
     cmd.current_dir(&sample_dbt_dir);
     for (key, value) in std::env::vars() {
         cmd.env(key, value);

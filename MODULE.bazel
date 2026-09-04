@@ -6,6 +6,7 @@ module(
 )
 
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
+bazel_dep(name = "platforms", version = "1.0.0")
 
 # Platform-aware tool downloads
 tools = use_extension("//:tools.bzl", "tools")
@@ -109,7 +110,10 @@ rust.toolchain(
 use_repo(rust, "rust_toolchains")
 
 register_toolchains("@rust_toolchains//:all")
-register_toolchains("@rules_rust_pyo3//toolchains:toolchain")
+register_toolchains(
+    "//:workspace_rust_pyo3_toolchain",
+    "@rules_rust_pyo3//toolchains:toolchain",
+)
 
 # Required for WASM cross-compilation
 register_toolchains("@rules_rust//rust/private/dummy_cc_toolchain:dummy_cc_wasm32_toolchain")

@@ -1,20 +1,12 @@
-use std::fs;
-use std::path::PathBuf;
-
-use assert_cmd::Command;
 use expect_test::expect_file;
+use std::fs;
 
-fn sqruff_path() -> PathBuf {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.venv/bin/sqruff");
-    assert!(
-        path.is_file(),
-        "sqruff script not found in .venv/bin; run `maturin develop` first"
-    );
-    path
-}
+mod common;
+use common::{manifest_dir, sqruff_command};
 
-fn main() {
-    let mut lint_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+#[test]
+fn ui() {
+    let mut lint_dir = manifest_dir();
     lint_dir.push("tests/lint");
 
     // Iterate over each test file in the directory
@@ -29,10 +21,10 @@ fn main() {
             .is_some_and(|ext| ext == "sql" || ext == "hql")
         {
             // Set up the command with arguments
-            let mut cmd = Command::new(sqruff_path());
+            let mut cmd = sqruff_command();
             cmd.arg("lint").arg("-f").arg("human").arg(&path);
             // Set the HOME environment variable to the fake home directory
-            cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+            cmd.env("HOME", manifest_dir());
 
             // Run the command and capture the output
             let assert = cmd.assert();
@@ -67,9 +59,9 @@ fn main() {
         let sql_input = "SELECT * FROM users;";
 
         // Set up the command with arguments
-        let mut cmd = Command::new(sqruff_path());
+        let mut cmd = sqruff_command();
         cmd.arg("lint").arg("-f").arg("human").arg("-"); // Use '-' to indicate stdin
-        cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+        cmd.env("HOME", manifest_dir());
 
         // Provide input via stdin
         cmd.write_stdin(sql_input);

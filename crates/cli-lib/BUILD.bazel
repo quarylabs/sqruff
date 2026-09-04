@@ -15,6 +15,21 @@ rust_library(
     ],
 )
 
+# Variant with Python templaters enabled for the Python extension module.
+rust_library(
+    name = "sqruff-cli-lib-python",
+    srcs = glob(["src/**/*.rs"]),
+    crate_features = ["python"],
+    crate_name = "sqruff_cli_lib",
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    visibility = ["//visibility:public"],
+    deps = all_crate_deps(normal = True) + [
+        "//crates/lib:sqruff-lib-python",
+        "//crates/lib-core:sqruff-lib-core",
+        "//crates/lsp:sqruff-lsp-python",
+    ],
+)
+
 # Variant with codegen-docs feature enabled for doc generation.
 rust_library(
     name = "sqruff-cli-lib-codegen",

@@ -13,3 +13,7 @@ def main():
         # Handle exceptions (if your Rust code raises any Python errors)
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

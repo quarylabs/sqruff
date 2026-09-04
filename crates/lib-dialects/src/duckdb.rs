@@ -688,6 +688,34 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            // A `CREATE VIEW` statement.
+            // https://duckdb.org/docs/sql/statements/create_view.html
+            "CreateViewStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateViewStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::new("TemporaryGrammar").optional().to_matchable(),
+                    Ref::keyword("VIEW").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar")
+                        .optional()
+                        .to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    one_of(vec![
+                        optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                            .to_matchable(),
+                        Ref::new("ValuesClauseSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     duckdb_dialect.replace_grammar(

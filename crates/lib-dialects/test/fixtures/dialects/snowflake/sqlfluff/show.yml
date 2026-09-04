@@ -1,0 +1,7 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: PASSWORD
+    - keyword: POLICIES
+- statement_terminator: ;

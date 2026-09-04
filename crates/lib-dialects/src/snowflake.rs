@@ -1999,6 +1999,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("ScriptingBlockStatementSegment").to_matchable(),
                 Ref::new("ForInLoopSegment").to_matchable(),
                 Ref::new("CreateEventTableStatementSegment").to_matchable(),
+                Ref::new("CreatePasswordPolicyStatementSegment").to_matchable(),
+                Ref::new("AlterPasswordPolicyStatementSegment").to_matchable(),
+                Ref::new("DropPasswordPolicyStatementSegment").to_matchable(),
                 Ref::new("ScriptingLetStatementSegment").to_matchable(),
                 Ref::new("ScriptingDeclareStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
@@ -9172,6 +9175,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("VOLUMES").to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD").to_matchable(),
+                        Ref::keyword("POLICIES").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ]);
 
                 let object_scope_types = one_of(vec![
@@ -9986,6 +9994,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     .to_matchable(),
                             ])
                             .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("PASSWORD").to_matchable(),
+                            Ref::keyword("POLICY").to_matchable(),
+                            Ref::new("PasswordPolicyReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -11180,6 +11194,203 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PasswordPolicyReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::PasswordPolicyReference, |_| {
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    .config(|this| {
+                        this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                        this.disallow_gaps();
+                        this.terminators =
+                            vec![Ref::new("ObjectReferenceTerminatorGrammar").to_matchable()];
+                    })
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PasswordPolicyOptionsSegment".into(),
+            NodeMatcher::new(SyntaxKind::PasswordPolicyOptions, |_| {
+                any_set_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_MIN_LENGTH").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_MAX_LENGTH").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_MIN_UPPER_CASE_CHARS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_MIN_LOWER_CASE_CHARS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_MIN_NUMERIC_CHARS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_MIN_SPECIAL_CHARS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_MIN_AGE_DAYS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_MAX_AGE_DAYS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_MAX_RETRIES").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_LOCKOUT_TIME_MINS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD_HISTORY").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COMMENT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `CREATE PASSWORD POLICY` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/create-password-policy
+            "CreatePasswordPolicyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreatePasswordPolicyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("PASSWORD").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("PasswordPolicyReferenceSegment").to_matchable(),
+                    Ref::new("PasswordPolicyOptionsSegment")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER PASSWORD POLICY` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-password-policy
+            "AlterPasswordPolicyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterPasswordPolicyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("PASSWORD").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("PasswordPolicyReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("RENAME").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("PasswordPolicyReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("PasswordPolicyOptionsSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("TagEqualsSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("TAG").to_matchable(),
+                            Delimited::new(vec![Ref::new("TagReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            any_set_of(vec![
+                                Ref::keyword("PASSWORD_MIN_LENGTH").to_matchable(),
+                                Ref::keyword("PASSWORD_MAX_LENGTH").to_matchable(),
+                                Ref::keyword("PASSWORD_MIN_UPPER_CASE_CHARS").to_matchable(),
+                                Ref::keyword("PASSWORD_MIN_LOWER_CASE_CHARS").to_matchable(),
+                                Ref::keyword("PASSWORD_MIN_NUMERIC_CHARS").to_matchable(),
+                                Ref::keyword("PASSWORD_MIN_SPECIAL_CHARS").to_matchable(),
+                                Ref::keyword("PASSWORD_MIN_AGE_DAYS").to_matchable(),
+                                Ref::keyword("PASSWORD_MAX_AGE_DAYS").to_matchable(),
+                                Ref::keyword("PASSWORD_MAX_RETRIES").to_matchable(),
+                                Ref::keyword("PASSWORD_LOCKOUT_TIME_MINS").to_matchable(),
+                                Ref::keyword("PASSWORD_HISTORY").to_matchable(),
+                                Ref::keyword("COMMENT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `DROP PASSWORD POLICY` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/drop-password-policy
+            "DropPasswordPolicyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropPasswordPolicyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("PASSWORD").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("PasswordPolicyReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

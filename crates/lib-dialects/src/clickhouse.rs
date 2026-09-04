@@ -1950,16 +1950,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("ValuesClauseSegment").to_matchable(),
                         ]))
                         .to_matchable(),
-                    Bracketed::new(vec![
-                        Ref::new("FunctionContentsGrammar")
-                            .optional()
-                            .to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.optional();
-                        this.parse_mode(ParseMode::Greedy)
-                    })
-                    .to_matchable(),
+                    Ref::new("FunctionContentsSegment")
+                        .optional()
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -2038,16 +2031,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("SQLITE").to_matchable(),
                     ])
                     .to_matchable(),
-                    Bracketed::new(vec![
-                        Ref::new("FunctionContentsGrammar")
-                            .optional()
-                            .to_matchable(),
-                    ])
-                    .config(|this| {
-                        this.parse_mode(ParseMode::Greedy);
-                        this.optional();
-                    })
-                    .to_matchable(),
+                    Ref::new("FunctionContentsSegment")
+                        .optional()
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -2646,7 +2632,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             // Standard ANSI single parentheses
             Sequence::new(vec![
                 Bracketed::new(vec![Ref::new("FunctionContentsGrammar").to_matchable()])
-                    .config(|this| this.optional())
                     .to_matchable(),
             ])
             .to_matchable(),

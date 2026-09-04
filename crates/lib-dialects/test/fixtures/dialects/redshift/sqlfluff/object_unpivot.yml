@@ -21,11 +21,12 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: json_parse
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''{"apple_count": 2, "orange_count": 6}'''
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''{"apple_count": 2, "orange_count": 6}'''
+                      - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: inventory
@@ -45,11 +46,12 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: json_parse
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''{"pear_count": 10, "other_data": 42}'''
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''{"pear_count": 10, "other_data": 42}'''
+                      - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: inventory
@@ -69,11 +71,12 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: json_parse
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''{"apple_count": 3, "lemon_count": 5}'''
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''{"apple_count": 3, "lemon_count": 5}'''
+                      - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: inventory

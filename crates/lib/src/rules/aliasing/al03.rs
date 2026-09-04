@@ -1,4 +1,5 @@
 use hashbrown::HashMap;
+use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::utils::functional::segments::Segments;
@@ -76,12 +77,18 @@ FROM foo
 
         // COLUMNS() expands to multiple output columns. Nested functions such
         // as MIN(COLUMNS(*)) therefore cannot have a single meaningful alias.
+        // DuckDB represents its contents as `function_contents` so spacing
+        // rules can identify them; use the function name as the semantic marker.
         if !children
             .recursive_crawl(
                 const { &SyntaxSet::new(&[SyntaxKind::ColumnsExpression]) },
                 true,
             )
             .is_empty()
+            || (context.dialect.name == DialectKind::Duckdb
+                && children
+                    .recursive_crawl(const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) }, true)
+                    .any_match(|it| it.raw().eq_ignore_ascii_case("COLUMNS")))
         {
             return Vec::new();
         }

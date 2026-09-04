@@ -28,11 +28,12 @@ file:
         - function:
           - function_name:
             - function_name_identifier: TRUNC
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - bare_function: sysdate
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - bare_function: sysdate
+              - end_bracket: )
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -50,12 +51,13 @@ file:
         - function:
           - function_name:
             - function_name_identifier: TRUNC
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: saletime
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: saletime
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: saletime
@@ -64,11 +66,12 @@ file:
         - function:
           - function_name:
             - function_name_identifier: TRUNC
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - bare_function: sysdate
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - bare_function: sysdate
+              - end_bracket: )
         - alias_expression:
           - keyword: AS
           - naked_identifier: now
@@ -88,22 +91,24 @@ file:
         - function:
           - function_name:
             - function_name_identifier: TRUNC
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - bare_function: sysdate
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - bare_function: sysdate
+              - end_bracket: )
         - binary_operator: '-'
         - numeric_literal: '120'
         - keyword: AND
         - function:
           - function_name:
             - function_name_identifier: TRUNC
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - bare_function: sysdate
-            - end_bracket: )
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - bare_function: sysdate
+              - end_bracket: )
     - orderby_clause:
       - keyword: ORDER
       - keyword: BY

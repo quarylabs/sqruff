@@ -265,11 +265,7 @@ pub fn raw_dialect() -> Dialect {
         "ColumnsExpressionGrammar",
         Sequence::new(vec![
             Ref::new("ColumnsExpressionFunctionNameSegment").to_matchable(),
-            Bracketed::new(vec![
-                Ref::new("ColumnsExpressionFunctionContentsSegment").to_matchable(),
-            ])
-            .config(|this| this.parse_mode = ParseMode::Greedy)
-            .to_matchable(),
+            Ref::new("ColumnsExpressionFunctionContentsSegment").to_matchable(),
         ])
         .to_matchable(),
     );
@@ -457,11 +453,14 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ColumnsExpressionFunctionContentsSegment".into(),
-            NodeMatcher::new(SyntaxKind::ColumnsExpression, |_| {
-                one_of(vec![
-                    Ref::new("WildcardExpressionSegment").to_matchable(),
-                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                    Ref::new("LambdaExpressionSegment").to_matchable(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Ref::new("WildcardExpressionSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("LambdaExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

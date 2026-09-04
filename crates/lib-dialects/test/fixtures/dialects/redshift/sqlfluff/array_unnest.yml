@@ -21,11 +21,12 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: json_parse
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''[1, 2]'''
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''[1, 2]'''
+                      - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: inventory
@@ -45,11 +46,12 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: json_parse
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''[3, 4, 5]'''
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''[3, 4, 5]'''
+                      - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: inventory
@@ -69,11 +71,12 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: json_parse
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - quoted_literal: '''[6, 7, 8, 9]'''
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - quoted_literal: '''[6, 7, 8, 9]'''
+                      - end_bracket: )
                 - alias_expression:
                   - keyword: AS
                   - naked_identifier: inventory
@@ -208,15 +211,16 @@ file:
                 - function:
                   - function_name:
                     - function_name_identifier: MOD
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: idx
-                    - comma: ','
-                    - expression:
-                      - numeric_literal: '3'
-                    - end_bracket: )
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: idx
+                      - comma: ','
+                      - expression:
+                        - numeric_literal: '3'
+                      - end_bracket: )
                 - binary_operator: +
                 - numeric_literal: '1'
               - end_square_bracket: ']'

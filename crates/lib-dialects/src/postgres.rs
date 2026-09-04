@@ -2622,6 +2622,7 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
+                        Ref::keyword("ENCRYPTED").optional().to_matchable(),
                         Ref::keyword("PASSWORD").to_matchable(),
                         one_of(vec![
                             Ref::new("QuotedLiteralSegment").to_matchable(),

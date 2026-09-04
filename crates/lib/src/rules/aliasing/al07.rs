@@ -233,6 +233,10 @@ impl Rule for RuleAL07 {
 
     fn long_description(&self) -> &'static str {
         r#"
+This rule is intentionally strict, and avoiding aliases is not realistic or
+desirable for many larger databases. For most users, [AL06](#aliasinglength) is
+likely a more appropriate rule for encouraging understandable aliases.
+
 **Anti-pattern**
 
 In this example, alias o is used for the orders table, and c is used for customers table.

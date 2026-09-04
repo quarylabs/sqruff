@@ -823,12 +823,14 @@ file:
       - naked_identifier: my_schema
       - dot: .
       - naked_identifier: my_table
-    - keyword: add
-    - keyword: PRIMARY
-    - keyword: KEY
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-        - naked_identifier: TABLE_ID
-      - end_bracket: )
+    - alter_table_constraint_action:
+      - keyword: add
+      - constraint_properties_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: TABLE_ID
+          - end_bracket: )
 - statement_terminator: ;

@@ -434,18 +434,17 @@ cargo_test(
     script = "find . -type f -name '*.rs' -exec \"$RUSTFMT\" --edition 2024 --check {} +",
 )
 
-# Cargo test - run all tests exactly like the GitHub Action
+# Cargo test - run workspace tests that have not migrated to native Bazel rules.
 # Uses the registered rules_rust toolchain and pre-cached Python venv
 # for fully sandboxed execution
 # Python venv provides maturin, pytest, jinja2, dbt, etc.
 cargo_test(
-    name = "cargo_test",
+    name = "cargo_workspace_tests",
     size = "enormous",
     srcs = [
         ":cargo_srcs",
         "pyproject.toml",
         "uv.lock",
-        "//crates/cli:test_fixtures",
         "//crates/cli-python:machete_srcs",
         "//crates/cli-python:pyproject.toml",
         "//crates/cli-python:python_srcs",
@@ -459,14 +458,21 @@ cargo_test(
 # Build Python extension (maturin uses the vendored cargo + pre-cached venv)
 (cd crates/cli-python && maturin develop --locked --offline)
 
-# Run cargo tests (same as GitHub Action)
-cargo test --manifest-path ./crates/cli/Cargo.toml --locked --offline
 # Crates that don't need the Python/maturin setup run natively via rust_test:
+#   //crates/cli:cli_tests
 #   //crates/lib-core:sqruff-lib-core-test
 #   //crates/sqlinference:sqruff-sqlinference-test
 #   //crates/lineage:lineage-test
 cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --exclude sqruff-sqlinference --exclude lineage --locked --offline
 """,
+)
+
+test_suite(
+    name = "cargo_test",
+    tests = [
+        ":cargo_workspace_tests",
+        "//crates/cli:cli_tests",
+    ],
 )
 
 # Zensical docs build - verify documentation builds successfully

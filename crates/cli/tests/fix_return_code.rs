@@ -1,21 +1,14 @@
 use core::str;
 use std::io::Write;
-use std::path::{Path, PathBuf};
 
 use assert_cmd::Command;
 use tempfile::NamedTempFile;
 
-fn main() {
-    fix_return_code();
-}
+mod common;
+use common::{manifest_dir, sqruff_path};
 
+#[test]
 fn fix_return_code() {
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-
     // Tests needed
     // STDIN
     // - Fix, do nothing -> 0
@@ -26,15 +19,14 @@ fn fix_return_code() {
     // - Fix, fix everything -> 0
     // - Fix, fix some not all -> 1
 
-    let cargo_folder = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let mut sqruff_path = PathBuf::from(cargo_folder);
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
+    let cargo_folder = manifest_dir();
+    let sqruff_path = sqruff_path();
 
     // STDIN - do nothing
     let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    cmd.env("HOME", &cargo_folder);
     cmd.arg("fix").arg("-f").arg("human").arg("-");
-    cmd.current_dir(cargo_folder);
+    cmd.current_dir(&cargo_folder);
     cmd.write_stdin("SELECT foo FROM bar;\n");
 
     // Run the command and capture the output
@@ -56,7 +48,7 @@ fn fix_return_code() {
     write!(file, "SELECT foo AS bar FROM tabs").unwrap();
     file.flush().unwrap();
     let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    cmd.env("HOME", &cargo_folder);
     cmd.arg("fix")
         .arg("-f")
         .arg("none")
@@ -71,7 +63,7 @@ fn fix_return_code() {
     assert_eq!(output.status.code().unwrap(), 0);
 
     let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    cmd.env("HOME", &cargo_folder);
     cmd.arg("fix")
         .arg("-f")
         .arg("human")
@@ -90,7 +82,7 @@ fn fix_return_code() {
     assert_eq!(output.status.code().unwrap(), 0);
 
     let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    cmd.env("HOME", &cargo_folder);
     cmd.arg("fix")
         .arg("-f")
         .arg("human")
@@ -109,7 +101,7 @@ fn fix_return_code() {
     // STDIN - fix everything
     let config_file = cargo_folder.join("tests/fix_return_code/fix_everything.cfg");
     let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    cmd.env("HOME", &cargo_folder);
     cmd.arg("fix")
         .arg("-f")
         .arg("human")
@@ -133,7 +125,7 @@ fn fix_return_code() {
     // STDIN - fix some not all
     let config_file = cargo_folder.join("tests/fix_return_code/fix_some.cfg");
     let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    cmd.env("HOME", &cargo_folder);
     cmd.arg("fix")
         .arg("-f")
         .arg("human")

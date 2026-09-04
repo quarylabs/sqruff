@@ -1,5 +1,5 @@
 load("@crates//:defs.bzl", "all_crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_test_suite")
 
 exports_files(["Cargo.toml"])
 
@@ -11,6 +11,26 @@ rust_binary(
     deps = all_crate_deps(normal = True) + [
         "//crates/cli-lib:sqruff-cli-lib",
     ],
+)
+
+# Cargo and Bazel both discover the integration tests from tests/*.rs.
+rust_test_suite(
+    name = "cli_tests",
+    srcs = glob(["tests/*.rs"]),
+    shared_srcs = glob(["tests/common/**/*.rs"]),
+    data = [
+        ":sqruff",
+        ":test_fixtures",
+        "Cargo.toml",
+    ],
+    deps = all_crate_deps(normal_dev = True) + [
+        "//crates/lib:sqruff-lib",
+    ],
+    env = {
+        "SQRUFF_BIN": "$(rootpath :sqruff)",
+        "SQRUFF_TEST_MANIFEST": "$(rootpath :Cargo.toml)",
+    },
+    size = "small",
 )
 
 # Binary with codegen-docs feature for generating documentation

@@ -1,7 +1,9 @@
 use std::fs;
-use std::path::{Path, PathBuf};
 
 use assert_cmd::Command;
+
+mod common;
+use common::{manifest_dir, sqruff_path};
 
 /// Tests that the dialect override works.
 ///
@@ -10,22 +12,10 @@ use assert_cmd::Command;
 /// 2. with no config file but with a dialect override to ensure it succeeds
 /// 3. with a config file set to ANSI to ensure it fails
 /// 4. with a config file set to ANSI but with a dialect override to ensure it succeeds
-fn main() {
-    dialect_override();
-}
-
+#[test]
 fn dialect_override() {
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-
-    let cargo_folder = Path::new(env!("CARGO_MANIFEST_DIR"));
-
-    // Construct the path to the sqruff binary
-    let mut sqruff_path = PathBuf::from(cargo_folder);
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
+    let cargo_folder = manifest_dir();
+    let sqruff_path = sqruff_path();
 
     // Temporary directory and SQL file used in all test cases
     let tmp_dir = tempfile::tempdir().unwrap();
@@ -35,7 +25,7 @@ fn dialect_override() {
     // 1. No config file - defaults to ANSI and fails
     let mut cmd = Command::new(&sqruff_path);
     cmd.arg("lint").arg("-f").arg("human").arg(&sql_path);
-    cmd.env("HOME", cargo_folder);
+    cmd.env("HOME", &cargo_folder);
     cmd.current_dir(tmp_dir.path());
     let output = cmd.assert();
     assert_eq!(output.get_output().status.code().unwrap(), 1);
@@ -48,7 +38,7 @@ fn dialect_override() {
         .arg("--dialect")
         .arg("postgres")
         .arg(&sql_path);
-    cmd.env("HOME", cargo_folder);
+    cmd.env("HOME", &cargo_folder);
     cmd.current_dir(tmp_dir.path());
     let output = cmd.assert();
     assert_eq!(output.get_output().status.code().unwrap(), 0);
@@ -65,7 +55,7 @@ fn dialect_override() {
         .arg("--config")
         .arg(&cfg_path)
         .arg(&sql_path);
-    cmd.env("HOME", cargo_folder);
+    cmd.env("HOME", &cargo_folder);
     cmd.current_dir(tmp_dir.path());
     let output = cmd.assert();
     assert_eq!(output.get_output().status.code().unwrap(), 1);
@@ -80,7 +70,7 @@ fn dialect_override() {
         .arg("--dialect")
         .arg("postgres")
         .arg(&sql_path);
-    cmd.env("HOME", cargo_folder);
+    cmd.env("HOME", &cargo_folder);
     cmd.current_dir(tmp_dir.path());
     let output = cmd.assert();
     assert_eq!(output.get_output().status.code().unwrap(), 0);

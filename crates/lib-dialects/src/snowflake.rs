@@ -10344,6 +10344,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 one_of(vec![
                     Ref::new("NumericLiteralSegment").to_matchable(),
                     Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INTERVAL").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::keyword("UNBOUNDED").to_matchable(),
                 ])
                 .to_matchable(),

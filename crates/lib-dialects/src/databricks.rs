@@ -1199,6 +1199,39 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    // Databricks CREATE SCHEMA permits MANAGED LOCATION in addition to the
+    // ordinary LOCATION clause inherited from SparkSQL.
+    // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-schema.html
+    databricks.replace_grammar(
+        "CreateDatabaseStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            one_of(vec![
+                Ref::keyword("DATABASE").to_matchable(),
+                Ref::keyword("SCHEMA").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("DatabaseReferenceSegment").to_matchable(),
+            Ref::new("CommentGrammar").optional().to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("MANAGED").optional().to_matchable(),
+                Ref::keyword("LOCATION").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .config(|config| config.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("DBPROPERTIES").to_matchable(),
+                Ref::new("BracketedPropertyListGrammar").to_matchable(),
+            ])
+            .config(|config| config.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     databricks.replace_grammar(
         "AlterTableStatementSegment",
         Sequence::new(vec![
@@ -1604,6 +1637,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("CreateCatalogStatementSegment").to_matchable(),
                     Ref::new("DropCatalogStatementSegment").to_matchable(),
                     Ref::new("UseCatalogStatementSegment").to_matchable(),
+                    Ref::new("CreateDatabaseStatementSegment").to_matchable(),
                     Ref::new("DropVolumeStatementSegment").to_matchable(),
                     Ref::new("SetTimeZoneStatementSegment").to_matchable(),
                     Ref::new("OptimizeTableStatementSegment").to_matchable(),

@@ -143,6 +143,18 @@ SELECT DISTINCT a, b FROM foo
             }
 
             let bracketed = &bracketed.children_all()[0];
+            if !bracketed
+                .recursive_crawl(
+                    const { &SyntaxSet::new(&[SyntaxKind::SelectStatement]) },
+                    false,
+                    &SyntaxSet::EMPTY,
+                    true,
+                )
+                .is_empty()
+            {
+                return Vec::new();
+            }
+
             let mut edits = vec![
                 SegmentBuilder::token(
                     context.tables.next_id(),

@@ -607,6 +607,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("BEGIN").to_matchable(),
             Ref::keyword("CATCH").to_matchable(),
             MetaSegment::indent().to_matchable(),
+            // A CATCH block may be empty.
             AnyNumberOf::new(vec![
                 Sequence::new(vec![
                     Ref::new("StatementSegment").to_matchable(),

@@ -99,6 +99,56 @@ pub fn raw_dialect() -> Dialect {
         mysql::select_statement_grammar(true),
     );
 
+    // MariaDB permits ASC or DESC after each GROUP BY expression and an
+    // optional WITH ROLLUP clause after the expression list.
+    // https://mariadb.com/kb/en/select-with-rollup/
+    mariadb.add([(
+        "WithRollupClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::WithRollupClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("ROLLUP").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    mariadb.replace_grammar(
+        "GroupByClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("GROUP").to_matchable(),
+            Ref::keyword("BY").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ASC").to_matchable(),
+                        Ref::keyword("DESC").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| {
+                this.terminators = vec![Ref::new("GroupByClauseTerminatorGrammar").to_matchable()];
+            })
+            .to_matchable(),
+            Ref::new("WithRollupClauseSegment")
+                .optional()
+                .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // `CREATE [OR REPLACE] USER`.
     // https://mariadb.com/kb/en/create-user/
     mariadb.replace_grammar(

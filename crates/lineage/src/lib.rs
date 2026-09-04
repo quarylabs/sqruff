@@ -388,6 +388,9 @@ mod tests {
     // Helper function to get all available dialects for testing
     fn all_dialects() -> Vec<(&'static str, Dialect)> {
         DialectKind::iter()
+            // Vertica does not yet support the SQL constructs exercised by the
+            // lineage tests.
+            .filter(|kind| !matches!(kind, DialectKind::Vertica))
             .filter_map(|kind| {
                 let name = kind.name();
                 sqruff_lib_dialects::kind_to_dialect(&kind, None).map(|dialect| (name, dialect))

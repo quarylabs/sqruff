@@ -3,23 +3,30 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 
 exports_files(["Cargo.toml"])
 
+# Keep in sync with the features enabled by default in Cargo.toml.
 ALL_FEATURES = [
     "athena",
     "bigquery",
     "clickhouse",
     "databricks",
+    "db2",
     "duckdb",
     "exasol",
+    "greenplum",
     "hive",
+    "materialize",
     "mysql",
+    "oracle",
     "postgres",
     "redshift",
     "snowflake",
     "sparksql",
     "sqlite",
+    "starrocks",
     "teradata",
     "trino",
     "tsql",
+    "vertica",
 ]
 
 rust_library(

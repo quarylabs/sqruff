@@ -936,6 +936,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | JsonPath
         | LabelSegment
         | LambdaArrow
+        | LambdaExpression
         | LambdaFunction
         | LeadingDot
         | LimitClauseComponent

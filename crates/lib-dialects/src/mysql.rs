@@ -803,7 +803,8 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // CreateTableStatementSegment - ANSI grammar plus MySQL table options.
+    // CreateTableStatementSegment - ANSI grammar plus MySQL table options and
+    // an optional AS before the SELECT source.
     mysql.replace_grammar(
         "CreateTableStatementSegment",
         create_table_grammar(
@@ -820,12 +821,20 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AS").optional().to_matchable(),
+                        optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     Ref::new("CommentClauseSegment").optional().to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
-                    Ref::keyword("AS").to_matchable(),
-                    Ref::new("SelectableGrammar").to_matchable(),
+                    Ref::keyword("AS").optional().to_matchable(),
+                    optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                        .to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![

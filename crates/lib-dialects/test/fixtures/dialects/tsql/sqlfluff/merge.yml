@@ -1,0 +1,61 @@
+file:
+- statement:
+  - merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: target
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - numeric_literal: '1'
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - naked_identifier: i
+      - end_bracket: )
+    - alias_expression:
+      - alias_operator:
+        - keyword: AS
+      - naked_identifier: source
+    - join_on_condition:
+      - keyword: ON
+      - expression:
+        - column_reference:
+          - naked_identifier: source
+          - dot: .
+          - naked_identifier: i
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: target
+          - dot: .
+          - naked_identifier: i
+    - merge_match:
+      - merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+          - keyword: UPDATE
+          - set_clause_list:
+            - keyword: SET
+            - set_clause:
+              - column_reference:
+                - naked_identifier: target
+                - dot: .
+                - naked_identifier: i
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: source
+                - dot: .
+                - naked_identifier: i
+- statement_terminator: ;

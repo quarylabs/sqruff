@@ -36,13 +36,13 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.name = DialectKind::Duckdb;
 
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "SUMMARIZE");
-    duckdb_dialect.add_keyword_to_set("reserved_keywords", "MACRO");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT_LONGER");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT_WIDER");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "UNPIVOT");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "ANTI");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "ASOF");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "MACRO");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "POSITIONAL");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "SEMI");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "VIRTUAL");
@@ -134,39 +134,6 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
-            "CreateMacroStatementSegment".into(),
-            Sequence::new(vec![
-                Ref::keyword("CREATE").to_matchable(),
-                one_of(vec![
-                    Ref::keyword("TEMP").to_matchable(),
-                    Ref::keyword("TEMPORARY").to_matchable(),
-                ])
-                .config(|config| config.optional())
-                .to_matchable(),
-                one_of(vec![
-                    Ref::keyword("MACRO").to_matchable(),
-                    Ref::keyword("FUNCTION").to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                Bracketed::new(vec![
-                    Delimited::new(vec![
-                        Ref::new("BaseExpressionElementGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::keyword("AS").to_matchable(),
-                one_of(vec![
-                    Ref::new("SelectStatementSegment").to_matchable(),
-                    Ref::new("BaseExpressionElementGrammar").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
             "QualifyClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec![
@@ -182,6 +149,35 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    duckdb_dialect.replace_grammar(
+        "CreateFunctionStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            Ref::new("TemporaryGrammar").optional().to_matchable(),
+            one_of(vec![
+                Ref::keyword("MACRO").to_matchable(),
+                Ref::keyword("FUNCTION").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("FunctionNameSegment").to_matchable(),
+            Ref::new("FunctionParameterListGrammar").to_matchable(),
+            Ref::keyword("AS").to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("TABLE").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("SelectableGrammar").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     duckdb_dialect.insert_lexer_matchers(
         vec![Matcher::string(
@@ -998,7 +994,6 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("LoadStatementSegment").to_matchable(),
                 Ref::new("SummarizeStatementSegment").to_matchable(),
                 Ref::new("DescribeStatementSegment").to_matchable(),
-                Ref::new("CreateMacroStatementSegment").to_matchable(),
             ]),
             None,
             None,

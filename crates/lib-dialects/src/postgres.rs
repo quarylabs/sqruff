@@ -6613,6 +6613,28 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    postgres.add([(
+        "ShowStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::ShowStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SHOW").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Ref::keyword("IS_SUPERUSER").to_matchable(),
+                    Ref::keyword("LC_COLLATE").to_matchable(),
+                    Ref::keyword("LC_CTYPE").to_matchable(),
+                    Ref::keyword("SERVER_ENCODING").to_matchable(),
+                    Ref::keyword("SERVER_VERSION").to_matchable(),
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     postgres.replace_grammar("StatementSegment", statement_segment());
 
     postgres.replace_grammar(
@@ -9216,6 +9238,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("ReassignOwnedStatementSegment").to_matchable(),
             Ref::new("CommentOnStatementSegment").to_matchable(),
             Ref::new("AnalyzeStatementSegment").to_matchable(),
+            Ref::new("ShowStatementSegment").to_matchable(),
             Ref::new("CreateTableAsStatementSegment").to_matchable(),
             Ref::new("AlterTriggerStatementSegment").to_matchable(),
             Ref::new("AlterAggregateStatementSegment").to_matchable(),

@@ -1,12 +1,11 @@
 use std::borrow::Cow;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, OnceLock};
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;
 use crate::core::linter::common::{BatchRenderedResult, ParsedString, ParsedVariant, RenderedFile};
+use crate::core::linter::discovery::paths_from_path;
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::noqa::IgnoreMask;
@@ -22,12 +21,10 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{
     SQLBaseError, SQLFluffUserError, SQLLexError, SQLLintError, SQLParseError, SQLTemplaterError,
 };
-use sqruff_lib_core::helpers;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
-use walkdir::WalkDir;
 
 pub struct Linter {
     config: FluffConfig,
@@ -121,12 +118,13 @@ impl Linter {
             if path.is_file() {
                 expanded_paths.push(path.to_string_lossy().to_string());
             } else {
-                expanded_paths.extend(self.paths_from_path(
+                expanded_paths.extend(paths_from_path(
                     path,
                     None,
                     None,
                     None,
                     None,
+                    self.config.sql_file_exts(),
                     Some(ignorer),
                 ));
             };
@@ -758,173 +756,6 @@ impl Linter {
         lazy_regex::regex!("\r\n|\r").replace_all(string, "\n")
     }
 
-    // Return a set of sql file paths from a potentially more ambiguous path string.
-    // Here we also deal with the .sqlfluffignore file if present.
-    // When a path to a file to be linted is explicitly passed
-    // we look for ignore files in all directories that are parents of the file,
-    // up to the current directory.
-    // If the current directory is not a parent of the file we only
-    // look for an ignore file in the direct parent of the file.
-    fn paths_from_path(
-        &self,
-        path: PathBuf,
-        ignore_file_name: Option<String>,
-        ignore_non_existent_files: Option<bool>,
-        ignore_files: Option<bool>,
-        working_path: Option<String>,
-        ignorer: Option<&(dyn Fn(&Path) -> bool + Send + Sync)>,
-    ) -> Vec<String> {
-        let ignore_file_name = ignore_file_name.unwrap_or_else(|| String::from(".sqlfluffignore"));
-        let ignore_non_existent_files = ignore_non_existent_files.unwrap_or(false);
-        let ignore_files = ignore_files.unwrap_or(true);
-        let _working_path =
-            working_path.unwrap_or_else(|| std::env::current_dir().unwrap().display().to_string());
-
-        let Ok(metadata) = std::fs::metadata(&path) else {
-            if ignore_non_existent_files {
-                return Vec::new();
-            } else {
-                panic!("Specified path does not exist. Check it/they exist(s): {path:?}");
-            }
-        };
-
-        // Files referred to exactly are also ignored if
-        // matched, but we warn the users when that happens
-        let is_exact_file = metadata.is_file();
-
-        let mut path_walk = if is_exact_file {
-            let path = Path::new(&path);
-            let dirpath = path.parent().unwrap().to_str().unwrap().to_string();
-            let files = vec![path.file_name().unwrap().to_str().unwrap().to_string()];
-            vec![(dirpath, None, files)]
-        } else {
-            let walkdir = WalkDir::new(&path);
-            let entries: Vec<_> = if let Some(ignorer) = ignorer {
-                // Apply ignorer during traversal to skip ignored directories entirely
-                walkdir
-                    .into_iter()
-                    .filter_entry(|entry| {
-                        let should_ignore = ignorer(entry.path());
-                        if should_ignore {
-                            let path_type = if entry.file_type().is_dir() {
-                                "directory"
-                            } else {
-                                "file"
-                            };
-                            log::debug!(
-                                "Skipping {} '{}' during file discovery traversal",
-                                path_type,
-                                entry.path().display()
-                            );
-                        }
-                        !should_ignore
-                    })
-                    .filter_map(Result::ok)
-                    .collect()
-            } else {
-                // No ignorer provided, use original behavior
-                walkdir.into_iter().filter_map(Result::ok).collect()
-            };
-
-            // Group entries by directory to maintain the original data structure
-            let mut dir_files: HashMap<String, Vec<String>> = HashMap::new();
-
-            for entry in entries {
-                if entry.file_type().is_file() {
-                    let dirpath = entry.path().parent().unwrap().to_str().unwrap().to_string();
-                    let filename = entry.file_name().to_str().unwrap().to_string();
-                    dir_files.entry(dirpath).or_default().push(filename);
-                }
-            }
-
-            dir_files
-                .into_iter()
-                .map(|(dirpath, files)| (dirpath, None, files))
-                .collect_vec()
-        };
-
-        // TODO:
-        // let ignore_file_paths = ConfigLoader.find_ignore_config_files(
-        //     path=path, working_path=working_path, ignore_file_name=ignore_file_name
-        // );
-        let ignore_file_paths: Vec<String> = Vec::new();
-
-        // Add paths that could contain "ignore files"
-        // to the path_walk list
-        let path_walk_ignore_file: Vec<(String, Option<()>, Vec<String>)> = ignore_file_paths
-            .iter()
-            .map(|ignore_file_path| {
-                let ignore_file_path = Path::new(ignore_file_path);
-
-                // Extracting the directory name from the ignore file path
-                let dir_name = ignore_file_path
-                    .parent()
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .to_string();
-
-                // Only one possible file, since we only
-                // have one "ignore file name"
-                let file_name = vec![
-                    ignore_file_path
-                        .file_name()
-                        .unwrap()
-                        .to_str()
-                        .unwrap()
-                        .to_string(),
-                ];
-
-                (dir_name, None, file_name)
-            })
-            .collect();
-
-        path_walk.extend(path_walk_ignore_file);
-
-        let mut buffer = Vec::new();
-        let mut ignores = HashMap::new();
-        let sql_file_exts = self.config.sql_file_exts();
-
-        for (dirpath, _, filenames) in path_walk {
-            for fname in filenames {
-                let fpath = Path::new(&dirpath).join(&fname);
-
-                // Handle potential .sqlfluffignore files
-                if ignore_files && fname == ignore_file_name {
-                    let file = File::open(&fpath).unwrap();
-                    let lines = BufReader::new(file).lines();
-                    let spec = lines.map_while(Result::ok); // Simple placeholder for pathspec logic
-                    ignores.insert(dirpath.clone(), spec.collect::<Vec<String>>());
-
-                    // We don't need to process the ignore file any further
-                    continue;
-                }
-
-                // We won't purge files *here* because there's an edge case
-                // that the ignore file is processed after the sql file.
-
-                // Scan for remaining files
-                for ext in sql_file_exts {
-                    // is it a sql file?
-                    if fname.to_lowercase().ends_with(ext) {
-                        buffer.push(fpath.clone());
-                    }
-                }
-            }
-        }
-
-        let mut filtered_buffer = HashSet::new();
-
-        for fpath in buffer {
-            let npath = helpers::normalize(&fpath).to_str().unwrap().to_string();
-            filtered_buffer.insert(npath);
-        }
-
-        let mut files = filtered_buffer.into_iter().collect_vec();
-        files.sort();
-        files
-    }
-
     pub fn config(&self) -> &FluffConfig {
         &self.config
     }
@@ -977,109 +808,7 @@ rules = all
         Linter::new(config, None, None, true).unwrap()
     }
 
-    fn normalise_paths(paths: Vec<String>) -> Vec<String> {
-        paths
-            .into_iter()
-            .map(|path| path.replace(['/', '\\'], "."))
-            .collect()
-    }
-
-    #[test]
-    fn test_linter_path_from_paths_dir() {
-        // Test extracting paths from directories.
-        let lntr = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
-        let paths =
-            lntr.paths_from_path("test/fixtures/lexer".into(), None, None, None, None, None);
-        let expected = vec![
-            "test.fixtures.lexer.basic.sql",
-            "test.fixtures.lexer.block_comment.sql",
-            "test.fixtures.lexer.inline_comment.sql",
-        ];
-        assert_eq!(normalise_paths(paths), expected);
-    }
-
-    #[test]
-    fn test_linter_path_from_paths_default() {
-        // Test .sql files are found by default.
-        let lntr = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
-        let paths = normalise_paths(lntr.paths_from_path(
-            "test/fixtures/linter".into(),
-            None,
-            None,
-            None,
-            None,
-            None,
-        ));
-        assert!(paths.contains(&"test.fixtures.linter.passing.sql".to_string()));
-        assert!(paths.contains(&"test.fixtures.linter.passing_cap_extension.SQL".to_string()));
-        assert!(!paths.contains(&"test.fixtures.linter.discovery_file.txt".to_string()));
-    }
-
-    #[test]
-    fn test_linter_path_from_paths_exts() {
-        // Assuming Linter is initialized with a configuration similar to Python's
-        // FluffConfig
-        let config =
-            FluffConfig::new(<_>::default(), None, None).with_sql_file_exts(vec![".txt".into()]);
-        let lntr = Linter::new(config, None, None, false).unwrap();
-
-        let paths =
-            lntr.paths_from_path("test/fixtures/linter".into(), None, None, None, None, None);
-
-        // Normalizing paths as in the Python version
-        let normalized_paths = normalise_paths(paths);
-
-        // Assertions as per the Python test
-        assert!(!normalized_paths.contains(&"test.fixtures.linter.passing.sql".into()));
-        assert!(
-            !normalized_paths.contains(&"test.fixtures.linter.passing_cap_extension.SQL".into())
-        );
-        assert!(normalized_paths.contains(&"test.fixtures.linter.discovery_file.txt".into()));
-    }
-
-    #[test]
-    fn test_linter_path_from_paths_file() {
-        let lntr = Linter::new(
-            FluffConfig::new(<_>::default(), None, None),
-            None,
-            None,
-            false,
-        )
-        .unwrap();
-        let paths = lntr.paths_from_path(
-            "test/fixtures/linter/indentation_errors.sql".into(),
-            None,
-            None,
-            None,
-            None,
-            None,
-        );
-
-        assert_eq!(
-            normalise_paths(paths),
-            &["test.fixtures.linter.indentation_errors.sql"]
-        );
-    }
-
     // test__linter__skip_large_bytes
-    // test__linter__path_from_paths__not_exist
-    // test__linter__path_from_paths__not_exist_ignore
-    // test__linter__path_from_paths__explicit_ignore
-    // test__linter__path_from_paths__sqlfluffignore_current_directory
-    // test__linter__path_from_paths__dot
-    // test__linter__path_from_paths__ignore
     // test__linter__lint_string_vs_file
     // test__linter__get_violations_filter_rules
     // test__linter__linting_result__sum_dicts

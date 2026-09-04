@@ -36,14 +36,14 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.insert_lexer_matchers(
         vec![
             Matcher::regex(
-                "bytes_single_quote",
-                r"X'([^'\\]|\\.)*'",
-                SyntaxKind::BytesSingleQuote,
+                "raw_single_quote",
+                r"[rR]'([^'\\]|\\.)*'",
+                SyntaxKind::RawSingleQuote,
             ),
             Matcher::regex(
-                "bytes_double_quote",
-                r#"X"([^"\\]|\\.)*""#,
-                SyntaxKind::BytesDoubleQuote,
+                "raw_double_quote",
+                r#"[rR]"([^"\\]|\\.)*""#,
+                SyntaxKind::RawDoubleQuote,
             ),
         ],
         "single_quote",
@@ -297,7 +297,10 @@ pub fn raw_dialect() -> Dialect {
             sparksql_dialect
                 .grammar("LiteralGrammar")
                 .copy(
-                    Some(vec![Ref::new("BytesQuotedLiteralSegment").to_matchable()]),
+                    Some(vec![
+                        Ref::new("RawQuotedLiteralSegment").to_matchable(),
+                        Ref::new("BytesQuotedLiteralSegment").to_matchable(),
+                    ]),
                     None,
                     None,
                     None,
@@ -983,6 +986,17 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("TBLPROPERTIES").to_matchable(),
                 Ref::new("BracketedPropertyListGrammar").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "RawQuotedLiteralSegment".into(),
+            one_of(vec![
+                TypedParser::new(SyntaxKind::RawSingleQuote, SyntaxKind::RawQuotedLiteral)
+                    .to_matchable(),
+                TypedParser::new(SyntaxKind::RawDoubleQuote, SyntaxKind::RawQuotedLiteral)
+                    .to_matchable(),
             ])
             .to_matchable()
             .into(),

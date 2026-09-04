@@ -441,19 +441,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     trino_dialect.add([(
         "ArrayTypeSchemaSegment".into(),
-        one_of(vec![
-            Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
-                .config(|config| {
-                    config.bracket_pairs_set = "angle_bracket_pairs";
-                    config.bracket_type = "angle";
-                })
-                .to_matchable(),
-            Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
-                .config(|config| {
-                    config.bracket_type = "round";
-                })
-                .to_matchable(),
-        ])
+        NodeMatcher::new(SyntaxKind::ArrayTypeSchema, |_| {
+            one_of(vec![
+                Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                    .config(|config| {
+                        config.bracket_pairs_set = "angle_bracket_pairs";
+                        config.bracket_type = "angle";
+                    })
+                    .to_matchable(),
+                Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                    .config(|config| {
+                        config.bracket_type = "round";
+                    })
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);

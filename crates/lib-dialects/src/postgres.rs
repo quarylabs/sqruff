@@ -5615,6 +5615,30 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    postgres.add([(
+        "SetConstraintsStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SetConstraintStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                Ref::keyword("CONSTRAINTS").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("DEFERRED").to_matchable(),
+                    Ref::keyword("IMMEDIATE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     postgres.add([
         (
             "IndexParametersSegment".into(),
@@ -9391,6 +9415,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("CommentOnStatementSegment").to_matchable(),
             Ref::new("AnalyzeStatementSegment").to_matchable(),
             Ref::new("ShowStatementSegment").to_matchable(),
+            Ref::new("SetConstraintsStatementSegment").to_matchable(),
             Ref::new("CreateTableAsStatementSegment").to_matchable(),
             Ref::new("AlterTriggerStatementSegment").to_matchable(),
             Ref::new("AlterAggregateStatementSegment").to_matchable(),

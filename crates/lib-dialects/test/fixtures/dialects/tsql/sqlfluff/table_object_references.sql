@@ -4,3 +4,11 @@
 SELECT column_1 FROM [#my_table];
 
 SELECT column_1 FROM dbo.[#my_table];
+
+select column_1 from ."#my_table";
+
+select column_1 from .[#my_table];
+
+select column_1 from ..[#my_table];
+
+select column_1 from ...[#my_table];

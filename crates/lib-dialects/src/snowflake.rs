@@ -464,6 +464,47 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "InlineConstraintGrammar".into(),
+            any_set_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::keyword("ENFORCED").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::keyword("DEFERRABLE").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("INITIALLY").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFERRED").to_matchable(),
+                        Ref::keyword("IMMEDIATE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ENABLE").to_matchable(),
+                    Ref::keyword("DISABLE").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("VALIDATE").to_matchable(),
+                    Ref::keyword("NOVALIDATE").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("RELY").to_matchable(),
+                    Ref::keyword("NORELY").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ReferencedVariableNameSegment".into(),
             RegexParser::new(r"\$[A-Z_][A-Z0-9_]*", SyntaxKind::Variable)
                 .to_matchable()
@@ -3066,66 +3107,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     // Add Column
                     Sequence::new(vec![
                         Ref::keyword("ADD").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("CONSTRAINT").to_matchable(),
-                            one_of(vec![
-                                Ref::new("NakedIdentifierSegment").to_matchable(),
-                                Ref::new("QuotedIdentifierSegment").to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        one_of(vec![
-                            Sequence::new(vec![
-                                Ref::new("PrimaryKeyGrammar").to_matchable(),
-                                Bracketed::new(vec![
-                                    Delimited::new(vec![
-                                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Sequence::new(vec![
-                                    Ref::new("ForeignKeyGrammar").to_matchable(),
-                                    Bracketed::new(vec![
-                                        Delimited::new(vec![
-                                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::keyword("REFERENCES").to_matchable(),
-                                Ref::new("TableReferenceSegment").to_matchable(),
-                                Bracketed::new(vec![
-                                    Delimited::new(vec![
-                                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .config(|this| this.optional())
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("UNIQUE").to_matchable(),
-                                Bracketed::new(vec![
-                                    Delimited::new(vec![
-                                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .config(|this| this.optional())
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("ConstraintPropertiesSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
@@ -3139,7 +3121,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         one_of(vec![
                             Ref::new("PrimaryKeyGrammar").to_matchable(),
                             Ref::new("ForeignKeyGrammar").to_matchable(),
-                            Ref::keyword("UNIQUE").to_matchable(),
+                            Ref::new("UniqueKeyGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                         Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
@@ -5441,68 +5423,56 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Sequence::new(vec![
                         Ref::keyword("CONSTRAINT").to_matchable(),
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
                     one_of(vec![
                         Sequence::new(vec![
-                            Ref::keyword("UNIQUE").to_matchable(),
-                            Bracketed::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
-                                .config(|this| this.optional())
+                            one_of(vec![
+                                Ref::new("PrimaryKeyGrammar").to_matchable(),
+                                Ref::new("UniqueKeyGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                ])
                                 .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::new("PrimaryKeyGrammar").to_matchable(),
-                            Bracketed::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
-                                .config(|this| this.optional())
-                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
                             Sequence::new(vec![
                                 Ref::new("ForeignKeyGrammar").to_matchable(),
                                 Bracketed::new(vec![
-                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
-                                .config(|this| this.optional())
                                 .to_matchable(),
                             ])
                             .to_matchable(),
                             Ref::keyword("REFERENCES").to_matchable(),
                             Ref::new("TableReferenceSegment").to_matchable(),
-                            Bracketed::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
-                                .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    any_set_of(vec![
-                        one_of(vec![
-                            Sequence::new(vec![
-                                Ref::keyword("NOT").optional().to_matchable(),
-                                Ref::keyword("ENFORCED").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("NOT").optional().to_matchable(),
-                                Ref::keyword("DEFERRABLE").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("INITIALLY").to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("DEFERRED").to_matchable(),
-                                    Ref::keyword("IMMEDIATE").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
+                            .config(|this| this.optional())
                             .to_matchable(),
                         ])
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    Ref::new("InlineConstraintGrammar")
+                        .optional()
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -5948,7 +5918,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Delimited::new(vec![
                             Sequence::new(vec![
                                 one_of(vec![
-                                    Ref::new("TableConstraintSegment").to_matchable(),
+                                    Ref::new("ConstraintPropertiesSegment").to_matchable(),
                                     Ref::new("ColumnDefinitionSegment").to_matchable(),
                                     Ref::new("SingleIdentifierGrammar").to_matchable(),
                                 ])
@@ -7820,7 +7790,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 optionally_bracketed(vec![
                                     Sequence::new(vec![
                                         Ref::new("ExpressionSegment").to_matchable(),
-                                        Ref::new("TableConstraintSegment")
+                                        Ref::new("ConstraintPropertiesSegment")
                                             .optional()
                                             .to_matchable(),
                                         Sequence::new(vec![

@@ -149,7 +149,6 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "WAL",
         ],
         DialectKind::Snowflake => &[
-            "ACTION",
             "ASSIGNMENT",
             "CONSTRUCTOR",
             "EACH",
@@ -158,10 +157,8 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "METHOD",
             "NEW",
             "OLD",
-            "PARTIAL",
             "QuotedLiteralGrammar",
             "REFERENCING",
-            "SIMPLE",
             "SPECIFIC",
             "STATIC",
         ],

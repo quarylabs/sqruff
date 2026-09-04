@@ -389,3 +389,33 @@ file:
           - file_type: JSON
         - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '@stage1'
+    - copy_options:
+      - keyword: MATCH_BY_COLUMN_NAME
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: CASE_INSENSITIVE
+      - keyword: INCLUDE_METADATA
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: ingestdate
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: METADATA$START_SCAN_TIME
+        - comma: ','
+        - naked_identifier: filename
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: METADATA$FILENAME
+        - end_bracket: )
+- statement_terminator: ;

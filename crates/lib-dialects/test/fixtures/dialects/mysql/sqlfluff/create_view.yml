@@ -202,3 +202,53 @@ file:
           - select_clause_element:
             - numeric_literal: '2'
 - statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: vw_test
+    - keyword: AS
+    - with_compound_statement:
+      - keyword: WITH
+      - common_table_expression:
+        - naked_identifier: testing_cte
+        - keyword: as
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: a
+              - comma: ','
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: b
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: t1
+          - end_bracket: )
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: b
+        - from_clause:
+          - keyword: from
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: testing_cte
+- statement_terminator: ;

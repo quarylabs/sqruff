@@ -601,12 +601,11 @@ sh_test(
         data = [
             ":pytest_py{}_venv".format(version.replace(".", "")),
             "//crates/cli-python:python_srcs",
-            "//crates/cli-python:test_fixtures",
+            "//crates/cli-python:dbt_test_fixtures",
         ],
         env = {
             "PYTHON_VENV": "$(rlocationpath :pytest_py{}_venv)".format(version.replace(".", "")),
         },
-        tags = ["exclusive"],
     )
     for version in [
         "3.10",

@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::{DialectConfig, DialectKind};
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
@@ -8,7 +9,8 @@ use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{CaseFold, RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::value::Value;
@@ -133,6 +135,20 @@ pub fn raw_dialect() -> Dialect {
                 TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedLiteral).to_matchable(),
             ])
             .to_matchable()
+            .into(),
+        ),
+        (
+            "NakedIdentifierSegment".into(),
+            SegmentGenerator::new(|dialect| {
+                let reserved_keywords = dialect.sets("reserved_keywords");
+                let pattern = reserved_keywords.iter().join("|");
+                let anti_template = format!("^({pattern})$");
+
+                RegexParser::new("[A-Z0-9_]*[A-Z][A-Z0-9_]*", SyntaxKind::NakedIdentifier)
+                    .anti_template(&anti_template)
+                    .casefold(CaseFold::Lower)
+                    .to_matchable()
+            })
             .into(),
         ),
         (

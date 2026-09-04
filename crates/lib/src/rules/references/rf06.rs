@@ -16,7 +16,7 @@ pub struct RuleRF06 {
     prefer_quoted_keywords: bool,
     ignore_words: Vec<String>,
     ignore_words_regex: Vec<Regex>,
-    force_enable: bool,
+    case_sensitive: bool,
 }
 
 impl Rule for RuleRF06 {
@@ -45,7 +45,7 @@ impl Rule for RuleRF06 {
                         .collect()
                 })
                 .unwrap_or_default(),
-            force_enable: config["force_enable"].as_bool().unwrap(),
+            case_sensitive: config["case_sensitive"].as_bool().unwrap(),
         }
         .erased())
     }
@@ -60,12 +60,25 @@ impl Rule for RuleRF06 {
 
     fn long_description(&self) -> &'static str {
         r#"
+This rule checks whether quoted identifiers can be safely unquoted. By default,
+quotes are removed only when the unquoted identifier resolves to the same case in
+the selected dialect. Set `case_sensitive = False` to remove quotes regardless of
+identifier case; identifiers containing spaces, special characters, or keywords
+remain quoted.
+
+Uppercase-folding dialects such as Snowflake, BigQuery, TSQL, and Oracle can safely
+unquote identifiers such as `"FOO"`. Lowercase-folding dialects such as Athena,
+Hive, and Postgres can safely unquote `"foo"`. Case-insensitive dialects such as
+DuckDB and SparkSQL can safely unquote any otherwise-valid identifier.
+
 **Anti-pattern**
 
-In this example, a valid unquoted identifier, that is also not a reserved keyword, is needlessly quoted.
+In these examples, valid identifiers in each dialect's default case are needlessly
+quoted.
 
 ```sql
-SELECT 123 as "foo"
+SELECT "foo" as "bar";  -- Lowercase dialects such as Postgres
+SELECT "FOO" as "BAR";  -- Uppercase dialects such as Snowflake
 ```
 
 **Best practice**
@@ -73,7 +86,12 @@ SELECT 123 as "foo"
 Use unquoted identifiers where possible.
 
 ```sql
-SELECT 123 as foo
+SELECT foo as bar;
+SELECT FOO as BAR;
+
+-- Case-sensitive identifiers and identifiers which cannot be unquoted retain
+-- their quotes.
+SELECT "Case_Sensitive_Identifier", "Identifier with spaces", "SELECT";
 ```
 
 When `prefer_quoted_identifiers = True`, the quotes are always necessary, no matter if the identifier is valid, a reserved keyword, or contains special characters.
@@ -105,14 +123,6 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
-        if matches!(
-            context.dialect.name,
-            DialectKind::Postgres | DialectKind::Snowflake
-        ) && !self.force_enable
-        {
-            return Vec::new();
-        }
-
         if FunctionalContext::new(context)
             .parent_stack()
             .any_match(|it| {
@@ -225,6 +235,18 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
         let owned = context.dialect.grammar("NakedIdentifierSegment");
 
         let naked_identifier_parser = owned.as_regex().unwrap();
+
+        let is_case_insensitive_dialect = matches!(
+            context.dialect.name,
+            DialectKind::Duckdb | DialectKind::Sparksql
+        );
+        if !is_case_insensitive_dialect
+            && self.case_sensitive
+            && let Some(casefold) = naked_identifier_parser.casefold
+            && identifier_contents != casefold.apply(&identifier_contents)
+        {
+            return Vec::new();
+        }
 
         if is_full_match(
             naked_identifier_parser.template.as_str(),

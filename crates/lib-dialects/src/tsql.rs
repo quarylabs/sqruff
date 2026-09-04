@@ -282,6 +282,71 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // T-SQL ORDER BY supports OFFSET followed by an optional FETCH clause.
+    dialect.add([(
+        "OrderByClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::OrderbyClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("ORDER").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("ASC").to_matchable(),
+                            Ref::keyword("DESC").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| {
+                    this.terminators = vec![Ref::new("OffsetClauseSegment").to_matchable()]
+                })
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("OffsetClauseSegment").to_matchable(),
+                    Ref::new("FetchClauseSegment").optional().to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "OffsetClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::OffsetClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("OFFSET").to_matchable(),
+                one_of(vec![
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ROW").to_matchable(),
+                    Ref::keyword("ROWS").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // T-SQL supports CTEs with DML statements (INSERT, UPDATE, DELETE, MERGE)
     // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
     dialect.add([(

@@ -107,6 +107,8 @@ struct DialectConfigOption {
 struct Dialect {
     name: &'static str,
     description: &'static str,
+    default_casing: Option<&'static str>,
+    quotes: Option<&'static str>,
     doc_url: Option<&'static str>,
     config_section: String,
     config_options: Vec<DialectConfigOption>,
@@ -129,6 +131,8 @@ impl From<DialectKind> for Dialect {
         Dialect {
             name: value.name(),
             description: value.description(),
+            default_casing: value.default_casing(),
+            quotes: value.quotes(),
             doc_url: value.doc_url(),
             config_section: value.config_section(),
             config_options,

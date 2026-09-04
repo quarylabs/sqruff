@@ -187,6 +187,95 @@ impl DialectKind {
         }
     }
 
+    /// Returns documentation about how the dialect stores and resolves identifier casing.
+    pub fn default_casing(&self) -> Option<&'static str> {
+        match self {
+            DialectKind::Ansi
+            | DialectKind::Bigquery
+            | DialectKind::Snowflake
+            | DialectKind::Trino => Some("`UPPERCASE`"),
+            DialectKind::Athena
+            | DialectKind::Mariadb
+            | DialectKind::Mysql
+            | DialectKind::Postgres => Some("`lowercase`"),
+            DialectKind::Duckdb => Some(concat!(
+                "DuckDB stores all identifiers in the case they were defined, but resolves ",
+                "both quoted and unquoted identifiers case-insensitively. See the ",
+                "[DuckDB identifiers documentation](https://duckdb.org/docs/sql/dialect/keywords_and_identifiers)."
+            )),
+            DialectKind::Redshift => Some(concat!(
+                "`lowercase`, unless case-sensitive identifiers are enabled and all identifiers ",
+                "use the `enable_case_sensitive_identifier` configuration value. See the ",
+                "[Redshift names and identifiers documentation](https://spark.apache.org/docs/latest/sql-ref.html)."
+            )),
+            DialectKind::Sparksql => Some(concat!(
+                "Spark SQL resolves both quoted and unquoted (*delimited*) identifiers ",
+                "case-insensitively. See the ",
+                "[Spark identifiers documentation](https://spark.apache.org/docs/latest/sql-ref-identifier.html)."
+            )),
+            DialectKind::Sqlite => Some(concat!(
+                "SQLite does not specify a default in its documentation. Testing indicates that ",
+                "it stores column names in their declared case but resolves them case-insensitively."
+            )),
+            DialectKind::Clickhouse
+            | DialectKind::Databricks
+            | DialectKind::Db2
+            | DialectKind::Exasol
+            | DialectKind::Greenplum
+            | DialectKind::Hive
+            | DialectKind::Materialize
+            | DialectKind::Oracle
+            | DialectKind::Starrocks
+            | DialectKind::Teradata
+            | DialectKind::Tsql
+            | DialectKind::Vertica => None,
+        }
+    }
+
+    /// Returns documentation about string-literal and identifier quote styles.
+    pub fn quotes(&self) -> Option<&'static str> {
+        match self {
+            DialectKind::Ansi
+            | DialectKind::Postgres
+            | DialectKind::Redshift
+            | DialectKind::Snowflake
+            | DialectKind::Trino => Some("String literals: `''`; identifiers: `\"\"`."),
+            DialectKind::Athena => Some(
+                "String literals: `''`, `\"\"`, or backticks; identifiers: `\"\"` or backticks.",
+            ),
+            DialectKind::Bigquery => Some(concat!(
+                "String literals: `''`, `\"\"`, `@`, or `@@`; quoted strings also support ",
+                "`r`/`R` raw or regex prefixes and `b`/`B` byte-string prefixes. Identifiers: ",
+                "`\"\"` or backticks. Unquoted aliases resolve case-insensitively but retain ",
+                "their case in result sets."
+            )),
+            DialectKind::Duckdb => Some("String literals: `''`; identifiers: `\"\"` or `''`."),
+            DialectKind::Mariadb | DialectKind::Mysql => {
+                Some("String literals: `''`, `\"\"`, or `@`; identifiers: backticks.")
+            }
+            DialectKind::Sparksql => {
+                Some("String literals: `''` or `\"\"`; identifiers: backticks.")
+            }
+            DialectKind::Sqlite => Some(concat!(
+                "String literals: `''` (or `\"\"` when not resolved as an identifier); ",
+                "identifiers: `\"\"`, `[]`, or backticks. See the ",
+                "[SQLite keywords documentation](https://sqlite.org/lang_keywords.html)."
+            )),
+            DialectKind::Clickhouse
+            | DialectKind::Databricks
+            | DialectKind::Db2
+            | DialectKind::Exasol
+            | DialectKind::Greenplum
+            | DialectKind::Hive
+            | DialectKind::Materialize
+            | DialectKind::Oracle
+            | DialectKind::Starrocks
+            | DialectKind::Teradata
+            | DialectKind::Tsql
+            | DialectKind::Vertica => None,
+        }
+    }
+
     /// Returns the configuration section header for this dialect.
     /// Format: `[sqruff:dialect:{dialect_name}]`
     pub fn config_section(&self) -> String {
@@ -270,5 +359,16 @@ mod tests {
             "[sqruff:dialect:bigquery]"
         );
         assert_eq!(DialectKind::Ansi.config_section(), "[sqruff:dialect:ansi]");
+    }
+
+    #[test]
+    fn dialect_documentation_metadata() {
+        assert_eq!(DialectKind::Postgres.default_casing(), Some("`lowercase`"));
+        assert_eq!(
+            DialectKind::Postgres.quotes(),
+            Some("String literals: `''`; identifiers: `\"\"`.")
+        );
+        assert_eq!(DialectKind::Tsql.default_casing(), None);
+        assert_eq!(DialectKind::Tsql.quotes(), None);
     }
 }

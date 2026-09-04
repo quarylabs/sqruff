@@ -3515,6 +3515,62 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // SET TRANSACTION statement (#5781)
+    // https://dev.mysql.com/doc/refman/8.0/en/set-transaction.html
+    mysql.add([(
+        "SetTransactionStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SetTransactionStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("GLOBAL").to_matchable(),
+                    Ref::keyword("SESSION").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("TRANSACTION").to_matchable(),
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("ISOLATION").to_matchable(),
+                        Ref::keyword("LEVEL").to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("READ").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("COMMITTED").to_matchable(),
+                                    Ref::keyword("UNCOMMITTED").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("REPEATABLE").to_matchable(),
+                                Ref::keyword("READ").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("SERIALIZABLE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("READ").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("WRITE").to_matchable(),
+                            Ref::keyword("ONLY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // SET NAMES statement — https://dev.mysql.com/doc/refman/8.0/en/set-names.html
     mysql.add([(
         "SetNamesStatementSegment".into(),
@@ -3551,6 +3607,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("DelimiterStatement").to_matchable(),
                 Ref::new("CreateProcedureStatementSegment").to_matchable(),
                 Ref::new("DeclareStatement").to_matchable(),
+                Ref::new("SetTransactionStatementSegment").to_matchable(),
                 Ref::new("SetAssignmentStatementSegment").to_matchable(),
                 Ref::new("IfExpressionStatement").to_matchable(),
                 Ref::new("WhileStatementSegment").to_matchable(),

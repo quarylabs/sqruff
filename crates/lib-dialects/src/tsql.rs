@@ -2313,6 +2313,50 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // T-SQL MERGE supports table hints on the target. Excluding USING from the
+    // optional alias prevents a target without an alias from consuming it.
+    dialect.add([(
+        "MergeStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::MergeStatement, |_| {
+            Sequence::new(vec![
+                Ref::new("MergeIntoLiteralGrammar").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::new("TableHintSegment").optional().to_matchable(),
+                Ref::new("AliasExpressionSegment")
+                    .exclude(Ref::keyword("USING"))
+                    .optional()
+                    .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+                Ref::keyword("USING").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                one_of(vec![
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("AliasedTableReferenceGrammar").to_matchable(),
+                    Sequence::new(vec![
+                        Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+                            .to_matchable(),
+                        Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+                Conditional::new(MetaSegment::indent())
+                    .indented_using_on()
+                    .to_matchable(),
+                Ref::new("JoinOnConditionSegment").to_matchable(),
+                Conditional::new(MetaSegment::dedent())
+                    .indented_using_on()
+                    .to_matchable(),
+                Ref::new("MergeMatchSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Define PostTableExpressionGrammar to include T-SQL table hints
     dialect.add([(
         "PostTableExpressionGrammar".into(),

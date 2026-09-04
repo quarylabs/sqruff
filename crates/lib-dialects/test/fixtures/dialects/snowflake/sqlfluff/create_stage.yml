@@ -607,3 +607,40 @@ file:
       - object_reference:
         - variable: $your_variable
 - statement_terminator: ;
+- statement:
+  - create_stage_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: foo
+      - dot: .
+      - naked_identifier: bar
+    - keyword: URL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bucket_path: '''s3://foobar'''
+    - s3_external_stage_parameters:
+      - keyword: STORAGE_INTEGRATION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: foo
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - file_format_segment:
+      - bracketed:
+        - start_bracket: (
+        - csv_file_format_type_parameters:
+          - keyword: TYPE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - file_type: CSV
+          - keyword: PARSE_HEADER
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - boolean_literal: 'TRUE'
+        - end_bracket: )
+- statement_terminator: ;

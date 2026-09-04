@@ -166,6 +166,7 @@ pub struct QueryInner<'me> {
     pub ctes: IndexMap<SmolStr, Query<'me>>,
     pub parent: Option<Query<'me>>,
     pub subqueries: Vec<Query<'me>>,
+    pub is_subquery: bool,
     pub cte_definition_segment: Option<ErasedSegment>,
     pub cte_name_segment: Option<ErasedSegment>,
 }
@@ -252,7 +253,11 @@ impl<'me> Query<'me> {
         let this = self.clone();
 
         for subquery in &RefCell::borrow(&self.inner).subqueries {
-            RefCell::borrow_mut(&subquery.inner).parent = this.clone().into();
+            let mut subquery_inner = RefCell::borrow_mut(&subquery.inner);
+            subquery_inner.parent = this.clone().into();
+            // Distinguish nested SELECTs from CTE children for rules which need
+            // correlated-reference visibility without treating CTEs as subqueries.
+            subquery_inner.is_subquery = true;
         }
 
         for cte in RefCell::borrow(&self.inner).ctes.values().cloned() {
@@ -368,6 +373,7 @@ impl<'me> Query<'me> {
                 ctes: <_>::default(),
                 parent,
                 subqueries,
+                is_subquery: false,
                 cte_definition_segment: None,
                 cte_name_segment: None,
             })),

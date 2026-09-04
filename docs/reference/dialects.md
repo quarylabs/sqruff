@@ -35,6 +35,10 @@ Sqruff currently supports the following SQL dialects:
 
 Standard SQL syntax. The default dialect and base for all others.
 
+**Default Casing:** `UPPERCASE`
+
+**Quotes:** String literals: `''`; identifiers: `""`.
+
 **Configuration:**
 ```ini
 [sqruff:dialect:ansi]
@@ -44,6 +48,10 @@ Standard SQL syntax. The default dialect and base for all others.
 ### athena
 
 Amazon Athena SQL dialect for querying data in S3.
+
+**Default Casing:** `lowercase`
+
+**Quotes:** String literals: `''`, `""`, or backticks; identifiers: `""` or backticks.
 
 **Documentation:** [https://docs.aws.amazon.com/athena/latest/ug/ddl-sql-reference.html](https://docs.aws.amazon.com/athena/latest/ug/ddl-sql-reference.html)
 
@@ -56,6 +64,10 @@ Amazon Athena SQL dialect for querying data in S3.
 ### bigquery
 
 Google BigQuery SQL dialect for analytics and data warehousing.
+
+**Default Casing:** `UPPERCASE`
+
+**Quotes:** String literals: `''`, `""`, `@`, or `@@`; quoted strings also support `r`/`R` raw or regex prefixes and `b`/`B` byte-string prefixes. Identifiers: `""` or backticks. Unquoted aliases resolve case-insensitively but retain their case in result sets.
 
 **Documentation:** [https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax)
 
@@ -105,6 +117,10 @@ IBM Db2 SQL dialect.
 
 DuckDB SQL dialect for in-process analytical database.
 
+**Default Casing:** DuckDB stores all identifiers in the case they were defined, but resolves both quoted and unquoted identifiers case-insensitively. See the [DuckDB identifiers documentation](https://duckdb.org/docs/sql/dialect/keywords_and_identifiers).
+
+**Quotes:** String literals: `''`; identifiers: `""` or `''`.
+
 **Documentation:** [https://duckdb.org/docs/sql/introduction](https://duckdb.org/docs/sql/introduction)
 
 **Configuration:**
@@ -153,6 +169,10 @@ Apache Hive SQL dialect for data warehousing.
 
 MariaDB SQL dialect, a community-developed fork of MySQL.
 
+**Default Casing:** `lowercase`
+
+**Quotes:** String literals: `''`, `""`, or `@`; identifiers: backticks.
+
 **Documentation:** [https://mariadb.com/kb/en/sql-statements-structure/](https://mariadb.com/kb/en/sql-statements-structure/)
 
 **Configuration:**
@@ -177,6 +197,10 @@ Materialize SQL dialect for the streaming data warehouse.
 
 MySQL SQL dialect for the popular open-source database.
 
+**Default Casing:** `lowercase`
+
+**Quotes:** String literals: `''`, `""`, or `@`; identifiers: backticks.
+
 **Documentation:** [https://dev.mysql.com/doc/](https://dev.mysql.com/doc/)
 
 **Configuration:**
@@ -200,6 +224,10 @@ Oracle SQL dialect for Oracle Database.
 ### postgres
 
 PostgreSQL SQL dialect for the advanced open-source database.
+
+**Default Casing:** `lowercase`
+
+**Quotes:** String literals: `''`; identifiers: `""`.
 
 **Documentation:** [https://www.postgresql.org/docs/current/sql.html](https://www.postgresql.org/docs/current/sql.html)
 
@@ -227,6 +255,10 @@ pgvector = true
 
 Amazon Redshift SQL dialect for cloud data warehousing.
 
+**Default Casing:** `lowercase`, unless case-sensitive identifiers are enabled and all identifiers use the `enable_case_sensitive_identifier` configuration value. See the [Redshift names and identifiers documentation](https://spark.apache.org/docs/latest/sql-ref.html).
+
+**Quotes:** String literals: `''`; identifiers: `""`.
+
 **Documentation:** [https://docs.aws.amazon.com/redshift/latest/dg/cm_chap_SQLCommandRef.html](https://docs.aws.amazon.com/redshift/latest/dg/cm_chap_SQLCommandRef.html)
 
 **Configuration:**
@@ -238,6 +270,10 @@ Amazon Redshift SQL dialect for cloud data warehousing.
 ### snowflake
 
 Snowflake SQL dialect for cloud data platform.
+
+**Default Casing:** `UPPERCASE`
+
+**Quotes:** String literals: `''`; identifiers: `""`.
 
 **Documentation:** [https://docs.snowflake.com/en/sql-reference.html](https://docs.snowflake.com/en/sql-reference.html)
 
@@ -251,6 +287,10 @@ Snowflake SQL dialect for cloud data platform.
 
 Apache Spark SQL dialect for big data processing.
 
+**Default Casing:** Spark SQL resolves both quoted and unquoted (*delimited*) identifiers case-insensitively. See the [Spark identifiers documentation](https://spark.apache.org/docs/latest/sql-ref-identifier.html).
+
+**Quotes:** String literals: `''` or `""`; identifiers: backticks.
+
 **Documentation:** [https://spark.apache.org/sql/](https://spark.apache.org/sql/)
 
 **Configuration:**
@@ -262,6 +302,10 @@ Apache Spark SQL dialect for big data processing.
 ### sqlite
 
 SQLite SQL dialect for embedded database.
+
+**Default Casing:** SQLite does not specify a default in its documentation. Testing indicates that it stores column names in their declared case but resolves them case-insensitively.
+
+**Quotes:** String literals: `''` (or `""` when not resolved as an identifier); identifiers: `""`, `[]`, or backticks. See the [SQLite keywords documentation](https://sqlite.org/lang_keywords.html).
 
 **Documentation:** [https://www.sqlite.org/lang.html](https://www.sqlite.org/lang.html)
 
@@ -298,6 +342,10 @@ Teradata SQL dialect for the Teradata analytics platform.
 ### trino
 
 Trino (formerly PrestoSQL) dialect for distributed SQL queries.
+
+**Default Casing:** `UPPERCASE`
+
+**Quotes:** String literals: `''`; identifiers: `""`.
 
 **Documentation:** [https://trino.io/docs/current/sql.html](https://trino.io/docs/current/sql.html)
 

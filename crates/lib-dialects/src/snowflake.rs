@@ -5614,6 +5614,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
+                        Ref::keyword("INCLUDE_METADATA").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("METADATA$FILENAME").to_matchable(),
+                                        Ref::keyword("METADATA$FILE_ROW_NUMBER").to_matchable(),
+                                        Ref::keyword("METADATA$FILE_CONTENT_KEY").to_matchable(),
+                                        Ref::keyword("METADATA$FILE_LAST_MODIFIED").to_matchable(),
+                                        Ref::keyword("METADATA$START_SCAN_TIME").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
                         Ref::keyword("ENFORCE_LENGTH").to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),
                         Ref::new("BooleanLiteralGrammar").to_matchable(),

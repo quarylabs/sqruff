@@ -2740,7 +2740,7 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 None,
                 None,
-                None,
+                Some(vec![Ref::new("ShowStatementSegment").to_matchable()]),
                 Vec::new(),
                 false,
             ),

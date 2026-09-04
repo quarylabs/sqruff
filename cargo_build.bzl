@@ -671,15 +671,3 @@ cargo_test = rule(
         _CC_TOOLCHAIN_TYPE,
     ],
 )
-
-cargo_run = rule(
-    implementation = _cargo_test_impl,
-    executable = True,
-    attrs = _cargo_attrs,
-    fragments = ["cpp"],
-    toolchains = [
-        _RUST_TOOLCHAIN_TYPE,
-        _RUSTFMT_TOOLCHAIN_TYPE,
-        _CC_TOOLCHAIN_TYPE,
-    ],
-)

@@ -1,12 +1,13 @@
 load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
+load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
 load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
-load(":cargo_build.bzl", "cargo_run", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
+load(":cargo_build.bzl", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
 load(":linters.bzl", "keep_sorted_test")
 
 # Link all npm packages into node_modules
@@ -340,70 +341,33 @@ rust_clippy(
     deps = RUST_TARGETS,
 )
 
-# Codegen docs check - verify generated docs are up to date
-# Uses the registered rules_rust toolchain (same as cargo_test)
-cargo_test(
-    name = "codegen_docs_check",
-    srcs = [
-        ":cargo_srcs",
-        "docs/reference/cli.md",
-        "docs/reference/rules.md",
-        "docs/reference/templaters.md",
+# Generate the reference docs as regular Bazel outputs.
+run_binary(
+    name = "generated_docs",
+    outs = [
+        "generated-docs/cli.md",
+        "generated-docs/dialects.md",
+        "generated-docs/rules.md",
+        "generated-docs/templaters.md",
     ],
-    vendor = ":cargo_deps",
-    script = """
-# Build the codegen binary
-cargo build --bin sqruff -F codegen-docs --locked --offline
-
-# Create temp directory for generated output
-GENDIR=$(mktemp -d)
-mkdir -p "$GENDIR/docs/reference"
-
-# Run codegen from the gendir
-(cd "$GENDIR" && GITHUB_ACTIONS=false "$CARGO_TARGET_DIR/debug/sqruff")
-
-# Compare the generated files with the originals
-FAILED=0
-
-for doc in cli.md rules.md templaters.md; do
-    if ! diff -q "docs/reference/$doc" "$GENDIR/docs/reference/$doc" > /dev/null 2>&1; then
-        echo "ERROR: docs/reference/$doc is out of date"
-        echo "Run 'cargo run --bin sqruff -F codegen-docs' to update"
-        echo ""
-        diff "docs/reference/$doc" "$GENDIR/docs/reference/$doc" || true
-        FAILED=1
-    fi
-done
-
-if [ $FAILED -eq 1 ]; then
-    exit 1
-fi
-
-echo "All generated docs are up to date"
-""",
+    args = ["$(BINDIR)/generated-docs"],
+    tool = "//crates/cli:sqruff-codegen",
 )
 
-# Codegen docs fix - regenerate docs and copy them back to the workspace
-# Uses BUILD_WORKSPACE_DIRECTORY to write to the real workspace, mirroring
-# how @rules_rust//:rustfmt operates.
-cargo_run(
+# Copy generated docs to the source tree and provide diff tests for CI.
+write_source_files(
     name = "codegen_docs_fix",
-    srcs = [
-        ":cargo_srcs",
-        "docs/reference/cli.md",
-        "docs/reference/rules.md",
-        "docs/reference/templaters.md",
-    ],
-    vendor = ":cargo_deps",
-    script = """
-# Build the codegen binary
-cargo build --bin sqruff -F codegen-docs --locked --offline
+    files = {
+        "docs/reference/cli.md": ":generated-docs/cli.md",
+        "docs/reference/dialects.md": ":generated-docs/dialects.md",
+        "docs/reference/rules.md": ":generated-docs/rules.md",
+        "docs/reference/templaters.md": ":generated-docs/templaters.md",
+    },
+)
 
-# Run codegen into the real workspace
-(cd "$BUILD_WORKSPACE_DIRECTORY" && GITHUB_ACTIONS=false "$CARGO_TARGET_DIR/debug/sqruff")
-
-echo "Docs regenerated!"
-""",
+test_suite(
+    name = "codegen_docs_check",
+    tests = [":codegen_docs_fix_tests"],
 )
 
 # Cargo machete - check for unused dependencies

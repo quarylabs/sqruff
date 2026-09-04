@@ -5,6 +5,8 @@ use sqruff_lib::ignore::IgnoreFile;
 use sqruff_lib::{Formatter, core::config::FluffConfig, core::config::Value};
 use sqruff_lib_core::dialects::init::DialectKind;
 use std::path::Path;
+#[cfg(feature = "codegen-docs")]
+use std::path::PathBuf;
 use std::sync::Arc;
 use stdin::is_std_in_flag_input;
 
@@ -33,8 +35,11 @@ mod stdin;
 
 #[cfg(feature = "codegen-docs")]
 pub fn run_docs_generation() {
-    #[cfg(feature = "codegen-docs")]
-    return codegen_docs();
+    let docs_dir = std::env::args_os()
+        .nth(1)
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("docs/reference"));
+    codegen_docs(&docs_dir);
 }
 
 pub fn run_with_args<I, T>(args: I) -> i32

@@ -1,28 +1,16 @@
-use std::path::{Path, PathBuf};
-
 use assert_cmd::Command;
 use expect_test::expect_file;
 
-fn main() {
-    configure_rule();
-}
+mod common;
+use common::{manifest_dir, sqruff_path};
 
+#[test]
 fn configure_rule() {
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-
-    let cargo_folder = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let cargo_folder = manifest_dir();
 
     let sql_path = cargo_folder.join("tests/configure_rule/_example.sql");
 
-    // Construct the path to the sqruff binary
-    let mut sqruff_path = PathBuf::from(cargo_folder);
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
-
-    let file_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/configure_rule");
+    let file_dir = cargo_folder.join("tests/configure_rule");
 
     // Find all .cfg files in configure_rule folder
     // Lint with all the config files
@@ -43,17 +31,17 @@ fn configure_rule() {
 
     for config in all_config_files {
         // Set up the command with arguments
-        let mut cmd = Command::new(sqruff_path.clone());
+        let mut cmd = Command::new(sqruff_path());
         cmd.arg("lint")
             .arg("-f")
             .arg("human")
             .arg("--config")
             .arg(&config)
             .arg(&sql_path);
-        cmd.current_dir(cargo_folder);
+        cmd.current_dir(&cargo_folder);
 
         // Set the HOME environment variable to the fake home directory
-        cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+        cmd.env("HOME", &cargo_folder);
 
         // Run the command and capture the output
         let assert = cmd.assert();

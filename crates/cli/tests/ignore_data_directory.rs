@@ -1,8 +1,10 @@
 use std::fs;
-use std::path::PathBuf;
 use tempfile::TempDir;
 
 use assert_cmd::Command;
+
+mod common;
+use common::sqruff_path;
 
 // Tests to verify the ignore directory functionality works correctly.
 //
@@ -43,17 +45,8 @@ fn test_ignore_data_directory_bug_reproduction() {
     let sqruffignore_file = project_root.join(".sqruffignore");
     fs::write(&sqruffignore_file, ".data\n").unwrap();
 
-    // Get the sqruff binary path
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-    let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
-
     // Run sqruff lint on the project directory
-    let mut cmd = Command::new(sqruff_path);
+    let mut cmd = Command::new(sqruff_path());
     cmd.arg("lint")
         .arg("-f")
         .arg("json") // Use JSON format for easier parsing
@@ -127,17 +120,8 @@ fn test_directory_traversal_into_ignored_directories() {
     let sqruffignore_file = project_root.join(".sqruffignore");
     fs::write(&sqruffignore_file, ".data/\n").unwrap();
 
-    // Get the sqruff binary path
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-    let mut sqruffpath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    sqruffpath.push(format!("../../target/{}/sqruff", profile));
-
     // Run sqruff lint to see file discovery
-    let mut cmd = Command::new(sqruffpath);
+    let mut cmd = Command::new(sqruff_path());
     cmd.arg("lint")
         .arg("-f")
         .arg("json")

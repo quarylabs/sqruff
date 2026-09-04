@@ -1,7 +1,9 @@
 use assert_cmd::Command;
 use std::fs;
-use std::path::PathBuf;
 use tempfile::TempDir;
+
+mod common;
+use common::sqruff_path;
 
 /// Tests for verbose logging behavior when ignore patterns are applied.
 ///
@@ -38,17 +40,8 @@ fn test_verbose_logging_ignored_directories() {
     let sqruffignore_file = project_root.join(".sqruffignore");
     fs::write(&sqruffignore_file, ".data\n").unwrap();
 
-    // Get the sqruff binary path
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-    let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
-
     // Run sqruff lint with verbose logging enabled
-    let mut cmd = Command::new(sqruff_path);
+    let mut cmd = Command::new(sqruff_path());
     cmd.arg("lint")
         .arg("-f")
         .arg("json")
@@ -158,17 +151,8 @@ fn test_verbose_logging_specific_ignore_patterns() {
     let sqruffignore_file = project_root.join(".sqruffignore");
     fs::write(&sqruffignore_file, ".data\ntemp/\nbuild/**\n").unwrap();
 
-    // Get the sqruff binary path
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-    let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
-
     // Run sqruff lint with verbose logging enabled
-    let mut cmd = Command::new(sqruff_path);
+    let mut cmd = Command::new(sqruff_path());
     cmd.arg("lint")
         .arg("-f")
         .arg("json")
@@ -245,14 +229,7 @@ fn test_verbose_logging_different_verbosity_levels() {
     let sqruffignore_file = project_root.join(".sqruffignore");
     fs::write(&sqruffignore_file, ".data\n").unwrap();
 
-    // Get the sqruff binary path
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-    let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
+    let sqruff_path = sqruff_path();
 
     // Test different log levels
     let log_levels = vec![
@@ -357,17 +334,8 @@ fn test_verbose_logging_file_pattern_matching() {
     let sqruffignore_file = project_root.join(".sqruffignore");
     fs::write(&sqruffignore_file, "*.bak\n*.tmp\nlogs/\n").unwrap();
 
-    // Get the sqruff binary path
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-    let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
-
     // Run sqruff lint with verbose logging enabled
-    let mut cmd = Command::new(sqruff_path);
+    let mut cmd = Command::new(sqruff_path());
     cmd.arg("lint")
         .arg("-f")
         .arg("json")
@@ -445,17 +413,8 @@ fn test_verbose_logging_nested_ignore_patterns() {
     let sqruffignore_file = project_root.join(".sqruffignore");
     fs::write(&sqruffignore_file, ".data\n").unwrap();
 
-    // Get the sqruff binary path
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-    let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
-
     // Run sqruff lint with verbose logging enabled
-    let mut cmd = Command::new(sqruff_path);
+    let mut cmd = Command::new(sqruff_path());
     cmd.arg("lint")
         .arg("-f")
         .arg("json")

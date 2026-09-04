@@ -1,33 +1,29 @@
 use core::str;
-use std::path::{Path, PathBuf};
 
 use assert_cmd::Command;
 
-fn main() {
+mod common;
+use common::{manifest_dir, sqruff_path};
+
+#[test]
+fn fix_parse_errors() {
     parse_errors();
     multiple_add_column_errors();
 }
 
 fn parse_errors() {
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-
-    let cargo_folder = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let mut sqruff_path = PathBuf::from(cargo_folder);
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
+    let cargo_folder = manifest_dir();
+    let sqruff_path = sqruff_path();
 
     // STDIN - do nothing
     let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    cmd.env("HOME", &cargo_folder);
     cmd.arg("fix")
         .arg("-f")
         .arg("human")
         .arg("--parsing-errors")
         .arg("-");
-    cmd.current_dir(cargo_folder);
+    cmd.current_dir(&cargo_folder);
     cmd.write_stdin("SelEc");
 
     let assert = cmd.assert();
@@ -44,26 +40,19 @@ fn parse_errors() {
 }
 
 fn multiple_add_column_errors() {
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-
-    let cargo_folder = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let mut sqruff_path = PathBuf::from(cargo_folder);
-    sqruff_path.push(format!("../../target/{}/sqruff", profile));
+    let cargo_folder = manifest_dir();
+    let sqruff_path = sqruff_path();
 
     let sql = "ALTER TABLE workflows.executions\nADD COLUMN IF NOT EXISTS workflow_group VARCHAR(50)\nADD COLUMN IF NOT EXISTS workflow_name VARCHAR(50)\nADD COLUMN IF NOT EXISTS workflow_version VARCHAR(50);";
 
     let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    cmd.env("HOME", &cargo_folder);
     cmd.arg("fix")
         .arg("-f")
         .arg("human")
         .arg("--parsing-errors")
         .arg("-");
-    cmd.current_dir(cargo_folder);
+    cmd.current_dir(&cargo_folder);
     cmd.write_stdin(sql);
 
     let assert = cmd.assert();

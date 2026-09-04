@@ -1,16 +1,14 @@
 use std::fs;
-use std::path::PathBuf;
 
 use assert_cmd::Command;
 use expect_test::expect_file;
 
-fn main() {
-    let profile = if cfg!(debug_assertions) {
-        "debug"
-    } else {
-        "release"
-    };
-    let mut lint_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+mod common;
+use common::{manifest_dir, sqruff_path};
+
+#[test]
+fn ui_github() {
+    let mut lint_dir = manifest_dir();
     lint_dir.push("tests/github");
 
     // Iterate over each test file in the directory
@@ -24,17 +22,13 @@ fn main() {
             .and_then(|e| e.to_str())
             .is_some_and(|ext| ext == "sql" || ext == "hql")
         {
-            // Construct the path to the sqruff binary
-            let mut sqruff_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-            sqruff_path.push(format!("../../target/{}/sqruff", profile));
-
             // Set up the command with arguments
-            let mut cmd = Command::new(sqruff_path);
+            let mut cmd = Command::new(sqruff_path());
 
             cmd.arg("lint");
             cmd.arg(path.to_str().unwrap());
             // Set the HOME environment variable to the fake home directory
-            cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+            cmd.env("HOME", manifest_dir());
             cmd.env("GITHUB_ACTIONS", "true");
 
             // Run the command and capture the output

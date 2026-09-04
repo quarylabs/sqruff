@@ -514,3 +514,50 @@ file:
           return i+1
         $$
 - statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: TEST_DB
+      - dot: .
+      - naked_identifier: TEST_SCHEMA
+      - dot: .
+      - function_name_identifier: TEST_TABLE
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: COL_1
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - keyword: DEFAULT
+        - expression:
+          - null_literal: 'NULL'
+        - comma: ','
+        - parameter: COL_2
+        - data_type:
+          - data_type_identifier: VARCHAR
+        - keyword: DEFAULT
+        - expression:
+          - null_literal: 'NULL'
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: |-
+        $$
+        SELECT
+                CASE
+                    WHEN (LOWER(COL_1) IS NOT NULL AND
+                                LOWER(COL_2) = 'test_marketing')
+                        THEN 'marketing_channel'
+                    ELSE '(Other)'
+        END
+        $$
+- statement_terminator: ;
+- statement_terminator: ;

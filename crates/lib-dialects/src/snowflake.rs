@@ -159,6 +159,28 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     snowflake_dialect.replace_grammar(
+        "FunctionParameterGrammar",
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::new("DatatypeSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("DEFAULT").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    snowflake_dialect.replace_grammar(
         "JoinClauseSegment",
         one_of(vec![
             Sequence::new(vec![

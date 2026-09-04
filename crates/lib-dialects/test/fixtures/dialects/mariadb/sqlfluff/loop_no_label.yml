@@ -1,0 +1,16 @@
+file:
+- statement:
+  - loop_statement:
+    - keyword: loop
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - loop_statement:
+    - keyword: end
+    - keyword: loop
+- statement_terminator: ;

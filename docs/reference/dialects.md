@@ -14,6 +14,7 @@ Sqruff currently supports the following SQL dialects:
 - [exasol](#exasol)
 - [greenplum](#greenplum)
 - [hive](#hive)
+- [mariadb](#mariadb)
 - [materialize](#materialize)
 - [mysql](#mysql)
 - [oracle](#oracle)
@@ -145,6 +146,18 @@ Apache Hive SQL dialect for data warehousing.
 **Configuration:**
 ```ini
 [sqruff:dialect:hive]
+```
+
+
+### mariadb
+
+MariaDB SQL dialect, a community-developed fork of MySQL.
+
+**Documentation:** [https://mariadb.com/kb/en/sql-statements-structure/](https://mariadb.com/kb/en/sql-statements-structure/)
+
+**Configuration:**
+```ini
+[sqruff:dialect:mariadb]
 ```
 
 

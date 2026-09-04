@@ -1,0 +1,26 @@
+file:
+- statement:
+  - drop_trigger_statement:
+    - keyword: DROP
+    - keyword: TRIGGER
+    - trigger_reference:
+      - naked_identifier: trigger_name
+- statement_terminator: ;
+- statement:
+  - drop_trigger_statement:
+    - keyword: DROP
+    - keyword: TRIGGER
+    - trigger_reference:
+      - naked_identifier: schema_name
+      - dot: .
+      - naked_identifier: trigger_name
+- statement_terminator: ;
+- statement:
+  - drop_trigger_statement:
+    - keyword: DROP
+    - keyword: TRIGGER
+    - keyword: IF
+    - keyword: EXISTS
+    - trigger_reference:
+      - naked_identifier: trigger_name
+- statement_terminator: ;

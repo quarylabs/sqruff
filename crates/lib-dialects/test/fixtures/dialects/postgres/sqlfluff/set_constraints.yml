@@ -1,0 +1,26 @@
+file:
+- statement:
+  - set_constraint_statement:
+    - keyword: SET
+    - keyword: CONSTRAINTS
+    - keyword: ALL
+    - keyword: DEFERRED
+- statement_terminator: ;
+- statement:
+  - set_constraint_statement:
+    - keyword: SET
+    - keyword: CONSTRAINTS
+    - keyword: ALL
+    - keyword: IMMEDIATE
+- statement_terminator: ;
+- statement:
+  - set_constraint_statement:
+    - keyword: SET
+    - keyword: CONSTRAINTS
+    - object_reference:
+      - naked_identifier: pk1
+    - comma: ','
+    - object_reference:
+      - naked_identifier: uk1
+    - keyword: DEFERRED
+- statement_terminator: ;

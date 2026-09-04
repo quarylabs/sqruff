@@ -241,6 +241,52 @@ file:
     - keyword: REPLACE
     - keyword: VIEW
     - table_reference:
+      - naked_identifier: view_with_tags_and_copy_grants
+    - tag_bracketed_equals:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
+        - start_bracket: (
+        - tag_reference:
+          - naked_identifier: foo
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '"bar"'
+        - comma: ','
+        - tag_reference:
+          - naked_identifier: hello
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '"world"'
+        - end_bracket: )
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col2
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: src_table
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
       - naked_identifier: view_with_column_comment
     - bracketed:
       - start_bracket: (

@@ -3522,6 +3522,108 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "LogLevelEqualsSegment".into(),
+            NodeMatcher::new(SyntaxKind::LogLevelEquals, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("LOG_LEVEL").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("TRACE").to_matchable(),
+                        Ref::keyword("DEBUG").to_matchable(),
+                        Ref::keyword("INFO").to_matchable(),
+                        Ref::keyword("WARN").to_matchable(),
+                        Ref::keyword("ERROR").to_matchable(),
+                        Ref::keyword("FATAL").to_matchable(),
+                        Ref::keyword("OFF").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TraceLevelEqualsSegment".into(),
+            NodeMatcher::new(SyntaxKind::TraceLevelEquals, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("TRACE_LEVEL").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ALWAYS").to_matchable(),
+                        Ref::keyword("ON_EVENT").to_matchable(),
+                        Ref::keyword("OFF").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExternalAccessIntegrationsEqualsSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExternalAccessIntegrationEquals, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXTERNAL_ACCESS_INTEGRATIONS").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                AnyNumberOf::new(vec![
+                                    Sequence::new(vec![
+                                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                        Ref::new("DotSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SecretsEqualsSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExternalAccessIntegrationEquals, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("SECRETS").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                AnyNumberOf::new(vec![
+                                    Sequence::new(vec![
+                                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                        Ref::new("DotSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "TagEqualsSegment".into(),
             NodeMatcher::new(SyntaxKind::TagEquals, |_| {
                 Sequence::new(vec![
@@ -4415,9 +4517,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("SET").to_matchable(),
-                            one_of(vec![
+                            Delimited::new(vec![
                                 Ref::new("TagEqualsSegment").to_matchable(),
                                 Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                                Ref::new("LogLevelEqualsSegment").to_matchable(),
+                                Ref::new("TraceLevelEqualsSegment").to_matchable(),
+                                Ref::new("ExternalAccessIntegrationsEqualsSegment").to_matchable(),
+                                Ref::new("SecretsEqualsSegment").to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -4844,8 +4950,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("SET").to_matchable(),
-                            one_of(vec![
+                            Delimited::new(vec![
                                 Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                                Ref::new("LogLevelEqualsSegment").to_matchable(),
+                                Ref::new("TraceLevelEqualsSegment").to_matchable(),
+                                Ref::new("ExternalAccessIntegrationsEqualsSegment").to_matchable(),
+                                Ref::new("SecretsEqualsSegment").to_matchable(),
+                                Ref::new("TagEqualsSegment").to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("API_INTEGRATION").to_matchable(),
                                     Ref::new("EqualsSegment").to_matchable(),
@@ -4921,6 +5032,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::keyword("SECURE").to_matchable(),
                                 Ref::keyword("REQUEST_TRANSLATOR").to_matchable(),
                                 Ref::keyword("RESPONSE_TRANSLATOR").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("TAG").to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::new("TagReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])

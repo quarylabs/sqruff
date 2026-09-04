@@ -617,12 +617,11 @@ PYTEST_VENVS = {
         data = [
             PYTEST_VENVS[version],
             "//crates/cli-python:python_srcs",
-            "//crates/cli-python:test_fixtures",
+            "//crates/cli-python:dbt_test_fixtures",
         ],
         env = {
             "PYTHON_VENV": "$(rlocationpath {})".format(PYTEST_VENVS[version]),
         },
-        tags = ["exclusive"],
     )
     for version in PYTEST_PYTHON_VERSIONS
 ]

@@ -14,7 +14,7 @@ crate-type = ["cdylib", "rlib"]
 
 [[test]]
 name = "dialects"
-harness = false
+harness = true
 
 [features]
 default = [

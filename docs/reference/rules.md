@@ -287,7 +287,7 @@ FROM orders as o
 
 Avoid aliases. Avoid short aliases when aliases are necessary.
 
-See also: Rule_AL07.
+See also: [AL07](#aliasingforbid).
 
 ```sql
 SELECT
@@ -314,6 +314,10 @@ Avoid table aliases in from clauses and join conditions.
 **Groups:** `all`, `aliasing`
 
 **Fixable:** Yes
+
+This rule is intentionally strict, and avoiding aliases is not realistic or
+desirable for many larger databases. For most users, [AL06](#aliasinglength) is
+likely a more appropriate rule for encouraging understandable aliases.
 
 **Anti-pattern**
 

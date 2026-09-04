@@ -6345,12 +6345,14 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("INCREMENT").to_matchable(),
                 Ref::keyword("BY").optional().to_matchable(),
+                Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                 Ref::new("NumericLiteralSegment").to_matchable(),
             ])
             .to_matchable(),
             one_of(vec![
                 Sequence::new(vec![
                     Ref::keyword("MINVALUE").to_matchable(),
+                    Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                     Ref::new("NumericLiteralSegment").to_matchable(),
                 ])
                 .to_matchable(),
@@ -6364,6 +6366,7 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec![
                 Sequence::new(vec![
                     Ref::keyword("MAXVALUE").to_matchable(),
+                    Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                     Ref::new("NumericLiteralSegment").to_matchable(),
                 ])
                 .to_matchable(),
@@ -6377,6 +6380,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("START").to_matchable(),
                 Ref::keyword("WITH").optional().to_matchable(),
+                Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                 Ref::new("NumericLiteralSegment").to_matchable(),
             ])
             .to_matchable(),
@@ -6440,12 +6444,14 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("INCREMENT").to_matchable(),
                 Ref::keyword("BY").optional().to_matchable(),
+                Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                 Ref::new("NumericLiteralSegment").to_matchable(),
             ])
             .to_matchable(),
             one_of(vec![
                 Sequence::new(vec![
                     Ref::keyword("MINVALUE").to_matchable(),
+                    Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                     Ref::new("NumericLiteralSegment").to_matchable(),
                 ])
                 .to_matchable(),
@@ -6459,6 +6465,7 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec![
                 Sequence::new(vec![
                     Ref::keyword("MAXVALUE").to_matchable(),
+                    Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                     Ref::new("NumericLiteralSegment").to_matchable(),
                 ])
                 .to_matchable(),
@@ -6478,12 +6485,14 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("START").to_matchable(),
                 Ref::keyword("WITH").optional().to_matchable(),
+                Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                 Ref::new("NumericLiteralSegment").to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("RESTART").to_matchable(),
                 Ref::keyword("WITH").optional().to_matchable(),
+                Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                 Ref::new("NumericLiteralSegment").to_matchable(),
             ])
             .to_matchable(),

@@ -42,6 +42,10 @@ fn main() {
             cmd.arg(path.to_str().unwrap());
             cmd.arg("-f");
             cmd.arg("json");
+            let config_path = path.with_extension("cfg");
+            if config_path.is_file() {
+                cmd.arg("--config").arg(config_path);
+            }
             // Set the HOME environment variable to the fake home directory
             cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
 

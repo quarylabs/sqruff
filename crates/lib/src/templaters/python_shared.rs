@@ -12,6 +12,7 @@ pub struct PythonFluffConfig {
     templater_unwrap_wrapped_queries: bool,
 
     jinja_templater_paths: Vec<String>,
+    jinja_exclude_macros_from_path: Vec<String>,
     jinja_loader_search_path: Vec<String>,
     jinja_apply_dbt_builtins: bool,
     jinja_ignore_templating: Option<bool>,
@@ -39,7 +40,18 @@ impl From<&FluffConfig> for PythonFluffConfig {
                 .and_then(|value| value.as_bool())
                 .unwrap_or(false),
             jinja_templater_paths: value
-                .templater_value(TemplaterKind::Jinja, "templater_paths")
+                .templater_value(TemplaterKind::Jinja, "load_macros_from_path")
+                .map(|value| {
+                    value
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|v| v.as_string().unwrap().to_string())
+                        .collect::<Vec<_>>()
+                })
+                .unwrap_or_default(),
+            jinja_exclude_macros_from_path: value
+                .templater_value(TemplaterKind::Jinja, "exclude_macros_from_path")
                 .map(|value| {
                     value
                         .as_array()
@@ -163,6 +175,11 @@ mod tests {
             python_fluff_config.jinja_templater_paths,
             Vec::<String>::new()
         );
+        assert!(
+            python_fluff_config
+                .jinja_exclude_macros_from_path
+                .is_empty()
+        );
         assert!(python_fluff_config.jinja_loader_search_path.is_empty());
         assert!(python_fluff_config.jinja_apply_dbt_builtins);
         assert_eq!(python_fluff_config.jinja_ignore_templating, None);
@@ -214,6 +231,51 @@ loader_search_path = search_a, search_b/subdir
                     .join("search_b/subdir")
                     .to_string_lossy()
                     .to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_jinja_macro_paths_are_serialized_separately() {
+        let config_path = std::env::temp_dir()
+            .join("sqruff-macro-paths")
+            .join(".sqruff");
+        let source = r#"
+[sqruff]
+templater = jinja
+[sqruff:templater:jinja]
+load_macros_from_path = macros, shared/macros.sql
+exclude_macros_from_path = macros/excluded
+"#;
+        let config = FluffConfig::from_source(source, Some(&config_path));
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert_eq!(
+            python_fluff_config.jinja_templater_paths,
+            vec![
+                config_path
+                    .parent()
+                    .unwrap()
+                    .join("macros")
+                    .to_string_lossy()
+                    .to_string(),
+                config_path
+                    .parent()
+                    .unwrap()
+                    .join("shared/macros.sql")
+                    .to_string_lossy()
+                    .to_string(),
+            ]
+        );
+        assert_eq!(
+            python_fluff_config.jinja_exclude_macros_from_path,
+            vec![
+                config_path
+                    .parent()
+                    .unwrap()
+                    .join("macros/excluded")
+                    .to_string_lossy()
+                    .to_string()
             ]
         );
     }

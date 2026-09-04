@@ -9,7 +9,7 @@ use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::StringParser;
+use sqruff_lib_core::parser::parsers::{RegexParser, StringParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 
@@ -45,6 +45,7 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "MACRO");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "POSITIONAL");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "SEMI");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "STRUCT");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "VIRTUAL");
 
     duckdb_dialect.add([
@@ -148,7 +149,47 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "StructTypeSchemaSegment".into(),
+            NodeMatcher::new(SyntaxKind::StructTypeSchema, |_| {
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::new("DatatypeSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
+
+    duckdb_dialect.replace_grammar(
+        "FunctionNameIdentifierSegment",
+        RegexParser::new(r"[A-Z_][A-Z0-9_$]*", SyntaxKind::FunctionNameIdentifier)
+            .anti_template("^(STRUCT)$")
+            .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "StructTypeSegment",
+        Sequence::new(vec![
+            Ref::keyword("STRUCT").to_matchable(),
+            Ref::new("StructTypeSchemaSegment")
+                .optional()
+                .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     duckdb_dialect.replace_grammar(
         "CreateFunctionStatementSegment",

@@ -4142,6 +4142,17 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "SubscriptionReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::SubscriptionReference, |postgres| {
+                postgres
+                    .grammar("ObjectReferenceSegment")
+                    .match_grammar(postgres)
+                    .unwrap()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "PublicationReferenceSegment".into(),
             NodeMatcher::new(SyntaxKind::PublicationReference, |_| {
                 Ref::new("SingleIdentifierGrammar").to_matchable()
@@ -4339,6 +4350,138 @@ pub fn raw_dialect() -> Dialect {
                     Delimited::new(vec![Ref::new("PublicationReferenceSegment").to_matchable()])
                         .to_matchable(),
                     Ref::new("DropBehaviorGrammar").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateSubscriptionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateSubscription, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("SUBSCRIPTION").to_matchable(),
+                    Ref::new("SubscriptionReferenceSegment").to_matchable(),
+                    Ref::keyword("CONNECTION").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::keyword("PUBLICATION").to_matchable(),
+                    Delimited::new(vec![Ref::new("PublicationReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::new("DefinitionParametersSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterSubscriptionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterSubscription, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("SUBSCRIPTION").to_matchable(),
+                    Ref::new("SubscriptionReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("CONNECTION").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("SET").to_matchable(),
+                                Ref::keyword("ADD").to_matchable(),
+                                Ref::keyword("DROP").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("PUBLICATION").to_matchable(),
+                            Delimited::new(vec![
+                                Ref::new("PublicationReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("WITH").to_matchable(),
+                                Ref::new("DefinitionParametersSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REFRESH").to_matchable(),
+                            Ref::keyword("PUBLICATION").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("WITH").to_matchable(),
+                                Ref::new("DefinitionParametersSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("ENABLE").to_matchable(),
+                        Ref::keyword("DISABLE").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("DefinitionParametersSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SKIP").to_matchable(),
+                            Bracketed::new(vec![
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::new("RawEqualsSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("OWNER").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                Ref::keyword("CURRENT_ROLE").to_matchable(),
+                                Ref::keyword("CURRENT_USER").to_matchable(),
+                                StringParser::new("CURRENT_SESSION", SyntaxKind::Keyword)
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RENAME").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("SubscriptionReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropSubscriptionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropSubscription, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("SUBSCRIPTION").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("SubscriptionReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("CASCADE").to_matchable(),
+                        Ref::keyword("RESTRICT").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -9287,6 +9430,9 @@ pub fn statement_segment() -> Matchable {
             Ref::new("CreateExtensionStatementSegment").to_matchable(),
             Ref::new("DropExtensionStatementSegment").to_matchable(),
             Ref::new("AlterExtensionStatementSegment").to_matchable(),
+            Ref::new("CreateSubscriptionStatementSegment").to_matchable(),
+            Ref::new("AlterSubscriptionStatementSegment").to_matchable(),
+            Ref::new("DropSubscriptionStatementSegment").to_matchable(),
             Ref::new("CreatePublicationStatementSegment").to_matchable(),
             Ref::new("AlterPublicationStatementSegment").to_matchable(),
             Ref::new("DropPublicationStatementSegment").to_matchable(),

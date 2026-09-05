@@ -1,7 +1,8 @@
 use hashbrown::{HashMap, HashSet};
+use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::{BlockType, ErasedSegment, SegmentBuilder};
+use sqruff_lib_core::parser::segments::{BlockType, ErasedSegment, SegmentBuilder, fix::SourceFix};
 use sqruff_lib_core::templaters::{RawFileSlice, TemplateSliceKind, TemplatedFile};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
@@ -36,6 +37,11 @@ fn trailing_newline_count(segments: &Segments) -> usize {
         .iter()
         .map(|segment| segment.raw().chars().filter(|&ch| ch == '\n').count())
         .sum()
+}
+
+fn get_trailing_whitespace_from_string(input: &str) -> &str {
+    let trimmed_len = input.trim_end_matches([' ', '\t', '\r', '\n']).len();
+    &input[trimmed_len..]
 }
 
 fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
@@ -292,6 +298,56 @@ Add trailing newline to the end. The $ character represents end of file.
             } else {
                 Vec::new()
             };
+        }
+
+        // A trailing placeholder may include source whitespace consumed by
+        // Jinja (for example, the newline after `-}}`). In that case the
+        // templated output cannot tell LT12 whether the source already ends in
+        // exactly one newline, so inspect and fix the placeholder source.
+        let trailing_segment = segment.first().unwrap();
+        if trailing_segment.is_type(SyntaxKind::Placeholder)
+            && !templated_extra_final_newline
+            && matches!(
+                trailing_segment.block_type(),
+                Some(BlockType::Templated | BlockType::Literal)
+            )
+        {
+            let source_str = trailing_segment.source_str();
+            let trailing_whitespace = get_trailing_whitespace_from_string(&source_str);
+
+            if trailing_whitespace == "\n" || !trailing_segment.get_source_fixes().is_empty() {
+                return Vec::new();
+            }
+
+            let position_marker = trailing_segment.get_position_marker().unwrap();
+            let source_stop = position_marker.source_slice.end;
+            let source_fix = SourceFix::new(
+                SmolStr::new("\n"),
+                source_stop - trailing_whitespace.len()..source_stop,
+                position_marker.templated_slice.clone(),
+            );
+
+            let mut replacement = SegmentBuilder::node(
+                context.tables.next_id(),
+                SyntaxKind::Placeholder,
+                context.dialect.name,
+                Vec::new(),
+            );
+            if let Some(template_info) = trailing_segment.template_info() {
+                replacement = replacement.with_template_info(template_info.clone());
+            }
+            let replacement = replacement.with_source_fixes(vec![source_fix]).finish();
+
+            return vec![LintResult::new(
+                trailing_segment.clone().into(),
+                vec![LintFix::replace(
+                    trailing_segment.clone(),
+                    vec![replacement],
+                    None,
+                )],
+                None,
+                None,
+            )];
         }
 
         let trailing_newlines = Segments::from_vec(get_trailing_newlines(&context.segment), None);

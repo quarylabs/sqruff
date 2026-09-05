@@ -4,11 +4,24 @@ set -eo pipefail
 
 VENV_DIR="$RUNFILES_DIR/$PYTHON_VENV"
 
-# Create a temp directory and copy everything there so paths are consistent
-# This is needed because dbt parses the project and stores paths in its manifest,
-# and those paths need to match when we later search for files.
-WORKDIR="$(mktemp -d)"
-trap 'rm -rf "$WORKDIR"' EXIT
+# Keep every writable location inside Bazel's per-test temporary directory so
+# Python versions can run concurrently without sharing state through $HOME,
+# caches, bytecode, temporary files, or coverage data.
+STATE_DIR="$TEST_TMPDIR/state"
+WORKDIR="$TEST_TMPDIR/work"
+mkdir -p \
+    "$STATE_DIR/home" \
+    "$STATE_DIR/xdg-cache" \
+    "$STATE_DIR/pycache" \
+    "$STATE_DIR/tmp" \
+    "$WORKDIR"
+
+export HOME="$STATE_DIR/home"
+export XDG_CACHE_HOME="$STATE_DIR/xdg-cache"
+export PYTHONPYCACHEPREFIX="$STATE_DIR/pycache"
+export TMPDIR="$STATE_DIR/tmp"
+export COVERAGE_FILE="$STATE_DIR/.coverage"
+export PYTHONNOUSERSITE=1
 
 # Copy project files to temp directory (use -L to follow symlinks from runfiles)
 cp -rL "$RUNFILES_DIR/_main/crates" "$WORKDIR/"

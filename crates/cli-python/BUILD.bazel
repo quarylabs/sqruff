@@ -20,6 +20,14 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# The pure-Python tests only consume the sample dbt project. Keep their Bazel
+# inputs separate from the Rust integration fixtures to avoid needless reruns.
+filegroup(
+    name = "dbt_test_fixtures",
+    srcs = glob(["tests/dbt_sample/**/*"]),
+    visibility = ["//visibility:public"],
+)
+
 filegroup(
     name = "machete_srcs",
     srcs = glob(

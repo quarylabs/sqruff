@@ -890,13 +890,10 @@ pub fn raw_dialect() -> Dialect {
                 let pattern = reserved_keywords.iter().join("|");
                 let anti_template = format!("^({pattern})$");
 
-                RegexParser::new(
-                    r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
-                    SyntaxKind::NakedIdentifier,
-                )
-                .anti_template(&anti_template)
-                .casefold(CaseFold::Lower)
-                .to_matchable()
+                RegexParser::new(r"[A-Z_][A-Z0-9_$]*", SyntaxKind::NakedIdentifier)
+                    .anti_template(&anti_template)
+                    .casefold(CaseFold::Lower)
+                    .to_matchable()
             })
             .into(),
         ),

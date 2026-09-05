@@ -4100,6 +4100,7 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    Ref::new("ArrayTypeSegment").to_matchable(),
                 ])
                 .to_matchable()
             })

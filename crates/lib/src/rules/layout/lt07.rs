@@ -96,7 +96,9 @@ SELECT * FROM zoo
                 .unwrap();
             if idx > 0 {
                 for elem in context.segment.get_raw_segments()[..idx].iter().rev() {
-                    if elem.is_type(SyntaxKind::Newline) {
+                    if elem.is_type(SyntaxKind::Newline)
+                        || (elem.is_type(SyntaxKind::Placeholder) && elem.source_str() == "\n")
+                    {
                         break;
                     } else if !(matches!(
                         elem.get_type(),

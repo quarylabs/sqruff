@@ -499,7 +499,7 @@ class DbtTemplater(JinjaTemplater):
         return outs
 
     @handle_dbt_errors(
-        SQLTemplaterError, "Error received from dbt during project compilation."
+        SQLTemplaterError, "Error received from dbt during project compilation. "
     )
     def process(
         self,

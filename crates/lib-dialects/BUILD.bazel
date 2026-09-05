@@ -17,6 +17,7 @@ ALL_FEATURES = [
     "exasol",
     "greenplum",
     "hive",
+    "mariadb",
     "materialize",
     "mysql",
     "oracle",

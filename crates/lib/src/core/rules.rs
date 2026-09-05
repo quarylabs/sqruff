@@ -17,7 +17,7 @@ use sqruff_lib_core::helpers::{Config, IndexMap};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
-use strum_macros::AsRefStr;
+use strum_macros::{AsRefStr, EnumIter};
 
 use crate::core::config::{FluffConfig, Value};
 use crate::core::rules::context::RuleContext;
@@ -30,7 +30,7 @@ pub struct LintResult {
     source: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Copy, Hash, Eq, AsRefStr)]
+#[derive(Debug, Clone, PartialEq, Copy, Hash, Eq, AsRefStr, EnumIter)]
 #[strum(serialize_all = "lowercase")]
 pub enum RuleGroups {
     All,

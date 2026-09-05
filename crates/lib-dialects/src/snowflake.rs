@@ -10834,6 +10834,38 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    snowflake_dialect.add([
+        (
+            "ArrayTypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::ArrayType, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ARRAY").to_matchable(),
+                    Ref::new("ArrayTypeSchemaSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ArrayTypeSchemaSegment".into(),
+            NodeMatcher::new(SyntaxKind::ArrayTypeSchema, |_| {
+                Bracketed::new(vec![
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NOT").to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     snowflake_dialect.add([(
         "ShorthandCastSegment".into(),
         NodeMatcher::new(SyntaxKind::CastExpression, |_| {

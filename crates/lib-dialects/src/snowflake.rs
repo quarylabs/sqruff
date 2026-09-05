@@ -9,7 +9,7 @@ use sqruff_lib_core::parser::grammar::anyof::{
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
-use sqruff_lib_core::parser::grammar::{Nothing, Ref};
+use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
@@ -2861,9 +2861,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                                 Ref::new("DatatypeSegment").to_matchable(),
                                 one_of(vec![
-                                    // Default
+                                    // Default & AS (virtual columns)
                                     Sequence::new(vec![
-                                        Ref::keyword("DEFAULT").to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("DEFAULT").to_matchable(),
+                                            Ref::keyword("AS").to_matchable(),
+                                        ])
+                                        .to_matchable(),
                                         Ref::new("ExpressionSegment").to_matchable(),
                                     ])
                                     .to_matchable(),
@@ -5994,6 +5998,19 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     Ref::new("ConstraintPropertiesSegment").to_matchable(),
                                     Ref::new("ColumnDefinitionSegment").to_matchable(),
                                     Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                        Ref::new("DatatypeSegment").to_matchable(),
+                                        Bracketed::new(vec![Anything::new().to_matchable()])
+                                            .config(|this| this.optional())
+                                            .to_matchable(),
+                                        Ref::keyword("AS").to_matchable(),
+                                        optionally_bracketed(vec![
+                                            Ref::new("ExpressionSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Ref::new("CommentClauseSegment").optional().to_matchable(),

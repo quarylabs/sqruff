@@ -37,7 +37,7 @@ impl TemplaterDocumentation for PythonTemplater {
     }
 
     fn description(&self) -> &'static str {
-        r"**Note:** This templater currently does not work by default in the CLI and needs custom set up to work.
+        r#"**Note:** This templater currently does not work by default in the CLI and needs custom set up to work.
 
 The Python templater uses native Python f-strings. An example would be as follows:
 
@@ -61,7 +61,28 @@ Before parsing the sql will be transformed to:
 SELECT * FROM foo
 ```
 
-At the moment, dot notation is not supported in the templater."
+### Complex Python variable templating
+
+[Python string formatting](https://docs.python.org/3/library/string.html#format-string-syntax)
+supports accessing object attributes through dot notation, such as `{foo.bar}`.
+Because Python objects cannot be created in configuration files, sqruff interprets
+any variable containing a `.` as a dictionary lookup on the magic fixed context key
+`sqlfluff`:
+
+```sql
+-- This SQL...
+SELECT * FROM {foo.bar}
+
+-- ...is interpreted as this.
+SELECT * FROM {sqlfluff[foo.bar]}
+```
+
+Populate that lookup with the following configuration:
+
+```ini
+[sqruff:templater:python:context]
+sqlfluff = {"foo.bar": "abc"}
+```"#
     }
 }
 

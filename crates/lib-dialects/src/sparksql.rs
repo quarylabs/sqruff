@@ -1122,7 +1122,7 @@ pub fn raw_dialect() -> Dialect {
                         Delimited::new(vec![
                             Sequence::new(vec![
                                 one_of(vec![
-                                    Ref::new("ColumnDefinitionSegment").to_matchable(),
+                                    Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
                                     Ref::new("GeneratedColumnDefinitionSegment").to_matchable(),
                                     Ref::new("TableConstraintSegment").to_matchable(),
                                 ])

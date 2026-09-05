@@ -392,12 +392,13 @@ mod tests {
             None,
             None,
             None,
-            &[".txt".into()],
+            &[".txt".into(), ".txt.j2".into()],
             None,
         ));
         assert!(!paths.contains(&"test.fixtures.linter.passing.sql".into()));
         assert!(!paths.contains(&"test.fixtures.linter.passing_cap_extension.SQL".into()));
         assert!(paths.contains(&"test.fixtures.linter.discovery_file.txt".into()));
+        assert!(paths.contains(&"test.fixtures.linter.discovery_file.txt.j2".into()));
     }
 
     #[test]

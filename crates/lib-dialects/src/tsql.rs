@@ -2380,6 +2380,7 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
             optionally_bracketed(vec![Ref::new("TableExpressionSegment").to_matchable()])
                 .to_matchable(),
+            Ref::new("TemporalQuerySegment").optional().to_matchable(),
             Ref::new("AliasExpressionSegment")
                 .exclude(one_of(vec![
                     Ref::new("FromClauseTerminatorGrammar").to_matchable(),

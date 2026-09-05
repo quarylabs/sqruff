@@ -14,6 +14,7 @@ use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
+use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 
 use super::ansi;
@@ -51,7 +52,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         Matcher::regex(
             "double_quote",
-            r#""([^"\\]|\\.)*""#,
+            r#""([^"\\]|\\.|"")*""#,
             SyntaxKind::DoubleQuote,
         ),
     ]);
@@ -197,6 +198,14 @@ pub fn raw_dialect() -> Dialect {
     mysql.add([(
         "DoubleQuotedLiteralSegment".into(),
         TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedLiteral)
+            .to_matchable()
+            .into(),
+    )]);
+
+    // MySQL allows double-quoted identifiers for aliases.
+    mysql.add([(
+        "DoubleQuotedIdentifierSegment".into(),
+        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier)
             .to_matchable()
             .into(),
     )]);
@@ -555,6 +564,29 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DoubleQuotedLiteralSegment").to_matchable(),
         ])
         .config(|this| this.min_times = 1)
+        .to_matchable(),
+    );
+
+    // AliasExpressionSegment - single- and double-quoted aliases are identifiers.
+    mysql.replace_grammar(
+        "AliasExpressionSegment",
+        Sequence::new(vec![
+            MetaSegment::indent().to_matchable(),
+            Ref::new("AsAliasOperatorSegment").optional().to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Bracketed::new(vec![Ref::new("SingleIdentifierListSegment").to_matchable()])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+                Ref::new("DoubleQuotedIdentifierSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
         .to_matchable(),
     );
 

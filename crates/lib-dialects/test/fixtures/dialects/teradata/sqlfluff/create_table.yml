@@ -318,3 +318,61 @@ file:
     - keyword: is
     - quoted_literal: '''Owning entity code parent'''
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: VOLATILE
+      - keyword: MULTISET
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: date_control
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - column_definition:
+            - column_reference:
+              - naked_identifier: calculation_date
+            - data_type:
+              - data_type:
+                - data_type_identifier: DATE
+                - keyword: FORMAT
+                - quoted_literal: '''yyyy-mm-dd'''
+        - end_bracket: )
+      - td_table_constraint:
+        - keyword: PRIMARY
+        - keyword: INDEX
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: calculation_date
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: MULTISET
+      - keyword: VOLATILE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: date_control
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - column_definition:
+            - column_reference:
+              - naked_identifier: calculation_date
+            - data_type:
+              - data_type:
+                - data_type_identifier: DATE
+                - keyword: FORMAT
+                - quoted_literal: '''yyyy-mm-dd'''
+        - end_bracket: )
+      - td_table_constraint:
+        - keyword: PRIMARY
+        - keyword: INDEX
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: calculation_date
+          - end_bracket: )
+- statement_terminator: ;

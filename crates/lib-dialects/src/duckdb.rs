@@ -221,6 +221,23 @@ pub fn raw_dialect() -> Dialect {
     );
 
     duckdb_dialect.replace_grammar(
+        "DropFunctionStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("DROP").to_matchable(),
+            one_of(vec![
+                Ref::keyword("MACRO").to_matchable(),
+                Ref::keyword("FUNCTION").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("TABLE").optional().to_matchable(),
+            Ref::new("IfExistsGrammar").optional().to_matchable(),
+            Ref::new("FunctionNameSegment").to_matchable(),
+            Ref::new("DropBehaviorGrammar").optional().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
         "CreateTypeStatementSegment",
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),

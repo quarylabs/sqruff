@@ -682,6 +682,11 @@ pub fn raw_dialect() -> Dialect {
             Nothing::new().to_matchable().into(),
         ),
     ]);
+
+    // SQLite does not support GROUPING SETS, despite inheriting ANSI's
+    // GroupByClauseSegment.
+    sqlite_dialect.replace_grammar("GroupingSetsClauseSegment", Nothing::new().to_matchable());
+
     sqlite_dialect.add([(
         "SetOperatorSegment".into(),
         NodeMatcher::new(SyntaxKind::SetOperator, |_| {

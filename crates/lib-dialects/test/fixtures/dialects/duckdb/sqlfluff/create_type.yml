@@ -1,0 +1,64 @@
+file:
+- statement:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - data_type_identifier: mood
+    - keyword: AS
+    - keyword: ENUM
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''happy'''
+      - comma: ','
+      - quoted_literal: '''sad'''
+      - comma: ','
+      - quoted_literal: '''curious'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - data_type_identifier: many_things
+    - keyword: AS
+    - struct_type:
+      - keyword: STRUCT
+      - struct_type_schema:
+        - bracketed:
+          - start_bracket: (
+          - parameter: k
+          - data_type:
+            - keyword: integer
+          - comma: ','
+          - parameter: l
+          - data_type:
+            - keyword: varchar
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - data_type_identifier: one_thing
+    - keyword: AS
+    - keyword: UNION
+    - struct_type_schema:
+      - bracketed:
+        - start_bracket: (
+        - parameter: number
+        - data_type:
+          - keyword: integer
+        - comma: ','
+        - parameter: string
+        - data_type:
+          - keyword: varchar
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - data_type_identifier: x_index
+    - keyword: AS
+    - data_type_identifier: integer
+- statement_terminator: ;

@@ -1,0 +1,36 @@
+file:
+- statement:
+  - create_function_statement:
+    - keyword: create
+    - keyword: function
+    - object_reference:
+      - naked_identifier: my_function
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - tsql_variable: '@my_parameter'
+        - data_type:
+          - data_type_identifier: int
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+      - data_type_identifier: int
+    - function_option_segment:
+      - keyword: with
+      - keyword: schemabinding
+      - comma: ','
+      - keyword: returns
+      - keyword: 'null'
+      - keyword: on
+      - keyword: 'null'
+      - keyword: input
+    - statement:
+      - keyword: begin
+      - return_segment:
+        - keyword: return
+        - expression:
+          - parameterized_expression:
+            - tsql_variable: '@my_parameter'
+      - keyword: end
+- statement:
+  - keyword: go

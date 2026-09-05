@@ -1,3 +1,4 @@
+pub mod config;
 pub mod dialects;
 pub mod errors;
 pub mod helpers;

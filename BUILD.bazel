@@ -489,21 +489,15 @@ test_suite(
     ],
 )
 
-# Zensical docs build - verify documentation builds successfully
+# Verify the cached Zensical build produced the expected site entry points.
 sh_test(
     name = "zensical_build",
-    size = "large",
+    size = "small",
     srcs = [".hacking/scripts/zensical_build.sh"],
-    data = [
-        "pyproject.toml",
-        "uv.lock",
-        "zensical.toml",
-        "@uv//:uv",
-    ] + glob(["docs/**"]),
+    data = [":docs_build"],
     env = {
-        "UV": "$(rlocationpath @uv//:uv)",
+        "DOCS_SITE": "$(rlocationpath :docs_build)",
     },
-    tags = ["exclusive"],
 )
 
 # Zensical docs serve - build docs and optionally serve locally

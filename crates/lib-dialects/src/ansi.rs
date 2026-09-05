@@ -469,6 +469,10 @@ pub fn raw_dialect() -> Dialect {
             Nothing::new().to_matchable().into(),
         ),
         (
+            "NormalizedGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
             "TrueSegment".into(),
             StringParser::new("true", SyntaxKind::BooleanLiteral)
                 .to_matchable()
@@ -758,6 +762,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("NanLiteralSegment").to_matchable(),
                 Ref::new("UnknownLiteralSegment").to_matchable(),
                 Ref::new("BooleanLiteralGrammar").to_matchable(),
+                Ref::new("NormalizedGrammar").to_matchable(),
             ])
             .to_matchable()
             .into(),

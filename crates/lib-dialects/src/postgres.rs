@@ -574,6 +574,21 @@ pub fn raw_dialect() -> Dialect {
         "UnknownLiteralSegment",
         StringParser::new("UNKNOWN", SyntaxKind::NullLiteral).to_matchable(),
     );
+    postgres.replace_grammar(
+        "NormalizedGrammar",
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::keyword("NFC").to_matchable(),
+                Ref::keyword("NFD").to_matchable(),
+                Ref::keyword("NFKC").to_matchable(),
+                Ref::keyword("NFKD").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::keyword("NORMALIZED").to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     // Add datetime units
     postgres.sets_mut("datetime_units").extend([

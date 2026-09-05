@@ -489,21 +489,15 @@ test_suite(
     ],
 )
 
-# Zensical docs build - verify documentation builds successfully
+# Verify the cached Zensical build produced the expected site entry points.
 sh_test(
     name = "zensical_build",
-    size = "large",
+    size = "small",
     srcs = [".hacking/scripts/zensical_build.sh"],
-    data = [
-        "pyproject.toml",
-        "uv.lock",
-        "zensical.toml",
-        "@uv//:uv",
-    ] + glob(["docs/**"]),
+    data = [":docs_build"],
     env = {
-        "UV": "$(rlocationpath @uv//:uv)",
+        "DOCS_SITE": "$(rlocationpath :docs_build)",
     },
-    tags = ["exclusive"],
 )
 
 # Zensical docs serve - build docs and optionally serve locally
@@ -571,18 +565,28 @@ sh_test(
 # 1. uv_python_install: download and cache the Python runtime (re-runs only when version changes)
 # 2. uv_python_venv: sync dependencies into a cached venv (re-runs only when pyproject.toml/uv.lock change)
 # 3. sh_test: run pytest using the cached venv (runs every time)
+PYTEST_PYTHON_VERSIONS = [
+    "3.10",
+    "3.11",
+    "3.12",
+    "3.13",
+]
+
+PYTEST_VENVS = {
+    "3.10": ":pytest_py310_venv",
+    "3.11": ":pytest_py311_venv",
+    # Cargo and pytest can safely share the same Python 3.12 environment.
+    "3.12": ":python_venv",
+    "3.13": ":pytest_py313_venv",
+}
+
 [
     uv_python_install(
         name = "pytest_py{}_python".format(version.replace(".", "")),
         python_version = version,
         uv = ["@uv//:uv"],
     )
-    for version in [
-        "3.10",
-        "3.11",
-        "3.12",
-        "3.13",
-    ]
+    for version in PYTEST_PYTHON_VERSIONS
 ]
 
 [
@@ -595,12 +599,8 @@ sh_test(
         python = [":pytest_py{}_python".format(version.replace(".", ""))],
         uv = ["@uv//:uv"],
     )
-    for version in [
-        "3.10",
-        "3.11",
-        "3.12",
-        "3.13",
-    ]
+    for version in PYTEST_PYTHON_VERSIONS
+    if version != "3.12"
 ]
 
 [
@@ -609,18 +609,13 @@ sh_test(
         size = "large",
         srcs = [".hacking/scripts/pytest_uv.sh"],
         data = [
-            ":pytest_py{}_venv".format(version.replace(".", "")),
+            PYTEST_VENVS[version],
             "//crates/cli-python:python_srcs",
             "//crates/cli-python:dbt_test_fixtures",
         ],
         env = {
-            "PYTHON_VENV": "$(rlocationpath :pytest_py{}_venv)".format(version.replace(".", "")),
+            "PYTHON_VENV": "$(rlocationpath {})".format(PYTEST_VENVS[version]),
         },
     )
-    for version in [
-        "3.10",
-        "3.11",
-        "3.12",
-        "3.13",
-    ]
+    for version in PYTEST_PYTHON_VERSIONS
 ]

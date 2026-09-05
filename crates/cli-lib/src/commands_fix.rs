@@ -12,6 +12,10 @@ pub(crate) fn run_fix(
     collect_parse_errors: bool,
 ) -> i32 {
     let FixArgs { paths, format } = args;
+    let fix_even_unparsable = config
+        .get("fix_even_unparsable", "core")
+        .as_bool()
+        .unwrap_or(false);
     let mut linter = match linter(config, format, collect_parse_errors) {
         Ok(l) => l,
         Err(e) => {
@@ -37,7 +41,8 @@ pub(crate) fn run_fix(
         let files = result.len();
 
         for mut file in result {
-            if !file.has_fixes() {
+            if !file.has_fixes() || (file.has_parse_or_templating_errors() && !fix_even_unparsable)
+            {
                 continue;
             }
             let path = std::mem::take(&mut file.path);
@@ -57,6 +62,10 @@ pub(crate) fn run_fix_stdin(
     collect_parse_errors: bool,
 ) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
+    let fix_even_unparsable = config
+        .get("fix_even_unparsable", "core")
+        .as_bool()
+        .unwrap_or(false);
 
     let linter = match linter(config, format, collect_parse_errors) {
         Ok(l) => l,
@@ -75,7 +84,9 @@ pub(crate) fn run_fix_stdin(
 
     let has_unfixable_errors = result.has_unfixable_violations();
 
-    let has_fixes = result.has_violations() && result.has_fixes();
+    let has_fixes = result.has_violations()
+        && result.has_fixes()
+        && (fix_even_unparsable || !result.has_parse_or_templating_errors());
     let output = if has_fixes {
         result.fix_string()
     } else {

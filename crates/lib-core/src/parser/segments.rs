@@ -806,6 +806,15 @@ impl ErasedSegment {
         fixes: &mut HashMap<u32, AnchorEditInfo>,
         parse_context: &mut ParseContext,
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
+        self.apply_fixes_with_options(fixes, parse_context, false)
+    }
+
+    pub fn apply_fixes_with_options(
+        &self,
+        fixes: &mut HashMap<u32, AnchorEditInfo>,
+        parse_context: &mut ParseContext,
+        fix_even_unparsable: bool,
+    ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
         if fixes.is_empty() || self.segments().is_empty() {
             return (self.clone(), Vec::new(), Vec::new(), true);
         }
@@ -894,7 +903,8 @@ impl ErasedSegment {
         let mut seg_buffer = Vec::new();
         let mut requires_validate = has_applied_fixes;
         for seg in seg_queue {
-            let (mid, pre, post, child_validated) = seg.apply_fixes(fixes, parse_context);
+            let (mid, pre, post, child_validated) =
+                seg.apply_fixes_with_options(fixes, parse_context, fix_even_unparsable);
             requires_validate |= !child_validated;
 
             seg_buffer.extend(pre);
@@ -906,7 +916,22 @@ impl ErasedSegment {
             position_segments(&seg_buffer, self.get_position_marker().as_ref().unwrap());
         let new_segment = self.new(seg_buffer);
         let validated = if requires_validate {
-            new_segment.validate_after_fixes(parse_context)
+            let was_unparsable = self.is_type(SyntaxKind::Unparsable)
+                || self.descendant_type_set().contains(SyntaxKind::Unparsable);
+            if was_unparsable {
+                if fix_even_unparsable {
+                    // Validation cannot succeed for an already-unparsable region. Keep
+                    // its fixes when explicitly requested, while allowing parsable
+                    // ancestors to continue their own validation.
+                    true
+                } else {
+                    // Without an explicit opt-in, fixes inside an unparsable region
+                    // cannot be proven safe. Discard this subtree's changes.
+                    return (self.clone(), Vec::new(), Vec::new(), true);
+                }
+            } else {
+                new_segment.validate_after_fixes(parse_context)
+            }
         } else {
             true
         };

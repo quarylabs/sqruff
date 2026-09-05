@@ -1872,6 +1872,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("SingleIdentifierFullGrammar").to_matchable(),
                             Ref::new("FunctionSegment").to_matchable(),
                             Ref::new("CaseExpressionSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
                             Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
                                 .to_matchable(),
                         ])

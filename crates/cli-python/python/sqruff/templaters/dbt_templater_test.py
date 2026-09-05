@@ -1,15 +1,34 @@
 import json
 import os
+import pickle
 from pathlib import Path
+
+import pytest
 
 from sqruff.templaters.dbt_templater import (
     _get_or_create_templater,
     _templater_cache,
     clear_templater_cache,
+    handle_dbt_errors,
+    is_dbt_exception,
     process_batch_from_rust,
     process_from_rust,
 )
-from sqruff.templaters.python_templater import FluffConfig
+from sqruff.templaters.python_templater import FluffConfig, SQLTemplaterError
+
+
+class DbtCompilationError(Exception):
+    """Stand-in for dbt's non-pickleable exception hierarchy."""
+
+
+DbtCompilationError.__module__ = "dbt.exceptions"
+
+
+class DbtFailedToConnectError(Exception):
+    """Stand-in for dbt's fatal connection exception."""
+
+
+DbtFailedToConnectError.__module__ = "dbt.adapters.exceptions"
 
 
 def test_dbt():
@@ -235,3 +254,66 @@ def test_batch_processing_preserves_order():
                 f"Result {i} fname mismatch: expected {expected_fname}, "
                 f"got {templated_file.fname}"
             )
+
+
+def test_is_dbt_exception():
+    """Identify dbt exceptions without importing their unstable class names."""
+    assert is_dbt_exception(DbtCompilationError("broken model"))
+    assert not is_dbt_exception(ValueError("not dbt"))
+    assert not is_dbt_exception(None)
+
+
+@pytest.mark.parametrize("error_class", [Exception, SQLTemplaterError])
+def test_handle_dbt_errors_returns_pickleable_native_exception(error_class):
+    """Replace dbt exceptions with context-free, pickleable native exceptions."""
+
+    @handle_dbt_errors(error_class, "Compilation failed: ")
+    def raise_dbt_exception():
+        raise DbtCompilationError("broken model")
+
+    with pytest.raises(error_class) as excinfo:
+        raise_dbt_exception()
+
+    assert (
+        "Compilation failed: dbt.exceptions.DbtCompilationError: broken model"
+        in str(excinfo.value)
+    )
+    assert excinfo.value.__context__ is None
+    assert excinfo.value.__cause__ is None
+
+    roundtrip_exception = pickle.loads(pickle.dumps(excinfo.value))
+    assert isinstance(roundtrip_exception, type(excinfo.value))
+    assert str(roundtrip_exception) == str(excinfo.value)
+
+
+def test_handle_dbt_errors_strips_dbt_context_from_native_exception():
+    """Strip inherited dbt context and cause before re-raising native errors."""
+
+    @handle_dbt_errors(SQLTemplaterError, "unused")
+    def raise_native_exception():
+        try:
+            raise DbtCompilationError("dbt context")
+        except DbtCompilationError as dbt_error:
+            raise ValueError("native error") from dbt_error
+
+    with pytest.raises(ValueError, match="native error") as excinfo:
+        raise_native_exception()
+
+    assert excinfo.value.__context__ is None
+    assert excinfo.value.__cause__ is None
+
+
+def test_handle_dbt_errors_reports_connection_failure():
+    """Give dbt connection failures the dedicated actionable message."""
+
+    @handle_dbt_errors(SQLTemplaterError, "unused")
+    def raise_connection_exception():
+        raise DbtFailedToConnectError("connection refused")
+
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        raise_connection_exception()
+
+    assert "dbt tried to connect to the database and failed" in str(excinfo.value)
+    assert "dbt.adapters.exceptions.DbtFailedToConnectError" in str(excinfo.value)
+    assert excinfo.value.__context__ is None
+    assert excinfo.value.__cause__ is None

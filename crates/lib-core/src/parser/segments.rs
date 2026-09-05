@@ -475,11 +475,13 @@ impl ErasedSegment {
             let mut source_idx = pos.source_slice.start;
             let mut templated_idx = pos.templated_slice.start;
             let mut insert_buff = String::new();
+            let mut first_segment_pos = None;
 
             for segment in segments {
                 let pos_marker = segment.get_position_marker().unwrap();
                 if !segment.raw().is_empty() && pos_marker.is_point() {
                     insert_buff.push_str(segment.raw().as_ref());
+                    first_segment_pos = first_segment_pos.or(Some(pos_marker));
                     continue;
                 }
 
@@ -487,19 +489,20 @@ impl ErasedSegment {
 
                 if start_diff > 0 || !insert_buff.is_empty() {
                     let fixed_raw = std::mem::take(&mut insert_buff);
-                    let raw_segments = segment.get_raw_segments();
-                    let first_segment_pos = raw_segments[0].get_position_marker().unwrap();
+                    let patch_start_pos = first_segment_pos.unwrap_or(pos_marker);
 
                     // The slices must never go backwards so the end of the slice
                     // must be >= the start. This can happen when source positions
                     // are non-monotonic due to template expansion.
                     acc.push(FixPatch::new(
-                        templated_idx..first_segment_pos.templated_slice.start.max(templated_idx),
+                        templated_idx..patch_start_pos.templated_slice.start.max(templated_idx),
                         fixed_raw.into(),
-                        source_idx..first_segment_pos.source_slice.start.max(source_idx),
+                        source_idx..patch_start_pos.source_slice.start.max(source_idx),
                         String::new(),
                         String::new(),
                     ));
+
+                    first_segment_pos = None;
                 }
 
                 acc.extend(segment.iter_patches(templated_file));
@@ -1400,6 +1403,81 @@ mod tests {
         assert!(edit[0].get_position_marker().is_none());
         assert!(!source.is(&edit[0]));
         assert_eq!(source.raw(), edit[0].raw());
+    }
+
+    #[test]
+    fn test_iter_patches_anchors_buffer_on_first_insertion_point() {
+        use crate::templaters::{RawFileSlice, TemplateSliceKind, TemplatedFileSlice};
+
+        let templated_file = TemplatedFile::new(
+            "a{{ x }}b".into(),
+            "test.sql".into(),
+            Some("ab".into()),
+            Some(vec![
+                TemplatedFileSlice::new(TemplateSliceKind::Literal, 0..1, 0..1),
+                TemplatedFileSlice::new(TemplateSliceKind::Templated, 1..8, 1..1),
+                TemplatedFileSlice::new(TemplateSliceKind::Literal, 8..9, 1..2),
+            ]),
+            Some(vec![
+                RawFileSlice::new("a".into(), TemplateSliceKind::Literal, 0, None, None),
+                RawFileSlice::new(
+                    "{{ x }}".into(),
+                    TemplateSliceKind::Templated,
+                    1,
+                    None,
+                    None,
+                ),
+                RawFileSlice::new("b".into(), TemplateSliceKind::Literal, 8, None, None),
+            ]),
+        )
+        .unwrap();
+
+        let first = SegmentBuilder::token(1, "a", SyntaxKind::Word)
+            .with_position(PositionMarker::new(
+                0..1,
+                0..1,
+                templated_file.clone(),
+                None,
+                None,
+            ))
+            .finish();
+        let insertion = SegmentBuilder::token(2, ",", SyntaxKind::Comma)
+            .with_position(PositionMarker::from_point(
+                1,
+                1,
+                templated_file.clone(),
+                None,
+                None,
+            ))
+            .finish();
+        let last = SegmentBuilder::token(3, "b", SyntaxKind::Word)
+            .with_position(PositionMarker::new(
+                8..9,
+                1..2,
+                templated_file.clone(),
+                None,
+                None,
+            ))
+            .finish();
+        let parent = SegmentBuilder::node(
+            4,
+            SyntaxKind::File,
+            DialectKind::Ansi,
+            vec![first, insertion, last],
+        )
+        .with_position(PositionMarker::new(
+            0..9,
+            0..2,
+            templated_file.clone(),
+            None,
+            None,
+        ))
+        .finish();
+
+        let patches = parent.iter_patches(&templated_file);
+        assert_eq!(patches.len(), 1);
+        assert_eq!(patches[0].fixed_raw, ",");
+        assert_eq!(patches[0].source_slice, 1..1);
     }
 
     /// Regression test for issue #1884: raw_segments_with_ancestors must not

@@ -735,10 +735,19 @@ fn toml_value_to_config_value(value: &toml::Value) -> Value {
         toml::Value::Float(value) => Value::Float(*value),
         toml::Value::Boolean(value) => Value::Bool(*value),
         toml::Value::Datetime(value) => Value::String(value.to_string().into()),
+        // Config arrays contain strings, matching values loaded from INI files.
         toml::Value::Array(values) => Value::Array(
             values
                 .iter()
-                .map(toml_value_to_config_value)
+                .map(|value| {
+                    let value = match value {
+                        toml::Value::String(value) => value.clone(),
+                        toml::Value::Boolean(true) => "True".to_owned(),
+                        toml::Value::Boolean(false) => "False".to_owned(),
+                        value => value.to_string(),
+                    };
+                    Value::String(value.into())
+                })
                 .collect::<Vec<_>>(),
         ),
         toml::Value::Table(values) => Value::Map(
@@ -1285,6 +1294,37 @@ capitalisation_policy = "upper"
         assert_eq!(
             config.raw["rules"]["capitalisation.keywords"]["capitalisation_policy"].as_string(),
             Some("upper")
+        );
+    }
+
+    #[test]
+    fn test_pyproject_toml_coerces_array_items_to_strings() {
+        let config = FluffConfig::from_source(
+            r#"
+[tool.sqlfluff.core]
+string_values = ["one", "two"]
+integer_values = [1, 2]
+float_values = [1.5, 2.0]
+boolean_values = [true, false]
+"#,
+            Some(Path::new("pyproject.toml")),
+        );
+
+        assert_eq!(
+            config.raw["core"]["string_values"].as_array().unwrap(),
+            vec![Value::String("one".into()), Value::String("two".into())]
+        );
+        assert_eq!(
+            config.raw["core"]["integer_values"].as_array().unwrap(),
+            vec![Value::String("1".into()), Value::String("2".into())]
+        );
+        assert_eq!(
+            config.raw["core"]["float_values"].as_array().unwrap(),
+            vec![Value::String("1.5".into()), Value::String("2.0".into())]
+        );
+        assert_eq!(
+            config.raw["core"]["boolean_values"].as_array().unwrap(),
+            vec![Value::String("True".into()), Value::String("False".into())]
         );
     }
 

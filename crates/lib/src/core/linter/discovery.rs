@@ -7,9 +7,14 @@ use std::path::{Path, PathBuf};
 
 use hashbrown::HashSet;
 #[cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))]
-use ignore::gitignore::Gitignore;
+use ignore::gitignore::{Gitignore, GitignoreBuilder};
 use sqruff_lib_core::helpers;
 use walkdir::WalkDir;
+
+#[cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))]
+use crate::core::config::{ConfigLoader, Value};
+
+const CONFIG_IGNORE_FILE_NAMES: [&str; 2] = ["pyproject.toml", ".sqlfluff"];
 
 #[cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))]
 struct IgnoreSpecRecord {
@@ -79,6 +84,60 @@ fn load_ignorefile(_path: &Path) -> Option<IgnoreSpecRecord> {
 }
 
 #[cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))]
+fn load_configfile(path: &Path) -> Option<IgnoreSpecRecord> {
+    let mut config = hashbrown::HashMap::new();
+    if let Err(error) = ConfigLoader::try_load_config_file(path, &mut config) {
+        log::warn!(
+            "Unable to load ignore patterns from {}: {error}",
+            path.display()
+        );
+        return None;
+    }
+
+    let patterns = config.get("core")?.as_map()?.get("ignore_paths")?;
+    let patterns = match patterns {
+        Value::String(patterns) => patterns.split(',').collect::<Vec<_>>(),
+        Value::Array(patterns) if !patterns.is_empty() => patterns
+            .iter()
+            .map(Value::as_string)
+            .collect::<Option<Vec<_>>>()?,
+        _ => return None,
+    };
+
+    let root = path.parent()?;
+    let mut builder = GitignoreBuilder::new(root);
+    for pattern in patterns {
+        if let Err(error) = builder.add_line(Some(path.to_path_buf()), pattern) {
+            log::warn!(
+                "Unable to load ignore pattern from {}: {error}",
+                path.display()
+            );
+        }
+    }
+    let matcher = match builder.build() {
+        Ok(matcher) => matcher,
+        Err(error) => {
+            log::warn!(
+                "Unable to build ignore patterns from {}: {error}",
+                path.display()
+            );
+            return None;
+        }
+    };
+
+    Some(IgnoreSpecRecord {
+        root: root.to_path_buf(),
+        source: path.to_path_buf(),
+        matcher,
+    })
+}
+
+#[cfg(any(target_arch = "wasm32", target_arch = "wasm64"))]
+fn load_configfile(_path: &Path) -> Option<IgnoreSpecRecord> {
+    None
+}
+
+#[cfg(not(any(target_arch = "wasm32", target_arch = "wasm64")))]
 fn check_ignore_specs<'a>(
     absolute_path: &Path,
     is_dir: bool,
@@ -115,11 +174,19 @@ fn load_ignore_specs(
     let absolute_target = absolute_path(path);
     let absolute_working_path = absolute_path(working_path);
     let mut ignore_paths = Vec::new();
+    let mut ignore_file_names = vec![ignore_file_name];
+    for config_file_name in &CONFIG_IGNORE_FILE_NAMES {
+        if !ignore_file_names.contains(config_file_name) {
+            ignore_file_names.push(config_file_name);
+        }
+    }
 
     for search_path in config_search_directories(&absolute_target, &absolute_working_path) {
-        let candidate = search_path.join(ignore_file_name);
-        if candidate.is_file() {
-            ignore_paths.push(candidate);
+        for file_name in &ignore_file_names {
+            let candidate = search_path.join(file_name);
+            if candidate.is_file() {
+                ignore_paths.push(candidate);
+            }
         }
     }
 
@@ -134,7 +201,11 @@ fn load_ignore_specs(
             .filter_map(Result::ok);
 
         for entry in entries {
-            if entry.file_type().is_file() && entry.file_name() == ignore_file_name {
+            if entry.file_type().is_file()
+                && ignore_file_names
+                    .iter()
+                    .any(|file_name| entry.file_name() == *file_name)
+            {
                 ignore_paths.push(absolute_path(entry.path()));
             }
         }
@@ -145,7 +216,16 @@ fn load_ignore_specs(
     ignore_paths.sort_by_key(|path| path.components().count());
     ignore_paths
         .iter()
-        .filter_map(|path| load_ignorefile(path))
+        .filter_map(|path| {
+            if path
+                .file_name()
+                .is_some_and(|name| name == ignore_file_name)
+            {
+                load_ignorefile(path)
+            } else {
+                load_configfile(path)
+            }
+        })
         .collect()
 }
 
@@ -400,6 +480,8 @@ mod tests {
                 "test.fixtures.linter.sqlfluffignore.path_a.query_a.sql",
                 "test.fixtures.linter.sqlfluffignore.path_b.query_b.sql",
                 "test.fixtures.linter.sqlfluffignore.path_b.query_c.sql",
+                "test.fixtures.linter.sqlfluffignore.path_b.query_d.sql",
+                "test.fixtures.linter.sqlfluffignore.path_c.query_e.sql",
             ]
         );
     }

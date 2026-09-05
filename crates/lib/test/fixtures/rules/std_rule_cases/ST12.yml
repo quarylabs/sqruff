@@ -15,6 +15,9 @@ test_fail_double_semicolon:
 test_fail_leading_semicolons:
   fail_str: ";;SELECT 2;"
   fix_str: ";SELECT 2;"
+  configs:
+    core:
+      fix_even_unparsable: true
 
 test_fail_semicolons_with_whitespace:
   fail_str: |

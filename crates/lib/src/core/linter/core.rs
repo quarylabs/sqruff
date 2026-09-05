@@ -350,6 +350,16 @@ impl Linter {
         parsed_string: ParsedString,
         fix: bool,
     ) -> Result<LintedFile, SQLFluffUserError> {
+        let tree_is_unparsable = |tree: &ErasedSegment| {
+            tree.is_type(SyntaxKind::Unparsable)
+                || tree.descendant_type_set().contains(SyntaxKind::Unparsable)
+        };
+        let has_parse_or_templating_errors = !parsed_string.violations.is_empty()
+            || parsed_string.tree.as_ref().is_some_and(tree_is_unparsable)
+            || parsed_string.alternate_variants.iter().any(|variant| {
+                !variant.violations.is_empty()
+                    || variant.tree.as_ref().is_some_and(tree_is_unparsable)
+            });
         let mut violations = parsed_string.violations;
 
         let (patches, ignore_mask, initial_linting_errors) = match parsed_string.tree {
@@ -397,6 +407,7 @@ impl Linter {
             patches,
             parsed_string.templated_file,
             violations,
+            has_parse_or_templating_errors,
             ignore_mask,
         );
 
@@ -460,6 +471,11 @@ impl Linter {
             .get("ignore_templated_areas", "core")
             .as_bool()
             .unwrap_or(true);
+        let fix_even_unparsable = self
+            .config
+            .get("fix_even_unparsable", "core")
+            .as_bool()
+            .unwrap_or(false);
 
         let mut anchor_info = HashMap::default();
 
@@ -552,8 +568,11 @@ impl Linter {
                     if fix && !anchor_info.is_empty() {
                         let parser: Parser = (&self.config).into();
                         let mut parse_context = (&parser).into();
-                        let (new_tree, _, _, valid) =
-                            tree.apply_fixes(&mut anchor_info, &mut parse_context);
+                        let (new_tree, _, _, valid) = tree.apply_fixes_with_options(
+                            &mut anchor_info,
+                            &mut parse_context,
+                            fix_even_unparsable,
+                        );
                         if !valid {
                             log::warn!(
                                 "Fixes for {} not applied, as they would result in an unparsable \
@@ -915,6 +934,64 @@ rules = all
         let (_, _, _, valid) = tree.apply_fixes(&mut fixes, &mut parse_context);
 
         assert!(!valid);
+    }
+
+    #[test]
+    fn test_apply_fixes_respects_fix_even_unparsable() {
+        const SQL: &str = "SELECT\n    a as b,\n    42,\n    `multiple_x` as c\nfrom cte\n";
+
+        let apply_inside_unparsable = |fix_even_unparsable| {
+            let config = FluffConfig::from_source(
+                r#"
+[sqruff]
+dialect = ansi
+"#,
+                None,
+            );
+            let linter = Linter::new(config, None, None, true).unwrap();
+            let tables = Tables::default();
+            let tree = linter
+                .parse_string(&tables, SQL, None)
+                .unwrap()
+                .tree
+                .unwrap();
+            let unparsable = tree
+                .recursive_crawl(
+                    &SyntaxSet::single(SyntaxKind::Unparsable),
+                    true,
+                    &SyntaxSet::EMPTY,
+                    true,
+                )
+                .into_iter()
+                .next()
+                .unwrap();
+            let target = unparsable
+                .get_raw_segments()
+                .into_iter()
+                .find(|segment| segment.is_code())
+                .unwrap();
+            let replacement = SegmentBuilder::token(
+                tables.next_id(),
+                "fixed_unparsable_token",
+                target.get_type(),
+            )
+            .finish();
+            let mut fixes = HashMap::new();
+            compute_anchor_edit_info(
+                &mut fixes,
+                vec![LintFix::replace(target, vec![replacement], None)],
+            );
+            let parser: Parser = linter.config().into();
+            let mut parse_context = (&parser).into();
+            let (fixed, _, _, valid) =
+                tree.apply_fixes_with_options(&mut fixes, &mut parse_context, fix_even_unparsable);
+
+            assert!(valid);
+            fixed.raw().to_string()
+        };
+
+        assert_eq!(apply_inside_unparsable(false), SQL);
+        assert!(apply_inside_unparsable(true).contains("fixed_unparsable_token"));
     }
 
     // test__linter__mask_templated_violations

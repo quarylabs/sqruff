@@ -132,6 +132,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable(),
             optionally_bracketed(vec![Ref::new("TableExpressionSegment").to_matchable()])
                 .to_matchable(),
+            one_of(vec![
+                Ref::new("FromAtExpressionSegment").to_matchable(),
+                Ref::new("FromBeforeExpressionSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
             Ref::new("AliasExpressionSegment")
                 .exclude(one_of(vec![
                     Ref::new("FromClauseTerminatorGrammar").to_matchable(),
@@ -1254,6 +1260,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("MatchRecognizeClauseSegment").to_matchable(),
                     Ref::new("ChangesClauseSegment").to_matchable(),
                     Ref::new("ConnectByClauseSegment").to_matchable(),
+                    Ref::new("FromAtExpressionSegment").to_matchable(),
                     Ref::new("FromBeforeExpressionSegment").to_matchable(),
                     Ref::new("FromPivotExpressionSegment").to_matchable(),
                     AnyNumberOf::new(vec![

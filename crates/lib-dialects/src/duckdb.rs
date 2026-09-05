@@ -225,10 +225,10 @@ pub fn raw_dialect() -> Dialect {
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),
             Ref::keyword("TYPE").to_matchable(),
-            Ref::new("DatatypeIdentifierSegment").to_matchable(),
+            Ref::new("DatatypeSegment").to_matchable(),
             Ref::keyword("AS").to_matchable(),
             one_of(vec![
-                Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                Ref::new("DatatypeSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("ENUM").to_matchable(),
                     Bracketed::new(vec![

@@ -3,7 +3,8 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - data_type_identifier: mood
+    - data_type:
+      - data_type_identifier: mood
     - keyword: AS
     - keyword: ENUM
     - bracketed:
@@ -19,27 +20,30 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - data_type_identifier: many_things
+    - data_type:
+      - data_type_identifier: many_things
     - keyword: AS
-    - struct_type:
-      - keyword: STRUCT
-      - struct_type_schema:
-        - bracketed:
-          - start_bracket: (
-          - parameter: k
-          - data_type:
-            - keyword: integer
-          - comma: ','
-          - parameter: l
-          - data_type:
-            - keyword: varchar
-          - end_bracket: )
+    - data_type:
+      - struct_type:
+        - keyword: STRUCT
+        - struct_type_schema:
+          - bracketed:
+            - start_bracket: (
+            - parameter: k
+            - data_type:
+              - keyword: integer
+            - comma: ','
+            - parameter: l
+            - data_type:
+              - keyword: varchar
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - data_type_identifier: one_thing
+    - data_type:
+      - data_type_identifier: one_thing
     - keyword: AS
     - keyword: UNION
     - struct_type_schema:
@@ -58,7 +62,47 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - data_type_identifier: x_index
+    - data_type:
+      - data_type_identifier: x_index
     - keyword: AS
-    - data_type_identifier: integer
+    - data_type:
+      - keyword: integer
+- statement_terminator: ;
+- statement:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - data_type:
+      - naked_identifier: myschema
+      - dot: .
+      - data_type_identifier: mytype
+    - keyword: AS
+    - data_type:
+      - keyword: int
+- statement_terminator: ;
+- statement:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - data_type:
+      - quoted_identifier: '"myschema"'
+      - dot: .
+      - data_type_identifier: mytype2
+    - keyword: AS
+    - data_type:
+      - keyword: int
+- statement_terminator: ;
+- statement:
+  - create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - data_type:
+      - naked_identifier: myschema
+      - dot: .
+      - data_type_identifier: mytype3
+    - keyword: AS
+    - data_type:
+      - naked_identifier: myschema
+      - dot: .
+      - data_type_identifier: mytype2
 - statement_terminator: ;

@@ -215,28 +215,29 @@ file:
           - keyword: immediate
           - bracketed:
             - start_bracket: (
-            - select_statement:
-              - select_clause:
-                - keyword: select
-                - select_clause_element:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: format
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: var_2
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: var_1
-                        - comma: ','
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: var_1
-                        - end_bracket: )
+            - expression:
+              - select_statement:
+                - select_clause:
+                  - keyword: select
+                  - select_clause_element:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: format
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: var_2
+                          - comma: ','
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: var_1
+                          - comma: ','
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: var_1
+                          - end_bracket: )
             - end_bracket: )
       - statement_terminator: ;
       - statement:

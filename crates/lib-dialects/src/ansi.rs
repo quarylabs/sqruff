@@ -4607,6 +4607,7 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     optionally_bracketed(vec![Ref::new("TableExpressionSegment").to_matchable()])
                         .to_matchable(),
+                    Ref::new("TemporalQuerySegment").optional().to_matchable(),
                     Ref::new("AliasExpressionSegment")
                         .exclude(one_of(vec![
                             Ref::new("FromClauseTerminatorGrammar").to_matchable(),
@@ -5185,8 +5186,14 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // This is a hook point to allow subclassing for other dialects
+    // These are hook points to allow subclassing for other dialects.
     ansi_dialect.add([
+        (
+            "TemporalQuerySegment".into(),
+            NodeMatcher::new(SyntaxKind::TemporalQuery, |_| Nothing::new().to_matchable())
+                .to_matchable()
+                .into(),
+        ),
         (
             "PostTableExpressionGrammar".into(),
             Nothing::new().to_matchable().into(),

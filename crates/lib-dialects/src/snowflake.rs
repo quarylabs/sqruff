@@ -682,6 +682,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "DynamicTableLagIntervalSegment".into(),
+            RegexParser::new(
+                r"'((DOWNSTREAM)|([1-9]\d*\s+(?:SECOND|MINUTE|HOUR|DAY)S?))'",
+                SyntaxKind::DynamicTableLagIntervalSegment,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DynamicTableTargetLagSegment".into(),
+            one_of(vec![
+                Ref::new("DynamicTableLagIntervalSegment").to_matchable(),
+                Ref::keyword("DOWNSTREAM").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "DoubleQuotedUDFBody".into(),
             TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::UdfBody)
                 .to_matchable()
@@ -5935,11 +5953,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("TARGET_LAG").to_matchable(),
                 Ref::new("EqualsSegment").to_matchable(),
-                one_of(vec![
-                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                    Ref::keyword("DOWNSTREAM").to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("DynamicTableTargetLagSegment").to_matchable(),
             ])
             .config(|this| this.optional())
             .to_matchable(),

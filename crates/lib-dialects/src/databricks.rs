@@ -1021,6 +1021,140 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 )
                 .into(),
         ),
+        (
+            "LocationWithCredentialGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("LOCATION").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Bracketed::new(vec![
+                        Ref::keyword("CREDENTIAL").to_matchable(),
+                        Ref::new("PrincipalIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateTableUsingStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateTableUsingStatement, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("CREATE").to_matchable(),
+                                Ref::keyword("OR").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("REPLACE").to_matchable(),
+                            Ref::keyword("TABLE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CREATE").to_matchable(),
+                            Ref::keyword("EXTERNAL").optional().to_matchable(),
+                            Ref::keyword("TABLE").to_matchable(),
+                            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("TableSpecificationSegment")
+                        .optional()
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("USING").to_matchable(),
+                        Ref::new("DataSourceFormatSegment").to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                    AnyNumberOf::new(vec![Ref::new("TableClausesSegment").to_matchable()])
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AS").to_matchable(),
+                        one_of(vec![
+                            Ref::new("SelectStatementSegment").to_matchable(),
+                            Ref::new("ValuesClauseSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TableSpecificationSegment".into(),
+            NodeMatcher::new(SyntaxKind::TableSpecificationSegment, |_| {
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Ref::new("ColumnPropertiesSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ColumnPropertiesSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnPropertiesSegment, |_| {
+                one_of(vec![
+                    Ref::new("NotNullGrammar").to_matchable(),
+                    Ref::new("GeneratedColumnDefinitionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("CommentGrammar").to_matchable(),
+                    Ref::new("ColumnConstraintSegment").to_matchable(),
+                    Ref::new("MaskStatementSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TableClausesSegment".into(),
+            NodeMatcher::new(SyntaxKind::TableClausesSegment, |_| {
+                one_of(vec![
+                    Ref::new("PartitionClauseSegment").to_matchable(),
+                    Ref::new("ClusterByClauseSegment").to_matchable(),
+                    Ref::new("LocationWithCredentialGrammar").to_matchable(),
+                    Ref::new("OptionsGrammar").to_matchable(),
+                    Ref::new("CommentGrammar").to_matchable(),
+                    Ref::new("TablePropertiesGrammar").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::new("RowFilterClauseGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-dml-insert-into#insert-using-the-by-name-clause
         (
             "InsertBracketedColumnReferenceListGrammar".into(),
@@ -1036,6 +1170,58 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    databricks.replace_grammar(
+        "NotNullGrammar",
+        Sequence::new(vec![
+            Ref::keyword("NOT").to_matchable(),
+            Ref::keyword("NULL").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    databricks.replace_grammar(
+        "ColumnConstraintSegment",
+        Sequence::new(vec![
+            Ref::new("NotNullGrammar").optional().to_matchable(),
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("CONSTRAINT").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("PrimaryKeyGrammar").to_matchable(),
+                        Ref::new("ConstraintOptionGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("ForeignKeyGrammar").optional().to_matchable(),
+                        Ref::keyword("REFERENCES").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Ref::new("BracketedColumnReferenceListGrammar")
+                            .optional()
+                            .to_matchable(),
+                        one_of(vec![
+                            Ref::new("ForeignKeyOptionGrammar").to_matchable(),
+                            Ref::new("ConstraintOptionGrammar").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|config| config.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
     databricks.replace_grammar(
@@ -1055,6 +1241,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         one_of(vec![
                             Ref::new("FunctionSegment").to_matchable(),
                             Ref::new("BareFunctionSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -1094,12 +1281,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
-            ])
-            .to_matchable(),
-            AnyNumberOf::new(vec![
-                Ref::new("ColumnConstraintSegment")
-                    .optional()
-                    .to_matchable(),
             ])
             .to_matchable(),
         ])

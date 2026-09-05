@@ -7,6 +7,7 @@ from sqruff.templaters.python_templater import (
     IntermediateFileSlice,
     PythonTemplater,
     RawFileSlice,
+    SQLTemplaterError,
     TemplatedFileSlice,
 )
 
@@ -399,3 +400,66 @@ def test__templater_python_split_uniques_coalesce_rest(
         prev_slice = (elem[1], elem[2])
     # check result
     assert resp == result
+
+
+@pytest.mark.parametrize(
+    "raw_str,result",
+    [
+        ("", ""),
+        ("SELECT * FROM {foo.bar}", "SELECT * FROM foobar"),
+        ("SELECT {foo} FROM {foo.bar}", "SELECT bar FROM foobar"),
+        ("SELECT {num:.2f} FROM blah", "SELECT 123.00 FROM blah"),
+        ("SELECT {self.number:.1f} FROM blah", "SELECT 42.0 FROM blah"),
+        (
+            "SELECT * FROM {obj.schema}.{obj.table}",
+            "SELECT * FROM my_schema.my_table",
+        ),
+    ],
+)
+def test__templater_python_dot_notation_variables(raw_str, result) -> None:
+    """Test template variables that contain a dot character (`.`)."""
+    context = {
+        "foo": "bar",
+        "num": 123,
+        "sqlfluff": {
+            "foo.bar": "foobar",
+            "self.number": 42,
+            "obj.schema": "my_schema",
+            "obj.table": "my_table",
+        },
+    }
+    templater = PythonTemplater()
+    output, _ = templater.process(
+        in_str=raw_str,
+        fname="test",
+        context=context.copy(),
+    )
+    assert output.templated_str == result
+
+
+@pytest.mark.parametrize(
+    "context,error_string",
+    [
+        (
+            {},
+            "magic key 'sqlfluff' missing from context.  This key is required "
+            "for template variables containing '.'.",
+        ),
+        (
+            {"sqlfluff": {"a": "b"}},
+            "'foo.bar' key missing from 'sqlfluff' dict in context. Template "
+            "variables containing '.' are required to use the 'sqlfluff' magic "
+            "fixed context key.",
+        ),
+    ],
+)
+def test__templater_python_dot_notation_fail(context, error_string) -> None:
+    """Test failures with template variables that contain a dot character (`.`)."""
+    templater = PythonTemplater()
+    with pytest.raises(SQLTemplaterError) as excinfo:
+        templater.process(
+            in_str="SELECT * FROM {foo.bar}",
+            fname="test",
+            context=context.copy(),
+        )
+    assert error_string in excinfo.value.message

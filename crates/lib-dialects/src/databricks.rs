@@ -53,7 +53,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "equals",
     );
 
+    // Databricks SQL notebook cell delimiter:
+    // https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebook-export-import#sql-1
+    databricks.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "command",
+            r"(\r?\n){2}-- COMMAND ----------(\r?\n)",
+            SyntaxKind::Command,
+        )],
+        "newline",
+    );
+
     databricks.add([
+        (
+            "CommandCellSegment".into(),
+            TypedParser::new(SyntaxKind::Command, SyntaxKind::StatementTerminator)
+                .to_matchable()
+                .into(),
+        ),
         (
             "DoubleQuotedUDFBody".into(),
             TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::UdfBody)
@@ -1170,6 +1187,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    databricks.replace_grammar(
+        "DelimiterGrammar",
+        one_of(vec![
+            Ref::new("SemicolonSegment").to_matchable(),
+            Ref::new("CommandCellSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     databricks.replace_grammar(
         "NotNullGrammar",

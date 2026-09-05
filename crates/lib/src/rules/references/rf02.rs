@@ -1,8 +1,9 @@
-use hashbrown::HashMap;
+use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use regex::Regex;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::common::{AliasInfo, ColumnAliasInfo};
+use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
@@ -122,6 +123,41 @@ LEFT JOIN vee ON vee.a = foo.a
 }
 
 impl RuleRF02 {
+    /// Get any BigQuery variables declared in the linted file.
+    ///
+    /// BigQuery declarations are limited to the top level or the beginning of a
+    /// `BEGIN` block, so collecting them from the file root avoids treating later
+    /// uses as ambiguous column references.
+    fn find_sql_variables(rule_context: &RuleContext) -> HashSet<String> {
+        if rule_context.dialect.name != DialectKind::Bigquery {
+            return HashSet::new();
+        }
+
+        let Some(root_segment) = rule_context.parent_stack.first() else {
+            return HashSet::new();
+        };
+
+        root_segment
+            .recursive_crawl(
+                const { &SyntaxSet::new(&[SyntaxKind::DeclareSegment]) },
+                true,
+                &SyntaxSet::EMPTY,
+                true,
+            )
+            .into_iter()
+            .flat_map(|declare| declare.segments().to_vec())
+            .filter(|identifier| {
+                matches!(
+                    identifier.get_type(),
+                    SyntaxKind::Identifier
+                        | SyntaxKind::NakedIdentifier
+                        | SyntaxKind::QuotedIdentifier
+                )
+            })
+            .map(|identifier| identifier.raw().to_lowercase())
+            .collect()
+    }
+
     /// Determine if a subquery is part of the `from` clause.
     ///
     /// Any subqueries in the `from_clause` should be ignored, unless they are a
@@ -176,9 +212,15 @@ impl RuleRF02 {
             return Vec::new();
         }
 
+        let sql_variables = Self::find_sql_variables(rule_context);
+
         let mut violation_buff = Vec::new();
         for r in references {
             if context.ignore_words.contains(&r.0.raw().to_lowercase()) {
+                continue;
+            }
+
+            if sql_variables.contains(&r.0.raw().to_lowercase()) {
                 continue;
             }
 

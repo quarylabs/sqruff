@@ -1,5 +1,5 @@
 load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library", "rust_test")
 load("@rules_rust_wasm_bindgen//:defs.bzl", "rust_wasm_bindgen")
 
 exports_files(["Cargo.toml"])
@@ -13,6 +13,13 @@ rust_library(
         "//crates/lib-core:sqruff-lib-core",
         "//crates/lib:sqruff-lib",
     ],
+)
+
+rust_test(
+    name = "sqruff-lsp-test",
+    crate = ":sqruff-lsp",
+    proc_macro_deps = all_crate_deps(proc_macro_dev = True),
+    deps = all_crate_deps(normal_dev = True),
 )
 
 # Crate deps for WASM build - explicit list to avoid pyo3 which doesn't support WASM

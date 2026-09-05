@@ -455,6 +455,12 @@ cargo_test(
     vendor = ":cargo_deps",
     python_venv = ":python_deps",
     script = """
+# Cargo builds into a disposable target directory, so incremental artifacts and
+# debug information only add work and are discarded after this test finishes.
+export CARGO_INCREMENTAL=0
+export CARGO_PROFILE_DEV_DEBUG=0
+export CARGO_PROFILE_TEST_DEBUG=0
+
 # Build Python extension (maturin uses the vendored cargo + pre-cached venv)
 (cd crates/cli-python && maturin develop --locked --offline)
 
@@ -463,9 +469,12 @@ cargo_test(
 #   //crates/lib-dialects:dialect_tests
 #   //crates/lib-dialects:sqruff-lib-dialects-test
 #   //crates/lib-core:sqruff-lib-core-test
+#   //crates/lsp:sqruff-lsp-test
 #   //crates/sqlinference:sqruff-sqlinference-test
 #   //crates/lineage:lineage-test
-cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --exclude sqruff-lib-dialects --exclude sqruff-sqlinference --exclude lineage --locked --offline
+# sqruff-wasm has no Cargo tests; its WASM output is exercised by the playground
+# browser tests instead.
+cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --exclude sqruff-lib-dialects --exclude sqruff-lsp --exclude sqruff-sqlinference --exclude sqruff-wasm --exclude lineage --locked --offline
 """,
 )
 
@@ -476,6 +485,7 @@ test_suite(
         "//crates/cli:cli_tests",
         "//crates/lib-dialects:dialect_tests",
         "//crates/lib-dialects:sqruff-lib-dialects-test",
+        "//crates/lsp:sqruff-lsp-test",
     ],
 )
 

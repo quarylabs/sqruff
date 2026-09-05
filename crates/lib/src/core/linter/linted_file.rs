@@ -14,6 +14,7 @@ pub struct LintedFile {
     patches: Vec<FixPatch>,
     templated_file: TemplatedFile,
     violations: Vec<SQLBaseError>,
+    has_parse_or_templating_errors: bool,
     #[expect(dead_code)]
     ignore_mask: Option<IgnoreMask>,
 }
@@ -24,6 +25,7 @@ impl LintedFile {
         patches: Vec<FixPatch>,
         templated_file: TemplatedFile,
         mut violations: Vec<SQLBaseError>,
+        has_parse_or_templating_errors: bool,
         ignore_mask: Option<IgnoreMask>,
     ) -> Self {
         let mut seen = HashSet::new();
@@ -43,6 +45,7 @@ impl LintedFile {
             patches,
             templated_file,
             violations,
+            has_parse_or_templating_errors,
             ignore_mask,
         }
     }
@@ -61,6 +64,10 @@ impl LintedFile {
 
     pub fn has_fixes(&self) -> bool {
         !self.patches.is_empty()
+    }
+
+    pub fn has_parse_or_templating_errors(&self) -> bool {
+        self.has_parse_or_templating_errors
     }
 
     pub fn into_violations(self) -> Vec<SQLBaseError> {

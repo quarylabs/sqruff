@@ -19,7 +19,9 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{MultiStringParser, RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{
+    CaseFold, MultiStringParser, RegexParser, StringParser, TypedParser,
+};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -75,6 +77,11 @@ pub fn raw_dialect() -> Dialect {
         )],
         "like_operator",
     );
+    vertica.patch_lexer_matchers(vec![Matcher::regex(
+        "word",
+        r"[\p{L}_][\p{L}\p{N}_$]*",
+        SyntaxKind::Word,
+    )]);
 
     // Keywords.
     vertica
@@ -261,6 +268,26 @@ pub fn raw_dialect() -> Dialect {
             })
             .to_matchable()
             .into(),
+        ),
+        (
+            "NakedIdentifierSegment".into(),
+            SegmentGenerator::new(|dialect| {
+                let reserved_keywords = dialect.sets("reserved_keywords");
+                let pattern = reserved_keywords.iter().join("|");
+                let anti_template = format!("^({pattern})$");
+
+                RegexParser::new(r"[\p{L}_][\p{L}\p{N}$_]*", SyntaxKind::NakedIdentifier)
+                    .anti_template(&anti_template)
+                    .casefold(CaseFold::Upper)
+                    .to_matchable()
+            })
+            .into(),
+        ),
+        (
+            "ParameterNameSegment".into(),
+            RegexParser::new(r"[\p{L}_][\p{L}\p{N}$_]*", SyntaxKind::Parameter)
+                .to_matchable()
+                .into(),
         ),
     ]);
 

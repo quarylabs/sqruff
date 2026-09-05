@@ -176,7 +176,7 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.replace_grammar(
         "FunctionNameIdentifierSegment",
         RegexParser::new(r"[A-Z_][A-Z0-9_$]*", SyntaxKind::FunctionNameIdentifier)
-            .anti_template("^(STRUCT)$")
+            .anti_template("^(STRUCT|UNION|ENUM)$")
             .to_matchable(),
     );
 
@@ -214,6 +214,36 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "CreateTypeStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::keyword("TYPE").to_matchable(),
+            Ref::new("DatatypeIdentifierSegment").to_matchable(),
+            Ref::keyword("AS").to_matchable(),
+            one_of(vec![
+                Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ENUM").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("StructTypeSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("UNION").to_matchable(),
+                    Ref::new("StructTypeSchemaSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
         ])

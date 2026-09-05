@@ -2442,6 +2442,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "FromPivotExpressionSegment".into(),
             NodeMatcher::new(SyntaxKind::FromPivotExpression, |_| {
+                // https://docs.snowflake.com/en/sql-reference/constructs/pivot.html
                 Sequence::new(vec![
                     Ref::keyword("PIVOT").to_matchable(),
                     Bracketed::new(vec![
@@ -2450,9 +2451,27 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
                         Ref::keyword("IN").to_matchable(),
                         Bracketed::new(vec![
-                            Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                            one_of(vec![
+                                Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                                    .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ANY").to_matchable(),
+                                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("SelectStatementSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DEFAULT").to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::keyword("NULL").to_matchable(),
+                            Bracketed::new(vec![Ref::new("LiteralGrammar").to_matchable()])
                                 .to_matchable(),
                         ])
+                        .config(|this| this.optional())
                         .to_matchable(),
                     ])
                     .to_matchable(),

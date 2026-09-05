@@ -1,7 +1,10 @@
-load("@crates//:defs.bzl", "all_crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test", "rust_test_suite")
 
-exports_files(["Cargo.toml"])
+exports_files([
+    "Cargo.toml",
+    "test/fixtures/dialects/ansi/sqlfluff/select_in_multiline_comment.sql",
+])
 
 # Keep in sync with the features enabled by default in Cargo.toml.
 ALL_FEATURES = [
@@ -38,6 +41,37 @@ rust_library(
     deps = all_crate_deps(normal = True) + [
         "//crates/lib-core:sqruff-lib-core",
     ],
+)
+
+rust_test(
+    name = "sqruff-lib-dialects-test",
+    crate = ":sqruff-lib-dialects",
+    crate_features = ALL_FEATURES,
+    proc_macro_deps = all_crate_deps(proc_macro_dev = True),
+    deps = all_crate_deps(normal_dev = True),
+)
+
+rust_test_suite(
+    name = "dialect_tests",
+    srcs = ["tests/dialects.rs"],
+    crate_features = ALL_FEATURES,
+    data = [
+        ":test_fixtures",
+        "Cargo.toml",
+    ],
+    deps = all_crate_deps(normal = True) + crate_deps([
+        "configparser",
+        "expect-test",
+        "glob",
+        "rayon",
+    ]) + [
+        ":sqruff-lib-dialects",
+        "//crates/lib-core:sqruff-lib-core",
+    ],
+    env = {
+        "SQRUFF_TEST_MANIFEST": "$(rootpath :Cargo.toml)",
+    },
+    size = "small",
 )
 
 filegroup(

@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::str::FromStr;
 
 use configparser::ini::Ini;
@@ -16,6 +17,25 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::value::Value;
 use sqruff_lib_dialects::kind_to_dialect;
 use strum::IntoEnumIterator;
+
+fn absolute_path(path: PathBuf) -> PathBuf {
+    if path.is_absolute() {
+        path
+    } else {
+        std::env::current_dir().unwrap().join(path)
+    }
+}
+
+fn manifest_dir() -> PathBuf {
+    if let Some(manifest) = std::env::var_os("SQRUFF_TEST_MANIFEST") {
+        return absolute_path(PathBuf::from(manifest))
+            .parent()
+            .unwrap()
+            .to_path_buf();
+    }
+
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+}
 
 fn check_no_unparsable_segments(tree: &ErasedSegment) -> Vec<String> {
     tree.recursive_crawl_all(false)
@@ -172,8 +192,10 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
     }
 }
 
-fn validate_dialect_reference_baseline() {
-    for dialect_kind in DialectKind::iter() {
+fn validate_dialect_reference_baseline(arg_dialect: Option<DialectKind>) {
+    for dialect_kind in
+        DialectKind::iter().filter(|dialect| arg_dialect.is_none_or(|arg| arg == *dialect))
+    {
         let Some(dialect) = kind_to_dialect(&dialect_kind, None) else {
             continue;
         };
@@ -198,16 +220,15 @@ fn validate_dialect_reference_baseline() {
     }
 }
 
-fn main() {
-    validate_dialect_reference_baseline();
+#[test]
+fn dialects() {
+    // Set SQRUFF_TEST_DIALECT to run the fixtures for a single dialect.
+    let arg_dialect = std::env::var("SQRUFF_TEST_DIALECT").ok().map(|dialect| {
+        DialectKind::from_str(&dialect)
+            .unwrap_or_else(|_| panic!("unknown dialect in SQRUFF_TEST_DIALECT: {dialect}"))
+    });
 
-    let args = std::env::args().skip(1).collect::<Vec<String>>();
-
-    let mut arg_dialect = None;
-
-    if args.len() == 1 {
-        arg_dialect = Some(DialectKind::from_str(&args[0]).unwrap());
-    }
+    validate_dialect_reference_baseline(arg_dialect);
 
     let dialects = DialectKind::iter()
         .filter(|dialect| arg_dialect.is_none() || &arg_dialect.unwrap() == dialect)
@@ -216,7 +237,7 @@ fn main() {
     println!("{dialects:?}");
 
     // list folders in the dialects directory
-    let dialects_dir = std::path::Path::new("test/fixtures/dialects");
+    let dialects_dir = manifest_dir().join("test/fixtures/dialects");
     let dialects_dirs = dialects_dir
         .read_dir()
         .unwrap()
@@ -227,7 +248,7 @@ fn main() {
             }
             Some(entry.unwrap().path())
         })
-        .collect::<HashSet<std::path::PathBuf>>();
+        .collect::<HashSet<PathBuf>>();
     println!("{dialects_dirs:?}");
 
     // check if all dialects have a corresponding folder
@@ -248,8 +269,11 @@ fn main() {
             continue;
         }
 
-        let path = format!("test/fixtures/dialects/{dialect_name}/*/*.sql");
-        let files = glob::glob(&path).unwrap().flatten().collect_vec();
+        let path = dialects_dir.join(dialect_name).join("*").join("*.sql");
+        let files = glob::glob(path.to_str().unwrap())
+            .unwrap()
+            .flatten()
+            .collect_vec();
         let dialects_by_fixture_dir = files
             .iter()
             .map(|file| file.parent().unwrap())

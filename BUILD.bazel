@@ -450,7 +450,7 @@ cargo_test(
         "//crates/cli-python:python_srcs",
         "//crates/cli-python:test_fixtures",
         "//crates/lib:test_fixtures",
-        "//crates/lib-dialects:test_fixtures",
+        "//crates/lib-dialects:test/fixtures/dialects/ansi/sqlfluff/select_in_multiline_comment.sql",
     ],
     vendor = ":cargo_deps",
     python_venv = ":python_deps",
@@ -460,10 +460,12 @@ cargo_test(
 
 # Crates that don't need the Python/maturin setup run natively via rust_test:
 #   //crates/cli:cli_tests
+#   //crates/lib-dialects:dialect_tests
+#   //crates/lib-dialects:sqruff-lib-dialects-test
 #   //crates/lib-core:sqruff-lib-core-test
 #   //crates/sqlinference:sqruff-sqlinference-test
 #   //crates/lineage:lineage-test
-cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --exclude sqruff-sqlinference --exclude lineage --locked --offline
+cargo test --all --all-features --exclude sqruff --exclude sqruff-lib-core --exclude sqruff-lib-dialects --exclude sqruff-sqlinference --exclude lineage --locked --offline
 """,
 )
 
@@ -472,6 +474,8 @@ test_suite(
     tests = [
         ":cargo_workspace_tests",
         "//crates/cli:cli_tests",
+        "//crates/lib-dialects:dialect_tests",
+        "//crates/lib-dialects:sqruff-lib-dialects-test",
     ],
 )
 

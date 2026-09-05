@@ -4,7 +4,9 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::{DialectConfig, DialectKind};
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
+use sqruff_lib_core::parser::grammar::anyof::{
+    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
+};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Anything, Ref};
@@ -951,12 +953,13 @@ fn create_table_statement() -> Matchable {
         Sequence::new(vec![
             kw("CREATE"),
             optional_sequence(vec![kw("OR"), kw("REPLACE")]),
-            one_of(vec![kw("SET"), kw("MULTISET")])
-                .config(|this| this.optional())
+            any_set_of(vec![
+                one_of(vec![kw("SET"), kw("MULTISET")]).to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![kw("GLOBAL"), kw("TEMPORARY")]).to_matchable(),
+                    kw("VOLATILE"),
+                ])
                 .to_matchable(),
-            one_of(vec![
-                Sequence::new(vec![kw("GLOBAL"), kw("TEMPORARY")]).to_matchable(),
-                kw("VOLATILE"),
             ])
             .config(|this| this.optional())
             .to_matchable(),

@@ -39,8 +39,20 @@ fn main() {
             }
         };
 
-        // for every sql file in that folder
-        for sql_file in glob(&format!("{}/*.sql", templater_setup.to_str().unwrap())).unwrap() {
+        // Check root fixture files and models nested below `model_directory`.
+        // Macro directories are intentionally excluded because their SQL files
+        // are inputs to the templater rather than parse expectations.
+        let sql_patterns = [
+            format!("{}/*.sql", templater_setup.to_str().unwrap()),
+            format!(
+                "{}/model_directory/**/*.sql",
+                templater_setup.to_str().unwrap()
+            ),
+        ];
+        for sql_file in sql_patterns
+            .iter()
+            .flat_map(|pattern| glob(pattern).unwrap())
+        {
             let sql_file = sql_file.unwrap();
             let yaml_file = sql_file.with_extension("yml");
             let yaml_file = std::path::absolute(yaml_file).unwrap();

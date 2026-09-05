@@ -718,9 +718,19 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("VALUES").to_matchable(),
                     Ref::keyword("BETWEEN").to_matchable(),
-                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("BareFunctionSegment").to_matchable(),
+                        Ref::new("FunctionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::keyword("AND").to_matchable(),
-                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("BareFunctionSegment").to_matchable(),
+                        Ref::new("FunctionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("WITH").to_matchable(),
                         Ref::keyword("STEP").to_matchable(),

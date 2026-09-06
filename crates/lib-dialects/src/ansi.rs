@@ -5270,7 +5270,7 @@ fn lexer_matchers() -> Vec<Matcher> {
         ),
         Matcher::regex(
             "double_quote",
-            r#""([^"\\]|\\.)*""#,
+            r#""(""|[^"\\]|\\.)*""#,
             SyntaxKind::DoubleQuote,
         ),
         Matcher::regex("back_quote", r"`[^`]*`", SyntaxKind::BackQuote),

@@ -27,6 +27,118 @@ use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(SnowflakeDialectConfig {});
 
+fn copy_option_matchables() -> Vec<Matchable> {
+    vec![
+        Sequence::new(vec![
+            Ref::keyword("ON_ERROR").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("CopyOptionOnErrorSegment").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("SIZE_LIMIT").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("NumericLiteralSegment").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("PURGE").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("BooleanLiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("RETURN_FAILED_ONLY").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("BooleanLiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("MATCH_BY_COLUMN_NAME").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            one_of(vec![
+                Ref::keyword("CASE_SENSITIVE").to_matchable(),
+                Ref::keyword("CASE_INSENSITIVE").to_matchable(),
+                Ref::keyword("NONE").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("INCLUDE_METADATA").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Bracketed::new(vec![
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("METADATA$FILENAME").to_matchable(),
+                            Ref::keyword("METADATA$FILE_ROW_NUMBER").to_matchable(),
+                            Ref::keyword("METADATA$FILE_CONTENT_KEY").to_matchable(),
+                            Ref::keyword("METADATA$FILE_LAST_MODIFIED").to_matchable(),
+                            Ref::keyword("METADATA$START_SCAN_TIME").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("ENFORCE_LENGTH").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("BooleanLiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("TRUNCATECOLUMNS").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("BooleanLiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("FORCE").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("BooleanLiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("OVERWRITE").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("BooleanLiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("SINGLE").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("BooleanLiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("MAX_FILE_SIZE").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("NumericLiteralSegment").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("INCLUDE_QUERY_ID").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("BooleanLiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("DETAILED_OUTPUT").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("BooleanLiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+    ]
+}
+
 fn external_volume_storage_location() -> Matchable {
     Bracketed::new(vec![
         Ref::keyword("NAME").to_matchable(),
@@ -5658,122 +5770,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     snowflake_dialect.add([(
         "CopyOptionsSegment".into(),
         NodeMatcher::new(SyntaxKind::CopyOptions, |_| {
-            one_of(vec![
-                any_set_of(vec![
-                    Sequence::new(vec![
-                        Ref::keyword("ON_ERROR").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("CopyOptionOnErrorSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("SIZE_LIMIT").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("NumericLiteralSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("PURGE").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("RETURN_FAILED_ONLY").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("MATCH_BY_COLUMN_NAME").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        one_of(vec![
-                            Ref::keyword("CASE_SENSITIVE").to_matchable(),
-                            Ref::keyword("CASE_INSENSITIVE").to_matchable(),
-                            Ref::keyword("NONE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("INCLUDE_METADATA").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![
-                                Sequence::new(vec![
-                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
-                                    Ref::new("EqualsSegment").to_matchable(),
-                                    one_of(vec![
-                                        Ref::keyword("METADATA$FILENAME").to_matchable(),
-                                        Ref::keyword("METADATA$FILE_ROW_NUMBER").to_matchable(),
-                                        Ref::keyword("METADATA$FILE_CONTENT_KEY").to_matchable(),
-                                        Ref::keyword("METADATA$FILE_LAST_MODIFIED").to_matchable(),
-                                        Ref::keyword("METADATA$START_SCAN_TIME").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("ENFORCE_LENGTH").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("TRUNCATECOLUMNS").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("FORCE").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-                any_set_of(vec![
-                    Sequence::new(vec![
-                        Ref::keyword("OVERWRITE").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("SINGLE").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("MAX_FILE_SIZE").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("NumericLiteralSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("INCLUDE_QUERY_ID").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("DETAILED_OUTPUT").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("BooleanLiteralGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable()
+            any_set_of(copy_option_matchables()).to_matchable()
         })
         .to_matchable()
         .into(),
@@ -8082,7 +8079,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("FROM").to_matchable(),
                         one_of(vec![
                             Ref::new("TableReferenceSegment").to_matchable(),
-                            Bracketed::new(vec![Ref::new("SelectStatementSegment").to_matchable()])
+                            Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
                                 .to_matchable(),
                         ])
                         .to_matchable(),
@@ -8098,29 +8095,33 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("InternalStageParameters")
                         .optional()
                         .to_matchable(),
-                    any_set_of(vec![
-                        Ref::new("PartitionBySegment").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("FILE_FORMAT").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("FileFormatSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("CopyOptionsSegment").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("VALIDATION_MODE").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("ValidationModeOptionSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("HEADER").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("BooleanLiteralGrammar").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    {
+                        let mut copy_into_location_options = vec![
+                            Ref::new("PartitionBySegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("FILE_FORMAT").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("FileFormatSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ];
+                        copy_into_location_options.extend(copy_option_matchables());
+                        copy_into_location_options.extend([
+                            Sequence::new(vec![
+                                Ref::keyword("VALIDATION_MODE").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("ValidationModeOptionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("HEADER").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ]);
+                        any_set_of(copy_into_location_options).to_matchable()
+                    },
                 ])
                 .to_matchable()
             })
@@ -8160,38 +8161,40 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("InternalStageParameters")
                         .optional()
                         .to_matchable(),
-                    any_set_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("FILES").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Bracketed::new(vec![
-                                Delimited::new(vec![
-                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    {
+                        let mut copy_into_table_options = vec![
+                            Sequence::new(vec![
+                                Ref::keyword("FILES").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
                             .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("PATTERN").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            one_of(vec![
-                                Ref::new("QuotedLiteralSegment").to_matchable(),
-                                Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("PATTERN").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("FILE_FORMAT").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("FileFormatSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("CopyOptionsSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("FILE_FORMAT").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("FileFormatSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ];
+                        copy_into_table_options.extend(copy_option_matchables());
+                        any_set_of(copy_into_table_options).to_matchable()
+                    },
                     Sequence::new(vec![
                         Ref::keyword("VALIDATION_MODE").to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),

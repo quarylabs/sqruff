@@ -29,6 +29,12 @@ impl GithubAnnotationNativeFormatter {
 
 impl Formatter for GithubAnnotationNativeFormatter {
     fn dispatch_file_violations(&self, linted_file: &LintedFile) {
+        if !linted_file.has_violations() {
+            return;
+        }
+
+        self.dispatch(&format!("::group::{}\n", linted_file.path()));
+
         for violation in linted_file.violations() {
             let message = format!(
                 "::error title=sqruff,file={},line={},col={}::{}: {}\n",
@@ -42,6 +48,8 @@ impl Formatter for GithubAnnotationNativeFormatter {
             self.dispatch(&message);
             self.has_fail.store(true, Ordering::SeqCst);
         }
+
+        self.dispatch("::endgroup::\n");
     }
 
     fn dispatch_file_skip(&self, _fname: &str, _reason: &str) {

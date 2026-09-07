@@ -589,6 +589,70 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // RAISERROR is a statement in T-SQL and is commonly used inside trigger
+    // bodies.
+    dialect.add([(
+        "RaiserrorStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::RaiserrorStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("RAISERROR").to_matchable(),
+                Bracketed::new(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("CommaSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("QualifiedNumericLiteralSegment").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("CommaSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("QualifiedNumericLiteralSegment").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("CommaSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("LiteralGrammar").to_matchable(),
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.max_times(20))
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Delimited::new(vec![
+                        Ref::keyword("LOG").to_matchable(),
+                        Ref::keyword("NOWAIT").to_matchable(),
+                        Ref::keyword("SETERROR").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     dialect.add([(
         "ReturnStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::ReturnSegment, |_| {
@@ -622,6 +686,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("DeclareStatementSegment").to_matchable(),
                             Ref::new("SetVariableStatementSegment").to_matchable(),
                             Ref::new("PrintStatementSegment").to_matchable(),
+                            Ref::new("RaiserrorStatementSegment").to_matchable(),
                             Ref::new("ReturnStatementSegment").to_matchable(),
                             Ref::new("IfStatementSegment").to_matchable(),
                             Ref::new("WhileStatementSegment").to_matchable(),
@@ -1115,6 +1180,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DeclareStatementGrammar").to_matchable(),
             Ref::new("SetVariableStatementGrammar").to_matchable(),
             Ref::new("PrintStatementGrammar").to_matchable(),
+            Ref::new("RaiserrorStatementSegment").to_matchable(),
             Ref::new("ReturnStatementSegment").to_matchable(),
             Ref::new("IfStatementGrammar").to_matchable(),
             Ref::new("WhileStatementGrammar").to_matchable(),

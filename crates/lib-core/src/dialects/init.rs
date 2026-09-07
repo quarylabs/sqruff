@@ -190,10 +190,20 @@ impl DialectKind {
     /// Returns documentation about how the dialect stores and resolves identifier casing.
     pub fn default_casing(&self) -> Option<&'static str> {
         match self {
-            DialectKind::Ansi
-            | DialectKind::Bigquery
-            | DialectKind::Snowflake
-            | DialectKind::Trino => Some("`UPPERCASE`"),
+            DialectKind::Ansi | DialectKind::Snowflake => Some("`UPPERCASE`"),
+            DialectKind::Bigquery => Some(concat!(
+                "BigQuery resolves unquoted column identifiers case-insensitively, and table ",
+                "and dataset identifiers case-sensitively by default. Columns retain the case ",
+                "used by each reference in result-set labels."
+            )),
+            DialectKind::Clickhouse => Some(concat!(
+                "ClickHouse is case-sensitive throughout, regardless of quoting. An unquoted ",
+                "reference using the wrong case raises an `UNKNOWN_IDENTIFIER` error."
+            )),
+            DialectKind::Trino => Some(concat!(
+                "`lowercase`, although the case of a reference is used in its result-set column ",
+                "label."
+            )),
             DialectKind::Athena
             | DialectKind::Mariadb
             | DialectKind::Mysql
@@ -217,8 +227,7 @@ impl DialectKind {
                 "SQLite does not specify a default in its documentation. Testing indicates that ",
                 "it stores column names in their declared case but resolves them case-insensitively."
             )),
-            DialectKind::Clickhouse
-            | DialectKind::Databricks
+            DialectKind::Databricks
             | DialectKind::Db2
             | DialectKind::Exasol
             | DialectKind::Greenplum
@@ -246,8 +255,12 @@ impl DialectKind {
             DialectKind::Bigquery => Some(concat!(
                 "String literals: `''`, `\"\"`, `@`, or `@@`; quoted strings also support ",
                 "`r`/`R` raw or regex prefixes and `b`/`B` byte-string prefixes. Identifiers: ",
-                "`\"\"` or backticks. Unquoted aliases resolve case-insensitively but retain ",
-                "their case in result sets."
+                "`\"\"` or backticks."
+            )),
+            DialectKind::Clickhouse => Some(concat!(
+                "String literals: `''`; identifiers: `\"\"` or backticks. Because identifiers ",
+                "are always resolved case-sensitively, quoting is only needed for invalid ",
+                "characters or reserved keywords."
             )),
             DialectKind::Duckdb => Some("String literals: `''`; identifiers: `\"\"` or `''`."),
             DialectKind::Mariadb | DialectKind::Mysql => {
@@ -261,8 +274,7 @@ impl DialectKind {
                 "identifiers: `\"\"`, `[]`, or backticks. See the ",
                 "[SQLite keywords documentation](https://sqlite.org/lang_keywords.html)."
             )),
-            DialectKind::Clickhouse
-            | DialectKind::Databricks
+            DialectKind::Databricks
             | DialectKind::Db2
             | DialectKind::Exasol
             | DialectKind::Greenplum
@@ -367,6 +379,30 @@ mod tests {
         assert_eq!(
             DialectKind::Postgres.quotes(),
             Some("String literals: `''`; identifiers: `\"\"`.")
+        );
+        assert!(
+            DialectKind::Bigquery
+                .default_casing()
+                .unwrap()
+                .contains("column identifiers case-insensitively")
+        );
+        assert!(
+            DialectKind::Clickhouse
+                .default_casing()
+                .unwrap()
+                .contains("case-sensitive throughout")
+        );
+        assert!(
+            DialectKind::Clickhouse
+                .quotes()
+                .unwrap()
+                .contains("always resolved case-sensitively")
+        );
+        assert!(
+            DialectKind::Trino
+                .default_casing()
+                .unwrap()
+                .starts_with("`lowercase`")
         );
         assert_eq!(DialectKind::Tsql.default_casing(), None);
         assert_eq!(DialectKind::Tsql.quotes(), None);

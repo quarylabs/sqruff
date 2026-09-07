@@ -83,8 +83,8 @@ whether they refer to columns or other objects such as tables or schemas.
 
 **Note:** In most dialects, unquoted identifiers are treated as case-insensitive,
 so the fixes proposed by this rule do not change the interpretation of the query.
-However, some databases—notably BigQuery and ClickHouse—use the casing of
-unquoted identifiers when determining the casing of column headings in results.
+However, some databases—notably BigQuery, Trino, and ClickHouse—use the casing
+of unquoted identifiers when determining the casing of column headings in results.
 
 Because this behavior is limited to a few dialects and is not widely understood,
 it is considered an antipattern. If identifier case matters, quote the identifier.

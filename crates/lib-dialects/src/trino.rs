@@ -533,28 +533,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("VARBINARY").to_matchable(),
                     Ref::keyword("JSON").to_matchable(),
                     Ref::keyword("DATE").to_matchable(),
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::keyword("TIME").to_matchable(),
-                            Ref::keyword("TIMESTAMP").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("BracketedArguments").optional().to_matchable(),
-                        Sequence::new(vec![
-                            one_of(vec![
-                                Ref::keyword("WITH").to_matchable(),
-                                Ref::keyword("WITHOUT").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("TIME").to_matchable(),
-                            Ref::keyword("ZONE").to_matchable(),
-                        ])
-                        .config(|config| {
-                            config.optional();
-                        })
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("TimeWithTZGrammar").to_matchable(),
                     // Structural
                     Ref::new("ArrayTypeSegment").to_matchable(),
                     Ref::keyword("MAP").to_matchable(),

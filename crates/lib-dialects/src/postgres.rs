@@ -1330,28 +1330,7 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::DatetimeTypeIdentifier, |_| {
             one_of(vec![
                 Ref::keyword("DATE").to_matchable(),
-                Sequence::new(vec![
-                    one_of(vec![
-                        Ref::keyword("TIME").to_matchable(),
-                        Ref::keyword("TIMESTAMP").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::keyword("WITH").to_matchable(),
-                            Ref::keyword("WITHOUT").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::keyword("TIME").to_matchable(),
-                        Ref::keyword("ZONE").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("TimeWithTZGrammar").to_matchable(),
                 Sequence::new(vec![
                     one_of(vec![
                         Ref::keyword("INTERVAL").to_matchable(),

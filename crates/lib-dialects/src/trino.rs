@@ -109,11 +109,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("UTF16").to_matchable(),
                         Ref::keyword("UTF32").to_matchable(),
                     ])
-                    .config(|config| {
-                        config.optional();
-                    })
                     .to_matchable(),
                 ])
+                .config(|config| {
+                    config.optional();
+                })
                 .to_matchable(),
             ])
             .to_matchable()
@@ -390,28 +390,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("IndexColumnDefinitionSegment").to_matchable(),
                 Ref::new("EmptyStructLiteralSegment").to_matchable(),
                 Ref::new("ListaggOverflowClauseSegment").to_matchable(),
-            ])
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "FormatJsonEncodingGrammar".into(),
-            Sequence::new(vec![
-                Ref::keyword("FORMAT").to_matchable(),
-                Ref::keyword("JSON").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("ENCODING").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("UTF8").to_matchable(),
-                        Ref::keyword("UTF16").to_matchable(),
-                        Ref::keyword("UTF32").to_matchable(),
-                    ])
-                    .config(|config| {
-                        config.optional();
-                    })
-                    .to_matchable(),
-                ])
-                .to_matchable(),
             ])
             .to_matchable()
             .into(),

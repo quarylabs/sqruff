@@ -407,25 +407,41 @@ Find self-aliased columns and fix them
 
 **Groups:** `all`, `core`, `aliasing`
 
-**Fixable:** No
+**Fixable:** Yes
+
+Column aliases should not alias to themselves.
+
+Renaming a column to itself is redundant. This rule only removes aliases that
+are exact copies of the column reference, including their quoting and casing.
+Aliases that change the effective casing of an identifier are allowed.
 
 **Anti-pattern**
 
-Aliasing the column to itself.
+Aliasing a column to itself where the alias is not needed to change its case.
 
 ```sql
 SELECT
-    col AS col
+    col AS col,
+    "Col" AS "Col",
+    COL AS col
 FROM table;
 ```
 
 **Best practice**
 
-Not to use alias to rename the column to its original name. Self-aliasing leads to redundant code without changing any functionality.
+Remove aliases that exactly repeat their column reference. Case-changing
+aliases remain valid.
 
 ```sql
 SELECT
-    col
+    col,
+    "Col",
+    COL
+FROM table;
+
+SELECT
+    col AS "Col",
+    "col" AS "COL"
 FROM table;
 ```
 
@@ -809,8 +825,8 @@ whether they refer to columns or other objects such as tables or schemas.
 
 **Note:** In most dialects, unquoted identifiers are treated as case-insensitive,
 so the fixes proposed by this rule do not change the interpretation of the query.
-However, some databases—notably BigQuery and ClickHouse—use the casing of
-unquoted identifiers when determining the casing of column headings in results.
+However, some databases—notably BigQuery, Trino, and ClickHouse—use the casing
+of unquoted identifiers when determining the casing of column headings in results.
 
 Because this behavior is limited to a few dialects and is not widely understood,
 it is considered an antipattern. If identifier case matters, quote the identifier.

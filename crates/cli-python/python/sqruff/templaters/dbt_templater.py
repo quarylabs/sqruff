@@ -36,6 +36,7 @@ from jinja2_simple_tags import StandaloneTag
 from sqruff.templaters.jinja_templater import JinjaTemplater
 from sqruff.templaters.python_templater import (
     TemplatedFile,
+    SQLFluffSkipFile,
     SQLTemplaterError,
     FluffConfig,
     fluff_config_from_json,
@@ -682,7 +683,7 @@ class DbtTemplater(JinjaTemplater):
                 # to happen if we tried to compile ephemeral models in the
                 # wrong order), but more often because a macro tries to query
                 # a table at compile time which doesn't exist.
-                raise Exception(
+                raise SQLFluffSkipFile(
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"
                 )

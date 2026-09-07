@@ -31,10 +31,11 @@ file:
     - table_constraint:
       - keyword: PRIMARY
       - keyword: KEY
-      - bracketed:
-        - start_bracket: (
-        - column_reference:
-          - naked_identifier: EmpID
-        - end_bracket: )
+      - bracketed_index_column_list_grammar:
+        - bracketed:
+          - start_bracket: (
+          - index_column_definition:
+            - naked_identifier: EmpID
+          - end_bracket: )
     - end_bracket: )
 - statement_terminator: ;

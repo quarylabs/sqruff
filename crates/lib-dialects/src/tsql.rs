@@ -2664,49 +2664,95 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    dialect.replace_grammar(
+        "PrimaryKeyGrammar",
+        Sequence::new(vec![
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("PRIMARY").to_matchable(),
+                    Ref::keyword("KEY").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("UNIQUE").to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("CLUSTERED").to_matchable(),
+                Ref::keyword("NONCLUSTERED").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // Extend ColumnConstraintSegment to include T-SQL specific constraints
     dialect.add([(
         "ColumnConstraintSegment".into(),
         NodeMatcher::new(SyntaxKind::ColumnConstraintSegment, |_| {
-            Sequence::new(vec![
+            one_of(vec![
+                // A primary or foreign key may have a column list and options.
+                // Keep this before the shorter column-constraint alternative so
+                // the Rust matcher does not stop after PRIMARY KEY CLUSTERED.
+                Ref::new("TableConstraintSegment").to_matchable(),
                 Sequence::new(vec![
-                    Ref::keyword("CONSTRAINT").to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CONSTRAINT").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    one_of(vec![
+                        // NOT NULL / NULL
+                        Sequence::new(vec![
+                            Ref::keyword("NOT").optional().to_matchable(),
+                            Ref::keyword("NULL").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        // CHECK constraint
+                        Sequence::new(vec![
+                            Ref::keyword("CHECK").to_matchable(),
+                            Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        // DEFAULT constraint
+                        Sequence::new(vec![
+                            Ref::keyword("DEFAULT").to_matchable(),
+                            Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        // Primary key without a column list.
+                        Ref::new("PrimaryKeyGrammar").to_matchable(),
+                        Ref::new("IdentityConstraintGrammar").to_matchable(), // T-SQL IDENTITY
+                        Ref::new("AutoIncrementGrammar").to_matchable(), // Keep ANSI AUTO_INCREMENT
+                        // Foreign key without a column list.
+                        Ref::new("ForeignKeyGrammar").to_matchable(),
+                        Ref::new("ReferencesConstraintGrammar").to_matchable(),
+                        Ref::new("CommentClauseSegment").to_matchable(),
+                        // COLLATE
+                        Sequence::new(vec![
+                            Ref::keyword("COLLATE").to_matchable(),
+                            Ref::new("CollationReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
-                .config(|this| this.optional())
                 .to_matchable(),
-                one_of(vec![
-                    // NOT NULL / NULL
-                    Sequence::new(vec![
-                        Ref::keyword("NOT").optional().to_matchable(),
-                        Ref::keyword("NULL").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    // CHECK constraint
-                    Sequence::new(vec![
-                        Ref::keyword("CHECK").to_matchable(),
-                        Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
-                            .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    // DEFAULT constraint
-                    Sequence::new(vec![
-                        Ref::keyword("DEFAULT").to_matchable(),
-                        Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::new("PrimaryKeyGrammar").to_matchable(),
-                    Ref::new("UniqueKeyGrammar").to_matchable(),
-                    Ref::new("IdentityConstraintGrammar").to_matchable(), // T-SQL IDENTITY
-                    Ref::new("AutoIncrementGrammar").to_matchable(), // Keep ANSI AUTO_INCREMENT
-                    Ref::new("ReferencesConstraintGrammar").to_matchable(),
-                    Ref::new("CommentClauseSegment").to_matchable(),
-                    // COLLATE
-                    Sequence::new(vec![
-                        Ref::keyword("COLLATE").to_matchable(),
-                        Ref::new("CollationReferenceSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "BracketedIndexColumnListGrammar".into(),
+        NodeMatcher::new(SyntaxKind::BracketedIndexColumnListGrammar, |_| {
+            Bracketed::new(vec![
+                Delimited::new(vec![
+                    Ref::new("IndexColumnDefinitionSegment").to_matchable(),
                 ])
                 .to_matchable(),
             ])
@@ -2805,7 +2851,7 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
                 Sequence::new(vec![
                     Ref::new("PrimaryKeyGrammar").to_matchable(),
-                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    Ref::new("BracketedIndexColumnListGrammar").to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![

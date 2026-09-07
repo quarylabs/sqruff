@@ -1,6 +1,7 @@
 import json
 import os
 import pickle
+import shutil
 from pathlib import Path
 
 import pytest
@@ -14,7 +15,11 @@ from sqruff.templaters.dbt_templater import (
     process_batch_from_rust,
     process_from_rust,
 )
-from sqruff.templaters.python_templater import FluffConfig, SQLTemplaterError
+from sqruff.templaters.python_templater import (
+    FluffConfig,
+    SQLFluffSkipFile,
+    SQLTemplaterError,
+)
 
 
 class DbtCompilationError(Exception):
@@ -82,6 +87,55 @@ from source_data
     assert len(templated_file.sliced_file) > 1
     assert templated_file.raw_sliced
     assert len(templated_file.raw_sliced) > 1
+
+
+def test_dbt_compile_failure_reports_reason(tmp_path):
+    """Include the triggering dbt error when a model fails to compile."""
+    if "PROJECT_ROOT" in os.environ:
+        project_root = Path(os.environ["PROJECT_ROOT"])
+        source_project = project_root / "crates/cli-python/tests/dbt_sample"
+    else:
+        current = Path(os.path.dirname(os.path.abspath(__file__)))
+        source_project = current.joinpath("../../../tests/dbt_sample")
+
+    project = tmp_path / "dbt_sample"
+    shutil.copytree(
+        source_project,
+        project,
+        ignore=shutil.ignore_patterns("target", "logs", "*.duckdb"),
+    )
+    source_model = project / "error_models/compile_missing_table.sql"
+    target_model = project / "models/compile_missing_table.sql"
+    shutil.copyfile(source_model, target_model)
+
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_apply_dbt_builtins=True,
+        jinja_library_paths=None,
+        jinja_templater_paths=None,
+        jinja_exclude_macros_from_path=None,
+        jinja_loader_search_path=None,
+        jinja_ignore_templating=None,
+        dbt_target=None,
+        dbt_profile=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=str(project),
+        dbt_profiles_dir=str(project / "profiles"),
+    )
+
+    clear_templater_cache()
+    with pytest.raises(
+        SQLFluffSkipFile,
+        match="because dbt raised a fatal exception during compilation",
+    ):
+        process_from_rust(
+            target_model.read_text(),
+            str(target_model.resolve()),
+            json.dumps(config._asdict()),
+            {},
+        )
+    clear_templater_cache()
 
 
 def test_templater_caching():

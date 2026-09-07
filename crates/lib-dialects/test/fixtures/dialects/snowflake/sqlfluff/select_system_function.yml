@@ -21,3 +21,16 @@ file:
           - quoted_literal: '''MY_TASK'''
           - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - system_function_name: SYSTEM$SHOW_STREAMLITS_IN_ACCOUNT
+        - bracketed:
+          - start_bracket: (
+          - boolean_literal: 'true'
+          - comma: ','
+          - boolean_literal: 'false'
+          - end_bracket: )
+- statement_terminator: ;

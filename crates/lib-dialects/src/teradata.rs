@@ -1003,6 +1003,7 @@ fn update_statement() -> Matchable {
     NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
         Sequence::new(vec![
             kw("UPDATE"),
+            MetaSegment::indent().to_matchable(),
             one_of(vec![
                 Ref::new("TableReferenceSegment").to_matchable(),
                 Ref::new("FromUpdateClauseSegment").to_matchable(),
@@ -1013,6 +1014,7 @@ fn update_statement() -> Matchable {
                 .to_matchable(),
             ])
             .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
             Ref::new("SetClauseListSegment").to_matchable(),
             Ref::new("WhereClauseSegment").optional().to_matchable(),
         ])

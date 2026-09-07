@@ -116,14 +116,15 @@ file:
                     - numeric_literal: '7'
                     - end_square_bracket: ']'
               - comma: ','
-              - parameter: x
-              - lambda_arrow: ->
-              - expression:
-                - column_reference:
-                  - naked_identifier: x
-                - comparison_operator:
-                  - raw_comparison_operator: '>'
-                - numeric_literal: '0'
+              - lambda_function:
+                - parameter: x
+                - lambda_arrow: ->
+                - expression:
+                  - column_reference:
+                    - naked_identifier: x
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                  - numeric_literal: '0'
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -154,14 +155,15 @@ file:
                     - numeric_literal: '7'
                     - end_square_bracket: ']'
               - comma: ','
-              - parameter: x
-              - lambda_arrow: ->
-              - expression:
-                - column_reference:
-                  - naked_identifier: x
-                - comparison_operator:
-                  - raw_comparison_operator: '>'
-                - numeric_literal: '0'
+              - lambda_function:
+                - parameter: x
+                - lambda_arrow: ->
+                - expression:
+                  - column_reference:
+                    - naked_identifier: x
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                  - numeric_literal: '0'
               - end_bracket: )
 - statement_terminator: ;
 - statement:

@@ -1083,6 +1083,32 @@ file:
 - statement:
   - access_statement:
     - keyword: grant
+    - keyword: monitor
+    - keyword: on
+    - keyword: user
+    - object_reference:
+      - naked_identifier: some_user
+    - keyword: to
+    - keyword: role
+    - role_reference:
+      - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: revoke
+    - keyword: monitor
+    - keyword: on
+    - keyword: user
+    - object_reference:
+      - naked_identifier: some_user
+    - keyword: from
+    - keyword: role
+    - object_reference:
+      - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: grant
     - keyword: override
     - keyword: share
     - keyword: restrictions

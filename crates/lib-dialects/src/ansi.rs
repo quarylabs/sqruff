@@ -5066,6 +5066,7 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                                 Ref::new("FunctionSegment").to_matchable(),
                                 Ref::new("LocalAliasSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
                             ])
                             .to_matchable(),
                         ])

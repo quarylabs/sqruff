@@ -83,3 +83,45 @@ file:
 - statement_terminator: ;
 - statement:
   - keyword: GO
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '[HangFire]'
+        - dot: .
+        - quoted_identifier: '[JobParameter]'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+        - quoted_identifier: '[FK_HangFire_JobParameter_Job]'
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[JobId]'
+        - end_bracket: )
+      - references_constraint_grammar:
+        - keyword: REFERENCES
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[HangFire]'
+            - dot: .
+            - quoted_identifier: '[Job]'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - quoted_identifier: '[Id]'
+          - end_bracket: )
+        - keyword: ON
+        - keyword: UPDATE
+        - keyword: CASCADE
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - keyword: GO

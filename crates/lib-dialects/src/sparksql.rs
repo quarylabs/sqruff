@@ -3773,6 +3773,7 @@ pub fn raw_dialect() -> Dialect {
         "UpdateStatementSegment",
         Sequence::new(vec![
             Ref::keyword("UPDATE").to_matchable(),
+            MetaSegment::indent().to_matchable(),
             one_of(vec![
                 Ref::new("FileReferenceSegment").to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
@@ -3785,6 +3786,7 @@ pub fn raw_dialect() -> Dialect {
                     config.exclude = Ref::keyword("SET").to_matchable().into();
                 })
                 .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
             Ref::new("SetClauseListSegment").to_matchable(),
             Ref::new("WhereClauseSegment").optional().to_matchable(),
         ])

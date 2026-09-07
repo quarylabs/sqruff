@@ -8436,11 +8436,13 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("UPDATE").to_matchable(),
                     Ref::keyword("ONLY").optional().to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("AliasExpressionSegment")
                         .exclude(Ref::keyword("SET"))
                         .optional()
                         .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                     Ref::new("SetClauseListSegment").to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),
                     one_of(vec![

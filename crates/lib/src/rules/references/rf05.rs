@@ -112,6 +112,11 @@ CREATE TABLE DBO.ColumnNames
             return Vec::new();
         }
 
+        if Self::is_aliased_select_clause_element(context) {
+            // If selects are aliased, ignore the unaliased column reference.
+            return Vec::new();
+        }
+
         let mut policy = self.unquoted_identifiers_policy.as_str();
         let mut identifier = context.segment.raw().to_string();
 
@@ -218,6 +223,25 @@ impl RuleRF05 {
         if dialect_name == DialectKind::Bigquery {
             result.insert('-');
         }
+        if dialect_name == DialectKind::Snowflake {
+            // In Snowflake, external stage metadata uses `$`.
+            result.insert('$');
+        }
         result
+    }
+
+    fn is_aliased_select_clause_element(context: &RuleContext) -> bool {
+        for segment in context.parent_stack.iter().rev() {
+            if segment.is_type(SyntaxKind::AliasExpression) {
+                return false;
+            }
+            if segment.is_type(SyntaxKind::SelectClauseElement) {
+                return segment
+                    .child(const { &SyntaxSet::single(SyntaxKind::AliasExpression) })
+                    .is_some();
+            }
+        }
+
+        false
     }
 }

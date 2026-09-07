@@ -1213,6 +1213,21 @@ fn lint_line_untaken_negative_indents(
             continue;
         }
 
+        // Template blocks can sit in unusual places in the parse tree. Do not
+        // introduce a forced line break immediately before one.
+        if elements.get(ip.idx + 1).is_some_and(|element| {
+            element.class_types().contains(SyntaxKind::Placeholder)
+                && element.segments().iter().any(|segment| {
+                    segment.is_type(SyntaxKind::Placeholder)
+                        && matches!(
+                            segment.block_type(),
+                            Some(BlockType::BlockStart | BlockType::BlockMid | BlockType::BlockEnd)
+                        )
+                })
+        }) {
+            continue;
+        }
+
         let desired_indent = single_indent.repeat(
             (ip.closing_indent_balance() - ip.untaken_indents.len() as isize
                 + forced_indents.len() as isize)

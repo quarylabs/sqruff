@@ -3714,7 +3714,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("COMMENT").to_matchable(),
                     Ref::new("EqualsSegment").to_matchable(),
-                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("DoubleQuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

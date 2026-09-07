@@ -120,3 +120,38 @@ file:
         - raw_comparison_operator: =
       - quoted_literal: '''de_DE'''
 - statement_terminator: ;
+- statement:
+  - create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: MYDB
+        - dot: .
+        - naked_identifier: MYSCHEMA
+    - schema_object_properties:
+      - comment_equals_clause:
+        - keyword: COMMENT
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '"Space for landing my data"'
+- statement_terminator: ;
+- statement:
+  - create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: MYDB
+        - dot: .
+        - naked_identifier: MYSCHEMA
+    - schema_object_properties:
+      - comment_equals_clause:
+        - keyword: COMMENT
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '"Space for landing my data"'
+- statement_terminator: ;

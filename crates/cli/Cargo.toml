@@ -47,6 +47,8 @@ dhat = { version = "0.3.3", optional = true }
 mimalloc = { version = "0.1.52", optional = true }
 
 [dev-dependencies]
+# Make the optional heap profiler available to Bazel's all-features Clippy check.
+dhat = "0.3.3"
 assert_cmd = "2.2.2"
 expect-test = "1.5.0"
 tempfile = "3.23.0"

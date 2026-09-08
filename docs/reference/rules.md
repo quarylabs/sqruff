@@ -510,7 +510,7 @@ UNION DISTINCT
 SELECT a, b FROM table_2
 ```
 
-**Dialects where this rule is skipped:** `duckdb`, `exasol`, `postgres`, `snowflake`, `sparksql`
+**Dialects where this rule is skipped:** `duckdb`, `exasol`, `postgres`, `sparksql`
 
 ### ambiguous.order_by
 

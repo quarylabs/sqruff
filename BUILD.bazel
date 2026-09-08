@@ -3,11 +3,13 @@ load("@aspect_bazel_lib//lib:run_binary.bzl", "run_binary")
 load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
-load("@rules_rust//rust:defs.bzl", "rust_clippy", "rustfmt_test")
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+load("@rules_rust//rust:defs.bzl", "rustfmt_test")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 load(":cargo_build.bzl", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
+load(":clippy.bzl", "clippy_feature_flag", "clippy_targets", "workspace_clippy")
 load(":linters.bzl", "keep_sorted_test")
 
 # Link all npm packages into node_modules
@@ -16,6 +18,7 @@ npm_link_all_packages(name = "node_modules")
 # Prettier configuration and pnpm workspace files
 exports_files([
     ".prettierrc.json",
+    "Cargo.toml",
     "package.json",
     "pnpm-lock.yaml",
     "pnpm-workspace.yaml",
@@ -336,10 +339,46 @@ rustfmt_test(
     targets = RUST_TARGETS,
 )
 
-# Rust clippy check
-rust_clippy(
+# Lint every workspace library and binary with Cargo's all-features coverage.
+clippy_feature_flag(
+    name = "clippy_all_features",
+    build_setting_default = False,
+)
+
+config_setting(
+    name = "clippy_all_features_enabled",
+    flag_values = {":clippy_all_features": "true"},
+    visibility = ["//visibility:public"],
+)
+
+clippy_targets(
+    name = "clippy_targets",
+    deps = RUST_TARGETS + ["//crates/cli-python:sqruff-python-clippy"],
+    tags = ["manual"],
+)
+
+workspace_clippy(
     name = "clippy_check",
-    deps = RUST_TARGETS,
+    check = ":clippy_targets",
+    manifests = [":cargo_manifests"],
+)
+
+py_binary(
+    name = "check_clippy_features",
+    srcs = [".hacking/scripts/check_clippy_features.py"],
+    main = ".hacking/scripts/check_clippy_features.py",
+    tags = ["manual"],
+)
+
+py_test(
+    name = "check_clippy_features_test",
+    size = "small",
+    srcs = [
+        ".hacking/scripts/check_clippy_features.py",
+        ".hacking/scripts/check_clippy_features_test.py",
+    ],
+    main = ".hacking/scripts/check_clippy_features_test.py",
+    imports = [".hacking/scripts"],
 )
 
 # Generate the reference docs as regular Bazel outputs.
@@ -390,7 +429,7 @@ sh_test(
 )
 
 # Cargo compiler checks share one writable target directory. Keeping these in a
-# single Bazel test lets Cargo reuse dependency artifacts between check, clippy,
+# single Bazel test lets Cargo reuse dependency artifacts between check
 # and the per-feature cargo-hack checks.
 cargo_test(
     name = "cargo_compile_checks",
@@ -407,10 +446,6 @@ export CARGO_INCREMENTAL=0
 
 echo "::group::Cargo check"
 cargo check --all --all-features --tests --benches --locked --offline
-echo "::endgroup::"
-
-echo "::group::Cargo clippy"
-cargo clippy --all --all-features --offline -- -D warnings
 echo "::endgroup::"
 
 echo "::group::Cargo hack"

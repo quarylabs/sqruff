@@ -1,3 +1,4 @@
+load("//:clippy.bzl", "cargo_lints")
 load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library", "rust_test")
 load("@rules_rust_wasm_bindgen//:defs.bzl", "rust_wasm_bindgen")
@@ -6,6 +7,7 @@ exports_files(["Cargo.toml"])
 
 rust_library(
     name = "sqruff-lsp",
+    lint_config = ":cargo_lints",
     srcs = glob(["src/**/*.rs"]),
     proc_macro_deps = all_crate_deps(proc_macro = True),
     visibility = ["//visibility:public"],
@@ -36,6 +38,7 @@ LSP_WASM_CRATE_NAMES = [
 
 rust_library(
     name = "sqruff-lsp-for-wasm",
+    lint_config = ":cargo_lints",
     srcs = glob(["src/**/*.rs"]),
     crate_name = "sqruff_lsp",
     visibility = ["//visibility:public"],
@@ -50,6 +53,7 @@ rust_library(
 # Dependencies are automatically cross-compiled for WASM due to platform attribute
 rust_shared_library(
     name = "sqruff-lsp-cdylib",
+    lint_config = ":cargo_lints",
     srcs = glob(["src/**/*.rs"]),
     crate_name = "sqruff_lsp",
     platform = "@rules_rust//rust/platform:wasm",
@@ -83,3 +87,6 @@ filegroup(
     ) + ["Cargo.toml"],
     visibility = ["//visibility:public"],
 )
+
+# Keep Rust and Clippy lint levels inherited from Cargo.toml.
+cargo_lints()

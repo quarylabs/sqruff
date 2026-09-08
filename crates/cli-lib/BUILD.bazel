@@ -1,3 +1,4 @@
+load("//:clippy.bzl", "cargo_lints", "clippy_config")
 load("@crates//:defs.bzl", "all_crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_library")
 
@@ -5,10 +6,25 @@ exports_files(["Cargo.toml"])
 
 rust_library(
     name = "sqruff-cli-lib",
+    lint_config = ":cargo_lints",
+    crate_features = clippy_config([], [
+        "clap-markdown",
+        "codegen-docs",
+        "minijinja",
+        "parser",
+        "pyo3",
+        "python",
+    ]),
+    compile_data = clippy_config([], glob(["src/docs/*.md"])),
     srcs = glob(["src/**/*.rs"]),
     proc_macro_deps = all_crate_deps(proc_macro = True),
     visibility = ["//visibility:public"],
-    deps = all_crate_deps(normal = True) + [
+    deps = all_crate_deps(normal = True) + clippy_config([], [
+        "//crates/lib-dialects:sqruff-lib-dialects",
+        "@crates//:clap-markdown",
+        "@crates//:minijinja",
+        "@rules_python//python/cc:current_py_cc_libs",
+    ]) + [
         "//crates/lib:sqruff-lib",
         "//crates/lib-core:sqruff-lib-core",
         "//crates/lsp:sqruff-lsp",
@@ -18,6 +34,7 @@ rust_library(
 # Variant with codegen-docs feature enabled for doc generation.
 rust_library(
     name = "sqruff-cli-lib-codegen",
+    lint_config = ":cargo_lints",
     srcs = glob(["src/**/*.rs"]),
     compile_data = glob(["src/docs/*.md"]),
     crate_features = ["codegen-docs"],
@@ -53,3 +70,6 @@ filegroup(
     ) + ["Cargo.toml"],
     visibility = ["//visibility:public"],
 )
+
+# Keep Rust and Clippy lint levels inherited from Cargo.toml.
+cargo_lints()

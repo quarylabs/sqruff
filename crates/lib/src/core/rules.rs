@@ -131,6 +131,14 @@ pub enum LintPhase {
 pub trait Rule: Debug + 'static + Send + Sync {
     fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String>;
 
+    /// Typed metadata for this rule's configuration options.
+    ///
+    /// An empty result means the rule has not declared typed metadata; it does
+    /// not necessarily mean the rule has no legacy configuration.
+    fn config_options(&self) -> Vec<sqruff_lib_core::config::ConfigOption> {
+        Vec::new()
+    }
+
     fn lint_phase(&self) -> LintPhase {
         LintPhase::Main
     }

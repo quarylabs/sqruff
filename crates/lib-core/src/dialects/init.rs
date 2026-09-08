@@ -16,6 +16,10 @@ pub trait DialectConfig: Default + Clone + std::fmt::Debug {
 
 /// Macro to generate a dialect config struct with `DialectConfig` impl and `config_options()`.
 ///
+/// Every field is a boolean and an unparseable value falls back to the default.
+/// See [`typed_config!`](crate::typed_config) for the validating variant used
+/// by rules, where a field can be any type and a bad value is an error.
+///
 /// # Usage
 ///
 /// ```ignore

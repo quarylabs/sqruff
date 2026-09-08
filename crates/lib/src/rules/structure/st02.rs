@@ -262,20 +262,37 @@ impl RuleST02 {
         coalesce_arg_2: ErasedSegment,
         preceding_not: bool,
     ) -> Vec<LintFix> {
-        let mut edits = vec![
-            SegmentBuilder::token(
-                context.tables.next_id(),
-                "coalesce",
-                SyntaxKind::FunctionNameIdentifier,
-            )
-            .finish(),
-            SegmentBuilder::symbol(context.tables.next_id(), "("),
-            coalesce_arg_1,
-            SegmentBuilder::symbol(context.tables.next_id(), ","),
-            SegmentBuilder::whitespace(context.tables.next_id(), " "),
-            coalesce_arg_2,
-            SegmentBuilder::symbol(context.tables.next_id(), ")"),
-        ];
+        let function_name = SegmentBuilder::node(
+            context.tables.next_id(),
+            SyntaxKind::FunctionName,
+            context.dialect.name,
+            vec![
+                SegmentBuilder::token(
+                    context.tables.next_id(),
+                    "coalesce",
+                    SyntaxKind::FunctionNameIdentifier,
+                )
+                .finish(),
+            ],
+        )
+        .finish();
+        let function_contents = SegmentBuilder::node(
+            context.tables.next_id(),
+            SyntaxKind::FunctionContents,
+            context.dialect.name,
+            vec![
+                SegmentBuilder::token(context.tables.next_id(), "(", SyntaxKind::StartBracket)
+                    .finish(),
+                coalesce_arg_1,
+                SegmentBuilder::comma(context.tables.next_id()),
+                SegmentBuilder::whitespace(context.tables.next_id(), " "),
+                coalesce_arg_2,
+                SegmentBuilder::token(context.tables.next_id(), ")", SyntaxKind::EndBracket)
+                    .finish(),
+            ],
+        )
+        .finish();
+        let mut edits = vec![function_name, function_contents];
 
         if preceding_not {
             edits = chain(

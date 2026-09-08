@@ -109,16 +109,17 @@ Port the next SQLFluff commit to sqruff.
 
 12. **Check that test fixtures are ported.** If the SQLFluff commit adds or modifies test fixture files (SQL files, YAML parse trees, etc.), verify that equivalent fixtures exist in sqruff. If they don't, add them. Fixture files in SQLFluff under `test/fixtures/dialects/<dialect>/` map to `crates/lib-dialects/test/fixtures/dialects/<dialect>/sqlfluff/` in sqruff. If the change is already ported (code + fixtures both present), note that and skip to step 14. Do NOT skip the Bazel test step.
 
-13. **Verify the change** builds and passes tests:
+13. **Update dialect fixture expectations if needed.** If new SQL fixtures need accompanying `.yml` parse trees, or the port intentionally changes existing parse trees, regenerate them from the project root using Cargo:
 
     ```bash
-    cargo build
-    cargo test
+    UPDATE_EXPECT=1 SQRUFF_TEST_DIALECT=<dialect> cargo test -p sqruff-lib-dialects --test dialects
     ```
 
-    Fix any issues before proceeding.
+    Replace `<dialect>` with the affected dialect (for example, `postgres`). Repeat for each affected dialect, or omit `SQRUFF_TEST_DIALECT` to regenerate all dialect fixtures when a shared grammar change affects multiple dialects. This writes the expected `.yml` files alongside the `.sql` files under `crates/lib-dialects/test/fixtures/dialects/`.
 
-14. **Run all Bazel tests** to ensure nothing is broken. This step is MANDATORY even if no code changes were made (skip-only SHA updates still need a green CI):
+    Review the generated fixture diffs and keep only changes justified by the port. Fix unexpected parse results before accepting new expectations. Then run the mandatory Bazel tests below without `UPDATE_EXPECT` to verify the updated fixtures.
+
+14. **Verify the change builds and passes Bazel tests** to ensure nothing is broken. This step is MANDATORY even if no code changes were made (skip-only SHA updates still need a green CI):
 
     ```bash
     bazel test //...

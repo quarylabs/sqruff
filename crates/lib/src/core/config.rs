@@ -292,19 +292,42 @@ impl FluffConfig {
         Ok(FluffConfig::new(config, extra_config_path, None))
     }
 
+    /// Construct a config from a subset of common options.
+    ///
+    /// `rules` identifies rules to include, while `exclude_rules` identifies
+    /// rules to exclude. Both accept rule codes, names, groups, or aliases.
+    /// Empty or omitted rule lists inherit the standard sqruff defaults.
+    ///
+    /// This is a convenience constructor for callers that do not need to
+    /// assemble a full [`FluffConfig`] first.
     pub fn from_kwargs(
-        config: Option<FluffConfig>,
-        dialect: Option<Dialect>,
+        dialect: Option<DialectKind>,
         rules: Option<Vec<String>>,
+        exclude_rules: Option<Vec<String>>,
     ) -> Self {
-        if (dialect.is_some() || rules.is_some()) && config.is_some() {
-            panic!(
-                "Cannot specify `config` with `dialect` or `rules`. Any config object specifies \
-                 its own dialect and rules."
-            )
-        } else {
-            config.unwrap()
+        let mut core = HashMap::new();
+
+        if let Some(dialect) = dialect {
+            core.insert(
+                "dialect".into(),
+                Value::String(dialect.as_ref().to_owned().into()),
+            );
         }
+        if let Some(rules) = rules.filter(|rules| !rules.is_empty()) {
+            core.insert("rules".into(), Value::String(rules.join(",").into()));
+        }
+        if let Some(exclude_rules) = exclude_rules.filter(|rules| !rules.is_empty()) {
+            core.insert(
+                "exclude_rules".into(),
+                Value::String(exclude_rules.join(",").into()),
+            );
+        }
+
+        Self::new(
+            HashMap::from([("core".into(), Value::Map(core))]),
+            None,
+            None,
+        )
     }
 
     /// Process a full raw file for inline config and update self.
@@ -839,6 +862,28 @@ mod tests {
         ));
         fs::create_dir_all(&path).unwrap();
         path
+    }
+
+    #[test]
+    fn test_from_kwargs_constructs_config_from_optional_values() {
+        let default_config = FluffConfig::from_kwargs(None, None, None);
+        assert_eq!(default_config.dialect_kind(), DialectKind::Ansi);
+
+        let config = FluffConfig::from_kwargs(
+            Some(DialectKind::Postgres),
+            Some(vec!["LT01".into(), "LT02".into()]),
+            Some(vec!["AM01".into()]),
+        );
+
+        assert_eq!(config.dialect_kind(), DialectKind::Postgres);
+        assert_eq!(
+            config.get("rule_allowlist", "core").as_array().unwrap(),
+            &[Value::String("LT01".into()), Value::String("LT02".into())]
+        );
+        assert_eq!(
+            config.get("rule_denylist", "core").as_array().unwrap(),
+            &[Value::String("AM01".into())]
+        );
     }
 
     #[test]

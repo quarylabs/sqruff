@@ -645,11 +645,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "IdentifierClauseSegment".into(),
-            Sequence::new(vec![
-                Ref::keyword("IDENTIFIER").to_matchable(),
-                Bracketed::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
-                    .to_matchable(),
-            ])
+            NodeMatcher::new(SyntaxKind::IdentifierClauseSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("IDENTIFIER").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1818,7 +1821,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("IdentifierClauseSegment").to_matchable(),
             ])
             .to_matchable(),
-            Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),
         ])
         .config(|config| {
             config.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));

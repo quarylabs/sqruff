@@ -3447,7 +3447,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             .to_matchable(),
                             Ref::keyword("ACCOUNTS").to_matchable(),
                             Ref::new("EqualsSegment").to_matchable(),
-                            Delimited::new(vec![Ref::new("NakedIdentifierSegment").to_matchable()])
+                            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
                                 .to_matchable(),
                             Sequence::new(vec![
                                 Ref::keyword("SHARE_RESTRICTIONS").to_matchable(),
@@ -3462,7 +3462,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("SET").to_matchable(),
                             Ref::keyword("ACCOUNTS").to_matchable(),
                             Ref::new("EqualsSegment").to_matchable(),
-                            Delimited::new(vec![Ref::new("NakedIdentifierSegment").to_matchable()])
+                            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
                                 .to_matchable(),
                             Ref::new("CommentEqualsClauseSegment")
                                 .optional()

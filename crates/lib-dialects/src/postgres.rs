@@ -8794,17 +8794,48 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    let function_contents = postgres.grammar("FunctionContentsGrammar").copy(
-        Some(vec![
-            optionally_bracketed(vec![Ref::new("SetExpressionSegment").to_matchable()])
-                .to_matchable(),
-        ]),
-        Some(1),
-        None,
-        None,
-        vec![],
-        false,
-    );
+    let position_function_contents = |allow_expressions: bool| {
+        let argument = || {
+            let mut alternatives = vec![
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Ref::new("ColumnReferenceSegment").to_matchable(),
+            ];
+            if allow_expressions {
+                alternatives.push(Ref::new("ExpressionSegment").to_matchable());
+            }
+            one_of(alternatives).to_matchable()
+        };
+
+        Sequence::new(vec![
+            argument(),
+            Ref::keyword("IN").to_matchable(),
+            argument(),
+        ])
+        .to_matchable()
+    };
+    let previous_position_function_contents = position_function_contents(false);
+    let function_contents = postgres
+        .grammar("FunctionContentsGrammar")
+        .copy(
+            Some(vec![position_function_contents(true)]),
+            None,
+            Some(previous_position_function_contents.clone()),
+            Some(vec![previous_position_function_contents]),
+            vec![],
+            false,
+        )
+        .copy(
+            Some(vec![
+                optionally_bracketed(vec![Ref::new("SetExpressionSegment").to_matchable()])
+                    .to_matchable(),
+            ]),
+            Some(1),
+            None,
+            None,
+            vec![],
+            false,
+        );
     postgres.replace_grammar("FunctionContentsGrammar", function_contents);
 
     postgres.replace_grammar(

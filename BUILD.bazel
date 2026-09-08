@@ -399,6 +399,11 @@ cargo_test(
     tools = ["@cargo_hack//:cargo-hack"],
     vendor = ":cargo_deps",
     script = """
+# These disposable compiler checks need neither debugger information nor
+# incremental state. Cargo still reuses completed artifacts between commands.
+export CARGO_PROFILE_DEV_DEBUG=0
+export CARGO_INCREMENTAL=0
+
 echo "::group::Cargo check"
 cargo check --all --all-features --tests --benches --locked --offline
 echo "::endgroup::"
@@ -489,21 +494,25 @@ test_suite(
     ],
 )
 
-# Zensical docs build - verify documentation builds successfully
+# Validate the same cached site that is published by //:website.
 sh_test(
     name = "zensical_build",
-    size = "large",
+    size = "small",
     srcs = [".hacking/scripts/zensical_build.sh"],
-    data = [
-        "pyproject.toml",
-        "uv.lock",
-        "zensical.toml",
-        "@uv//:uv",
-    ] + glob(["docs/**"]),
+    data = [":docs_build"],
     env = {
-        "UV": "$(rlocationpath @uv//:uv)",
+        "DOCS_SITE": "$(rlocationpath :docs_build)",
     },
-    tags = ["exclusive"],
+)
+
+# Resolve/install dependencies only when the manifests or Python runtime change.
+uv_python_venv(
+    name = "docs_python",
+    srcs = ["pyproject.toml", "uv.lock"],
+    extra = "docs",
+    locked = True,
+    python = [":pytest_py312_python"],
+    uv = ["@uv//:uv"],
 )
 
 # Zensical docs serve - build docs and optionally serve locally
@@ -514,31 +523,19 @@ sh_binary(
     srcs = [".hacking/scripts/zensical_serve.sh"],
 )
 
-# Zensical docs genrule tool - builds docs to output directory
+# Build zensical docs once, using the separately cached Python environment.
 sh_binary(
     name = "zensical_genrule_tool",
     srcs = [".hacking/scripts/zensical_genrule.sh"],
-    data = [
-        "pyproject.toml",
-        "uv.lock",
-        "zensical.toml",
-        "@uv//:uv",
-    ] + glob(["docs/**"]),
-    env = {
-        "UV": "$(rlocationpath @uv//:uv)",
-    },
 )
 
-# Build zensical docs as output directory
 run_binary(
     name = "docs_build",
     srcs = [
-        "pyproject.toml",
-        "uv.lock",
+        ":docs_python",
         "zensical.toml",
     ] + glob(["docs/**"]),
-    outs = [],
-    args = ["$(BINDIR)/docs_site"],
+    args = ["$(BINDIR)/docs_site", "$(execpath :docs_python)"],
     out_dirs = ["docs_site"],
     tool = ":zensical_genrule_tool",
 )

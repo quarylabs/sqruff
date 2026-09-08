@@ -90,6 +90,10 @@ from fancy_table
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         if context.segment.segments()[0]
             .raw()

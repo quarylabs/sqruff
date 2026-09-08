@@ -962,6 +962,7 @@ pub enum SyntaxKind {
     Raw,
     RawComparisonOperator,
     RawDoubleQuote,
+    RawFileLiteral,
     RawQuotedLiteral,
     RawSingleQuote,
     ReassignOwnedStatement,

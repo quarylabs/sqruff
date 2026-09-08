@@ -98,6 +98,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         // String / quoted literals.
         QuotedLiteral
         | RawQuotedLiteral
+        | RawFileLiteral
         | BytesQuotedLiteral
         | SignedQuotedLiteral
         | DateConstructorLiteral

@@ -76,7 +76,7 @@ pub fn raw_dialect() -> Dialect {
 
     sparksql_dialect.insert_lexer_matchers(
         vec![
-            Matcher::regex("file_literal", r#"[a-zA-Z0-9]*:?([a-zA-Z0-9\-_\.]*(/|\\)){2,}((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)|([a-zA-Z0-9\-_\.]*\.[a-z]+))"#, SyntaxKind::FileLiteral),
+            Matcher::regex("file_literal", r#"[a-zA-Z0-9]+:([a-zA-Z0-9\-_\.]*(/|\\)){2,}((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)|([a-zA-Z0-9\-_\.]*\.[a-z]+))"#, SyntaxKind::RawFileLiteral),
         ],
         "newline",
     );
@@ -523,9 +523,32 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "FileLiteralSegment".into(),
-            TypedParser::new(SyntaxKind::FileLiteral, SyntaxKind::FileLiteral)
+            NodeMatcher::new(SyntaxKind::FileLiteral, |_| {
+                one_of(vec![
+                    TypedParser::new(SyntaxKind::RawFileLiteral, SyntaxKind::Literal)
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SlashSegment").optional().to_matchable(),
+                        Delimited::new(vec![
+                            Delimited::new(vec![
+                                TypedParser::new(SyntaxKind::Word, SyntaxKind::PathSegment)
+                                    .to_matchable(),
+                            ])
+                            .config(|this| this.delimiter(Ref::new("DotSegment")))
+                            .to_matchable(),
+                        ])
+                        .config(|this| {
+                            this.allow_gaps = false;
+                            this.delimiter(Ref::new("SlashSegment"));
+                        })
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
                 .to_matchable()
-                .into(),
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "BackQuotedIdentifierSegment".into(),
@@ -3005,8 +3028,11 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("ADD").to_matchable(),
                     Ref::keyword("FILE").to_matchable(),
-                    AnyNumberOf::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
-                        .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("FileLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -3245,8 +3271,11 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("LIST").to_matchable(),
                     Ref::keyword("FILE").to_matchable(),
-                    AnyNumberOf::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
-                        .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("FileLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -3259,8 +3288,11 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("LIST").to_matchable(),
                     Ref::keyword("JAR").to_matchable(),
-                    AnyNumberOf::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
-                        .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("FileLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

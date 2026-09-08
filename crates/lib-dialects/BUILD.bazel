@@ -93,3 +93,9 @@ filegroup(
     srcs = glob(["test/**"]),
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "ansi_bench_fixtures",
+    srcs = glob(["test/fixtures/dialects/ansi/**"]),
+    visibility = ["//visibility:public"],
+)

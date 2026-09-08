@@ -1476,6 +1476,39 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    sqlite_dialect.add([(
+        "CreateVirtualTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateVirtualTableStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("VIRTUAL").to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::keyword("USING").to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     sqlite_dialect.replace_grammar(
         "CreateViewStatementSegment",
         Sequence::new(vec![
@@ -1499,6 +1532,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AlterTableStatementSegment").to_matchable(),
             Ref::new("CreateIndexStatementSegment").to_matchable(),
             Ref::new("CreateTableStatementSegment").to_matchable(),
+            Ref::new("CreateVirtualTableStatementSegment").to_matchable(),
             Ref::new("CreateTriggerStatementSegment").to_matchable(),
             Ref::new("CreateViewStatementSegment").to_matchable(),
             Ref::new("DeleteStatementSegment").to_matchable(),

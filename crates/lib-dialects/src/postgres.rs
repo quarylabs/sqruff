@@ -5204,6 +5204,8 @@ pub fn raw_dialect() -> Dialect {
                                 one_of(vec![
                                     Ref::keyword("DEFAULT").to_matchable(),
                                     Ref::new("LiteralGrammar").to_matchable(),
+                                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                                    Ref::new("QuotedIdentifierSegment").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])

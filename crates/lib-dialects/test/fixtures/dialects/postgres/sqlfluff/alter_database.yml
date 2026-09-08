@@ -273,6 +273,28 @@ file:
     - keyword: CURRENT
 - statement_terminator: ;
 - statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db
+    - keyword: SET
+    - parameter: search_path
+    - keyword: TO
+    - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+  - alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: db
+    - keyword: SET
+    - parameter: search_path
+    - keyword: TO
+    - quoted_identifier: '"my_schema"'
+- statement_terminator: ;
+- statement:
   - alter_role_statement:
     - keyword: ALTER
     - keyword: USER

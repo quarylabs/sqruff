@@ -231,6 +231,7 @@ sh_binary(
 
 # All Rust targets for linting
 RUST_TARGETS = [
+    "//crates/cli:bench",
     "//crates/cli:sqruff",
     "//crates/cli-lib:sqruff-cli-lib",
     "//crates/lib:sqruff-lib",
@@ -413,16 +414,41 @@ echo "::endgroup::"
 """,
 )
 
-# Cargo build release - build release binaries with all features
-# This replicates the "Compile" GitHub action job
-# Uses vendored dependencies for hermetic builds
-cargo_test(
-    name = "cargo_build_release",
-    python_venv = ":python_runtime",
-    size = "enormous",
-    srcs = [":cargo_srcs"],
-    vendor = ":cargo_deps",
-    script = "cargo build --locked --release --all-features --offline",
+# Exercise the benchmark once against a tiny, clean fixture in the test suite.
+sh_test(
+    name = "bench_smoke_test",
+    size = "small",
+    srcs = [".hacking/scripts/run_bench.sh"],
+    args = [
+        "$(rlocationpath //crates/cli:bench)",
+        "$(rlocationpath //crates/cli:sqruff)",
+        "$(rlocationpath .hacking/fixtures/bench.sql)",
+        "1",
+    ],
+    data = [
+        ".hacking/fixtures/bench.sql",
+        "//crates/cli:bench",
+        "//crates/cli:sqruff",
+    ],
+)
+
+# Full ANSI corpus benchmark, kept separate from the small smoke test.
+# Usage: bazelisk run //:bench_ansi
+sh_binary(
+    name = "bench_ansi",
+    srcs = [".hacking/scripts/run_bench.sh"],
+    args = [
+        "$(rlocationpath //crates/cli:bench)",
+        "$(rlocationpath //crates/cli:sqruff)",
+        "_main/crates/lib-dialects/test/fixtures/dialects/ansi",
+        "1",
+        "--allow-lint-errors",
+    ],
+    data = [
+        "//crates/cli:bench",
+        "//crates/cli:sqruff",
+        "//crates/lib-dialects:ansi_bench_fixtures",
+    ],
 )
 
 # Cargo fmt check - verify code formatting

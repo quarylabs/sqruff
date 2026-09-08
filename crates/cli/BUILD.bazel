@@ -5,12 +5,19 @@ exports_files(["Cargo.toml"])
 
 rust_binary(
     name = "sqruff",
-    srcs = glob(["src/**/*.rs"]),
+    srcs = ["src/main.rs"],
     proc_macro_deps = all_crate_deps(proc_macro = True),
     visibility = ["//visibility:public"],
     deps = all_crate_deps(normal = True) + [
         "//crates/cli-lib:sqruff-cli-lib",
     ],
+)
+
+# The benchmark consumes a prebuilt CLI; it never invokes Cargo itself.
+rust_binary(
+    name = "bench",
+    srcs = ["src/bin/bench.rs"],
+    visibility = ["//visibility:public"],
 )
 
 # Cargo and Bazel both discover the integration tests from tests/*.rs.
@@ -36,7 +43,7 @@ rust_test_suite(
 # Binary with codegen-docs feature for generating documentation
 rust_binary(
     name = "sqruff-codegen",
-    srcs = glob(["src/**/*.rs"]),
+    srcs = ["src/main.rs"],
     crate_features = ["codegen-docs"],
     data = ["//crates/cli-lib:codegen_templates"],
     proc_macro_deps = all_crate_deps(proc_macro = True),

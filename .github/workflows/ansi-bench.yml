@@ -21,7 +21,12 @@ jobs:
     if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - uses: dtolnay/rust-toolchain@38b70195107dddab2c7bbd522bcf763bac00963b
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+      - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # ratchet:bazel-contrib/setup-bazel@0.19.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - name: Install LLD
+        run: sudo apt-get update --yes && sudo apt-get install --yes lld
       - name: Run benchmarks
-        run: cargo run --color=always --bin bench --manifest-path ./crates/cli/Cargo.toml --features="bench"
+        run: bazelisk run //:bench_ansi

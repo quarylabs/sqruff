@@ -69,6 +69,10 @@ from table_a
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Convention]
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let Some(function_name) = context
             .segment

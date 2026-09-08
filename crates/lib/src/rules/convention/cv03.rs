@@ -73,6 +73,10 @@ FROM foo
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Convention]
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, rule_cx: &RuleContext) -> Vec<LintResult> {
         let segment = FunctionalContext::new(rule_cx).segment();
         let children = segment.children_all();

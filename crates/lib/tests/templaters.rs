@@ -21,6 +21,11 @@ fn main() {
         })
         .collect::<HashSet<std::path::PathBuf>>();
 
+    assert!(
+        !templaters_folders.is_empty(),
+        "No templater fixtures found"
+    );
+    let mut cases = 0;
     for templater_setup in &templaters_folders {
         println!("{:?}", templater_setup);
         let config_path = templater_setup.join(".sqruff");
@@ -30,6 +35,10 @@ fn main() {
         let templater = match Linter::get_templater(&config) {
             Ok(t) => t,
             Err(e) => {
+                assert!(
+                    std::env::var_os("SQRUFF_REQUIRE_PYTHON").is_none(),
+                    "Required templater unavailable: {e}"
+                );
                 println!(
                     "Skipping templater test for {:?}: {}",
                     templater_setup.file_name().unwrap(),
@@ -42,6 +51,7 @@ fn main() {
         // for every sql file in that folder
         for sql_file in glob(&format!("{}/*.sql", templater_setup.to_str().unwrap())).unwrap() {
             let sql_file = sql_file.unwrap();
+            cases += 1;
             let yaml_file = sql_file.with_extension("yml");
             let yaml_file = std::path::absolute(yaml_file).unwrap();
 
@@ -73,4 +83,8 @@ fn main() {
             expect_file![yaml_file].assert_eq(&actual);
         }
     }
+    if cfg!(feature = "python") || std::env::var_os("SQRUFF_REQUIRE_PYTHON").is_some() {
+        assert!(cases > 0, "No templater SQL cases executed");
+    }
+    println!("Ran {cases} templater SQL cases");
 }

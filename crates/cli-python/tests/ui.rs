@@ -1,22 +1,16 @@
+mod common;
+
 use std::fs;
 use std::path::PathBuf;
 
 use assert_cmd::Command;
 use expect_test::expect_file;
 
-fn sqruff_path() -> PathBuf {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.venv/bin/sqruff");
-    assert!(
-        path.is_file(),
-        "sqruff script not found in .venv/bin; run `maturin develop` first"
-    );
-    path
-}
-
 fn main() {
-    let mut lint_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let mut lint_dir = PathBuf::from(common::manifest_dir());
     lint_dir.push("tests/lint");
 
+    let mut cases = 0;
     // Iterate over each test file in the directory
     for entry in fs::read_dir(&lint_dir).unwrap() {
         let entry = entry.unwrap();
@@ -28,8 +22,9 @@ fn main() {
             .and_then(|e| e.to_str())
             .is_some_and(|ext| ext == "sql" || ext == "hql")
         {
+            cases += 1;
             // Set up the command with arguments
-            let mut cmd = Command::new(sqruff_path());
+            let mut cmd = Command::new(common::sqruff_path());
             cmd.arg("lint").arg("-f").arg("human").arg(&path);
 
             let config_path = path.with_extension("cfg");
@@ -37,7 +32,7 @@ fn main() {
                 cmd.arg("--config").arg(config_path);
             }
             // Set the HOME environment variable to the fake home directory
-            cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+            cmd.env("HOME", PathBuf::from(common::manifest_dir()));
 
             // Run the command and capture the output
             let assert = cmd.assert();
@@ -72,9 +67,9 @@ fn main() {
         let sql_input = "SELECT * FROM users;";
 
         // Set up the command with arguments
-        let mut cmd = Command::new(sqruff_path());
+        let mut cmd = Command::new(common::sqruff_path());
         cmd.arg("lint").arg("-f").arg("human").arg("-"); // Use '-' to indicate stdin
-        cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+        cmd.env("HOME", PathBuf::from(common::manifest_dir()));
 
         // Provide input via stdin
         cmd.write_stdin(sql_input);
@@ -102,4 +97,6 @@ fn main() {
         expect_file![expected_output_path_stdout].assert_eq(stdout_str);
         expect_file![expected_output_path_exitcode].assert_eq(&exit_code_str);
     }
+    assert!(cases > 0, "No SQL fixtures executed");
+    println!("Ran {cases} SQL fixtures");
 }

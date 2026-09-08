@@ -1,3 +1,5 @@
+mod common;
+
 use core::str;
 use std::path::{Path, PathBuf};
 
@@ -8,27 +10,12 @@ fn main() {
 }
 
 fn parse_errors() {
-    let cargo_folder = Path::new(env!("CARGO_MANIFEST_DIR"));
-    // Check if we have a virtual environment at the project root
-    let mut venv_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    venv_path.push("../../.venv");
-    if !venv_path.exists() {
-        panic!(
-            "Virtual environment not found at project root. Please create a .venv directory and run 'maturin develop'"
-        );
-    }
-    // Check if sqruff script exists in the virtual environment
-    let mut sqruff_path = venv_path.clone();
-    sqruff_path.push("bin/sqruff");
-    if !sqruff_path.exists() {
-        panic!(
-            "sqruff script not found in .venv/bin/sqruff. Please run 'maturin develop' in the virtual environment"
-        );
-    }
+    let cargo_folder = Path::new(common::manifest_dir());
+    let sqruff_path = common::sqruff_path();
 
     // STDIN - do nothing
     let mut cmd = Command::new(sqruff_path.clone());
-    cmd.env("HOME", PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    cmd.env("HOME", PathBuf::from(common::manifest_dir()));
     cmd.arg("fix")
         .arg("-f")
         .arg("human")

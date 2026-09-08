@@ -1,27 +1,15 @@
+mod common;
+
 use std::path::PathBuf;
 
 use assert_cmd::Command;
 use expect_test::expect_file;
 
 fn main() {
-    let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let mut test_dir = PathBuf::from(common::manifest_dir());
     test_dir.push("tests/jinja");
 
-    let mut venv_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    venv_path.push("../../.venv");
-    if !venv_path.exists() {
-        panic!(
-            "Virtual environment not found at project root. Please create a .venv directory and run 'maturin develop'"
-        );
-    }
-    // Check if sqruff script exists in the virtual environment
-    let mut sqruff_path = venv_path.clone();
-    sqruff_path.push("bin/sqruff");
-    if !sqruff_path.exists() {
-        panic!(
-            "sqruff script not found in .venv/bin/sqruff. Please run 'maturin develop' in the virtual environment"
-        );
-    }
+    let sqruff_path = common::sqruff_path();
     // Set up the command with arguments
     let mut cmd = Command::new(sqruff_path);
     cmd.arg("lint")
@@ -37,16 +25,16 @@ fn main() {
     }
 
     // Set the HOME environment variable to the fake home directory
-    let home_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let home_path = PathBuf::from(common::manifest_dir());
     cmd.env("HOME", home_path);
 
     // Run the command and capture the output
     let assert = cmd.assert();
 
     // Construct the expected output file path
-    let mut expected_output_path_stderr = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let mut expected_output_path_stderr = PathBuf::from(common::manifest_dir());
     expected_output_path_stderr.push("tests/jinja/expected_output.stderr");
-    let mut expected_output_path_stdout = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let mut expected_output_path_stdout = PathBuf::from(common::manifest_dir());
     expected_output_path_stdout.push("tests/jinja/expected_output.stdout");
 
     // Read the expected output

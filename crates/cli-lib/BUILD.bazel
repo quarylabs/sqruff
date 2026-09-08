@@ -1,4 +1,5 @@
 load("//:clippy.bzl", "cargo_lints", "clippy_config")
+load("//:python_tests.bzl", "python_rust_test")
 load("@crates//:defs.bzl", "all_crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_library")
 
@@ -73,3 +74,27 @@ filegroup(
 
 # Keep Rust and Clippy lint levels inherited from Cargo.toml.
 cargo_lints()
+rust_library(
+    name = "sqruff-cli-lib-python",
+    srcs = glob(["src/**/*.rs"]),
+    crate_name = "sqruff_cli_lib",
+    crate_features = ["python", "parser"],
+    proc_macro_deps = all_crate_deps(proc_macro = True),
+    visibility = ["//visibility:public"],
+    deps = all_crate_deps(normal = True) + [
+        "//crates/lib:sqruff-lib-python",
+        "//crates/lib-core:sqruff-lib-core",
+        "//crates/lib-dialects:sqruff-lib-dialects",
+        "//crates/lsp:sqruff-lsp",
+    ],
+)
+
+python_rust_test(
+    name = "sqruff-cli-lib-test",
+    crate = ":sqruff-cli-lib-python",
+    crate_features = ["python", "parser", "codegen-docs"],
+    compile_data = glob(["src/docs/*.md"]),
+    deps = all_crate_deps(normal_dev = True) + [
+        "@rules_python//python/cc:current_py_cc_libs",
+    ],
+)

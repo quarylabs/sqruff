@@ -627,3 +627,40 @@ file:
           - keyword: 'NULL'
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - identifier_clause_segment:
+          - keyword: IDENTIFIER
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''student'''
+            - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+          - naked_identifier: id
+        - data_type:
+          - primitive_type:
+            - keyword: INT
+      - comma: ','
+      - column_definition:
+        - column_reference:
+          - naked_identifier: name
+        - data_type:
+          - primitive_type:
+            - keyword: STRING
+      - comma: ','
+      - column_definition:
+        - column_reference:
+          - naked_identifier: age
+        - data_type:
+          - primitive_type:
+            - keyword: INT
+      - end_bracket: )
+- statement_terminator: ;

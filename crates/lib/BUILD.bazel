@@ -1,9 +1,18 @@
+load("//:compiler.bzl", "compiler_targets")
 load("//:clippy.bzl", "cargo_lints", "clippy_config")
 load("//:python_tests.bzl", "python_rust_test")
-load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library")
+load("@crates//:defs.bzl", "aliases", "all_crate_deps", "crate_deps")
+load("@rules_rust//rust:defs.bzl", "rust_test", "rust_library", "rust_shared_library")
 
 exports_files(["Cargo.toml"])
+
+_CARGO_FEATURES = [
+    "parser",
+    "pyo3",
+    "python",
+    "serde_yaml",
+]
+
 
 ALL_FEATURES = [
     "parser",
@@ -14,7 +23,7 @@ rust_library(
     lint_config = ":cargo_lints",
     srcs = glob(["src/**/*.rs"]),
     compile_data = glob(["src/**/*.cfg"]),
-    crate_features = clippy_config(ALL_FEATURES, ALL_FEATURES + ["python", "serde_yaml", "pyo3"]),
+    crate_features = clippy_config(ALL_FEATURES, _CARGO_FEATURES),
     proc_macro_deps = all_crate_deps(proc_macro = True),
     visibility = ["//visibility:public"],
     deps = all_crate_deps(normal = True) + clippy_config([], ["@rules_python//python/cc:current_py_cc_libs"]) + [
@@ -29,7 +38,7 @@ rust_library(
     lint_config = ":cargo_lints",
     srcs = glob(["src/**/*.rs"]),
     compile_data = glob(["src/**/*.cfg"]),
-    crate_features = clippy_config(ALL_FEATURES + ["python"], ALL_FEATURES + ["python", "serde_yaml", "pyo3"]),
+    crate_features = clippy_config(ALL_FEATURES + ["python"], _CARGO_FEATURES),
     crate_name = "sqruff_lib",
     proc_macro_deps = all_crate_deps(proc_macro = True),
     visibility = ["//visibility:public"],
@@ -108,10 +117,12 @@ filegroup(
 
 # Keep Rust and Clippy lint levels inherited from Cargo.toml.
 cargo_lints()
+
 python_rust_test(
     name = "sqruff-lib-test",
+    lint_config = ":cargo_lints",
     crate = ":sqruff-lib-python",
-    crate_features = ALL_FEATURES + ["python", "serde_yaml"],
+    crate_features = clippy_config(ALL_FEATURES + ["python", "serde_yaml"], _CARGO_FEATURES),
     proc_macro_deps = all_crate_deps(proc_macro_dev = True),
     deps = all_crate_deps(normal = True, normal_dev = True) + [
         ":sqruff-lib-python",
@@ -126,6 +137,8 @@ python_rust_test(
 [
     python_rust_test(
         name = test + "_test",
+        lint_config = ":cargo_lints",
+        crate_features = clippy_config([], _CARGO_FEATURES),
         srcs = ["tests/" + test + ".rs"],
         crate_root = "tests/" + test + ".rs",
         use_libtest_harness = False,
@@ -139,3 +152,25 @@ python_rust_test(
     )
     for test in ["rules", "templaters"]
 ]
+
+# Compile the Criterion programs with cfg(test), without running benchmarks.
+[
+    rust_test(
+        name = "benchmark_" + benchmark,
+        lint_config = ":cargo_lints",
+        aliases = aliases(normal_dev = True),
+        srcs = ["benches/" + benchmark + ".rs", "benches/shims/global_alloc_overwrite.rs"],
+        crate_root = "benches/" + benchmark + ".rs",
+        crate_features = clippy_config([], _CARGO_FEATURES),
+        use_libtest_harness = False,
+        deps = all_crate_deps(normal_dev = True) + [
+            ":sqruff-lib",
+            "//crates/lib-core:sqruff-lib-core",
+            "@rules_python//python/cc:current_py_cc_libs",
+        ],
+        tags = ["manual"],
+    )
+    for benchmark in ["depth_map", "fix", "parsing"]
+]
+
+compiler_targets(libraries = [":sqruff-lib"])

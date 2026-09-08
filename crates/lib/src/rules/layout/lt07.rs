@@ -129,7 +129,7 @@ SELECT * FROM zoo
     }
 
     fn is_fix_compatible(&self) -> bool {
-        false
+        true
     }
 
     fn crawl_behaviour(&self) -> Crawler {

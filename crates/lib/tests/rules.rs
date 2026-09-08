@@ -98,6 +98,26 @@ impl RuleTestState {
     }
 }
 
+fn assert_fix_compatible(linter: &Linter, original_sql: &str, fixed_sql: &str) {
+    if fixed_sql == original_sql {
+        return;
+    }
+
+    let incompatible_rules = linter
+        .rules()
+        .unwrap()
+        .iter()
+        .filter(|rule| !rule.is_fix_compatible())
+        .map(|rule| rule.code())
+        .collect::<Vec<_>>();
+
+    assert!(
+        incompatible_rules.is_empty(),
+        "Rule(s) {} returned fixes but did not declare themselves fix-compatible",
+        incompatible_rules.join(", ")
+    );
+}
+
 fn process_file(state: &mut RuleTestState, path: &Path, verbose: bool) {
     if verbose {
         println!("Processing file: {:?}", path);
@@ -275,6 +295,7 @@ dialect = {dialect}
                         .lint_string_wrapped(&fail_str, true)
                         .unwrap()
                         .fix_string();
+                    assert_fix_compatible(linter, &fail_str, &fixed);
                     pretty_assertions::assert_eq!(
                         fixed,
                         fail_str,
@@ -303,6 +324,7 @@ dialect = {dialect}
                     );
                 }
                 let actual = linted.fix_string();
+                assert_fix_compatible(linter, &fail_str, &actual);
 
                 pretty_assertions::assert_eq!(actual, fix_str);
             }

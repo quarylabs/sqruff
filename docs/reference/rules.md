@@ -1028,7 +1028,7 @@ Use 'COALESCE' instead of 'IFNULL' or 'NVL'.
 
 **Groups:** `all`, `convention`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1060,7 +1060,7 @@ Trailing commas within select clause
 
 **Groups:** `all`, `core`, `convention`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1093,7 +1093,7 @@ Use consistent syntax to express "count number of rows".
 
 **Groups:** `all`, `core`, `convention`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1124,7 +1124,7 @@ Relational operators should not be used to check for NULL values.
 
 **Groups:** `all`, `core`, `convention`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -1696,7 +1696,7 @@ FROM foo
 
 **Groups:** `all`, `core`, `layout`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -2334,7 +2334,7 @@ Do not specify 'else null' in a case when statement (redundant).
 
 **Groups:** `all`, `structure`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -2370,7 +2370,7 @@ Unnecessary 'CASE' statement.
 
 **Groups:** `all`, `structure`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 
@@ -2626,7 +2626,7 @@ Looking for DISTINCT before a bracket
 
 **Groups:** `all`, `core`, `structure`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 

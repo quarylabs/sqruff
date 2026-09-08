@@ -375,8 +375,8 @@ uv_python_install = rule(
 def _uv_python_venv_impl(ctx):
     """Syncs project dependencies into a venv using an already-installed Python.
 
-    Takes the output of uv_python_install and project files, produces a venv
-    directory with all test dependencies installed. Cached by Bazel.
+    Takes the output of uv_python_install and project files, produces a Python
+    directory with the selected extra installed. Cached by Bazel.
     """
     venv_dir = ctx.actions.declare_directory(ctx.label.name + "_venv")
     uv_file = ctx.files.uv[0]
@@ -384,6 +384,12 @@ def _uv_python_venv_impl(ctx):
     src_files = ctx.files.srcs
 
     src_paths = " ".join([f.path for f in src_files])
+
+    requirements = "-r pyproject.toml --extra " + ctx.attr.extra
+    export_requirements = ""
+    if ctx.attr.locked:
+        export_requirements = '"$UV_BIN" export --locked --no-dev --no-emit-project --extra %s --output-file requirements.txt' % ctx.attr.extra
+        requirements = "-r requirements.txt"
 
     script_content = """#!/bin/bash
 set -euo pipefail
@@ -411,16 +417,19 @@ cd "$WORK_DIR"
 # Find the python3 binary
 PYTHON_BIN="$WORK_DIR/python/bin/python3"
 
-# Install test dependencies
+# Install the selected dependencies
+{export_requirements}
 "$UV_BIN" pip install --python "$PYTHON_BIN" \
     --prefix "$WORK_DIR/python" \
-    -r pyproject.toml --extra test
+    {requirements}
 
 # Copy the complete environment to the Bazel output directory
 cp -r "$WORK_DIR/python/." "$VENV_OUT/"
 
 echo "Python venv created at $VENV_OUT"
 """.format(
+        export_requirements = export_requirements,
+        requirements = requirements,
         uv_path = uv_file.path,
         python_dir = python_dir.path,
         srcs = src_paths,
@@ -446,6 +455,8 @@ echo "Python venv created at $VENV_OUT"
 uv_python_venv = rule(
     implementation = _uv_python_venv_impl,
     attrs = {
+        "extra": attr.string(default = "test"),
+        "locked": attr.bool(default = False),
         "srcs": attr.label_list(
             allow_files = True,
             doc = "pyproject.toml and uv.lock for dependency resolution",

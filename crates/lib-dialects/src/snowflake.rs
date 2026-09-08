@@ -1653,7 +1653,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Delimited::new(vec![
                                 Sequence::new(vec![
                                     Ref::new("NakedIdentifierSegment").to_matchable(),
-                                    Ref::new("DatatypeSegment").to_matchable(),
+                                    Ref::new("DatatypeSegment").optional().to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])

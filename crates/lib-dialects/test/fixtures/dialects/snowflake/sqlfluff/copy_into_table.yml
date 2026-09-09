@@ -458,3 +458,27 @@ file:
       - keyword: METADATA$FILENAME
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: test
+      - dot: .
+      - naked_identifier: transactions_all
+    - keyword: FROM
+    - storage_location:
+      - stage_path: '@rawdata.STITCH_STAGE_NETSUITE/transactions/'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - file_format_segment:
+      - object_reference:
+        - naked_identifier: rawdata
+        - dot: .
+        - naked_identifier: json_format
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''case_insensitive'''
+- statement_terminator: ;

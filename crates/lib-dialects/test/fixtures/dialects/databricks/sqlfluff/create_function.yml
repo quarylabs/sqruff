@@ -533,3 +533,36 @@ file:
                   - object_reference:
                     - naked_identifier: my_table
 - statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+      - quoted_identifier: '`catalog`'
+      - dot: .
+      - quoted_identifier: '`schema`'
+      - dot: .
+      - quoted_identifier: '`name`'
+    - function_parameter_list_with_comments:
+      - bracketed:
+        - start_bracket: (
+        - parameter: param
+        - data_type:
+          - primitive_type:
+            - keyword: int
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+      - primitive_type:
+        - keyword: int
+    - function_definition:
+      - keyword: return
+      - select_statement:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - column_reference:
+              - naked_identifier: param
+- statement_terminator: ;

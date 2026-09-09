@@ -369,7 +369,7 @@ fn add_segments(dialect: &mut Dialect) {
             NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec![
                     kw("QUALIFY"),
-                    MetaSegment::indent().to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
                     optionally_bracketed(vec![Ref::new("ExpressionSegment").to_matchable()])
                         .to_matchable(),
                     MetaSegment::dedent().to_matchable(),

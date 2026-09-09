@@ -2735,7 +2735,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("QUALIFY").to_matchable(),
-                    MetaSegment::indent().to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
                     one_of(vec![
                         Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
                             .to_matchable(),

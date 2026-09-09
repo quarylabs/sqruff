@@ -859,7 +859,9 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("QUALIFY").to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
             })

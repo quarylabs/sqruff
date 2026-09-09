@@ -218,11 +218,11 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
-    // SystemVariableSegment - @@session.var or @@global.var.
+    // SystemVariableSegment - @@var, @@session.var, or @@global.var.
     mysql.add([(
         "SystemVariableSegment".into(),
         RegexParser::new(
-            r"@@(session|global)\.[A-Za-z0-9_]+",
+            r"@@((session|global)\.)?[A-Za-z0-9_]+",
             SyntaxKind::SystemVariable,
         )
         .to_matchable()
@@ -1561,6 +1561,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("QuotedLiteralSegment").to_matchable(),
                             Ref::new("DoubleQuotedLiteralSegment").to_matchable(),
                             Ref::new("SessionVariableNameSegment").to_matchable(),
+                            Ref::new("SystemVariableSegment").to_matchable(),
                             Ref::new("BooleanDynamicSystemVariablesGrammar").to_matchable(),
                             Ref::new("LocalVariableNameSegment").to_matchable(),
                             Ref::new("FunctionSegment").to_matchable(),

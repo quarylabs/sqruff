@@ -816,6 +816,15 @@ pub fn raw_dialect() -> Dialect {
                         one_of(vec![Ref::keyword("CHARACTER").to_matchable()]).to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![Ref::keyword("CHARACTER").to_matchable()]).to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("VARYING").to_matchable(),
+                            Ref::keyword("NATIVE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::new("DatatypeIdentifierSegment").to_matchable(),
                 ])
                 .to_matchable(),

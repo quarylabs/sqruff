@@ -3,7 +3,7 @@ use crate::sparksql;
 use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::Config;
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -1706,7 +1706,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .config(|config| config.optional())
                     .to_matchable(),
                     Ref::new("IfExistsGrammar").optional().to_matchable(),
-                    Bracketed::new(vec![
+                    optionally_bracketed(vec![
                         Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
                             .to_matchable(),
                     ])

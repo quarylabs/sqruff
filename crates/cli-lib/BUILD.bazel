@@ -1,3 +1,4 @@
+load("//:compiler.bzl", "compiler_targets")
 load("//:clippy.bzl", "cargo_lints", "clippy_config")
 load("//:python_tests.bzl", "python_rust_test")
 load("@crates//:defs.bzl", "all_crate_deps")
@@ -5,17 +6,20 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 
 exports_files(["Cargo.toml"])
 
+_CARGO_FEATURES = [
+    "clap-markdown",
+    "codegen-docs",
+    "minijinja",
+    "parser",
+    "pyo3",
+    "python",
+]
+
+
 rust_library(
     name = "sqruff-cli-lib",
     lint_config = ":cargo_lints",
-    crate_features = clippy_config([], [
-        "clap-markdown",
-        "codegen-docs",
-        "minijinja",
-        "parser",
-        "pyo3",
-        "python",
-    ]),
+    crate_features = clippy_config([], _CARGO_FEATURES),
     compile_data = clippy_config([], glob(["src/docs/*.md"])),
     srcs = glob(["src/**/*.rs"]),
     proc_macro_deps = all_crate_deps(proc_macro = True),
@@ -74,14 +78,16 @@ filegroup(
 
 # Keep Rust and Clippy lint levels inherited from Cargo.toml.
 cargo_lints()
+
 rust_library(
     name = "sqruff-cli-lib-python",
     srcs = glob(["src/**/*.rs"]),
     crate_name = "sqruff_cli_lib",
-    crate_features = ["python", "parser"],
+    crate_features = clippy_config(["python", "parser"], _CARGO_FEATURES),
+    compile_data = clippy_config([], glob(["src/docs/*.md"])),
     proc_macro_deps = all_crate_deps(proc_macro = True),
     visibility = ["//visibility:public"],
-    deps = all_crate_deps(normal = True) + [
+    deps = all_crate_deps(normal = True) + clippy_config([], ["@crates//:clap-markdown", "@crates//:minijinja"]) + [
         "//crates/lib:sqruff-lib-python",
         "//crates/lib-core:sqruff-lib-core",
         "//crates/lib-dialects:sqruff-lib-dialects",
@@ -91,10 +97,13 @@ rust_library(
 
 python_rust_test(
     name = "sqruff-cli-lib-test",
+    lint_config = ":cargo_lints",
     crate = ":sqruff-cli-lib-python",
-    crate_features = ["python", "parser", "codegen-docs"],
+    crate_features = clippy_config(["python", "parser", "codegen-docs"], _CARGO_FEATURES),
     compile_data = glob(["src/docs/*.md"]),
     deps = all_crate_deps(normal_dev = True) + [
         "@rules_python//python/cc:current_py_cc_libs",
     ],
 )
+
+compiler_targets(libraries = [":sqruff-cli-lib"])

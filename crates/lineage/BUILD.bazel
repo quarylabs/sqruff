@@ -1,3 +1,4 @@
+load("//:compiler.bzl", "compiler_targets")
 load("//:clippy.bzl", "cargo_lints")
 load("@crates//:defs.bzl", "all_crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
@@ -18,6 +19,7 @@ rust_library(
 
 rust_test(
     name = "lineage-test",
+    lint_config = ":cargo_lints",
     crate = ":lineage",
     proc_macro_deps = all_crate_deps(proc_macro_dev = True),
     deps = all_crate_deps(normal_dev = True),
@@ -38,3 +40,5 @@ filegroup(
 
 # Keep Rust and Clippy lint levels inherited from Cargo.toml.
 cargo_lints()
+
+compiler_targets(libraries = [":lineage"])

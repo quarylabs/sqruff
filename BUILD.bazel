@@ -9,6 +9,7 @@ load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 load(":clippy.bzl", "clippy_feature_flag", "clippy_targets", "workspace_clippy")
 load(":cargo_build.bzl", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv_provider", "uv_python_install", "uv_python_venv")
+load(":compiler.bzl", "workspace_compile")
 load(":linters.bzl", "keep_sorted_test")
 load(":rustfmt.bzl", "rustfmt_sources_test")
 
@@ -634,4 +635,35 @@ filegroup(
     name = "native_test_python",
     srcs = [":pytest_py312_venv"],
     visibility = ["//visibility:public"],
+)
+
+# Discover Bazel crate packages automatically. A new Cargo-only package is also
+# staged below, so Cargo discovery reports its missing Bazel compiler coverage.
+_COMPILER_PACKAGES = subpackages(include = ["crates/*"])
+
+workspace_compile(
+    name = "compiler_check",
+    testonly = True,
+    targets = ["//" + package + ":compiler_targets" for package in _COMPILER_PACKAGES],
+    srcs = ["Cargo.toml", "Cargo.lock"] + [
+        "//" + package + ":compiler_sources" for package in _COMPILER_PACKAGES
+    ] + glob(["crates/**/*.rs", "crates/**/Cargo.toml"], exclude = ["**/target/**"], allow_empty = True),
+)
+
+py_binary(
+    name = "check_cargo_targets",
+    srcs = [".hacking/scripts/check_cargo_targets.py"],
+    main = ".hacking/scripts/check_cargo_targets.py",
+    tags = ["manual"],
+)
+
+py_test(
+    name = "check_cargo_targets_test",
+    size = "small",
+    srcs = [
+        ".hacking/scripts/check_cargo_targets.py",
+        ".hacking/scripts/check_cargo_targets_test.py",
+    ],
+    main = ".hacking/scripts/check_cargo_targets_test.py",
+    imports = [".hacking/scripts"],
 )

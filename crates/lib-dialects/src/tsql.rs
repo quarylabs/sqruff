@@ -3898,6 +3898,32 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "NextValueSequenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::SequenceNextValue, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("NEXT").to_matchable(),
+                    Ref::keyword("VALUE").to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::Expression, |_| {
+                one_of(vec![
+                    Ref::new("Expression_A_Grammar").to_matchable(),
+                    Ref::new("NextValueSequenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // expand() must be called after all grammar modifications

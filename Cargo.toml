@@ -5,7 +5,7 @@ edition = "2024"
 license = "Apache-2.0"
 
 [workspace]
-members = ["crates/*"]
+members = ["crates/*", "editors/zed"]
 default-members = ["crates/cli"]
 resolver = "2"
 

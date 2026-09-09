@@ -246,6 +246,7 @@ RUST_TARGETS = [
     "//crates/lineage:lineage",
     "//crates/lsp:sqruff-lsp",
     "//crates/sqlinference:sqruff-sqlinference",
+    "//editors/zed:zed_sqruff",
 ]
 
 # Common Cargo source files for cargo-based checks
@@ -266,6 +267,7 @@ filegroup(
         "//crates/lineage:machete_srcs",
         "//crates/lsp:machete_srcs",
         "//crates/sqlinference:machete_srcs",
+        "//editors/zed:compiler_sources",
     ],
 )
 
@@ -294,6 +296,7 @@ filegroup(
         "//crates/lineage:Cargo.toml",
         "//crates/lsp:Cargo.toml",
         "//crates/sqlinference:Cargo.toml",
+        "//editors/zed:Cargo.toml",
     ],
 )
 
@@ -341,7 +344,7 @@ config_setting(
 
 clippy_targets(
     name = "clippy_targets",
-    deps = RUST_TARGETS + ["//crates/cli-python:sqruff-python-clippy"],
+    deps = RUST_TARGETS + ["//crates/cli-python:sqruff-python-clippy", "//editors/zed:extension"],
     tags = ["manual"],
 )
 
@@ -418,9 +421,9 @@ sh_test(
 # Each package retains Cargo's feature-resolution checks with independent caching.
 cargo_hack_packages(
     name = "cargo_compile_checks",
-    packages = subpackages(include = ["crates/*"]),
+    packages = subpackages(include = ["crates/*", "editors/zed"]),
     srcs = [":cargo_srcs"] + [
-        "//" + package + ":compiler_sources" for package in subpackages(include = ["crates/*"])
+        "//" + package + ":compiler_sources" for package in subpackages(include = ["crates/*", "editors/zed"])
     ] + glob(["crates/**/*.rs", "crates/**/Cargo.toml"], exclude = ["**/target/**"], allow_empty = True),
 )
 
@@ -630,7 +633,7 @@ filegroup(
 
 # Discover Bazel crate packages automatically. A new Cargo-only package is also
 # staged below, so Cargo discovery reports its missing Bazel compiler coverage.
-_COMPILER_PACKAGES = subpackages(include = ["crates/*"])
+_COMPILER_PACKAGES = subpackages(include = ["crates/*", "editors/zed"])
 
 workspace_compile(
     name = "compiler_check",
@@ -668,4 +671,13 @@ py_test(
     ],
     main = ".hacking/scripts/prepare_cargo_hack_test.py",
     imports = [".hacking/scripts"],
+)
+
+py_test(
+    name = "zed_component_test",
+    size = "small",
+    srcs = [".hacking/scripts/check_zed_component.py"],
+    main = ".hacking/scripts/check_zed_component.py",
+    args = ["$(rootpath //editors/zed:extension)"],
+    data = ["//editors/zed:extension"],
 )

@@ -102,7 +102,7 @@ use_repo(playwright, "playwright")
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = "2024",
-    extra_target_triples = ["wasm32-unknown-unknown"],
+    extra_target_triples = ["wasm32-unknown-unknown", "wasm32-wasip2"],
     rustfmt_version = "1.97.1",
     versions = ["1.97.1"],
 )
@@ -119,6 +119,17 @@ crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
 crate.from_cargo(
     name = "crates",
     cargo_lockfile = "//:Cargo.lock",
+    # rules_rust 0.68.1 defaults plus the Zed extension's WASI Preview 2 target.
+    supported_platform_triples = [
+        "aarch64-apple-darwin",
+        "aarch64-unknown-linux-gnu",
+        "wasm32-unknown-unknown",
+        "wasm32-wasip1",
+        "wasm32-wasip2",
+        "x86_64-pc-windows-msvc",
+        "x86_64-unknown-linux-gnu",
+        "x86_64-unknown-nixos-gnu",
+    ],
     manifests = [
         "//:Cargo.toml",
         "//crates/cli:Cargo.toml",
@@ -131,6 +142,7 @@ crate.from_cargo(
         "//crates/lineage:Cargo.toml",
         "//crates/lsp:Cargo.toml",
         "//crates/sqlinference:Cargo.toml",
+        "//editors/zed:Cargo.toml",
     ],
 )
 

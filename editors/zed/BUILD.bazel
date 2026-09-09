@@ -1,7 +1,11 @@
+load("//:clippy.bzl", "cargo_lints")
+load("//:compiler.bzl", "compiler_targets")
+load("@crates//:defs.bzl", "all_crate_deps")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library", "rust_test")
 load("@aspect_rules_js//js:defs.bzl", "js_library")
 
 # Export files for the root BUILD.bazel checks
-exports_files(["LICENSE"])
+exports_files(["LICENSE", "Cargo.toml"])
 
 # Source files for prettier formatting (referenced by root BUILD.bazel)
 # Wrapped in js_library to support cross-package usage with js_binary
@@ -18,3 +22,36 @@ js_library(
     ),
     visibility = ["//visibility:public"],
 )
+
+cargo_lints()
+
+# Host compilation participates in workspace feature and compiler checks.
+rust_library(
+    name = "zed_sqruff",
+    crate_root = "src/sqruff.rs",
+    srcs = glob(["src/**/*.rs"]),
+    lint_config = ":cargo_lints",
+    deps = all_crate_deps(normal = True),
+    visibility = ["//visibility:public"],
+)
+
+# Zed loads a WASI Preview 2 component, not the host library above.
+rust_shared_library(
+    name = "extension",
+    crate_name = "zed_sqruff",
+    crate_root = "src/sqruff.rs",
+    srcs = glob(["src/**/*.rs"]),
+    platform = "@rules_rust//rust/platform:wasip2",
+    lint_config = ":cargo_lints",
+    deps = all_crate_deps(normal = True),
+    visibility = ["//visibility:public"],
+)
+
+rust_test(
+    name = "zed_sqruff_compile_test",
+    crate = ":zed_sqruff",
+    lint_config = ":cargo_lints",
+    tags = ["manual"],
+)
+
+compiler_targets(libraries = [":zed_sqruff"])

@@ -16,4 +16,10 @@ file:
       - raw_comparison_operator: =
     - object_reference:
       - naked_identifier: user_role
+    - comma: ','
+    - parameter: type
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: person
 - statement_terminator: ;

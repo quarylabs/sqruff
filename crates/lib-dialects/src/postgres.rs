@@ -2361,6 +2361,44 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "FetchClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::FetchClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FETCH").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("FIRST").to_matchable(),
+                        Ref::keyword("NEXT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("ExpressionSegment")
+                            .exclude(Ref::keyword("ROW"))
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ROW").to_matchable(),
+                        Ref::keyword("ROWS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ONLY").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("TIES").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     postgres.replace_grammar(
@@ -2399,20 +2437,14 @@ pub fn raw_dialect() -> Dialect {
             .unwrap()
             .copy(
                 Some(vec![
+                    Ref::new("NamedWindowSegment").optional().to_matchable(),
                     Ref::new("OrderByClauseSegment").optional().to_matchable(),
                     Ref::new("LimitClauseSegment").optional().to_matchable(),
-                    Ref::new("NamedWindowSegment").optional().to_matchable(),
+                    Ref::new("FetchClauseSegment").optional().to_matchable(),
+                    Ref::new("ForClauseSegment").optional().to_matchable(),
                 ]),
                 None,
                 None,
-                None,
-                vec![],
-                false,
-            )
-            .copy(
-                Some(vec![Ref::new("ForClauseSegment").optional().to_matchable()]),
-                None,
-                Some(Ref::new("LimitClauseSegment").optional().to_matchable()),
                 None,
                 vec![
                     Ref::new("SetOperatorSegment").to_matchable(),

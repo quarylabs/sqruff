@@ -1,4 +1,4 @@
-"""Cargo lint policy and an all-features configuration for native Clippy."""
+"""Cargo lint policy and a shared all-features compiler/lint configuration."""
 
 load("@rules_rust//cargo:defs.bzl", "extract_cargo_lints")
 load("@rules_rust//rust:defs.bzl", "rust_clippy_aspect")
@@ -37,7 +37,7 @@ def cargo_lints():
     )
 
 def clippy_config(normal, all_features):
-    """Select attributes for the all-features lint configuration only."""
+    """Select attributes for the all-features compiler/lint configuration."""
     return select({
         "//:clippy_all_features_enabled": all_features,
         "//conditions:default": normal,

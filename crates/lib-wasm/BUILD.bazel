@@ -1,6 +1,7 @@
+load("//:compiler.bzl", "compiler_targets")
 load("//:clippy.bzl", "cargo_lints")
 load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library")
+load("@rules_rust//rust:defs.bzl", "rust_test", "rust_library", "rust_shared_library")
 load("@rules_rust_wasm_bindgen//:defs.bzl", "rust_wasm_bindgen")
 
 exports_files(["Cargo.toml"])
@@ -71,3 +72,12 @@ filegroup(
 
 # Keep Rust and Clippy lint levels inherited from Cargo.toml.
 cargo_lints()
+
+rust_test(
+    name = "sqruff-wasm-compile-test",
+    lint_config = ":cargo_lints",
+    crate = ":sqruff-wasm",
+    tags = ["manual"],
+)
+
+compiler_targets(libraries = [":sqruff-wasm"])

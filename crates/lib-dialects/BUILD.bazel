@@ -1,3 +1,4 @@
+load("//:compiler.bzl", "compiler_targets")
 load("//:clippy.bzl", "cargo_lints", "clippy_config")
 load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test", "rust_test_suite")
@@ -48,16 +49,18 @@ rust_library(
 
 rust_test(
     name = "sqruff-lib-dialects-test",
+    lint_config = ":cargo_lints",
     crate = ":sqruff-lib-dialects",
-    crate_features = ALL_FEATURES,
+    crate_features = clippy_config(ALL_FEATURES, ALL_FEATURES + ["default"]),
     proc_macro_deps = all_crate_deps(proc_macro_dev = True),
     deps = all_crate_deps(normal_dev = True),
 )
 
 rust_test_suite(
     name = "dialect_tests",
+    lint_config = ":cargo_lints",
     srcs = ["tests/dialects.rs"],
-    crate_features = ALL_FEATURES,
+    crate_features = clippy_config(ALL_FEATURES, ALL_FEATURES + ["default"]),
     data = [
         ":test_fixtures",
         "Cargo.toml",
@@ -104,3 +107,5 @@ filegroup(
 
 # Keep Rust and Clippy lint levels inherited from Cargo.toml.
 cargo_lints()
+
+compiler_targets(libraries = [":sqruff-lib-dialects"])

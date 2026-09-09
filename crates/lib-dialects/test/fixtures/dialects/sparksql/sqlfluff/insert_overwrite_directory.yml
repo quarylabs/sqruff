@@ -236,10 +236,12 @@ file:
               - hint_function:
                 - function_name:
                   - function_name_identifier: COALESCE
-                - bracketed:
-                  - start_bracket: (
-                  - numeric_literal: '1'
-                  - end_bracket: )
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - numeric_literal: '1'
+                    - end_bracket: )
               - end_hint: '*/'
           - select_clause_element:
             - wildcard_expression:

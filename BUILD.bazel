@@ -414,9 +414,8 @@ sh_test(
     },
 )
 
-# Cargo compiler checks share one writable target directory. Keeping these in a
-# single Bazel test lets Cargo reuse dependency artifacts between check
-# and the per-feature cargo-hack checks.
+# Cargo retains manifest/feature compatibility checks with a shared target
+# directory. Native compiler_check and clippy_check cover compilation/linting.
 cargo_test(
     name = "cargo_compile_checks",
     python_venv = ":python_runtime",
@@ -430,12 +429,8 @@ cargo_test(
 export CARGO_PROFILE_DEV_DEBUG=0
 export CARGO_INCREMENTAL=0
 
-echo "::group::Cargo check"
-cargo check --all --all-features --tests --benches --locked --offline
-echo "::endgroup::"
-
 echo "::group::Cargo hack"
-cargo hack check --each-feature --exclude-features=codegen-docs --offline
+cargo hack check --each-feature --exclude-features=codegen-docs --locked --offline
 echo "::endgroup::"
 """,
 )

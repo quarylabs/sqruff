@@ -7994,6 +7994,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
+                            Ref::keyword("PARTITION_TYPE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::keyword("USER_SPECIFIED").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
                             Sequence::new(vec![Ref::keyword("WITH").to_matchable()])
                                 .config(|this| this.optional())
                                 .to_matchable(),

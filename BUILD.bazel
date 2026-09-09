@@ -4,13 +4,13 @@ load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
 load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@npm//:prettier/package_json.bzl", prettier_bin = "bin")
 load("@rules_python//python:defs.bzl", "py_binary", "py_test")
-load("@rules_rust//rust:defs.bzl", "rustfmt_test")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@rules_shellcheck//:def.bzl", "shellcheck_test")
 load(":cargo_build.bzl", "cargo_test", "cargo_vendor", "cargo_vendor_provider", "python_venv", "python_venv_provider", "uv_python_install", "uv_python_venv")
 load(":clippy.bzl", "clippy_feature_flag", "clippy_targets", "workspace_clippy")
 load(":linters.bzl", "keep_sorted_test")
+load(":rustfmt.bzl", "rustfmt_sources_test")
 
 # Link all npm packages into node_modules
 npm_link_all_packages(name = "node_modules")
@@ -333,10 +333,13 @@ python_venv_provider(
     venv = ":pytest_py312_python",
 )
 
-# Rust format check
-rustfmt_test(
+# Format the same Rust files as the Cargo wrapper, including tests and benches
+# that are not part of RUST_TARGETS. Only Rust sources enter the test's runfiles.
+rustfmt_sources_test(
     name = "rustfmt_check",
-    targets = RUST_TARGETS,
+    size = "small",
+    srcs = [":cargo_srcs"],
+    config = "rustfmt.toml",
 )
 
 # Lint every workspace library and binary with Cargo's all-features coverage.
@@ -490,13 +493,10 @@ sh_binary(
     ],
 )
 
-# Cargo fmt check - verify code formatting
-# Uses vendored dependencies for hermetic builds
-cargo_test(
+# Preserve the old command without running the formatting check twice.
+alias(
     name = "cargo_fmt_check",
-    srcs = [":cargo_srcs"],
-    vendor = ":cargo_deps",
-    script = "find . -type f -name '*.rs' -exec \"$RUSTFMT\" --edition 2024 --check {} +",
+    actual = ":rustfmt_check",
 )
 
 # Cargo test - run workspace tests that have not migrated to native Bazel rules.

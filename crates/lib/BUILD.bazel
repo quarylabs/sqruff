@@ -1,4 +1,5 @@
 load("//:clippy.bzl", "cargo_lints", "clippy_config")
+load("//:python_tests.bzl", "python_rust_test")
 load("@crates//:defs.bzl", "all_crate_deps", "crate_deps")
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library")
 
@@ -107,3 +108,34 @@ filegroup(
 
 # Keep Rust and Clippy lint levels inherited from Cargo.toml.
 cargo_lints()
+python_rust_test(
+    name = "sqruff-lib-test",
+    crate = ":sqruff-lib-python",
+    crate_features = ALL_FEATURES + ["python", "serde_yaml"],
+    proc_macro_deps = all_crate_deps(proc_macro_dev = True),
+    deps = all_crate_deps(normal = True, normal_dev = True) + [
+        ":sqruff-lib-python",
+        "@rules_python//python/cc:current_py_cc_libs",
+    ],
+    fixtures = [
+        ":test_fixtures",
+        "//crates/lib-dialects:test/fixtures/dialects/ansi/sqlfluff/select_in_multiline_comment.sql",
+    ],
+)
+
+[
+    python_rust_test(
+        name = test + "_test",
+        srcs = ["tests/" + test + ".rs"],
+        crate_root = "tests/" + test + ".rs",
+        use_libtest_harness = False,
+        deps = all_crate_deps(normal = True, normal_dev = True) + [
+            ":sqruff-lib-python",
+            "//crates/lib-core:sqruff-lib-core",
+            "@rules_python//python/cc:current_py_cc_libs",
+        ],
+        proc_macro_deps = all_crate_deps(proc_macro_dev = True),
+        fixtures = glob(["test/fixtures/" + test + "/**"]),
+    )
+    for test in ["rules", "templaters"]
+]

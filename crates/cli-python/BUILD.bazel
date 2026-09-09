@@ -1,6 +1,8 @@
 load("//:clippy.bzl", "cargo_lints")
+load("//:python_tests.bzl", "python_rust_test")
 load("@crates//:defs.bzl", "all_crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_library", "rust_shared_library")
+
 exports_files([
     "Cargo.toml",
     "pyproject.toml",
@@ -41,6 +43,59 @@ filegroup(
         ],
         allow_empty = True,
     ) + ["Cargo.toml"],
+    visibility = ["//visibility:public"],
+)
+
+# Runtime extension for native tests, built with the workspace's PyO3 version.
+# Wheel/ABI packaging remains validated by the maturin CI matrix.
+rust_shared_library(
+    name = "sqruff-extension",
+    crate_name = "sqruff_cli_python",
+    srcs = ["src/lib.rs"],
+    deps = all_crate_deps(normal = True) + [
+        "//crates/cli-lib:sqruff-cli-lib-python",
+        "@rules_python//python/cc:current_py_cc_libs",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# Test inputs are isolated so a dbt fixture edit does not rerun every CLI test.
+_INTEGRATION_FIXTURES = {
+    "config_not_found": ["config_not_found"],
+    "configure_rule": ["configure_rule"],
+    "fix_parse_errors": [],
+    "fix_return_code": ["fix_return_code"],
+    "library_path": ["library_path"],
+    "ui": ["lint", "stdin"],
+    "ui_github": ["github"],
+    "ui_json": ["json"],
+    "ui_with_dbt": ["dbt", "dbt_sample"],
+    "ui_with_jinja": ["jinja"],
+    "ui_with_python": ["python"],
+}
+
+[
+    python_rust_test(
+        name = "integration_" + test,
+        srcs = ["tests/" + test + ".rs"] + glob(["tests/common/**/*.rs"]),
+        crate_root = "tests/" + test + ".rs",
+        use_libtest_harness = False,
+        deps = all_crate_deps(normal_dev = True),
+        fixtures = glob(["tests/" + directory + "/**" for directory in _INTEGRATION_FIXTURES[test]]) if _INTEGRATION_FIXTURES[test] else [],
+        extension = True,
+    )
+    for test in [src.removeprefix("tests/").removesuffix(".rs") for src in glob(["tests/*.rs"])]
+]
+
+test_suite(
+    name = "integration_tests",
+    tests = [":integration_" + test for test in _INTEGRATION_FIXTURES],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "python_runtime_srcs",
+    srcs = glob(["python/**/*.py"], exclude = ["python/**/*_test.py", "python/**/*_benchmark.py"]),
     visibility = ["//visibility:public"],
 )
 

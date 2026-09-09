@@ -1,14 +1,12 @@
+mod common;
+
 use std::path::Path;
 
 use assert_cmd::Command;
 
 fn main() {
-    let crate_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let sqruff_path = crate_dir.join("../../.venv/bin/sqruff");
-    assert!(
-        sqruff_path.is_file(),
-        "sqruff script not found in .venv/bin; run `maturin develop` first"
-    );
+    let crate_dir = Path::new(common::manifest_dir());
+    let sqruff_path = common::sqruff_path();
 
     let fixture_dir = crate_dir.join("tests/library_path");
     let library_path = fixture_dir.join("custom_library");

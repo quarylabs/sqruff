@@ -70,6 +70,8 @@ fn main() {
         .collect::<Result<Vec<_>, _>>()
         .unwrap();
     paths.sort();
+    assert!(!paths.is_empty(), "No rule fixtures matched {pattern}");
+    println!("Running {} rule fixture files", paths.len());
 
     let verbose = std::env::var_os("SQRUFF_RULE_TEST_VERBOSE").is_some();
     paths

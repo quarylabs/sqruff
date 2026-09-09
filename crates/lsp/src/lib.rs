@@ -627,14 +627,21 @@ mod tests {
 
     impl TempRoot {
         fn new() -> Self {
-            let suffix = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_nanos();
-            let path = std::env::temp_dir()
-                .join(format!("sqruff-lsp-test-{}-{suffix}", std::process::id()));
-            fs::create_dir_all(&path).unwrap();
-            Self { path }
+            loop {
+                let suffix = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos();
+                let path = std::env::temp_dir()
+                    .join(format!("sqruff-lsp-test-{}-{suffix}", std::process::id()));
+                // Parallel tests can observe the same clock tick. Claim the
+                // directory exclusively so they never share or delete fixtures.
+                match fs::create_dir(&path) {
+                    Ok(()) => return Self { path },
+                    Err(err) if err.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                    Err(err) => panic!("Failed to create test directory {}: {err}", path.display()),
+                }
+            }
         }
     }
 

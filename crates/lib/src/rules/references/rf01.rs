@@ -47,6 +47,33 @@ impl RuleRF01 {
         )
     }
 
+    fn get_implicit_targets(context: &RuleContext) -> Vec<Vec<SmolStr>> {
+        if context.dialect.name != DialectKind::Sqlite {
+            return Vec::new();
+        }
+
+        let Some(create_trigger) = context
+            .parent_stack
+            .iter()
+            .rev()
+            .find(|segment| segment.is_type(SyntaxKind::CreateTriggerStatement))
+        else {
+            return Vec::new();
+        };
+
+        for segment in create_trigger.segments() {
+            if segment.is_keyword("INSERT") {
+                return vec![vec!["new".into()]];
+            } else if segment.is_keyword("UPDATE") {
+                return vec![vec!["new".into()], vec!["old".into()]];
+            } else if segment.is_keyword("DELETE") {
+                return vec![vec!["old".into()]];
+            }
+        }
+
+        Vec::new()
+    }
+
     #[allow(clippy::only_used_in_recursion)]
     fn resolve_reference<'a>(
         &self,
@@ -55,6 +82,7 @@ impl RuleRF01 {
         dml_target_table: &[SmolStr],
         query: Query<'a>,
         payloads: &RF01State<'a>,
+        implicit_targets: &[Vec<SmolStr>],
     ) -> Option<LintResult> {
         let possible_references: Vec<_> = tbl_refs
             .clone()
@@ -101,6 +129,8 @@ impl RuleRF01 {
             return None;
         }
 
+        targets.extend(implicit_targets.iter().cloned());
+
         if !object_ref_matches_table(&possible_references, &targets) {
             if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
                 return self.resolve_reference(
@@ -109,6 +139,7 @@ impl RuleRF01 {
                     dml_target_table,
                     parent,
                     payloads,
+                    implicit_targets,
                 );
             } else if dml_target_table.is_empty()
                 || !object_ref_matches_table(&possible_references, &[dml_target_table.to_vec()])
@@ -163,6 +194,7 @@ impl RuleRF01 {
         query: Query<'a>,
         dml_target_table: &[SmolStr],
         payloads: &mut RF01State<'a>,
+        implicit_targets: &[Vec<SmolStr>],
         violations: &mut Vec<LintResult>,
     ) {
         payloads.entry(query.id()).or_default();
@@ -188,6 +220,7 @@ impl RuleRF01 {
                             dml_target_table,
                             query.clone(),
                             payloads,
+                            implicit_targets,
                         );
                         violations.extend(violation);
                     }
@@ -198,7 +231,13 @@ impl RuleRF01 {
         RefCell::borrow_mut(&query.inner).selectables = selectables;
 
         for child in query.children() {
-            self.analyze_table_references(child, dml_target_table, payloads, violations);
+            self.analyze_table_references(
+                child,
+                dml_target_table,
+                payloads,
+                implicit_targets,
+                violations,
+            );
         }
     }
 
@@ -271,6 +310,7 @@ FROM foo
         let query = Query::from_segment(&context.segment, context.dialect, None);
         let mut payloads = RF01State::default();
         let mut violations = Vec::new();
+        let implicit_targets = Self::get_implicit_targets(context);
         let tmp;
 
         let dml_target_table = if !context.segment.is_type(SyntaxKind::SelectStatement) {
@@ -296,7 +336,13 @@ FROM foo
             &[]
         };
 
-        self.analyze_table_references(query, dml_target_table, &mut payloads, &mut violations);
+        self.analyze_table_references(
+            query,
+            dml_target_table,
+            &mut payloads,
+            &implicit_targets,
+            &mut violations,
+        );
 
         violations
     }

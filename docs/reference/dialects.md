@@ -14,6 +14,7 @@ Sqruff currently supports the following SQL dialects:
 - [exasol](#exasol)
 - [greenplum](#greenplum)
 - [hive](#hive)
+- [impala](#impala)
 - [mariadb](#mariadb)
 - [materialize](#materialize)
 - [mysql](#mysql)
@@ -166,6 +167,18 @@ Apache Hive SQL dialect for data warehousing.
 **Configuration:**
 ```ini
 [sqruff:dialect:hive]
+```
+
+
+### impala
+
+Apache Impala SQL dialect for distributed SQL queries.
+
+**Documentation:** [https://impala.apache.org/docs/build/html/topics/impala_langref.html](https://impala.apache.org/docs/build/html/topics/impala_langref.html)
+
+**Configuration:**
+```ini
+[sqruff:dialect:impala]
 ```
 
 

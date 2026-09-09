@@ -84,6 +84,82 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    impala.add([(
+        "CreateTableAsSelectStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateTableAsSelectStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("EXTERNAL").optional().to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("PARTITIONED").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::new("ColumnDefinitionSegment").to_matchable(),
+                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("CommentGrammar").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SORT").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+                Ref::new("CommentGrammar").optional().to_matchable(),
+                Ref::new("RowFormatClauseSegment").optional().to_matchable(),
+                Ref::new("SerdePropertiesGrammar").optional().to_matchable(),
+                Ref::new("StoredAsGrammar").optional().to_matchable(),
+                Ref::new("LocationGrammar").optional().to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CACHED").to_matchable(),
+                        Ref::keyword("IN").to_matchable(),
+                        Delimited::new(vec![Ref::new("PoolNameReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("REPLICATION").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("UNCACHED").to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+                Ref::new("TablePropertiesGrammar").optional().to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::new("SelectableGrammar").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     impala.replace_grammar(
         "CreateTableStatementSegment",
         Sequence::new(vec![
@@ -227,6 +303,7 @@ pub fn raw_dialect() -> Dialect {
 
     let statement_segment = super::ansi::statement_segment().copy(
         Some(vec![
+            Ref::new("CreateTableAsSelectStatementSegment").to_matchable(),
             Ref::new("ComputeStatsStatementSegment").to_matchable(),
             Ref::new("InsertStatementSegment").to_matchable(),
             Ref::new("AlterDatabaseStatementSegment").to_matchable(),

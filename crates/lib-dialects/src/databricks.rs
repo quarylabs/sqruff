@@ -225,7 +225,27 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("FunctionParameterListGrammarWithComments").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("RETURNS").to_matchable(),
-                        Ref::new("DatatypeSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("TABLE").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![
+                                        Sequence::new(vec![
+                                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                                            Ref::new("DatatypeSegment").to_matchable(),
+                                            Ref::new("CommentGrammar").optional().to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .config(|config| config.optional())
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),

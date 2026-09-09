@@ -2473,25 +2473,9 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::HintFunction, |_| {
                 Sequence::new(vec![
                     Ref::new("FunctionNameSegment").to_matchable(),
-                    Bracketed::new(vec![
-                        Delimited::new(vec![
-                            AnyNumberOf::new(vec![
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                                Ref::new("NumericLiteralSegment").to_matchable(),
-                                Ref::new("TableReferenceSegment").to_matchable(),
-                                Ref::new("ColumnReferenceSegment").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.min_times = 1;
-                            })
-                            .to_matchable(),
-                        ])
+                    Ref::new("FunctionContentsSegment")
+                        .optional()
                         .to_matchable(),
-                    ])
-                    .config(|config| {
-                        config.optional();
-                    })
-                    .to_matchable(),
                 ])
                 .to_matchable()
             })

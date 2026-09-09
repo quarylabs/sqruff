@@ -9,10 +9,13 @@ file:
           - hint_function:
             - function_name:
               - function_name_identifier: REPARTITION
-            - bracketed:
-              - start_bracket: (
-              - naked_identifier: zip_code
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: zip_code
+                - end_bracket: )
           - end_hint: '*/'
       - select_clause_element:
         - column_reference:
@@ -76,10 +79,13 @@ file:
           - hint_function:
             - function_name:
               - function_name_identifier: REPARTITION
-            - bracketed:
-              - start_bracket: (
-              - naked_identifier: zip_code
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: zip_code
+                - end_bracket: )
           - end_hint: '*/'
       - select_clause_element:
         - column_reference:
@@ -141,10 +147,13 @@ file:
           - hint_function:
             - function_name:
               - function_name_identifier: REPARTITION
-            - bracketed:
-              - start_bracket: (
-              - naked_identifier: zip_code
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: zip_code
+                - end_bracket: )
           - end_hint: '*/'
       - select_clause_element:
         - column_reference:
@@ -212,10 +221,13 @@ file:
           - hint_function:
             - function_name:
               - function_name_identifier: REPARTITION
-            - bracketed:
-              - start_bracket: (
-              - naked_identifier: zip_code
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: zip_code
+                - end_bracket: )
           - end_hint: '*/'
       - select_clause_element:
         - column_reference:
@@ -281,10 +293,13 @@ file:
           - hint_function:
             - function_name:
               - function_name_identifier: REPARTITION
-            - bracketed:
-              - start_bracket: (
-              - naked_identifier: zip_code
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: zip_code
+                - end_bracket: )
           - end_hint: '*/'
       - select_clause_element:
         - column_reference:
@@ -354,10 +369,13 @@ file:
           - hint_function:
             - function_name:
               - function_name_identifier: REPARTITION
-            - bracketed:
-              - start_bracket: (
-              - naked_identifier: zip_code
-              - end_bracket: )
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: zip_code
+                - end_bracket: )
           - end_hint: '*/'
       - select_clause_element:
         - column_reference:

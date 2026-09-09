@@ -115,7 +115,10 @@ impl From<&FluffConfig> for PythonFluffConfig {
                 .and_then(|value| value.as_string())
                 .map(ToString::to_string),
             dbt_target: None,
-            dbt_target_path: None,
+            dbt_target_path: value
+                .templater_value(TemplaterKind::Dbt, "target_path")
+                .and_then(|value| value.as_string())
+                .map(ToString::to_string),
             dbt_context: None,
             dbt_project_dir: value
                 .templater_value(TemplaterKind::Dbt, "project_dir")
@@ -277,6 +280,33 @@ exclude_macros_from_path = macros/excluded
                     .to_string_lossy()
                     .to_string()
             ]
+        );
+    }
+
+    #[test]
+    fn test_dbt_target_path_is_serialized() {
+        let config_path = std::env::temp_dir()
+            .join("sqruff-dbt-target-path")
+            .join(".sqruff");
+        let source = r"
+[sqruff]
+templater = dbt
+[sqruff:templater:dbt]
+target_path = custom_target
+";
+        let config = FluffConfig::from_source(source, Some(&config_path));
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert_eq!(
+            python_fluff_config.dbt_target_path,
+            Some(
+                config_path
+                    .parent()
+                    .unwrap()
+                    .join("custom_target")
+                    .to_string_lossy()
+                    .to_string()
+            )
         );
     }
 

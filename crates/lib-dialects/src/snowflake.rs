@@ -60,6 +60,7 @@ fn copy_option_matchables() -> Vec<Matchable> {
                 Ref::keyword("CASE_SENSITIVE").to_matchable(),
                 Ref::keyword("CASE_INSENSITIVE").to_matchable(),
                 Ref::keyword("NONE").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
             ])
             .to_matchable(),
         ])

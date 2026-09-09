@@ -238,7 +238,11 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
 
     if !matches!(
         dialect.name,
-        DialectKind::Athena | DialectKind::Sparksql | DialectKind::Duckdb | DialectKind::Trino
+        DialectKind::Athena
+            | DialectKind::Sparksql
+            | DialectKind::Duckdb
+            | DialectKind::Trino
+            | DialectKind::Databricks
     ) {
         return Vec::new();
     }

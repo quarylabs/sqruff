@@ -425,7 +425,6 @@ sh_test(
         "CARGO": "$(rlocationpath @rules_rust//rust/toolchain:current_cargo_files)",
         "MACHETE": "$(rlocationpath @cargo_machete//:cargo-machete)",
     },
-    tags = ["exclusive"],
 )
 
 # Cargo compiler checks share one writable target directory. Keeping these in a

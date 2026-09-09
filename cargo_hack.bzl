@@ -43,7 +43,7 @@ def cargo_hack_packages(name, packages, srcs):
     _inputs(name = inputs, packages = packages, srcs = srcs)
     tests = []
     for package in packages:
-        suffix = package.removeprefix("crates/")
+        suffix = package.removeprefix("crates/").replace("/", "_")
         source = name + "_sources_" + suffix
         native.filegroup(name = source, srcs = [":" + inputs], output_group = package)
         test = "cargo_hack_" + suffix

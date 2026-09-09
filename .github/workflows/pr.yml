@@ -71,28 +71,6 @@ jobs:
         run: bazelisk build --config=ci //...
       - name: Run all tests
         run: bazelisk test --config=ci //...
-  zed-extension:
-    name: Zed Extension
-    runs-on: ubuntu-latest
-    needs: sqlfluff-sha-only
-    if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # ratchet:Swatinem/rust-cache@v2
-        with:
-          workspaces: editors/zed
-      # editors/zed is a standalone Cargo workspace, so it is invisible to the
-      # Bazel Rust targets and needs checking on its own. The toolchain and the
-      # wasm32-wasip2 target come from editors/zed/rust-toolchain.toml.
-      - name: Check formatting
-        run: cargo fmt --check
-        working-directory: editors/zed
-      - name: Clippy
-        run: cargo clippy --locked --target wasm32-wasip2 -- -D warnings
-        working-directory: editors/zed
-      - name: Build
-        run: cargo build --locked --release --target wasm32-wasip2
-        working-directory: editors/zed
   build-binaries:
     name: Build binaries for all platforms
     # Master pushes only need to refresh the Bazel cache; skip the binary

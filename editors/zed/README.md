@@ -66,3 +66,14 @@ the CLI but ignored by the language server, so configure them in `.sqruff`.
 
 To try changes without publishing, open the Command Palette in Zed, run
 `zed: install dev extension`, and select this directory (`editors/zed`).
+
+The extension is part of the root Cargo workspace and shares its lockfile and
+Rust toolchain. Build the WASI component with:
+
+```sh
+bazelisk build //editors/zed:extension
+```
+
+The workspace Bazel checks include formatting, Clippy on both the host and
+`wasm32-wasip2`, compiler coverage, and Cargo-hack's per-feature matrix.
+`cargo build --locked --target wasm32-wasip2` also works from this directory.

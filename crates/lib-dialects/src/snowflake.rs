@@ -10436,6 +10436,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Delimited::new(vec![
                 Sequence::new(vec![
                     one_of(vec![
+                        Ref::new("BooleanLiteralGrammar").to_matchable(),
                         Ref::new("ColumnReferenceSegment").to_matchable(),
                         Ref::new("NumericLiteralSegment").to_matchable(),
                         Ref::new("ExpressionSegment").to_matchable(),

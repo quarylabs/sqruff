@@ -64,12 +64,72 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "newline",
     );
 
+    // Databricks notebook start and language magic cells:
+    // https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebooks-code#language-magic
+    databricks.insert_lexer_matchers(
+        vec![
+            Matcher::regex(
+                "notebook_start",
+                r"-- Databricks notebook source(\r?\n){1}",
+                SyntaxKind::NotebookStart,
+            ),
+            Matcher::regex(
+                "magic_line",
+                r"(-- MAGIC)( [^%]{1})([^\n]*)",
+                SyntaxKind::MagicLine,
+            ),
+            Matcher::regex(
+                "magic_start",
+                r"(-- MAGIC %)([^\n]{2,})(\r?\n)",
+                SyntaxKind::MagicStart,
+            ),
+        ],
+        "inline_comment",
+    );
+
     databricks.add([
         (
             "CommandCellSegment".into(),
             TypedParser::new(SyntaxKind::Command, SyntaxKind::StatementTerminator)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "NotebookStart".into(),
+            TypedParser::new(SyntaxKind::NotebookStart, SyntaxKind::NotebookStart)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MagicLineGrammar".into(),
+            TypedParser::new(SyntaxKind::MagicLine, SyntaxKind::MagicLine)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MagicStartGrammar".into(),
+            TypedParser::new(SyntaxKind::MagicStart, SyntaxKind::MagicStart)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MagicCellStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::MagicCellSegment, |_| {
+                Sequence::new(vec![
+                    Ref::new("NotebookStart").optional().to_matchable(),
+                    Ref::new("MagicStartGrammar").to_matchable(),
+                    AnyNumberOf::new(vec![Ref::new("MagicLineGrammar").to_matchable()])
+                        .config(|config| {
+                            config.terminators =
+                                vec![Ref::new("CommandCellSegment").optional().to_matchable()];
+                            config.reset_terminators = true;
+                        })
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "DoubleQuotedUDFBody".into(),
@@ -1925,6 +1985,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("OptimizeTableStatementSegment").to_matchable(),
                     Ref::new("CommentOnStatementSegment").to_matchable(),
                     Ref::new("DeclareOrReplaceVariableStatementSegment").to_matchable(),
+                    Ref::new("MagicCellStatementSegment").to_matchable(),
                 ]),
                 None,
                 None,

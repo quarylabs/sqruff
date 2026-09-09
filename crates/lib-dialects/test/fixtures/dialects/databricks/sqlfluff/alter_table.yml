@@ -725,3 +725,67 @@ file:
     - keyword: KEY
     - keyword: CASCADE
 - statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: rocks
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: rock
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: rocks
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: rock
+    - comma: ','
+    - column_reference:
+      - naked_identifier: loc
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: rocks
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+      - naked_identifier: rock
+    - comma: ','
+    - column_reference:
+      - naked_identifier: loc
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: rocks
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: rock
+      - comma: ','
+      - column_reference:
+        - naked_identifier: loc
+      - end_bracket: )
+- statement_terminator: ;

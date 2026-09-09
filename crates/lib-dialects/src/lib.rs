@@ -34,6 +34,10 @@ mod exasol_keywords;
 pub mod greenplum;
 #[cfg(feature = "hive")]
 pub mod hive;
+#[cfg(feature = "impala")]
+pub mod impala;
+#[cfg(feature = "impala")]
+mod impala_keywords;
 #[cfg(feature = "mariadb")]
 pub mod mariadb;
 #[cfg(feature = "mariadb")]
@@ -113,6 +117,8 @@ pub fn dialect_config_options(
         DialectKind::Greenplum => greenplum::GreenplumDialectConfig::config_options(),
         #[cfg(feature = "hive")]
         DialectKind::Hive => hive::HiveDialectConfig::config_options(),
+        #[cfg(feature = "impala")]
+        DialectKind::Impala => impala::ImpalaDialectConfig::config_options(),
         #[cfg(feature = "mariadb")]
         DialectKind::Mariadb => mariadb::MariaDBDialectConfig::config_options(),
         #[cfg(feature = "mysql")]
@@ -167,6 +173,8 @@ pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dia
         DialectKind::Greenplum => greenplum::dialect(config),
         #[cfg(feature = "hive")]
         DialectKind::Hive => hive::dialect(config),
+        #[cfg(feature = "impala")]
+        DialectKind::Impala => impala::dialect(config),
         #[cfg(feature = "mariadb")]
         DialectKind::Mariadb => mariadb::dialect(config),
         #[cfg(feature = "mysql")]

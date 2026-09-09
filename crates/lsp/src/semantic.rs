@@ -1293,6 +1293,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | AlterSecretStatement
         | AlterSetClusterStatement
         | AlterSourceSinkSizeStatement
+        | ComputeStatsStatement
         | CopyToStatement
         | CopyFromStatement
         | CreateClusterStatement

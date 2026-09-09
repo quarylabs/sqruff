@@ -243,6 +243,7 @@ pub enum SyntaxKind {
     CompositeValueExpansion,
     CompoundTriggerStatement,
     CompressionType,
+    ComputeStatsStatement,
     ComputedColumnDefinition,
     ConflictAction,
     ConflictClause,

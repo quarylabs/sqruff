@@ -403,6 +403,19 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "NotEnforcedGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("NOT").to_matchable(),
+                Ref::keyword("ENFORCED").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ReferenceMatchGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
     ]);
 
     // Set Keywords

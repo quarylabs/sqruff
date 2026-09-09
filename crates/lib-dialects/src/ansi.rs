@@ -925,6 +925,10 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable()
                 .into(),
         ),
+        (
+            "NotEnforcedGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
         // Odd syntax, but prevents eager parameters being confused for data types
         (
             "FunctionParameterGrammar".into(),
@@ -1176,6 +1180,20 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "ReferenceMatchGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("MATCH").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("FULL").to_matchable(),
+                    Ref::keyword("PARTIAL").to_matchable(),
+                    Ref::keyword("SIMPLE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ReferenceDefinitionGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("REFERENCES").to_matchable(),
@@ -1184,17 +1202,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("ReferencedColumnListGrammar")
                     .optional()
                     .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("MATCH").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("FULL").to_matchable(),
-                        Ref::keyword("PARTIAL").to_matchable(),
-                        Ref::keyword("SIMPLE").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
+                Ref::new("ReferenceMatchGrammar").optional().to_matchable(),
                 AnyNumberOf::new(vec![
                     // ON DELETE clause, e.g. ON DELETE NO ACTION
                     Sequence::new(vec![
@@ -1886,11 +1894,18 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("PrimaryKeyGrammar").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("PrimaryKeyGrammar").to_matchable(),
+                            Ref::new("NotEnforcedGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
                         Ref::new("UniqueKeyGrammar").to_matchable(), // UNIQUE
                         Ref::new("AutoIncrementGrammar").to_matchable(),
-                        Ref::new("ReferenceDefinitionGrammar").to_matchable(), /* REFERENCES reftable [ (
-                                                                                * refcolumn) ] */
+                        Sequence::new(vec![
+                            Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                            Ref::new("NotEnforcedGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(), /* REFERENCES reftable [ ( refcolumn) ] */
                         Ref::new("CommentClauseSegment").to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("COLLATE").to_matchable(),

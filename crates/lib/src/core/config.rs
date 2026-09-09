@@ -477,12 +477,8 @@ impl ConfigLoader {
     ) -> Result<HashMap<String, Value>, SQLFluffUserError> {
         let path = path.as_ref();
 
-        let config_stack = if ignore_local_config {
-            if let Some(path) = extra_config_path {
-                vec![self.try_load_config_at_path(path)?]
-            } else {
-                Vec::new()
-            }
+        let mut config_stack = if ignore_local_config {
+            Vec::new()
         } else {
             let configs =
                 Self::iter_config_locations_up_to_path(path, None, None, ignore_local_config);
@@ -490,6 +486,20 @@ impl ConfigLoader {
                 .map(|path| self.try_load_config_at_path(path))
                 .collect::<Result<Vec<_>, _>>()?
         };
+
+        if let Some(extra_config_path) = extra_config_path {
+            let path = PathBuf::from(&extra_config_path);
+            if !path.exists() {
+                return Err(SQLFluffUserError::new(format!(
+                    "Extra config path '{extra_config_path}' does not exist."
+                )));
+            }
+
+            let path = std::path::absolute(&path).unwrap_or(path);
+            let mut extra_config = HashMap::new();
+            Self::try_load_config_file(path, &mut extra_config)?;
+            config_stack.push(extra_config);
+        }
 
         Ok(nested_combine(config_stack))
     }
@@ -955,6 +965,49 @@ mod tests {
         assert_eq!(
             config.raw["core"]["rule_denylist"].as_array().unwrap(),
             &[Value::String("AM01".into())]
+        );
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_extra_config_is_loaded_last_from_exact_file() {
+        let root = temp_config_dir("extra-config");
+        let extra_config = root.join("extra").join("this_can_have_any_name.cfg");
+        fs::create_dir_all(extra_config.parent().unwrap()).unwrap();
+        fs::write(
+            root.join(".sqruff"),
+            "[sqruff]\ndialect = mysql\n[sqruff:bar]\nfoo = project\n",
+        )
+        .unwrap();
+        fs::write(&extra_config, "[sqruff:bar]\nfoo = extra\n").unwrap();
+
+        let config = ConfigLoader
+            .try_load_config_up_to_path(
+                root.join("query.sql"),
+                Some(extra_config.to_string_lossy().into_owned()),
+                false,
+            )
+            .unwrap();
+
+        assert_eq!(config["core"]["dialect"].as_string(), Some("mysql"));
+        assert_eq!(config["bar"]["foo"].as_string(), Some("extra"));
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_missing_extra_config_returns_user_error() {
+        let root = temp_config_dir("missing-extra-config");
+        let missing = root.join("does-not-exist.cfg");
+
+        let error = ConfigLoader
+            .try_load_config_up_to_path(&root, Some(missing.to_string_lossy().into_owned()), true)
+            .unwrap_err();
+
+        assert_eq!(
+            error.to_string(),
+            format!("Extra config path '{}' does not exist.", missing.display())
         );
 
         fs::remove_dir_all(root).unwrap();

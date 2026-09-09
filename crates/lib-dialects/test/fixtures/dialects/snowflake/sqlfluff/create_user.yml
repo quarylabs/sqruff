@@ -5,6 +5,11 @@ file:
     - keyword: user
     - object_reference:
       - naked_identifier: user1
+    - keyword: type
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: person
     - keyword: password
     - comparison_operator:
       - raw_comparison_operator: =
@@ -67,6 +72,10 @@ file:
     - keyword: user
     - object_reference:
       - naked_identifier: user2
+    - keyword: type
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''service'''
     - keyword: password
     - comparison_operator:
       - raw_comparison_operator: =

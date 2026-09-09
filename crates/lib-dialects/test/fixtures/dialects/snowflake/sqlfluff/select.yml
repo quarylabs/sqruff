@@ -168,3 +168,34 @@ file:
             - alias_operator:
               - keyword: as
             - naked_identifier: do
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+        - boolean_literal: 'TRUE'
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: test
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: mytable
+          - alias_expression:
+            - naked_identifier: t
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;

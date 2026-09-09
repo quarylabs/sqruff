@@ -1294,6 +1294,34 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     databricks.replace_grammar(
+        "FunctionNameIdentifierSegment",
+        one_of(vec![
+            TypedParser::new(SyntaxKind::Word, SyntaxKind::FunctionNameIdentifier).to_matchable(),
+            Ref::new("BackQuotedIdentifierSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    databricks.replace_grammar(
+        "FunctionNameSegment",
+        Sequence::new(vec![
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("DotSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|config| config.terminators = vec![Ref::new("BracketedSegment").to_matchable()])
+            .to_matchable(),
+            Ref::new("FunctionNameIdentifierSegment").to_matchable(),
+        ])
+        .terminators(vec![Ref::new("BracketedSegment").to_matchable()])
+        .allow_gaps(false)
+        .to_matchable(),
+    );
+
+    databricks.replace_grammar(
         "ColumnConstraintSegment",
         Sequence::new(vec![
             Ref::new("NotNullGrammar").optional().to_matchable(),

@@ -1,100 +1,127 @@
 rule: AL09
 
-test_pass_no_alias:
-  pass_str:
-    select
-        col_a,
-        col_b
-    from foo
-
 test_pass_no_self_alias:
-  pass_str:
+  # No alias, a renamed alias, and a function expression should all pass.
+  pass_str: |
     select
-        col_a,
-        col_b as new_col_b
-    from foo
-
-test_pass_no_self_alias_function:
-  pass_str:
-    select
+        no_alias,
+        col_b as rename_alias,
         max(sum) as max_sum
     from foo
 
-test_fail_self_alias:
-  fail_str:
+test_fail_no_quotes_same_case:
+  # Exact unquoted matches are always safe to remove.
+  fail_str: |
     select
-        col_a as col_a,
-        col_b as new_col_b
+        col_a as this_alias_is_fine,
+        col_b as col_b,
+        COL_C as COL_C,
+        Col_D as Col_D,
+        col_e col_e,
+        COL_F COL_F,
+        Col_G Col_G
     from foo
-  fix_str:
+  fix_str: |
     select
-        col_a,
-        col_b as new_col_b
-    from foo
-
-test_fail_self_alias_upper:
-  fail_str:
-    select
-        col_a as COL_A,
-        col_b as new_col_b
-    from foo
-  fix_str:
-    select
-        col_a,
-        col_b as new_col_b
-    from foo
-
-test_fail_self_alias_implicit:
-  fail_str:
-    select
-        col_a col_a,
-        col_b AS new_col_b
-    from foo
-  fix_str:
-    select
-        col_a,
-        col_b AS new_col_b
+        col_a as this_alias_is_fine,
+        col_b,
+        COL_C,
+        Col_D,
+        col_e,
+        COL_F,
+        Col_G
     from foo
 
-test_fail_self_alias_and_table_aliased:
-  fail_str:
+test_fail_with_quotes_same_case:
+  # Exact quoted matches are always safe to remove.
+  fail_str: |
+    select
+        "col_a" as "this_alias_is_fine",
+        "col_b" as "col_b",
+        "COL_C" as "COL_C",
+        "Col_D" as "Col_D",
+        "col_e" "col_e",
+        "COL_F" "COL_F",
+        "Col_G" "Col_G"
+    from foo
+  fix_str: |
+    select
+        "col_a" as "this_alias_is_fine",
+        "col_b",
+        "COL_C",
+        "Col_D",
+        "col_e",
+        "COL_F",
+        "Col_G"
+    from foo
+
+test_fail_qualified_same_case:
+  fail_str: |
     select
         a.col_a as col_a,
         a.col_b as new_col_b
     from foo as a
-
-  fix_str:
+  fix_str: |
     select
         a.col_a,
         a.col_b as new_col_b
     from foo as a
 
-test_fail_self_alias_quoted:
-  fail_str:
+test_fail_different_case:
+  # Mixed-case unquoted aliases are ambiguous in case-insensitive dialects.
+  # They should be reported without a fix; quoted identifiers should pass.
+  fail_str: |
     select
-        "col_a" as "col_a",
-        col_b as new_col_b
+        col_a as this_alias_is_fine,
+        col_b as Col_B,
+        COL_C as col_c,
+        Col_D as COL_D,
+        col_e Col_e,
+        COL_F col_f,
+        Col_G COL_G,
+        "col_b" as "Col_B",
+        "COL_C" as "col_c",
+        "Col_D" as "COL_D",
+        "col_e" "Col_e",
+        "COL_F" "col_f",
+        "Col_G" "COL_G"
     from foo
-  fix_str:
-    select
-        "col_a",
-        col_b as new_col_b
-    from foo
+  line_numbers: [3, 4, 5, 6, 7, 8]
+  expect_no_fix: true
 
-test_pass_self_alias_case_insensitive:
-  # Renaming the column name from case-sensitive to case-insensitive
-  pass_str:
+test_pass_different_case_clickhouse:
+  # ClickHouse resolves identifiers case-sensitively, quoted or unquoted.
+  pass_str: |
     select
-        "col_a" as col_a,
-        col_b as new_col_b
+        col_a as this_alias_is_fine,
+        col_b as Col_B,
+        COL_C as col_c,
+        Col_D as COL_D,
+        col_e Col_e,
+        COL_F col_f,
+        Col_G COL_G,
+        "col_b" as "Col_B",
+        "COL_C" as "col_c",
+        "Col_D" as "COL_D",
+        "col_e" "Col_e",
+        "COL_F" "col_f",
+        "Col_G" "COL_G"
     from foo
+  configs:
+    core:
+      dialect: clickhouse
 
-test_pass_self_alias_case_sensitive:
-  # Renaming the column name from case-insensitive to case-sensitive
-  pass_str:
+test_pass_different_quotes:
+  # A quoting change can change identifier semantics and must be preserved.
+  pass_str: |
     select
-        col_a as "col_a",
-        col_b as new_col_b
+        col_a as this_alias_is_fine,
+        "col_b" as col_b,
+        COL_C as "COL_C",
+        "Col_D" as Col_D,
+        col_e "col_e",
+        "COL_F" COL_F,
+        Col_G "Col_G"
     from foo
 
 test_pass_mysql_quoted_identifiers:

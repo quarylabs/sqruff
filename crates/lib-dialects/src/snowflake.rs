@@ -3049,6 +3049,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                                 Ref::new("DatatypeSegment").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("NOT").to_matchable(),
+                                    Ref::keyword("NULL").to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
                                 one_of(vec![
                                     // Default & AS (virtual columns)
                                     Sequence::new(vec![

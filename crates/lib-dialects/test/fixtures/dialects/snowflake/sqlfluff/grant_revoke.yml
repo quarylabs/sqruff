@@ -1452,3 +1452,15 @@ file:
     - object_reference:
       - naked_identifier: dbrolename
 - statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: APPLICATION
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: dbrolename
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: public
+- statement_terminator: ;

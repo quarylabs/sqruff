@@ -43,6 +43,7 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "ANTI");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "ASOF");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "MACRO");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "MAP");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "POSITIONAL");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "SEMI");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "STRUCT");
@@ -165,6 +166,29 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MapTypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::MapType, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("MAP").to_matchable(),
+                    Ref::new("MapTypeSchemaSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MapTypeSchemaSegment".into(),
+            NodeMatcher::new(SyntaxKind::MapTypeSchema, |_| {
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("DatatypeSegment").to_matchable()]).to_matchable(),
                 ])
                 .to_matchable()
             })

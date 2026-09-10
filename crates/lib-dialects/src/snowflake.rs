@@ -4139,6 +4139,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("INTEGRATION").to_matchable(),
                             Ref::keyword("SCHEMA").to_matchable(),
                             Ref::keyword("ROLE").to_matchable(),
+                            Ref::keyword("USER").to_matchable(),
                             Sequence::new(vec![
                                 Ref::keyword("ALL").to_matchable(),
                                 Ref::keyword("SCHEMAS").to_matchable(),

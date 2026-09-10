@@ -133,6 +133,17 @@ CREATE TABLE DBO.ColumnNames
                 return Vec::new();
             }
 
+            // PostgreSQL extensions often use quoted identifiers containing
+            // special characters. Allow them in extension references.
+            if context.dialect.name == DialectKind::Postgres
+                && context
+                    .parent_stack
+                    .last()
+                    .is_some_and(|it| it.is_type(SyntaxKind::ExtensionReference))
+            {
+                return Vec::new();
+            }
+
             if context.dialect.name == DialectKind::Bigquery
                 && context
                     .parent_stack

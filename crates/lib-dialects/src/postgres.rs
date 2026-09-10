@@ -1029,7 +1029,19 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("DatatypeSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::new("ParameterNameSegment").to_matchable(),
-                        Ref::new("DatatypeSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("IN").to_matchable(),
+                            Ref::keyword("OUT").to_matchable(),
+                            Ref::keyword("INOUT").to_matchable(),
+                            Ref::keyword("VARIADIC").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Ref::new("ColumnTypeReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -1046,6 +1058,21 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.optional())
                 .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A column type reference (e.g. `table_name.column_name%type`).
+            // https://www.postgresql.org/docs/current/sql-createfunction.html
+            "ColumnTypeReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnTypeReference, |_| {
+                Sequence::new(vec![
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("ModuloSegment").to_matchable(),
+                    Ref::keyword("TYPE").to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

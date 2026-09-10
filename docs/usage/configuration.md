@@ -38,3 +38,7 @@ indented_joins = true
 ```
 
 See [sample configurations](../reference/sample-configurations.md) for more examples.
+
+The `warnings` setting makes selected violations visible without causing lint
+to fail. It accepts either rule codes or rule names, for example
+`warnings = LT01,layout.end_of_file`.

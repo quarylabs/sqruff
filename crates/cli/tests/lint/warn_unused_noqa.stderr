@@ -1,4 +1,4 @@
-== [tests/lint/warn_unused_noqa.sql] FAIL
-L:   3 | P:  11 | NOQA | Unused noqa: 'noqa: AL02' [noqa]
+== [tests/lint/warn_unused_noqa.sql] PASS
+L:   3 | P:  11 | NOQA | WARNING: Unused noqa: 'noqa: AL02' [noqa]
 The linter processed 1 file(s).
 All Finished

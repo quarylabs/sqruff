@@ -1,0 +1,7 @@
+== [tests/lint/warning_name.sql] PASS
+L:   4 | P:   9 | LT01 | WARNING: Expected single whitespace between "1" and
+                       | "+". [layout.spacing]
+L:   4 | P:  10 | LT01 | WARNING: Expected single whitespace between "+" and
+                       | "2". [layout.spacing]
+The linter processed 1 file(s).
+All Finished

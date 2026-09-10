@@ -402,6 +402,15 @@ impl Linter {
             violations.extend(ignore_mask.generate_warnings_for_unused());
         }
 
+        let warnings = self
+            .config
+            .get("warnings", "core")
+            .as_array()
+            .unwrap_or_default();
+        for violation in &mut violations {
+            violation.warning_if_in(warnings.iter().filter_map(|warning| warning.as_string()));
+        }
+
         let linted_file = LintedFile::new(
             parsed_string.filename,
             patches,

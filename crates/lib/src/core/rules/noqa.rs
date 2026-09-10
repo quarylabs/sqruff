@@ -90,6 +90,7 @@ impl NoQADirective {
                 if !available_rules.contains(rule.as_str()) {
                     return Err(SQLBaseError {
                         fixable: false,
+                        warning: false,
                         line_no: 0,
                         line_pos: 0,
                         description: format!("Rule {rule} not found in rule set"),
@@ -187,6 +188,7 @@ impl NoQADirective {
                     } else {
                         Err(SQLBaseError {
                             fixable: false,
+                            warning: false,
                             line_no,
                             line_pos,
                             description:
@@ -199,6 +201,7 @@ impl NoQADirective {
                 } else {
                     Err(SQLBaseError {
                         fixable: false,
+                        warning: false,
                         line_no,
                         line_pos,
                         description:
@@ -359,6 +362,7 @@ impl IgnoreMask {
             .get_position_marker()
             .ok_or(SQLBaseError {
                 fixable: false,
+                warning: false,
                 line_no: 0,
                 line_pos: 0,
                 description: "Could not get position marker".to_string(),
@@ -558,6 +562,7 @@ impl IgnoreMask {
                 let text = raw.split("--").last().unwrap_or(raw).trim();
                 SQLBaseError {
                     fixable: false,
+                    warning: true,
                     line_no: directive.line_no(),
                     line_pos: directive.line_pos(),
                     description: format!("Unused noqa: '{text}'"),
@@ -585,6 +590,7 @@ mod tests {
     fn test_is_masked_single_line() {
         let error = SQLBaseError {
             fixable: true,
+            warning: false,
             line_no: 2,
             line_pos: 11,
             description: "Implicit/explicit aliasing of columns.".to_string(),
@@ -897,6 +903,7 @@ FROM foo
     fn test_generate_warnings_for_unused() {
         let used = SQLBaseError {
             fixable: true,
+            warning: false,
             line_no: 2,
             line_pos: 11,
             description: "Implicit aliasing.".to_string(),
@@ -929,6 +936,7 @@ FROM foo
         assert_eq!(warnings.len(), 1);
         assert_eq!(warnings[0].line_no, 3);
         assert_eq!(warnings[0].rule_code(), "NOQA");
+        assert!(warnings[0].warning);
         assert_eq!(warnings[0].description, "Unused noqa: 'noqa: AL02'");
     }
 
@@ -991,6 +999,8 @@ warn_unused_ignores = True
             .collect();
         assert_eq!(noqa_warnings.len(), 1);
         assert_eq!(noqa_warnings[0].line_no, 3);
+        assert!(noqa_warnings[0].warning);
+        assert!(!result_on.has_violations());
         assert_eq!(noqa_warnings[0].description, "Unused noqa: 'noqa: AL02'");
     }
 }

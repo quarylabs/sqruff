@@ -427,6 +427,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | AlterTypeStatement
         | CreateTypeStatement
         | LockTableStatement
+        | LockingClause
         | CopyStatement
         | DiscardStatement
         | AlterSchemaStatement

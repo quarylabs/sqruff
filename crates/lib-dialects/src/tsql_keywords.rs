@@ -504,6 +504,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "ACTION",
         "APPEND",
         "INLINE",
+        "LOG",
         "PERSISTED",
         "FORCE",
         "MASTER",
@@ -528,6 +529,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         // sqlcmd commands (#4653)
         "R",
         "SETVAR",
+        "SETERROR",
         // CREATE EXTERNAL FILE FORMAT (#4647)
         "FORMAT_TYPE",
         "FORMAT_OPTIONS",

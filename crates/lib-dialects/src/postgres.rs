@@ -4135,6 +4135,27 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "CreateForeignDataWrapperStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateForeignDataWrapper, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("ForeignDataWrapperGrammar").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::keyword("HANDLER").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::keyword("VALIDATOR").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "SubscriptionReferenceSegment".into(),
             NodeMatcher::new(SyntaxKind::SubscriptionReference, |postgres| {
                 postgres
@@ -9450,6 +9471,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("CreateExtensionStatementSegment").to_matchable(),
             Ref::new("DropExtensionStatementSegment").to_matchable(),
             Ref::new("AlterExtensionStatementSegment").to_matchable(),
+            Ref::new("CreateForeignDataWrapperStatementSegment").to_matchable(),
             Ref::new("CreateSubscriptionStatementSegment").to_matchable(),
             Ref::new("AlterSubscriptionStatementSegment").to_matchable(),
             Ref::new("DropSubscriptionStatementSegment").to_matchable(),

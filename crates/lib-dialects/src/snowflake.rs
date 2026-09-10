@@ -651,6 +651,55 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "ForeignKeyConstraintGrammar".into(),
+            any_set_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("MATCH").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("FULL").to_matchable(),
+                        Ref::keyword("SIMPLE").to_matchable(),
+                        Ref::keyword("PARTIAL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    AnyNumberOf::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("UPDATE").to_matchable(),
+                            Ref::keyword("DELETE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("CASCADE").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("SET").to_matchable(),
+                                Ref::keyword("NULL").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("SET").to_matchable(),
+                                Ref::keyword("DEFAULT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("RESTRICT").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("NO").to_matchable(),
+                                Ref::keyword("ACTION").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ReferencedVariableNameSegment".into(),
             RegexParser::new(r"\$[A-Z_][A-Z0-9_]*", SyntaxKind::Variable)
                 .to_matchable()
@@ -5659,6 +5708,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             ])
                             .config(|this| this.optional())
                             .to_matchable(),
+                            Ref::new("ForeignKeyConstraintGrammar")
+                                .optional()
+                                .to_matchable(),
                         ])
                         .to_matchable(),
                     ])

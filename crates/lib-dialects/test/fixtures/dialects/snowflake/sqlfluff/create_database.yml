@@ -29,3 +29,12 @@ file:
       - dot: .
       - naked_identifier: MY_SHARE
 - statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: DATABASE
+    - object_reference:
+      - naked_identifier: MY_DATABASE
+- statement_terminator: ;

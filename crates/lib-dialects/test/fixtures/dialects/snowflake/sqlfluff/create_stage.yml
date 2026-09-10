@@ -644,3 +644,18 @@ file:
           - boolean_literal: 'TRUE'
         - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_stage_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: foo
+      - dot: .
+      - naked_identifier: bar
+    - keyword: URL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bucket_path: '''s3://foobar'''
+- statement_terminator: ;

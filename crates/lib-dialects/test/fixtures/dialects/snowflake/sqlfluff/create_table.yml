@@ -1065,6 +1065,25 @@ file:
   - create_table_statement:
     - keyword: CREATE
     - keyword: OR
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INTEGER
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
     - keyword: REPLACE
     - keyword: DYNAMIC
     - keyword: TABLE

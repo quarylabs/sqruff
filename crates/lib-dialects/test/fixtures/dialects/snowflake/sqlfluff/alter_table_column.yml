@@ -22,18 +22,17 @@ file:
     - alter_table_table_column_action:
       - keyword: ADD
       - keyword: COLUMN
-      - column_definition:
+      - column_reference:
         - naked_identifier: my_column
-        - data_type:
-          - data_type_identifier: VARCHAR
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - numeric_literal: '5000'
-              - end_bracket: )
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
+      - data_type:
+        - data_type_identifier: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '5000'
+            - end_bracket: )
+      - keyword: NOT
+      - keyword: 'NULL'
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -1024,4 +1023,25 @@ file:
                     - quoted_literal: '''1900-01-01'''
                   - end_bracket: )
           - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: table1
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+        - naked_identifier: some_column
+      - data_type:
+        - data_type_identifier: INTEGER
+      - keyword: NOT
+      - keyword: 'NULL'
 - statement_terminator: ;

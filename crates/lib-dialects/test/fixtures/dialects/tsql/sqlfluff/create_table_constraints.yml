@@ -20,13 +20,14 @@ file:
             - keyword: CONSTRAINT
             - object_reference:
               - naked_identifier: constraint_name
-            - keyword: REFERENCES
-            - table_reference:
-              - object_reference:
-                - naked_identifier: referenced_table_name
-            - keyword: ON
-            - keyword: DELETE
-            - keyword: NO
-            - keyword: ACTION
+            - references_constraint_grammar:
+              - keyword: REFERENCES
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: referenced_table_name
+              - keyword: ON
+              - keyword: DELETE
+              - keyword: NO
+              - keyword: ACTION
         - end_bracket: )
 - statement_terminator: ;

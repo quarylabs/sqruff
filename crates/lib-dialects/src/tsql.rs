@@ -5,7 +5,9 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
+use sqruff_lib_core::parser::grammar::anyof::{
+    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
+};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
@@ -2631,7 +2633,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("UniqueKeyGrammar").to_matchable(),
                     Ref::new("IdentityConstraintGrammar").to_matchable(), // T-SQL IDENTITY
                     Ref::new("AutoIncrementGrammar").to_matchable(), // Keep ANSI AUTO_INCREMENT
-                    Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                    Ref::new("ReferencesConstraintGrammar").to_matchable(),
                     Ref::new("CommentClauseSegment").to_matchable(),
                     // COLLATE
                     Sequence::new(vec![
@@ -2683,6 +2685,75 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    dialect.add([(
+        "ReferencesConstraintGrammar".into(),
+        NodeMatcher::new(SyntaxKind::ReferencesConstraintGrammar, |_| {
+            Sequence::new(vec![
+                Ref::keyword("REFERENCES").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::new("BracketedColumnReferenceListGrammar")
+                    .optional()
+                    .to_matchable(),
+                any_set_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("DELETE").to_matchable(),
+                        Ref::new("ReferentialActionGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("UPDATE").to_matchable(),
+                        Ref::new("ReferentialActionGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NOT").to_matchable(),
+                        Ref::keyword("FOR").to_matchable(),
+                        Ref::keyword("REPLICATION").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.replace_grammar(
+        "TableConstraintSegment",
+        Sequence::new(vec![
+            Sequence::new(vec![
+                Ref::keyword("CONSTRAINT").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("UNIQUE").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("PrimaryKeyGrammar").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ForeignKeyGrammar").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    Ref::new("ReferencesConstraintGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     let alter_table_options = dialect.grammar("AlterTableOptionsGrammar").copy(
         Some(vec![
             Sequence::new(vec![
@@ -2695,6 +2766,17 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("CHECK").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("ADD").to_matchable(),
+                Ref::new("TableConstraintSegment").to_matchable(),
             ])
             .to_matchable(),
         ]),

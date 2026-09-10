@@ -2199,6 +2199,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreatePasswordPolicyStatementSegment").to_matchable(),
                 Ref::new("AlterPasswordPolicyStatementSegment").to_matchable(),
                 Ref::new("DropPasswordPolicyStatementSegment").to_matchable(),
+                Ref::new("AlterRowAccessPolicyStatementSegment").to_matchable(),
                 Ref::new("ScriptingLetStatementSegment").to_matchable(),
                 Ref::new("ScriptingDeclareStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
@@ -11625,6 +11626,64 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("POLICY").to_matchable(),
                     Ref::new("IfExistsGrammar").optional().to_matchable(),
                     Ref::new("PasswordPolicyReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `ALTER ROW ACCESS POLICY` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-row-access-policy
+            "AlterRowAccessPolicyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterRowAccessPolicyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("ROW").to_matchable(),
+                    Ref::keyword("ACCESS").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("RENAME").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::keyword("BODY").to_matchable(),
+                            Ref::new("FunctionAssignerSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("TagEqualsSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("TAG").to_matchable(),
+                            Delimited::new(vec![Ref::new("TagReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::keyword("COMMENT").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("COMMENT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

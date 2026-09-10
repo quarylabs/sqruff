@@ -2454,6 +2454,72 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
+    dialect.replace_grammar(
+        "TemporalQuerySegment",
+        NodeMatcher::new(SyntaxKind::TemporalQuery, |_| {
+            Sequence::new(vec![
+                Ref::keyword("FOR").to_matchable(),
+                Ref::keyword("SYSTEM_TIME").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AS").to_matchable(),
+                        Ref::keyword("OF").to_matchable(),
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("BETWEEN").to_matchable(),
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("AND").to_matchable(),
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CONTAINED").to_matchable(),
+                        Ref::keyword("IN").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
     // Override FromExpressionElementSegment to ensure table hints are parsed correctly
     // The LookaheadExclude prevents WITH from being parsed as an alias when followed by (
     dialect.replace_grammar(

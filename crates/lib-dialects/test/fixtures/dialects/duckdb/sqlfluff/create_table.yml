@@ -763,3 +763,27 @@ file:
               - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: map
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: tags
+      - data_type:
+        - map_type:
+          - keyword: MAP
+          - map_type_schema:
+            - bracketed:
+              - start_bracket: (
+              - data_type:
+                - keyword: VARCHAR
+              - comma: ','
+              - data_type:
+                - keyword: VARCHAR
+              - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

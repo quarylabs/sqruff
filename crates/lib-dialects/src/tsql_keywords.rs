@@ -636,6 +636,17 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "ROWTERMINATOR",
         "FIRSTROW",
         "AUTO_CREATE_TABLE",
+        // OPENROWSET (#6584)
+        "CODEPAGE",
+        "DATASOURCE",
+        "ERRORFILE_DATA_SOURCE",
+        "FORMATFILE",
+        "FORMATFILE_DATA_SOURCE",
+        "LASTROW",
+        "ROWS",
+        "SINGLE_BLOB",
+        "SINGLE_CLOB",
+        "SINGLE_NCLOB",
         // CREATE FULLTEXT INDEX (#5274)
         "AUTO",
         "CHANGE_TRACKING",

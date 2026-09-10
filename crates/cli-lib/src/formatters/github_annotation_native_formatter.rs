@@ -29,15 +29,20 @@ impl GithubAnnotationNativeFormatter {
 
 impl Formatter for GithubAnnotationNativeFormatter {
     fn dispatch_file_violations(&self, linted_file: &LintedFile) {
-        if !linted_file.has_violations() {
+        if linted_file.violations().is_empty() {
             return;
         }
 
         self.dispatch(&format!("::group::{}\n", linted_file.path()));
 
         for violation in linted_file.violations() {
+            let level = if violation.warning {
+                "warning"
+            } else {
+                "error"
+            };
             let message = format!(
-                "::error title=sqruff,file={},line={},col={}::{}: {}\n",
+                "::{level} title=sqruff,file={},line={},col={}::{}: {}\n",
                 linted_file.path(),
                 violation.line_no,
                 violation.line_pos,
@@ -46,7 +51,9 @@ impl Formatter for GithubAnnotationNativeFormatter {
             );
 
             self.dispatch(&message);
-            self.has_fail.store(true, Ordering::SeqCst);
+            if !violation.warning {
+                self.has_fail.store(true, Ordering::SeqCst);
+            }
         }
 
         self.dispatch("::endgroup::\n");

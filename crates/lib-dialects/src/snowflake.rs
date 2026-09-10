@@ -3338,7 +3338,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     // Add Column
                     Sequence::new(vec![
                         Ref::keyword("ADD").to_matchable(),
-                        Ref::new("ConstraintPropertiesSegment").to_matchable(),
+                        Ref::new("OutOfLineConstraintPropertiesSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
@@ -5660,7 +5660,62 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
-            "ConstraintPropertiesSegment".into(),
+            "InlineConstraintPropertiesSegment".into(),
+            NodeMatcher::new(SyntaxKind::ConstraintPropertiesSegment, |_| {
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CONSTRAINT").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::new("PrimaryKeyGrammar").to_matchable(),
+                                Ref::new("UniqueKeyGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Sequence::new(vec![Ref::new("ForeignKeyGrammar").to_matchable()])
+                                .to_matchable(),
+                            Ref::keyword("REFERENCES").to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("ForeignKeyConstraintGrammar")
+                                .optional()
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("InlineConstraintGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "OutOfLineConstraintPropertiesSegment".into(),
             NodeMatcher::new(SyntaxKind::ConstraintPropertiesSegment, |_| {
                 Sequence::new(vec![
                     Sequence::new(vec![
@@ -5800,7 +5855,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Ref::new("TagBracketedEqualsSegment")
                 .optional()
                 .to_matchable(),
-            Ref::new("ConstraintPropertiesSegment").to_matchable(),
+            Ref::new("InlineConstraintPropertiesSegment").to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("CHECK").to_matchable(),
                 Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()]).to_matchable(),
@@ -6068,7 +6123,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Delimited::new(vec![
                             Sequence::new(vec![
                                 one_of(vec![
-                                    Ref::new("ConstraintPropertiesSegment").to_matchable(),
+                                    Ref::new("OutOfLineConstraintPropertiesSegment").to_matchable(),
                                     Ref::new("ColumnDefinitionSegment").to_matchable(),
                                     Ref::new("SingleIdentifierGrammar").to_matchable(),
                                     Sequence::new(vec![
@@ -7963,7 +8018,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 optionally_bracketed(vec![
                                     Sequence::new(vec![
                                         Ref::new("ExpressionSegment").to_matchable(),
-                                        Ref::new("ConstraintPropertiesSegment")
+                                        Ref::new("InlineConstraintPropertiesSegment")
                                             .optional()
                                             .to_matchable(),
                                         Sequence::new(vec![

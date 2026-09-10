@@ -733,6 +733,7 @@ pub enum SyntaxKind {
     LocalAlias,
     LocalAliasSegment,
     LockTableStatement,
+    LockingClause,
     LogLevelEquals,
     LogicalFileName,
     LoginUserSegment,

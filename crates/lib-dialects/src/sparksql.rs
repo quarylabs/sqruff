@@ -2108,6 +2108,7 @@ pub fn raw_dialect() -> Dialect {
                     Delimited::new(vec![
                         Sequence::new(vec![
                             Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").optional().to_matchable(),
                             Ref::new("CommentGrammar").optional().to_matchable(),
                         ])
                         .to_matchable(),

@@ -4248,6 +4248,12 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
+            "MapTypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::MapType, |_| Nothing::new().to_matchable())
+                .to_matchable()
+                .into(),
+        ),
+        (
             "StructLiteralSegment".into(),
             NodeMatcher::new(SyntaxKind::StructLiteral, |_| {
                 Bracketed::new(vec![
@@ -5098,7 +5104,11 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
-                        Ref::new("StructTypeSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("StructTypeSegment").to_matchable(),
+                            Ref::new("MapTypeSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                         Bracketed::new(vec![
                             Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
                                 .to_matchable(),

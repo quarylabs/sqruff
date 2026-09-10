@@ -4328,6 +4328,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::new("SchemaReferenceSegment").to_matchable(),
                             ])
                             .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("APPLICATION").to_matchable(),
+                                Ref::keyword("ROLE").to_matchable(),
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                             Ref::new("ObjectReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),

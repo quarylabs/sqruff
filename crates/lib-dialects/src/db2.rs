@@ -88,6 +88,16 @@ pub fn raw_dialect() -> Dialect {
         "BracketedSetExpressionGrammar",
         Bracketed::new(vec![Ref::new("SetExpressionSegment").to_matchable()]).to_matchable(),
     );
+    db2_dialect.replace_grammar(
+        "AlterTableDropColumnGrammar",
+        Sequence::new(vec![
+            Ref::keyword("DROP").to_matchable(),
+            Ref::keyword("COLUMN").optional().to_matchable(),
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("DropBehaviorGrammar").optional().to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     for terminator_grammar in [
         "FromClauseTerminatorGrammar",

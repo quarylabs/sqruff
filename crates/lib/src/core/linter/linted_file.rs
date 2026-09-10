@@ -51,11 +51,13 @@ impl LintedFile {
     }
 
     pub fn has_violations(&self) -> bool {
-        !self.violations.is_empty()
+        self.violations.iter().any(|violation| !violation.warning)
     }
 
     pub fn has_unfixable_violations(&self) -> bool {
-        self.violations().iter().any(|violation| !violation.fixable)
+        self.violations()
+            .iter()
+            .any(|violation| !violation.warning && !violation.fixable)
     }
 
     pub fn path(&self) -> &str {

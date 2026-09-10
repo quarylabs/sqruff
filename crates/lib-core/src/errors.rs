@@ -11,6 +11,7 @@ use crate::parser::markers::PositionMarker;
 #[error("{description}")]
 pub struct SQLBaseError {
     pub fixable: bool,
+    pub warning: bool,
     pub line_no: usize,
     pub line_pos: usize,
     pub description: String,
@@ -27,6 +28,21 @@ pub struct ErrorStructRule {
 impl SQLBaseError {
     pub fn rule_code(&self) -> &'static str {
         self.rule.as_ref().map_or("????", |rule| rule.code)
+    }
+
+    pub fn rule_name(&self) -> &'static str {
+        self.rule.as_ref().map_or("????", |rule| rule.name)
+    }
+
+    pub fn warning_if_in<'a>(&mut self, warning_iterable: impl IntoIterator<Item = &'a str>) {
+        let rule_code = self.rule_code();
+        let rule_name = self.rule_name();
+        if warning_iterable
+            .into_iter()
+            .any(|warning| warning == rule_code || warning == rule_name)
+        {
+            self.warning = true;
+        }
     }
 
     pub fn set_position_marker(&mut self, position_marker: PositionMarker) {
@@ -197,5 +213,30 @@ pub struct SQLFluffSkipFile {
 impl SQLFluffSkipFile {
     pub fn new(value: String) -> SQLFluffSkipFile {
         SQLFluffSkipFile { value }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{ErrorStructRule, SQLBaseError};
+
+    #[test]
+    fn warnings_match_rule_codes_and_names() {
+        let mut by_code = SQLBaseError {
+            rule: Some(ErrorStructRule {
+                code: "LT01",
+                name: "layout.spacing",
+            }),
+            ..Default::default()
+        };
+        by_code.warning_if_in(["LT01"]);
+        assert!(by_code.warning);
+
+        let mut by_name = SQLBaseError {
+            rule: by_code.rule.clone(),
+            ..Default::default()
+        };
+        by_name.warning_if_in(["layout.spacing"]);
+        assert!(by_name.warning);
     }
 }

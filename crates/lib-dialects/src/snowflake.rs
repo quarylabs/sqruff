@@ -2201,6 +2201,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("DropPasswordPolicyStatementSegment").to_matchable(),
                 Ref::new("CreateRowAccessPolicyStatementSegment").to_matchable(),
                 Ref::new("AlterRowAccessPolicyStatementSegment").to_matchable(),
+                Ref::new("AlterTagStatementSegment").to_matchable(),
                 Ref::new("ScriptingLetStatementSegment").to_matchable(),
                 Ref::new("ScriptingDeclareStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
@@ -11719,6 +11720,76 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("UNSET").to_matchable(),
                             Ref::keyword("COMMENT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A Snowflake `ALTER TAG` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-tag
+            "AlterTagStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterTagStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("TAG").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("RENAME").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("SET").to_matchable(),
+                                Ref::keyword("UNSET").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("MASKING").to_matchable(),
+                                    Ref::keyword("POLICY").to_matchable(),
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::keyword("COMMENT").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("COMMENT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("ADD").to_matchable(),
+                                Ref::keyword("DROP").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("ALLOWED_VALUES").to_matchable(),
+                            Delimited::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("ALLOWED_VALUES").to_matchable(),
                         ])
                         .to_matchable(),
                     ])

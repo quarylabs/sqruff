@@ -519,3 +519,11 @@ pass_tsql_subselect_merge_statement:
   configs:
     core:
       dialect: tsql
+
+test_pass_postgres_named_arguments:
+  pass_str: |
+    select t1.b
+    from __test__(a := 1) t1;
+  configs:
+    core:
+      dialect: postgres

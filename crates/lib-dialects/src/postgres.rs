@@ -6942,6 +6942,69 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    postgres.add([(
+        "CreateOperatorStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateOperatorStatement, |_| {
+            let operator_symbols = |kind| {
+                AnyNumberOf::new(vec![
+                    RegexParser::new(r"^[+\-*/<>=~!@#%^&|`?]+$", kind).to_matchable(),
+                ])
+                .to_matchable()
+            };
+
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("OPERATOR").to_matchable(),
+                operator_symbols(SyntaxKind::Commutator),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("LEFTARG").to_matchable(),
+                                Ref::keyword("RIGHTARG").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("COMMUTATOR").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            operator_symbols(SyntaxKind::Commutator),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NEGATOR").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            operator_symbols(SyntaxKind::Negator),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("RESTRICT").to_matchable(),
+                                Ref::keyword("JOIN").to_matchable(),
+                                Ref::keyword("PROCEDURE").to_matchable(),
+                                Ref::keyword("FUNCTION").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("FunctionNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("HASHES").to_matchable(),
+                        Ref::keyword("MERGES").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     postgres.replace_grammar("StatementSegment", statement_segment());
 
     postgres.replace_grammar(
@@ -9621,6 +9684,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("AlterExtensionStatementSegment").to_matchable(),
             Ref::new("CreateForeignDataWrapperStatementSegment").to_matchable(),
             Ref::new("DropForeignTableStatement").to_matchable(),
+            Ref::new("CreateOperatorStatementSegment").to_matchable(),
             Ref::new("CreateSubscriptionStatementSegment").to_matchable(),
             Ref::new("AlterSubscriptionStatementSegment").to_matchable(),
             Ref::new("DropSubscriptionStatementSegment").to_matchable(),

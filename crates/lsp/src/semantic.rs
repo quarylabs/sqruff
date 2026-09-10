@@ -112,6 +112,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
 
         // Operators.
         BinaryOperator
+        | Commutator
         | ComparisonOperator
         | RawComparisonOperator
         | AssignmentOperator
@@ -131,6 +132,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | Percent
         | Caret
         | Tilde
+        | Negator
         | Ampersand
         | Pipe
         | VerticalBar

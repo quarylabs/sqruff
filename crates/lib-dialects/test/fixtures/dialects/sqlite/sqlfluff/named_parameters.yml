@@ -108,7 +108,7 @@ file:
     - groupby_clause:
       - keyword: GROUP
       - keyword: BY
-      - expression:
+      - column_reference:
         - parameterized_expression:
           - at_sign_literal: '@variable'
     - having_clause:

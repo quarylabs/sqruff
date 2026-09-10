@@ -70,6 +70,8 @@ pub fn raw_dialect() -> Dialect {
 
     dialect.sets_mut("unreserved_keywords").remove("UNION");
     dialect.sets_mut("unreserved_keywords").remove("TIMESTAMP");
+    dialect.sets_mut("unreserved_keywords").remove("LOCKING");
+    dialect.sets_mut("unreserved_keywords").remove("REPLACE");
     dialect.sets_mut("unreserved_keywords").extend([
         "AUTOINCREMENT",
         "ACTIVITYCOUNT",
@@ -80,6 +82,7 @@ pub fn raw_dialect() -> Dialect {
         "DUAL",
         "EQ",
         "ERRORCODE",
+        "EXCL",
         "EXPORT",
         "FALLBACK",
         "FORMAT",
@@ -100,6 +103,7 @@ pub fn raw_dialect() -> Dialect {
         "MERGEBLOCKRATIO",
         "NONE",
         "NE",
+        "OVERRIDE",
         "PERCENT",
         "PROFILE",
         "PROTECTION",
@@ -119,7 +123,7 @@ pub fn raw_dialect() -> Dialect {
     ]);
     dialect
         .sets_mut("reserved_keywords")
-        .extend(["UNION", "TIMESTAMP"]);
+        .extend(["LOCKING", "UNION", "REPLACE", "TIMESTAMP"]);
     dialect.sets_mut("bare_functions").insert("DATE");
 
     add_operators(&mut dialect);
@@ -373,6 +377,50 @@ fn add_segments(dialect: &mut Dialect) {
                     optionally_bracketed(vec![Ref::new("ExpressionSegment").to_matchable()])
                         .to_matchable(),
                     MetaSegment::dedent().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LockingClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::LockingClause, |_| {
+                Sequence::new(vec![
+                    one_of(vec![kw("LOCKING"), kw("LOCK")]).to_matchable(),
+                    one_of(vec![
+                        kw("ROW"),
+                        Sequence::new(vec![
+                            kw("TABLE"),
+                            Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            kw("VIEW"),
+                            Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            kw("DATABASE"),
+                            Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![kw("FOR"), kw("IN")]).to_matchable(),
+                    one_of(vec![
+                        kw("ACCESS"),
+                        kw("WRITE"),
+                        kw("EXCLUSIVE"),
+                        kw("EXCL"),
+                        Sequence::new(vec![kw("READ"), kw("OVERRIDE").optional()]).to_matchable(),
+                        kw("SHARE"),
+                        kw("CHECKSUM"),
+                        Sequence::new(vec![kw("LOAD"), kw("COMMITTED")]).to_matchable(),
+                    ])
+                    .to_matchable(),
+                    kw("MODE").optional(),
+                    kw("NOWAIT").optional(),
                 ])
                 .to_matchable()
             })
@@ -859,6 +907,24 @@ fn replace_core_grammars(dialect: &mut Dialect) {
     );
     dialect.replace_grammar("CreateTableStatementSegment", create_table_statement());
     dialect.replace_grammar(
+        "CreateViewStatementSegment",
+        Sequence::new(vec![
+            one_of(vec![kw("CREATE"), kw("REPLACE")]).to_matchable(),
+            kw("VIEW"),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Ref::new("BracketedColumnReferenceListGrammar")
+                .optional()
+                .to_matchable(),
+            kw("AS"),
+            optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
+            Ref::new("WithNoSchemaBindingClauseSegment")
+                .optional()
+                .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    dialect.replace_grammar(
         "DeleteStatementSegment",
         Sequence::new(vec![
             one_of(vec![kw("DELETE"), kw("DEL")]).to_matchable(),
@@ -900,14 +966,41 @@ fn replace_core_grammars(dialect: &mut Dialect) {
         "SelectClauseModifierSegment",
         NodeMatcher::new(SyntaxKind::SelectClauseModifier, |_| select_modifier()).to_matchable(),
     );
+    let select_statement_with_qualify = ansi::select_statement().copy(
+        Some(vec![
+            Ref::new("QualifyClauseSegment").optional().to_matchable(),
+        ]),
+        None,
+        Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
+        None,
+        Vec::new(),
+        false,
+    );
     dialect.replace_grammar(
         "SelectStatementSegment",
-        ansi::select_statement().copy(
+        select_statement_with_qualify.copy(
             Some(vec![
-                Ref::new("QualifyClauseSegment").optional().to_matchable(),
+                Ref::new("LockingClauseSegment").optional().to_matchable(),
             ]),
             None,
-            Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
+            Some(Ref::new("SelectClauseSegment").to_matchable()),
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+    let with_compound_statement = dialect
+        .grammar("WithCompoundStatementSegment")
+        .match_grammar(dialect)
+        .unwrap();
+    dialect.replace_grammar(
+        "WithCompoundStatementSegment",
+        with_compound_statement.copy(
+            Some(vec![
+                Ref::new("LockingClauseSegment").optional().to_matchable(),
+            ]),
+            Some(0),
+            None,
             None,
             Vec::new(),
             false,

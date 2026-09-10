@@ -155,3 +155,15 @@ file:
           - raw_comparison_operator: =
         - quoted_literal: '"Space for landing my data"'
 - statement_terminator: ;
+- statement:
+  - create_schema_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: MYDB
+        - dot: .
+        - naked_identifier: MYSCHEMA
+- statement_terminator: ;

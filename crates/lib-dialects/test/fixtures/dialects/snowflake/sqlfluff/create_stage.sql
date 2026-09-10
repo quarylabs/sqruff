@@ -101,3 +101,6 @@ CREATE OR REPLACE STAGE foo.bar
     TYPE = CSV
     PARSE_HEADER = TRUE
   );
+
+CREATE OR ALTER STAGE foo.bar
+  URL = 's3://foobar';

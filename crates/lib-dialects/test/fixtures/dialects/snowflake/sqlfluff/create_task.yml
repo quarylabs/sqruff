@@ -518,3 +518,30 @@ file:
               - start_bracket: (
               - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: mytask
+    - keyword: WAREHOUSE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: mywh
+    - keyword: AS
+    - statement:
+      - call_segment:
+        - keyword: CALL
+        - function:
+          - function_name:
+            - naked_identifier: SCH
+            - dot: .
+            - function_name_identifier: MY_SPROC
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+- statement_terminator: ;

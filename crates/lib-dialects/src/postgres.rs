@@ -523,6 +523,11 @@ pub fn raw_dialect() -> Dialect {
             r#"[bBxX]'[0-9a-fA-F]*'"#,
             SyntaxKind::BitStringLiteral
         ),
+        Matcher::string(
+            "full_text_search_operator",
+            "!!",
+            SyntaxKind::FullTextSearchOperator,
+        ),
     ], "like_operator");
 
     postgres.insert_lexer_matchers(
@@ -652,6 +657,15 @@ pub fn raw_dialect() -> Dialect {
             StringParser::new(":=", SyntaxKind::AssignmentOperator)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "FullTextSearchOperatorSegment".into(),
+            TypedParser::new(
+                SyntaxKind::FullTextSearchOperator,
+                SyntaxKind::FullTextSearchOperator,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "SimpleGeometryGrammar".into(),
@@ -854,6 +868,26 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    let expression_c_grammar = postgres.grammar("Expression_C_Grammar");
+    postgres.replace_grammar(
+        "Expression_C_Grammar",
+        Sequence::new(vec![
+            Ref::new("WalrusOperatorSegment").optional().to_matchable(),
+            one_of(vec![
+                expression_c_grammar,
+                Sequence::new(vec![
+                    Ref::new("FullTextSearchOperatorSegment")
+                        .optional()
+                        .to_matchable(),
+                    Ref::new("ShorthandCastSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     postgres.add([
         (

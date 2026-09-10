@@ -363,7 +363,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "InlinePathOperatorSegment".into(),
-            StringParser::new("->>", SyntaxKind::InlinePathOperator)
+            StringParser::new("->>", SyntaxKind::ColumnPathOperator)
                 .to_matchable()
                 .into(),
         ),
@@ -719,6 +719,22 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("ModOperatorSegment").to_matchable(),
         ])
         .to_matchable(),
+    );
+
+    let binary_operator_grammar = mysql.grammar("BinaryOperatorGrammar");
+    mysql.replace_grammar(
+        "BinaryOperatorGrammar",
+        binary_operator_grammar.copy(
+            Some(vec![
+                Ref::new("ColumnPathOperatorSegment").to_matchable(),
+                Ref::new("InlinePathOperatorSegment").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            vec![],
+            false,
+        ),
     );
 
     // MySQL 8.0+ supports CTEs with DML statements.
@@ -3163,33 +3179,6 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("TRIGGER").to_matchable(),
             Ref::new("IfExistsGrammar").optional().to_matchable(),
             Ref::new("TriggerReferenceSegment").to_matchable(),
-        ])
-        .to_matchable(),
-    );
-
-    // ColumnReferenceSegment - add JSON path operators.
-    // Base is a delimited list of identifiers (ANSI), plus optional JSON path.
-    let base_col_ref = Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
-        .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
-        .to_matchable();
-    mysql.replace_grammar(
-        "ColumnReferenceSegment",
-        one_of(vec![
-            Sequence::new(vec![
-                base_col_ref.clone(),
-                one_of(vec![
-                    Ref::new("ColumnPathOperatorSegment").to_matchable(),
-                    Ref::new("InlinePathOperatorSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                one_of(vec![
-                    Ref::new("DoubleQuotedJSONPath").to_matchable(),
-                    Ref::new("SingleQuotedJSONPath").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            base_col_ref,
         ])
         .to_matchable(),
     );

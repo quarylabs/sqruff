@@ -683,6 +683,22 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    let binary_operator_grammar = sqlite_dialect.grammar("BinaryOperatorGrammar");
+    sqlite_dialect.replace_grammar(
+        "BinaryOperatorGrammar",
+        binary_operator_grammar.copy(
+            Some(vec![
+                Ref::new("ColumnPathOperatorSegment").to_matchable(),
+                Ref::new("InlinePathOperatorSegment").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
     // SQLite does not support GROUPING SETS, despite inheriting ANSI's
     // GroupByClauseSegment.
     sqlite_dialect.replace_grammar("GroupingSetsClauseSegment", Nothing::new().to_matchable());
@@ -731,42 +747,22 @@ pub fn raw_dialect() -> Dialect {
         Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
             .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
             .to_matchable();
+    sqlite_dialect.replace_grammar(
+        "ColumnReferenceSegment",
+        one_of(vec![
+            base_column_reference.clone(),
+            Ref::new("FunctionSegment").to_matchable(),
+            Ref::new("BareFunctionSegment").to_matchable(),
+            Ref::new("LiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     let json_path_operator = one_of(vec![
         Ref::new("ColumnPathOperatorSegment").to_matchable(),
         Ref::new("InlinePathOperatorSegment").to_matchable(),
     ])
     .to_matchable();
-
-    sqlite_dialect.replace_grammar(
-        "ColumnReferenceSegment",
-        one_of(vec![
-            Sequence::new(vec![
-                one_of(vec![
-                    base_column_reference.clone(),
-                    Ref::new("FunctionSegment").to_matchable(),
-                    Ref::new("BareFunctionSegment").to_matchable(),
-                    Ref::new("LiteralGrammar").to_matchable(),
-                ])
-                .to_matchable(),
-                AnyNumberOf::new(vec![
-                    Sequence::new(vec![
-                        json_path_operator.clone(),
-                        one_of(vec![
-                            Ref::new("LiteralGrammar").to_matchable(),
-                            Ref::new("QuotedIdentifierSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .config(|this| this.min_times(1))
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            base_column_reference,
-        ])
-        .to_matchable(),
-    );
 
     let base_table_reference = sqlite_dialect
         .grammar("TableReferenceSegment")

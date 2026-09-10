@@ -792,3 +792,84 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
+- multi_statement_segment:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+      - procedure_name_identifier: '`kkk.dynamic_table_creator`'
+    - procedure_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - keyword: IN
+        - parameter: table_suffix
+        - data_type:
+          - data_type_identifier: STRING
+        - comma: ','
+        - keyword: IN
+        - parameter: num_rows
+        - data_type:
+          - data_type_identifier: INT64
+        - end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+        - declare_segment:
+          - keyword: DECLARE
+          - naked_identifier: table_name
+          - data_type:
+            - data_type_identifier: STRING
+      - statement_terminator: ;
+      - statement:
+        - set_segment:
+          - keyword: SET
+          - naked_identifier: table_name
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - quoted_literal: '''my_table_'''
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - column_reference:
+              - naked_identifier: table_suffix
+      - statement_terminator: ;
+      - statement:
+        - execute_immediate:
+          - keyword: EXECUTE
+          - keyword: IMMEDIATE
+          - expression:
+            - quoted_literal: |-
+                '''
+                    CREATE OR REPLACE TABLE `my_dataset.'''
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - column_reference:
+              - naked_identifier: table_name
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - quoted_literal: |-
+                '''` AS
+                    SELECT
+                        GENERATE_UUID() AS id,
+                        RAND() AS random_value
+                    FROM
+                        UNNEST(GENERATE_ARRAY(1, '''
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - column_reference:
+              - naked_identifier: num_rows
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - quoted_literal: |-
+                ''')) AS num
+                    '''
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;

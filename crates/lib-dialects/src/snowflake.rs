@@ -6112,34 +6112,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Ref::keyword("TABLE").to_matchable(),
             Ref::new("IfNotExistsGrammar").optional().to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("TARGET_LAG").to_matchable(),
-                Ref::new("EqualsSegment").to_matchable(),
-                Ref::new("DynamicTableTargetLagSegment").to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("REFRESH_MODE").to_matchable(),
-                Ref::new("EqualsSegment").to_matchable(),
-                Ref::new("RefreshModeType").to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("INITIALIZE").to_matchable(),
-                Ref::new("EqualsSegment").to_matchable(),
-                Ref::new("InitializeType").to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("WAREHOUSE").to_matchable(),
-                Ref::new("EqualsSegment").to_matchable(),
-                Ref::new("ObjectReferenceSegment").to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
             any_set_of(vec![
                 Sequence::new(vec![
                     Bracketed::new(vec![
@@ -6261,6 +6233,41 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 one_of(vec![
                     Sequence::new(vec![
+                        any_set_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("TARGET_LAG").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("DynamicTableTargetLagSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("REFRESH_MODE").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("RefreshModeType").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("INITIALIZE").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("InitializeType").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("WAREHOUSE").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                         Ref::keyword("AS").to_matchable(),
                         optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
                             .to_matchable(),

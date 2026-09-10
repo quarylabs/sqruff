@@ -1348,19 +1348,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "LambdaExpressionSegment".into(),
-            Sequence::new(vec![
-                one_of(vec![
-                    Ref::new("ParameterNameSegment").to_matchable(),
-                    Bracketed::new(vec![
-                        Delimited::new(vec![Ref::new("ParameterNameSegment").to_matchable()])
-                            .to_matchable(),
+            NodeMatcher::new(SyntaxKind::LambdaFunction, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("ParameterNameSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ParameterNameSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
+                    Ref::new("LambdaArrowSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
                 ])
-                .to_matchable(),
-                Ref::new("LambdaArrowSegment").to_matchable(),
-                Ref::new("ExpressionSegment").to_matchable(),
-            ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

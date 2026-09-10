@@ -236,20 +236,23 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
         return Vec::new();
     };
 
-    if !matches!(dialect.name, DialectKind::Athena | DialectKind::Sparksql) {
+    if !matches!(
+        dialect.name,
+        DialectKind::Athena | DialectKind::Sparksql | DialectKind::Duckdb | DialectKind::Trino
+    ) {
         return Vec::new();
     }
 
     let mut lambda_argument_columns = Vec::new();
     for potential_lambda in segment.recursive_crawl(
-        const { &SyntaxSet::single(SyntaxKind::Expression) },
+        const { &SyntaxSet::new(&[SyntaxKind::Expression, SyntaxKind::LambdaFunction]) },
         true,
         &SyntaxSet::EMPTY,
         true,
     ) {
-        let Some(potential_arrow) =
-            potential_lambda.child(&SyntaxSet::single(SyntaxKind::BinaryOperator))
-        else {
+        let Some(potential_arrow) = potential_lambda.child(
+            const { &SyntaxSet::new(&[SyntaxKind::BinaryOperator, SyntaxKind::LambdaArrow]) },
+        ) else {
             continue;
         };
 
@@ -262,7 +265,7 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
                 .filter(|it| {
                     matches!(
                         it.get_type(),
-                        SyntaxKind::Bracketed | SyntaxKind::ColumnReference
+                        SyntaxKind::Bracketed | SyntaxKind::ColumnReference | SyntaxKind::Parameter
                     )
                 })
                 .collect_vec();
@@ -277,8 +280,14 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
                         .unwrap();
 
                     if start_bracket.raw() == "(" {
-                        let bracketed_arguments = child_segment
-                            .children(const { &SyntaxSet::single(SyntaxKind::ColumnReference) });
+                        let bracketed_arguments = child_segment.children(
+                            const {
+                                &SyntaxSet::new(&[
+                                    SyntaxKind::ColumnReference,
+                                    SyntaxKind::Parameter,
+                                ])
+                            },
+                        );
 
                         lambda_argument_columns.extend(
                             bracketed_arguments
@@ -287,7 +296,7 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
                         )
                     }
                 }
-                SyntaxKind::ColumnReference => {
+                SyntaxKind::ColumnReference | SyntaxKind::Parameter => {
                     lambda_argument_columns.push(child_segment.raw().to_smolstr())
                 }
                 _ => {}

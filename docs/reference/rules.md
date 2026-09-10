@@ -1386,7 +1386,7 @@ Join conditions should use the JOIN ... ON syntax.
 
 **Groups:** `all`, `convention`
 
-**Fixable:** No
+**Fixable:** Yes
 
 **Anti-pattern**
 

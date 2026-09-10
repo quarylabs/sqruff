@@ -1,7 +1,5 @@
 use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
-use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::SegmentBuilder;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -58,58 +56,64 @@ CROSS JOIN baz;
         assert!(context.segment.is_type(SyntaxKind::JoinClause));
 
         let children = context.segment.segments();
-
-        // Check if this join has an ON condition or USING clause.
-        // In the ANSI dialect, USING is parsed as a keyword within the join
-        // clause rather than a separate UsingClause node.
-        let has_condition = children.iter().any(|s| {
-            s.is_type(SyntaxKind::JoinOnCondition)
-                || s.is_type(SyntaxKind::UsingClause)
-                || s.is_keyword("USING")
-        });
-
-        if has_condition {
-            return Vec::new();
-        }
-
-        // Collect the keywords in the join clause.
         let keywords: Vec<_> = children
             .iter()
             .filter(|s| s.is_type(SyntaxKind::Keyword))
             .collect();
 
-        // If it's already an explicit CROSS JOIN or a NATURAL JOIN, that's fine.
+        // Explicit cross-like joins and JOIN ... USING do not need ON clauses.
         if keywords.iter().any(|k| {
-            k.raw().eq_ignore_ascii_case("CROSS") || k.raw().eq_ignore_ascii_case("NATURAL")
+            ["CROSS", "NATURAL", "POSITIONAL", "USING"]
+                .iter()
+                .any(|keyword| k.raw().eq_ignore_ascii_case(keyword))
         }) {
             return Vec::new();
         }
 
-        // Find the JOIN keyword to anchor the fix.
-        let join_keyword = keywords
+        if children
             .iter()
-            .find(|k| k.raw().eq_ignore_ascii_case("JOIN"));
+            .any(|segment| segment.is_type(SyntaxKind::JoinOnCondition))
+        {
+            return Vec::new();
+        }
 
-        let Some(join_kw) = join_keyword else {
+        // A join followed by WHERE is handled by CV12. Do not emit AM08 in
+        // UPDATE or DELETE statements, where joins without ON are valid.
+        let select_statement = context
+            .parent_stack
+            .iter()
+            .rev()
+            .take_while(|segment| {
+                !segment.is_type(SyntaxKind::UpdateStatement)
+                    && !segment.is_type(SyntaxKind::DeleteStatement)
+            })
+            .find(|segment| segment.is_type(SyntaxKind::SelectStatement));
+
+        let Some(select_statement) = select_statement else {
             return Vec::new();
         };
 
-        // Determine case to match existing style.
-        let cross_keyword = if join_kw.raw() == "JOIN" || join_kw.raw() == "Join" {
-            "CROSS"
-        } else {
-            "cross"
-        };
+        if select_statement
+            .child(const { &SyntaxSet::single(SyntaxKind::WhereClause) })
+            .is_some()
+        {
+            return Vec::new();
+        }
+
+        // T-SQL CROSS APPLY / OUTER APPLY do not contain exactly one JOIN
+        // keyword and should not be treated as implicit cross joins.
+        if keywords
+            .iter()
+            .filter(|keyword| keyword.raw().eq_ignore_ascii_case("JOIN"))
+            .count()
+            != 1
+        {
+            return Vec::new();
+        }
 
         vec![LintResult::new(
-            Some((*join_kw).clone()),
-            vec![LintFix::create_before(
-                (*join_kw).clone(),
-                vec![
-                    SegmentBuilder::keyword(context.tables.next_id(), cross_keyword),
-                    SegmentBuilder::whitespace(context.tables.next_id(), " "),
-                ],
-            )],
+            Some(context.segment.clone()),
+            Vec::new(),
             None,
             None,
         )]

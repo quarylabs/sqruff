@@ -6340,7 +6340,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("AFTER").to_matchable(),
-                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                            .to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -9660,13 +9661,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("REMOVE").to_matchable(),
                             Ref::keyword("AFTER").to_matchable(),
-                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                                .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("ADD").to_matchable(),
                             Ref::keyword("AFTER").to_matchable(),
-                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                                .to_matchable(),
                         ])
                         .to_matchable(),
                         Ref::new("AlterTaskSpecialSetClauseSegment").to_matchable(),

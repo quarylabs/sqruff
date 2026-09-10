@@ -545,3 +545,38 @@ file:
               - start_bracket: (
               - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: task5
+    - keyword: AFTER
+    - object_reference:
+      - naked_identifier: task2
+    - comma: ','
+    - object_reference:
+      - naked_identifier: task3
+    - comma: ','
+    - object_reference:
+      - naked_identifier: task4
+    - keyword: AS
+    - statement:
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - naked_identifier: t1
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: ts
+          - end_bracket: )
+        - values_clause:
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - bare_function: CURRENT_TIMESTAMP
+            - end_bracket: )
+- statement_terminator: ;

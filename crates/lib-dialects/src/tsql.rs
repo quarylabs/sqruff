@@ -73,6 +73,7 @@ pub fn raw_dialect() -> Dialect {
         .sets_mut("reserved_keywords")
         .extend(tsql_keywords::tsql_additional_reserved_keywords());
     dialect.sets_mut("reserved_keywords").remove("DAY");
+    dialect.sets_mut("reserved_keywords").remove("ROWS");
     dialect
         .sets_mut("unreserved_keywords")
         .extend(tsql_keywords::tsql_additional_unreserved_keywords());
@@ -956,7 +957,9 @@ pub fn raw_dialect() -> Dialect {
         "FileSegment",
         AnyNumberOf::new(vec![
             one_of(vec![
-                Ref::new("StatementSegment").to_matchable(),
+                Ref::new("StatementSegment")
+                    .terminators(vec![Ref::new("BatchDelimiterGrammar").to_matchable()])
+                    .to_matchable(),
                 Ref::new("BatchDelimiterGrammar").to_matchable(),
             ])
             .to_matchable(),
@@ -1818,6 +1821,142 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // OPENROWSET() rowset provider and bulk data source (#6584)
+    // https://learn.microsoft.com/en-us/sql/t-sql/functions/openrowset-transact-sql
+    dialect.add([(
+        "OpenRowSetSegment".into(),
+        NodeMatcher::new(SyntaxKind::OpenrowsetSegment, |_| {
+            Sequence::new(vec![
+                Ref::keyword("OPENROWSET").to_matchable(),
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("CommaSegment").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    Ref::new("DelimiterGrammar").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    Ref::new("DelimiterGrammar").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("CommaSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("TableReferenceSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("BULK").to_matchable(),
+                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                            Ref::new("CommaSegment").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Sequence::new(vec![
+                                        Ref::keyword("FORMATFILE").to_matchable(),
+                                        Ref::new("EqualsSegment").to_matchable(),
+                                        Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                        Ref::new("CommaSegment").to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                    Delimited::new(vec![
+                                        Sequence::new(vec![
+                                            Ref::keyword("DATASOURCE").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("ERRORFILE").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("ERRORFILE_DATA_SOURCE").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("MAXERRORS").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("NumericLiteralSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("FIRSTROW").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("NumericLiteralSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("LASTROW").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("NumericLiteralSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("CODEPAGE").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("FORMAT").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("FIELDQUOTE").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("FORMATFILE").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("FORMATFILE_DATA_SOURCE").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("SINGLE_BLOB").to_matchable(),
+                                Ref::keyword("SINGLE_CLOB").to_matchable(),
+                                Ref::keyword("SINGLE_NCLOB").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // CREATE EXTERNAL TABLE (#4642)
     // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-table-transact-sql
     dialect.add([(
@@ -2332,6 +2471,7 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
             Ref::new("BareFunctionSegment").to_matchable(),
+            Ref::new("OpenRowSetSegment").to_matchable(),
             Ref::new("OpenJsonSegment").to_matchable(),
             Ref::new("FunctionSegment").to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),

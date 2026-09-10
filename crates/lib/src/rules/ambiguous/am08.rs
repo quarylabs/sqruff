@@ -111,6 +111,24 @@ CROSS JOIN baz;
             return Vec::new();
         }
 
+        // BigQuery uses JOIN UNNEST(...) for array flattening without an ON
+        // condition. This is not an implicit cross join.
+        if let Some(from_expression_element) = context
+            .segment
+            .child(const { &SyntaxSet::single(SyntaxKind::FromExpressionElement) })
+            && from_expression_element
+                .recursive_crawl(
+                    const { &SyntaxSet::single(SyntaxKind::FunctionNameIdentifier) },
+                    true,
+                    const { &SyntaxSet::EMPTY },
+                    false,
+                )
+                .iter()
+                .any(|identifier| identifier.raw().eq_ignore_ascii_case("UNNEST"))
+        {
+            return Vec::new();
+        }
+
         vec![LintResult::new(
             Some(context.segment.clone()),
             Vec::new(),

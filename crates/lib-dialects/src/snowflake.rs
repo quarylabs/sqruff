@@ -527,6 +527,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .sets_mut("initialize_types")
         .extend(["ON_CREATE", "ON_SCHEDULE"]);
 
+    snowflake_dialect.add([(
+        "AlterOrReplaceGrammar".into(),
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("OR").to_matchable(),
+                Ref::keyword("ALTER").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("OrReplaceGrammar").to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // Snowflake supports CTEs with DML statements (INSERT, UPDATE, DELETE, MERGE)
     // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
     snowflake_dialect.add([(
@@ -4553,7 +4567,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::CreateDatabaseRoleStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
-                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
                     Ref::keyword("DATABASE").to_matchable(),
                     Ref::keyword("ROLE").to_matchable(),
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
@@ -5886,7 +5900,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "CreateSchemaStatementSegment",
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),
-            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
             Ref::new("TemporaryTransientGrammar")
                 .optional()
                 .to_matchable(),
@@ -6081,7 +6095,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "CreateTableStatementSegment",
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),
-            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
             Ref::new("TemporaryTransientGrammar")
                 .optional()
                 .to_matchable(),
@@ -6274,12 +6288,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::CreateTaskStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("OR").to_matchable(),
-                        Ref::keyword("REPLACE").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
                     Ref::keyword("TASK").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("IF").to_matchable(),
@@ -6410,56 +6419,67 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::CreateStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
-                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
                     one_of(vec![
                         Sequence::new(vec![
-                            Ref::keyword("NETWORK").to_matchable(),
-                            Ref::keyword("POLICY").to_matchable(),
+                            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("NETWORK").to_matchable(),
+                                    Ref::keyword("POLICY").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("RESOURCE").to_matchable(),
+                                    Ref::keyword("MONITOR").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("SHARE").to_matchable(),
+                                Ref::keyword("TAG").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("NOTIFICATION").to_matchable(),
+                                    Ref::keyword("INTEGRATION").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SECURITY").to_matchable(),
+                                    Ref::keyword("INTEGRATION").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("STORAGE").to_matchable(),
+                                    Ref::keyword("INTEGRATION").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("MATERIALIZED").to_matchable(),
+                                    Ref::keyword("VIEW").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("MASKING").to_matchable(),
+                                    Ref::keyword("POLICY").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("PIPE").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("EXTERNAL").to_matchable(),
+                                    Ref::keyword("FUNCTION").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("SEQUENCE").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
-                            Ref::keyword("RESOURCE").to_matchable(),
-                            Ref::keyword("MONITOR").to_matchable(),
+                            Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("WAREHOUSE").to_matchable(),
+                                Ref::keyword("DATABASE").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::keyword("SHARE").to_matchable(),
-                        Ref::keyword("ROLE").to_matchable(),
-                        Ref::keyword("USER").to_matchable(),
-                        Ref::keyword("TAG").to_matchable(),
-                        Ref::keyword("WAREHOUSE").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NOTIFICATION").to_matchable(),
-                            Ref::keyword("INTEGRATION").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("SECURITY").to_matchable(),
-                            Ref::keyword("INTEGRATION").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("STORAGE").to_matchable(),
-                            Ref::keyword("INTEGRATION").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("MATERIALIZED").to_matchable(),
-                            Ref::keyword("VIEW").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("MASKING").to_matchable(),
-                            Ref::keyword("POLICY").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::keyword("PIPE").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("EXTERNAL").to_matchable(),
-                            Ref::keyword("FUNCTION").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::keyword("DATABASE").to_matchable(),
-                        Ref::keyword("SEQUENCE").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
@@ -6947,7 +6967,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "CreateViewStatementSegment",
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),
-            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
             any_set_of(vec![
                 Ref::keyword("SECURE").to_matchable(),
                 Ref::keyword("RECURSIVE").to_matchable(),
@@ -8634,12 +8654,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::CreateStageStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("OR").to_matchable(),
-                        Ref::keyword("REPLACE").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
                     Ref::keyword("TEMPORARY").optional().to_matchable(),
                     Ref::keyword("STAGE").to_matchable(),
                     Sequence::new(vec![
@@ -9553,12 +9568,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "CreateRoleStatementSegment",
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("OR").to_matchable(),
-                Ref::keyword("REPLACE").to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
+            Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
             Ref::keyword("ROLE").to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("IF").to_matchable(),

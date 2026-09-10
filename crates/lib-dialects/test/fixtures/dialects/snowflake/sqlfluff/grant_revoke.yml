@@ -493,6 +493,22 @@ file:
 - statement:
   - access_statement:
     - keyword: grant
+    - keyword: imported
+    - keyword: privileges
+    - keyword: on
+    - keyword: schema
+    - object_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: myschema
+    - keyword: to
+    - keyword: application
+    - role_reference:
+      - naked_identifier: my_app
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: grant
     - keyword: operate
     - keyword: on
     - keyword: warehouse
@@ -518,6 +534,44 @@ file:
     - keyword: with
     - keyword: grant
     - keyword: option
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: grant
+    - keyword: operate
+    - keyword: on
+    - keyword: future
+    - keyword: dynamic
+    - keyword: tables
+    - keyword: in
+    - keyword: schema
+    - object_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: myschema
+    - keyword: to
+    - keyword: role
+    - role_reference:
+      - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: grant
+    - keyword: operate
+    - keyword: on
+    - keyword: all
+    - keyword: dynamic
+    - keyword: tables
+    - keyword: in
+    - keyword: schema
+    - object_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: myschema
+    - keyword: to
+    - keyword: role
+    - role_reference:
+      - naked_identifier: analyst
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -1024,6 +1078,18 @@ file:
   - access_statement:
     - keyword: grant
     - keyword: execute
+    - keyword: alert
+    - keyword: on
+    - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+      - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: grant
+    - keyword: execute
     - keyword: task
     - keyword: on
     - keyword: account
@@ -1151,6 +1217,20 @@ file:
     - keyword: policy
     - keyword: on
     - keyword: account
+    - keyword: to
+    - keyword: role
+    - role_reference:
+      - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: grant
+    - keyword: create
+    - keyword: tag
+    - keyword: on
+    - keyword: schema
+    - object_reference:
+      - naked_identifier: my_schema
     - keyword: to
     - keyword: role
     - role_reference:

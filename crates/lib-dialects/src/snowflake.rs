@@ -3969,6 +3969,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("DATABASE").to_matchable(),
                             Ref::keyword("INTEGRATION").to_matchable(),
                             Ref::keyword("SHARE").to_matchable(),
+                            Ref::keyword("TAG").to_matchable(),
                             Sequence::new(vec![
                                 Ref::keyword("DATA").to_matchable(),
                                 Ref::keyword("EXCHANGE").to_matchable(),
@@ -4015,7 +4016,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("EXECUTE").to_matchable(),
-                        Ref::keyword("TASK").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("ALERT").to_matchable(),
+                            Ref::keyword("TASK").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
@@ -4213,7 +4218,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             .to_matchable(),
                             schema_object_types.clone().to_matchable(),
                             Sequence::new(vec![
-                                Ref::keyword("ALL").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ALL").to_matchable(),
+                                    Ref::keyword("FUTURE").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("DYNAMIC").optional().to_matchable(),
                                 one_of(vec![
                                     schema_object_types_plural.clone().to_matchable(),
                                     Sequence::new(vec![
@@ -4237,35 +4247,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 one_of(vec![
                                     Ref::keyword("SCHEMA").to_matchable(),
                                     Ref::keyword("DATABASE").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("FUTURE").to_matchable(),
-                                one_of(vec![
-                                    schema_object_types_plural.clone().to_matchable(),
-                                    Sequence::new(vec![
-                                        Ref::keyword("MATERIALIZED").to_matchable(),
-                                        Ref::keyword("VIEWS").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                    Sequence::new(vec![
-                                        Ref::keyword("EXTERNAL").to_matchable(),
-                                        Ref::keyword("TABLES").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                    Sequence::new(vec![
-                                        Ref::keyword("FILE").to_matchable(),
-                                        Ref::keyword("FORMATS").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::keyword("IN").to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("DATABASE").to_matchable(),
-                                    Ref::keyword("SCHEMA").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
@@ -4352,6 +4333,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                         Ref::keyword("TO").to_matchable(),
                         one_of(vec![
+                            Ref::keyword("APPLICATION").to_matchable(),
                             Ref::keyword("USER").to_matchable(),
                             Ref::keyword("ROLE").to_matchable(),
                             Ref::keyword("SHARE").to_matchable(),

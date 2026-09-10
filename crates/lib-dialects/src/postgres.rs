@@ -6924,6 +6924,24 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    postgres.add([(
+        "DropForeignTableStatement".into(),
+        NodeMatcher::new(SyntaxKind::DropForeignTableStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("FOREIGN").to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Delimited::new(vec![Ref::new("TableReferenceSegment").to_matchable()])
+                    .to_matchable(),
+                Ref::new("CascadeRestrictGrammar").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     postgres.replace_grammar("StatementSegment", statement_segment());
 
     postgres.replace_grammar(
@@ -9602,6 +9620,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("DropExtensionStatementSegment").to_matchable(),
             Ref::new("AlterExtensionStatementSegment").to_matchable(),
             Ref::new("CreateForeignDataWrapperStatementSegment").to_matchable(),
+            Ref::new("DropForeignTableStatement").to_matchable(),
             Ref::new("CreateSubscriptionStatementSegment").to_matchable(),
             Ref::new("AlterSubscriptionStatementSegment").to_matchable(),
             Ref::new("DropSubscriptionStatementSegment").to_matchable(),

@@ -223,8 +223,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Some(vec![
                 Sequence::new(vec![
                     Ref::new("SystemFunctionName").to_matchable(),
-                    Bracketed::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
-                        .to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ]),

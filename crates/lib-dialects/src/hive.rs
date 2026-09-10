@@ -731,6 +731,35 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "AlterViewStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterViewStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("VIEW").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("TablePropertiesGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AS").to_matchable(),
+                            optionally_bracketed(vec![
+                                Ref::new("SelectStatementSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "MsckTableStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::MsckTableStatement, |_| {
                 Sequence::new(vec![
@@ -1460,6 +1489,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("MsckRepairTableStatementSegment").to_matchable(),
                 Ref::new("MsckTableStatementSegment").to_matchable(),
                 Ref::new("SetStatementSegment").to_matchable(),
+                Ref::new("AlterViewStatementSegment").to_matchable(),
             ]),
             None,
             None,

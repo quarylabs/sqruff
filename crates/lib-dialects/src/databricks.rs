@@ -295,7 +295,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "ColumnDefaultGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("DEFAULT").to_matchable(),
-                Ref::new("LiteralGrammar").to_matchable(),
+                one_of(vec![
+                    Ref::new("LiteralGrammar").to_matchable(),
+                    Ref::new("FunctionSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -1244,6 +1248,25 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable(),
             ])
             .config(|config| config.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    databricks.replace_grammar(
+        "ColumnFieldDefinitionSegment",
+        Sequence::new(vec![
+            Ref::new("ColumnReferenceSegment").to_matchable(),
+            Ref::new("DatatypeSegment").to_matchable(),
+            Bracketed::new(vec![Anything::new().to_matchable()])
+                .config(|config| config.optional())
+                .to_matchable(),
+            AnyNumberOf::new(vec![
+                Ref::new("ColumnConstraintSegment")
+                    .optional()
+                    .to_matchable(),
+                Ref::new("ColumnDefaultGrammar").optional().to_matchable(),
+            ])
             .to_matchable(),
         ])
         .to_matchable(),

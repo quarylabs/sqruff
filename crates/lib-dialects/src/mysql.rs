@@ -2859,11 +2859,13 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("UPDATE").to_matchable(),
             Ref::keyword("LOW_PRIORITY").optional().to_matchable(),
             Ref::keyword("IGNORE").optional().to_matchable(),
+            MetaSegment::indent().to_matchable(),
             Delimited::new(vec![
                 Ref::new("TableReferenceSegment").to_matchable(),
                 Ref::new("FromExpressionSegment").to_matchable(),
             ])
             .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
             Ref::new("SetClauseListSegment").to_matchable(),
             Ref::new("WhereClauseSegment").optional().to_matchable(),
             Ref::new("OrderByClauseSegment").optional().to_matchable(),

@@ -1041,9 +1041,12 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                     Ref::keyword("SET").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     Delimited::new(vec![
                         Sequence::new(vec![
                             one_of(vec![
@@ -1057,6 +1060,7 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),
                     Ref::new("WhereClauseSegment").optional().to_matchable(),
                     Ref::new("ReturningClauseSegment").optional().to_matchable(),

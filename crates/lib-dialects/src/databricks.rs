@@ -113,6 +113,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .into(),
         ),
         (
+            "VariableNameIdentifierSegment".into(),
+            one_of(vec![
+                Ref::new("NakedIdentifierSegment").to_matchable(),
+                Ref::new("BackQuotedIdentifierSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "MagicCellStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::MagicCellSegment, |_| {
                 Sequence::new(vec![
@@ -861,6 +870,59 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 })
                 .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `SET VARIABLE` statement used to set session variables.
+            // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-set-variable.html
+            "SetVariableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetVariableStatement, |_| {
+                let set_kv_pair = Sequence::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("VariableNameIdentifierSegment").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("DEFAULT").to_matchable(),
+                            optionally_bracketed(vec![
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+                let set_bracketed = Sequence::new(vec![
+                    Bracketed::new(vec![
+                        Ref::new("VariableNameIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Ref::new("SelectStatementSegment").to_matchable(),
+                            Ref::new("ValuesClauseSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("VAR").to_matchable(),
+                        Ref::keyword("VARIABLE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![set_kv_pair, set_bracketed]).to_matchable(),
+                ])
+                .allow_gaps(true)
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),

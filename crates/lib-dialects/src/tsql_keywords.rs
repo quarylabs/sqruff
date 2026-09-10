@@ -312,6 +312,7 @@ pub(crate) fn tsql_future_keywords() -> HashSet<&'static str> {
         "INITIALIZE",
         "INITIALLY",
         "INOUT",
+        "INLINE",
         "INPUT",
         "INT",
         "INTEGER",
@@ -502,6 +503,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
     [
         "ACTION",
         "APPEND",
+        "INLINE",
         "PERSISTED",
         "FORCE",
         "MASTER",

@@ -117,6 +117,10 @@ AS
 SELECT var:id::int id, var:fname::string first_name,
 var:lname::string last_name FROM raw;
 
+CREATE OR ALTER TABLE some_table (
+  id INTEGER NOT NULL
+);
+
 CREATE OR REPLACE DYNAMIC TABLE DT_WITH_DOWNSTREAM_LAG
 TARGET_LAG = DOWNSTREAM
 WAREHOUSE = mywh

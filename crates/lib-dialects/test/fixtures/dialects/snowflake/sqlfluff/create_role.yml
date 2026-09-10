@@ -28,3 +28,13 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - quoted_literal: '''this is a fake role'''
+- statement_terminator: ;
+- statement:
+  - create_role_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MY_ROLE
+- statement_terminator: ;

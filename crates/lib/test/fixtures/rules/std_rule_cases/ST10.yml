@@ -126,6 +126,17 @@ test_other_operators_with_bracketed_precedence:
         end as test
     from cte
 
+test_pass_templated_queries:
+  pass_str: |
+    SELECT a, col FROM t WHERE a = :a
+  configs:
+    core:
+      templater: placeholder
+    templater:
+      placeholder:
+        param_style: colon
+        a: a
+
 test_pass_array_access:
   pass_str: |
     SELECT my_array[1] = [1] FROM t

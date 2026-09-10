@@ -3333,47 +3333,50 @@ pub fn raw_dialect() -> Dialect {
     // https://www.postgresql.org/docs/current/sql-alteraggregate.html
     postgres.add([(
         "AlterAggregateStatementSegment".into(),
-        Sequence::new(vec![
-            Ref::keyword("ALTER").to_matchable(),
-            Ref::keyword("AGGREGATE").to_matchable(),
-            Ref::new("ObjectReferenceSegment").to_matchable(),
-            Bracketed::new(vec![
-                one_of(vec![
-                    Ref::new("FunctionParameterListGrammar").to_matchable(),
-                    Anything::new().to_matchable(),
-                    Ref::new("StarSegment").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            one_of(vec![
-                Sequence::new(vec![
-                    Ref::keyword("RENAME").to_matchable(),
-                    Ref::keyword("TO").to_matchable(),
-                    Ref::new("FunctionNameSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("OWNER").to_matchable(),
-                    Ref::keyword("TO").to_matchable(),
+        NodeMatcher::new(SyntaxKind::AlterAggregateStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("ALTER").to_matchable(),
+                Ref::keyword("AGGREGATE").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Bracketed::new(vec![
                     one_of(vec![
-                        Ref::keyword("CURRENT_ROLE").to_matchable(),
-                        Ref::keyword("CURRENT_USER").to_matchable(),
-                        Ref::keyword("SESSION_USER").to_matchable(),
-                        Ref::new("RoleReferenceSegment").to_matchable(),
+                        Ref::new("FunctionParameterListGrammar").to_matchable(),
+                        Anything::new().to_matchable(),
+                        Ref::new("StarSegment").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
                 .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("SET").to_matchable(),
-                    Ref::keyword("SCHEMA").to_matchable(),
-                    Ref::new("SchemaReferenceSegment").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("RENAME").to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        Ref::new("FunctionNameSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("OWNER").to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("CURRENT_ROLE").to_matchable(),
+                            Ref::keyword("CURRENT_USER").to_matchable(),
+                            Ref::keyword("SESSION_USER").to_matchable(),
+                            Ref::new("RoleReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SET").to_matchable(),
+                        Ref::keyword("SCHEMA").to_matchable(),
+                        Ref::new("SchemaReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])
-            .to_matchable(),
-        ])
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);

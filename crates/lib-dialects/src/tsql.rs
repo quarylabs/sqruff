@@ -222,6 +222,7 @@ pub fn raw_dialect() -> Dialect {
         "DATEDIFF",
         "DATENAME",
         "DATEPART",
+        "DATETRUNC",
         "DAY",
         "MONTH",
         "YEAR",

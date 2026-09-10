@@ -2199,6 +2199,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreatePasswordPolicyStatementSegment").to_matchable(),
                 Ref::new("AlterPasswordPolicyStatementSegment").to_matchable(),
                 Ref::new("DropPasswordPolicyStatementSegment").to_matchable(),
+                Ref::new("CreateRowAccessPolicyStatementSegment").to_matchable(),
                 Ref::new("AlterRowAccessPolicyStatementSegment").to_matchable(),
                 Ref::new("ScriptingLetStatementSegment").to_matchable(),
                 Ref::new("ScriptingDeclareStatementSegment").to_matchable(),
@@ -11632,6 +11633,38 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("POLICY").to_matchable(),
                     Ref::new("IfExistsGrammar").optional().to_matchable(),
                     Ref::new("PasswordPolicyReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `CREATE ROW ACCESS POLICY` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/create-row-access-policy
+            "CreateRowAccessPolicyStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateRowAccessPolicyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("ROW").to_matchable(),
+                    Ref::keyword("ACCESS").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::new("FunctionParameterListGrammar").to_matchable(),
+                    Ref::keyword("RETURNS").to_matchable(),
+                    Ref::keyword("BOOLEAN").to_matchable(),
+                    Ref::new("FunctionAssignerSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COMMENT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

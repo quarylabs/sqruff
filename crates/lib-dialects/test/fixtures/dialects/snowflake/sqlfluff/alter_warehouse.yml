@@ -419,3 +419,20 @@ file:
         - raw_comparison_operator: =
       - numeric_literal: '30'
 - statement_terminator: ;
+- statement:
+  - alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+      - naked_identifier: LOAD_WH
+    - keyword: SET
+    - warehouse_object_properties:
+      - keyword: ENABLE_QUERY_ACCELERATION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'true'
+      - keyword: QUERY_ACCELERATION_MAX_SCALE_FACTOR
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '4'
+- statement_terminator: ;

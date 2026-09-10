@@ -43,7 +43,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             ),
             Matcher::regex(
                 "double_at_sign_literal",
-                r"@@[a-zA-Z_][\w]*",
+                r"@@[a-zA-Z_][\w\.]*",
                 SyntaxKind::DoubleAtSignLiteral,
             ),
         ],
@@ -1821,6 +1821,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                         ])
                         .to_matchable(),
+                        Ref::new("SystemVariableSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::new("EqualsSegment").to_matchable(),

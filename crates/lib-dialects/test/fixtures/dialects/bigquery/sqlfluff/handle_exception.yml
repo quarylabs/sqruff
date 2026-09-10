@@ -132,10 +132,7 @@ file:
                 - comma: ','
                 - expression:
                   - system_variable:
-                    - double_at_sign_literal: '@@error'
-                  - semi_structured_expression:
-                    - dot: .
-                    - naked_identifier: message
+                    - double_at_sign_literal: '@@error.message'
                 - end_bracket: )
     - statement_terminator: ;
     - keyword: END
@@ -257,10 +254,7 @@ file:
                 - comma: ','
                 - expression:
                   - system_variable:
-                    - double_at_sign_literal: '@@error'
-                  - semi_structured_expression:
-                    - dot: .
-                    - naked_identifier: message
+                    - double_at_sign_literal: '@@error.message'
                 - end_bracket: )
     - statement_terminator: ;
     - statement:

@@ -10,3 +10,17 @@ file:
     - object_reference:
       - naked_identifier: another_task
 - statement_terminator: ;
+- statement:
+  - alter_task_statement:
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: my_task
+    - keyword: REMOVE
+    - keyword: AFTER
+    - object_reference:
+      - naked_identifier: another_task
+    - comma: ','
+    - object_reference:
+      - naked_identifier: yet_another_task
+- statement_terminator: ;

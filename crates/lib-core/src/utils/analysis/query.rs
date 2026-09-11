@@ -29,6 +29,44 @@ const SUBSELECT_TYPES: SyntaxSet = SyntaxSet::new(&[
     SyntaxKind::ValuesClause,
 ]);
 
+/// Return an identifier's raw value without its quoting delimiters.
+pub fn normalize_identifier(segment: &ErasedSegment) -> SmolStr {
+    fn normalize_raw(raw: &str) -> String {
+        if raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2 {
+            return raw[1..raw.len() - 1].replace("]]", "]");
+        }
+
+        if matches!(raw.chars().next(), Some('"') | Some('\'') | Some('`'))
+            && raw.len() >= 2
+            && raw.chars().next() == raw.chars().last()
+        {
+            let quote = raw.chars().next().unwrap();
+            return raw[1..raw.len() - 1]
+                .replace(&format!("{quote}{quote}"), &quote.to_string())
+                .replace(&format!("\\{quote}"), &quote.to_string());
+        }
+
+        raw.to_string()
+    }
+
+    if segment.segments().is_empty() {
+        return normalize_raw(segment.raw()).into();
+    }
+
+    segment
+        .get_raw_segments()
+        .into_iter()
+        .map(|raw_segment| {
+            if raw_segment.is_type(SyntaxKind::QuotedIdentifier) {
+                normalize_raw(raw_segment.raw())
+            } else {
+                raw_segment.raw().to_string()
+            }
+        })
+        .collect::<String>()
+        .into()
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum QueryType {
     Simple,
@@ -388,7 +426,7 @@ impl<'me> Query<'me> {
         let mut ctes = IndexMap::default();
         for cte in cte_defs {
             let name_seg = cte.segments()[0].clone();
-            let name = name_seg.raw().to_uppercase_smolstr();
+            let name = normalize_identifier(&name_seg).to_uppercase_smolstr();
 
             let queries = cte.recursive_crawl(
                 const { &SELECTABLE_TYPES.union(&SUBSELECT_TYPES) },

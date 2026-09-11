@@ -17,15 +17,17 @@ file:
       - keyword: UPDATE
       - table_reference:
         - naked_identifier: orders
-      - keyword: SET
-      - naked_identifier: address
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - column_reference:
-          - naked_identifier: new
-          - dot: .
+      - set_clause_list:
+        - keyword: SET
+        - set_clause:
           - naked_identifier: address
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - column_reference:
+              - naked_identifier: new
+              - dot: .
+              - naked_identifier: address
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -60,15 +62,17 @@ file:
       - keyword: UPDATE
       - table_reference:
         - naked_identifier: customer
-      - keyword: SET
-      - naked_identifier: cust_addr
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - column_reference:
-          - naked_identifier: NEW
-          - dot: .
+      - set_clause_list:
+        - keyword: SET
+        - set_clause:
           - naked_identifier: cust_addr
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - column_reference:
+              - naked_identifier: NEW
+              - dot: .
+              - naked_identifier: cust_addr
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -266,12 +270,14 @@ file:
       - keyword: UPDATE
       - table_reference:
         - naked_identifier: y
-      - keyword: SET
-      - naked_identifier: z
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - boolean_literal: 'TRUE'
+      - set_clause_list:
+        - keyword: SET
+        - set_clause:
+          - naked_identifier: z
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - expression:
+            - boolean_literal: 'TRUE'
       - where_clause:
         - keyword: WHERE
         - expression:

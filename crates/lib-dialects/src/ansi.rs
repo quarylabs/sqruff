@@ -1736,6 +1736,40 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "SequenceMinValueGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("MINVALUE").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NO").to_matchable(),
+                    Ref::keyword("MINVALUE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SequenceMaxValueGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("MAXVALUE").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NO").to_matchable(),
+                    Ref::keyword("MAXVALUE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "AlterSequenceOptionsSegment".into(),
             NodeMatcher::new(SyntaxKind::AlterSequenceOptionsSegment, |_| {
                 one_of(vec![
@@ -1745,32 +1779,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("NumericLiteralSegment").to_matchable(),
                     ])
                     .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("MINVALUE").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NO").to_matchable(),
-                            Ref::keyword("MINVALUE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("MAXVALUE").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NO").to_matchable(),
-                            Ref::keyword("MAXVALUE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("SequenceMinValueGrammar").to_matchable(),
+                    Ref::new("SequenceMaxValueGrammar").to_matchable(),
                     one_of(vec![
                         Sequence::new(vec![
                             Ref::keyword("CACHE").to_matchable(),
@@ -2818,32 +2828,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("NumericLiteralSegment").to_matchable(),
                     ])
                     .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("MINVALUE").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NO").to_matchable(),
-                            Ref::keyword("MINVALUE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("MAXVALUE").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NO").to_matchable(),
-                            Ref::keyword("MAXVALUE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("SequenceMinValueGrammar").to_matchable(),
+                    Ref::new("SequenceMaxValueGrammar").to_matchable(),
                     one_of(vec![
                         Sequence::new(vec![
                             Ref::keyword("CACHE").to_matchable(),

@@ -3812,21 +3812,120 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // T-SQL CREATE USER from/for an existing login.
+    // T-SQL CREATE USER statement.
     // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-user-transact-sql
+    let allow_encrypted_value = Sequence::new(vec![
+        Ref::keyword("ALLOW_ENCRYPTED_VALUE_MODIFICATIONS").to_matchable(),
+        Ref::new("EqualsSegment").to_matchable(),
+        one_of(vec![
+            Ref::keyword("ON").to_matchable(),
+            Ref::keyword("OFF").to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable();
+    let default_schema = Sequence::new(vec![
+        Ref::keyword("DEFAULT_SCHEMA").to_matchable(),
+        Ref::new("EqualsSegment").to_matchable(),
+        Ref::new("ObjectReferenceSegment").to_matchable(),
+    ])
+    .to_matchable();
+    let default_language = Sequence::new(vec![
+        Ref::keyword("DEFAULT_LANGUAGE").to_matchable(),
+        Ref::new("EqualsSegment").to_matchable(),
+        Ref::new("ObjectReferenceSegment").to_matchable(),
+    ])
+    .to_matchable();
+    let limited_option_list = Sequence::new(vec![
+        Ref::keyword("WITH").to_matchable(),
+        Delimited::new(vec![
+            default_schema.clone(),
+            default_language.clone(),
+            allow_encrypted_value.clone(),
+        ])
+        .to_matchable(),
+    ])
+    .config(|this| this.optional())
+    .to_matchable();
+    let options_list = Delimited::new(vec![
+        default_schema,
+        default_language,
+        Sequence::new(vec![
+            Ref::keyword("SID").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("HexadecimalLiteralSegment").to_matchable(),
+        ])
+        .to_matchable(),
+        allow_encrypted_value,
+        Sequence::new(vec![
+            Ref::keyword("PASSWORD").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("QuotedLiteralSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable();
+    let external_provider = Sequence::new(vec![
+        Ref::keyword("FROM").to_matchable(),
+        Ref::keyword("EXTERNAL").to_matchable(),
+        Ref::keyword("PROVIDER").to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("WITH").to_matchable(),
+            Ref::keyword("OBJECT_ID").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("QuotedLiteralSegment").to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+    ])
+    .to_matchable();
     dialect.replace_grammar(
         "CreateUserStatementSegment",
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),
             Ref::keyword("USER").to_matchable(),
             Ref::new("RoleReferenceSegment").to_matchable(),
-            one_of(vec![
-                Ref::keyword("FROM").to_matchable(),
-                Ref::keyword("FOR").to_matchable(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![Ref::keyword("WITH").to_matchable(), options_list])
+                    .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        Ref::keyword("FOR").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("LOGIN").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    limited_option_list.clone(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        Ref::keyword("FOR").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("CERTIFICATE").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ASYMMETRIC").to_matchable(),
+                            Ref::keyword("KEY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITHOUT").to_matchable(),
+                    Ref::keyword("LOGIN").to_matchable(),
+                    limited_option_list,
+                ])
+                .to_matchable(),
+                external_provider,
             ])
             .to_matchable(),
-            Ref::keyword("LOGIN").to_matchable(),
-            Ref::new("ObjectReferenceSegment").optional().to_matchable(),
         ])
         .to_matchable(),
     );

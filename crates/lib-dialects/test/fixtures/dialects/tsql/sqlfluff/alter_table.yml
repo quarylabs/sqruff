@@ -125,3 +125,37 @@ file:
 - statement_terminator: ;
 - statement:
   - keyword: GO
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '[TestTable]'
+    - keyword: DROP
+    - period_segment:
+      - keyword: PERIOD
+      - keyword: FOR
+      - keyword: SYSTEM_TIME
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '[TestTable]'
+    - keyword: ADD
+    - period_segment:
+      - keyword: PERIOD
+      - keyword: FOR
+      - keyword: SYSTEM_TIME
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: StartDate
+        - comma: ','
+        - column_reference:
+          - naked_identifier: EndDate
+        - end_bracket: )
+- statement_terminator: ;

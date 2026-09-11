@@ -7005,6 +7005,95 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    postgres.add([
+        (
+            "AlterForeignTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterForeignTableStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("FOREIGN").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("IfExistsGrammar").optional().to_matchable(),
+                        Ref::keyword("ONLY").optional().to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Ref::new("StarSegment").optional().to_matchable(),
+                        one_of(vec![
+                            Delimited::new(vec![
+                                Ref::new("AlterForeignTableActionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("RENAME").to_matchable(),
+                                Ref::keyword("COLUMN").optional().to_matchable(),
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::keyword("TO").to_matchable(),
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterForeignTableActionSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterForeignTableActionSegment, |dialect| {
+                dialect
+                    .grammar("AlterTableActionSegment")
+                    .match_grammar(dialect)
+                    .unwrap()
+                    .copy(
+                        Some(vec![
+                            Sequence::new(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("ALTER").to_matchable(),
+                                    Ref::keyword("COLUMN").optional().to_matchable(),
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                                Ref::keyword("OPTIONS").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![
+                                        Sequence::new(vec![
+                                            one_of(vec![
+                                                Ref::keyword("ADD").to_matchable(),
+                                                Ref::keyword("SET").to_matchable(),
+                                                Ref::keyword("DROP").to_matchable(),
+                                            ])
+                                            .config(|this| this.optional())
+                                            .to_matchable(),
+                                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                            Ref::new("QuotedLiteralSegment")
+                                                .optional()
+                                                .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ]),
+                        None,
+                        None,
+                        None,
+                        vec![],
+                        false,
+                    )
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     postgres.replace_grammar("StatementSegment", statement_segment());
 
     postgres.replace_grammar(
@@ -9685,6 +9774,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("CreateForeignDataWrapperStatementSegment").to_matchable(),
             Ref::new("DropForeignTableStatement").to_matchable(),
             Ref::new("CreateOperatorStatementSegment").to_matchable(),
+            Ref::new("AlterForeignTableStatementSegment").to_matchable(),
             Ref::new("CreateSubscriptionStatementSegment").to_matchable(),
             Ref::new("AlterSubscriptionStatementSegment").to_matchable(),
             Ref::new("DropSubscriptionStatementSegment").to_matchable(),

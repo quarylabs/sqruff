@@ -148,6 +148,17 @@ pub fn raw_dialect() -> Dialect {
         "!<", "!>", // Special comparison operators
     ]);
 
+    // T-SQL hexadecimal literals must be tokenized before ordinary numeric
+    // literals, which would otherwise consume only the leading zero in `0x...`.
+    dialect.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "hexadecimal_literal",
+            r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+            SyntaxKind::NumericLiteral,
+        )],
+        "numeric_literal",
+    );
+
     // T-SQL supports square brackets for identifiers and @ for variables
     // Insert square bracket identifier before individual bracket matchers to ensure it's matched first
     dialect.insert_lexer_matchers(
@@ -460,6 +471,15 @@ pub fn raw_dialect() -> Dialect {
             TypedParser::new(SyntaxKind::HashIdentifier, SyntaxKind::HashIdentifier)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "HexadecimalLiteralSegment".into(),
+            RegexParser::new(
+                r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+                SyntaxKind::NumericLiteral,
+            )
+            .to_matchable()
+            .into(),
         ),
     ]);
     dialect.replace_grammar(
@@ -1262,6 +1282,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AccessStatementSegment").to_matchable(),
             Ref::new("CreateTableStatementSegment").to_matchable(),
             Ref::new("CreateRoleStatementSegment").to_matchable(),
+            Ref::new("CreateLoginStatementSegment").to_matchable(),
             Ref::new("DropRoleStatementSegment").to_matchable(),
             Ref::new("AlterTableSwitchStatementSegment").to_matchable(),
             Ref::new("AlterTableStatementSegment").to_matchable(),
@@ -3810,6 +3831,110 @@ pub fn raw_dialect() -> Dialect {
         })
         .to_matchable(),
     );
+
+    // T-SQL CREATE LOGIN statement.
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-login-transact-sql
+    dialect.add([(
+        "CreateLoginStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateLoginStatement, |_| {
+            let default_database = Sequence::new(vec![
+                Ref::keyword("DEFAULT_DATABASE").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable();
+            let default_language = Sequence::new(vec![
+                Ref::keyword("DEFAULT_LANGUAGE").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable();
+            let secondary_option = one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("SID").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("HexadecimalLiteralSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                default_database,
+                default_language,
+                Sequence::new(vec![
+                    Ref::keyword("CHECK_EXPIRATION").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("OFF").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("CHECK_POLICY").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("OFF").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("CREDENTIAL").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let password_options = Sequence::new(vec![
+                Ref::keyword("PASSWORD").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+                Ref::keyword("MUST_CHANGE").optional().to_matchable(),
+                Ref::new("CommaSegment").optional().to_matchable(),
+                Delimited::new(vec![secondary_option])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+            ])
+            .to_matchable();
+            let sources = one_of(vec![
+                Ref::keyword("WINDOWS").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("EXTERNAL").to_matchable(),
+                    Ref::keyword("PROVIDER").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("CERTIFICATE").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ASYMMETRIC").to_matchable(),
+                    Ref::keyword("KEY").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
+
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("LOGIN").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![Ref::keyword("FROM").to_matchable(), sources])
+                        .to_matchable(),
+                    Sequence::new(vec![Ref::keyword("WITH").to_matchable(), password_options])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     dialect.add([(
         "TableOptionGrammar".into(),

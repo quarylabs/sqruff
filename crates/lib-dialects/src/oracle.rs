@@ -5407,7 +5407,7 @@ pub fn raw_dialect() -> Dialect {
                 Delimited::new(vec![
                     one_of(vec![
                         Ref::keyword("PUBLIC").to_matchable(),
-                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        Ref::new("RoleReferenceSegment").to_matchable(),
                     ])
                     .to_matchable(),
                 ])

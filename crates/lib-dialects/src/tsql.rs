@@ -1438,6 +1438,7 @@ pub fn raw_dialect() -> Dialect {
                     Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
                         .to_matchable(),
                 ])
+                .config(|this| this.optional())
                 .to_matchable(),
             ])
             .to_matchable()
@@ -3074,6 +3075,15 @@ pub fn raw_dialect() -> Dialect {
 
     let alter_table_options = dialect.grammar("AlterTableOptionsGrammar").copy(
         Some(vec![
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("DROP").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("PeriodSegment").to_matchable(),
+            ])
+            .to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("DROP").to_matchable(),
                 Ref::keyword("COLUMN").to_matchable(),

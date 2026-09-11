@@ -502,6 +502,7 @@ pub(crate) fn tsql_future_keywords() -> HashSet<&'static str> {
 pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
     [
         "ACTION",
+        "ALLOW_ENCRYPTED_VALUE_MODIFICATIONS",
         "APPEND",
         // CREATE LOGIN
         "ASYMMETRIC",
@@ -510,7 +511,9 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "CHECK_POLICY",
         "DEFAULT_DATABASE",
         "DEFAULT_LANGUAGE",
+        "DEFAULT_SCHEMA",
         "MUST_CHANGE",
+        "OBJECT_ID",
         "PROVIDER",
         "SID",
         "WINDOWS",

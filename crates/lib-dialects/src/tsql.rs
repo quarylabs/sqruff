@@ -437,6 +437,67 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    dialect.add([
+        (
+            "ReplicateFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                Ref::keyword("REPLICATE").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ReplicateFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Ref::new("HexadecimalLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    dialect.replace_grammar(
+        "FunctionSegment",
+        one_of(vec![
+            Ref::new("ColumnsExpressionGrammar").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("DatePartFunctionNameSegment").to_matchable(),
+                Ref::new("DateTimeFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::new("ReplicateFunctionNameSegment").to_matchable(),
+                Ref::new("ReplicateFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::new("FunctionNameSegment")
+                        .exclude(one_of(vec![
+                            Ref::new("DatePartFunctionNameSegment").to_matchable(),
+                            Ref::new("ColumnsExpressionFunctionNameSegment").to_matchable(),
+                            Ref::new("ValuesClauseSegment").to_matchable(),
+                        ]))
+                        .to_matchable(),
+                    Ref::new("FunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("PostFunctionGrammar").optional().to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     dialect.add([(
         "EqualAliasOperatorSegment".into(),
         NodeMatcher::new(SyntaxKind::AliasOperator, |_| {
@@ -482,6 +543,24 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    dialect.add([(
+        "SetContextInfoSegment".into(),
+        NodeMatcher::new(SyntaxKind::SetContextInfoStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                Ref::keyword("CONTEXT_INFO").to_matchable(),
+                one_of(vec![
+                    Ref::new("HexadecimalLiteralSegment").to_matchable(),
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
     dialect.replace_grammar(
         "SingleIdentifierGrammar",
         one_of(vec![
@@ -1259,6 +1338,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("TryBlockSegment").to_matchable(),
             Ref::new("AtomicBlockSegment").to_matchable(),
             Ref::new("DeclareStatementGrammar").to_matchable(),
+            Ref::new("SetContextInfoSegment").to_matchable(),
             Ref::new("SetVariableStatementGrammar").to_matchable(),
             Ref::new("PrintStatementGrammar").to_matchable(),
             Ref::new("RaiserrorStatementSegment").to_matchable(),

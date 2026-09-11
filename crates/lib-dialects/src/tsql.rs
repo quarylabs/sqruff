@@ -3005,7 +3005,20 @@ pub fn raw_dialect() -> Dialect {
                         // DEFAULT constraint
                         Sequence::new(vec![
                             Ref::keyword("DEFAULT").to_matchable(),
-                            Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
+                            optionally_bracketed(vec![
+                                one_of(vec![
+                                    optionally_bracketed(vec![
+                                        Ref::new("LiteralGrammar").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::new("BareFunctionSegment").to_matchable(),
+                                    Ref::new("FunctionSegment").to_matchable(),
+                                    Ref::new("NextValueSequenceSegment").to_matchable(),
+                                    Ref::new("HexadecimalLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         // Primary key without a column list.
@@ -3181,6 +3194,13 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ADD").to_matchable(),
+                Ref::new("ColumnConstraintSegment").to_matchable(),
+                Ref::keyword("FOR").to_matchable(),
+                Ref::new("ColumnReferenceSegment").to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![

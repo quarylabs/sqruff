@@ -78,6 +78,49 @@ pub fn raw_dialect() -> Dialect {
         .sets_mut("unreserved_keywords")
         .extend(tsql_keywords::tsql_additional_unreserved_keywords());
 
+    // T-SQL permits a `WITH ROLLUP` clause after the `GROUP BY` expression list.
+    dialect.add([(
+        "WithRollupClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::WithRollupClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("ROLLUP").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.replace_grammar(
+        "GroupByClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("GROUP").to_matchable(),
+            Ref::keyword("BY").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            one_of(vec![
+                Ref::new("ColumnReferenceSegment").to_matchable(),
+                Ref::new("NumericLiteralSegment").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            AnyNumberOf::new(vec![
+                Ref::new("CommaSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("WithRollupClauseSegment")
+                .optional()
+                .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // Add table hint keywords to unreserved keywords
     dialect.sets_mut("unreserved_keywords").extend([
         "NOLOCK",
@@ -122,6 +165,12 @@ pub fn raw_dialect() -> Dialect {
     // Insert other T-SQL specific matchers
     dialect.insert_lexer_matchers(
         vec![
+            // Local and global temporary table names, including numeric names.
+            Matcher::regex(
+                "hash_identifier",
+                r"##?[a-zA-Z0-9_]+",
+                SyntaxKind::HashIdentifier,
+            ),
             // Variables: @MyVar (local) or @@ROWCOUNT (global/system)
             Matcher::regex(
                 "tsql_variable",
@@ -144,14 +193,10 @@ pub fn raw_dialect() -> Dialect {
 
     // T-SQL specific lexer patches:
     // 1. T-SQL only uses -- for inline comments, not # (which is used in temp table names)
-    // 2. Update word pattern to allow # at the beginning (temp tables) and end (SQL Server 2017+ syntax)
+    // 2. Update word pattern to allow # at the end (SQL Server 2017+ syntax)
     dialect.patch_lexer_matchers(vec![
         Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
-        Matcher::regex(
-            "word",
-            r"##?[a-zA-Z0-9_]+|[0-9a-zA-Z_]+#?",
-            SyntaxKind::Word,
-        ),
+        Matcher::regex("word", r"[0-9a-zA-Z_]+#?", SyntaxKind::Word),
     ]);
 
     // Since T-SQL uses square brackets as quoted identifiers and the lexer
@@ -390,30 +435,43 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override NakedIdentifierSegment to support T-SQL identifiers with # at the end
-    // T-SQL allows temporary table names like #temp or ##global
-    dialect.add([(
-        "NakedIdentifierSegment".into(),
-        SegmentGenerator::new(|dialect| {
-            // Generate the anti template from the set of reserved keywords
-            let reserved_keywords = dialect.sets("reserved_keywords");
-            let pattern = reserved_keywords.iter().join("|");
-            let anti_template = format!("^({pattern})$");
+    // Override identifier handling for T-SQL identifiers ending in # and
+    // temporary table names beginning with # or ##.
+    dialect.add([
+        (
+            "NakedIdentifierSegment".into(),
+            SegmentGenerator::new(|dialect| {
+                let reserved_keywords = dialect.sets("reserved_keywords");
+                let pattern = reserved_keywords.iter().join("|");
+                let anti_template = format!("^({pattern})$");
 
-            // T-SQL pattern: supports both temp tables (#temp, ##global) and identifiers ending with #
-            // Pattern explanation:
-            // - ##?[A-Za-z][A-Za-z0-9_]*    matches temp tables: #temp or ##global (case insensitive)
-            // - [A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?   matches regular identifiers with optional # at end
-            RegexParser::new(
-                r"(##?[A-Za-z][A-Za-z0-9_]*|[A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?)",
-                SyntaxKind::NakedIdentifier,
-            )
-            .anti_template(&anti_template)
-            .casefold(CaseFold::Upper)
-            .to_matchable()
-        })
-        .into(),
-    )]);
+                RegexParser::new(
+                    r"[A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?",
+                    SyntaxKind::NakedIdentifier,
+                )
+                .anti_template(&anti_template)
+                .casefold(CaseFold::Upper)
+                .to_matchable()
+            })
+            .into(),
+        ),
+        (
+            "HashIdentifierSegment".into(),
+            TypedParser::new(SyntaxKind::HashIdentifier, SyntaxKind::HashIdentifier)
+                .to_matchable()
+                .into(),
+        ),
+    ]);
+    dialect.replace_grammar(
+        "SingleIdentifierGrammar",
+        one_of(vec![
+            Ref::new("NakedIdentifierSegment").to_matchable(),
+            Ref::new("QuotedIdentifierSegment").to_matchable(),
+            Ref::new("HashIdentifierSegment").to_matchable(),
+        ])
+        .config(|this| this.terminators = vec![Ref::new("DotSegment").to_matchable()])
+        .to_matchable(),
+    );
 
     // DECLARE statement for variable declarations
     // Syntax: DECLARE @var1 INT = 10, @var2 VARCHAR(50) = 'text'
@@ -2431,8 +2489,8 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // Update TableReferenceSegment to support T-SQL table variables
-    // Temp tables are now handled as regular ObjectReferenceSegment since they use word tokens
+    // Update TableReferenceSegment to support T-SQL table variables.
+    // Temp tables are handled by ObjectReferenceSegment via HashIdentifierSegment.
     dialect.replace_grammar(
         "TableReferenceSegment",
         one_of(vec![

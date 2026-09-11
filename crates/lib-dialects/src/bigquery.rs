@@ -764,6 +764,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("DeclareStatementSegment").to_matchable(),
                 Ref::new("SetStatementSegment").to_matchable(),
                 Ref::new("ExportStatementSegment").to_matchable(),
+                Ref::new("LoadDataStatementSegment").to_matchable(),
                 Ref::new("CreateExternalTableStatementSegment").to_matchable(),
                 Ref::new("CreateSnapshotTableStatementSegment").to_matchable(),
                 Ref::new("ExecuteImmediateSegment").to_matchable(),
@@ -3396,6 +3397,108 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     Ref::keyword("AS").to_matchable(),
                     Ref::new("SelectableGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LoadDataStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::LoadDataStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("LOAD").to_matchable(),
+                    Ref::keyword("DATA").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("INTO").to_matchable(),
+                        Ref::keyword("OVERWRITE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("TemporaryGrammar").to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::new("ColumnDefinitionSegment").to_matchable(),
+                                Ref::new("TableConstraintSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.allow_trailing())
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("OVERWRITE").optional().to_matchable(),
+                        Ref::keyword("PARTITIONS").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("PartitionBySegment").optional().to_matchable(),
+                    Ref::new("ClusterBySegment").optional().to_matchable(),
+                    Ref::new("OptionsSegment").optional().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        Ref::keyword("FILES").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("PARTITION").to_matchable(),
+                        Ref::keyword("COLUMNS").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                    Ref::new("DatatypeSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.allow_trailing())
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("CONNECTION").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

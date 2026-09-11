@@ -4385,52 +4385,6 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // ---- CreateSequenceOptionsSegment override ----
-    // SQLFluff Oracle uses NOMINVALUE/NOMAXVALUE (single keywords) instead of NO MINVALUE/NO MAXVALUE
-    oracle.add([(
-        "CreateSequenceOptionsSegment".into(),
-        NodeMatcher::new(SyntaxKind::CreateSequenceOptionsSegment, |_| {
-            one_of(vec![
-                Sequence::new(vec![
-                    Ref::keyword("INCREMENT").to_matchable(),
-                    Ref::keyword("BY").to_matchable(),
-                    Ref::new("NumericLiteralSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("START").to_matchable(),
-                    Ref::keyword("WITH").optional().to_matchable(),
-                    Ref::new("NumericLiteralSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::new("SequenceMinValueGrammar").to_matchable(),
-                Ref::new("SequenceMaxValueGrammar").to_matchable(),
-                one_of(vec![
-                    Sequence::new(vec![
-                        Ref::keyword("CACHE").to_matchable(),
-                        Ref::new("NumericLiteralSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::keyword("NOCACHE").to_matchable(),
-                ])
-                .to_matchable(),
-                one_of(vec![
-                    Ref::keyword("CYCLE").to_matchable(),
-                    Ref::keyword("NOCYCLE").to_matchable(),
-                ])
-                .to_matchable(),
-                one_of(vec![
-                    Ref::keyword("ORDER").to_matchable(),
-                    Ref::keyword("NOORDER").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
-
     // ---- DropTypeStatementSegment override ----
     // SQLFluff: adds BODY keyword and FORCE/VALIDATE options
     oracle.add([(

@@ -1,0 +1,38 @@
+file:
+- oracle_batch:
+  - statement:
+    - create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - column_reference:
+        - naked_identifier: TBL_SERVICEALERTMESSAGE_S
+      - create_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - numeric_literal: '1'
+      - create_sequence_options_segment:
+        - keyword: START
+        - keyword: WITH
+        - numeric_literal: '1'
+      - create_sequence_options_segment:
+        - keyword: NOMAXVALUE
+      - create_sequence_options_segment:
+        - keyword: NOCYCLE
+  - statement_terminator: ;
+  - statement:
+    - create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - column_reference:
+        - naked_identifier: TBL_SERVICEALERTMESSAGE_S2
+      - create_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - numeric_literal: '1'
+      - create_sequence_options_segment:
+        - keyword: NOMINVALUE
+      - create_sequence_options_segment:
+        - keyword: NOMAXVALUE
+      - create_sequence_options_segment:
+        - keyword: NOCYCLE
+  - statement_terminator: ;

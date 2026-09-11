@@ -535,13 +535,19 @@ pub fn raw_dialect() -> Dialect {
             Matcher::legacy(
                 "meta_command",
                 |s| s.starts_with("\\"),
-                r"\\([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
+                r"\\(?!gset|gexec)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
                 SyntaxKind::Comment,
             ),
             Matcher::regex(
                 "dollar_numeric_literal",
                 r"\$\d+",
                 SyntaxKind::DollarNumericLiteral,
+            ),
+            Matcher::legacy(
+                "meta_command_query_buffer",
+                |s| s.starts_with("\\"),
+                r"\\([^\\\r\n])+((\\g(set|exec))|(?=\n)|(?=\r\n))?",
+                SyntaxKind::MetaCommandQueryBuffer,
             ),
         ],
         "word",
@@ -655,6 +661,12 @@ pub fn raw_dialect() -> Dialect {
         (
             "WalrusOperatorSegment".into(),
             StringParser::new(":=", SyntaxKind::AssignmentOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MetaCommandQueryBufferSegment".into(),
+            TypedParser::new(SyntaxKind::MetaCommandQueryBuffer, SyntaxKind::MetaCommand)
                 .to_matchable()
                 .into(),
         ),
@@ -1156,6 +1168,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("LIMIT").to_matchable(),
                 Ref::new("CommaSegment").to_matchable(),
                 Ref::new("SetOperatorSegment").to_matchable(),
+                Ref::new("MetaCommandQueryBufferSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -2486,6 +2499,7 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
                 Ref::keyword("RETURNING").to_matchable(),
                 Ref::new("WithCheckOptionSegment").to_matchable(),
+                Ref::new("MetaCommandQueryBufferSegment").to_matchable(),
             ],
             false,
         ),
@@ -2519,6 +2533,7 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                     Ref::keyword("RETURNING").to_matchable(),
                     Ref::new("WithCheckOptionSegment").to_matchable(),
+                    Ref::new("MetaCommandQueryBufferSegment").to_matchable(),
                 ],
                 true,
             ),
@@ -2566,6 +2581,7 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::keyword("RETURNING").to_matchable(),
+                Ref::new("MetaCommandQueryBufferSegment").to_matchable(),
             ];
             this.parse_mode(ParseMode::GreedyOnceStarted);
         })
@@ -6925,6 +6941,27 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     postgres.add([(
+        "MetaCommandQueryBufferStatement".into(),
+        NodeMatcher::new(SyntaxKind::MetaCommandStatement, |_| {
+            Sequence::new(vec![
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("SelectStatementSegment").to_matchable(),
+                        Ref::new("MetaCommandQueryBufferSegment")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    postgres.add([(
         "DropForeignTableStatement".into(),
         NodeMatcher::new(SyntaxKind::DropForeignTableStatement, |_| {
             Sequence::new(vec![
@@ -9772,6 +9809,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("DropExtensionStatementSegment").to_matchable(),
             Ref::new("AlterExtensionStatementSegment").to_matchable(),
             Ref::new("CreateForeignDataWrapperStatementSegment").to_matchable(),
+            Ref::new("MetaCommandQueryBufferStatement").to_matchable(),
             Ref::new("DropForeignTableStatement").to_matchable(),
             Ref::new("CreateOperatorStatementSegment").to_matchable(),
             Ref::new("AlterForeignTableStatementSegment").to_matchable(),

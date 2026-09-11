@@ -503,6 +503,17 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
     [
         "ACTION",
         "APPEND",
+        // CREATE LOGIN
+        "ASYMMETRIC",
+        "CERTIFICATE",
+        "CHECK_EXPIRATION",
+        "CHECK_POLICY",
+        "DEFAULT_DATABASE",
+        "DEFAULT_LANGUAGE",
+        "MUST_CHANGE",
+        "PROVIDER",
+        "SID",
+        "WINDOWS",
         "INLINE",
         "LOG",
         "PERSISTED",

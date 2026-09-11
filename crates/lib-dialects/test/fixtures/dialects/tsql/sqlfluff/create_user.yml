@@ -148,3 +148,20 @@ file:
     - object_reference:
       - naked_identifier: CarnationProduction
 - statement_terminator: ;
+- statement:
+  - create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+      - naked_identifier: Barry
+    - keyword: WITH
+    - keyword: PASSWORD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''sdjklalie8rew8337!$d'''
+    - comma: ','
+    - keyword: SID
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '0x241C11948AEEB749B0D22646DB1A19F2'
+- statement_terminator: ;

@@ -615,6 +615,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .into(),
         ),
         (
+            "SnowflakeVariableNameSegment".into(),
+            RegexParser::new(r":[a-zA-Z0-9_]*", SyntaxKind::Variable)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "ExceptionCodeSegment".into(),
             Sequence::new(vec![
                 Ref::new("NegativeSegment").to_matchable(),
@@ -1540,6 +1546,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("ColumnReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
+                        Ref::new("SnowflakeVariableNameSegment").to_matchable(),
                     ]),
                     None,
                     Some(Ref::new("LiteralGrammar").to_matchable()),

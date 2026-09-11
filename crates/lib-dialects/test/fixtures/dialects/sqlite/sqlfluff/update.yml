@@ -4,20 +4,23 @@ file:
     - keyword: UPDATE
     - table_reference:
       - naked_identifier: table_name
-    - keyword: SET
-    - naked_identifier: column1
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value1
-    - comma: ','
-    - naked_identifier: column2
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value2
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value2
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -32,20 +35,23 @@ file:
     - keyword: UPDATE
     - table_reference:
       - naked_identifier: table_name
-    - keyword: SET
-    - naked_identifier: column1
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value1
-    - comma: ','
-    - naked_identifier: column2
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value2
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value2
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -62,20 +68,23 @@ file:
     - keyword: UPDATE
     - table_reference:
       - naked_identifier: table_name
-    - keyword: SET
-    - naked_identifier: column1
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value1
-    - comma: ','
-    - naked_identifier: column2
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value2
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value2
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -94,20 +103,23 @@ file:
     - keyword: UPDATE
     - table_reference:
       - naked_identifier: table_name
-    - keyword: SET
-    - naked_identifier: column1
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value1
-    - comma: ','
-    - naked_identifier: column2
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value2
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value2
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -135,20 +147,23 @@ file:
     - keyword: IGNORE
     - table_reference:
       - naked_identifier: table_name
-    - keyword: SET
-    - naked_identifier: column1
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value1
-    - comma: ','
-    - naked_identifier: column2
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value2
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value2
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -165,20 +180,23 @@ file:
     - keyword: ABORT
     - table_reference:
       - naked_identifier: table_name
-    - keyword: SET
-    - naked_identifier: column1
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value1
-    - comma: ','
-    - naked_identifier: column2
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value2
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value2
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -195,20 +213,23 @@ file:
     - keyword: FAIL
     - table_reference:
       - naked_identifier: table_name
-    - keyword: SET
-    - naked_identifier: column1
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value1
-    - comma: ','
-    - naked_identifier: column2
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value2
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value2
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -225,20 +246,23 @@ file:
     - keyword: REPLACE
     - table_reference:
       - naked_identifier: table_name
-    - keyword: SET
-    - naked_identifier: column1
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value1
-    - comma: ','
-    - naked_identifier: column2
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value2
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value2
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -255,20 +279,23 @@ file:
     - keyword: ROLLBACK
     - table_reference:
       - naked_identifier: table_name
-    - keyword: SET
-    - naked_identifier: column1
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value1
-    - comma: ','
-    - naked_identifier: column2
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - column_reference:
-        - naked_identifier: value2
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - naked_identifier: column1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value1
+      - comma: ','
+      - set_clause:
+        - naked_identifier: column2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - column_reference:
+            - naked_identifier: value2
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -283,36 +310,38 @@ file:
     - keyword: UPDATE
     - table_reference:
       - naked_identifier: table_name
-    - keyword: SET
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-        - naked_identifier: context
-      - comma: ','
-      - column_reference:
-        - naked_identifier: country
-      - end_bracket: )
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - expression:
-      - bracketed:
-        - start_bracket: (
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: context
-            - comma: ','
-            - select_clause_element:
-              - column_reference:
-                - naked_identifier: country
-          - from_clause:
-            - keyword: FROM
-            - from_expression:
-              - from_expression_element:
-                - table_expression:
-                  - table_reference:
-                    - naked_identifier: Nations
-        - end_bracket: )
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: context
+          - comma: ','
+          - column_reference:
+            - naked_identifier: country
+          - end_bracket: )
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: context
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: country
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - naked_identifier: Nations
+            - end_bracket: )
 - statement_terminator: ;

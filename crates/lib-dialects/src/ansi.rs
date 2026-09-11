@@ -2057,12 +2057,8 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("SET").to_matchable(),
                     MetaSegment::indent().to_matchable(),
-                    Ref::new("SetClauseSegment").to_matchable(),
-                    AnyNumberOf::new(vec![
-                        Ref::new("CommaSegment").to_matchable(),
-                        Ref::new("SetClauseSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Delimited::new(vec![Ref::new("SetClauseSegment").to_matchable()])
+                        .to_matchable(),
                     MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()

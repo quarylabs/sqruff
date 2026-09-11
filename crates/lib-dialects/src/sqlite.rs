@@ -1050,22 +1050,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("AliasExpressionSegment").optional().to_matchable(),
                     MetaSegment::dedent().to_matchable(),
-                    Ref::keyword("SET").to_matchable(),
-                    MetaSegment::indent().to_matchable(),
-                    Delimited::new(vec![
-                        Sequence::new(vec![
-                            one_of(vec![
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("ExpressionSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
+                    Ref::new("SetClauseListSegment").to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),
                     Ref::new("WhereClauseSegment").optional().to_matchable(),
                     Ref::new("ReturningClauseSegment").optional().to_matchable(),
@@ -1076,6 +1061,20 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    sqlite_dialect.replace_grammar(
+        "SetClauseSegment",
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("ExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     sqlite_dialect.replace_grammar(
         "ColumnConstraintSegment",

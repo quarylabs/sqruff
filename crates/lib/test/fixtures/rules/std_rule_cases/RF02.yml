@@ -39,6 +39,30 @@ test_pass_qualified_references_multi_table_statements_subquery_mix:
     ) AS foo
     LEFT JOIN vee ON vee.a = foo.a
 
+test_pass_from_clause_subquery:
+  pass_str: |
+    SELECT
+        a.id AS a_id,
+        b.id AS b_id
+    FROM
+        (
+            SELECT id
+            FROM foo
+        ) AS a
+    INNER JOIN bar AS b ON a.id = b.ib;
+
+test_pass_join_clause_subquery:
+  pass_str: |
+    SELECT
+        a.id AS a_id,
+        b.id AS b_id
+    FROM bar AS b
+    JOIN (
+            SELECT id
+            FROM foo
+        ) AS a
+    ON a.id = b.id;
+
 test_fail_unreferenced_subquery_column:
   fail_str: |
     SELECT a

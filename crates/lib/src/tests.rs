@@ -742,6 +742,149 @@ fn test_sqlite_create_temp_view_body_indent() {
     );
 }
 
+/// Ports the SQLFluff regression test for the ST05/LT08 interaction where
+/// safely moved CTEs must retain their ordering and duplicate aliases must
+/// remain untouched.
+///
+/// See <https://github.com/sqlfluff/sqlfluff/issues/5265>.
+#[test]
+fn test_rules_std_st05_lt08_cte_ordering() {
+    let config = FluffConfig::from_source(
+        r#"
+[sqruff]
+dialect = ansi
+rules = ST05, LT08
+"#,
+        None,
+    );
+    let mut lnt = Linter::new(config, None, None, true).unwrap();
+    let sql = "
+WITH
+cte1 AS (
+    SELECT COUNT(*) AS qty
+    FROM some_table AS st
+    LEFT JOIN (
+        SELECT 'first' AS id
+    ) AS oops
+    ON st.id = oops.id
+),
+cte2 AS (
+    SELECT COUNT(*) AS other_qty
+    FROM other_table AS sot
+    LEFT JOIN (
+        SELECT 'middle' AS id
+    ) AS another
+    ON sot.id = another.id
+    LEFT JOIN (
+        SELECT 'last' AS id
+    ) AS oops
+    ON sot.id = oops.id
+)
+SELECT CURRENT_DATE();
+";
+    let expected = "
+WITH oops AS (
+        SELECT 'first' AS id
+    ),
+
+cte1 AS (
+    SELECT COUNT(*) AS qty
+    FROM some_table AS st
+    LEFT JOIN oops
+    ON st.id = oops.id
+),
+
+another AS (
+        SELECT 'middle' AS id
+    ),
+
+cte2 AS (
+    SELECT COUNT(*) AS other_qty
+    FROM other_table AS sot
+    LEFT JOIN another
+    ON sot.id = another.id
+    LEFT JOIN (
+        SELECT 'last' AS id
+    ) AS oops
+    ON sot.id = oops.id
+)
+
+SELECT CURRENT_DATE();
+";
+
+    let linted = lnt.lint_string_wrapped(sql, true).unwrap();
+    assert_eq!(linted.fix_string(), expected);
+}
+
+/// Ports the SQLFluff regression test for the ST05/LT09 interaction where a
+/// moved nested table must be created before the CTE that first uses it.
+///
+/// See <https://github.com/sqlfluff/sqlfluff/issues/4137>.
+#[test]
+fn test_rules_std_st05_lt09_cte_ordering() {
+    let config = FluffConfig::from_source(
+        r#"
+[sqruff]
+dialect = ansi
+rules = ST05, LT09
+"#,
+        None,
+    );
+    let mut lnt = Linter::new(config, None, None, true).unwrap();
+    let sql = "
+with
+
+cte1 as (
+    select t1.x, t2.y
+    from tbl1 t1
+    join (select x, y from tbl2) t2
+        on t1.x = t2.x
+)
+
+, cte2 as (
+    select x, y from tbl2 t2
+)
+
+select x, y from cte1
+union all
+select x, y from cte2
+;
+";
+    let expected = "
+with t2 as (select
+x,
+y
+from tbl2),
+cte1 as (
+    select
+t1.x,
+t2.y
+    from tbl1 t1
+    join t2
+        on t1.x = t2.x
+),
+cte2 as (
+    select
+x,
+y
+from tbl2 t2
+)
+select
+x,
+y
+from cte1
+union all
+select
+x,
+y
+from cte2
+;
+";
+
+    let linted = lnt.lint_string_wrapped(sql, true).unwrap();
+    assert_eq!(linted.fix_string(), expected);
+}
+
 #[test]
 fn test_clickhouse_parametric_type_spacing_fix() {
     let config = FluffConfig::new(

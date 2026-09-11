@@ -874,12 +874,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "DynamicTableLagIntervalSegment".into(),
-            RegexParser::new(
-                r"'((DOWNSTREAM)|([1-9]\d*\s+(?:SECOND|MINUTE|HOUR|DAY)S?))'",
-                SyntaxKind::DynamicTableLagIntervalSegment,
-            )
-            .to_matchable()
-            .into(),
+            RegexParser::new(r"DYNAMIC|'.*'", SyntaxKind::DynamicTableLagIntervalSegment)
+                .to_matchable()
+                .into(),
         ),
         (
             "DynamicTableTargetLagSegment".into(),

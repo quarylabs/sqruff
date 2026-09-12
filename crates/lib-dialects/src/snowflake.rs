@@ -3304,6 +3304,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DROP").to_matchable(),
+                        Ref::keyword("CONSTRAINT").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

@@ -2276,6 +2276,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("AlterProcedureStatementSegment").to_matchable(),
                 Ref::new("ScriptingBlockStatementSegment").to_matchable(),
                 Ref::new("ExceptionBlockStatementSegment").to_matchable(),
+                Ref::new("DropDynamicTableSegment").to_matchable(),
                 Ref::new("CreateAuthenticationPolicySegment").to_matchable(),
                 Ref::new("ForInLoopSegment").to_matchable(),
                 Ref::new("CreateEventTableStatementSegment").to_matchable(),
@@ -12193,6 +12194,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A Snowflake `DROP DYNAMIC TABLE` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/drop-dynamic-table
+            "DropDynamicTableSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropDynamicTableSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("DYNAMIC").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
                 ])
                 .to_matchable()
             })

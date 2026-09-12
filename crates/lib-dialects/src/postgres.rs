@@ -7397,7 +7397,9 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("NOTHING").to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("UPDATE").to_matchable(),
+                            MetaSegment::indent().to_matchable(),
                             Ref::keyword("SET").to_matchable(),
+                            MetaSegment::implicit_indent().to_matchable(),
                             Delimited::new(vec![
                                 one_of(vec![
                                     Sequence::new(vec![
@@ -7452,12 +7454,14 @@ pub fn raw_dialect() -> Dialect {
                                 .to_matchable(),
                             ])
                             .to_matchable(),
+                            MetaSegment::dedent().to_matchable(),
                             Sequence::new(vec![
                                 Ref::keyword("WHERE").to_matchable(),
                                 Ref::new("ExpressionSegment").to_matchable(),
                             ])
                             .config(|this| this.optional())
                             .to_matchable(),
+                            MetaSegment::dedent().to_matchable(),
                         ])
                         .to_matchable(),
                     ])

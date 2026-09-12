@@ -177,6 +177,17 @@ fn recursively_check_is_complex(select_clause_or_exp_children: Segments) -> bool
 
     let first_el = filtered.head();
 
+    // A nested select is a subquery expression and therefore needs an alias.
+    if !first_el
+        .recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::SelectStatement]) },
+            true,
+        )
+        .is_empty()
+    {
+        return true;
+    }
+
     if remaining_count > 1 || !first_el.all_match(|it| it.is_type(SyntaxKind::Expression)) {
         return true;
     }

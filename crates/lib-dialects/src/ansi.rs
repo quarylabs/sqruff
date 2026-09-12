@@ -5295,6 +5295,11 @@ fn lexer_matchers() -> Vec<Matcher> {
             numeric_literal,
             SyntaxKind::NumericLiteral,
         ),
+        Matcher::regex(
+            "obevo_annotation",
+            r"////\s*(CHANGE|BODY|METADATA)[^\n]*",
+            SyntaxKind::Comment,
+        ),
         Matcher::regex("like_operator", r"!?~~?\*?", SyntaxKind::LikeOperator),
         Matcher::regex("newline", r"(\r\n|\n)", SyntaxKind::Newline),
         Matcher::string("casting_operator", "::", SyntaxKind::CastingOperator),

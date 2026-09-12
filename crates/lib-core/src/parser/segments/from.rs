@@ -106,7 +106,7 @@ impl FromExpressionElementSegment {
             );
             if let Some(segment) = segment {
                 return AliasInfo {
-                    ref_str: segment.raw().clone(),
+                    ref_str: segment.raw_normalized(),
                     segment: segment.into(),
                     aliased: true,
                     from_expression_element: self.0.clone(),

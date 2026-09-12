@@ -231,7 +231,7 @@ impl ObjectReferenceSegment {
     fn iter_reference_parts(&self, elem: ErasedSegment) -> Vec<ObjectReferencePart> {
         let mut acc = Vec::new();
 
-        let raw = elem.raw();
+        let raw = elem.raw_normalized();
         let parts = raw.split('.');
 
         for part in parts {

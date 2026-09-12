@@ -2276,6 +2276,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("AlterProcedureStatementSegment").to_matchable(),
                 Ref::new("ScriptingBlockStatementSegment").to_matchable(),
                 Ref::new("ExceptionBlockStatementSegment").to_matchable(),
+                Ref::new("CreateAuthenticationPolicySegment").to_matchable(),
                 Ref::new("ForInLoopSegment").to_matchable(),
                 Ref::new("CreateEventTableStatementSegment").to_matchable(),
                 Ref::new("CreatePasswordPolicyStatementSegment").to_matchable(),
@@ -12081,6 +12082,86 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                     ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A Snowflake `CREATE AUTHENTICATION POLICY` statement.
+            // https://docs.snowflake.com/en/sql-reference/sql/create-authentication-policy
+            "CreateAuthenticationPolicySegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateAuthenticationPolicySegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("AUTHENTICATION").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AUTHENTICATION_METHODS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("MFA_AUTHENTICATION_METHODS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("MFA_ENROLLMENT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("REQUIRED").to_matchable(),
+                            Ref::keyword("OPTIONAL").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CLIENT_TYPES").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SECURITY_INTEGRATIONS").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COMMENT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
                     .to_matchable(),
                 ])
                 .to_matchable()

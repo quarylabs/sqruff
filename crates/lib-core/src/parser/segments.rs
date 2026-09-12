@@ -168,6 +168,43 @@ impl ErasedSegment {
         }
     }
 
+    /// Return the segment's raw value without identifier quoting delimiters.
+    pub fn raw_normalized(&self) -> SmolStr {
+        fn normalize_raw(raw: &str) -> String {
+            if raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2 {
+                return raw[1..raw.len() - 1].replace("]]", "]");
+            }
+
+            if matches!(raw.chars().next(), Some('"') | Some('\'') | Some('`'))
+                && raw.len() >= 2
+                && raw.chars().next() == raw.chars().last()
+            {
+                let quote = raw.chars().next().unwrap();
+                return raw[1..raw.len() - 1]
+                    .replace(&format!("{quote}{quote}"), &quote.to_string())
+                    .replace(&format!("\\{quote}"), &quote.to_string());
+            }
+
+            raw.to_string()
+        }
+
+        if self.segments().is_empty() {
+            return normalize_raw(self.raw()).into();
+        }
+
+        self.get_raw_segments()
+            .into_iter()
+            .map(|raw_segment| {
+                if raw_segment.is_type(SyntaxKind::QuotedIdentifier) {
+                    normalize_raw(raw_segment.raw())
+                } else {
+                    raw_segment.raw().to_string()
+                }
+            })
+            .collect::<String>()
+            .into()
+    }
+
     pub fn segments(&self) -> &[ErasedSegment] {
         match &self.value.kind {
             NodeOrTokenKind::Node(node) => &node.segments,

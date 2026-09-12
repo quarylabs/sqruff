@@ -2161,8 +2161,12 @@ pub fn raw_dialect() -> Dialect {
                         Bracketed::new(vec![
                             Sequence::new(vec![
                                 one_of(geometry_type_keywords0).to_matchable(),
-                                Ref::new("CommaSegment").to_matchable(),
-                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])

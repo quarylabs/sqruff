@@ -693,3 +693,21 @@ file:
     - password_policy_reference:
       - naked_identifier: password_policy_prod_1
 - statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+      - naked_identifier: mysvc
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESC
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+      - naked_identifier: mysvc
+- statement_terminator: ;

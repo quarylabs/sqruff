@@ -1253,6 +1253,37 @@ file:
 - statement:
   - access_statement:
     - keyword: GRANT
+    - keyword: CREATE
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - keyword: ON
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: MY_SCHEMA
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: ON
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+      - naked_identifier: MY_SERVICE
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
     - keyword: MANAGE
     - keyword: ACCOUNT
     - keyword: SUPPORT

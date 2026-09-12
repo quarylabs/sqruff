@@ -1,0 +1,24 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_alter_function_statement:
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - oracle_function_name:
+        - naked_identifier: oe
+        - dot: .
+        - function_name_identifier: get_bal
+      - keyword: COMPILE
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_function_statement:
+      - keyword: ALTER
+      - keyword: PROCEDURE
+      - keyword: IF
+      - keyword: EXISTS
+      - oracle_function_name:
+        - naked_identifier: hr
+        - dot: .
+        - function_name_identifier: remove_emp
+      - keyword: COMPILE
+  - statement_terminator: ;

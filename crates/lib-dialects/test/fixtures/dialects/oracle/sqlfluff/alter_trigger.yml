@@ -1,0 +1,18 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_alter_trigger_statement:
+      - keyword: ALTER
+      - keyword: TRIGGER
+      - oracle_function_name:
+        - function_name_identifier: update_job_history
+      - keyword: DISABLE
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_trigger_statement:
+      - keyword: ALTER
+      - keyword: TRIGGER
+      - oracle_function_name:
+        - function_name_identifier: update_job_history
+      - keyword: ENABLE
+  - statement_terminator: ;

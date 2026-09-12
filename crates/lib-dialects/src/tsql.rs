@@ -847,6 +847,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("DeleteStatementSegment").to_matchable(),
                             Ref::new("CreateTableStatementSegment").to_matchable(),
                             Ref::new("DropTableStatementSegment").to_matchable(),
+                            Ref::new("OpenSymmetricKeySegment").to_matchable(),
                             Ref::new("DeclareStatementSegment").to_matchable(),
                             Ref::new("SetVariableStatementSegment").to_matchable(),
                             Ref::new("PrintStatementSegment").to_matchable(),
@@ -1418,6 +1419,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateMasterKeySegment").to_matchable(),
             Ref::new("AlterMasterKeySegment").to_matchable(),
             Ref::new("DropMasterKeySegment").to_matchable(),
+            Ref::new("OpenSymmetricKeySegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DelimiterGrammar").to_matchable()])
         .to_matchable(),
@@ -4604,6 +4606,60 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("DROP").to_matchable(),
                     Ref::keyword("MASTER").to_matchable(),
                     Ref::keyword("KEY").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "OpenSymmetricKeySegment".into(),
+            NodeMatcher::new(SyntaxKind::OpenSymmetricKeyStatement, |_| {
+                let with_password = Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("PASSWORD").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable();
+
+                let decryption_mechanism = one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CERTIFICATE").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        with_password.clone(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ASYMMETRIC").to_matchable(),
+                        Ref::keyword("KEY").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        with_password,
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SYMMETRIC").to_matchable(),
+                        Ref::keyword("KEY").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PASSWORD").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ]);
+
+                Sequence::new(vec![
+                    Ref::keyword("OPEN").to_matchable(),
+                    Ref::keyword("SYMMETRIC").to_matchable(),
+                    Ref::keyword("KEY").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::keyword("DECRYPTION").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    decryption_mechanism.to_matchable(),
                 ])
                 .to_matchable()
             })

@@ -18,6 +18,8 @@ CREATE INDEX gin_idx ON documents_table USING GIN (locations) WITH (fastupdate =
 
 CREATE INDEX code_idx ON films (code) TABLESPACE indexspace;
 
+CREATE INDEX CONCURRENTLY IF NOT EXISTS user_my_column_idx ON my_schema.user (my_column);
+
 CREATE INDEX pointloc
     ON points USING gist (box(location,location));
 

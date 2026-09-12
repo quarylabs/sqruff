@@ -103,6 +103,8 @@ grant create share on account to role my_role;
 grant create network policy on account to role my_role;
 grant create tag on schema my_schema to role my_role;
 grant create data exchange listing on account to role my_role;
+GRANT CREATE CORTEX SEARCH SERVICE ON SCHEMA MY_SCHEMA TO ROLE MY_ROLE;
+GRANT USAGE ON CORTEX SEARCH SERVICE MY_SERVICE TO ROLE MY_ROLE;
 
 GRANT MANAGE ACCOUNT SUPPORT CASES ON ACCOUNT TO ROLE my_role;
 GRANT MANAGE ORGANIZATION SUPPORT CASES ON ACCOUNT TO ROLE my_role;

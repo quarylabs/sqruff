@@ -1,0 +1,11 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_drop_procedure_statement:
+      - keyword: DROP
+      - keyword: PROCEDURE
+      - oracle_function_name:
+        - naked_identifier: hr
+        - dot: .
+        - function_name_identifier: remove_emp
+  - statement_terminator: ;

@@ -850,6 +850,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("OpenSymmetricKeySegment").to_matchable(),
                             Ref::new("DeclareStatementSegment").to_matchable(),
                             Ref::new("SetVariableStatementSegment").to_matchable(),
+                            Ref::new("ExecuteScriptSegment").to_matchable(),
                             Ref::new("PrintStatementSegment").to_matchable(),
                             Ref::new("RaiserrorStatementSegment").to_matchable(),
                             Ref::new("ReturnStatementSegment").to_matchable(),
@@ -1336,6 +1337,83 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    dialect.add([(
+        "ExecuteScriptSegment".into(),
+        NodeMatcher::new(SyntaxKind::ExecuteScriptStatement, |_| {
+            let argument_value = || {
+                one_of(vec![
+                    Ref::keyword("DEFAULT").to_matchable(),
+                    Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                    Ref::new("LiteralGrammar").to_matchable(),
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            };
+            let named_argument = || {
+                Sequence::new(vec![
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable()
+            };
+            let output = || Ref::keyword("OUTPUT").optional().to_matchable();
+
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("EXEC").to_matchable(),
+                    Ref::keyword("EXECUTE").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                one_of(vec![
+                    optionally_bracketed(vec![
+                        one_of(vec![
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Bracketed::new(vec![
+                        Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                Sequence::new(vec![
+                    named_argument(),
+                    argument_value(),
+                    output(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("CommaSegment").to_matchable(),
+                            named_argument(),
+                            argument_value(),
+                            output(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+                Ref::new("DelimiterGrammar").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
@@ -1347,6 +1425,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DeclareStatementGrammar").to_matchable(),
             Ref::new("SetContextInfoSegment").to_matchable(),
             Ref::new("SetVariableStatementGrammar").to_matchable(),
+            Ref::new("ExecuteScriptSegment").to_matchable(),
             Ref::new("PrintStatementGrammar").to_matchable(),
             Ref::new("RaiserrorStatementSegment").to_matchable(),
             Ref::new("ReturnStatementSegment").to_matchable(),

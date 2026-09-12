@@ -563,3 +563,23 @@ file:
     - external_volume_reference:
       - naked_identifier: foo
 - statement_terminator: ;
+- statement:
+  - drop_object_statement:
+    - keyword: DROP
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+      - naked_identifier: mysvc
+- statement_terminator: ;
+- statement:
+  - drop_object_statement:
+    - keyword: DROP
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: mysvc
+- statement_terminator: ;

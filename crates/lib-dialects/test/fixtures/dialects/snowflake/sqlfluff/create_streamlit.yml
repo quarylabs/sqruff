@@ -125,3 +125,22 @@ file:
         - raw_comparison_operator: =
       - quoted_literal: '''amazing comment'''
 - statement_terminator: ;
+- statement:
+  - create_streamlit_statement:
+    - keyword: CREATE
+    - keyword: STREAMLIT
+    - object_reference:
+      - naked_identifier: new_streamlit
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - stage_path: '''@stage_name/folder'''
+    - keyword: MAIN_FILE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''main.py'''
+    - keyword: TITLE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''amazing title'''
+- statement_terminator: ;

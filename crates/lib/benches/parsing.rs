@@ -5,7 +5,8 @@ use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::context::ParseContext;
 use sqruff_lib_core::parser::matchable::MatchableTrait as _;
-use sqruff_lib_core::parser::segments::test_functions::lex;
+use sqruff_lib_core::parser::segments::{Tables, test_functions::lex};
+use sqruff_lib_core::templaters::TemplatedFile;
 use std::hint::black_box;
 
 include!("shims/global_alloc_overwrite.rs");
@@ -107,5 +108,28 @@ fn parse(c: &mut Criterion) {
     }
 }
 
-criterion_group!(benches, parse);
+fn lexer(c: &mut Criterion) {
+    let dialect = fresh_ansi_dialect();
+    let lexer = dialect.lexer();
+    let tables = Tables::default();
+
+    let passes = [
+        ("lex_simple_query", SIMPLE_QUERY),
+        ("lex_expression_recursion", EXPRESSION_RECURSION),
+        ("lex_complex_query", COMPLEX_QUERY),
+        ("lex_superlong", include_str!("superlong.sql")),
+    ];
+
+    for (name, source) in passes {
+        let template = TemplatedFile::from(source);
+        c.bench_function(name, |b| {
+            b.iter(|| {
+                let result = lexer.lex(&tables, black_box(template.clone()));
+                black_box(result);
+            });
+        });
+    }
+}
+
+criterion_group!(benches, parse, lexer);
 criterion_main!(benches);

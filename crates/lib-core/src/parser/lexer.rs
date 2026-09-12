@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use std::fmt::Debug;
 use std::ops::Range;
 use std::str::Chars;
+use std::sync::Arc;
 
 use std::collections::HashMap;
 
@@ -14,6 +15,10 @@ use crate::dialects::syntax::SyntaxKind;
 use crate::errors::SQLLexError;
 use crate::slice_helpers::{is_zero_slice, offset_slice};
 use crate::templaters::{TemplateSliceKind, TemplatedFile, TemplatedFileSlice};
+
+type RegexCacheFactory = Box<dyn Fn() -> regex_automata::meta::Cache + Send + Sync>;
+type RegexCachePool =
+    regex_automata::util::pool::Pool<regex_automata::meta::Cache, RegexCacheFactory>;
 
 /// An element matched during lexing.
 #[derive(Debug, Clone)]
@@ -439,6 +444,7 @@ pub fn nested_block_comment(cursor: &mut Cursor) -> bool {
 pub struct Lexer {
     syntax_map: Vec<(&'static str, SyntaxKind)>,
     regex: regex_automata::meta::Regex,
+    regex_caches: Arc<RegexCachePool>,
     matchers: Vec<Matcher>,
     last_resort_lexer: Matcher,
 }
@@ -474,10 +480,15 @@ impl Lexer {
             }
         }
 
+        let regex = regex_automata::meta::Regex::new_many(&patterns).unwrap();
+        let cache_regex = regex.clone();
+        let cache_factory: RegexCacheFactory = Box::new(move || cache_regex.create_cache());
+
         Lexer {
             syntax_map,
             matchers,
-            regex: regex_automata::meta::Regex::new_many(&patterns).unwrap(),
+            regex,
+            regex_caches: Arc::new(RegexCachePool::new(cache_factory)),
             last_resort_lexer: Matcher::legacy(
                 "<unlexable>",
                 |_| true,
@@ -497,9 +508,13 @@ impl Lexer {
 
         // Lex the string to get a tuple of LexedElement
         let mut element_buffer: Vec<Element> = Vec::new();
+        // The convenience search API checks out a regex cache for every token.
+        // Hold one cache for this lexing pass instead, while the pool still
+        // permits separate files to be lexed concurrently.
+        let mut regex_cache = self.regex_caches.get();
 
         loop {
-            let mut res = self.lex_match(str_buff);
+            let mut res = self.lex_match(str_buff, &mut regex_cache);
             element_buffer.append(&mut res.elements);
 
             if res.forward_string.is_empty() {
@@ -515,6 +530,9 @@ impl Lexer {
             str_buff = resort_res.forward_string;
             element_buffer.append(&mut resort_res.elements);
         }
+
+        // Return the cache before the template-to-segment mapping work.
+        drop(regex_cache);
 
         // Map tuple LexedElement to list of TemplateElement.
         // This adds the template_slice to the object.
@@ -551,7 +569,11 @@ impl Lexer {
     }
 
     /// Iteratively match strings using the selection of sub-matchers.
-    fn lex_match<'b>(&self, mut forward_string: &'b str) -> Match<'b> {
+    fn lex_match<'b>(
+        &self,
+        mut forward_string: &'b str,
+        regex_cache: &mut regex_automata::meta::Cache,
+    ) -> Match<'b> {
         let mut elem_buff = Vec::new();
 
         'main: loop {
@@ -575,15 +597,12 @@ impl Lexer {
             let input =
                 regex_automata::Input::new(forward_string).anchored(regex_automata::Anchored::Yes);
 
-            if let Some(match_) = self.regex.find(input) {
+            if let Some(match_) = self.regex.search_half_with(regex_cache, &input) {
                 let (name, kind) = self.syntax_map[match_.pattern().as_usize()];
+                let end = match_.offset();
 
-                elem_buff.push(Element::new(
-                    name,
-                    kind,
-                    &forward_string[match_.start()..match_.end()],
-                ));
-                forward_string = &forward_string[match_.end()..];
+                elem_buff.push(Element::new(name, kind, &forward_string[..end]));
+                forward_string = &forward_string[end..];
 
                 continue 'main;
             }
@@ -1161,7 +1180,9 @@ mod tests {
             )),
         ];
 
-        let res = Lexer::new(&matcher).lex_match(";\n/\n");
+        let lexer = Lexer::new(&matcher);
+        let mut regex_cache = lexer.regex.create_cache();
+        let res = lexer.lex_match(";\n/\n", &mut regex_cache);
         assert_eq!(res.elements[0].text, ";");
         assert_eq!(res.elements[1].text, "\n");
         assert_eq!(res.elements[2].text, "/");
@@ -1216,7 +1237,9 @@ mod tests {
             Matcher::regex("test", "#[^#]*#", SyntaxKind::Dash),
         ];
 
-        let res = Lexer::new(&matchers).lex_match("..#..#..#");
+        let lexer = Lexer::new(&matchers);
+        let mut regex_cache = lexer.regex.create_cache();
+        let res = lexer.lex_match("..#..#..#", &mut regex_cache);
 
         assert_eq!(res.forward_string, "#");
         assert_eq!(res.elements.len(), 5);

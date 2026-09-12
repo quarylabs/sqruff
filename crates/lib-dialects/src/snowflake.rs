@@ -7693,7 +7693,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         one_of(vec![
                             Ref::keyword("SNAPPY_COMPRESSION").to_matchable(),
                             Ref::keyword("BINARY_AS_TEXT").to_matchable(),
+                            Ref::keyword("USE_LOGICAL_TYPE").to_matchable(),
                             Ref::keyword("TRIM_SPACE").to_matchable(),
+                            Ref::keyword("USE_VECTORIZED_SCANNER").to_matchable(),
+                            Ref::keyword("REPLACE_INVALID_CHARACTERS").to_matchable(),
                         ])
                         .to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),

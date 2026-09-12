@@ -661,6 +661,76 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("DISTINCT").to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("INNER").to_matchable(),
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::keyword("FULL").to_matchable(),
+                                    Ref::keyword("LEFT").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("OUTER").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("OUTER").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("UNION").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ALL").to_matchable(),
+                                    Ref::keyword("DISTINCT").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("INTERSECT").to_matchable(),
+                                Ref::keyword("DISTINCT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("EXCEPT").to_matchable(),
+                                Ref::keyword("DISTINCT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("BY").to_matchable(),
+                                    Ref::keyword("NAME").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("ON").to_matchable(),
+                                        Ref::new("BracketedColumnReferenceListGrammar")
+                                            .to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("STRICT").optional().to_matchable(),
+                                    Ref::keyword("CORRESPONDING").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("BY").to_matchable(),
+                                        Ref::new("BracketedColumnReferenceListGrammar")
+                                            .to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

@@ -2344,7 +2344,11 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
-                            Ref::new("SelectStatementSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("WithCompoundStatementSegment").to_matchable(),
+                                Ref::new("SelectStatementSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                             Ref::new("SemicolonSegment").to_matchable(),
                         ])
                         .to_matchable(),

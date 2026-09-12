@@ -2761,6 +2761,12 @@ FROM foo
 LEFT JOIN bar ON foo.a = bar.a
 ```
 
+In the (*very rare*) situations that it is logically necessary to include
+a table in a join clause, but not otherwise refer to it (likely for
+granularity reasons, or as a stepping stone to another table), we recommend
+ignoring this rule for that specific line by using ``-- noqa: ST11`` at
+the end of the line.
+
 
 ### structure.consecutive_semicolons
 

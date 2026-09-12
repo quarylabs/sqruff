@@ -11913,7 +11913,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("ACCESS").to_matchable(),
                     Ref::keyword("POLICY").to_matchable(),
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                        Ref::new("QuotedIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::keyword("AS").to_matchable(),
                     Ref::new("FunctionParameterListGrammar").to_matchable(),
                     Ref::keyword("RETURNS").to_matchable(),

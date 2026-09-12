@@ -1328,6 +1328,27 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    sparksql_dialect.replace_grammar(
+        "StructTypeSchemaSegment",
+        Bracketed::new(vec![
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("ColonSegment").optional().to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Ref::new("CommentGrammar").optional().to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .config(|config| {
+            config.bracket_pairs_set = "angle_bracket_pairs";
+            config.bracket_type = "angle";
+        })
+        .to_matchable(),
+    );
+
     sparksql_dialect.add([
         (
             "SemiStructuredAccessorSegment".into(),

@@ -3394,6 +3394,21 @@ pub fn raw_dialect() -> Dialect {
     );
     dialect.replace_grammar("AlterTableOptionsGrammar", alter_table_options);
 
+    // T-SQL permits DEFAULT as a function argument expression.
+    let expression_d_without_brackets =
+        dialect.grammar("Expression_D_Potential_Select_Statement_Without_Brackets");
+    dialect.replace_grammar(
+        "Expression_D_Potential_Select_Statement_Without_Brackets",
+        expression_d_without_brackets.copy(
+            Some(vec![Ref::keyword("DEFAULT").to_matchable()]),
+            Some(0),
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
     // Add T-SQL variable support to LiteralGrammar
     dialect.add([(
         "LiteralGrammar".into(),

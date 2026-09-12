@@ -418,8 +418,11 @@ pub fn raw_dialect() -> Dialect {
             optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
                 .to_matchable(),
             Ref::new("NonSetSelectableGrammar").to_matchable(),
+            Ref::new("OpenQueryUpdateStatementSegment").to_matchable(),
             Ref::new("UpdateStatementSegment").to_matchable(),
+            Ref::new("OpenQueryInsertStatementSegment").to_matchable(),
             Ref::new("InsertStatementSegment").to_matchable(),
+            Ref::new("OpenQueryDeleteStatementSegment").to_matchable(),
             Ref::new("DeleteStatementSegment").to_matchable(),
             Ref::new("MergeStatementSegment").to_matchable(),
         ])
@@ -836,8 +839,11 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec![
                         one_of(vec![
                             Ref::new("SelectableGrammar").to_matchable(),
+                            Ref::new("OpenQueryInsertStatementSegment").to_matchable(),
                             Ref::new("InsertStatementSegment").to_matchable(),
+                            Ref::new("OpenQueryUpdateStatementSegment").to_matchable(),
                             Ref::new("UpdateStatementSegment").to_matchable(),
+                            Ref::new("OpenQueryDeleteStatementSegment").to_matchable(),
                             Ref::new("DeleteStatementSegment").to_matchable(),
                             Ref::new("CreateTableStatementSegment").to_matchable(),
                             Ref::new("DropTableStatementSegment").to_matchable(),
@@ -1352,6 +1358,7 @@ pub fn raw_dialect() -> Dialect {
             // Include all ANSI statement types
             Ref::new("SelectableGrammar").to_matchable(),
             Ref::new("MergeStatementSegment").to_matchable(),
+            Ref::new("OpenQueryInsertStatementSegment").to_matchable(),
             Ref::new("InsertStatementSegment").to_matchable(),
             Ref::new("TransactionStatementSegment").to_matchable(),
             Ref::new("DropTableStatementSegment").to_matchable(),
@@ -1375,7 +1382,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateIndexStatementSegment").to_matchable(),
             Ref::new("DropIndexStatementSegment").to_matchable(),
             Ref::new("CreateViewStatementSegment").to_matchable(),
+            Ref::new("OpenQueryDeleteStatementSegment").to_matchable(),
             Ref::new("DeleteStatementSegment").to_matchable(),
+            Ref::new("OpenQueryUpdateStatementSegment").to_matchable(),
             Ref::new("UpdateStatementSegment").to_matchable(),
             Ref::new("CreateCastStatementSegment").to_matchable(),
             Ref::new("DropCastStatementSegment").to_matchable(),
@@ -1980,6 +1989,87 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    // OPENQUERY() table-valued function (#6640)
+    // https://learn.microsoft.com/en-us/sql/t-sql/functions/openquery-transact-sql
+    dialect.add([(
+        "OpenQuerySegment".into(),
+        NodeMatcher::new(SyntaxKind::OpenquerySegment, |_| {
+            Sequence::new(vec![
+                Ref::keyword("OPENQUERY").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([
+        (
+            "OpenQueryInsertStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("INSERT").to_matchable(),
+                    Ref::new("OpenQuerySegment").to_matchable(),
+                    Ref::new("PostTableExpressionGrammar")
+                        .optional()
+                        .to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar")
+                        .optional()
+                        .to_matchable(),
+                    one_of(vec![
+                        Ref::new("SelectableGrammar").to_matchable(),
+                        Ref::new("DefaultValuesGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "OpenQueryDeleteStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DeleteStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DELETE").to_matchable(),
+                    Ref::new("OpenQuerySegment").to_matchable(),
+                    Ref::new("WhereClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "OpenQueryUpdateStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("UPDATE").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("OpenQuerySegment").to_matchable(),
+                    Ref::new("PostTableExpressionGrammar")
+                        .optional()
+                        .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Ref::new("SetClauseListSegment").to_matchable(),
+                    Ref::new("FromClauseSegment").optional().to_matchable(),
+                    Ref::new("WhereClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     // OPENROWSET() rowset provider and bulk data source (#6584)
     // https://learn.microsoft.com/en-us/sql/t-sql/functions/openrowset-transact-sql
@@ -2633,6 +2723,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BareFunctionSegment").to_matchable(),
             Ref::new("OpenRowSetSegment").to_matchable(),
             Ref::new("OpenJsonSegment").to_matchable(),
+            Ref::new("OpenQuerySegment").to_matchable(),
             Ref::new("FunctionSegment").to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),
             Ref::new("StorageLocationSegment").to_matchable(),

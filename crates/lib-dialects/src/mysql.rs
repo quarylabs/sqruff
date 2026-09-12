@@ -1145,8 +1145,15 @@ pub fn raw_dialect() -> Dialect {
         "IntervalExpressionSegment",
         Sequence::new(vec![
             Ref::keyword("INTERVAL").to_matchable(),
-            Ref::new("ExpressionSegment").to_matchable(),
-            Ref::new("DatetimeUnitSegment").to_matchable(),
+            one_of(vec![
+                Ref::new("DatetimeUnitSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("DatetimeUnitSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -3637,6 +3644,169 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // CREATE EVENT statement.
+    // https://dev.mysql.com/doc/refman/9.2/en/create-event.html
+    mysql.add([(
+        "CreateEventStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateEventStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::new("DefinerSegment").optional().to_matchable(),
+                Ref::keyword("EVENT").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("SCHEDULE").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("AT").to_matchable(),
+                    Ref::keyword("EVERY").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+                Ref::new("DatetimeUnitSegment").optional().to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("STARTS").to_matchable(),
+                            Ref::keyword("ENDS").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("COMPLETION").to_matchable(),
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::keyword("PRESERVE").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ENABLE").to_matchable(),
+                    Ref::keyword("DISABLE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DISABLE").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("REPLICA").to_matchable(),
+                            Ref::keyword("SLAVE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("CommentClauseSegment").optional().to_matchable(),
+                Ref::keyword("DO").to_matchable(),
+                Ref::new("StatementSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ALTER EVENT statement.
+    // https://dev.mysql.com/doc/refman/9.2/en/alter-event.html
+    mysql.add([(
+        "AlterEventStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterEventStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("ALTER").to_matchable(),
+                Ref::new("DefinerSegment").optional().to_matchable(),
+                Ref::keyword("EVENT").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("SCHEDULE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("AT").to_matchable(),
+                        Ref::keyword("EVERY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("DatetimeUnitSegment").optional().to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("STARTS").to_matchable(),
+                                Ref::keyword("ENDS").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("COMPLETION").to_matchable(),
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::keyword("PRESERVE").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("RENAME").to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ENABLE").to_matchable(),
+                    Ref::keyword("DISABLE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DISABLE").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("REPLICA").to_matchable(),
+                            Ref::keyword("SLAVE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("CommentClauseSegment").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DO").to_matchable(),
+                    Ref::new("StatementSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // DROP EVENT statement.
+    // https://dev.mysql.com/doc/refman/9.2/en/drop-event.html
+    mysql.add([(
+        "DropEventStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropEventStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("EVENT").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // StatementSegment - override to add MySQL-specific statements
     // ============================================================
 
@@ -3683,6 +3853,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("AlterDatabaseStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
                 Ref::new("SetNamesStatementSegment").to_matchable(),
+                Ref::new("CreateEventStatementSegment").to_matchable(),
+                Ref::new("AlterEventStatementSegment").to_matchable(),
+                Ref::new("DropEventStatementSegment").to_matchable(),
             ]),
             None,
             None,

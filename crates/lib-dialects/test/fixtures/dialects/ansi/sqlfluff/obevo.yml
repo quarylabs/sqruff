@@ -1,0 +1,45 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - naked_identifier: colY
+      - data_type:
+        - data_type_identifier: NUMBER
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - naked_identifier: colZ
+      - data_type:
+        - data_type_identifier: NUMBER
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: OrigTable
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: Field1
+        - data_type:
+          - data_type_identifier: int
+      - comma: ','
+      - column_definition:
+        - naked_identifier: Field2
+        - data_type:
+          - data_type_identifier: int
+      - end_bracket: )

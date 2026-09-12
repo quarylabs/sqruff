@@ -147,7 +147,7 @@ file:
             - table_expression:
               - oracle_sqlplus_variable:
                 - ampersand: '&'
-                - naked_identifier: TABLE
+                - naked_identifier: MY_TABLE
       - groupby_clause:
         - keyword: GROUP
         - keyword: BY

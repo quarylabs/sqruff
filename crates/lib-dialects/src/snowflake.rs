@@ -2234,8 +2234,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("AlterStageSegment").to_matchable(),
                 Ref::new("CreateStreamStatementSegment").to_matchable(),
                 Ref::new("CreateStreamlitStatementSegment").to_matchable(),
+                Ref::new("CreateCortexSearchServiceStatementSegment").to_matchable(),
                 Ref::new("AlterStreamStatementSegment").to_matchable(),
                 Ref::new("AlterStreamlitStatementSegment").to_matchable(),
+                Ref::new("AlterCortexSearchServiceStatementSegment").to_matchable(),
                 Ref::new("UnsetStatementSegment").to_matchable(),
                 Ref::new("UndropStatementSegment").to_matchable(),
                 Ref::new("CommentStatementSegment").to_matchable(),
@@ -4136,6 +4138,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("ROW").to_matchable(),
                         Ref::keyword("ACCESS").to_matchable(),
                         Ref::keyword("POLICY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CORTEX").to_matchable(),
+                        Ref::keyword("SEARCH").to_matchable(),
+                        Ref::keyword("SERVICE").to_matchable(),
                     ])
                     .to_matchable(),
                 ]);
@@ -9124,6 +9132,70 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "CreateCortexSearchServiceStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateCortexSearchServiceStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CORTEX").to_matchable(),
+                        Ref::keyword("SEARCH").to_matchable(),
+                        Ref::keyword("SERVICE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ATTRIBUTES").to_matchable(),
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WAREHOUSE").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TARGET_LAG").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("DynamicTableTargetLagSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("EMBEDDING_MODEL").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("CommentEqualsClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AS").to_matchable(),
+                        optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "AlterStreamStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::AlterStreamStatement, |_| {
                 Sequence::new(vec![
@@ -9215,6 +9287,75 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("CommentEqualsClauseSegment")
                                 .optional()
                                 .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RENAME").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterCortexSearchServiceStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterStreamlitStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CORTEX").to_matchable(),
+                        Ref::keyword("SEARCH").to_matchable(),
+                        Ref::keyword("SERVICE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("SUSPEND").to_matchable(),
+                                Ref::keyword("RESUME").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("INDEXING").to_matchable(),
+                                Ref::keyword("SERVING").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            any_set_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("WAREHOUSE").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("TARGET_LAG").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("DynamicTableTargetLagSegment").to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                                Ref::new("CommentEqualsClauseSegment")
+                                    .optional()
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
@@ -9420,6 +9561,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("PASSWORD").to_matchable(),
                         Ref::keyword("POLICIES").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CORTEX").to_matchable(),
+                        Ref::keyword("SEARCH").to_matchable(),
+                        Ref::keyword("SERVICES").to_matchable(),
                     ])
                     .to_matchable(),
                 ]);
@@ -10241,6 +10388,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("PasswordPolicyReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CORTEX").to_matchable(),
+                            Ref::keyword("SEARCH").to_matchable(),
+                            Ref::keyword("SERVICE").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -10748,6 +10902,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             one_of(vec![
                                 Ref::keyword("CONNECTION").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CORTEX").to_matchable(),
+                                    Ref::keyword("SEARCH").to_matchable(),
+                                    Ref::keyword("SERVICE").to_matchable(),
+                                ])
+                                .to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("FILE").to_matchable(),
                                     Ref::keyword("FORMAT").to_matchable(),

@@ -129,6 +129,18 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "EqualsSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("RawEqualsSegment").to_matchable(),
+                    Ref::new("RawEqualsSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "QuotedLiteralSegment".into(),
             one_of(vec![
                 TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral).to_matchable(),

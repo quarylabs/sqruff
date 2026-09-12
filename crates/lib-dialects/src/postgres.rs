@@ -9128,7 +9128,22 @@ pub fn raw_dialect() -> Dialect {
     let function_contents = postgres
         .grammar("FunctionContentsGrammar")
         .copy(
-            Some(vec![position_function_contents(true)]),
+            Some(vec![
+                position_function_contents(true),
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("VALUE").to_matchable(),
+                            Ref::new("ColonSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ]),
             None,
             Some(previous_position_function_contents.clone()),
             Some(vec![previous_position_function_contents]),

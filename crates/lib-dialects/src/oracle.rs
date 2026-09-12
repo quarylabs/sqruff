@@ -3,6 +3,7 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
+use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Nothing, Ref};
@@ -2795,6 +2796,16 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Ref::keyword("ON").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NESTED").to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Ref::keyword("OF").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
                 ])
                 .to_matchable()
@@ -2923,6 +2934,162 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("IF").to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
                     Ref::keyword("THEN").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // CaseExpressionSegment
+        (
+            "CaseExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::CaseExpression, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CASE").to_matchable(),
+                        MetaSegment::implicit_indent().to_matchable(),
+                        AnyNumberOf::new(vec![Ref::new("WhenClauseSegment").to_matchable()])
+                            .config(|config| {
+                                config.reset_terminators = true;
+                                config.terminators = vec![
+                                    Ref::keyword("ELSE").to_matchable(),
+                                    Ref::keyword("END").to_matchable(),
+                                ];
+                            })
+                            .to_matchable(),
+                        Ref::new("ElseClauseSegment")
+                            .optional()
+                            .reset_terminators()
+                            .terminators(vec![Ref::keyword("END").to_matchable()])
+                            .to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                        Ref::keyword("END").to_matchable(),
+                        Ref::keyword("CASE").optional().to_matchable(),
+                        Ref::new("SingleIdentifierGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CASE").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ExpressionSegment").to_matchable(),
+                            Ref::keyword("INSERTING").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("UPDATING").to_matchable(),
+                                Bracketed::new(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .config(|config| {
+                                    config.optional();
+                                })
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("DELETING").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        MetaSegment::implicit_indent().to_matchable(),
+                        AnyNumberOf::new(vec![Ref::new("WhenClauseSegment").to_matchable()])
+                            .config(|config| {
+                                config.reset_terminators = true;
+                                config.terminators = vec![
+                                    Ref::keyword("ELSE").to_matchable(),
+                                    Ref::keyword("END").to_matchable(),
+                                ];
+                            })
+                            .to_matchable(),
+                        Ref::new("ElseClauseSegment")
+                            .optional()
+                            .reset_terminators()
+                            .terminators(vec![Ref::keyword("END").to_matchable()])
+                            .to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                        Ref::keyword("END").to_matchable(),
+                        Ref::keyword("CASE").optional().to_matchable(),
+                        Ref::new("SingleIdentifierGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.terminators = vec![
+                        Ref::new("ComparisonOperatorGrammar").to_matchable(),
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::new("BinaryOperatorGrammar").to_matchable(),
+                    ];
+                })
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // WhenClauseSegment
+        (
+            "WhenClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::WhenClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("WHEN").to_matchable(),
+                    Sequence::new(vec![
+                        MetaSegment::implicit_indent().to_matchable(),
+                        one_of(vec![
+                            Ref::new("ExpressionSegment").to_matchable(),
+                            Ref::keyword("INSERTING").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("UPDATING").to_matchable(),
+                                Bracketed::new(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .config(|config| {
+                                    config.optional();
+                                })
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("DELETING").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Conditional::new(MetaSegment::indent())
+                        .indented_then()
+                        .to_matchable(),
+                    Ref::keyword("THEN").to_matchable(),
+                    Conditional::new(MetaSegment::implicit_indent())
+                        .indented_then_contents()
+                        .to_matchable(),
+                    one_of(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Conditional::new(MetaSegment::dedent())
+                        .indented_then_contents()
+                        .to_matchable(),
+                    Conditional::new(MetaSegment::dedent())
+                        .indented_then()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // ElseClauseSegment
+        (
+            "ElseClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::ElseClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ELSE").to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
+                    one_of(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
             })

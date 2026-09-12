@@ -1,0 +1,124 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_create_type_body_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - keyword: BODY
+      - object_reference:
+        - naked_identifier: data_typ1
+      - keyword: IS
+      - keyword: MEMBER
+      - oracle_create_function_statement:
+        - keyword: FUNCTION
+        - oracle_function_name:
+          - function_name_identifier: prod
+        - function_parameter_list:
+          - bracketed:
+            - start_bracket: (
+            - parameter: invent
+            - data_type:
+              - data_type_identifier: NUMBER
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+          - data_type_identifier: NUMBER
+        - keyword: IS
+        - oracle_begin_end_block:
+          - keyword: BEGIN
+          - statement:
+            - function:
+              - oracle_function_name:
+                - function_name_identifier: RETURN
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: year
+                    - binary_operator: +
+                    - column_reference:
+                      - naked_identifier: invent
+                  - end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_type_body_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - keyword: BODY
+      - object_reference:
+        - naked_identifier: demo_typ2
+      - keyword: IS
+      - keyword: MEMBER
+      - oracle_create_function_statement:
+        - keyword: FUNCTION
+        - oracle_function_name:
+          - function_name_identifier: get_square
+        - keyword: RETURN
+        - data_type:
+          - data_type_identifier: NUMBER
+        - keyword: IS
+        - oracle_declare_segment:
+          - naked_identifier: x
+          - data_type:
+            - data_type_identifier: NUMBER
+          - statement_terminator: ;
+        - oracle_begin_end_block:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: c
+                      - dot: .
+                      - naked_identifier: col
+                      - dot: .
+                      - naked_identifier: a1
+                    - binary_operator: '*'
+                    - column_reference:
+                      - naked_identifier: c
+                      - dot: .
+                      - naked_identifier: col
+                      - dot: .
+                      - naked_identifier: a1
+              - oracle_into_clause:
+                - keyword: INTO
+                - naked_identifier: x
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - oracle_table_reference:
+                        - naked_identifier: demo_tab2
+                    - alias_expression:
+                      - naked_identifier: c
+          - statement_terminator: ;
+          - statement:
+            - function:
+              - oracle_function_name:
+                - function_name_identifier: RETURN
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: x
+                  - end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

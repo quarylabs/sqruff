@@ -1563,6 +1563,16 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("SET").to_matchable(),
                 Delimited::new(vec![
                     Sequence::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("NEW").to_matchable(),
+                                Ref::keyword("OLD").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("DotSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                         one_of(vec![
                             Ref::new("SessionVariableNameSegment").to_matchable(),
                             Ref::new("LocalVariableNameSegment").to_matchable(),

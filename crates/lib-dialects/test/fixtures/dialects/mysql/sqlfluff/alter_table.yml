@@ -702,3 +702,13 @@ file:
       - collation_reference:
         - naked_identifier: utf8mb4_unicode_ci
 - statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: CUST
+    - keyword: TRUNCATE
+    - keyword: PARTITION
+    - naked_identifier: data_dt
+- statement_terminator: ;

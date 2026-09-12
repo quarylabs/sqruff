@@ -2532,6 +2532,68 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
             ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("DISCARD").to_matchable(),
+                    Ref::keyword("IMPORT").to_matchable(),
+                    Ref::keyword("TRUNCATE").to_matchable(),
+                    Ref::keyword("COALESCE").to_matchable(),
+                    Ref::keyword("REORGANIZE").to_matchable(),
+                    Ref::keyword("EXCHANGE").to_matchable(),
+                    Ref::keyword("ANALYZE").to_matchable(),
+                    Ref::keyword("CHECK").to_matchable(),
+                    Ref::keyword("OPTIMIZE").to_matchable(),
+                    Ref::keyword("REBUILD").to_matchable(),
+                    Ref::keyword("REPAIR").to_matchable(),
+                    Ref::keyword("REMOVE").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::keyword("PARTITIONING").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    Ref::keyword("ALL").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("TABLESPACE").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("WITHOUT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("VALIDATION").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("INTO").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
             .to_matchable(),
         ])
         .to_matchable(),

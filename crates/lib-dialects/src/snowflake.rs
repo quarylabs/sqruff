@@ -27,6 +27,83 @@ use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(SnowflakeDialectConfig {});
 
+fn scripting_declaration() -> Matchable {
+    Sequence::new(vec![
+        Ref::new("LocalVariableNameSegment")
+            .exclude(Ref::keyword("BEGIN"))
+            .to_matchable(),
+        one_of(vec![
+            // Variable assignment
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::new("WalrusOperatorSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::new("WalrusOperatorSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            // Cursor assignment
+            Sequence::new(vec![
+                Ref::keyword("CURSOR").to_matchable(),
+                Ref::keyword("FOR").to_matchable(),
+                one_of(vec![
+                    Ref::new("LocalVariableNameSegment").to_matchable(),
+                    Ref::new("SelectableGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            // Resultset assignment
+            Sequence::new(vec![
+                Ref::keyword("RESULTSET").to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::new("WalrusOperatorSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("ASYNC").optional().to_matchable(),
+                    Bracketed::new(vec![Ref::new("SelectClauseSegment").to_matchable()])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            // Exception assignment
+            Sequence::new(vec![
+                Ref::keyword("EXCEPTION").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("ExceptionCodeSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable()
+}
+
 fn copy_option_matchables() -> Vec<Matchable> {
     vec![
         Sequence::new(vec![
@@ -5122,79 +5199,19 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("DECLARE").to_matchable(),
                     MetaSegment::indent().to_matchable(),
+                    scripting_declaration(),
                     AnyNumberOf::new(vec![
                         Sequence::new(vec![
-                            Ref::new("LocalVariableNameSegment")
-                                .exclude(Ref::keyword("BEGIN"))
-                                .to_matchable(),
-                            one_of(vec![
-                                // Variable assignment
-                                one_of(vec![
-                                    Sequence::new(vec![
-                                        Ref::new("DatatypeSegment").to_matchable(),
-                                        one_of(vec![
-                                            Ref::keyword("DEFAULT").to_matchable(),
-                                            Ref::new("WalrusOperatorSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Ref::new("ExpressionSegment").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                    Sequence::new(vec![
-                                        one_of(vec![
-                                            Ref::keyword("DEFAULT").to_matchable(),
-                                            Ref::new("WalrusOperatorSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Ref::new("ExpressionSegment").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                                // Cursor assignment
-                                Sequence::new(vec![
-                                    Ref::keyword("CURSOR").to_matchable(),
-                                    Ref::keyword("FOR").to_matchable(),
-                                    one_of(vec![
-                                        Ref::new("LocalVariableNameSegment").to_matchable(),
-                                        Ref::new("SelectableGrammar").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                                // Resultset assignment
-                                Sequence::new(vec![
-                                    Ref::keyword("RESULTSET").to_matchable(),
-                                    Ref::new("WalrusOperatorSegment").to_matchable(),
-                                    Bracketed::new(vec![
-                                        Ref::new("SelectableGrammar").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                                // Exception assignment
-                                Sequence::new(vec![
-                                    Ref::keyword("EXCEPTION").to_matchable(),
-                                    Bracketed::new(vec![
-                                        Delimited::new(vec![
-                                            Ref::new("ExceptionCodeSegment").to_matchable(),
-                                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
                             Ref::new("DelimiterGrammar").to_matchable(),
+                            scripting_declaration(),
                         ])
                         .to_matchable(),
                     ])
-                    .config(|this| this.min_times = 1)
                     .to_matchable(),
                     MetaSegment::dedent().to_matchable(),
-                    Ref::new("ScriptingBlockStatementSegment").to_matchable(),
+                    Ref::new("ScriptingBlockStatementSegment")
+                        .optional()
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })

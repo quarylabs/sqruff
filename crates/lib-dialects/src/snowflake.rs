@@ -9125,6 +9125,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("CommentEqualsClauseSegment")
                         .optional()
                         .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TITLE").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

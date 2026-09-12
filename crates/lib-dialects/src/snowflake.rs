@@ -2198,6 +2198,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateProcedureStatementSegment").to_matchable(),
                 Ref::new("AlterProcedureStatementSegment").to_matchable(),
                 Ref::new("ScriptingBlockStatementSegment").to_matchable(),
+                Ref::new("ExceptionBlockStatementSegment").to_matchable(),
                 Ref::new("ForInLoopSegment").to_matchable(),
                 Ref::new("CreateEventTableStatementSegment").to_matchable(),
                 Ref::new("CreatePasswordPolicyStatementSegment").to_matchable(),
@@ -4863,6 +4864,73 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("RETURN").to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExceptionBlockStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExceptionBlockStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXCEPTION").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("WHEN").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("OR").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("THEN").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WHEN").to_matchable(),
+                            Ref::keyword("OTHER").to_matchable(),
+                            Ref::keyword("THEN").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("StatementSegment").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("DelimiterGrammar").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("WHEN").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                    AnyNumberOf::new(vec![
+                                        Sequence::new(vec![
+                                            Ref::keyword("OR").to_matchable(),
+                                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::keyword("THEN").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("WHEN").to_matchable(),
+                                    Ref::keyword("OTHER").to_matchable(),
+                                    Ref::keyword("THEN").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("StatementSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

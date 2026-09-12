@@ -43,6 +43,7 @@ pub fn raw_dialect() -> Dialect {
         "COMPRESS",
         "CONNECT",
         "CONNECT_BY_ROOT",
+        "CONSTRAINT",
         "DEFINITION",
         "DELETING",
         "DISABLE",
@@ -5701,6 +5702,55 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
+    // ---- TableConstraintSegment ----
+    oracle.add([(
+        "TableConstraintSegment".into(),
+        NodeMatcher::new(SyntaxKind::TableConstraint, |_| {
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("CONSTRAINT").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CHECK").to_matchable(),
+                        Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                            .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NO").to_matchable(),
+                            Ref::keyword("INHERIT").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("UNIQUE").to_matchable(),
+                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("PrimaryKeyGrammar").to_matchable(),
+                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("ForeignKeyGrammar").to_matchable(),
+                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                        Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // ---- Fix GRANT: add QUERY REWRITE to AccessPermissionSegment ----
     oracle.add([(

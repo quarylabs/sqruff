@@ -180,3 +180,26 @@ file:
             - keyword: ENABLE
           - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - oracle_alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: employees
+      - alter_table_constraint_clauses:
+        - keyword: ADD
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+            - naked_identifier: salary_check
+          - keyword: CHECK
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: salary
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '0'
+            - end_bracket: )
+  - statement_terminator: ;

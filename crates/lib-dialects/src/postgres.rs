@@ -8641,6 +8641,7 @@ pub fn raw_dialect() -> Dialect {
             ])
             .config(|this| this.optional())
             .to_matchable(),
+            Ref::new("JoinClauseSegment").optional().to_matchable(),
             one_of(vec![
                 Sequence::new(vec![
                     Ref::keyword("WHERE").to_matchable(),

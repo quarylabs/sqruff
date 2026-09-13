@@ -1,0 +1,158 @@
+file:
+- statement:
+  - create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+      - naked_identifier: mixed_csv
+    - csv_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - file_type: CSV
+      - comma: ','
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'TRUE'
+      - keyword: NULL_IF
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''NULL'''
+        - comma: ','
+        - quoted_literal: ''''''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+      - naked_identifier: mixed_json
+    - json_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - file_type: JSON
+      - comma: ','
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'TRUE'
+      - keyword: NULL_IF
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''NULL'''
+        - comma: ','
+        - quoted_literal: ''''''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+      - naked_identifier: mixed_avro
+    - avro_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - file_type: AVRO
+      - comma: ','
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'TRUE'
+      - keyword: NULL_IF
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''NULL'''
+        - comma: ','
+        - quoted_literal: ''''''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+      - naked_identifier: mixed_orc
+    - orc_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - file_type: ORC
+      - comma: ','
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'TRUE'
+      - keyword: NULL_IF
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''NULL'''
+        - comma: ','
+        - quoted_literal: ''''''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+      - naked_identifier: mixed_parquet
+    - parquet_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - file_type: PARQUET
+      - comma: ','
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'TRUE'
+      - keyword: NULL_IF
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: '''NULL'''
+        - comma: ','
+        - quoted_literal: ''''''
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_file_format_segment:
+    - keyword: CREATE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+      - naked_identifier: mixed_xml
+    - xml_file_format_type_parameters:
+      - keyword: COMPRESSION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - compression_type: AUTO
+      - comma: ','
+      - keyword: TYPE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - file_type: XML
+      - keyword: PRESERVE_SPACE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;

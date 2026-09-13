@@ -1495,3 +1495,169 @@ file:
     - role_reference:
       - naked_identifier: public
 - statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: NOTEBOOK
+    - keyword: ON
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: OWNERSHIP
+    - keyword: ON
+    - keyword: NOTEBOOK
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYNOTEBOOK
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: ON
+    - keyword: NOTEBOOK
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYNOTEBOOK
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: REVOKE
+    - keyword: CREATE
+    - keyword: NOTEBOOK
+    - keyword: ON
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: REVOKE
+    - keyword: USAGE
+    - keyword: ON
+    - keyword: NOTEBOOK
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYNOTEBOOK
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: MODEL
+    - keyword: ON
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: OWNERSHIP
+    - keyword: ON
+    - keyword: MODEL
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYMODEL
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: ON
+    - keyword: MODEL
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYMODEL
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: REVOKE
+    - keyword: CREATE
+    - keyword: MODEL
+    - keyword: ON
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: REVOKE
+    - keyword: USAGE
+    - keyword: ON
+    - keyword: MODEL
+    - object_reference:
+      - naked_identifier: MY_DB
+      - dot: .
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYMODEL
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: MYROLE
+- statement_terminator: ;

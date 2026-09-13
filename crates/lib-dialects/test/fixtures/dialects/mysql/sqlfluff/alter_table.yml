@@ -782,3 +782,85 @@ file:
         - keyword: SRID
         - numeric_literal: '4326'
 - statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+      - naked_identifier: num
+      - data_type:
+        - data_type_identifier: INT
+        - keyword: SIGNED
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+      - naked_identifier: num
+      - data_type:
+        - data_type_identifier: INT
+        - keyword: UNSIGNED
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+      - naked_identifier: num
+      - data_type:
+        - data_type_identifier: INT
+        - keyword: ZEROFILL
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+      - naked_identifier: num
+      - data_type:
+        - data_type_identifier: INT
+        - keyword: UNSIGNED
+        - keyword: ZEROFILL
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+      - naked_identifier: num
+      - data_type:
+        - data_type_identifier: INT
+        - keyword: ZEROFILL
+        - keyword: UNSIGNED
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;

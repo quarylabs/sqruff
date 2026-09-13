@@ -60,10 +60,11 @@ file:
     - object_reference:
       - naked_identifier: my_tag
     - keyword: SET
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''this is a comment'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''this is a comment'''
 - statement_terminator: ;
 - statement:
   - alter_tag_statement:

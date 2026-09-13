@@ -8,8 +8,9 @@ file:
       - naked_identifier: dbname
       - dot: .
       - naked_identifier: rolename
-    - keyword: comment
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''TEST'''
+    - comment_equals_clause:
+      - keyword: comment
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''TEST'''
 - statement_terminator: ;

@@ -122,8 +122,9 @@ file:
     - external_volume_reference:
       - naked_identifier: exvol6
     - keyword: SET
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''bar'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''bar'''
 - statement_terminator: ;

@@ -1402,12 +1402,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("BooleanLiteralGrammar").to_matchable(),
                         ])
                         .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("COMMENT").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("CommentEqualsClauseSegment").to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -1449,9 +1444,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("SET").to_matchable(),
-                            Ref::keyword("COMMENT").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("CommentEqualsClauseSegment").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -3785,12 +3778,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             one_of(vec![
                                 Ref::new("TagEqualsSegment").optional().to_matchable(),
                                 any_set_of(vec![
-                                    Sequence::new(vec![
-                                        Ref::keyword("COMMENT").to_matchable(),
-                                        Ref::new("EqualsSegment").to_matchable(),
-                                        Ref::new("QuotedLiteralSegment").to_matchable(),
-                                    ])
-                                    .to_matchable(),
+                                    Ref::new("CommentEqualsClauseSegment").to_matchable(),
                                     Sequence::new(vec![
                                         Ref::keyword("ENABLED").to_matchable(),
                                         Ref::new("EqualsSegment").to_matchable(),
@@ -4789,13 +4777,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("ROLE").to_matchable(),
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::new("DatabaseRoleReferenceSegment").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("COMMENT").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Ref::new("CommentEqualsClauseSegment")
+                        .optional()
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -6175,12 +6159,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             one_of(vec![
                                 Ref::new("RoleReferenceSegment").to_matchable(),
                                 Ref::new("TagEqualsSegment").to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("COMMENT").to_matchable(),
-                                    Ref::new("EqualsSegment").to_matchable(),
-                                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
+                                Ref::new("CommentEqualsClauseSegment").to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -6376,13 +6355,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("COMMENT").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
+                        Ref::new("CommentEqualsClauseSegment")
+                            .optional()
+                            .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("WITH").optional().to_matchable(),
                             Ref::keyword("ROW").to_matchable(),
@@ -6908,12 +6883,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("COMMENT").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("CommentEqualsClauseSegment").to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("ALLOWED_VALUES").to_matchable(),
                             Delimited::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
@@ -7029,12 +6999,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             .to_matchable(),
                         ])
                         .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("COMMENT").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("CommentEqualsClauseSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
@@ -7101,13 +7066,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("DatatypeSegment").to_matchable(),
                             Ref::new("FunctionAssignerSegment").to_matchable(),
                             Ref::new("ExpressionSegment").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("COMMENT").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("QuotedLiteralSegment").to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
+                            Ref::new("CommentEqualsClauseSegment")
+                                .optional()
+                                .to_matchable(),
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
@@ -7413,12 +7374,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("TableReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("COMMENT").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("CommentEqualsClauseSegment").to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("UNSET").to_matchable(),
                             Ref::keyword("COMMENT").to_matchable(),
@@ -10090,13 +10046,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .config(|this| this.optional())
             .to_matchable(),
             Ref::new("RoleReferenceSegment").to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("COMMENT").to_matchable(),
-                Ref::new("EqualsSegment").to_matchable(),
-                Ref::new("QuotedLiteralSegment").to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
+            Ref::new("CommentEqualsClauseSegment")
+                .optional()
+                .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -11899,12 +11851,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                             ])
                             .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("COMMENT").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("QuotedLiteralSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
+                            Ref::new("CommentEqualsClauseSegment").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -12043,12 +11990,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("NumericLiteralSegment").to_matchable(),
                     ])
                     .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("COMMENT").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("CommentEqualsClauseSegment").to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -12178,13 +12120,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("BOOLEAN").to_matchable(),
                     Ref::new("FunctionAssignerSegment").to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("COMMENT").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Ref::new("CommentEqualsClauseSegment")
+                        .optional()
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -12285,9 +12223,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("SET").to_matchable(),
-                            Ref::keyword("COMMENT").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("CommentEqualsClauseSegment").to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
@@ -12403,13 +12339,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("COMMENT").to_matchable(),
-                        Ref::new("EqualsSegment").to_matchable(),
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Ref::new("CommentEqualsClauseSegment")
+                        .optional()
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })

@@ -31,10 +31,11 @@ file:
       - start_bracket: (
       - quoted_literal: '''MY CLIENT'''
       - end_bracket: )
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''My Comment'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''My Comment'''
 - statement_terminator: ;
 - statement:
   - create_authentication_policy_segment:
@@ -68,10 +69,11 @@ file:
       - comma: ','
       - quoted_literal: '''CLIENT3'''
       - end_bracket: )
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''My Comment'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''My Comment'''
 - statement_terminator: ;
 - statement:
   - create_authentication_policy_segment:

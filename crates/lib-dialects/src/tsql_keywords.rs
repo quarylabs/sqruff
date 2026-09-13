@@ -565,6 +565,9 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "ORC",
         "PARQUET",
         "JSON",
+        "ABSENT",
+        "JSON_ARRAY",
+        "JSON_OBJECT",
         "DELTA",
         "FORMAT",
         // OPENJSON (#4652)

@@ -97,10 +97,11 @@ file:
     - function_assigner: ->
     - expression:
       - boolean_literal: 'TRUE'
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''My Comment'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''My Comment'''
 - statement_terminator: ;
 - statement:
   - create_row_access_policy_statement:
@@ -143,10 +144,11 @@ file:
     - function_assigner: ->
     - expression:
       - boolean_literal: 'TRUE'
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''My Comment'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''My Comment'''
 - statement_terminator: ;
 - statement:
   - create_row_access_policy_statement:

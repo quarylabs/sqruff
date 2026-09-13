@@ -39,8 +39,9 @@ file:
       - comma: ','
       - quoted_literal: '''xx.xxx.xxx.xx/xx'''
       - end_bracket: )
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''NW Policy'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''NW Policy'''
 - statement_terminator: ;

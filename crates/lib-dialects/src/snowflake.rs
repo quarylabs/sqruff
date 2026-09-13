@@ -10234,6 +10234,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("SERVICES").to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("RESOURCE").to_matchable(),
+                        Ref::keyword("MONITORS").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ]);
 
                 let object_scope_types = one_of(vec![
@@ -11992,12 +11997,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("CREATE").to_matchable(),
                 Ref::new("OrReplaceGrammar").optional().to_matchable(),
-                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("RESOURCE").to_matchable(),
                     Ref::keyword("MONITOR").to_matchable(),
                 ])
                 .to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("ObjectReferenceSegment").to_matchable(),
                 Ref::keyword("WITH").to_matchable(),
                 Ref::new("ResourceMonitorOptionsSegment").to_matchable(),

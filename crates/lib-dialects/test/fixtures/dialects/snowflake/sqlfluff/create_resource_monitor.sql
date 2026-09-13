@@ -2,7 +2,7 @@
 -- From SQLFluff PR #5272
 
 -- Simple resource monitor with credit quota
-CREATE RESOURCE MONITOR my_monitor WITH CREDIT_QUOTA=100;
+CREATE RESOURCE MONITOR IF NOT EXISTS my_monitor WITH CREDIT_QUOTA=100;
 
 -- Resource monitor with frequency
 CREATE RESOURCE MONITOR budget_monitor WITH CREDIT_QUOTA=500 FREQUENCY=MONTHLY;

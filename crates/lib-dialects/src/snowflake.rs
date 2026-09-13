@@ -6629,7 +6629,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Sequence::new(vec![
                                 Ref::keyword("WAREHOUSE").to_matchable(),
                                 Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                    Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                             Sequence::new(vec![
@@ -6644,7 +6648,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("SCHEDULE").to_matchable(),
                             Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
@@ -6679,6 +6687,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                        Ref::new("LogLevelEqualsSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![

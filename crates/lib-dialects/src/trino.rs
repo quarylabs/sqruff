@@ -1107,9 +1107,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("ERROR").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("TRUNCATE").to_matchable(),
-                        Ref::new("SingleQuotedIdentifierSegment")
-                            .optional()
-                            .to_matchable(),
+                        Ref::new("QuotedLiteralSegment").optional().to_matchable(),
                         one_of(vec![
                             Ref::keyword("WITH").to_matchable(),
                             Ref::keyword("WITHOUT").to_matchable(),

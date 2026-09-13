@@ -67,6 +67,38 @@ pub fn raw_dialect() -> Dialect {
         Ref::keyword("CROSS").to_matchable(),
     );
 
+    // T-SQL table aliases may be followed by a touching column alias list,
+    // e.g. `AS table_alias(column_alias)`. Give the list a dedicated syntax
+    // kind so layout rules can configure its spacing without relaxing all
+    // alias expressions.
+    dialect.add([(
+        "AliasColumnListSegment".into(),
+        NodeMatcher::new(SyntaxKind::AliasColumnList, |_| {
+            Bracketed::new(vec![Ref::new("SingleIdentifierListSegment").to_matchable()])
+                .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.replace_grammar(
+        "AliasExpressionSegment",
+        Sequence::new(vec![
+            MetaSegment::indent().to_matchable(),
+            Ref::new("AsAliasOperatorSegment").optional().to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("AliasColumnListSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // Extend ANSI keywords with T-SQL specific keywords
     // IMPORTANT: Don't clear ANSI keywords as they contain fundamental SQL keywords
     dialect
@@ -570,6 +602,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("NakedIdentifierSegment").to_matchable(),
             Ref::new("QuotedIdentifierSegment").to_matchable(),
             Ref::new("HashIdentifierSegment").to_matchable(),
+            Ref::new("ParameterNameSegment").to_matchable(),
         ])
         .config(|this| this.terminators = vec![Ref::new("DotSegment").to_matchable()])
         .to_matchable(),

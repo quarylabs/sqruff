@@ -28,6 +28,7 @@ pub enum SyntaxKind {
     AggregateClause,
     AggregateOrderBy,
     AggregateOrderByClause,
+    AliasColumnList,
     AliasExpression,
     AliasOperator,
     AllowConnections,

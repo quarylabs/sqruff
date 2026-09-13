@@ -217,7 +217,7 @@ file:
     - keyword: EXEC
     - bracketed:
       - start_bracket: (
-      - parameterized_expression:
+      - object_reference:
         - tsql_variable: '@statement'
       - end_bracket: )
     - statement_terminator: ;

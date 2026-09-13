@@ -42,3 +42,7 @@ SELECT TOP 10 *
 from OPENROWSET(BULK 'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet',
     FORMAT = 'PARQUET') as rows
 GO
+
+SELECT *
+FROM OPENROWSET(BULK N'C:\Text1.txt', SINGLE_NCLOB) AS Document(column1, column2);
+GO

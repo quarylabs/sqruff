@@ -12,7 +12,8 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - tsql_variable: '@DepartmentCodes'
+              - object_reference:
+                - tsql_variable: '@DepartmentCodes'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -29,7 +30,8 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - tsql_variable: '@DepartmentCodes'
+              - object_reference:
+                - tsql_variable: '@DepartmentCodes'
           - alias_expression:
             - alias_operator:
               - keyword: AS
@@ -49,7 +51,8 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - tsql_variable: '@TableVariable'
+              - object_reference:
+                - tsql_variable: '@TableVariable'
     - where_clause:
       - keyword: WHERE
       - expression:
@@ -73,7 +76,8 @@ file:
         - from_expression_element:
           - table_expression:
             - table_reference:
-              - tsql_variable: '@TableVariable'
+              - object_reference:
+                - tsql_variable: '@TableVariable'
             - keyword: WITH
             - bracketed:
               - start_bracket: (
@@ -116,6 +120,7 @@ file:
                 - from_expression_element:
                   - table_expression:
                     - table_reference:
-                      - tsql_variable: '@DepartmentCodes'
+                      - object_reference:
+                        - tsql_variable: '@DepartmentCodes'
           - end_bracket: )
 - statement_terminator: ;

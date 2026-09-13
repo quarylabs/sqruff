@@ -62,7 +62,8 @@ file:
               - keyword: OPENJSON
               - bracketed:
                 - start_bracket: (
-                - tsql_variable: '@json'
+                - column_reference:
+                  - tsql_variable: '@json'
                 - end_bracket: )
               - openjson_with_clause:
                 - keyword: WITH
@@ -111,7 +112,8 @@ file:
               - keyword: OPENJSON
               - bracketed:
                 - start_bracket: (
-                - tsql_variable: '@json'
+                - column_reference:
+                  - tsql_variable: '@json'
                 - end_bracket: )
               - openjson_with_clause:
                 - keyword: WITH
@@ -337,7 +339,8 @@ file:
                 - keyword: OPENJSON
                 - bracketed:
                   - start_bracket: (
-                  - tsql_variable: '@json'
+                  - column_reference:
+                    - tsql_variable: '@json'
                   - end_bracket: )
                 - openjson_with_clause:
                   - keyword: WITH
@@ -428,7 +431,8 @@ file:
               - keyword: OPENJSON
               - bracketed:
                 - start_bracket: (
-                - tsql_variable: '@JSON'
+                - column_reference:
+                  - tsql_variable: '@JSON'
                 - end_bracket: )
           - alias_expression:
             - alias_operator:

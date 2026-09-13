@@ -134,7 +134,7 @@ file:
               - keyword: ON
               - keyword: OVERFLOW
               - keyword: TRUNCATE
-              - quoted_identifier: '''.....'''
+              - quoted_literal: '''.....'''
               - keyword: WITH
               - keyword: COUNT
               - end_bracket: )

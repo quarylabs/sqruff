@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from sqruff.templaters.dbt_templater import (
+    DbtTemplater,
     _get_or_create_templater,
     _templater_cache,
     clear_templater_cache,
@@ -89,7 +90,20 @@ from source_data
     assert len(templated_file.raw_sliced) > 1
 
 
-def test_dbt_compile_failure_reports_reason(tmp_path):
+@pytest.mark.parametrize(
+    ("dbt_skip_compilation_error", "exception_class", "exception_msg"),
+    [
+        (
+            True,
+            SQLFluffSkipFile,
+            "because dbt raised a fatal exception during compilation",
+        ),
+        (False, SQLTemplaterError, "Runtime Error"),
+    ],
+)
+def test_dbt_compile_failure_reports_reason(
+    tmp_path, dbt_skip_compilation_error, exception_class, exception_msg
+):
     """Include the triggering dbt error when a model fails to compile."""
     if "PROJECT_ROOT" in os.environ:
         project_root = Path(os.environ["PROJECT_ROOT"])
@@ -122,13 +136,11 @@ def test_dbt_compile_failure_reports_reason(tmp_path):
         dbt_context=None,
         dbt_project_dir=str(project),
         dbt_profiles_dir=str(project / "profiles"),
+        dbt_skip_compilation_error=dbt_skip_compilation_error,
     )
 
     clear_templater_cache()
-    with pytest.raises(
-        SQLFluffSkipFile,
-        match="because dbt raised a fatal exception during compilation",
-    ):
+    with pytest.raises(exception_class, match=exception_msg):
         process_from_rust(
             target_model.read_text(),
             str(target_model.resolve()),
@@ -136,6 +148,42 @@ def test_dbt_compile_failure_reports_reason(tmp_path):
             {},
         )
     clear_templater_cache()
+
+
+def test_project_dir_from_env(tmp_path, monkeypatch):
+    """Use DBT_PROJECT_DIR when no project directory is configured."""
+    project_dir = tmp_path / "env_project"
+    project_dir.mkdir()
+    explicit_project_dir = tmp_path / "explicit_project"
+    explicit_project_dir.mkdir()
+    monkeypatch.setenv("DBT_PROJECT_DIR", str(project_dir))
+
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_apply_dbt_builtins=True,
+        jinja_library_paths=None,
+        jinja_templater_paths=None,
+        jinja_exclude_macros_from_path=None,
+        jinja_loader_search_path=None,
+        jinja_ignore_templating=None,
+        dbt_target=None,
+        dbt_profile=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+        dbt_profiles_dir=None,
+    )
+
+    templater = DbtTemplater(sqlfluff_config=config)
+    assert templater._get_project_dir() == str(project_dir.resolve())
+
+    clear_templater_cache()
+    assert _get_or_create_templater(config, {}).config == config
+    assert list(_templater_cache) == [str(project_dir.resolve())]
+    clear_templater_cache()
+
+    templater.config = config._replace(dbt_project_dir=str(explicit_project_dir))
+    assert templater._get_project_dir() == str(explicit_project_dir.resolve())
 
 
 def test_templater_caching():

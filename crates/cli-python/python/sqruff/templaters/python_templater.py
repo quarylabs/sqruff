@@ -33,6 +33,7 @@ class FluffConfig(NamedTuple):
     dbt_target_path: Optional[str]
     dbt_context: Optional[str]
     dbt_project_dir: Optional[str]
+    dbt_skip_compilation_error: bool = True
 
 
 def fluff_config_from_json(json_stringified: str) -> FluffConfig:

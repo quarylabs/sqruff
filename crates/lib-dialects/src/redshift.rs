@@ -3500,6 +3500,28 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "ExcludeClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectExcludeClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXCLUDE").to_matchable(),
+                    one_of(vec![
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
     redshift_dialect.replace_grammar(
         "SelectStatementSegment",
@@ -3517,6 +3539,19 @@ pub fn raw_dialect() -> Dialect {
                 vec![Ref::new("SetOperatorSegment").to_matchable()],
                 false,
             ),
+    );
+    redshift_dialect.replace_grammar(
+        "WildcardExpressionSegment",
+        super::ansi::wildcard_expression_segment().copy(
+            Some(vec![
+                Ref::new("ExcludeClauseSegment").optional().to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
     );
     redshift_dialect.add([]);
     redshift_dialect.replace_grammar(

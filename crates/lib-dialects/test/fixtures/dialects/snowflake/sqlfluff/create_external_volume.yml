@@ -211,8 +211,9 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - boolean_literal: 'FALSE'
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''foo'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''foo'''
 - statement_terminator: ;

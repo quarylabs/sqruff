@@ -4240,6 +4240,11 @@ pub(crate) fn column_constraint_grammar(allow_persistent: bool) -> Matchable {
                     .to_matchable(),
             ])
             .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("SRID").to_matchable(),
+                Ref::new("NumericLiteralSegment").to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     ])

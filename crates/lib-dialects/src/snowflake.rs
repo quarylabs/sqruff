@@ -3785,6 +3785,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                         Ref::new("BooleanLiteralGrammar").to_matchable(),
                                     ])
                                     .to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("USE_PRIVATELINK_ENDPOINT").to_matchable(),
+                                        Ref::new("EqualsSegment").to_matchable(),
+                                        Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                     one_of(vec![
                                         any_set_of(vec![
                                             Sequence::new(vec![
@@ -7165,6 +7171,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("USE_PRIVATELINK_ENDPOINT").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     any_set_of(vec![

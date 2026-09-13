@@ -1543,8 +1543,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("REPLACE").to_matchable(),
                     Bracketed::new(vec![
-                        Delimited::new(vec![Ref::new("SelectClauseElementSegment").to_matchable()])
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                                Ref::keyword("AS").to_matchable(),
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            ])
                             .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])

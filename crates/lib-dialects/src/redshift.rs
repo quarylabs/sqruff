@@ -3553,6 +3553,31 @@ pub fn raw_dialect() -> Dialect {
             false,
         ),
     );
+    redshift_dialect.replace_grammar(
+        "MergeStatementSegment",
+        ansi_dialect
+            .grammar("MergeStatementSegment")
+            .match_grammar(&ansi_dialect)
+            .unwrap()
+            .copy(
+                Some(vec![
+                    one_of(vec![
+                        Ref::new("MergeMatchSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REMOVE").to_matchable(),
+                            Ref::keyword("DUPLICATES").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ]),
+                None,
+                None,
+                Some(vec![Ref::new("MergeMatchSegment").to_matchable()]),
+                Vec::new(),
+                false,
+            ),
+    );
     redshift_dialect.add([]);
     redshift_dialect.replace_grammar(
         "UnorderedSelectStatementSegment",

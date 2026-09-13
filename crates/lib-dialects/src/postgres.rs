@@ -568,6 +568,7 @@ pub fn raw_dialect() -> Dialect {
     let keywords = postgres_keywords();
     let not_keywords = get_keywords(&keywords, "not-keyword");
 
+    postgres.sets_mut("reserved_keywords").clear();
     postgres
         .sets_mut("reserved_keywords")
         .extend(get_keywords(&keywords, "reserved"));

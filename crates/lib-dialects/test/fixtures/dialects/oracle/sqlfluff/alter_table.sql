@@ -34,3 +34,6 @@ ALTER TABLE table_name
 MODIFY (column_name DEFAULT 10 NOT NULL ENABLE);
 
 ALTER TABLE employees ADD CONSTRAINT salary_check CHECK (salary > 0);
+
+ALTER TABLE table_name
+ADD identity_column NUMBER GENERATED ALWAYS AS IDENTITY;

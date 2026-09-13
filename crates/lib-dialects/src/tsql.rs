@@ -430,15 +430,129 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add T-SQL assignment operator segment
-    dialect.add([(
-        "AssignmentOperatorSegment".into(),
-        NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
-            Ref::new("RawEqualsSegment").to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
+    // Add T-SQL assignment operator segments.
+    dialect.add([
+        (
+            "AssignmentOperatorSegment".into(),
+            NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
+                Ref::new("RawEqualsSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PlusComparisonSegment".into(),
+            StringParser::new("+", SyntaxKind::RawComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MinusComparisonSegment".into(),
+            StringParser::new("-", SyntaxKind::RawComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MultiplyComparisonSegment".into(),
+            StringParser::new("*", SyntaxKind::RawComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "DivideComparisonSegment".into(),
+            StringParser::new("/", SyntaxKind::RawComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "ModuloComparisonSegment".into(),
+            StringParser::new("%", SyntaxKind::RawComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "AdditionAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::BinaryOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("PlusComparisonSegment").to_matchable(),
+                    Ref::new("RawEqualsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SubtractionAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::BinaryOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("MinusComparisonSegment").to_matchable(),
+                    Ref::new("RawEqualsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MultiplicationAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::BinaryOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("MultiplyComparisonSegment").to_matchable(),
+                    Ref::new("RawEqualsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DivisionAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::BinaryOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("DivideComparisonSegment").to_matchable(),
+                    Ref::new("RawEqualsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ModulusAssignmentSegment".into(),
+            NodeMatcher::new(SyntaxKind::BinaryOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("ModuloComparisonSegment").to_matchable(),
+                    Ref::new("RawEqualsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    dialect.replace_grammar(
+        "ArithmeticBinaryOperatorGrammar",
+        one_of(vec![
+            Ref::new("AdditionAssignmentSegment").to_matchable(),
+            Ref::new("SubtractionAssignmentSegment").to_matchable(),
+            Ref::new("MultiplicationAssignmentSegment").to_matchable(),
+            Ref::new("DivisionAssignmentSegment").to_matchable(),
+            Ref::new("ModulusAssignmentSegment").to_matchable(),
+            Ref::new("PlusSegment").to_matchable(),
+            Ref::new("MinusSegment").to_matchable(),
+            Ref::new("DivideSegment").to_matchable(),
+            Ref::new("MultiplySegment").to_matchable(),
+            Ref::new("ModuloSegment").to_matchable(),
+            Ref::new("BitwiseAndSegment").to_matchable(),
+            Ref::new("BitwiseOrSegment").to_matchable(),
+            Ref::new("BitwiseXorSegment").to_matchable(),
+            Ref::new("BitwiseLShiftSegment").to_matchable(),
+            Ref::new("BitwiseRShiftSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     dialect.add([
         (

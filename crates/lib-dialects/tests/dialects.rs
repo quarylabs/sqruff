@@ -180,7 +180,6 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "METHOD",
             "NEW",
             "OLD",
-            "QuotedLiteralGrammar",
             "REFERENCING",
             "SPECIFIC",
             "STATIC",

@@ -1354,7 +1354,11 @@ pub fn raw_dialect() -> Dialect {
             "SemiStructuredAccessorSegment".into(),
             NodeMatcher::new(SyntaxKind::SemiStructuredExpression, |_| {
                 Sequence::new(vec![
-                    Ref::new("ColonSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("DotSegment").to_matchable(),
+                        Ref::new("ColonSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     one_of(vec![
                         Ref::new("NakedSemiStructuredElementSegment").to_matchable(),
                         Bracketed::new(vec![

@@ -2466,3 +2466,17 @@ file:
             - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: interval
+      - data_type:
+        - keyword: bigint
+      - end_bracket: )
+- statement_terminator: ;

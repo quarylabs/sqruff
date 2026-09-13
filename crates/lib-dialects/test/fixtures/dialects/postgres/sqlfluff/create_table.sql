@@ -365,3 +365,7 @@ CREATE TABLE myschema.user (
     user_id bigint PRIMARY KEY,
     name    varchar(40)
 );
+
+CREATE TABLE my_table (
+  interval  bigint
+);

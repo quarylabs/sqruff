@@ -6432,6 +6432,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .optional()
                 .to_matchable(),
             Ref::keyword("DYNAMIC").optional().to_matchable(),
+            Ref::keyword("HYBRID").optional().to_matchable(),
             Ref::keyword("ICEBERG").optional().to_matchable(),
             Ref::keyword("TABLE").to_matchable(),
             Ref::new("IfNotExistsGrammar").optional().to_matchable(),

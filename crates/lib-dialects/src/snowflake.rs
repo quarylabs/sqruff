@@ -498,7 +498,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     snowflake_dialect.insert_lexer_matchers(
         vec![
             Matcher::string("parameter_assigner", "=>", SyntaxKind::ParameterAssigner),
-            Matcher::string("function_assigner", "->", SyntaxKind::FunctionAssigner),
+            Matcher::string("right_arrow", "->", SyntaxKind::RightArrow),
             Matcher::regex(
                 "stage_path",
                 r"(?:@[^\s;)]+|'@[^']+')",
@@ -640,6 +640,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "ParameterAssignerSegment".into(),
             StringParser::new("=>", SyntaxKind::ParameterAssigner)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "LambdaArrowSegment".into(),
+            StringParser::new("->", SyntaxKind::LambdaArrow)
                 .to_matchable()
                 .into(),
         ),
@@ -1786,18 +1792,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             // https://docs.snowflake.com/en/user-guide/querying-semistructured#lambda-expressions
             "LambdaExpressionSegment".into(),
-            NodeMatcher::new(SyntaxKind::LambdaExpression, |_| {
+            NodeMatcher::new(SyntaxKind::LambdaFunction, |_| {
                 Sequence::new(vec![
                     one_of(vec![
                         Sequence::new(vec![
-                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
                             Ref::new("DatatypeSegment").optional().to_matchable(),
                         ])
                         .to_matchable(),
                         Bracketed::new(vec![
                             Delimited::new(vec![
                                 Sequence::new(vec![
-                                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                                    Ref::new("ParameterNameSegment").to_matchable(),
                                     Ref::new("DatatypeSegment").optional().to_matchable(),
                                 ])
                                 .to_matchable(),
@@ -1807,7 +1813,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::new("FunctionAssignerSegment").to_matchable(),
+                    Ref::new("LambdaArrowSegment").to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
                 ])
                 .to_matchable()

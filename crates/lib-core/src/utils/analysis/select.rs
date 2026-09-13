@@ -243,6 +243,7 @@ fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect
             | DialectKind::Duckdb
             | DialectKind::Trino
             | DialectKind::Databricks
+            | DialectKind::Snowflake
     ) {
         return Vec::new();
     }

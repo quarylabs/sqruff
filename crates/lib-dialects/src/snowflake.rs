@@ -8166,13 +8166,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ]);
 
-                one_of(vec![
-                    Delimited::new(vec![file_format_type_parameter.clone().to_matchable()])
-                        .to_matchable(),
-                    AnyNumberOf::new(vec![file_format_type_parameter.to_matchable()])
-                        .to_matchable(),
-                ])
-                .to_matchable()
+                Delimited::new(vec![file_format_type_parameter.to_matchable()])
+                    .config(|this| this.optional_delimiter())
+                    .to_matchable()
             })
             .to_matchable()
             .into(),
@@ -8258,13 +8254,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ]);
 
-                one_of(vec![
-                    Delimited::new(vec![file_format_type_parameter.clone().to_matchable()])
-                        .to_matchable(),
-                    AnyNumberOf::new(vec![file_format_type_parameter.to_matchable()])
-                        .to_matchable(),
-                ])
-                .to_matchable()
+                Delimited::new(vec![file_format_type_parameter.to_matchable()])
+                    .config(|this| this.optional_delimiter())
+                    .to_matchable()
             })
             .to_matchable()
             .into(),
@@ -8308,13 +8300,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ]);
 
-                one_of(vec![
-                    Delimited::new(vec![file_format_type_parameter.clone().to_matchable()])
-                        .to_matchable(),
-                    AnyNumberOf::new(vec![file_format_type_parameter.to_matchable()])
-                        .to_matchable(),
-                ])
-                .to_matchable()
+                Delimited::new(vec![file_format_type_parameter.to_matchable()])
+                    .config(|this| this.optional_delimiter())
+                    .to_matchable()
             })
             .to_matchable()
             .into(),
@@ -8352,13 +8340,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ]);
 
-                one_of(vec![
-                    Delimited::new(vec![file_format_type_parameter.clone().to_matchable()])
-                        .to_matchable(),
-                    AnyNumberOf::new(vec![file_format_type_parameter.to_matchable()])
-                        .to_matchable(),
-                ])
-                .to_matchable()
+                Delimited::new(vec![file_format_type_parameter.to_matchable()])
+                    .config(|this| this.optional_delimiter())
+                    .to_matchable()
             })
             .to_matchable()
             .into(),
@@ -8410,13 +8394,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ]);
 
-                one_of(vec![
-                    Delimited::new(vec![file_format_type_parameter.clone().to_matchable()])
-                        .to_matchable(),
-                    AnyNumberOf::new(vec![file_format_type_parameter.to_matchable()])
-                        .to_matchable(),
-                ])
-                .to_matchable()
+                Delimited::new(vec![file_format_type_parameter.to_matchable()])
+                    .config(|this| this.optional_delimiter())
+                    .to_matchable()
             })
             .to_matchable()
             .into(),
@@ -8457,13 +8437,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ]);
 
-                one_of(vec![
-                    Delimited::new(vec![file_format_type_parameter.clone().to_matchable()])
-                        .to_matchable(),
-                    AnyNumberOf::new(vec![file_format_type_parameter.to_matchable()])
-                        .to_matchable(),
-                ])
-                .to_matchable()
+                Delimited::new(vec![file_format_type_parameter.to_matchable()])
+                    .config(|this| this.optional_delimiter())
+                    .to_matchable()
             })
             .to_matchable()
             .into(),

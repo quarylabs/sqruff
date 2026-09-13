@@ -4229,7 +4229,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("EXECUTE").to_matchable(),
                         one_of(vec![
                             Ref::keyword("ALERT").to_matchable(),
-                            Ref::keyword("TASK").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("MANAGED").optional().to_matchable(),
+                                Ref::keyword("TASK").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -4412,6 +4416,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Sequence::new(vec![
                                 Ref::keyword("RESOURCE").to_matchable(),
                                 Ref::keyword("MONITOR").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("EXTERNAL").to_matchable(),
+                                Ref::keyword("VOLUME").to_matchable(),
                             ])
                             .to_matchable(),
                             Ref::keyword("WAREHOUSE").to_matchable(),

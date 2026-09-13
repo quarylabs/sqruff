@@ -24,6 +24,7 @@ pub struct PythonFluffConfig {
     dbt_target_path: Option<String>,
     dbt_context: Option<String>,
     dbt_project_dir: Option<String>,
+    dbt_skip_compilation_error: bool,
 }
 
 impl PythonFluffConfig {
@@ -124,6 +125,10 @@ impl From<&FluffConfig> for PythonFluffConfig {
                 .templater_value(TemplaterKind::Dbt, "project_dir")
                 .and_then(|value| value.as_string())
                 .map(ToString::to_string),
+            dbt_skip_compilation_error: value
+                .templater_value(TemplaterKind::Dbt, "dbt_skip_compilation_error")
+                .and_then(|value| value.as_bool())
+                .unwrap_or(true),
         }
     }
 }
@@ -186,6 +191,7 @@ mod tests {
         assert!(python_fluff_config.jinja_loader_search_path.is_empty());
         assert!(python_fluff_config.jinja_apply_dbt_builtins);
         assert_eq!(python_fluff_config.jinja_ignore_templating, None);
+        assert!(python_fluff_config.dbt_skip_compilation_error);
     }
 
     #[test]
@@ -308,6 +314,20 @@ target_path = custom_target
                     .to_string()
             )
         );
+    }
+
+    #[test]
+    fn test_dbt_skip_compilation_error_is_serialized() {
+        let source = r"
+[sqruff]
+templater = dbt
+[sqruff:templater:dbt]
+dbt_skip_compilation_error = false
+";
+        let config = FluffConfig::from_source(source, None);
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert!(!python_fluff_config.dbt_skip_compilation_error);
     }
 
     #[test]

@@ -57,7 +57,7 @@ Configuration options are set in the `[sqruff:templater:dbt]` section:
 
 ```ini
 [sqruff:templater:dbt]
-# Path to your dbt project directory (default: current working directory)
+# Path to your dbt project directory (default: DBT_PROJECT_DIR or current directory)
 project_dir = ./my_dbt_project
 
 # Path to your dbt profiles directory (default: ~/.dbt)
@@ -68,7 +68,14 @@ profile = my_profile
 
 # Specify a target name (optional, uses default from profiles.yml)
 target = dev
+
+# Skip files that raise fatal dbt compilation errors (default: true)
+dbt_skip_compilation_error = true
 ```
+
+When `project_dir` is unset, `DBT_PROJECT_DIR` is used if available. Fatal dbt
+compilation errors skip the affected file by default; set
+`dbt_skip_compilation_error = false` to report them as templater errors instead.
 
 ## dbt Variables
 

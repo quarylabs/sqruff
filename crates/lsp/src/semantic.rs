@@ -1051,6 +1051,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SimplifiedUnpivot
         | SingleQuoteWithN
         | SizeLiteral
+        | SizePrefix
         | SortbyClause
         | SqlcmdCommandSegment
         | SquareQuote

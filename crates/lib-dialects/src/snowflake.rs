@@ -4287,6 +4287,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     "STREAMLIT",
                     "TASK",
                     "PIPE",
+                    "NOTEBOOK",
+                    "MODEL",
                 ];
 
                 let schema_object_names_keywrods: Vec<Matchable> = schema_object_names

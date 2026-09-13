@@ -12,3 +12,9 @@ file:
     - keyword: SEARCH
     - keyword: SERVICES
 - statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: RESOURCE
+    - keyword: MONITORS
+- statement_terminator: ;

@@ -3,6 +3,9 @@ file:
   - keyword: CREATE
   - keyword: RESOURCE
   - keyword: MONITOR
+  - keyword: IF
+  - keyword: NOT
+  - keyword: EXISTS
   - object_reference:
     - naked_identifier: my_monitor
   - keyword: WITH

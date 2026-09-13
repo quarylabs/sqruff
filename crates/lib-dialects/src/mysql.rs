@@ -3351,7 +3351,12 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("CHARACTER").to_matchable(),
                     Ref::keyword("SET").to_matchable(),
                     Ref::new("EqualsSegment").optional().to_matchable(),
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+                        Ref::new("DoubleQuotedIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
@@ -4214,11 +4219,16 @@ pub(crate) fn column_constraint_grammar(allow_persistent: bool) -> Matchable {
                 Ref::new("CollationReferenceSegment").to_matchable(),
             ])
             .to_matchable(),
-            // MySQL-specific: CHARACTER SET and COLLATE with NakedIdentifier
+            // MySQL-specific: CHARACTER SET and COLLATE constraints.
             Sequence::new(vec![
                 Ref::keyword("CHARACTER").to_matchable(),
                 Ref::keyword("SET").to_matchable(),
-                Ref::new("NakedIdentifierSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+                    Ref::new("DoubleQuotedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![

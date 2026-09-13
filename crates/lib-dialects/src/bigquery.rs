@@ -35,6 +35,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     dialect.insert_lexer_matchers(
         vec![
             Matcher::string("right_arrow", "=>", SyntaxKind::RightArrow),
+            Matcher::string("pipe_operator", "|>", SyntaxKind::PipeOperator),
             Matcher::string("question_mark", "?", SyntaxKind::QuestionMark),
             Matcher::regex(
                 "at_sign_literal",
@@ -752,7 +753,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             None,
             Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
             None,
-            Vec::new(),
+            vec![Ref::new("PipeOperatorSegment").to_matchable()],
             false,
         )
     });
@@ -766,7 +767,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             None,
             Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
             None,
-            Vec::new(),
+            vec![Ref::new("PipeOperatorSegment").to_matchable()],
             false,
         ),
     );
@@ -872,6 +873,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("DropAssignmentStatementSegment").to_matchable(),
                 Ref::new("DropTableFunctionStatementSegment").to_matchable(),
                 Ref::new("CreateTableFunctionStatementSegment").to_matchable(),
+                Ref::new("PipeStatementSegment").to_matchable(),
             ]),
             None,
             None,
@@ -3686,6 +3688,393 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
+    dialect.replace_grammar(
+        "SelectClauseTerminatorGrammar",
+        one_of(vec![
+            Ref::keyword("FROM").to_matchable(),
+            Ref::keyword("WHERE").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ORDER").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("LIMIT").to_matchable(),
+            Ref::keyword("OVERLAPS").to_matchable(),
+            Ref::new("SetOperatorSegment").to_matchable(),
+            Ref::keyword("FETCH").to_matchable(),
+            Ref::new("PipeOperatorSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    dialect.replace_grammar(
+        "FromClauseTerminatorGrammar",
+        one_of(vec![
+            Ref::keyword("WHERE").to_matchable(),
+            Ref::keyword("LIMIT").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("GROUP").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ORDER").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("HAVING").to_matchable(),
+            Ref::keyword("QUALIFY").to_matchable(),
+            Ref::keyword("WINDOW").to_matchable(),
+            Ref::new("SetOperatorSegment").to_matchable(),
+            Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
+            Ref::new("WithDataClauseSegment").to_matchable(),
+            Ref::keyword("FETCH").to_matchable(),
+            Ref::keyword("OFFSET").to_matchable(),
+            Ref::new("PipeOperatorSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    dialect.replace_grammar(
+        "WhereClauseTerminatorGrammar",
+        one_of(vec![
+            Ref::keyword("LIMIT").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("GROUP").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ORDER").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("HAVING").to_matchable(),
+            Ref::keyword("QUALIFY").to_matchable(),
+            Ref::keyword("WINDOW").to_matchable(),
+            Ref::keyword("OVERLAPS").to_matchable(),
+            Ref::keyword("FETCH").to_matchable(),
+            Ref::new("PipeOperatorSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    dialect.replace_grammar(
+        "GroupByClauseTerminatorGrammar",
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("ORDER").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("LIMIT").to_matchable(),
+            Ref::keyword("HAVING").to_matchable(),
+            Ref::keyword("QUALIFY").to_matchable(),
+            Ref::keyword("WINDOW").to_matchable(),
+            Ref::keyword("FETCH").to_matchable(),
+            Ref::new("PipeOperatorSegment").to_matchable(),
+            Ref::keyword("ASC").to_matchable(),
+            Ref::keyword("DESC").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    dialect.replace_grammar(
+        "OrderByClauseTerminators",
+        one_of(vec![
+            Ref::keyword("LIMIT").to_matchable(),
+            Ref::keyword("HAVING").to_matchable(),
+            Ref::keyword("QUALIFY").to_matchable(),
+            Ref::keyword("WINDOW").to_matchable(),
+            Ref::new("FrameClauseUnitGrammar").to_matchable(),
+            Ref::keyword("SEPARATOR").to_matchable(),
+            Ref::keyword("FETCH").to_matchable(),
+            Ref::new("PipeOperatorSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    dialect.add([
+        (
+            "PipeOperatorSegment".into(),
+            StringParser::new("|>", SyntaxKind::PipeOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "PipeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::PipeStatement, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("FromClauseSegment").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Ref::new("PipeOperatorClauseSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SelectableGrammar").to_matchable(),
+                        Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Ref::new("PipeOperatorClauseSegment").to_matchable(),
+                        ])
+                        .config(|this| {
+                            this.min_times = 1;
+                        })
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PipeOperatorClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::PipeOperatorClause, |_| {
+                Sequence::new(vec![
+                    Ref::new("PipeOperatorSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SelectClauseSegment").to_matchable(),
+                        Ref::new("ExtendClauseSegment").to_matchable(),
+                        Ref::new("SetClauseListSegment").to_matchable(),
+                        Ref::new("DropColumnClauseSegment").to_matchable(),
+                        Ref::new("RenameColumnClauseSegment").to_matchable(),
+                        Ref::new("AliasExpressionSegment").to_matchable(),
+                        Ref::new("WhereClauseSegment").to_matchable(),
+                        Ref::new("LimitClauseSegment").to_matchable(),
+                        Ref::new("OrderByClauseSegment").to_matchable(),
+                        Ref::new("AggregateClauseSegment").to_matchable(),
+                        Ref::new("SetOperatorClauseSegment").to_matchable(),
+                        Ref::new("JoinClauseSegment").to_matchable(),
+                        Ref::new("CallOperatorSegment").to_matchable(),
+                        Ref::new("SamplingExpressionSegment").to_matchable(),
+                        Ref::new("PivotOperatorSegment").to_matchable(),
+                        Ref::new("UnpivotOperatorSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExtendClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExtendClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXTEND").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropColumnClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropColumnClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "RenameColumnClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::RenameColumnClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("RENAME").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("AliasExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "GroupAndOrderByClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::GroupAndOrderbyClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("GROUP").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AND").to_matchable(),
+                        Ref::keyword("ORDER").to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    })
+                    .to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ALL").to_matchable(),
+                        Ref::new("GroupingSetsClauseSegment").to_matchable(),
+                        Ref::new("CubeRollupClauseSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                                        Ref::new("NumericLiteralSegment").to_matchable(),
+                                        Ref::new("ExpressionSegment").to_matchable(),
+                                    ])
+                                    .config(|this| {
+                                        this.terminators = vec![
+                                            Ref::new("GroupByClauseTerminatorGrammar")
+                                                .to_matchable(),
+                                        ];
+                                    })
+                                    .to_matchable(),
+                                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                                    Sequence::new(vec![
+                                        one_of(vec![
+                                            Ref::keyword("ASC").to_matchable(),
+                                            Ref::keyword("DESC").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("NULLS").to_matchable(),
+                                            one_of(vec![
+                                                Ref::keyword("FIRST").to_matchable(),
+                                                Ref::keyword("LAST").to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                        ])
+                                        .config(|this| {
+                                            this.optional();
+                                        })
+                                        .to_matchable(),
+                                    ])
+                                    .config(|this| {
+                                        this.optional();
+                                    })
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AggregateClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::AggregateClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("AGGREGATE").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::keyword("ASC").to_matchable(),
+                                    Ref::keyword("DESC").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("NULLS").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("FIRST").to_matchable(),
+                                        Ref::keyword("LAST").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .config(|this| {
+                                    this.optional();
+                                })
+                                .to_matchable(),
+                            ])
+                            .config(|this| {
+                                this.optional();
+                            })
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("GroupAndOrderByClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SetOperatorClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetOperatorClause, |_| {
+                Sequence::new(vec![
+                    Ref::new("SetOperatorSegment").to_matchable(),
+                    Delimited::new(vec![Ref::new("NonSetSelectableGrammar").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CallOperatorSegment".into(),
+            NodeMatcher::new(SyntaxKind::CallOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("CallStatementSegment").to_matchable(),
+                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PivotOperatorSegment".into(),
+            NodeMatcher::new(SyntaxKind::PivotOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("FromPivotExpressionSegment").to_matchable(),
+                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UnpivotOperatorSegment".into(),
+            NodeMatcher::new(SyntaxKind::UnpivotOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("FromUnpivotExpressionSegment").to_matchable(),
+                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
     dialect.expand();
     dialect
 }

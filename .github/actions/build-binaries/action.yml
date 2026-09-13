@@ -28,7 +28,7 @@ runs:
       with:
         command: build
         target: ${{ matrix.platform.target }}
-        toolchain: 1.97.1
+        toolchain: 1.98.1
         args: --locked --release --bin sqruff --package sqruff
         strip: true
     - name: Package as archive

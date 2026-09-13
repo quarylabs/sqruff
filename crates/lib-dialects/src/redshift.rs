@@ -452,6 +452,13 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Ref::keyword("ANYELEMENT").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("DotSegment").to_matchable(),
+                        Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                    ])
+                    .allow_gaps(false)
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

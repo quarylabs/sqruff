@@ -841,9 +841,7 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     // Precision
-                    Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
-                        .config(|this| this.optional())
-                        .to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
                     // Allow NULL/NOT NULL, DEFAULT, and ON UPDATE in any order
                     AnyNumberOf::new(vec![
                         Sequence::new(vec![

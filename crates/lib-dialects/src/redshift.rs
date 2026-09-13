@@ -12,7 +12,7 @@ use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{CaseFold, RegexParser};
+use sqruff_lib_core::parser::parsers::{CaseFold, RegexParser, StringParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 
@@ -355,21 +355,35 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "LiteralGrammar".into(),
+            ansi_dialect
+                .grammar("LiteralGrammar")
+                .copy(
+                    Some(vec![Ref::new("MaxLiteralSegment").to_matchable()]),
+                    None,
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
+        (
+            "MaxLiteralSegment".into(),
+            StringParser::new("max", SyntaxKind::MaxLiteral)
+                .to_matchable()
+                .into(),
+        ),
     ]);
     redshift_dialect.replace_grammar(
         "BracketedArguments",
         Bracketed::new(vec![
-            Delimited::new(vec![
-                one_of(vec![
-                    Ref::new("LiteralGrammar").to_matchable(),
-                    Ref::keyword("MAX").to_matchable(),
-                ])
+            Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                .config(|this| {
+                    this.optional();
+                })
                 .to_matchable(),
-            ])
-            .config(|this| {
-                this.optional();
-            })
-            .to_matchable(),
         ])
         .to_matchable(),
     );

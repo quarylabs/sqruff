@@ -5725,7 +5725,18 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // ---- Fix CreateUserStatementSegment QUOTA with size unit ----
+    // ---- SizeClauseGrammar ----
+    oracle.add([(
+        "SizeClauseGrammar".into(),
+        Sequence::new(vec![
+            Ref::new("NumericLiteralSegment").to_matchable(),
+            RegexParser::new(r"[KMGTPE]?", SyntaxKind::SizePrefix).to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ---- CreateUserStatementSegment ----
     oracle.add([(
         "CreateUserStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::OracleCreateUserStatement, |_| {
@@ -5741,6 +5752,17 @@ pub fn raw_dialect() -> Dialect {
                             Sequence::new(vec![
                                 Ref::keyword("BY").to_matchable(),
                                 Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("HTTP").optional().to_matchable(),
+                                    Ref::keyword("DIGEST").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("ENABLE").to_matchable(),
+                                        Ref::keyword("DISABLE").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .config(|config| config.optional())
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                             Sequence::new(vec![
@@ -5773,35 +5795,32 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 AnyNumberOf::new(vec![
+                    Ref::new("DefaultCollationClauseGrammar").to_matchable(),
                     Sequence::new(vec![
-                        Ref::keyword("DEFAULT").to_matchable(),
-                        Ref::keyword("TABLESPACE").to_matchable(),
-                        Ref::new("ObjectReferenceSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("LOCAL").optional().to_matchable(),
-                        Ref::keyword("TEMPORARY").to_matchable(),
-                        Ref::keyword("TABLESPACE").to_matchable(),
-                        Ref::new("ObjectReferenceSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    // QUOTA size ON tablespace — size can be "10M", "5G" etc.
-                    Sequence::new(vec![
-                        Ref::keyword("QUOTA").to_matchable(),
                         one_of(vec![
                             Sequence::new(vec![
-                                Ref::new("NumericLiteralSegment").to_matchable(),
-                                // Size suffix like K, M, G, T, P, E
-                                Ref::new("SingleIdentifierGrammar")
-                                    .optional()
-                                    .to_matchable(),
+                                Ref::keyword("DEFAULT").to_matchable(),
+                                Ref::keyword("TABLESPACE").to_matchable(),
                             ])
                             .to_matchable(),
-                            Ref::keyword("UNLIMITED").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("LOCAL").optional().to_matchable(),
+                                Ref::keyword("TEMPORARY").to_matchable(),
+                                Ref::keyword("TABLESPACE").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("QUOTA").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("SizeClauseGrammar").to_matchable(),
+                                    Ref::keyword("UNLIMITED").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("ON").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::keyword("ON").to_matchable(),
                         Ref::new("ObjectReferenceSegment").to_matchable(),
                     ])
                     .to_matchable(),
@@ -5839,6 +5858,15 @@ pub fn raw_dialect() -> Dialect {
                         one_of(vec![
                             Ref::keyword("CURRENT").to_matchable(),
                             Ref::keyword("ALL").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("READ").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("ONLY").to_matchable(),
+                            Ref::keyword("WRITE").to_matchable(),
                         ])
                         .to_matchable(),
                     ])

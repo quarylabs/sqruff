@@ -1080,6 +1080,7 @@ pub enum SyntaxKind {
     SingleQuote,
     SingleQuoteWithN,
     SizeLiteral,
+    SizePrefix,
     SizedArrayType,
     SkewedByClause,
     Slash,

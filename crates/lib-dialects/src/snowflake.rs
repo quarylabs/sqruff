@@ -8078,6 +8078,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     Ref::new("BooleanLiteralGrammar").to_matchable(),
                                 ])
                                 .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ERROR_INTEGRATION").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
                                 Ref::new("CommentEqualsClauseSegment").to_matchable(),
                             ])
                             .to_matchable(),

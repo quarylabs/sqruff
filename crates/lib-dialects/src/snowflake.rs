@@ -6755,6 +6755,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::keyword("SHARE").to_matchable(),
                                 Ref::keyword("TAG").to_matchable(),
                                 Sequence::new(vec![
+                                    Ref::keyword("API").to_matchable(),
+                                    Ref::keyword("INTEGRATION").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
                                     Ref::keyword("NOTIFICATION").to_matchable(),
                                     Ref::keyword("INTEGRATION").to_matchable(),
                                 ])
@@ -6803,6 +6808,91 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
+                    any_set_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("API_PROVIDER").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("AWS_API_GATEWAY").to_matchable(),
+                                Ref::keyword("AWS_PRIVATE_API_GATEWAY").to_matchable(),
+                                Ref::keyword("AWS_GOV_API_GATEWAY").to_matchable(),
+                                Ref::keyword("AWS_GOV_PRIVATE_API_GATEWAY").to_matchable(),
+                                Ref::keyword("AZURE_API_MANAGEMENT").to_matchable(),
+                                Ref::keyword("GOOGLE_API_GATEWAY").to_matchable(),
+                                Ref::keyword("GIT_HTTPS_API").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("API_ALLOWED_PREFIXES").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Bracketed::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("API_BLOCKED_PREFIXES").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Bracketed::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("API_KEY").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ENABLED").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("API_AWS_ROLE_ARN").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AZURE_TENANT_ID").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AZURE_AD_APPLICATION_ID").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("GOOGLE_AUDIENCE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ALLOWED_AUTHENTICATION_SECRETS").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                one_of(vec![
+                                    Ref::keyword("ALL").to_matchable(),
+                                    Ref::keyword("NONE").to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                     any_set_of(vec![
                         Sequence::new(vec![
                             Ref::keyword("TYPE").to_matchable(),

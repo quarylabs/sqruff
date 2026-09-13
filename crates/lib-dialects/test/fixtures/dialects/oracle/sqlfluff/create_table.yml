@@ -76,3 +76,104 @@ file:
             - data_type_identifier: DATE
         - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - oracle_create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: t1
+      - bracketed:
+        - start_bracket: (
+        - oracle_column_definition:
+          - naked_identifier: id
+          - data_type:
+            - data_type_identifier: NUMBER
+          - keyword: GENERATED
+          - keyword: AS
+          - keyword: IDENTITY
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: t2
+      - bracketed:
+        - start_bracket: (
+        - oracle_column_definition:
+          - naked_identifier: id
+          - data_type:
+            - data_type_identifier: NUMBER
+          - keyword: GENERATED
+          - keyword: BY
+          - keyword: DEFAULT
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: START
+            - keyword: WITH
+            - numeric_literal: '100'
+            - keyword: INCREMENT
+            - keyword: BY
+            - numeric_literal: '10'
+            - end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: t3
+      - bracketed:
+        - start_bracket: (
+        - oracle_column_definition:
+          - naked_identifier: id
+          - data_type:
+            - data_type_identifier: NUMBER
+          - keyword: GENERATED
+          - keyword: BY
+          - keyword: DEFAULT
+          - keyword: ON
+          - keyword: 'NULL'
+          - keyword: FOR
+          - keyword: INSERT
+          - keyword: ONLY
+          - keyword: AS
+          - keyword: IDENTITY
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: t4
+      - bracketed:
+        - start_bracket: (
+        - oracle_column_definition:
+          - naked_identifier: id
+          - data_type:
+            - data_type_identifier: NUMBER
+          - keyword: GENERATED
+          - keyword: BY
+          - keyword: DEFAULT
+          - keyword: ON
+          - keyword: 'NULL'
+          - keyword: FOR
+          - keyword: INSERT
+          - keyword: AND
+          - keyword: UPDATE
+          - keyword: AS
+          - keyword: IDENTITY
+          - bracketed:
+            - start_bracket: (
+            - keyword: MAXVALUE
+            - numeric_literal: '100'
+            - keyword: LIMIT
+            - keyword: VALUE
+            - end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;

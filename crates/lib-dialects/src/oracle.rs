@@ -947,6 +947,23 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("ON").to_matchable(),
                             Ref::keyword("NULL").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("FOR").to_matchable(),
+                                Ref::keyword("INSERT").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ONLY").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("AND").to_matchable(),
+                                        Ref::keyword("UPDATE").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.optional();
+                            })
+                            .to_matchable(),
                         ])
                         .config(|config| {
                             config.optional();
@@ -992,6 +1009,14 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Ref::new("NumericLiteralSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("LIMIT").to_matchable(),
+                        Ref::keyword("VALUE").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
                 ])
                 .to_matchable(),
                 Ref::keyword("NOMAXVALUE").to_matchable(),

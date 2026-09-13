@@ -827,6 +827,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
                 Ref::new("WithDataClauseSegment").to_matchable(),
                 Ref::keyword("FETCH").to_matchable(),
+                Ref::keyword("OFFSET").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -1710,7 +1711,38 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("ROWS").to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::keyword("ONLY").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ONLY").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("TIES").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "OffsetClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::OffsetClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("OFFSET").to_matchable(),
+                    one_of(vec![
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("ExpressionSegment")
+                            .exclude(Ref::keyword("ROW"))
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ROW").to_matchable(),
+                        Ref::keyword("ROWS").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -5394,6 +5426,7 @@ pub fn select_statement() -> Matchable {
     get_unordered_select_statement_segment_grammar().copy(
         Some(vec![
             Ref::new("OrderByClauseSegment").optional().to_matchable(),
+            Ref::new("OffsetClauseSegment").optional().to_matchable(),
             Ref::new("FetchClauseSegment").optional().to_matchable(),
             Ref::new("LimitClauseSegment").optional().to_matchable(),
             Ref::new("NamedWindowSegment").optional().to_matchable(),

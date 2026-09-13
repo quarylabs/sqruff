@@ -4092,7 +4092,7 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::new("BracketedArguments").optional().to_matchable(),
-                        one_of(vec![
+                        AnyNumberOf::new(vec![
                             Ref::keyword("UNSIGNED").to_matchable(),
                             Ref::new("CharCharacterSetGrammar").to_matchable(),
                         ])

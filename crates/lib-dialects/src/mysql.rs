@@ -755,6 +755,73 @@ pub fn raw_dialect() -> Dialect {
     // Segment definitions
     // ============================================================
 
+    // DatatypeSegment.
+    mysql.replace_grammar(
+        "DatatypeSegment",
+        one_of(vec![
+            Ref::new("TimeWithTZGrammar").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("DOUBLE").to_matchable(),
+                Ref::keyword("PRECISION").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("CHARACTER").to_matchable(),
+                            Ref::keyword("BINARY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("VARYING").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("LARGE").to_matchable(),
+                                Ref::keyword("OBJECT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("DotSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("BracketedArguments").optional().to_matchable(),
+                one_of(vec![
+                    Ref::new("CharCharacterSetGrammar").to_matchable(),
+                    Ref::keyword("SIGNED").to_matchable(),
+                    Ref::keyword("UNSIGNED").to_matchable(),
+                    Ref::keyword("ZEROFILL").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ZEROFILL").to_matchable(),
+                        Ref::keyword("UNSIGNED").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("UNSIGNED").to_matchable(),
+                        Ref::keyword("ZEROFILL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("ArrayTypeSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // ColumnDefinitionSegment.
     mysql.replace_grammar(
         "ColumnDefinitionSegment",

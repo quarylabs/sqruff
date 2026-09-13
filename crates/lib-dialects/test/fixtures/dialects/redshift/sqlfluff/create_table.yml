@@ -1009,3 +1009,22 @@ file:
           - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - naked_identifier: test
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col1
+      - data_type:
+        - keyword: varchar
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - max_literal: max
+            - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

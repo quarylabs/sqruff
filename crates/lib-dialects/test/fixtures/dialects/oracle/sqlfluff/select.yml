@@ -25,3 +25,21 @@ file:
             - alias_expression:
               - naked_identifier: error
   - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - expression:
+            - column_reference:
+              - naked_identifier: quantity
+            - binary_operator: /
+            - numeric_literal: '100'
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: inventory
+  - statement_terminator: ;

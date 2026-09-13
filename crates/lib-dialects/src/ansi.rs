@@ -5252,9 +5252,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("TIMESTAMP").to_matchable(),
                 ])
                 .to_matchable(),
-                Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                Ref::new("BracketedArguments").optional().to_matchable(),
                 Sequence::new(vec![
                     one_of(vec![
                         Ref::keyword("WITH").to_matchable(),

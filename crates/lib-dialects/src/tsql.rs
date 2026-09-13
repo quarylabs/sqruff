@@ -554,7 +554,106 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // T-SQL permits adjacent SELECT statements without semicolons, as used by
+    // the JSON function fixtures. Preserve the existing clauses but remove
+    // ANSI's greedy parsing and statement terminators, matching upstream T-SQL.
+    for (name, grammar) in [
+        ("SelectClauseSegment", ansi::select_clause_segment()),
+        (
+            "UnorderedSelectStatementSegment",
+            ansi::get_unordered_select_statement_segment_grammar(),
+        ),
+        ("SelectStatementSegment", ansi::select_statement()),
+    ] {
+        dialect.replace_grammar(
+            name,
+            Sequence::new(grammar.elements().to_vec()).to_matchable(),
+        );
+    }
+
     dialect.add([
+        (
+            "JsonFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                one_of(vec![
+                    Ref::keyword("JSON_ARRAY").to_matchable(),
+                    Ref::keyword("JSON_OBJECT").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                let null_clause = one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("NULL").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ABSENT").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable();
+                let key_value = Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("ParameterNameSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ColonSegment").to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("LiteralGrammar").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("FunctionSegment").to_matchable(),
+                            Bracketed::new(vec![Ref::new("SelectStatementSegment").to_matchable()])
+                                .to_matchable(),
+                            Ref::keyword("NULL").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        null_clause.clone(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+                one_of(vec![
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            AnyNumberOf::new(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::keyword("NULL").to_matchable(),
+                                null_clause.clone(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![key_value, null_clause]).to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "ReplicateFunctionNameSegment".into(),
             NodeMatcher::new(SyntaxKind::FunctionName, |_| {
@@ -594,6 +693,13 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::new("ReplicateFunctionNameSegment").to_matchable(),
                 Ref::new("ReplicateFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            // Try the JSON syntax before generic function arguments, which can
+            // otherwise misclassify ON NULL as a typed literal expression.
+            Sequence::new(vec![
+                Ref::new("JsonFunctionNameSegment").to_matchable(),
+                Ref::new("JsonFunctionContentsSegment").to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![

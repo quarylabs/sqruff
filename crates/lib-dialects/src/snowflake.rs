@@ -10431,6 +10431,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 ])
                                 .to_matchable(),
                             ])
+                            .config(|this| this.optional_delimiter())
                             .to_matchable(),
                         ])
                         .to_matchable(),

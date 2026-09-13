@@ -176,7 +176,7 @@ impl MatchableTrait for Delimited {
             if seeking_delimiter {
                 delimiter_match = match_result.into();
             } else {
-                if let Some(delimiter_match) = &delimiter_match {
+                if let Some(delimiter_match) = delimiter_match.take() {
                     delimiters += 1;
                     working_match = working_match.append(delimiter_match);
                 }

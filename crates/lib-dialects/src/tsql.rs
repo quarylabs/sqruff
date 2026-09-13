@@ -2395,6 +2395,52 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
+                Ref::new("OpenRowSetWithClauseSegment")
+                    .optional()
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // WITH clause of an OPENROWSET() segment.
+    // https://learn.microsoft.com/en-us/azure/synapse-analytics/sql/develop-openrowset#syntax
+    dialect.replace_grammar(
+        "CollateGrammar",
+        Sequence::new(vec![
+            Ref::keyword("COLLATE").to_matchable(),
+            Ref::new("CollationReferenceSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    dialect.add([(
+        "OpenRowSetWithClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::OpenrowsetWithClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                            Ref::new("CollateGrammar").optional().to_matchable(),
+                            one_of(vec![
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
         })

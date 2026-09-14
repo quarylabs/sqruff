@@ -6038,13 +6038,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     ]);
 
     snowflake_dialect.replace_grammar(
+        "CollateGrammar",
+        Sequence::new(vec![
+            Ref::keyword("COLLATE").to_matchable(),
+            Ref::new("CollationReferenceSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    snowflake_dialect.replace_grammar(
         "ColumnConstraintSegment",
         any_set_of(vec![
-            Sequence::new(vec![
-                Ref::keyword("COLLATE").to_matchable(),
-                Ref::new("CollationReferenceSegment").to_matchable(),
-            ])
-            .to_matchable(),
+            Ref::new("CollateGrammar").to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("DEFAULT").to_matchable(),
                 Ref::new("ExpressionSegment").to_matchable(),

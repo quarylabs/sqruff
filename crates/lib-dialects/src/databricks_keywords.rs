@@ -33,6 +33,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "OPTIMIZATION",
     "OPTIMIZE",
     "PREDICTIVE",
+    "PRIVATE",
     "PROVIDER",
     "PYTHON",
     "RECIPIENT",

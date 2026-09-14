@@ -214,6 +214,12 @@ fn copy_option_matchables() -> Vec<Matchable> {
             Ref::new("BooleanLiteralGrammar").to_matchable(),
         ])
         .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("LOAD_UNCERTAIN_FILES").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            Ref::new("BooleanLiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
     ]
 }
 

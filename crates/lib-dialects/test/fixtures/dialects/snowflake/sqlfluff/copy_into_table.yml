@@ -442,6 +442,10 @@ file:
             - raw_comparison_operator: =
           - file_type: JSON
         - end_bracket: )
+    - keyword: LOAD_UNCERTAIN_FILES
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'TRUE'
     - keyword: INCLUDE_METADATA
     - comparison_operator:
       - raw_comparison_operator: =

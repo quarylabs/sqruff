@@ -1644,6 +1644,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AtomicBlockSegment").to_matchable(),
             Ref::new("DeclareStatementGrammar").to_matchable(),
             Ref::new("SetContextInfoSegment").to_matchable(),
+            Ref::new("CreateSecurityPolicySegment").to_matchable(),
+            Ref::new("AlterSecurityPolicySegment").to_matchable(),
+            Ref::new("DropSecurityPolicySegment").to_matchable(),
             Ref::new("SetVariableStatementGrammar").to_matchable(),
             Ref::new("ExecuteScriptSegment").to_matchable(),
             Ref::new("PrintStatementGrammar").to_matchable(),
@@ -4951,6 +4954,244 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("DROP").to_matchable(),
                     Ref::keyword("MASTER").to_matchable(),
                     Ref::keyword("KEY").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateSecurityPolicySegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateSecurityPolicyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("SECURITY").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ADD").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("FILTER").to_matchable(),
+                                Ref::keyword("BLOCK").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Ref::keyword("PREDICATE").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    Ref::new("ExpressionSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("AFTER").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("INSERT").to_matchable(),
+                                        Ref::keyword("UPDATE").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("BEFORE").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("UPDATE").to_matchable(),
+                                        Ref::keyword("DELETE").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("STATE").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("ON").to_matchable(),
+                                        Ref::keyword("OFF").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SCHEMABINDING").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("ON").to_matchable(),
+                                        Ref::keyword("OFF").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NOT").to_matchable(),
+                        Ref::keyword("FOR").to_matchable(),
+                        Ref::keyword("REPLICATION").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterSecurityPolicySegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterSecurityPolicyStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("SECURITY").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("ADD").to_matchable(),
+                                Ref::keyword("ALTER").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("FILTER").to_matchable(),
+                                Ref::keyword("BLOCK").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Ref::keyword("PREDICATE").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    Ref::new("ExpressionSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("AFTER").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("INSERT").to_matchable(),
+                                        Ref::keyword("UPDATE").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("BEFORE").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("UPDATE").to_matchable(),
+                                        Ref::keyword("DELETE").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DROP").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("FILTER").to_matchable(),
+                                Ref::keyword("BLOCK").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Ref::keyword("PREDICATE").to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("STATE").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("ON").to_matchable(),
+                                        Ref::keyword("OFF").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SCHEMABINDING").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("ON").to_matchable(),
+                                        Ref::keyword("OFF").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NOT").to_matchable(),
+                        Ref::keyword("FOR").to_matchable(),
+                        Ref::keyword("REPLICATION").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropSecurityPolicySegment".into(),
+            NodeMatcher::new(SyntaxKind::DropSecurityPolicy, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("SECURITY").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("IF").to_matchable(),
+                        Ref::keyword("EXISTS").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
                 ])
                 .to_matchable()
             })

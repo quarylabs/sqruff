@@ -232,6 +232,9 @@ A few common styles are supported:
  -- dollar
  WHERE bla = $my_name or WHERE bla = ${my_name}
 
+ -- dollar_surround (DbUp compatible variable)
+ WHERE bla = $my_name$
+
  -- question_mark
  WHERE bla = ?
 
@@ -331,7 +334,7 @@ param_style = colon",
     #[test]
     fn test_all_the_known_styles() {
         // in, param_style, expected_out, values
-        let cases: [PlaceholderCase<'_>; 20] = [
+        let cases: [PlaceholderCase<'_>; 22] = [
             (
                 "SELECT * FROM f, o, o WHERE a < 10\n\n",
                 "colon",
@@ -618,6 +621,32 @@ WHERE userid = 42 AND date > '2021-10-01'
                     ("env", "PRD"),
                     ("user_id", "42"),
                     ("start_date", "'2021-10-01'"),
+                ],
+            ),
+            (
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE user_mail = '$12$'
+AND date > $90$
+            "#,
+                "dollar_surround",
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE user_mail = 'test@example.com'
+AND date > '2020-10-01'
+            "#,
+                vec![("12", "test@example.com"), ("90", "'2020-10-01'")],
+            ),
+            (
+                r"SELECT $user-name$, $名$, :$name$, x$name$, \$name$, $missing$",
+                "dollar_surround",
+                r"SELECT alice, unicode, :$name$, x$name$, \$name$, missing",
+                vec![
+                    ("user-name", "alice"),
+                    ("名", "unicode"),
+                    ("name", "blocked"),
                 ],
             ),
             (

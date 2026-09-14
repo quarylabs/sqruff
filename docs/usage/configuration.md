@@ -42,3 +42,31 @@ See [sample configurations](../reference/sample-configurations.md) for more exam
 The `warnings` setting makes selected violations visible without causing lint
 to fail. It accepts either rule codes or rule names, for example
 `warnings = LT01,layout.end_of_file`.
+
+## Keyword line position exclusions
+
+LT14 supports `keyword_line_position_exclusions`, a comma-separated list of
+ancestor segment types whose keywords should be left in place. For example,
+keep `ORDER BY` inline inside window specifications and aggregate functions
+while requiring an outer `ORDER BY` to start a line:
+
+```ini
+[sqruff:layout:type:orderby_clause]
+keyword_line_position = leading
+keyword_line_position_exclusions = window_specification, aggregate_order_by
+```
+
+With this configuration, the following passes LT14:
+
+```sql
+SELECT
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e,
+    STRING_AGG(a ORDER BY b, c)
+FROM f
+ORDER BY e
+```
+
+Writing `FROM f ORDER BY e` instead would fail LT14, which moves the outer
+`ORDER BY` onto a new line. The exclusions apply only inside the specified
+ancestor segments. Use `keyword_line_position_exclusions = None` to clear
+inherited exclusions and apply keyword positioning inside those segments too.

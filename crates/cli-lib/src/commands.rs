@@ -66,6 +66,10 @@ pub enum Commands {
 
 #[derive(Debug, Parser)]
 pub struct LintArgs {
+    /// Perform the operation regardless of .sqruffignore and .sqlfluffignore configurations.
+    #[arg(long, visible_alias = "disregard-sqlfluffignores")]
+    pub disregard_sqruffignores: bool,
+
     /// Files or directories to fix. Use `-` to read from stdin.
     pub paths: Vec<PathBuf>,
     #[arg(default_value_t, short, long)]
@@ -74,6 +78,10 @@ pub struct LintArgs {
 
 #[derive(Debug, Parser)]
 pub struct FixArgs {
+    /// Perform the operation regardless of .sqruffignore and .sqlfluffignore configurations.
+    #[arg(long, visible_alias = "disregard-sqlfluffignores")]
+    pub disregard_sqruffignores: bool,
+
     /// Files or directories to fix. Use `-` to read from stdin.
     pub paths: Vec<PathBuf>,
     /// The output format for the results.

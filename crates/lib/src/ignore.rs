@@ -12,6 +12,7 @@ pub struct IgnoreFile {
 impl IgnoreFile {
     /// Create a new instance of `IgnoreFile` from the root of the project.
     pub fn new_from_root(root: &Path) -> Result<Self, String> {
+        let root = std::fs::canonicalize(root).unwrap_or_else(|_| root.to_path_buf());
         let ignore_file = root.join(IGNORE_FILE_NAME);
         if ignore_file.exists() {
             let ignore = Gitignore::new(ignore_file);
@@ -32,8 +33,13 @@ impl IgnoreFile {
 
     /// Check if the given path should be ignored.
     pub fn is_ignored(&self, path: &Path) -> bool {
+        let path = std::fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
         let is_dir = path.is_dir();
-        let match_result = self.ignore.matched(path, is_dir);
+        let match_result = if path.starts_with(self.ignore.path()) {
+            self.ignore.matched_path_or_any_parents(&path, is_dir)
+        } else {
+            self.ignore.matched(&path, is_dir)
+        };
         let is_ignored = match_result.is_ignore();
 
         if is_ignored {

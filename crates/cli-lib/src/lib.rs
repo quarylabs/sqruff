@@ -115,8 +115,17 @@ where
         );
     }
 
+    let disregard_ignores = match &cli.command {
+        Commands::Lint(args) => args.disregard_sqruffignores,
+        Commands::Fix(args) => args.disregard_sqruffignores,
+        _ => false,
+    };
     let current_path = std::env::current_dir().unwrap();
-    let ignore_file = IgnoreFile::new_from_root(&current_path).unwrap();
+    let ignore_file = if disregard_ignores {
+        IgnoreFile::empty()
+    } else {
+        IgnoreFile::new_from_root(&current_path).unwrap()
+    };
     let ignore_file = Arc::new(ignore_file);
     let ignorer = {
         let ignore_file = Arc::clone(&ignore_file);

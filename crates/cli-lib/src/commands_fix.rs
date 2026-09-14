@@ -11,7 +11,11 @@ pub(crate) fn run_fix(
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
     collect_parse_errors: bool,
 ) -> i32 {
-    let FixArgs { paths, format } = args;
+    let FixArgs {
+        paths,
+        format,
+        disregard_sqruffignores,
+    } = args;
     let fix_even_unparsable = config
         .get("fix_even_unparsable", "core")
         .as_bool()
@@ -23,7 +27,12 @@ pub(crate) fn run_fix(
             return 1;
         }
     };
-    let result = match linter.lint_paths(paths, true, &ignorer) {
+    let result = match linter.lint_paths_with_ignore_files(
+        paths,
+        true,
+        &ignorer,
+        !disregard_sqruffignores,
+    ) {
         Ok(result) => result,
         Err(e) => {
             eprintln!("{}", e.value);
@@ -127,6 +136,7 @@ mod tests {
         let args = FixArgs {
             paths: vec![path.clone()],
             format: Format::Human,
+            disregard_sqruffignores: false,
         };
         let config = FluffConfig::default();
         run_fix(args, config, ignore_none, true);

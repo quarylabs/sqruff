@@ -27,11 +27,12 @@ struct IgnoreSpecRecord {
 struct IgnoreSpecRecord;
 
 fn absolute_path(path: &Path) -> PathBuf {
-    if path.is_absolute() {
+    let absolute = if path.is_absolute() {
         helpers::normalize(path)
     } else {
         helpers::normalize(&std::env::current_dir().unwrap().join(path))
-    }
+    };
+    std::fs::canonicalize(&absolute).unwrap_or(absolute)
 }
 
 fn config_search_directories(target_path: &Path, working_path: &Path) -> Vec<PathBuf> {

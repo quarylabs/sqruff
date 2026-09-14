@@ -104,9 +104,20 @@ impl Linter {
     /// path passed to it. If the function returns true, the path is ignored.
     pub fn lint_paths(
         &mut self,
+        paths: Vec<PathBuf>,
+        fix: bool,
+        ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
+    ) -> Result<LintingResult, SQLFluffUserError> {
+        self.lint_paths_with_ignore_files(paths, fix, ignorer, true)
+    }
+
+    /// Lint paths, optionally applying ignore files during discovery.
+    pub fn lint_paths_with_ignore_files(
+        &mut self,
         mut paths: Vec<PathBuf>,
         fix: bool,
         ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
+        ignore_files: bool,
     ) -> Result<LintingResult, SQLFluffUserError> {
         if paths.is_empty() {
             paths.push(std::env::current_dir().unwrap());
@@ -119,7 +130,7 @@ impl Linter {
                 path,
                 None,
                 None,
-                None,
+                Some(ignore_files),
                 None,
                 self.config.sql_file_exts(),
                 Some(ignorer),

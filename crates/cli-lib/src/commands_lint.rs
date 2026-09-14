@@ -9,7 +9,11 @@ pub(crate) fn run_lint(
     ignorer: impl Fn(&Path) -> bool + Send + Sync,
     collect_parse_errors: bool,
 ) -> i32 {
-    let LintArgs { paths, format } = args;
+    let LintArgs {
+        paths,
+        format,
+        disregard_sqruffignores,
+    } = args;
     let mut linter = match linter(config, format, collect_parse_errors) {
         Ok(l) => l,
         Err(e) => {
@@ -17,13 +21,15 @@ pub(crate) fn run_lint(
             return 1;
         }
     };
-    let result = match linter.lint_paths(paths, false, &ignorer) {
-        Ok(result) => result,
-        Err(e) => {
-            eprintln!("{}", e.value);
-            return 1;
-        }
-    };
+    let result =
+        match linter.lint_paths_with_ignore_files(paths, false, &ignorer, !disregard_sqruffignores)
+        {
+            Ok(result) => result,
+            Err(e) => {
+                eprintln!("{}", e.value);
+                return 1;
+            }
+        };
 
     linter.formatter().unwrap().completion_message(result.len());
 

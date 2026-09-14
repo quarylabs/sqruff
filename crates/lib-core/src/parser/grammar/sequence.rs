@@ -8,8 +8,7 @@ use crate::errors::SQLParseError;
 use crate::helpers::ToMatchable;
 use crate::parser::context::ParseContext;
 use crate::parser::match_algorithms::{
-    resolve_bracket, skip_start_index_forward_to_code, skip_stop_index_backward_to_code,
-    trim_to_terminator,
+    skip_start_index_forward_to_code, skip_stop_index_backward_to_code, trim_to_terminator,
 };
 use crate::parser::match_result::{MatchResult, Matched, Span};
 use crate::parser::matchable::{
@@ -394,6 +393,12 @@ impl Bracketed {
 type BracketInfo = Result<(Matchable, Matchable, bool), String>;
 
 impl Bracketed {
+    pub fn allow_gaps(mut self, allow_gaps: bool) -> Self {
+        self.allow_gaps = allow_gaps;
+        self.this.allow_gaps = allow_gaps;
+        self
+    }
+
     pub fn bracket_type(&mut self, bracket_type: &'static str) {
         self.bracket_type = bracket_type;
     }
@@ -479,56 +484,71 @@ impl MatchableTrait for Bracketed {
             return Ok(MatchResult::empty_at(idx));
         }
 
-        let start_match_span = start_match.span;
-
-        let bracketed_match = resolve_bracket(
-            segments,
-            start_match,
-            start_bracket.clone(),
-            &[start_bracket],
-            std::slice::from_ref(&end_bracket),
-            &[bracket_persists],
-            parse_context,
-            false,
-        )?;
-
-        let mut idx = start_match_span.end;
-        let mut end_idx = bracketed_match.span.end - 1;
-
+        let mut content_start = start_match.span.end;
         if self.allow_gaps {
-            idx = skip_start_index_forward_to_code(segments, idx, segments.len() as u32);
-            end_idx = skip_stop_index_backward_to_code(segments, end_idx, idx);
+            content_start =
+                skip_start_index_forward_to_code(segments, content_start, segments.len() as u32);
         }
 
         let mut content_match =
             parse_context.deeper_match(true, std::slice::from_ref(&end_bracket), |ctx| {
-                self.this
-                    .match_segments(&segments[..end_idx as usize], idx, ctx)
+                self.this.match_segments(segments, content_start, ctx)
             })?;
 
-        if content_match.span.end != end_idx && self.parse_mode == ParseMode::Strict {
-            return Ok(MatchResult::empty_at(idx));
+        let gap_start = content_match.span.end;
+        let mut end_idx = gap_start;
+        if self.allow_gaps {
+            end_idx = skip_start_index_forward_to_code(segments, end_idx, segments.len() as u32);
         }
 
-        let intermediate_slice = Span {
-            start: content_match.span.end,
-            end: bracketed_match.span.end - 1,
-        };
-
-        if !self.allow_gaps && intermediate_slice.start == intermediate_slice.end {
-            unimplemented!()
+        let indent_idx = start_match.span.end;
+        let mut child_matches = vec![start_match];
+        if content_match.span.start != content_match.span.end {
+            if content_match.matched.is_some() {
+                child_matches.push(content_match);
+            } else {
+                child_matches.append(&mut content_match.child_matches);
+            }
+        }
+        if end_idx > gap_start {
+            child_matches.push(MatchResult::from_span(gap_start, end_idx));
         }
 
-        let mut child_matches = bracketed_match.child_matches;
-        if content_match.matched.is_some() {
-            child_matches.push(content_match);
+        let end_match = if end_idx < segments.len() as u32 {
+            parse_context.deeper_match(false, &[], |ctx| {
+                end_bracket.match_segments(segments, end_idx, ctx)
+            })?
         } else {
-            child_matches.append(&mut content_match.child_matches);
+            MatchResult::empty_at(end_idx)
+        };
+        if !end_match.has_match() {
+            if self.parse_mode == ParseMode::Strict {
+                return Ok(MatchResult::empty_at(idx));
+            }
+            return Err(SQLParseError {
+                description: "Couldn't find closing bracket for opening bracket.".into(),
+                segment: segments[idx as usize].clone().into(),
+            });
         }
 
-        Ok(MatchResult {
+        let end_span = end_match.span;
+        child_matches.push(end_match);
+        let result = MatchResult {
+            span: Span {
+                start: idx,
+                end: end_span.end,
+            },
+            matched: None,
+            insert_segments: vec![
+                (indent_idx, SyntaxKind::Indent),
+                (end_span.start, SyntaxKind::Dedent),
+            ],
             child_matches,
-            ..bracketed_match
+        };
+        Ok(if bracket_persists {
+            result.wrap(Matched::SyntaxKind(SyntaxKind::Bracketed))
+        } else {
+            result
         })
     }
 

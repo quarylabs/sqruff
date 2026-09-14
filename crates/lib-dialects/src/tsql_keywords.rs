@@ -201,6 +201,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> HashSet<&'static str> {
         "WHEN",
         "WHERE",
         "WHILE",
+        "WINDOW",
         "WITH",
         "WITHIN GROUP",
         "WRITETEXT",

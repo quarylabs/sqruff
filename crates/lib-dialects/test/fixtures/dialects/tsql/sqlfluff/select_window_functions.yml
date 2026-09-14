@@ -1,0 +1,454 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ROW_NUMBER
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[EventNM]'
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[PersonID]'
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - quoted_identifier: '[DateofEvent]'
+                  - keyword: desc
+              - end_bracket: )
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - quoted_identifier: '[RN]'
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: RANK
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[EventNM]'
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - quoted_identifier: '[DateofEvent]'
+                  - keyword: desc
+              - end_bracket: )
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - quoted_identifier: '[R]'
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: DENSE_RANK
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[EventNM]'
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - quoted_identifier: '[DateofEvent]'
+                  - keyword: desc
+              - end_bracket: )
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - quoted_identifier: '[DR]'
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: NTILE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '5'
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - column_reference:
+                      - quoted_identifier: '[EventNM]'
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - quoted_identifier: '[DateofEvent]'
+                  - keyword: desc
+              - end_bracket: )
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - quoted_identifier: '[NT]'
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: sum
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: col1
+              - end_bracket: )
+          - over_clause:
+            - keyword: over
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: partition
+                  - keyword: by
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col2
+                  - comma: ','
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: t
+                      - dot: .
+                      - naked_identifier: col3
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ROW_NUMBER
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - select_statement:
+                        - select_clause:
+                          - keyword: SELECT
+                          - select_clause_element:
+                            - column_reference:
+                              - naked_identifier: mediaty
+                        - from_clause:
+                          - keyword: FROM
+                          - from_expression:
+                            - from_expression_element:
+                              - table_expression:
+                                - table_reference:
+                                  - object_reference:
+                                    - naked_identifier: dbo
+                                    - dot: .
+                                    - naked_identifier: MediaTypes
+                              - alias_expression:
+                                - naked_identifier: ms
+                        - where_clause:
+                          - keyword: WHERE
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: ms
+                              - dot: .
+                              - naked_identifier: MediaTypeID
+                            - comparison_operator:
+                              - raw_comparison_operator: =
+                            - column_reference:
+                              - naked_identifier: f
+                              - dot: .
+                              - naked_identifier: mediatypeid
+                    - end_bracket: )
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: AdjustedPriorityScore
+                  - keyword: DESC
+              - end_bracket: )
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: Subselect_Partition
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ROW_NUMBER
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: COALESCE
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: NPI1
+                          - comma: ','
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: NPI2
+                          - end_bracket: )
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - expression:
+                    - function:
+                      - function_name:
+                        - function_name_identifier: COALESCE
+                      - function_contents:
+                        - bracketed:
+                          - start_bracket: (
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: SystemEffectiveDTS1
+                          - comma: ','
+                          - expression:
+                            - column_reference:
+                              - naked_identifier: SystemEffectiveDTS2
+                          - end_bracket: )
+                  - keyword: DESC
+              - end_bracket: )
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: Coalesce_Partition
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ROW_NUMBER
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: DayInMonth
+                      - end_bracket: )
+                  - comma: ','
+                  - expression:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: DaySuffix
+                      - end_bracket: )
+                - orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: Month
+                  - keyword: ASC
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: COUNT
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
+          - over_clause:
+            - keyword: OVER
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                    - null_literal: 'NULL'
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - quoted_identifier: '[preceding]'
+        - alias_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
+          - over_clause:
+            - keyword: over
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                    - naked_identifier: object_id
+                - frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - keyword: UNBOUNDED
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - keyword: CURRENT
+                  - keyword: ROW
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - quoted_identifier: '[central]'
+        - alias_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
+          - over_clause:
+            - keyword: over
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                    - naked_identifier: object_id
+                - frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - numeric_literal: '2'
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - numeric_literal: '2'
+                  - keyword: FOLLOWING
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - quoted_identifier: '[following]'
+        - alias_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: count
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - star: '*'
+              - end_bracket: )
+          - over_clause:
+            - keyword: over
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                    - naked_identifier: object_id
+                - frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - keyword: CURRENT
+                  - keyword: ROW
+                  - keyword: AND
+                  - keyword: UNBOUNDED
+                  - keyword: FOLLOWING
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: all_pop
+- statement_terminator: ;

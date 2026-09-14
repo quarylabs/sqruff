@@ -363,3 +363,41 @@ file:
             - table_reference:
               - naked_identifier: table
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '1'
+              - binary_operator: '*'
+              - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+          - keyword: IN
+          - bracketed:
+            - start_bracket: (
+            - typed_struct_literal:
+              - struct_type:
+                - keyword: STRUCT
+              - struct_literal:
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '1'
+                  - alias_expression:
+                    - alias_operator:
+                      - keyword: AS
+                    - naked_identifier: a
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - alias_expression:
+                    - alias_operator:
+                      - keyword: AS
+                    - naked_identifier: b
+                  - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;

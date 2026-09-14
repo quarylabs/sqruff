@@ -219,7 +219,7 @@ impl DialectKind {
             DialectKind::Redshift => Some(concat!(
                 "`lowercase`, unless case-sensitive identifiers are enabled and all identifiers ",
                 "use the `enable_case_sensitive_identifier` configuration value. See the ",
-                "[Redshift names and identifiers documentation](https://spark.apache.org/docs/latest/sql-ref.html)."
+                "[Redshift names and identifiers documentation](https://docs.aws.amazon.com/redshift/latest/dg/r_names.html)."
             )),
             DialectKind::Sparksql => Some(concat!(
                 "Spark SQL resolves both quoted and unquoted (*delimited*) identifiers ",

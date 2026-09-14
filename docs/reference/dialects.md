@@ -272,7 +272,7 @@ pgvector = true
 
 Amazon Redshift SQL dialect for cloud data warehousing.
 
-**Default Casing:** `lowercase`, unless case-sensitive identifiers are enabled and all identifiers use the `enable_case_sensitive_identifier` configuration value. See the [Redshift names and identifiers documentation](https://spark.apache.org/docs/latest/sql-ref.html).
+**Default Casing:** `lowercase`, unless case-sensitive identifiers are enabled and all identifiers use the `enable_case_sensitive_identifier` configuration value. See the [Redshift names and identifiers documentation](https://docs.aws.amazon.com/redshift/latest/dg/r_names.html).
 
 **Quotes:** String literals: `''`; identifiers: `""`.
 

@@ -362,3 +362,53 @@ FROM foo
         .into()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use sqruff_lib_core::parser::segments::Tables;
+    use sqruff_lib_core::utils::analysis::select::get_aliases_from_select;
+
+    use super::*;
+    use crate::core::config::FluffConfig;
+    use crate::core::linter::core::Linter;
+
+    #[test]
+    fn test_unnest_offset_aliases_are_collected_from_from_and_join() {
+        let config = FluffConfig::from_source("[sqruff]\ndialect = bigquery\n", None);
+        let linter = Linter::new(config, None, None, false).unwrap();
+        for sql in [
+            "SELECT ix, v FROM UNNEST([1, 2]) AS v WITH OFFSET AS ix",
+            "SELECT ix, v FROM t LEFT JOIN UNNEST(t.value_list) AS v WITH OFFSET AS ix",
+        ] {
+            let tables = Tables::default();
+            let parsed = linter.parse_string(&tables, sql, None).unwrap();
+            assert!(parsed.violations.is_empty());
+            let tree = parsed.tree.unwrap();
+            assert!(
+                tree.recursive_crawl(
+                    &SyntaxSet::single(SyntaxKind::Unparsable),
+                    true,
+                    &SyntaxSet::EMPTY,
+                    true,
+                )
+                .is_empty()
+            );
+            let select = tree
+                .recursive_crawl(
+                    &SyntaxSet::single(SyntaxKind::SelectStatement),
+                    true,
+                    &SyntaxSet::EMPTY,
+                    true,
+                )
+                .into_iter()
+                .next()
+                .unwrap();
+            let (_, aliases) = get_aliases_from_select(&select, Some(&linter.config().dialect));
+            assert_eq!(
+                aliases,
+                vec![SmolStr::new("v"), SmolStr::new("ix")],
+                "{sql}"
+            );
+        }
+    }
+}

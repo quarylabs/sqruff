@@ -29,8 +29,8 @@ impl JoinClauseSegment {
         };
 
         if let Some(from_expr) = from_expression_element {
-            let alias = FromExpressionElementSegment(from_expr.clone()).eventual_alias();
-            buff.push((from_expr.clone(), alias));
+            let aliases = FromExpressionElementSegment(from_expr.clone()).eventual_aliases();
+            buff.extend(aliases.into_iter().map(|alias| (from_expr.clone(), alias)));
         }
 
         // Handle parenthesized joined tables: JOIN (table1 JOIN table2 ON ...)
@@ -46,8 +46,13 @@ impl JoinClauseSegment {
             for from_expr_elem in from_expression
                 .children(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
             {
-                let alias = FromExpressionElementSegment(from_expr_elem.clone()).eventual_alias();
-                buff.push((from_expr_elem.clone(), alias));
+                let aliases =
+                    FromExpressionElementSegment(from_expr_elem.clone()).eventual_aliases();
+                buff.extend(
+                    aliases
+                        .into_iter()
+                        .map(|alias| (from_expr_elem.clone(), alias)),
+                );
             }
         }
 

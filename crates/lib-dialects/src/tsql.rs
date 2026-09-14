@@ -1228,54 +1228,77 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // PIVOT and UNPIVOT support
+    // Pivot aliases must remain inside the pivot expression for rule analysis.
     dialect.add([
         (
-            "PivotUnpivotSegment".into(),
-            NodeMatcher::new(SyntaxKind::TableExpression, |_| {
-                Ref::new("PivotUnpivotGrammar").to_matchable()
+            "PivotColumnReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::PivotColumnReference, |_| {
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    .config(|this| {
+                        this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                        this.disallow_gaps();
+                        this.terminators =
+                            vec![Ref::new("ObjectReferenceTerminatorGrammar").to_matchable()];
+                    })
+                    .to_matchable()
             })
             .to_matchable()
             .into(),
         ),
         (
-            "PivotUnpivotGrammar".into(),
-            one_of(vec![
-                // PIVOT (SUM(Amount) FOR Month IN ([Jan], [Feb], [Mar]))
+            "PivotUnpivotStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::FromPivotExpression, |_| {
                 Sequence::new(vec![
-                    Ref::keyword("PIVOT").to_matchable(),
-                    Bracketed::new(vec![
-                        Ref::new("FunctionSegment").to_matchable(),
-                        Ref::keyword("FOR").to_matchable(),
-                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                        Ref::keyword("IN").to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("PIVOT").to_matchable(),
+                            optionally_bracketed(vec![
+                                optionally_bracketed(vec![
+                                    Ref::new("FunctionSegment").to_matchable(),
+                                ])
                                 .to_matchable(),
+                                Ref::keyword("FOR").to_matchable(),
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::keyword("IN").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![
+                                        Ref::new("PivotColumnReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNPIVOT").to_matchable(),
+                            optionally_bracketed(vec![
+                                optionally_bracketed(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("FOR").to_matchable(),
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::keyword("IN").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![
+                                        Ref::new("PivotColumnReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    Ref::keyword("AS").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
                 ])
-                .to_matchable(),
-                // UNPIVOT (Value FOR Month IN ([Jan], [Feb], [Mar]))
-                Sequence::new(vec![
-                    Ref::keyword("UNPIVOT").to_matchable(),
-                    Bracketed::new(vec![
-                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                        Ref::keyword("FOR").to_matchable(),
-                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                        Ref::keyword("IN").to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
-                                .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-            ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -3061,7 +3084,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // Update TableExpressionSegment to include PIVOT/UNPIVOT
+    // T-SQL table expressions; PIVOT/UNPIVOT are handled as join-like clauses.
     dialect.replace_grammar(
         "TableExpressionSegment",
         one_of(vec![
@@ -3079,11 +3102,6 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("TableReferenceSegment").to_matchable(),
             Ref::new("StorageLocationSegment").to_matchable(),
             Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
-            Sequence::new(vec![
-                Ref::new("TableReferenceSegment").to_matchable(),
-                Ref::new("PivotUnpivotGrammar").to_matchable(),
-            ])
-            .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -3418,11 +3436,19 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Add JoinLikeClauseGrammar for T-SQL to include APPLY
-    // This allows APPLY to be used wherever joins are allowed
+    // APPLY and PIVOT/UNPIVOT can follow an aliased table expression.
     dialect.add([(
         "JoinLikeClauseGrammar".into(),
-        Ref::new("ApplyClauseSegment").to_matchable().into(),
+        one_of(vec![
+            Ref::new("ApplyClauseSegment").to_matchable(),
+            any_set_of(vec![
+                Ref::new("PivotUnpivotStatementSegment").to_matchable(),
+            ])
+            .config(|this| this.min_times(1))
+            .to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
     )]);
 
     // WITHIN GROUP support for ordered set aggregate functions

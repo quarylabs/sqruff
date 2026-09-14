@@ -1558,6 +1558,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("POSTGRES").to_matchable(),
                         Ref::keyword("MYSQL").to_matchable(),
                         Ref::keyword("KINESIS").to_matchable(),
+                        Ref::keyword("MSK").to_matchable(),
+                        Ref::keyword("KAFKA").to_matchable(),
                         Ref::keyword("REDSHIFT").to_matchable(),
                     ])
                     .to_matchable(),
@@ -1600,8 +1602,26 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
-                            Ref::keyword("SECRET_ARN").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::keyword("AUTHENTICATION").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("NONE").to_matchable(),
+                                Ref::keyword("IAM").to_matchable(),
+                                Ref::keyword("MTLS").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("AUTHENTICATION_ARN").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("SECRET_ARN").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![

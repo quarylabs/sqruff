@@ -9967,6 +9967,49 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "SetSessionAuthorizationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetSessionAuthorizationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("LOCAL").optional().to_matchable(),
+                            Ref::keyword("SESSION").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SESSION").optional().to_matchable(),
+                            Ref::keyword("SESSION").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("AUTHORIZATION").to_matchable(),
+                    one_of(vec![
+                        Ref::new("RoleReferenceSegment").to_matchable(),
+                        Ref::keyword("DEFAULT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ResetSessionAuthorizationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ResetSessionAuthorizationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("RESET").to_matchable(),
+                    Ref::keyword("SESSION").to_matchable(),
+                    Ref::keyword("AUTHORIZATION").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "DeallocateStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DeallocateStatement, |_| {
                 Sequence::new(vec![
@@ -10081,6 +10124,8 @@ pub fn statement_segment() -> Matchable {
             Ref::new("PrepareStatementSegment").to_matchable(),
             Ref::new("ExecuteStatementSegment").to_matchable(),
             Ref::new("DeallocateStatementSegment").to_matchable(),
+            Ref::new("SetSessionAuthorizationStatementSegment").to_matchable(),
+            Ref::new("ResetSessionAuthorizationStatementSegment").to_matchable(),
         ]),
         None,
         None,

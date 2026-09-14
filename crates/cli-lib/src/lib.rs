@@ -81,6 +81,12 @@ where
         }
     };
 
+    if (cli.nocolor || cli.color)
+        && let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut)
+    {
+        core.insert("nocolor".to_string(), Value::Bool(cli.nocolor));
+    }
+
     if let Some(dialect) = cli.dialect {
         let dialect_kind = DialectKind::try_from(dialect.as_str());
         match dialect_kind {
@@ -188,7 +194,7 @@ pub(crate) fn linter(
             let output_stream = std::io::stderr().into();
             let formatter = OutputStreamFormatter::new(
                 output_stream,
-                config.get("nocolor", "core").as_bool().unwrap_or_default(),
+                config.get("nocolor", "core").as_bool(),
                 config.get("verbose", "core").as_int().unwrap_or_default(),
             );
             Arc::new(formatter)

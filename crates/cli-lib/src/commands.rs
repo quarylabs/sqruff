@@ -12,6 +12,12 @@ use crate::github_action::is_in_github_action;
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
+    /// Output without ANSI color codes.
+    #[arg(short = 'n', long, global = true, overrides_with = "color")]
+    pub nocolor: bool,
+    /// Enable color on terminals, overriding NO_COLOR.
+    #[arg(long, global = true, overrides_with = "nocolor")]
+    pub color: bool,
     /// Path to a configuration file.
     #[arg(long, global = true)]
     pub config: Option<String>,
@@ -141,5 +147,26 @@ mod tests {
             Cli::try_parse_from(["sqruff", "lint", "--disable-noqa-except", "CP01", "-"]).unwrap();
 
         assert_eq!(cli.disable_noqa_except.as_deref(), Some("CP01"));
+    }
+}
+
+#[cfg(test)]
+mod color_option_tests {
+    use super::Cli;
+    use clap::Parser;
+
+    #[test]
+    fn color_flags_are_global_and_last_one_wins() {
+        for (args, nocolor, color) in [
+            (vec!["sqruff", "rules"], false, false),
+            (vec!["sqruff", "-n", "rules"], true, false),
+            (vec!["sqruff", "rules", "--nocolor"], true, false),
+            (vec!["sqruff", "--color", "rules"], false, true),
+            (vec!["sqruff", "rules", "--nocolor", "--color"], false, true),
+            (vec!["sqruff", "rules", "--color", "-n"], true, false),
+        ] {
+            let cli = Cli::try_parse_from(args).unwrap();
+            assert_eq!((cli.nocolor, cli.color), (nocolor, color));
+        }
     }
 }

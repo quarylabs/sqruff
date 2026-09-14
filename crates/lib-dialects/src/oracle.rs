@@ -2924,7 +2924,11 @@ pub fn raw_dialect() -> Dialect {
                     AnyNumberOf::new(vec![
                         Sequence::new(vec![
                             Ref::keyword("ELSIF").to_matchable(),
-                            Ref::new("ExpressionSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ExpressionSegment").to_matchable(),
+                                Ref::new("TriggerPredicatesGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
                             Ref::keyword("THEN").to_matchable(),
                             MetaSegment::indent().to_matchable(),
                             Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
@@ -2957,7 +2961,11 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::OracleIfClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("IF").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Ref::new("TriggerPredicatesGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::keyword("THEN").to_matchable(),
                 ])
                 .to_matchable()
@@ -2999,19 +3007,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("CASE").to_matchable(),
                         one_of(vec![
                             Ref::new("ExpressionSegment").to_matchable(),
-                            Ref::keyword("INSERTING").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("UPDATING").to_matchable(),
-                                Bracketed::new(vec![
-                                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("DELETING").to_matchable(),
+                            Ref::new("TriggerPredicatesGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                         MetaSegment::implicit_indent().to_matchable(),
@@ -3060,19 +3056,7 @@ pub fn raw_dialect() -> Dialect {
                         MetaSegment::implicit_indent().to_matchable(),
                         one_of(vec![
                             Ref::new("ExpressionSegment").to_matchable(),
-                            Ref::keyword("INSERTING").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("UPDATING").to_matchable(),
-                                Bracketed::new(vec![
-                                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("DELETING").to_matchable(),
+                            Ref::new("TriggerPredicatesGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                         MetaSegment::dedent().to_matchable(),

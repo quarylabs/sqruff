@@ -77,10 +77,38 @@ impl Linter {
         sql: &str,
         filename: Option<String>,
     ) -> Result<ParsedString, SQLFluffUserError> {
-        let f_name = filename.unwrap_or_else(|| "<string>".to_string());
+        if let Some(linter) = self.with_inline_config(sql)? {
+            return linter.parse_string_with_config(tables, sql, filename);
+        }
+        self.parse_string_with_config(tables, sql, filename)
+    }
 
-        // Scan the raw file for config commands.
-        self.config.process_raw_file_for_config(sql);
+    fn with_inline_config(&self, sql: &str) -> Result<Option<Self>, SQLFluffUserError> {
+        if !sql.lines().any(|line| {
+            let line = line.trim();
+            line.starts_with("-- sqlfluff:") || line.starts_with("-- sqruff:")
+        }) {
+            return Ok(None);
+        }
+        let mut config = self.config.clone();
+        config.process_raw_file_for_config(sql)?;
+        Self::new(
+            config,
+            self.formatter.clone(),
+            None,
+            self.include_parse_errors,
+        )
+        .map(Some)
+        .map_err(SQLFluffUserError::new)
+    }
+
+    fn parse_string_with_config(
+        &self,
+        tables: &Tables,
+        sql: &str,
+        filename: Option<String>,
+    ) -> Result<ParsedString, SQLFluffUserError> {
+        let f_name = filename.unwrap_or_else(|| "<string>".to_string());
         let rendered = self.render_string(sql, f_name.clone(), &self.config)?;
 
         Ok(self.parse_rendered(tables, rendered))
@@ -93,11 +121,11 @@ impl Linter {
         filename: Option<String>,
         fix: bool,
     ) -> Result<LintedFile, SQLFluffUserError> {
+        let scoped = self.with_inline_config(sql)?;
+        let linter = scoped.as_ref().unwrap_or(self);
         let tables = Tables::default();
-        let parsed = self.parse_string(&tables, sql, filename)?;
-
-        // Lint the file and return the LintedFile
-        self.lint_parsed(&tables, parsed, fix)
+        let parsed = linter.parse_string_with_config(&tables, sql, filename)?;
+        linter.lint_parsed(&tables, parsed, fix)
     }
 
     /// ignorer is an optional argument that takes in a function that returns a bool based on the

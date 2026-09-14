@@ -23,6 +23,9 @@ pub struct Cli {
     /// configuration files or inline directives.
     #[arg(long, global = true)]
     pub library_path: Option<String>,
+    /// Load configuration for stdin as if it came from this file.
+    #[arg(long, global = true)]
+    pub stdin_filename: Option<PathBuf>,
     /// Show parse errors.
     #[arg(long, global = true, default_value = "false")]
     pub parsing_errors: bool,

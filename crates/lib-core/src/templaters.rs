@@ -551,18 +551,17 @@ impl TemplatedFileInner {
             stop_slices.last().unwrap().source_slice.end
         };
 
-        let source_slice;
-        if source_start > source_stop.try_into().unwrap() {
+        let source_slice = if source_start > source_stop.try_into().unwrap() {
             let mut source_start = usize::MAX;
             let mut source_stop = 0;
             for elem in subslices {
                 source_start = usize::min(source_start, elem.source_slice.start);
                 source_stop = usize::max(source_stop, elem.source_slice.end);
             }
-            source_slice = source_start..source_stop;
+            source_start..source_stop
         } else {
-            source_slice = source_start.try_into().unwrap()..source_stop;
-        }
+            source_start.try_into().unwrap()..source_stop
+        };
 
         Ok(source_slice)
     }

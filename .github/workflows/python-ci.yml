@@ -104,7 +104,7 @@ jobs:
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
         with:
           python-version: 3.x
-      - run: rustup toolchain install 1.97.1-x86_64-unknown-linux-gnu
+      - run: rustup toolchain install 1.98.1-x86_64-unknown-linux-gnu
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
       - name: Build wheels
         if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'

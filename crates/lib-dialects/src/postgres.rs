@@ -130,6 +130,7 @@ fn overlaps_operand() -> Matchable {
             Ref::new("ColumnReferenceSegment").to_matchable(),
             Ref::new("DateTimeLiteralGrammar").to_matchable(),
             Ref::new("ShorthandCastSegment").to_matchable(),
+            Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
         ])
         .to_matchable()
     };

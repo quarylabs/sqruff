@@ -37,7 +37,7 @@ file:
     - variable: some_bool_param
     - comparison_operator:
       - raw_comparison_operator: =
-    - variable: '0'
+    - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
   - set_statement:
@@ -45,5 +45,5 @@ file:
     - variable: some_bool_param
     - comparison_operator:
       - raw_comparison_operator: =
-    - variable: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;

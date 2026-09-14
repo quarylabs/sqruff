@@ -226,3 +226,49 @@ file:
       - dot: .
       - naked_identifier: Org_Descendant
 - statement_terminator: ;
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: table_1
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: column_1
+      - comma: ','
+      - column_reference:
+        - naked_identifier: column_2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: orders
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: quant_ord
+      - comma: ','
+      - keyword: PARTITION
+      - comma: ','
+      - column_reference:
+        - naked_identifier: quant_shpd
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: table_1
+    - keyword: COLUMN
+    - keyword: PARTITION
+- statement_terminator: ;

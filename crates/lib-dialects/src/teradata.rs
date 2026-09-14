@@ -523,6 +523,24 @@ fn collect_statistics_segment() -> DialectElementType {
             kw("ON"),
             kw("TEMPORARY").optional(),
             Ref::new("TableReferenceSegment").to_matchable(),
+            optional_sequence(vec![
+                kw("COLUMN"),
+                optionally_bracketed(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            kw("PARTITION"),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                optional_sequence(vec![
+                    kw("AS").optional(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ]),
+            ]),
         ])
         .to_matchable()
     })

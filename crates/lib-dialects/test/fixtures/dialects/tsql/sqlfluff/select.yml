@@ -89,3 +89,43 @@ file:
                 - numeric_literal: '2'
               - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - bare_function: CURRENT_USER
+      - comma: ','
+      - select_clause_element:
+        - bare_function: SESSION_USER
+      - comma: ','
+      - select_clause_element:
+        - bare_function: SYSTEM_USER
+      - comma: ','
+      - select_clause_element:
+        - bare_function: USER
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: test
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - keyword: default
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: all_pop
+- statement_terminator: ;

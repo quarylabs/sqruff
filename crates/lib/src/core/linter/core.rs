@@ -25,6 +25,7 @@ use sqruff_lib_core::linter::compute_anchor_edit_info;
 use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
+use sqruff_lib_core::value::Value;
 
 pub struct Linter {
     config: FluffConfig,
@@ -179,6 +180,14 @@ impl Linter {
             })
             .collect_vec();
 
+        let mut selected_paths = Vec::with_capacity(paths.len());
+        for path in paths {
+            if !self.skip_large_file(&path)? {
+                selected_paths.push(path);
+            }
+        }
+        let paths = selected_paths;
+
         let mut files = Vec::with_capacity(paths.len());
 
         match self.templater.processing_mode() {
@@ -220,6 +229,40 @@ impl Linter {
         }
 
         Ok(LintingResult::new(files))
+    }
+
+    fn skip_large_file(&self, path: &str) -> Result<bool, SQLFluffUserError> {
+        let value = &self.config.raw["core"]["large_file_skip_byte_limit"];
+        if !value.to_bool() {
+            return Ok(false);
+        }
+        let invalid = || {
+            SQLFluffUserError::new(format!(
+                "large_file_skip_byte_limit cannot be converted to an integer: {value:?}"
+            ))
+        };
+        let limit = match value {
+            Value::Int(value) => i128::from(*value),
+            Value::String(value) => value.trim().parse::<i128>().map_err(|_| invalid())?,
+            Value::Bool(value) => i128::from(*value),
+            Value::Float(value) if value.is_finite() => value.trunc() as i128,
+            _ => return Err(invalid()),
+        };
+        let size = std::fs::metadata(path)
+            .map_err(|error| {
+                SQLFluffUserError::new(format!("Cannot read file size for {path}: {error}"))
+            })?
+            .len();
+        if i128::from(size) <= limit {
+            return Ok(false);
+        }
+        let reason =
+            format!("File is {size} bytes, exceeding large_file_skip_byte_limit of {limit} bytes.");
+        log::warn!("Skipping {path}: {reason}");
+        if let Some(formatter) = &self.formatter {
+            formatter.dispatch_file_skip(path, &reason);
+        }
+        Ok(true)
     }
 
     pub fn get_rulepack(&self) -> Result<RulePack, SQLFluffUserError> {
@@ -918,7 +961,48 @@ rules = all
         Linter::new(config, None, None, true).unwrap()
     }
 
-    // test__linter__skip_large_bytes
+    #[test]
+    fn large_file_limit_accepts_numeric_strings_and_rejects_invalid_values() {
+        use sqruff_lib_core::value::Value;
+
+        let path = std::env::temp_dir().join(format!(
+            "sqruff-large-file-limit-{}.sql",
+            std::process::id()
+        ));
+        std::fs::write(&path, "SELECT 1\n").unwrap();
+        let size = std::fs::metadata(&path).unwrap().len() as i32;
+        let cases = [
+            (Value::Int(0), Some(false)),
+            (Value::None, Some(false)),
+            (Value::Int(200), Some(false)),
+            (Value::String("200".into()), Some(false)),
+            (Value::String("Not a Valid value".into()), None),
+            (Value::String("None".into()), None),
+            (Value::Array(vec![Value::Int(1)]), None),
+            (Value::Int(size), Some(false)),
+            (Value::String(size.to_string().into()), Some(false)),
+            (Value::Int(size - 1), Some(true)),
+            (Value::Int(-1), Some(true)),
+        ];
+        for (value, expected) in cases {
+            let mut config = FluffConfig::from_source("[sqruff]\ndialect = ansi\n", None);
+            config
+                .raw
+                .get_mut("core")
+                .unwrap()
+                .as_map_mut()
+                .unwrap()
+                .insert("large_file_skip_byte_limit".into(), value.clone());
+            let mut linter = Linter::new(config, None, None, false).unwrap();
+            let result = linter.lint_paths(vec![path.clone()], false, &|_| false);
+            match expected {
+                Some(skip) => assert_eq!(result.unwrap().len(), usize::from(!skip), "{value:?}"),
+                None => assert!(result.is_err(), "{value:?}"),
+            }
+        }
+        std::fs::remove_file(path).unwrap();
+    }
+
     // test__linter__lint_string_vs_file
     // test__linter__get_violations_filter_rules
     // test__linter__linting_result__sum_dicts

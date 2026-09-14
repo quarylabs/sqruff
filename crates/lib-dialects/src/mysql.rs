@@ -38,6 +38,32 @@ pub fn raw_dialect() -> Dialect {
     let mut mysql = ansi::raw_dialect();
     mysql.name = DialectKind::Mysql;
 
+    mysql.add([(
+        "NullSafeEqualsSegment".into(),
+        NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+            Sequence::new(vec![
+                Ref::new("RawLessThanSegment").to_matchable(),
+                Ref::new("RawEqualsSegment").to_matchable(),
+                Ref::new("RawGreaterThanSegment").to_matchable(),
+            ])
+            .allow_gaps(false)
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    mysql.replace_grammar(
+        "ComparisonOperatorGrammar",
+        mysql.grammar("ComparisonOperatorGrammar").copy(
+            Some(vec![Ref::new("NullSafeEqualsSegment").to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
     // ============================================================
     // Lexer matchers
     // ============================================================

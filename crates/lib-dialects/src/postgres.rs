@@ -9899,6 +9899,71 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    postgres.add([
+        (
+            "PrepareStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::PrepareStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("PREPARE").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    })
+                    .to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SelectableGrammar").to_matchable(),
+                        Ref::new("MergeStatementSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExecuteStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExecuteStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXECUTE").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DeallocateStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DeallocateStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DEALLOCATE").to_matchable(),
+                    Ref::keyword("PREPARE").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        Ref::keyword("ALL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
     postgres.replace_grammar(
         "OverlapsClauseSegment",
         NodeMatcher::new(SyntaxKind::OverlapsClause, |_| {
@@ -9993,6 +10058,9 @@ pub fn statement_segment() -> Matchable {
             Ref::new("ImportForeignSchemaStatementSegment").to_matchable(),
             Ref::new("CreateForeignTableStatementSegment").to_matchable(),
             Ref::new("SecurityLabelStatementSegment").to_matchable(),
+            Ref::new("PrepareStatementSegment").to_matchable(),
+            Ref::new("ExecuteStatementSegment").to_matchable(),
+            Ref::new("DeallocateStatementSegment").to_matchable(),
         ]),
         None,
         None,

@@ -1,0 +1,12 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - quoted_literal: '"a string"'
+          - keyword: COLLATE
+          - collation_reference:
+            - quoted_literal: '"utf8mb4_general_ci"'
+- statement_terminator: ;

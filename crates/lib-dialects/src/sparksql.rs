@@ -2858,9 +2858,10 @@ pub fn raw_dialect() -> Dialect {
             "LateralViewClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::LateralViewClause, |_| {
                 Sequence::new(vec![
+                    Ref::new("CommaSegment").optional().to_matchable(),
                     MetaSegment::indent().to_matchable(),
                     Ref::keyword("LATERAL").to_matchable(),
-                    Ref::keyword("VIEW").to_matchable(),
+                    Ref::keyword("VIEW").optional().to_matchable(),
                     Ref::keyword("OUTER").optional().to_matchable(),
                     Ref::new("FunctionSegment").to_matchable(),
                     one_of(vec![

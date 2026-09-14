@@ -878,6 +878,12 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("FILLTARGET").optional().to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SET").to_matchable(),
+                        Ref::keyword("LOCATION").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

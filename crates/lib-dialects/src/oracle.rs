@@ -306,6 +306,7 @@ pub fn raw_dialect() -> Dialect {
         "SYSGUID",
         "TIME_ZONE",
         "TIMEOUT",
+        "TYPENAME",
         "UNLIMITED",
         "VARRAY",
         "VISIBILITY",
@@ -5114,6 +5115,154 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    oracle.add([
+        (
+            "JSONObjectContentSegment".into(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("StarSegment").to_matchable(),
+                    Delimited::new(vec![Ref::new("JSONEntrySegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+                Ref::new("JSONOnNullClause").optional().to_matchable(),
+                Ref::new("JSONReturningClause").optional().to_matchable(),
+                Ref::keyword("STRICT").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("UNIQUE").to_matchable(),
+                    Ref::keyword("KEYS").to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JSONEntrySegment".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("JSONRegularEntrySegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("FORMAT").to_matchable(),
+                        Ref::keyword("JSON").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("WildcardIdentifierSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JSONRegularEntrySegment".into(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("KEY").optional().to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::keyword("VALUE").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("ColonSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .config(|config| {
+                            config.optional();
+                        })
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JSONOnNullClause".into(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("NULL").to_matchable(),
+                    Ref::keyword("ABSENT").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("NULL").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JSONReturningClause".into(),
+            Sequence::new(vec![
+                Ref::keyword("RETURNING").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("VARCHAR").to_matchable(),
+                        Bracketed::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("BYTE").to_matchable(),
+                                    Ref::keyword("CHAR").to_matchable(),
+                                ])
+                                .config(|config| {
+                                    config.optional();
+                                })
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|config| {
+                            config.optional();
+                        })
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("TYPENAME").to_matchable(),
+                        ])
+                        .config(|config| {
+                            config.optional();
+                        })
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("CLOB").to_matchable(),
+                            Ref::keyword("BLOB").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("SingleIdentifierGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("JSON").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // ---- FunctionContentsGrammar: add ListaggOverflow and JSONObjectContent ----
     // SQLFluff: ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
     //     insert=[Ref("ListaggOverflowClauseSegment"), Ref("JSONObjectContentSegment")])
@@ -5124,6 +5273,7 @@ pub fn raw_dialect() -> Dialect {
             existing.copy(
                 Some(vec![
                     Ref::new("ListaggOverflowClauseSegment").to_matchable(),
+                    Ref::new("JSONObjectContentSegment").to_matchable(),
                 ]),
                 None,
                 None,

@@ -218,11 +218,11 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
-    // SystemVariableSegment - @@var, @@session.var, or @@global.var.
+    // SystemVariableSegment - an optionally scoped @@system variable.
     mysql.add([(
         "SystemVariableSegment".into(),
         RegexParser::new(
-            r"@@((session|global)\.)?[A-Za-z0-9_]+",
+            r"@@((session|global|local|persist|persist_only)\.)?[A-Za-z0-9_]+",
             SyntaxKind::SystemVariable,
         )
         .to_matchable()
@@ -1656,8 +1656,18 @@ pub fn raw_dialect() -> Dialect {
                         .config(|this| this.optional())
                         .to_matchable(),
                         one_of(vec![
+                            Ref::keyword("GLOBAL").to_matchable(),
+                            Ref::keyword("PERSIST").to_matchable(),
+                            Ref::keyword("PERSIST_ONLY").to_matchable(),
+                            Ref::keyword("SESSION").to_matchable(),
+                            Ref::keyword("LOCAL").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        one_of(vec![
                             Ref::new("SessionVariableNameSegment").to_matchable(),
                             Ref::new("LocalVariableNameSegment").to_matchable(),
+                            Ref::new("SystemVariableSegment").to_matchable(),
                         ])
                         .to_matchable(),
                         one_of(vec![
@@ -1666,6 +1676,7 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         AnyNumberOf::new(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
                             Ref::new("QuotedLiteralSegment").to_matchable(),
                             Ref::new("DoubleQuotedLiteralSegment").to_matchable(),
                             Ref::new("SessionVariableNameSegment").to_matchable(),

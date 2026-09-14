@@ -5,7 +5,7 @@ file:
     - variable: '@abc'
     - comparison_operator:
       - raw_comparison_operator: =
-    - variable: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
   - set_statement:
@@ -13,7 +13,7 @@ file:
     - variable: '@my_var'
     - comparison_operator:
       - raw_comparison_operator: =
-    - variable: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
   - set_statement:
@@ -21,7 +21,7 @@ file:
     - variable: '@my$currency'
     - comparison_operator:
       - raw_comparison_operator: =
-    - variable: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
   - set_statement:
@@ -29,5 +29,5 @@ file:
     - variable: '@sha256enabled'
     - comparison_operator:
       - raw_comparison_operator: =
-    - variable: '1'
+    - numeric_literal: '1'
 - statement_terminator: ;

@@ -48,7 +48,7 @@ file:
         - variable: _test
         - comparison_operator:
           - raw_comparison_operator: =
-        - variable: '1'
+        - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
   - if_then_statement:

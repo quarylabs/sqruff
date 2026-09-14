@@ -28,7 +28,7 @@ file:
     - keyword: SET
     - variable: '@var1'
     - assignment_operator: :=
-    - variable: '0'
+    - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
   - set_statement:

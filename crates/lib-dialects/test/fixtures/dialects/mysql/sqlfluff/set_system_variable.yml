@@ -10,7 +10,7 @@ file:
     - variable: UNIQUE_CHECKS
     - comparison_operator:
       - raw_comparison_operator: =
-    - variable: '0'
+    - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
   - set_statement:
@@ -23,7 +23,7 @@ file:
     - variable: FOREIGN_KEY_CHECKS
     - comparison_operator:
       - raw_comparison_operator: =
-    - variable: '0'
+    - numeric_literal: '0'
 - statement_terminator: ;
 - statement:
   - set_statement:

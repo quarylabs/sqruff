@@ -484,21 +484,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
             AnyNumberOf::new(vec![
                 one_of(vec![
-                    Sequence::new(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("NOT").optional().to_matchable(),
-                            Ref::new("LikeGrammar").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("Expression_A_Grammar").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("ESCAPE").to_matchable(),
-                            Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("LikeExpressionGrammar").to_matchable(),
                     Sequence::new(vec![
                         Ref::new("BinaryOperatorGrammar").to_matchable(),
                         Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),

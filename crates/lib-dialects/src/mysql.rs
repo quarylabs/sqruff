@@ -295,6 +295,16 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    mysql.add([(
+        "CollateGrammar".into(),
+        Sequence::new(vec![
+            Ref::keyword("COLLATE").to_matchable(),
+            Ref::new("CollationReferenceSegment").to_matchable(),
+        ])
+        .to_matchable()
+        .into(),
+    )]);
+
     // ProcedureParameterGrammar.
     mysql.add([(
         "ProcedureParameterGrammar".into(),
@@ -4279,12 +4289,8 @@ pub(crate) fn column_constraint_grammar(allow_persistent: bool) -> Matchable {
             Ref::new("AutoIncrementGrammar").to_matchable(),
             Ref::new("ReferenceDefinitionGrammar").to_matchable(),
             Ref::new("CommentClauseSegment").to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("COLLATE").to_matchable(),
-                Ref::new("CollationReferenceSegment").to_matchable(),
-            ])
-            .to_matchable(),
-            // MySQL-specific: CHARACTER SET and COLLATE constraints.
+            Ref::new("CollateGrammar").to_matchable(),
+            // MySQL-specific CHARACTER SET constraint.
             Sequence::new(vec![
                 Ref::keyword("CHARACTER").to_matchable(),
                 Ref::keyword("SET").to_matchable(),
@@ -4294,11 +4300,6 @@ pub(crate) fn column_constraint_grammar(allow_persistent: bool) -> Matchable {
                     Ref::new("DoubleQuotedIdentifierSegment").to_matchable(),
                 ])
                 .to_matchable(),
-            ])
-            .to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("COLLATE").to_matchable(),
-                Ref::new("CollationReferenceSegment").to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![

@@ -1,0 +1,32 @@
+file:
+- statement:
+  - execute_statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: statement_name
+- statement_terminator: ;
+- statement:
+  - execute_statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: statement_name
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - execute_statement:
+    - keyword: EXECUTE
+    - object_reference:
+      - naked_identifier: statement_name
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+        - quoted_literal: '''foo'''
+      - end_bracket: )
+- statement_terminator: ;

@@ -360,7 +360,10 @@ pub fn raw_dialect() -> Dialect {
             ansi_dialect
                 .grammar("LiteralGrammar")
                 .copy(
-                    Some(vec![Ref::new("MaxLiteralSegment").to_matchable()]),
+                    Some(vec![
+                        Ref::new("MaxLiteralSegment").to_matchable(),
+                        Ref::new("DollarNumericLiteralSegment").to_matchable(),
+                    ]),
                     None,
                     None,
                     None,
@@ -3635,5 +3638,42 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    redshift_dialect.add([
+        (
+            "PrepareStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::PrepareStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("PREPARE").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    })
+                    .to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::new("SelectableGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DeallocateStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DeallocateStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DEALLOCATE").to_matchable(),
+                    Ref::keyword("PREPARE").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
     redshift_dialect
 }

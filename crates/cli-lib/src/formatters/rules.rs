@@ -23,7 +23,7 @@ impl Default for RulesFormatter {
 }
 
 impl RulesFormatter {
-    pub(crate) fn new(nocolor: bool) -> Self {
+    pub(crate) fn new(nocolor: Option<bool>) -> Self {
         Self {
             rules: rules(),
             plain_output: should_produce_plain_output(nocolor),

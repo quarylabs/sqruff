@@ -3505,8 +3505,19 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("RETURN").to_matchable(),
                     ])
                     .to_matchable(),
-                    Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("OLD").to_matchable(),
+                                Ref::keyword("NEW").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        ])
                         .to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     one_of(vec![
                         Ref::new("IntoClauseSegment").to_matchable(),
                         Ref::new("BulkCollectIntoClauseSegment").to_matchable(),
@@ -4339,6 +4350,19 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("OVERLAPS").to_matchable(),
             Ref::new("SetOperatorSegment").to_matchable(),
             Ref::keyword("FETCH").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    oracle.replace_grammar(
+        "MergeUpdateClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("UPDATE").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            Ref::new("SetClauseListSegment").to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+            Ref::new("WhereClauseSegment").optional().to_matchable(),
+            Ref::new("ReturningClauseSegment").optional().to_matchable(),
         ])
         .to_matchable(),
     );

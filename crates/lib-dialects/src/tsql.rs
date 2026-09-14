@@ -204,10 +204,10 @@ pub fn raw_dialect() -> Dialect {
 
     // T-SQL specific lexer patches:
     // 1. T-SQL only uses -- for inline comments, not # (which is used in temp table names)
-    // 2. Update word pattern to allow # at the end (SQL Server 2017+ syntax)
+    // 2. Allow Unicode letters and a trailing # (SQL Server 2017+ syntax).
     dialect.patch_lexer_matchers(vec![
         Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
-        Matcher::regex("word", r"[0-9a-zA-Z_]+#?", SyntaxKind::Word),
+        Matcher::regex("word", r"[0-9a-zA-Z_\p{L}]+#?", SyntaxKind::Word),
     ]);
 
     // Since T-SQL uses square brackets as quoted identifiers and the lexer
@@ -741,7 +741,7 @@ pub fn raw_dialect() -> Dialect {
                 let anti_template = format!("^({pattern})$");
 
                 RegexParser::new(
-                    r"[A-Za-z0-9_]*[A-Za-z][A-Za-z0-9_]*#?",
+                    r"[A-Za-z0-9_\p{L}]*[A-Za-z\p{L}][A-Za-z0-9_\p{L}]*#?",
                     SyntaxKind::NakedIdentifier,
                 )
                 .anti_template(&anti_template)

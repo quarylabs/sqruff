@@ -134,7 +134,7 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "VIEWS",
         ],
         DialectKind::Duckdb | DialectKind::Greenplum | DialectKind::Postgres => &["EXECUTION"],
-        DialectKind::Materialize => &["EXECUTION", "VARIADIC"],
+        DialectKind::Materialize => &["EXECUTION"],
         DialectKind::Oracle => &[
             "AUTHENTICATION",
             "CREDENTIAL",

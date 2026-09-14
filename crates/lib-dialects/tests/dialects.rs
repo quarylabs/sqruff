@@ -324,3 +324,47 @@ fn dialects() {
         });
     }
 }
+
+#[test]
+fn bracketed_matching_modes() {
+    use sqruff_lib_core::helpers::ToMatchable;
+    use sqruff_lib_core::parser::context::ParseContext;
+    use sqruff_lib_core::parser::grammar::sequence::Bracketed;
+    use sqruff_lib_core::parser::matchable::MatchableTrait;
+    use sqruff_lib_core::parser::parsers::StringParser;
+    use sqruff_lib_core::parser::types::ParseMode;
+
+    let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
+    for (sql, mode, gaps, content, expected) in [
+        ("(a", ParseMode::Strict, true, true, 0),
+        ("(a", ParseMode::Greedy, true, true, -1),
+        ("( )", ParseMode::Greedy, false, false, -1),
+        ("( )", ParseMode::Strict, false, false, 0),
+        ("(a)", ParseMode::Strict, true, true, 1),
+        ("( a )", ParseMode::Strict, true, true, 1),
+        ("(a b)", ParseMode::Strict, true, true, 0),
+        ("(a b)", ParseMode::Greedy, true, true, 1),
+    ] {
+        let tables = Tables::default();
+        let (segments, errors) = Lexer::from(&dialect).lex(&tables, sql);
+        assert!(errors.is_empty());
+        let elements = if content {
+            vec![StringParser::new("a", SyntaxKind::Keyword).to_matchable()]
+        } else {
+            vec![]
+        };
+        let mut grammar = Bracketed::new(elements).allow_gaps(gaps);
+        grammar.parse_mode(mode);
+        let mut context = ParseContext::new(&dialect, Default::default());
+        let result = grammar.match_segments(&segments, 0, &mut context);
+        match expected {
+            -1 => assert!(result.is_err(), "{sql}: {result:?}"),
+            0 => assert!(!result.unwrap().has_match(), "{sql}"),
+            _ => {
+                let result = result.unwrap();
+                assert!(result.has_match(), "{sql}");
+                assert_eq!(result.span.end, segments.len() as u32 - 1, "{sql}");
+            }
+        }
+    }
+}

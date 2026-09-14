@@ -9,7 +9,7 @@ use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{RegexParser, StringParser};
+use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
 
@@ -42,6 +42,7 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "UNPIVOT");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "ANTI");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "ASOF");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "GLOB");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "MACRO");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "MAP");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "POSITIONAL");
@@ -393,7 +394,10 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.replace_grammar(
         "ComparisonOperatorGrammar",
         ansi_dialect.grammar("ComparisonOperatorGrammar").copy(
-            Some(vec![Ref::new("EqualsSegment_a").to_matchable()]),
+            Some(vec![
+                Ref::new("EqualsSegment_a").to_matchable(),
+                Ref::new("GlobOperatorSegment").to_matchable(),
+            ]),
             None,
             None,
             None,
@@ -401,6 +405,23 @@ pub fn raw_dialect() -> Dialect {
             false,
         ),
     );
+    duckdb_dialect.replace_grammar(
+        "LikeGrammar",
+        duckdb_dialect.grammar("LikeGrammar").copy(
+            Some(vec![Ref::keyword("GLOB").to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+    duckdb_dialect.add([(
+        "UnpackingOperatorSegment".into(),
+        TypedParser::new(SyntaxKind::Star, SyntaxKind::UnpackingOperator)
+            .to_matchable()
+            .into(),
+    )]);
     duckdb_dialect.patch_lexer_matchers(vec![Matcher::regex(
         "equals",
         "==?",
@@ -482,7 +503,13 @@ pub fn raw_dialect() -> Dialect {
 
     duckdb_dialect.replace_grammar(
         "ColumnsExpressionNameGrammar",
-        Ref::keyword("COLUMNS").to_matchable(),
+        Sequence::new(vec![
+            Ref::new("UnpackingOperatorSegment")
+                .optional()
+                .to_matchable(),
+            Ref::keyword("COLUMNS").to_matchable(),
+        ])
+        .to_matchable(),
     );
 
     duckdb_dialect.replace_grammar(
@@ -677,6 +704,56 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "WildcardRenameExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::WildcardRename, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("RENAME").to_matchable(),
+                    one_of(vec![
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "WildcardPatternMatchingSegment".into(),
+            NodeMatcher::new(SyntaxKind::WildcardPatternMatching, |_| {
+                one_of(vec![
+                    Ref::new("LikeExpressionGrammar").to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::new("LikeOperatorSegment").to_matchable(),
+                            Ref::new("GlobOperatorSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "WildcardExpressionSegment".into(),
             NodeMatcher::new(SyntaxKind::WildcardExpression, |_| {
                 Sequence::new(vec![
@@ -684,9 +761,20 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("WildcardExcludeExpressionSegment")
                         .optional()
                         .to_matchable(),
-                    Ref::new("WildcardReplaceExpressionSegment")
-                        .optional()
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("WildcardReplaceExpressionSegment")
+                                .optional()
+                                .to_matchable(),
+                            Ref::new("WildcardRenameExpressionSegment")
+                                .optional()
+                                .to_matchable(),
+                        ])
                         .to_matchable(),
+                        Ref::new("WildcardPatternMatchingSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -699,8 +787,8 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec![
                     one_of(vec![
                         Ref::new("WildcardExpressionSegment").to_matchable(),
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
                         Ref::new("LambdaExpressionSegment").to_matchable(),
+                        Ref::new("BaseExpressionElementGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])

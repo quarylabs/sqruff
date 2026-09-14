@@ -301,6 +301,12 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
+            "GlobOperatorSegment".into(),
+            TypedParser::new(SyntaxKind::GlobOperator, SyntaxKind::GlobOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "LikeOperatorSegment".into(),
             TypedParser::new(SyntaxKind::LikeOperator, SyntaxKind::ComparisonOperator)
                 .to_matchable()
@@ -732,6 +738,25 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("LIKE").to_matchable(),
                 Ref::keyword("RLIKE").to_matchable(),
                 Ref::keyword("ILIKE").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LikeExpressionGrammar".into(),
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::new("LikeGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("Expression_A_Grammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ESCAPE").to_matchable(),
+                    Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -4923,21 +4948,7 @@ pub fn raw_dialect() -> Dialect {
                 AnyNumberOf::new(vec![
                     one_of(vec![
                         // Like grammar with NOT and optional ESCAPE
-                        Sequence::new(vec![
-                            Sequence::new(vec![
-                                Ref::keyword("NOT").optional().to_matchable(),
-                                Ref::new("LikeGrammar").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::new("Expression_A_Grammar").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("ESCAPE").to_matchable(),
-                                Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("LikeExpressionGrammar").to_matchable(),
                         // Binary operator grammar
                         Sequence::new(vec![
                             Ref::new("BinaryOperatorGrammar").to_matchable(),
@@ -5330,6 +5341,7 @@ fn lexer_matchers() -> Vec<Matcher> {
             r"////\s*(CHANGE|BODY|METADATA)[^\n]*",
             SyntaxKind::Comment,
         ),
+        Matcher::string("glob_operator", "~~~", SyntaxKind::GlobOperator),
         Matcher::regex("like_operator", r"!?~~?\*?", SyntaxKind::LikeOperator),
         Matcher::regex("newline", r"(\r\n|\n)", SyntaxKind::Newline),
         Matcher::string("casting_operator", "::", SyntaxKind::CastingOperator),

@@ -118,6 +118,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | AssignmentOperator
         | CastingOperator
         | LikeOperator
+        | GlobOperator
+        | UnpackingOperator
         | WalrusOperator
         | JsonOperator
         | ParameterAssigner
@@ -910,7 +912,6 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | FunctionOptionSegment
         | FunctionParameterListWithComments
         | GetDiagnosticsSegment
-        | GlobOperator
         | GoStatement
         | GotoStatement
         | GrantToSegment

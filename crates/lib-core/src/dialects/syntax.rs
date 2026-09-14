@@ -1201,6 +1201,7 @@ pub enum SyntaxKind {
     UnlistenStatement,
     UnloadStatement,
     UnorderedSelectStatementSegment,
+    UnpackingOperator,
     Unparsable,
     UnpivotClause,
     UnpivotMultiColumn,

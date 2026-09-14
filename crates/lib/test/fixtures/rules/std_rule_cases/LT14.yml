@@ -174,3 +174,129 @@ test_pass_none_where_clause:
       type:
         where_clause:
           keyword_line_position: none
+
+test_fail_alone_window_function:
+  fail_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  fix_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (
+    PARTITION BY
+    c
+    ORDER BY
+    d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    layout:
+      type:
+        partitionby_clause:
+          keyword_line_position: alone
+        orderby_clause:
+          keyword_line_position: alone
+          keyword_line_position_exclusions: None
+
+test_fail_leading_qualify:
+  fail_str: |
+    SELECT
+    a,
+    b
+    FROM f
+    JOIN g
+    ON g.h = f.h QUALIFY ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) = 1
+  fix_str: |
+    SELECT
+    a,
+    b
+    FROM f
+    JOIN g
+    ON g.h = f.h
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY c
+    ORDER BY d) = 1
+  configs:
+    core:
+      dialect: duckdb
+    layout:
+      type:
+        qualify_clause:
+          keyword_line_position: leading
+        orderby_clause:
+          keyword_line_position_exclusions: None
+
+test_pass_leading_orderby_except_list_function:
+  pass_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e,
+    STRING_AGG(a ORDER BY b, c)
+    FROM f
+    JOIN g
+    ON g.h = f.h
+  configs:
+    layout:
+      type:
+        orderby_clause:
+          keyword_line_position: leading
+          keyword_line_position_exclusions: window_specification, aggregate_order_by
+
+test_fail_leading_orderby_except_window_function_outer_orderby:
+  fail_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h ORDER BY a
+  fix_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e
+    FROM f
+    JOIN g
+    ON g.h = f.h
+    ORDER BY a
+  configs:
+    layout:
+      type:
+        orderby_clause:
+          keyword_line_position: leading
+          keyword_line_position_exclusions: window_specification
+
+test_fail_leading_orderby_except_list_outer_orderby:
+  fail_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e,
+    STRING_AGG(a ORDER BY b, c)
+    FROM f
+    JOIN g
+    ON g.h = f.h ORDER BY a
+  fix_str: |
+    SELECT
+    a,
+    b,
+    ROW_NUMBER() OVER (PARTITION BY c ORDER BY d) AS e,
+    STRING_AGG(a ORDER BY b, c)
+    FROM f
+    JOIN g
+    ON g.h = f.h
+    ORDER BY a
+  configs:
+    layout:
+      type:
+        orderby_clause:
+          keyword_line_position: leading
+          keyword_line_position_exclusions: window_specification, aggregate_order_by

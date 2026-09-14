@@ -4384,7 +4384,9 @@ pub(crate) fn insert_statement_grammar(
         ])
         .to_matchable()
     } else {
-        Ref::new("SelectStatementSegment").to_matchable()
+        Ref::new("SelectableGrammar")
+            .terminators(vec![Ref::keyword("RETURNING").to_matchable()])
+            .to_matchable()
     };
 
     let mut insert_clauses = vec![
@@ -4393,6 +4395,11 @@ pub(crate) fn insert_statement_grammar(
             Ref::new("SetClauseListSegment").to_matchable(),
             select_source,
         ])
+        .config(|this| {
+            if allow_returning {
+                this.optional();
+            }
+        })
         .to_matchable(),
         Ref::new("InsertRowAliasSegment").optional().to_matchable(),
         Ref::new("UpsertClauseListSegment")
@@ -4425,7 +4432,13 @@ pub(crate) fn insert_statement_grammar(
         Ref::new("BracketedColumnReferenceListGrammar")
             .optional()
             .to_matchable(),
-        any_set_of(insert_clauses).to_matchable(),
+        if allow_returning {
+            Sequence::new(insert_clauses)
+                .config(|this| this.optional())
+                .to_matchable()
+        } else {
+            any_set_of(insert_clauses).to_matchable()
+        },
     ])
     .to_matchable()
 }

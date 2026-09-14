@@ -129,3 +129,15 @@ file:
                 - dot: .
                 - naked_identifier: all_pop
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: field1
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: 日期差多少天
+- statement_terminator: ;

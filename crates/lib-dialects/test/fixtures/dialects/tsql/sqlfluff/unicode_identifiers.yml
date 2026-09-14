@@ -1,0 +1,43 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: 日期
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: café
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: Δείγμα
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: пример
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: _名2
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: 名2#
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a名b
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: 数据
+                - dot: .
+                - naked_identifier: 表名
+- statement_terminator: ;

@@ -53,6 +53,7 @@ Lint SQL files via passing a list of files or using stdin
 
 ###### **Options:**
 
+* `--disregard-sqruffignores` [alias: `disregard-sqlfluffignores`] — Perform the operation regardless of .sqruffignore and .sqlfluffignore configurations
 * `-f`, `--format <FORMAT>`
 
   Default value: `human`
@@ -79,6 +80,7 @@ Fix SQL files via passing a list of files or using stdin
 
 ###### **Options:**
 
+* `--disregard-sqruffignores` [alias: `disregard-sqlfluffignores`] — Perform the operation regardless of .sqruffignore and .sqlfluffignore configurations
 * `-f`, `--format <FORMAT>` — The output format for the results
 
   Default value: `human`

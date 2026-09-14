@@ -1356,6 +1356,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     databricks.replace_grammar(
+        "PreTableFunctionKeywordsGrammar",
+        Ref::keyword("STREAM").to_matchable(),
+    );
+
+    databricks.replace_grammar(
         "FunctionNameIdentifierSegment",
         one_of(vec![
             TypedParser::new(SyntaxKind::Word, SyntaxKind::FunctionNameIdentifier).to_matchable(),

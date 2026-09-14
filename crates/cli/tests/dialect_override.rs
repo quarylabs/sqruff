@@ -77,3 +77,86 @@ fn dialect_override() {
 }
 
 const STATEMENT: &str = "SELECT DISTINCT ON (customer_id)\n    customer_id, total, created_at\nFROM orders\nORDER BY customer_id, created_at DESC;\n";
+
+#[test]
+fn stdin_filename_inline_configuration() {
+    for command in ["lint", "fix"] {
+        let temp = tempfile::TempDir::new().unwrap();
+        let sql = "-- sqlfluff:dialect:ansi\nSELECT 1\n";
+        let mut cmd = Command::new(sqruff_path());
+        cmd.current_dir(temp.path())
+            .args([command, "--stdin-filename", "test.sql", "-"])
+            .write_stdin(sql)
+            .assert()
+            .success();
+        assert!(!temp.path().join("test.sql").exists());
+    }
+}
+
+#[test]
+fn stdin_filename_nested_config_and_inline_override() {
+    let temp = tempfile::TempDir::new().unwrap();
+    let nested = temp.path().join("nested");
+    fs::create_dir(&nested).unwrap();
+    fs::write(
+        nested.join(".sqruff"),
+        "[sqruff]\ndialect = postgres\nrules = LT12\n",
+    )
+    .unwrap();
+    for sql in [
+        "SELECT 1::int\n",
+        "-- sqlfluff:dialect:bigquery\nSELECT * FROM `project.dataset.table`\n",
+    ] {
+        Command::new(sqruff_path())
+            .current_dir(temp.path())
+            .args([
+                "lint",
+                "--stdin-filename",
+                "nested/test.sql",
+                "--parsing-errors",
+                "-",
+            ])
+            .write_stdin(sql)
+            .assert()
+            .success();
+    }
+    Command::new(sqruff_path())
+        .current_dir(temp.path())
+        .args(["fix", "--stdin-filename", "nested/test.sql", "-"])
+        .write_stdin("SELECT 1::int")
+        .assert()
+        .success()
+        .stdout("SELECT 1::int\n");
+    assert!(!nested.join("test.sql").exists());
+}
+
+#[cfg(feature = "parser")]
+#[test]
+fn parse_stdin_filename_inline_configuration() {
+    let temp = tempfile::TempDir::new().unwrap();
+    Command::new(sqruff_path())
+        .current_dir(temp.path())
+        .args(["parse", "--stdin-filename", "test.sql", "-"])
+        .write_stdin("-- sqlfluff:dialect:ansi\nSELECT 1\n")
+        .assert()
+        .success();
+}
+
+#[test]
+fn inline_rules_preserve_cli_dialect() {
+    let temp = tempfile::TempDir::new().unwrap();
+    Command::new(sqruff_path())
+        .current_dir(temp.path())
+        .args([
+            "fix",
+            "--dialect",
+            "postgres",
+            "--stdin-filename",
+            "test.sql",
+            "-",
+        ])
+        .write_stdin("-- sqlfluff:rules:LT12\nSELECT 1::int")
+        .assert()
+        .success()
+        .stdout("-- sqlfluff:rules:LT12\nSELECT 1::int\n");
+}

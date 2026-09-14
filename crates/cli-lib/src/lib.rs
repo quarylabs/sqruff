@@ -51,29 +51,33 @@ where
     let cli = Cli::parse_from(args);
     let collect_parse_errors = cli.parsing_errors;
 
-    let mut config: FluffConfig = if let Some(config) = cli.config.as_ref() {
-        if !Path::new(config).is_file() {
-            eprintln!(
-                "The specified config file '{}' does not exist.",
-                cli.config.as_ref().unwrap()
-            );
-
-            std::process::exit(1);
-        };
-        match FluffConfig::try_from_file(Path::new(config)) {
-            Ok(config) => config,
-            Err(err) => {
-                eprintln!("{err}");
-                std::process::exit(1);
-            }
+    let stdin_input = match &cli.command {
+        Commands::Lint(args) => is_std_in_flag_input(&args.paths).unwrap_or(false),
+        Commands::Fix(args) => is_std_in_flag_input(&args.paths).unwrap_or(false),
+        #[cfg(feature = "parser")]
+        Commands::Parse(args) => {
+            args.paths.is_empty() || is_std_in_flag_input(&args.paths).unwrap_or(false)
         }
+        _ => false,
+    };
+    let config_result = if stdin_input && let Some(filename) = cli.stdin_filename.as_ref() {
+        sqruff_lib::core::config::ConfigLoader {}
+            .try_load_config_up_to_path(filename, cli.config.clone(), false)
+            .map(|raw| FluffConfig::new(raw, cli.config.clone(), None))
+    } else if let Some(path) = cli.config.as_ref() {
+        if !Path::new(path).is_file() {
+            eprintln!("The specified config file '{path}' does not exist.");
+            return 1;
+        }
+        FluffConfig::try_from_file(Path::new(path))
     } else {
-        match FluffConfig::from_root(None, false, None) {
-            Ok(config) => config,
-            Err(err) => {
-                eprintln!("{err}");
-                std::process::exit(1);
-            }
+        FluffConfig::from_root(None, false, None)
+    };
+    let mut config = match config_result {
+        Ok(config) => config,
+        Err(err) => {
+            eprintln!("{err}");
+            return 1;
         }
     };
 

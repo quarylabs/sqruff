@@ -2487,6 +2487,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("KEYS").to_matchable(),
                     ])
                     .to_matchable(),
+                    // CONVERT TO CHARACTER SET charset_name [COLLATE collation_name]
+                    Sequence::new(vec![
+                        Ref::keyword("CONVERT").to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        AnyNumberOf::new(vec![Ref::new("AlterOptionSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])

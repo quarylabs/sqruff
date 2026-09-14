@@ -200,6 +200,7 @@ left join bar
             .collect_vec();
 
         let mut fixes = Vec::new();
+        let mut anchor_segment = context.segment.clone();
 
         for subcondition in column_operator_column_subconditions {
             let comparison_operator = subcondition[1].clone();
@@ -271,6 +272,15 @@ left join bar
                         .unwrap()
                     && self.preferred_first_table_in_join_clause == "later")
             {
+                // Anchor to literal SQL so templated table names do not hide the violation.
+                if fixes.is_empty()
+                    && first_column_reference
+                        .get_position_marker()
+                        .is_some_and(|marker| marker.is_literal())
+                {
+                    anchor_segment = first_column_reference.clone();
+                }
+
                 fixes.push(LintFix::replace(
                     first_column_reference.clone(),
                     vec![second_column_reference.clone()],
@@ -313,7 +323,7 @@ left join bar
         }
 
         vec![LintResult::new(
-            context.segment.clone().into(),
+            anchor_segment.into(),
             fixes,
             format!(
                 "Joins should list the table referenced {} first.",

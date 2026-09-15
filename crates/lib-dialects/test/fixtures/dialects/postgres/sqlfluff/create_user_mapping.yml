@@ -28,7 +28,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - keyword: FOR
-    - naked_identifier: PUBLIC
+    - keyword: PUBLIC
     - keyword: SERVER
     - server_reference:
       - naked_identifier: foo

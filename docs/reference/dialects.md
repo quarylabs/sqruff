@@ -10,6 +10,7 @@ Sqruff currently supports the following SQL dialects:
 - [clickhouse](#clickhouse)
 - [databricks](#databricks)
 - [db2](#db2)
+- [doris](#doris)
 - [duckdb](#duckdb)
 - [exasol](#exasol)
 - [greenplum](#greenplum)
@@ -115,6 +116,22 @@ IBM Db2 SQL dialect.
 **Configuration:**
 ```ini
 [sqruff:dialect:db2]
+```
+
+
+### doris
+
+Apache Doris SQL dialect, based on MySQL.
+
+**Default Casing:** `lowercase`
+
+**Quotes:** String literals: `''`, `""`; identifiers: backticks.
+
+**Documentation:** [https://doris.apache.org/](https://doris.apache.org/)
+
+**Configuration:**
+```ini
+[sqruff:dialect:doris]
 ```
 
 

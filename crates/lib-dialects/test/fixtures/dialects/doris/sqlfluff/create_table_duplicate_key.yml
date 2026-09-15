@@ -1,0 +1,44 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: c1
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: c2
+        - data_type:
+          - data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: DUPLICATE
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: c1
+      - end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: HASH
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: c1
+        - end_bracket: )
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''replication_num'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''1'''
+      - end_bracket: )
+- statement_terminator: ;

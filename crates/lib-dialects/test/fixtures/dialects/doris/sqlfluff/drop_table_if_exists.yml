@@ -1,0 +1,12 @@
+file:
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: example_db
+      - dot: .
+      - naked_identifier: my_table
+- statement_terminator: ;

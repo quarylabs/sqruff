@@ -1901,6 +1901,29 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     databricks.replace_grammar(
+        "CreateViewStatementSegment",
+        raw_sparksql
+            .grammar("CreateViewStatementSegment")
+            .match_grammar(&raw_sparksql)
+            .unwrap()
+            .copy(
+                Some(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("PRIVATE").optional().to_matchable(),
+                        Ref::keyword("MATERIALIZED").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ]),
+                None,
+                Some(Ref::keyword("MATERIALIZED").optional().to_matchable()),
+                Some(vec![Ref::keyword("MATERIALIZED").optional().to_matchable()]),
+                Vec::new(),
+                false,
+            ),
+    );
+
+    databricks.replace_grammar(
         "AlterViewStatementSegment",
         Sequence::new(vec![
             Ref::keyword("ALTER").to_matchable(),

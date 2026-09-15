@@ -85,8 +85,15 @@ impl FluffConfig {
     }
 
     pub fn override_dialect(&mut self, dialect: DialectKind) -> Result<(), String> {
-        self.dialect = kind_to_dialect(&dialect, None)
-            .ok_or(format!("Invalid dialect: {}", dialect.as_ref()))?;
+        self.dialect =
+            kind_to_dialect(&dialect, Self::dialect_section_from_raw(&self.raw, dialect))
+                .ok_or(format!("Invalid dialect: {}", dialect.as_ref()))?;
+        self.raw
+            .entry("core".into())
+            .or_insert_with(|| Value::Map(HashMap::new()))
+            .as_map_mut()
+            .unwrap()
+            .insert("dialect".into(), Value::String(dialect.as_ref().into()));
         Ok(())
     }
 
@@ -330,20 +337,54 @@ impl FluffConfig {
         )
     }
 
-    /// Process a full raw file for inline config and update self.
-    pub fn process_raw_file_for_config(&self, raw_str: &str) {
-        // Scan the raw file for config commands
-        for raw_line in raw_str.lines() {
-            if raw_line.to_string().starts_with("-- sqlfluff") {
-                // Found an in-file config command
-                self.process_inline_config(raw_line)
+    /// Apply inline configuration before constructing a parser or rule pack.
+    pub fn process_raw_file_for_config(&mut self, raw_str: &str) -> Result<(), SQLFluffUserError> {
+        for line in raw_str.lines() {
+            let line = line.trim();
+            if line.starts_with("-- sqlfluff:") || line.starts_with("-- sqruff:") {
+                self.process_inline_config(line)?;
             }
         }
+        Ok(())
     }
 
-    /// Process an inline config command and update self.
-    pub fn process_inline_config(&self, _config_line: &str) {
-        panic!("Not implemented")
+    /// Apply a colon-separated inline configuration directive.
+    pub fn process_inline_config(&mut self, config_line: &str) -> Result<(), SQLFluffUserError> {
+        let directive = config_line
+            .trim()
+            .strip_prefix("-- sqlfluff:")
+            .or_else(|| config_line.trim().strip_prefix("-- sqruff:"))
+            .ok_or_else(|| {
+                SQLFluffUserError::new("Invalid inline configuration directive".into())
+            })?;
+        let mut parts: Vec<String> = directive
+            .split(':')
+            .map(|part| part.trim().to_owned())
+            .collect();
+        if parts.len() < 2 {
+            return Err(SQLFluffUserError::new(
+                "Inline configuration requires a key and value".into(),
+            ));
+        }
+        let raw_value = parts.pop().unwrap();
+        if parts.len() == 1 {
+            parts.insert(0, "core".into());
+        }
+        if parts == ["core", "dialect"] {
+            DialectKind::from_str(&raw_value)
+                .map_err(|err| SQLFluffUserError::new(err.to_string()))?;
+        }
+        let value = raw_value.parse::<Value>().map_err(|_| {
+            SQLFluffUserError::new(format!("Invalid inline configuration value: {raw_value}"))
+        })?;
+        let mut raw = self.raw.clone();
+        ConfigLoader::incorporate_vals(&mut raw, vec![(parts, value)]);
+        *self = Self::new(
+            raw,
+            self.extra_config_path.clone(),
+            Some(self.indentation.clone()),
+        );
+        Ok(())
     }
 
     /// Check if the config specifies a dialect, raising an error if not.

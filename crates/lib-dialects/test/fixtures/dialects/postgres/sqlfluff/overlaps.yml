@@ -108,7 +108,8 @@ file:
             - table_reference:
               - naked_identifier: test_overlaps1
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t1
         - join_clause:
           - keyword: LEFT
@@ -118,7 +119,8 @@ file:
               - table_reference:
                 - naked_identifier: test_overlaps2
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: t2
     - where_clause:
       - keyword: WHERE

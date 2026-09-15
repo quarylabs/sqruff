@@ -6,7 +6,8 @@ file:
       - select_clause_element:
         - numeric_literal: '1'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - quoted_identifier: '`delimited_but_regular_identifer_0`'
 - statement_terminator: ;
 - statement:
@@ -16,7 +17,8 @@ file:
       - select_clause_element:
         - numeric_literal: '2'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - quoted_identifier: '`100% unruly-identifier`'
 - statement_terminator: ;
 - statement:

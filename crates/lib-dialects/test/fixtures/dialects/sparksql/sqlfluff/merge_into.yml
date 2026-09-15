@@ -82,7 +82,8 @@ file:
                   - naked_identifier: u
       - end_bracket: )
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: u
     - join_on_condition:
       - keyword: ON

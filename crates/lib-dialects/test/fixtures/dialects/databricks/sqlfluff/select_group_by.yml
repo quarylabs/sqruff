@@ -19,7 +19,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -60,7 +61,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -99,7 +101,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
       - comma: ','
       - select_clause_element:
@@ -114,7 +117,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: max_quantity
     - from_clause:
       - keyword: FROM
@@ -156,7 +160,8 @@ file:
                   - naked_identifier: city
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: count_distinct_city
     - from_clause:
       - keyword: FROM
@@ -207,7 +212,8 @@ file:
                 - end_bracket: )
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - quoted_identifier: '`sum(quantity)`'
     - from_clause:
       - keyword: FROM
@@ -252,7 +258,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -332,92 +339,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
-          - naked_identifier: sum_quantity
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: dealer
-    - groupby_clause:
-      - keyword: GROUP
-      - keyword: BY
-      - column_reference:
-        - naked_identifier: city
-      - comma: ','
-      - column_reference:
-        - naked_identifier: car_model
-      - grouping_sets_clause:
-        - keyword: GROUPING
-        - keyword: SETS
-        - bracketed:
-          - start_bracket: (
-          - grouping_expression_list:
-            - expression:
-              - bracketed:
-                - start_bracket: (
-                - column_reference:
-                  - naked_identifier: city
-                - comma: ','
-                - column_reference:
-                  - naked_identifier: car_model
-                - end_bracket: )
-            - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: city
-                - end_bracket: )
-            - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: car_model
-                - end_bracket: )
-            - comma: ','
-            - expression:
-              - bracketed:
-                - start_bracket: (
-                - end_bracket: )
-          - end_bracket: )
-    - orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-        - naked_identifier: city
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: city
-      - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: car_model
-      - comma: ','
-      - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: sum
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: quantity
-              - end_bracket: )
-        - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -435,6 +358,92 @@ file:
       - comma: ','
       - column_reference:
         - naked_identifier: car_model
+      - grouping_sets_clause:
+        - keyword: GROUPING
+        - keyword: SETS
+        - bracketed:
+          - start_bracket: (
+          - grouping_expression_list:
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: city
+                - comma: ','
+                - column_reference:
+                  - naked_identifier: car_model
+                - end_bracket: )
+            - comma: ','
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: city
+                - end_bracket: )
+            - comma: ','
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: car_model
+                - end_bracket: )
+            - comma: ','
+            - expression:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
+          - end_bracket: )
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: city
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: car_model
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: sum
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: quantity
+              - end_bracket: )
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: sum_quantity
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dealer
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: city
+      - comma: ','
+      - column_reference:
+        - naked_identifier: car_model
       - comma: ','
       - grouping_sets_clause:
         - keyword: GROUPING
@@ -503,7 +512,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -557,7 +567,8 @@ file:
                   - naked_identifier: quantity
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_quantity
     - from_clause:
       - keyword: FROM
@@ -629,7 +640,8 @@ file:
               - keyword: NULLS
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: first_age
       - comma: ','
       - select_clause_element:
@@ -644,7 +656,8 @@ file:
                   - naked_identifier: id
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: last_id
       - comma: ','
       - select_clause_element:
@@ -659,7 +672,8 @@ file:
                   - naked_identifier: id
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: sum_id
     - from_clause:
       - keyword: FROM
@@ -692,7 +706,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
@@ -736,7 +751,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
@@ -781,7 +797,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
@@ -829,7 +846,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
@@ -877,7 +895,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM

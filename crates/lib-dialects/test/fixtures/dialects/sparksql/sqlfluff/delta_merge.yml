@@ -321,7 +321,8 @@ file:
                 - dot: .
                 - naked_identifier: customer_id
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: merge_unique_key
             - comma: ','
             - select_clause_element:
@@ -346,7 +347,8 @@ file:
             - select_clause_element:
               - null_literal: 'NULL'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: merge_unique_key
             - comma: ','
             - select_clause_element:
@@ -544,7 +546,8 @@ file:
               - dot: .
               - naked_identifier: new_value
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: new_value
           - comma: ','
           - select_clause_element:
@@ -555,7 +558,8 @@ file:
               - dot: .
               - naked_identifier: deleted
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: deleted
         - from_clause:
           - keyword: FROM
@@ -599,7 +603,8 @@ file:
                                       - end_bracket: )
                               - end_bracket: )
                         - alias_expression:
-                          - keyword: AS
+                          - alias_operator:
+                            - keyword: AS
                           - naked_identifier: latest
                     - from_clause:
                       - keyword: FROM

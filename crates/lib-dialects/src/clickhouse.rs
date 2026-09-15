@@ -1913,7 +1913,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "AliasExpressionSegment",
         Sequence::new(vec![
             MetaSegment::indent().to_matchable(),
-            Ref::keyword("AS").optional().to_matchable(),
+            Ref::new("AsAliasOperatorSegment").optional().to_matchable(),
             one_of(vec![
                 Sequence::new(vec![
                     Ref::new("SingleIdentifierGrammar").to_matchable(),

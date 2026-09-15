@@ -93,7 +93,8 @@ file:
             - table_reference:
               - naked_identifier: orders
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t1
     - where_clause:
       - keyword: WHERE

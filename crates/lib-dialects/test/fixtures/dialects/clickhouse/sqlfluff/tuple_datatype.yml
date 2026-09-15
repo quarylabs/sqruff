@@ -34,7 +34,8 @@ file:
                       - data_type_identifier: Date32
                     - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: struct
 - statement_terminator: ;
 - statement:
@@ -72,7 +73,8 @@ file:
                       - data_type_identifier: Date32
                     - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: struct
 - statement_terminator: ;
 - statement:
@@ -94,6 +96,7 @@ file:
             - data_type:
               - quoted_identifier: '`Tuple(id Int64, name String, created_at Date32)`'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: struct
 - statement_terminator: ;

@@ -47,7 +47,8 @@ file:
                     - end_bracket: )
             - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: percentile_20
       - comma: ','
       - select_clause_element:
@@ -85,7 +86,8 @@ file:
                       - naked_identifier: dataset_id
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: percentile_40
     - from_clause:
       - keyword: from

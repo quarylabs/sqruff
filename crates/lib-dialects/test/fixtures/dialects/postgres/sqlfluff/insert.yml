@@ -113,7 +113,8 @@ file:
     - table_reference:
       - naked_identifier: distributors
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: d
     - bracketed:
       - start_bracket: (
@@ -300,7 +301,8 @@ file:
       - column_reference:
         - naked_identifier: bar
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: some_alias
 - statement_terminator: ;
 - statement:
@@ -365,14 +367,16 @@ file:
       - column_reference:
         - naked_identifier: bar
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: alias1
     - comma: ','
     - expression:
       - column_reference:
         - naked_identifier: baz
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: alias2
 - statement_terminator: ;
 - statement:
@@ -464,7 +468,8 @@ file:
     - table_reference:
       - naked_identifier: foo
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: f
     - bracketed:
       - start_bracket: (
@@ -708,7 +713,8 @@ file:
                     - end_bracket: )
               - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: tmp
               - bracketed:
                 - start_bracket: (
@@ -733,7 +739,8 @@ file:
                       - table_reference:
                         - naked_identifier: megatable
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: mt
               - where_clause:
                 - keyword: WHERE

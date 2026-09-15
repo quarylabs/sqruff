@@ -35,7 +35,8 @@ file:
           - column_reference:
             - naked_identifier: b
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: same_value
     - from_clause:
       - keyword: FROM
@@ -120,7 +121,8 @@ file:
           - expression:
             - numeric_literal: '0'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: same_value
     - from_clause:
       - keyword: FROM

@@ -43,7 +43,8 @@ file:
         - column_reference:
           - naked_identifier: bar
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: _1
     - from_clause:
       - keyword: FROM
@@ -91,6 +92,7 @@ file:
               - dot: .
               - naked_identifier: bar
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: _1
 - statement_terminator: ;

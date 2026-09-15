@@ -17,7 +17,8 @@ file:
           - expression:
             - numeric_literal: '1'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: x
     - from_clause:
       - keyword: FROM
@@ -44,7 +45,8 @@ file:
             - column_reference:
               - naked_identifier: c
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: x
     - from_clause:
       - keyword: FROM
@@ -79,7 +81,8 @@ file:
               - column_reference:
                 - naked_identifier: e
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: x
     - from_clause:
       - keyword: FROM
@@ -114,7 +117,8 @@ file:
             - column_reference:
               - naked_identifier: e
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: x
     - from_clause:
       - keyword: FROM
@@ -141,7 +145,8 @@ file:
           - expression:
             - quoted_literal: '''even'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: parity
     - from_clause:
       - keyword: FROM
@@ -182,7 +187,8 @@ file:
           - column_reference:
             - naked_identifier: d
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: x
     - from_clause:
       - keyword: FROM
@@ -306,7 +312,8 @@ file:
             - column_reference:
               - naked_identifier: c
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: x
     - from_clause:
       - keyword: FROM

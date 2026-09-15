@@ -4,9 +4,10 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - naked_identifier: TsqlAlias
-        - alias_operator:
-          - raw_comparison_operator: =
+        - alias_expression:
+          - naked_identifier: TsqlAlias
+          - alias_operator:
+            - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: value
     - from_clause:

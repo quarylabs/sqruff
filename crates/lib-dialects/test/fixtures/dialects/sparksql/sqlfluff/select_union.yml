@@ -7,7 +7,8 @@ file:
         - select_clause_element:
           - quoted_literal: '''a'''
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: col
     - set_operator:
       - keyword: UNION

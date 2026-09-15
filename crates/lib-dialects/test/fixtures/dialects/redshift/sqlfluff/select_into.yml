@@ -46,7 +46,8 @@ file:
                   - naked_identifier: commission
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: profit
     - into_clause:
       - keyword: into

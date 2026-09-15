@@ -14,7 +14,8 @@ file:
               - keyword: NORMALIZED
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_normalized
     - from_clause:
       - keyword: FROM
@@ -40,7 +41,8 @@ file:
               - keyword: NORMALIZED
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_normalized
     - from_clause:
       - keyword: FROM
@@ -66,7 +68,8 @@ file:
               - keyword: NORMALIZED
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_normalized
     - from_clause:
       - keyword: FROM
@@ -92,7 +95,8 @@ file:
               - keyword: NORMALIZED
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_normalized
     - from_clause:
       - keyword: FROM
@@ -118,7 +122,8 @@ file:
               - keyword: NORMALIZED
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_normalized
     - from_clause:
       - keyword: FROM
@@ -144,7 +149,8 @@ file:
               - keyword: NORMALIZED
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_normalized
     - from_clause:
       - keyword: FROM
@@ -171,7 +177,8 @@ file:
               - keyword: NORMALIZED
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_normalized
     - from_clause:
       - keyword: FROM
@@ -198,7 +205,8 @@ file:
               - keyword: NORMALIZED
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_normalized
     - from_clause:
       - keyword: FROM
@@ -225,7 +233,8 @@ file:
               - keyword: NORMALIZED
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_normalized
     - from_clause:
       - keyword: FROM
@@ -252,7 +261,8 @@ file:
               - keyword: NORMALIZED
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: is_normalized
     - from_clause:
       - keyword: FROM

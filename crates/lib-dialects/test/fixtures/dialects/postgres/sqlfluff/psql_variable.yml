@@ -6,7 +6,8 @@ file:
       - select_clause_element:
         - quoted_literal: '''from'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: direction
       - comma: ','
       - select_clause_element:
@@ -127,7 +128,8 @@ file:
       - select_clause_element:
         - quoted_literal: '''from'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: direction
       - comma: ','
       - select_clause_element:

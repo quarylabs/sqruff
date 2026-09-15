@@ -2051,7 +2051,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     databricks.replace_grammar(
         "AliasExpressionSegment",
         Sequence::new(vec![
-            Ref::keyword("AS").optional().to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            Ref::new("AsAliasOperatorSegment").optional().to_matchable(),
             one_of(vec![
                 Sequence::new(vec![
                     Ref::new("SingleIdentifierGrammar")
@@ -2077,6 +2078,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .into();
             })
             .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
         ])
         .to_matchable(),
     );

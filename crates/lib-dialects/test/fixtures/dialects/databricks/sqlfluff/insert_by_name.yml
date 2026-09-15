@@ -31,19 +31,22 @@ file:
                   - numeric_literal: '1'
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: s
         - comma: ','
         - select_clause_element:
           - numeric_literal: '0'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: n
         - comma: ','
         - select_clause_element:
           - quoted_literal: '''data'''
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: text
 - statement_terminator: ;
 - statement:
@@ -86,13 +89,15 @@ file:
                         - end_bracket: )
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: arr
         - comma: ','
         - select_clause_element:
           - numeric_literal: '0'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: n
 - statement_terminator: ;
 - statement:
@@ -135,7 +140,8 @@ file:
                         - end_bracket: )
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: arr
 - statement_terminator: ;
 - statement:
@@ -178,13 +184,15 @@ file:
                         - end_bracket: )
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: arr
         - comma: ','
         - select_clause_element:
           - numeric_literal: '0'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: badname
 - statement_terminator: ;
 - statement:
@@ -227,18 +235,21 @@ file:
                         - end_bracket: )
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: arr
         - comma: ','
         - select_clause_element:
           - numeric_literal: '0'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: n
         - comma: ','
         - select_clause_element:
           - numeric_literal: '1'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: n
 - statement_terminator: ;

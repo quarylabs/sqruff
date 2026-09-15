@@ -15,7 +15,8 @@ file:
           - dot: .
           - naked_identifier: id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: account_id
     - from_clause:
       - keyword: FROM
@@ -43,7 +44,8 @@ file:
                           - naked_identifier: years_of_account
               - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: years
         - join_clause:
           - keyword: LEFT
@@ -55,7 +57,8 @@ file:
                 - dot: .
                 - naked_identifier: stg_accounts
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: bank_accounts
           - join_on_condition:
             - keyword: ON

@@ -761,7 +761,8 @@ file:
                     - numeric_literal: '10'
                   - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: test
           - lateral_view_clause:
             - comma: ','

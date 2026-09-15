@@ -31,19 +31,22 @@ file:
                 - column_reference:
                   - naked_identifier: q1
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Jan-Mar`'
                 - comma: ','
                 - column_reference:
                   - naked_identifier: q2
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Apr-Jun`'
                 - comma: ','
                 - column_reference:
                   - naked_identifier: q3
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Jul-Sep`'
                 - comma: ','
                 - column_reference:
@@ -51,7 +54,8 @@ file:
                   - dot: .
                   - naked_identifier: q4
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Oct-Dec`'
                 - end_bracket: )
             - end_bracket: )
@@ -102,7 +106,8 @@ file:
                     - naked_identifier: phone1
                   - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: primary
                 - comma: ','
                 - bracketed:
@@ -117,7 +122,8 @@ file:
                     - naked_identifier: phone2
                   - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: secondary
                 - end_bracket: )
             - end_bracket: )

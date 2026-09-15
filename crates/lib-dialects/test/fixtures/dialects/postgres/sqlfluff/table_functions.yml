@@ -61,7 +61,8 @@ file:
                         - end_square_bracket: ']'
                   - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: a
             - bracketed:
               - start_bracket: (
@@ -137,7 +138,8 @@ file:
             - keyword: with
             - keyword: ordinality
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: a
             - bracketed:
               - start_bracket: (

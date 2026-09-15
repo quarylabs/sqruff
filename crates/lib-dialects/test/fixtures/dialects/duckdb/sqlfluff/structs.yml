@@ -20,7 +20,8 @@ file:
                       - keyword: INTEGER
                     - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: b
     - from_clause:
       - keyword: FROM
@@ -41,7 +42,8 @@ file:
                         - numeric_literal: '42'
                       - end_curly_bracket: '}'
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: a
               - end_bracket: )
 - statement_terminator: ;

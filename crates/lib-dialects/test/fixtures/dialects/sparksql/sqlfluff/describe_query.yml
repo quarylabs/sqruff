@@ -23,7 +23,8 @@ file:
                       - naked_identifier: age
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: sum_age
         - from_clause:
           - keyword: FROM
@@ -97,7 +98,8 @@ file:
             - numeric_literal: 10000.20D
           - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: employee
           - bracketed:
             - start_bracket: (

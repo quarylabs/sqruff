@@ -4590,6 +4590,26 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    dialect.add([(
+        "AltAliasExpressionSegment".into(),
+        NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("QuotedIdentifierSegment").to_matchable(),
+                    Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                Ref::new("EqualAliasOperatorSegment").to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // T-SQL supports alternative alias syntax: AliasName = Expression
     // The parser distinguishes between column references (table1.column1)
     // and alias assignments (AliasName = table1.column1)
@@ -4598,13 +4618,7 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec![
             // T-SQL alias equals pattern: AliasName = Expression
             Sequence::new(vec![
-                one_of(vec![
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
-                    Ref::new("QuotedIdentifierSegment").to_matchable(),
-                    Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::new("EqualAliasOperatorSegment").to_matchable(),
+                Ref::new("AltAliasExpressionSegment").to_matchable(),
                 one_of(vec![
                     Ref::new("ColumnReferenceSegment").to_matchable(),
                     Ref::new("BaseExpressionElementGrammar").to_matchable(),

@@ -32,7 +32,8 @@ file:
                       - naked_identifier: val
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: s
       - from_clause:
         - keyword: from

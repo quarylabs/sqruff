@@ -316,7 +316,8 @@ file:
               - expression:
                 - numeric_literal: '1'
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: t
 - statement_terminator: ;
 - statement:
@@ -343,7 +344,8 @@ file:
                   - numeric_literal: '2'
                 - end_bracket: )
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: t
                 - bracketed:
                   - start_bracket: (
@@ -389,7 +391,8 @@ file:
                   - end_bracket: )
             - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: t
             - bracketed:
               - start_bracket: (
@@ -435,7 +438,8 @@ file:
                   - end_bracket: )
             - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - bracketed:
               - start_bracket: (
               - identifier_list:

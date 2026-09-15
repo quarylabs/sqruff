@@ -171,7 +171,8 @@ file:
                   - star: '*'
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: count
             - keyword: FOR
             - column_reference:
@@ -182,19 +183,22 @@ file:
               - expression:
                 - numeric_literal: '1'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: high
               - comma: ','
               - expression:
                 - numeric_literal: '2'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: low
               - comma: ','
               - expression:
                 - null_literal: 'NULL'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: na
               - end_bracket: )
             - end_bracket: )
@@ -256,7 +260,8 @@ file:
                     - star: '*'
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: num_ate_food
               - keyword: FOR
               - column_reference:
@@ -393,6 +398,7 @@ file:
               - end_bracket: )
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: quality_matrix
 - statement_terminator: ;

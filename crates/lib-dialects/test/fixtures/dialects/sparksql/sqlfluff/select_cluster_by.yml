@@ -290,7 +290,8 @@ file:
               - start_bracket: (
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: p_data_date
     - cluster_by_clause:
       - keyword: CLUSTER

@@ -48,7 +48,8 @@ file:
               - dot: .
               - naked_identifier: parts
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: table_alias
           - keyword: final
     - where_clause:

@@ -26,7 +26,8 @@ file:
                         - naked_identifier: valid_date
                     - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: calendar_year
           - from_clause:
             - keyword: FROM
@@ -96,7 +97,8 @@ file:
                   - table_reference:
                     - naked_identifier: years
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: y
               - join_clause:
                 - keyword: CROSS
@@ -106,7 +108,8 @@ file:
                     - table_reference:
                       - naked_identifier: currency_codes
                   - alias_expression:
-                    - keyword: AS
+                    - alias_operator:
+                      - keyword: AS
                     - naked_identifier: c
               - join_clause:
                 - keyword: LEFT
@@ -118,7 +121,8 @@ file:
                       - dot: .
                       - naked_identifier: stg_currency_exchange_rates
                   - alias_expression:
-                    - keyword: AS
+                    - alias_operator:
+                      - keyword: AS
                     - naked_identifier: er
                 - join_on_condition:
                   - keyword: ON
@@ -207,13 +211,15 @@ file:
             - select_clause_element:
               - quoted_literal: '''USD'''
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: currency
             - comma: ','
             - select_clause_element:
               - numeric_literal: '1'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: one_usd_in_currency
           - from_clause:
             - keyword: FROM

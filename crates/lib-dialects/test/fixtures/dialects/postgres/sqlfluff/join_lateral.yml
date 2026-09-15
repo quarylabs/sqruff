@@ -74,7 +74,8 @@ file:
                             - naked_identifier: tbl2
                 - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: foo
           - join_on_condition:
             - keyword: ON
@@ -131,7 +132,8 @@ file:
                             - naked_identifier: tbl2
                 - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: tbl2
           - join_on_condition:
             - keyword: on
@@ -177,7 +179,8 @@ file:
                             - naked_identifier: tbl4
                 - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: tbl4
           - join_on_condition:
             - keyword: on
@@ -216,7 +219,8 @@ file:
             - table_reference:
               - naked_identifier: tbl1
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: D
       - comma: ','
       - from_expression:
@@ -240,7 +244,8 @@ file:
                   - end_bracket: )
             - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: X
             - bracketed:
               - start_bracket: (
@@ -258,7 +263,8 @@ file:
           - dot: .
           - naked_identifier: name
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: mname
       - comma: ','
       - select_clause_element:
@@ -303,7 +309,8 @@ file:
           - dot: .
           - naked_identifier: name
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: mname
       - comma: ','
       - select_clause_element:
@@ -375,7 +382,8 @@ file:
                   - end_bracket: )
             - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: X
             - bracketed:
               - start_bracket: (

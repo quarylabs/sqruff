@@ -72,30 +72,35 @@ file:
                 - column_reference:
                   - naked_identifier: q1
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: Q1
                 - comma: ','
                 - column_reference:
                   - naked_identifier: q2
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: Q2
                 - comma: ','
                 - column_reference:
                   - naked_identifier: q3
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: Q3
                 - comma: ','
                 - column_reference:
                   - naked_identifier: q4
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: Q4
                 - end_bracket: )
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: up
 - statement_terminator: ;
 - statement:
@@ -140,7 +145,8 @@ file:
                     - naked_identifier: q2
                   - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: H1
                 - comma: ','
                 - bracketed:
@@ -152,7 +158,8 @@ file:
                     - naked_identifier: q4
                   - end_bracket: )
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - naked_identifier: H2
                 - end_bracket: )
             - end_bracket: )
@@ -188,19 +195,22 @@ file:
                 - column_reference:
                   - naked_identifier: q1
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Jan-Mar`'
                 - comma: ','
                 - column_reference:
                   - naked_identifier: q2
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Apr-Jun`'
                 - comma: ','
                 - column_reference:
                   - naked_identifier: q3
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Jul-Sep`'
                 - comma: ','
                 - column_reference:
@@ -208,7 +218,8 @@ file:
                   - dot: .
                   - naked_identifier: q4
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Oct-Dec`'
                 - end_bracket: )
             - end_bracket: )
@@ -234,19 +245,22 @@ file:
                 - column_reference:
                   - naked_identifier: q1
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Jan-Mar`'
                 - comma: ','
                 - column_reference:
                   - naked_identifier: q2
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Apr-Jun`'
                 - comma: ','
                 - column_reference:
                   - naked_identifier: q3
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Jul-Sep`'
                 - comma: ','
                 - column_reference:
@@ -254,7 +268,8 @@ file:
                   - dot: .
                   - naked_identifier: q4
                 - alias_expression:
-                  - keyword: AS
+                  - alias_operator:
+                    - keyword: AS
                   - quoted_identifier: '`Oct-Dec`'
                 - end_bracket: )
             - end_bracket: )

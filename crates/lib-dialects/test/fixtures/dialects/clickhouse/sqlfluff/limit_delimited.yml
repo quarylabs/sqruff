@@ -13,13 +13,15 @@ file:
             - select_clause_element:
               - numeric_literal: '1'
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: id
             - comma: ','
             - select_clause_element:
               - quoted_literal: '''test'''
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: name
         - end_bracket: )
     - select_statement:
@@ -54,13 +56,15 @@ file:
             - select_clause_element:
               - numeric_literal: '1'
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: id
             - comma: ','
             - select_clause_element:
               - quoted_literal: '''test'''
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: name
         - end_bracket: )
     - select_statement:
@@ -97,13 +101,15 @@ file:
             - select_clause_element:
               - numeric_literal: '1'
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: id
             - comma: ','
             - select_clause_element:
               - quoted_literal: '''test'''
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: name
         - end_bracket: )
     - select_statement:
@@ -140,13 +146,15 @@ file:
             - select_clause_element:
               - numeric_literal: '1'
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: id
             - comma: ','
             - select_clause_element:
               - quoted_literal: '''test'''
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: name
         - end_bracket: )
     - select_statement:

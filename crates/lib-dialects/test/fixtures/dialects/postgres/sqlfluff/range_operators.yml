@@ -16,7 +16,8 @@ file:
           - dot: .
           - naked_identifier: id
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: paragraph_id
     - from_clause:
       - keyword: FROM

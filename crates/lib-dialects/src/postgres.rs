@@ -7315,7 +7315,8 @@ pub fn raw_dialect() -> Dialect {
     postgres.replace_grammar(
         "AliasExpressionSegment",
         Sequence::new(vec![
-            Ref::keyword("AS").optional().to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            Ref::new("AsAliasOperatorSegment").optional().to_matchable(),
             one_of(vec![
                 Sequence::new(vec![
                     Ref::new("SingleIdentifierGrammar").to_matchable(),
@@ -7343,6 +7344,7 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
             ])
             .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
         ])
         .to_matchable(),
     );
@@ -7352,7 +7354,7 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
             Sequence::new(vec![
                 MetaSegment::indent().to_matchable(),
-                Ref::keyword("AS").to_matchable(),
+                Ref::new("AsAliasOperatorSegment").to_matchable(),
                 Ref::new("SingleIdentifierGrammar").to_matchable(),
                 MetaSegment::dedent().to_matchable(),
             ])

@@ -4,25 +4,28 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - naked_identifier: SimpleAlias
-        - alias_operator:
-          - raw_comparison_operator: =
+        - alias_expression:
+          - naked_identifier: SimpleAlias
+          - alias_operator:
+            - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: value
       - comma: ','
       - select_clause_element:
-        - naked_identifier: QualifiedAlias
-        - alias_operator:
-          - raw_comparison_operator: =
+        - alias_expression:
+          - naked_identifier: QualifiedAlias
+          - alias_operator:
+            - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: table1
           - dot: .
           - naked_identifier: column1
       - comma: ','
       - select_clause_element:
-        - naked_identifier: FullyQualifiedAlias
-        - alias_operator:
-          - raw_comparison_operator: =
+        - alias_expression:
+          - naked_identifier: FullyQualifiedAlias
+          - alias_operator:
+            - raw_comparison_operator: =
         - column_reference:
           - naked_identifier: dbo
           - dot: .
@@ -31,9 +34,10 @@ file:
           - naked_identifier: column1
       - comma: ','
       - select_clause_element:
-        - naked_identifier: FunctionAlias
-        - alias_operator:
-          - raw_comparison_operator: =
+        - alias_expression:
+          - naked_identifier: FunctionAlias
+          - alias_operator:
+            - raw_comparison_operator: =
         - function:
           - function_name:
             - function_name_identifier: SUM
@@ -46,9 +50,10 @@ file:
               - end_bracket: )
       - comma: ','
       - select_clause_element:
-        - naked_identifier: ExpressionAlias
-        - alias_operator:
-          - raw_comparison_operator: =
+        - alias_expression:
+          - naked_identifier: ExpressionAlias
+          - alias_operator:
+            - raw_comparison_operator: =
         - expression:
           - column_reference:
             - naked_identifier: table1

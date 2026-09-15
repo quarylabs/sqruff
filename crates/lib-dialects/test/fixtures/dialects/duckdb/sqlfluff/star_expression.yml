@@ -14,7 +14,8 @@ file:
               - column_reference:
                 - naked_identifier: a
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: b
               - end_bracket: )
     - from_clause:
@@ -272,7 +273,8 @@ file:
                       - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: result
     - from_clause:
       - keyword: FROM
@@ -287,19 +289,22 @@ file:
                   - select_clause_element:
                     - null_literal: 'NULL'
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: a
                   - comma: ','
                   - select_clause_element:
                     - numeric_literal: '42'
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: b
                   - comma: ','
                   - select_clause_element:
                     - boolean_literal: 'true'
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: c
               - end_bracket: )
 - statement_terminator: ;

@@ -269,7 +269,8 @@ file:
                   - naked_identifier: click
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: quantiles_click_size
     - from_clause:
       - keyword: FROM
@@ -306,7 +307,8 @@ file:
                   - naked_identifier: col1
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: q1
       - comma: ','
       - select_clause_element:
@@ -329,7 +331,8 @@ file:
                   - naked_identifier: col2
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: q2
     - from_clause:
       - keyword: FROM
@@ -606,7 +609,8 @@ file:
                 - quoted_literal: '''2020-01-03'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: r
     - from_clause:
       - keyword: FROM
@@ -881,7 +885,8 @@ file:
                   - naked_identifier: requests
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: summap_overflow
       - comma: ','
       - select_clause_element:

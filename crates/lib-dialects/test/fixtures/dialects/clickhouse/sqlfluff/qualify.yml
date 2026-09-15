@@ -24,7 +24,8 @@ file:
                       - naked_identifier: col_1
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: row
     - from_clause:
       - keyword: FROM
@@ -108,7 +109,8 @@ file:
                       - naked_identifier: col_1
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: row
     - from_clause:
       - keyword: FROM
@@ -263,7 +265,8 @@ file:
                       - naked_identifier: col_1
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: row
     - from_clause:
       - keyword: FROM
@@ -385,7 +388,8 @@ file:
                       - naked_identifier: col_1
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: row
     - from_clause:
       - keyword: FROM
@@ -606,7 +610,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: total
       - comma: ','
       - select_clause_element:
@@ -645,7 +650,8 @@ file:
                   - keyword: DESC
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: rank
     - from_clause:
       - keyword: FROM
@@ -730,7 +736,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: total
       - comma: ','
       - select_clause_element:
@@ -769,7 +776,8 @@ file:
                   - keyword: DESC
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: rank
     - from_clause:
       - keyword: FROM
@@ -868,7 +876,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: total
       - comma: ','
       - select_clause_element:
@@ -907,7 +916,8 @@ file:
                   - keyword: DESC
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: rank
     - from_clause:
       - keyword: FROM
@@ -1011,7 +1021,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: total
       - comma: ','
       - select_clause_element:
@@ -1050,7 +1061,8 @@ file:
                   - keyword: DESC
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: rank
     - from_clause:
       - keyword: FROM
@@ -1152,7 +1164,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: total
       - comma: ','
       - select_clause_element:
@@ -1191,7 +1204,8 @@ file:
                   - keyword: DESC
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: rank
     - from_clause:
       - keyword: FROM
@@ -1298,7 +1312,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: total
       - comma: ','
       - select_clause_element:
@@ -1337,7 +1352,8 @@ file:
                   - keyword: DESC
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: rank
     - from_clause:
       - keyword: FROM

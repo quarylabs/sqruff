@@ -189,19 +189,22 @@ file:
               - column_reference:
                 - naked_identifier: red
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: r
               - comma: ','
               - column_reference:
                 - naked_identifier: green
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: g
               - comma: ','
               - column_reference:
                 - naked_identifier: blue
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: b
               - end_bracket: )
             - end_bracket: )
@@ -408,6 +411,7 @@ file:
               - end_bracket: )
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: floofy_bears
 - statement_terminator: ;

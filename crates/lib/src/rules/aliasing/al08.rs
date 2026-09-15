@@ -80,14 +80,11 @@ FROM
             if let Some(alias_expression) =
                 clause_element.child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
             {
-                for it in alias_expression.segments() {
-                    if !it.is_code() || it.raw().eq_ignore_ascii_case("AS") {
-                        continue;
-                    }
-
-                    column_alias = it.clone().into();
-                    break;
-                }
+                column_alias = alias_expression.child(&SyntaxSet::new(&[
+                    SyntaxKind::NakedIdentifier,
+                    SyntaxKind::QuotedIdentifier,
+                    SyntaxKind::Identifier,
+                ]));
             } else if let Some(column_reference) =
                 clause_element.child(const { &SyntaxSet::new(&[SyntaxKind::ColumnReference]) })
             {

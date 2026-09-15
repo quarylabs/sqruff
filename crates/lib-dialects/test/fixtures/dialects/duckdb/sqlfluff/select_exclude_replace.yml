@@ -17,7 +17,8 @@ file:
               - start_bracket: (
               - numeric_literal: '3'
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: x
               - end_bracket: )
     - from_clause:
@@ -44,13 +45,15 @@ file:
             - keyword: REPLACE
             - numeric_literal: '3'
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: x
       - comma: ','
       - select_clause_element:
         - numeric_literal: '6'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: z
     - from_clause:
       - keyword: FROM

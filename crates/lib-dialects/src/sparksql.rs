@@ -3555,7 +3555,8 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.replace_grammar(
         "AliasExpressionSegment",
         Sequence::new(vec![
-            Ref::keyword("AS").optional().to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            Ref::new("AsAliasOperatorSegment").optional().to_matchable(),
             one_of(vec![
                 Sequence::new(vec![
                     Ref::new("SingleIdentifierGrammar")
@@ -3580,6 +3581,7 @@ pub fn raw_dialect() -> Dialect {
                 .into();
             })
             .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
         ])
         .to_matchable(),
     );

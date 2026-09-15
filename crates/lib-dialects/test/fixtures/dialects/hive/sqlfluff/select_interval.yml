@@ -25,7 +25,8 @@ file:
             - quoted_literal: '''1'''
             - date_part: DAY
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: yesterday
 - statement_terminator: ;
 - statement:

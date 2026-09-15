@@ -2613,7 +2613,7 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Sequence::new(vec![
                 MetaSegment::indent().to_matchable(),
-                Ref::keyword("AS").to_matchable(),
+                Ref::new("AsAliasOperatorSegment").optional().to_matchable(),
                 Bracketed::new(vec![
                     Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
                         .to_matchable(),

@@ -29,7 +29,8 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - quoted_identifier: '"id"'
 - statement_terminator: ;
 - statement:
@@ -131,7 +132,8 @@ file:
                     - naked_identifier: amount
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: region_sum
         - comma: ','
         - select_clause_element:
@@ -140,7 +142,8 @@ file:
             - dot: .
             - naked_identifier: id
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: region_id
       - from_clause:
         - keyword: FROM
@@ -212,7 +215,8 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - quoted_identifier: '"id"'
 - statement_terminator: ;
 - statement:

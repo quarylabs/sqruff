@@ -1,0 +1,28 @@
+rule: AL02,LT01,LT02
+
+test_tsql_mixed_alias_autofix:
+  fail_str: |
+    SELECT
+        test.d fourth_column,
+        test.te AS fifth_column,
+        first_column = test.a,
+        second_column=test.b,
+        third_column_long_name = (test.a + test.b) / 2
+    FROM foo AS test
+  fix_str: |
+    SELECT
+        test.d                 AS fourth_column,
+        test.te                AS fifth_column,
+        first_column           = test.a,
+        second_column          = test.b,
+        third_column_long_name = (test.a + test.b) / 2
+    FROM foo AS test
+  configs:
+    core:
+      dialect: tsql
+    layout:
+      type:
+        alias_operator:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed

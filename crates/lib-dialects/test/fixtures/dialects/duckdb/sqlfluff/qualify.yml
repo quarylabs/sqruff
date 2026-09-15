@@ -37,7 +37,8 @@ file:
                     - naked_identifier: function_name
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: function_rank
     - from_clause:
       - keyword: FROM
@@ -115,7 +116,8 @@ file:
                     - naked_identifier: function_name
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: function_rank
     - from_clause:
       - keyword: FROM
@@ -162,7 +164,8 @@ file:
             - keyword: OVER
             - naked_identifier: my_window
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: function_rank
     - from_clause:
       - keyword: FROM
@@ -237,7 +240,8 @@ file:
             - keyword: OVER
             - naked_identifier: my_window
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: function_rank
     - from_clause:
       - keyword: FROM

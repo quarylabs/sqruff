@@ -20,7 +20,8 @@ file:
                 - numeric_literal: '3'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: arr
       - comma: ','
       - select_clause_element:
@@ -30,7 +31,8 @@ file:
           - tuple_element_access:
             - numeric_literal: '.1'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: dsa
       - comma: ','
       - select_clause_element:
@@ -48,7 +50,8 @@ file:
             - numeric_literal: '3'
             - end_square_bracket: ']'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: mixed_array_tuple_access
       - comma: ','
       - select_clause_element:
@@ -68,7 +71,8 @@ file:
           - tuple_element_access:
             - numeric_literal: '.1'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: first_tuple_value
 - statement_terminator: ;
 - statement:

@@ -177,7 +177,8 @@ file:
               - naked_identifier: Population
           - end_bracket: )
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: total
     - comma: ','
     - function:
@@ -191,7 +192,8 @@ file:
               - naked_identifier: Population
           - end_bracket: )
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: max
     - groupby_clause:
       - keyword: GROUP
@@ -631,7 +633,8 @@ file:
                       - naked_identifier: Population
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: total
             - comma: ','
             - function:
@@ -645,7 +648,8 @@ file:
                       - naked_identifier: Population
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: count
             - keyword: FOR
             - naked_identifier: Year

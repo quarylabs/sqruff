@@ -299,7 +299,8 @@ file:
                       - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - bracketed:
             - start_bracket: (
             - identifier_list:
@@ -337,7 +338,8 @@ file:
                       - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - bracketed:
             - start_bracket: (
             - identifier_list:
@@ -402,7 +404,8 @@ file:
                       - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - bracketed:
             - start_bracket: (
             - identifier_list:
@@ -448,7 +451,8 @@ file:
                 - date_constructor_literal: '''2016-01-01'''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - bracketed:
             - start_bracket: (
             - identifier_list:

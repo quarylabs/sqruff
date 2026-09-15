@@ -108,7 +108,13 @@ FROM table;
             let alias_identifier = alias_expression.child(identifier_types);
 
             let syntax_parts_found = (whitespace.is_some(), alias_identifier.is_some());
-            let (Some(whitespace), Some(alias_identifier)) = (whitespace, alias_identifier) else {
+            let Some(alias_identifier) = alias_identifier else {
+                continue;
+            };
+            let equal_alias = alias_expression
+                .child(&SyntaxSet::new(&[SyntaxKind::AliasOperator]))
+                .is_some_and(|operator| operator.raw() == "=");
+            if whitespace.is_none() && !equal_alias {
                 log::warn!(
                     "AL09 found unexpected syntax in an alias expression. Unable to determine if \
                      this is a self-alias. Please report this as a bug on GitHub.\n\nDebug \
@@ -126,10 +132,11 @@ FROM table;
             if column_identifier.raw() == alias_identifier.raw() {
                 violations.push(LintResult::new(
                     Some(clause_element_raw_segment[0].clone()),
-                    vec![
-                        LintFix::delete(whitespace),
-                        LintFix::delete(alias_expression),
-                    ],
+                    whitespace
+                        .into_iter()
+                        .map(LintFix::delete)
+                        .chain(std::iter::once(LintFix::delete(alias_expression)))
+                        .collect(),
                     Some("Column should not be self-aliased.".into()),
                     None,
                 ));

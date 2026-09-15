@@ -55,13 +55,15 @@ file:
         - select_clause_element:
           - quoted_literal: '''hello'''
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: var1
         - comma: ','
         - select_clause_element:
           - numeric_literal: '10'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: var2
     - meta_command: \gset
     - select_statement:
@@ -70,13 +72,15 @@ file:
         - select_clause_element:
           - quoted_literal: '''hello'''
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: var1
         - comma: ','
         - select_clause_element:
           - numeric_literal: '10'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: var2
     - meta_command: \gset result_
     - select_statement:
@@ -112,7 +116,8 @@ file:
                         - numeric_literal: '123'
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: is_customer
         - comma: ','
         - select_clause_element:
@@ -145,7 +150,8 @@ file:
                         - numeric_literal: '456'
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: is_employee
     - meta_command: \gset
     - select_statement:
@@ -154,7 +160,8 @@ file:
         - select_clause_element:
           - quoted_literal: '''hello'''
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: my_psql_var
     - meta_command: \gset
     - select_statement:

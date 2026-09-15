@@ -55,7 +55,8 @@ file:
                   - keyword: following
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: col_name
     - from_clause:
       - keyword: from

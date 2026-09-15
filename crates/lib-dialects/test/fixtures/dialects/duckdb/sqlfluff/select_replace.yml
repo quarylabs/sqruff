@@ -17,7 +17,8 @@ file:
                 - binary_operator: +
                 - numeric_literal: '3'
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: movie_count
               - comma: ','
               - expression:
@@ -26,7 +27,8 @@ file:
                 - binary_operator: '*'
                 - numeric_literal: '1000'
               - alias_expression:
-                - keyword: as
+                - alias_operator:
+                  - keyword: as
                 - naked_identifier: show_count
               - end_bracket: )
     - from_clause:

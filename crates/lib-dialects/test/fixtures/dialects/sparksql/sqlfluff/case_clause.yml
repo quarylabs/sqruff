@@ -64,7 +64,8 @@ file:
                 - quoted_literal: '''small'''
             - keyword: END
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: id_size
     - from_clause:
       - keyword: FROM

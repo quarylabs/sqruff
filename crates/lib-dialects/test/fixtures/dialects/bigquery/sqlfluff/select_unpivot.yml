@@ -143,22 +143,26 @@ file:
               - start_bracket: (
               - naked_identifier: Q1
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - numeric_literal: '1'
               - comma: ','
               - naked_identifier: Q2
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - numeric_literal: '2'
               - comma: ','
               - naked_identifier: Q3
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - numeric_literal: '3'
               - comma: ','
               - naked_identifier: Q4
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - numeric_literal: '4'
               - end_bracket: )
             - end_bracket: )
@@ -274,7 +278,8 @@ file:
                 - naked_identifier: Q2
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - quoted_literal: '''semester_1'''
               - comma: ','
               - bracketed:
@@ -284,7 +289,8 @@ file:
                 - naked_identifier: Q4
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - quoted_literal: '''semester_2'''
               - end_bracket: )
             - end_bracket: )
@@ -329,7 +335,8 @@ file:
                 - naked_identifier: D
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - quoted_literal: '"year_2011"'
               - comma: ','
               - bracketed:
@@ -339,7 +346,8 @@ file:
                 - naked_identifier: F
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - quoted_literal: '"year_2012"'
               - end_bracket: )
             - end_bracket: )
@@ -385,7 +393,8 @@ file:
                 - naked_identifier: foo3
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - numeric_literal: '1'
               - comma: ','
               - bracketed:
@@ -397,7 +406,8 @@ file:
                 - naked_identifier: foo6
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - numeric_literal: '2'
               - comma: ','
               - bracketed:
@@ -409,7 +419,8 @@ file:
                 - naked_identifier: foo9
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - numeric_literal: '3'
               - end_bracket: )
             - end_bracket: )

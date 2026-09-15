@@ -17,7 +17,8 @@ file:
             - dot: .
             - semi_structured_element: foo
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: inner_array__foo
       - comma: ','
       - select_clause_element:
@@ -41,7 +42,8 @@ file:
             - dot: .
             - semi_structured_element: foo
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: inner_array__foo2
     - from_clause:
       - keyword: from

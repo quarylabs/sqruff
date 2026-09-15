@@ -15,7 +15,7 @@ file:
             - variable: '@abc'
             - comparison_operator:
               - raw_comparison_operator: =
-            - variable: '1'
+            - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
   - transaction_statement:

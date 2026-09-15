@@ -74,6 +74,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 SyntaxKind::NotebookStart,
             ),
             Matcher::regex(
+                "magic_single_line",
+                r"(-- MAGIC %)([^\n]{2,})( [^%]{1})([^\n]*)",
+                SyntaxKind::MagicSingleLine,
+            ),
+            Matcher::regex(
                 "magic_line",
                 r"(-- MAGIC)( [^%]{1})([^\n]*)",
                 SyntaxKind::MagicLine,
@@ -97,6 +102,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "NotebookStart".into(),
             TypedParser::new(SyntaxKind::NotebookStart, SyntaxKind::NotebookStart)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MagicSingleLineGrammar".into(),
+            TypedParser::new(SyntaxKind::MagicSingleLine, SyntaxKind::MagicSingleLine)
                 .to_matchable()
                 .into(),
         ),
@@ -126,14 +137,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::MagicCellSegment, |_| {
                 Sequence::new(vec![
                     Ref::new("NotebookStart").optional().to_matchable(),
-                    Ref::new("MagicStartGrammar").to_matchable(),
-                    AnyNumberOf::new(vec![Ref::new("MagicLineGrammar").to_matchable()])
-                        .config(|config| {
-                            config.terminators =
-                                vec![Ref::new("CommandCellSegment").optional().to_matchable()];
-                            config.reset_terminators = true;
-                        })
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("MagicStartGrammar").optional().to_matchable(),
+                            AnyNumberOf::new(vec![Ref::new("MagicLineGrammar").to_matchable()])
+                                .config(|config| {
+                                    config.optional();
+                                })
+                                .to_matchable(),
+                        ])
                         .to_matchable(),
+                        Ref::new("MagicSingleLineGrammar").optional().to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.terminators =
+                            vec![Ref::new("CommandCellSegment").optional().to_matchable()];
+                        config.reset_terminators = true;
+                    })
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

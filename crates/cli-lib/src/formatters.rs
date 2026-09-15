@@ -60,7 +60,11 @@ impl Formatter for OutputStreamFormatter {
 }
 
 impl OutputStreamFormatter {
-    pub(crate) fn new(output_stream: Option<Stderr>, nocolor: bool, verbosity: i32) -> Self {
+    pub(crate) fn new(
+        output_stream: Option<Stderr>,
+        nocolor: Option<bool>,
+        verbosity: i32,
+    ) -> Self {
         Self {
             output_stream,
             plain_output: should_produce_plain_output(nocolor),
@@ -245,7 +249,7 @@ mod tests {
     }
 
     fn mk_formatter() -> OutputStreamFormatter {
-        OutputStreamFormatter::new(None, false, 0)
+        OutputStreamFormatter::new(None, None, 0)
     }
 
     #[test]

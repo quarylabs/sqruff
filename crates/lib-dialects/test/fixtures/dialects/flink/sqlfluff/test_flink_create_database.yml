@@ -1,0 +1,21 @@
+file:
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_db
+    - keyword: COMMENT
+    - quoted_literal: '''My database'''
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''key1'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''value1'''
+      - end_bracket: )
+- statement_terminator: ;

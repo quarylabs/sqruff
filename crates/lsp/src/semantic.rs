@@ -130,6 +130,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | Minus
         | Divide
         | DoubleDivide
+        | DoubleEquals
         | Star
         | Percent
         | Caret
@@ -579,6 +580,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | DataSourceFormat
         | IcebergTransformation
         | MsckRepairTableStatement
+        | RowDataType
         | RowFormatClause
         | SkewedByClause
         | Bracketed

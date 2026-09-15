@@ -34,6 +34,10 @@ pub mod duckdb;
 pub mod exasol;
 #[cfg(feature = "exasol")]
 mod exasol_keywords;
+#[cfg(feature = "flink")]
+pub mod flink;
+#[cfg(feature = "flink")]
+mod flink_keywords;
 #[cfg(feature = "greenplum")]
 pub mod greenplum;
 #[cfg(feature = "hive")]
@@ -115,6 +119,8 @@ pub fn dialect_config_options(
         DialectKind::Db2 => db2::Db2DialectConfig::config_options(),
         #[cfg(feature = "doris")]
         DialectKind::Doris => doris::DorisDialectConfig::config_options(),
+        #[cfg(feature = "flink")]
+        DialectKind::Flink => flink::FlinkDialectConfig::config_options(),
         #[cfg(feature = "duckdb")]
         DialectKind::Duckdb => duckdb::DuckDBDialectConfig::config_options(),
         #[cfg(feature = "exasol")]
@@ -173,6 +179,8 @@ pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dia
         DialectKind::Db2 => db2::dialect(config),
         #[cfg(feature = "doris")]
         DialectKind::Doris => doris::dialect(config),
+        #[cfg(feature = "flink")]
+        DialectKind::Flink => flink::dialect(config),
         #[cfg(feature = "duckdb")]
         DialectKind::Duckdb => duckdb::dialect(config),
         #[cfg(feature = "exasol")]

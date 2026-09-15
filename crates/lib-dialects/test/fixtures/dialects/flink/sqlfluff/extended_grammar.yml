@@ -1,0 +1,307 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: nested_types
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: items
+        - data_type:
+          - keyword: ARRAY
+          - start_angle_bracket: <
+          - data_type:
+            - row_data_type:
+              - keyword: ROW
+              - start_angle_bracket: <
+              - naked_identifier: name
+              - data_type:
+                - data_type_identifier: STRING
+              - comma: ','
+              - naked_identifier: score
+              - data_type:
+                - data_type_identifier: DECIMAL
+                - bracketed_arguments:
+                  - bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '10'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_bracket: )
+              - end_angle_bracket: '>'
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: attributes
+        - data_type:
+          - keyword: MAP
+          - start_angle_bracket: <
+          - data_type:
+            - data_type_identifier: STRING
+          - comma: ','
+          - data_type:
+            - keyword: ARRAY
+            - start_angle_bracket: <
+            - data_type:
+              - data_type_identifier: INT
+            - end_angle_bracket: '>'
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: tags
+        - data_type:
+          - keyword: MULTISET
+          - start_angle_bracket: <
+          - data_type:
+            - data_type_identifier: STRING
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: detail
+        - data_type:
+          - row_data_type:
+            - keyword: ROW
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: name
+              - data_type:
+                - data_type_identifier: STRING
+              - keyword: COMMENT
+              - quoted_literal: '''field'''
+              - comma: ','
+              - naked_identifier: count
+              - data_type:
+                - data_type_identifier: BIGINT
+              - end_bracket: )
+      - comma: ','
+      - naked_identifier: offset_value
+      - data_type:
+        - data_type_identifier: BIGINT
+      - keyword: METADATA
+      - keyword: FROM
+      - quoted_literal: '''offset'''
+      - keyword: VIRTUAL
+      - keyword: COMMENT
+      - quoted_literal: '''metadata'''
+      - comma: ','
+      - naked_identifier: computed
+      - keyword: AS
+      - expression:
+        - column_reference:
+          - naked_identifier: id
+        - binary_operator: +
+        - numeric_literal: '1'
+      - keyword: COMMENT
+      - quoted_literal: '''computed'''
+      - comma: ','
+      - keyword: CONSTRAINT
+      - naked_identifier: pk
+      - keyword: PRIMARY
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: id
+        - end_bracket: )
+      - keyword: NOT
+      - keyword: ENFORCED
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: '''table'''
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: id
+      - end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - keyword: HASH
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: id
+      - end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '4'
+    - keyword: BUCKETS
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''connector'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''kafka'''
+      - comma: ','
+      - naked_identifier: environment
+      - double_equals: ==
+      - quoted_literal: '''test'''
+      - end_bracket: )
+    - keyword: LIKE
+    - table_reference:
+      - naked_identifier: source_table
+    - bracketed:
+      - start_bracket: (
+      - keyword: INCLUDING
+      - keyword: ALL
+      - comma: ','
+      - keyword: EXCLUDING
+      - keyword: CONSTRAINTS
+      - comma: ','
+      - keyword: OVERWRITING
+      - keyword: OPTIONS
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: ranged
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+      - end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - keyword: RANGE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: id
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: bucketed
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+      - end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: INTO
+    - numeric_literal: '3'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: plain_distribution
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+      - end_bracket: )
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: id
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: copied
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - naked_identifier: source_table
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: copied_like
+    - keyword: LIKE
+    - table_reference:
+      - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: 1.5F
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: 2BD
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: 3e2D
+      - comma: ','
+      - select_clause_element:
+        - quoted_literal: '''it\''s'''
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '`escaped``name`'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - quoted_identifier: '`source`'
+- statement_terminator: ;
+- statement:
+  - explain_statement:
+    - keyword: EXPLAIN
+    - keyword: PLAN
+    - keyword: FOR
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: source_table
+- statement_terminator: ;

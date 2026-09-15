@@ -323,6 +323,7 @@ fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'stati
         DialectKind::Bigquery
         | DialectKind::Databricks
         | DialectKind::Doris
+        | DialectKind::Flink
         | DialectKind::Hive
         | DialectKind::Impala
         | DialectKind::Mariadb

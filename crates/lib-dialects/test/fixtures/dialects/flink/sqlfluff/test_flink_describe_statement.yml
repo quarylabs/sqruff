@@ -1,0 +1,7 @@
+file:
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - table_reference:
+      - naked_identifier: my_table
+- statement_terminator: ;

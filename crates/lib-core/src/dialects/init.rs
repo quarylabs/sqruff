@@ -103,6 +103,7 @@ pub enum DialectKind {
     Doris,
     Duckdb,
     Exasol,
+    Flink,
     Greenplum,
     Hive,
     Impala,
@@ -133,6 +134,7 @@ impl DialectKind {
             DialectKind::Databricks => "databricks",
             DialectKind::Db2 => "db2",
             DialectKind::Doris => "doris",
+            DialectKind::Flink => "flink",
             DialectKind::Duckdb => "duckdb",
             DialectKind::Exasol => "exasol",
             DialectKind::Greenplum => "greenplum",
@@ -169,6 +171,9 @@ impl DialectKind {
             DialectKind::Databricks => "Databricks SQL dialect for lakehouse analytics.",
             DialectKind::Db2 => "IBM Db2 SQL dialect.",
             DialectKind::Doris => "Apache Doris SQL dialect, based on MySQL.",
+            DialectKind::Flink => {
+                "Apache Flink SQL dialect for stream processing and table operations."
+            }
             DialectKind::Duckdb => "DuckDB SQL dialect for in-process analytical database.",
             DialectKind::Exasol => "Exasol SQL dialect for the Exasol analytics database.",
             DialectKind::Greenplum => "Greenplum SQL dialect, a massively parallel Postgres.",
@@ -215,6 +220,7 @@ impl DialectKind {
             | DialectKind::Mariadb
             | DialectKind::Mysql
             | DialectKind::Postgres => Some("`lowercase`"),
+            DialectKind::Flink => Some("Case insensitive for quoted and unquoted identifiers."),
             DialectKind::Duckdb => Some(concat!(
                 "DuckDB stores all identifiers in the case they were defined, but resolves ",
                 "both quoted and unquoted identifiers case-insensitively. See the ",
@@ -270,6 +276,7 @@ impl DialectKind {
                 "are always resolved case-sensitively, quoting is only needed for invalid ",
                 "characters or reserved keywords."
             )),
+            DialectKind::Flink => Some("String literals: single quotes; identifiers: backticks."),
             DialectKind::Doris => Some("String literals: `''`, `\"\"`; identifiers: backticks."),
             DialectKind::Duckdb => Some("String literals: `''`; identifiers: `\"\"` or `''`."),
             DialectKind::Mariadb | DialectKind::Mysql => {
@@ -320,6 +327,9 @@ impl DialectKind {
             }
             DialectKind::Db2 => Some("https://www.ibm.com/docs/en/i/7.4?topic=overview-db2-i"),
             DialectKind::Doris => Some("https://doris.apache.org/"),
+            DialectKind::Flink => Some(
+                "https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/",
+            ),
             DialectKind::Duckdb => Some("https://duckdb.org/docs/sql/introduction"),
             DialectKind::Exasol => Some("https://docs.exasol.com/db/latest/sql_references.htm"),
             DialectKind::Greenplum => {

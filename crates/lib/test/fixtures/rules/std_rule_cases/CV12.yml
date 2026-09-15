@@ -101,3 +101,14 @@ test_fail_missing_clause_and_stmt_qualified:
 test_noop_natural_join:
   pass_str: |
     SELECT foo.a, bar.b FROM foo NATURAL JOIN bar WHERE bar.x > 3;
+
+test_fail_join_with_bracketed_join:
+  fail_str: |
+    SELECT * FROM
+      bar
+      JOIN (
+        foo1
+        JOIN foo2 ON (foo1.id = foo2.id)
+      )
+    WHERE
+      bar.id = foo1.id;

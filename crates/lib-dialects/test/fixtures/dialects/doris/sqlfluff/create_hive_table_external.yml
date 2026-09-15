@@ -1,0 +1,42 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: hive_catalog
+      - dot: .
+      - naked_identifier: hive_db
+      - dot: .
+      - naked_identifier: external_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+        - naked_identifier: data
+        - data_type:
+          - data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: ENGINE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - engine_type: hive
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''file_format'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''orc'''
+      - end_bracket: )
+- statement_terminator: ;

@@ -1195,6 +1195,10 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | EngineType
         | PartitionSegment
         | DistributedBy
+        | ListPartitionDefinition
+        | RangePartitionDefinition
+        | RangePartitionInterval
+        | RollupSegment
         | DistributionSegment
         | IndexDefinition
         | CreateRoutineLoadStatement

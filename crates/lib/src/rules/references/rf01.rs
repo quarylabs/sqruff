@@ -48,6 +48,31 @@ impl RuleRF01 {
     }
 
     fn get_implicit_targets(context: &RuleContext) -> Vec<Vec<SmolStr>> {
+        if context.dialect.name == DialectKind::Postgres {
+            for segment in context.parent_stack.iter().rev() {
+                if segment.is_type(SyntaxKind::CreatePolicyStatement)
+                    || segment.is_type(SyntaxKind::AlterPolicyStatement)
+                {
+                    let references = segment.recursive_crawl(
+                        &SyntaxSet::single(SyntaxKind::TableReference),
+                        true,
+                        &SyntaxSet::EMPTY,
+                        true,
+                    );
+                    if let Some(reference) = references.first() {
+                        return vec![
+                            reference
+                                .reference()
+                                .iter_raw_references()
+                                .into_iter()
+                                .map(|part| part.part.into())
+                                .collect(),
+                        ];
+                    }
+                }
+            }
+        }
+
         if context.dialect.name != DialectKind::Sqlite {
             return Vec::new();
         }

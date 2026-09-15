@@ -1,0 +1,100 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: data_info
+        - data_type:
+          - row_data_type:
+            - keyword: ROW
+            - start_angle_bracket: <
+            - quoted_identifier: '`name`'
+            - data_type:
+              - data_type_identifier: STRING
+            - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: email
+        - data_type:
+          - data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+        - naked_identifier: score
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: total_points
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: active_points
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: metadata
+        - data_type:
+          - row_data_type:
+            - keyword: ROW
+            - start_angle_bracket: <
+            - quoted_identifier: '`description`'
+            - data_type:
+              - data_type_identifier: STRING
+            - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: change_percentage
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: volume
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: rate_change_percentage
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: last_updated
+        - data_type:
+          - keyword: TIMESTAMP
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '3'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: status
+        - data_type:
+          - data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''connector'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test-connector'''
+      - comma: ','
+      - quoted_literal: '''project'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test-project'''
+      - comma: ','
+      - quoted_literal: '''dataset'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''test-dataset'''
+      - end_bracket: )
+- statement_terminator: ;

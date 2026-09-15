@@ -16,6 +16,7 @@ ALL_FEATURES = [
     "databricks",
     "db2",
     "doris",
+    "flink",
     "duckdb",
     "exasol",
     "greenplum",

@@ -1,0 +1,8 @@
+file:
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+- statement_terminator: ;

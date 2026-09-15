@@ -1,0 +1,86 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: range_definitions
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+      - end_bracket: )
+    - partition_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: RANGE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: id
+        - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - range_partition_definition:
+          - keyword: PARTITION
+          - keyword: IF
+          - keyword: NOT
+          - keyword: EXISTS
+          - object_reference:
+            - naked_identifier: p1
+          - keyword: VALUES
+          - keyword: LESS
+          - keyword: THAN
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '10'
+            - end_bracket: )
+          - bracketed:
+            - start_bracket: (
+            - quoted_literal: '''storage_medium'''
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '''SSD'''
+            - end_bracket: )
+        - comma: ','
+        - range_partition_definition:
+          - keyword: PARTITION
+          - object_reference:
+            - naked_identifier: p2
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - end_bracket: )
+            - comma: ','
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '20'
+              - end_bracket: )
+            - end_bracket: )
+        - comma: ','
+        - range_partition_definition:
+          - keyword: PARTITION
+          - object_reference:
+            - naked_identifier: p3
+          - keyword: VALUES
+          - keyword: LESS
+          - keyword: THAN
+          - keyword: MAXVALUE
+        - end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: HASH
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: id
+        - end_bracket: )
+      - keyword: BUCKETS
+      - keyword: AUTO
+- statement_terminator: ;

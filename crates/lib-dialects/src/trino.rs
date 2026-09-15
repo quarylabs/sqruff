@@ -483,8 +483,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
-            "DatatypeSegment".into(),
-            NodeMatcher::new(SyntaxKind::DataType, |_| {
+            "PrimitiveTypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::PrimitiveType, |_| {
                 one_of(vec![
                     Ref::keyword("BOOLEAN").to_matchable(),
                     Ref::keyword("TINYINT").to_matchable(),
@@ -512,13 +512,61 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("JSON").to_matchable(),
                     Ref::keyword("DATE").to_matchable(),
                     Ref::new("TimeWithTZGrammar").to_matchable(),
-                    // Structural
-                    Ref::new("ArrayTypeSegment").to_matchable(),
-                    Ref::keyword("MAP").to_matchable(),
-                    Ref::new("RowTypeSegment").to_matchable(),
                     // Others
                     Ref::keyword("IPADDRESS").to_matchable(),
                     Ref::keyword("UUID").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DatatypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::DataType, |_| {
+                one_of(vec![
+                    Ref::new("PrimitiveTypeSegment").to_matchable(),
+                    Ref::new("ArrayTypeSegment").to_matchable(),
+                    Ref::new("MapTypeSegment").to_matchable(),
+                    Ref::new("RowTypeSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MapTypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::MapType, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("MAP").to_matchable(),
+                    Ref::new("MapTypeSchemaSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MapTypeSchemaSegment".into(),
+            NodeMatcher::new(SyntaxKind::MapTypeSchema, |_| {
+                one_of(vec![
+                    Bracketed::new(vec![
+                        Ref::new("PrimitiveTypeSegment").to_matchable(),
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.bracket_pairs_set = "angle_bracket_pairs";
+                        config.bracket_type = "angle";
+                    })
+                    .to_matchable(),
+                    Bracketed::new(vec![
+                        Ref::new("PrimitiveTypeSegment").to_matchable(),
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

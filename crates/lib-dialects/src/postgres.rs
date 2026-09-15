@@ -666,6 +666,54 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "JsonTypeGrammar".into(),
+            one_of(vec![
+                Ref::keyword("VALUE").to_matchable(),
+                Ref::keyword("SCALAR").to_matchable(),
+                Ref::keyword("ARRAY").to_matchable(),
+                Ref::keyword("OBJECT").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonUniqueKeysGrammar".into(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("WITHOUT").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("UNIQUE").to_matchable(),
+                Ref::keyword("KEYS").optional().to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonTestGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("JSON").to_matchable(),
+                Ref::new("JsonTypeGrammar").optional().to_matchable(),
+                Ref::new("JsonUniqueKeysGrammar").optional().to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "IsClauseGrammar".into(),
+            one_of(vec![
+                Ref::new("NullLiteralSegment").to_matchable(),
+                Ref::new("NanLiteralSegment").to_matchable(),
+                Ref::new("UnknownLiteralSegment").to_matchable(),
+                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                Ref::new("NormalizedGrammar").to_matchable(),
+                Ref::new("JsonTestGrammar").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "SimpleGeometryGrammar".into(),
             AnyNumberOf::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
                 .to_matchable()

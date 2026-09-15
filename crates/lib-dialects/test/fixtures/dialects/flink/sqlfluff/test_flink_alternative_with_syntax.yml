@@ -1,0 +1,93 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: test_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: data_info
+        - data_type:
+          - row_data_type:
+            - keyword: ROW
+            - start_angle_bracket: <
+            - quoted_identifier: '`info`'
+            - data_type:
+              - data_type_identifier: STRING
+            - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+        - naked_identifier: score
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: total_count
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: active_count
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: metadata
+        - data_type:
+          - row_data_type:
+            - keyword: ROW
+            - start_angle_bracket: <
+            - quoted_identifier: '`details`'
+            - data_type:
+              - data_type_identifier: STRING
+            - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: change_rate
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: volume
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: change_percentage
+        - data_type:
+          - data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: updated_at
+        - data_type:
+          - keyword: TIMESTAMP
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '3'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: category
+        - data_type:
+          - data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: connector
+      - double_equals: ==
+      - quoted_literal: '''test-connector'''
+      - comma: ','
+      - naked_identifier: environment
+      - double_equals: ==
+      - quoted_literal: '''development'''
+      - end_bracket: )
+- statement_terminator: ;

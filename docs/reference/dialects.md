@@ -13,6 +13,7 @@ Sqruff currently supports the following SQL dialects:
 - [doris](#doris)
 - [duckdb](#duckdb)
 - [exasol](#exasol)
+- [flink](#flink)
 - [greenplum](#greenplum)
 - [hive](#hive)
 - [impala](#impala)
@@ -160,6 +161,22 @@ Exasol SQL dialect for the Exasol analytics database.
 **Configuration:**
 ```ini
 [sqruff:dialect:exasol]
+```
+
+
+### flink
+
+Apache Flink SQL dialect for stream processing and table operations.
+
+**Default Casing:** Case insensitive for quoted and unquoted identifiers.
+
+**Quotes:** String literals: single quotes; identifiers: backticks.
+
+**Documentation:** [https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/](https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/table/sql/)
+
+**Configuration:**
+```ini
+[sqruff:dialect:flink]
 ```
 
 

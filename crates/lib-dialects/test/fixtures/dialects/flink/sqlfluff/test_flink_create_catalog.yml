@@ -1,0 +1,20 @@
+file:
+- statement:
+  - create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - naked_identifier: my_catalog
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''type'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''hive'''
+      - comma: ','
+      - quoted_literal: '''hive-conf-dir'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''/path/to/hive/conf'''
+      - end_bracket: )
+- statement_terminator: ;

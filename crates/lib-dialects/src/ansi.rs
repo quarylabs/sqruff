@@ -834,7 +834,7 @@ pub fn raw_dialect() -> Dialect {
             "FromClauseTerminatorGrammar".into(),
             one_of(vec![
                 Ref::keyword("WHERE").to_matchable(),
-                Ref::keyword("LIMIT").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("GROUP").to_matchable(),
                     Ref::keyword("BY").to_matchable(),
@@ -860,7 +860,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "WhereClauseTerminatorGrammar".into(),
             one_of(vec![
-                Ref::keyword("LIMIT").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("GROUP").to_matchable(),
                     Ref::keyword("BY").to_matchable(),
@@ -888,7 +888,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("BY").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::keyword("LIMIT").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Ref::keyword("HAVING").to_matchable(),
                 Ref::keyword("QUALIFY").to_matchable(),
                 Ref::keyword("WINDOW").to_matchable(),
@@ -905,7 +905,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("BY").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::keyword("LIMIT").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Ref::keyword("QUALIFY").to_matchable(),
                 Ref::keyword("WINDOW").to_matchable(),
                 Ref::keyword("FETCH").to_matchable(),
@@ -916,7 +916,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "OrderByClauseTerminators".into(),
             one_of(vec![
-                Ref::keyword("LIMIT").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Ref::keyword("HAVING").to_matchable(),
                 Ref::keyword("QUALIFY").to_matchable(),
                 Ref::keyword("WINDOW").to_matchable(),
@@ -4560,7 +4560,7 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|this| {
                         this.terminators = vec![
-                            Ref::keyword("LIMIT").to_matchable(),
+                            Ref::new("LimitClauseSegment").to_matchable(),
                             Ref::new("FrameClauseUnitGrammar").to_matchable(),
                         ]
                     })
@@ -5865,7 +5865,7 @@ pub(crate) fn select_clause_terminators() -> Vec<Matchable> {
             Ref::keyword("BY").to_matchable(),
         ])
         .to_matchable(),
-        Ref::keyword("LIMIT").to_matchable(),
+        Ref::new("LimitClauseSegment").to_matchable(),
         Ref::keyword("OVERLAPS").to_matchable(),
         Ref::new("SetOperatorSegment").to_matchable(),
         Ref::keyword("FETCH").to_matchable(),

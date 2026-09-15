@@ -8,3 +8,6 @@ from dbo.sql_modules;
 SELECT PROPERTY FROM example_table;
 
 SELECT test(default, 2);
+
+SELECT CURRENT_USER, SESSION_USER, SYSTEM_USER, USER, test(default, 2)
+FROM dbo.all_pop;

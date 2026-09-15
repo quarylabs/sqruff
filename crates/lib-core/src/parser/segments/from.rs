@@ -85,7 +85,14 @@ impl FromExpressionElementSegment {
 
         let alias_expression = self
             .0
-            .child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) });
+            .child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
+            .or_else(|| {
+                self.0
+                    .child(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) })
+                    .and_then(|bracketed| {
+                        bracketed.child(const { &SyntaxSet::new(&[SyntaxKind::AliasExpression]) })
+                    })
+            });
         if let Some(alias_expression) = alias_expression {
             let segment = alias_expression.child(
                 const {
@@ -99,7 +106,7 @@ impl FromExpressionElementSegment {
             );
             if let Some(segment) = segment {
                 return AliasInfo {
-                    ref_str: segment.raw().clone(),
+                    ref_str: segment.raw_normalized(),
                     segment: segment.into(),
                     aliased: true,
                     from_expression_element: self.0.clone(),

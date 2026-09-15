@@ -11,7 +11,7 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::linter::compute_anchor_edit_info;
 use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceLevel;
-use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables, position_segments};
 use sqruff_lib_core::utils::analysis::query::{Query, Selectable};
 use sqruff_lib_core::utils::analysis::select::get_select_statement_info;
 use sqruff_lib_core::utils::functional::segments::Segments;
@@ -131,12 +131,24 @@ join c using(x)
 
         let case_preference = get_case_preference(&segment);
 
+        // Issue 3617: In T-SQL (and possibly other dialects) the automated fix
+        // leaves parentheses in a location that causes a syntax error. This is an
+        // unusual corner case. For simplicity, still generate the lint warning but
+        // don't try to generate a fix.
+        let bracketed_ctas = parent_stack
+            .base
+            .iter()
+            .rev()
+            .take(2)
+            .map(|it| it.get_type())
+            .eq([SyntaxKind::CreateTableStatement, SyntaxKind::Bracketed]);
+
         let clone_map = SegmentCloneMap::new(
             segment.first().unwrap().clone(),
             segment.first().unwrap().deep_clone(),
         );
 
-        let results = self.lint_query(
+        let mut results = self.lint_query(
             context.tables,
             context.dialect,
             query,
@@ -145,49 +157,27 @@ join c using(x)
             &clone_map,
         );
 
-        let mut lint_results = Vec::with_capacity(results.len());
-        let mut is_fixable = true;
-
-        let mut subquery_parent = None;
-
         let mut local_fixes = Vec::new();
-        for result in results {
-            let (lint_result, from_expression, alias_name, subquery_parent_slot) = result;
-            subquery_parent = Some(subquery_parent_slot.clone());
-            let this_seg_clone = clone_map[&from_expression].clone();
-            let new_table_ref = create_table_ref(context.tables, &alias_name, context.dialect);
+        for (_, from_expression, alias_name, _, is_fixable) in &results {
+            if !is_fixable {
+                continue;
+            }
+
+            let this_seg_clone = clone_map[from_expression].clone();
+            let new_table_ref = create_table_ref(context.tables, alias_name, context.dialect);
+            // Add positions to the new table reference. Other rules may need a
+            // position, but the clone is not a typical externally returned fix.
+            let new_table_ref = position_segments(
+                &[new_table_ref],
+                this_seg_clone.get_position_marker().unwrap(),
+            )[0]
+            .clone();
 
             local_fixes.push(LintFix::replace(
                 this_seg_clone.clone(),
-                vec![
-                    SegmentBuilder::node(
-                        context.tables.next_id(),
-                        this_seg_clone.get_type(),
-                        context.dialect.name,
-                        vec![new_table_ref],
-                    )
-                    .finish(),
-                ],
+                vec![this_seg_clone.new(vec![new_table_ref])],
                 None,
             ));
-
-            let bracketed_ctas = parent_stack
-                .base
-                .iter()
-                .rev()
-                .take(2)
-                .map(|it| it.get_type())
-                .eq([SyntaxKind::CreateTableStatement, SyntaxKind::Bracketed]);
-
-            if bracketed_ctas || ctes.has_duplicate_aliases() || is_recursive {
-                is_fixable = false;
-            }
-
-            lint_results.push(lint_result);
-        }
-
-        if !is_fixable {
-            return lint_results;
         }
 
         let parser: sqruff_lib_core::parser::Parser = context.config.into();
@@ -231,18 +221,21 @@ join c using(x)
         // If there's no SELECT statement (e.g., WITH ... INSERT/UPDATE/DELETE),
         // we can't safely create fixes, so return lint results without fixes.
         if output_select.is_empty() {
-            return lint_results;
+            return results.into_iter().map(|result| result.0).collect();
         }
 
-        for result in &mut lint_results {
-            let subquery_parent = subquery_parent.clone().unwrap();
+        for (lint_result, _, _, subquery_parent, is_fixable) in &mut results {
+            if bracketed_ctas || is_recursive || !*is_fixable {
+                continue;
+            }
+
             let output_select_clone = output_select[0].clone();
 
             let mut fixes = ctes.ensure_space_after_from(
                 context.tables,
                 output_select[0].clone(),
                 &output_select_clone,
-                subquery_parent,
+                subquery_parent.clone(),
             );
 
             let new_select = ctes.compose_select(
@@ -252,16 +245,16 @@ join c using(x)
                 case_preference,
             );
 
-            result.fixes = vec![LintFix::replace(
+            lint_result.fixes = vec![LintFix::replace(
                 segment.first().unwrap().clone(),
                 vec![new_select],
                 None,
             )];
 
-            result.fixes.append(&mut fixes);
+            lint_result.fixes.append(&mut fixes);
         }
 
-        lint_results
+        results.into_iter().map(|result| result.0).collect()
     }
 
     fn is_fix_compatible(&self) -> bool {
@@ -282,7 +275,7 @@ impl RuleST05 {
         ctes: &mut CTEBuilder,
         case_preference: Case,
         segment_clone_map: &SegmentCloneMap,
-    ) -> Vec<(LintResult, ErasedSegment, SmolStr, ErasedSegment)> {
+    ) -> Vec<(LintResult, ErasedSegment, SmolStr, ErasedSegment, bool)> {
         let mut acc = Vec::new();
 
         for nsq in self.nested_subqueries(query, dialect) {
@@ -295,15 +288,48 @@ impl RuleST05 {
                 .cloned()
                 .unwrap();
 
-            let new_cte = create_cte_seg(
-                tables,
-                alias_name.clone(),
-                segment_clone_map[&anchor].clone(),
-                case_preference,
-                dialect,
-            );
+            // Duplicate CTE names are still linted, but cannot be fixed safely.
+            let mut is_fixable = !ctes.list_used_names().contains(&alias_name);
 
-            ctes.insert_cte(new_cte);
+            // If the subquery anchor is a table expression, use its bracketed child.
+            let bracket_anchor = if anchor.is_type(SyntaxKind::TableExpression) {
+                anchor
+                    .child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
+                    .expect("table_expression should have a bracketed segment")
+            } else {
+                anchor.clone()
+            };
+
+            // SQLFluff's parser exposes the surrounding grouped join as a child
+            // table expression of the bracket anchor. In sqruff it is an ancestor
+            // on the path to this inner from-expression element instead.
+            let nested_in_bracketed_expression = nsq
+                .selectable
+                .selectable
+                .path_to(&nsq.table_alias.from_expression_element)
+                .iter()
+                .any(|step| step.segment.is_type(SyntaxKind::Bracketed));
+
+            // A nested table expression cannot be safely turned into a CTE here.
+            if !bracket_anchor.is_type(SyntaxKind::Bracketed)
+                || bracket_anchor
+                    .child(const { &SyntaxSet::single(SyntaxKind::TableExpression) })
+                    .is_some()
+                || nested_in_bracketed_expression
+            {
+                is_fixable = false;
+            }
+
+            if is_fixable {
+                let new_cte = create_cte_seg(
+                    tables,
+                    alias_name.clone(),
+                    segment_clone_map[&bracket_anchor].clone(),
+                    case_preference,
+                    dialect,
+                );
+                ctes.insert_cte(new_cte);
+            }
 
             let select = nsq.selectable.selectable.clone();
             let anchor = anchor.recursive_crawl(
@@ -337,6 +363,7 @@ impl RuleST05 {
                 nsq.table_alias.from_expression_element,
                 alias_name.clone(),
                 nsq.selectable.selectable.clone(),
+                is_fixable,
             ));
         }
 
@@ -611,11 +638,6 @@ impl CTEBuilder {
         used_names
     }
 
-    fn has_duplicate_aliases(&self) -> bool {
-        let used_names = self.list_used_names();
-        !used_names.into_iter().all_unique()
-    }
-
     fn create_cte_alias(&mut self, alias: Option<&AliasInfo>) -> (SmolStr, bool) {
         if let Some(alias) = alias.filter(|alias| alias.aliased && !alias.ref_str.is_empty()) {
             return (alias.ref_str.clone(), false);
@@ -664,11 +686,11 @@ fn is_child(maybe_parent: Segments, maybe_child: Segments) -> bool {
     let child_markers = maybe_child[0].get_position_marker().unwrap();
     let parent_pos = maybe_parent[0].get_position_marker().unwrap();
 
-    if child_markers < &parent_pos.start_point_marker() {
+    if child_markers.start_point_marker() < parent_pos.start_point_marker() {
         return false;
     }
 
-    if child_markers > &parent_pos.end_point_marker() {
+    if child_markers.end_point_marker() > parent_pos.end_point_marker() {
         return false;
     }
 

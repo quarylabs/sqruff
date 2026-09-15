@@ -14,9 +14,9 @@ file:
                 - column_reference:
                   - naked_identifier: ident
               - comma: ','
-              - lambda_expression:
-                - naked_identifier: i
-                - function_assigner: ->
+              - lambda_function:
+                - parameter: i
+                - lambda_arrow: ->
                 - expression:
                   - column_reference:
                     - naked_identifier: i
@@ -43,9 +43,9 @@ file:
                 - column_reference:
                   - naked_identifier: ident
               - comma: ','
-              - lambda_expression:
-                - naked_identifier: j
-                - function_assigner: ->
+              - lambda_function:
+                - parameter: j
+                - lambda_arrow: ->
                 - expression:
                   - column_reference:
                     - naked_identifier: j
@@ -69,11 +69,11 @@ file:
                 - column_reference:
                   - naked_identifier: ident
               - comma: ','
-              - lambda_expression:
-                - naked_identifier: k
+              - lambda_function:
+                - parameter: k
                 - data_type:
                   - data_type_identifier: variant
-                - function_assigner: ->
+                - lambda_arrow: ->
                 - expression:
                   - column_reference:
                     - naked_identifier: k
@@ -108,18 +108,18 @@ file:
                 - column_reference:
                   - quoted_identifier: '"ident"'
               - comma: ','
-              - lambda_expression:
+              - lambda_function:
                 - bracketed:
                   - start_bracket: (
-                  - naked_identifier: i
+                  - parameter: i
                   - data_type:
                     - data_type_identifier: INT
                   - comma: ','
-                  - naked_identifier: j
+                  - parameter: j
                   - data_type:
                     - data_type_identifier: VARIANT
                   - end_bracket: )
-                - function_assigner: ->
+                - lambda_arrow: ->
                 - expression:
                   - bracketed:
                     - start_bracket: (
@@ -159,9 +159,9 @@ file:
                 - column_reference:
                   - quoted_identifier: '"ident"'
               - comma: ','
-              - lambda_expression:
-                - naked_identifier: j
-                - function_assigner: ->
+              - lambda_function:
+                - parameter: j
+                - lambda_arrow: ->
                 - expression:
                   - column_reference:
                     - naked_identifier: j
@@ -181,9 +181,9 @@ file:
               - expression:
                 - quoted_literal: '''unusual arguments'''
               - comma: ','
-              - lambda_expression:
-                - naked_identifier: x
-                - function_assigner: ->
+              - lambda_function:
+                - parameter: x
+                - lambda_arrow: ->
                 - expression:
                   - quoted_literal: '''still a lambda expression'''
               - comma: ','
@@ -201,4 +201,44 @@ file:
           - table_expression:
             - table_reference:
               - naked_identifier: ref
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: REDUCE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - comma: ','
+                  - numeric_literal: '3'
+                  - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                - numeric_literal: '0'
+              - comma: ','
+              - lambda_function:
+                - bracketed:
+                  - start_bracket: (
+                  - parameter: acc
+                  - comma: ','
+                  - parameter: val
+                  - end_bracket: )
+                - lambda_arrow: ->
+                - expression:
+                  - column_reference:
+                    - naked_identifier: acc
+                  - binary_operator: +
+                  - column_reference:
+                    - naked_identifier: val
+              - end_bracket: )
 - statement_terminator: ;

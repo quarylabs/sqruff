@@ -1,0 +1,20 @@
+file:
+- oracle_batch:
+  - statement:
+    - drop_type_statement:
+      - keyword: DROP
+      - keyword: TYPE
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+        - naked_identifier: person_t
+      - keyword: FORCE
+  - statement_terminator: ;
+  - statement:
+    - drop_type_statement:
+      - keyword: DROP
+      - keyword: TYPE
+      - keyword: BODY
+      - object_reference:
+        - naked_identifier: data_typ1
+  - statement_terminator: ;

@@ -81,6 +81,10 @@ SELECT DISTINCT a, b FROM foo
         &[RuleGroups::All, RuleGroups::Core, RuleGroups::Structure]
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let mut seq: Option<ReflowSequence> = None;
         let mut anchor: Option<ErasedSegment> = None;

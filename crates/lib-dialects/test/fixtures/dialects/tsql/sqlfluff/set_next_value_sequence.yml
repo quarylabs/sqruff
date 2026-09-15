@@ -1,0 +1,20 @@
+file:
+- statement:
+  - keyword: SET
+  - tsql_variable: '@param1'
+  - assignment_operator:
+    - raw_comparison_operator: =
+  - expression:
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - sequence_next_value:
+          - keyword: NEXT
+          - keyword: VALUE
+          - keyword: FOR
+          - object_reference:
+            - quoted_identifier: '[dbo]'
+            - dot: .
+            - quoted_identifier: '[SEQUENCE_NAME]'
+      - end_bracket: )
+- statement_terminator: ;

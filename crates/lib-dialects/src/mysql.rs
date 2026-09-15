@@ -218,11 +218,11 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
-    // SystemVariableSegment - @@session.var or @@global.var.
+    // SystemVariableSegment - @@var, @@session.var, or @@global.var.
     mysql.add([(
         "SystemVariableSegment".into(),
         RegexParser::new(
-            r"@@(session|global)\.[A-Za-z0-9_]+",
+            r"@@((session|global)\.)?[A-Za-z0-9_]+",
             SyntaxKind::SystemVariable,
         )
         .to_matchable()
@@ -363,7 +363,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "InlinePathOperatorSegment".into(),
-            StringParser::new("->>", SyntaxKind::InlinePathOperator)
+            StringParser::new("->>", SyntaxKind::ColumnPathOperator)
                 .to_matchable()
                 .into(),
         ),
@@ -721,6 +721,22 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    let binary_operator_grammar = mysql.grammar("BinaryOperatorGrammar");
+    mysql.replace_grammar(
+        "BinaryOperatorGrammar",
+        binary_operator_grammar.copy(
+            Some(vec![
+                Ref::new("ColumnPathOperatorSegment").to_matchable(),
+                Ref::new("InlinePathOperatorSegment").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            vec![],
+            false,
+        ),
+    );
+
     // MySQL 8.0+ supports CTEs with DML statements.
     mysql.replace_grammar(
         "NonWithSelectableGrammar",
@@ -738,6 +754,73 @@ pub fn raw_dialect() -> Dialect {
     // ============================================================
     // Segment definitions
     // ============================================================
+
+    // DatatypeSegment.
+    mysql.replace_grammar(
+        "DatatypeSegment",
+        one_of(vec![
+            Ref::new("TimeWithTZGrammar").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("DOUBLE").to_matchable(),
+                Ref::keyword("PRECISION").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("CHARACTER").to_matchable(),
+                            Ref::keyword("BINARY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("VARYING").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("LARGE").to_matchable(),
+                                Ref::keyword("OBJECT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("DotSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("BracketedArguments").optional().to_matchable(),
+                one_of(vec![
+                    Ref::new("CharCharacterSetGrammar").to_matchable(),
+                    Ref::keyword("SIGNED").to_matchable(),
+                    Ref::keyword("UNSIGNED").to_matchable(),
+                    Ref::keyword("ZEROFILL").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ZEROFILL").to_matchable(),
+                        Ref::keyword("UNSIGNED").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("UNSIGNED").to_matchable(),
+                        Ref::keyword("ZEROFILL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("ArrayTypeSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     // ColumnDefinitionSegment.
     mysql.replace_grammar(
@@ -1129,8 +1212,15 @@ pub fn raw_dialect() -> Dialect {
         "IntervalExpressionSegment",
         Sequence::new(vec![
             Ref::keyword("INTERVAL").to_matchable(),
-            Ref::new("ExpressionSegment").to_matchable(),
-            Ref::new("DatetimeUnitSegment").to_matchable(),
+            one_of(vec![
+                Ref::new("DatetimeUnitSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("DatetimeUnitSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -1547,6 +1637,16 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("SET").to_matchable(),
                 Delimited::new(vec![
                     Sequence::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("NEW").to_matchable(),
+                                Ref::keyword("OLD").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("DotSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                         one_of(vec![
                             Ref::new("SessionVariableNameSegment").to_matchable(),
                             Ref::new("LocalVariableNameSegment").to_matchable(),
@@ -1561,6 +1661,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("QuotedLiteralSegment").to_matchable(),
                             Ref::new("DoubleQuotedLiteralSegment").to_matchable(),
                             Ref::new("SessionVariableNameSegment").to_matchable(),
+                            Ref::new("SystemVariableSegment").to_matchable(),
                             Ref::new("BooleanDynamicSystemVariablesGrammar").to_matchable(),
                             Ref::new("LocalVariableNameSegment").to_matchable(),
                             Ref::new("FunctionSegment").to_matchable(),
@@ -2487,9 +2588,79 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("KEYS").to_matchable(),
                     ])
                     .to_matchable(),
+                    // CONVERT TO CHARACTER SET charset_name [COLLATE collation_name]
+                    Sequence::new(vec![
+                        Ref::keyword("CONVERT").to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        AnyNumberOf::new(vec![Ref::new("AlterOptionSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("DISCARD").to_matchable(),
+                    Ref::keyword("IMPORT").to_matchable(),
+                    Ref::keyword("TRUNCATE").to_matchable(),
+                    Ref::keyword("COALESCE").to_matchable(),
+                    Ref::keyword("REORGANIZE").to_matchable(),
+                    Ref::keyword("EXCHANGE").to_matchable(),
+                    Ref::keyword("ANALYZE").to_matchable(),
+                    Ref::keyword("CHECK").to_matchable(),
+                    Ref::keyword("OPTIMIZE").to_matchable(),
+                    Ref::keyword("REBUILD").to_matchable(),
+                    Ref::keyword("REPAIR").to_matchable(),
+                    Ref::keyword("REMOVE").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::keyword("PARTITIONING").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    Ref::keyword("ALL").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("TABLESPACE").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("WITHOUT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("VALIDATION").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("INTO").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
             .to_matchable(),
         ])
         .to_matchable(),
@@ -2851,11 +3022,13 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("UPDATE").to_matchable(),
             Ref::keyword("LOW_PRIORITY").optional().to_matchable(),
             Ref::keyword("IGNORE").optional().to_matchable(),
+            MetaSegment::indent().to_matchable(),
             Delimited::new(vec![
                 Ref::new("TableReferenceSegment").to_matchable(),
                 Ref::new("FromExpressionSegment").to_matchable(),
             ])
             .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
             Ref::new("SetClauseListSegment").to_matchable(),
             Ref::new("WhereClauseSegment").optional().to_matchable(),
             Ref::new("OrderByClauseSegment").optional().to_matchable(),
@@ -3156,33 +3329,6 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // ColumnReferenceSegment - add JSON path operators.
-    // Base is a delimited list of identifiers (ANSI), plus optional JSON path.
-    let base_col_ref = Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
-        .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
-        .to_matchable();
-    mysql.replace_grammar(
-        "ColumnReferenceSegment",
-        one_of(vec![
-            Sequence::new(vec![
-                base_col_ref.clone(),
-                one_of(vec![
-                    Ref::new("ColumnPathOperatorSegment").to_matchable(),
-                    Ref::new("InlinePathOperatorSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                one_of(vec![
-                    Ref::new("DoubleQuotedJSONPath").to_matchable(),
-                    Ref::new("SingleQuotedJSONPath").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            base_col_ref,
-        ])
-        .to_matchable(),
-    );
-
     // CreateDatabaseStatementSegment.
     mysql.replace_grammar(
         "CreateDatabaseStatementSegment",
@@ -3272,7 +3418,12 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("CHARACTER").to_matchable(),
                     Ref::keyword("SET").to_matchable(),
                     Ref::new("EqualsSegment").optional().to_matchable(),
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+                        Ref::new("DoubleQuotedIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
@@ -3627,6 +3778,169 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // CREATE EVENT statement.
+    // https://dev.mysql.com/doc/refman/9.2/en/create-event.html
+    mysql.add([(
+        "CreateEventStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateEventStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::new("DefinerSegment").optional().to_matchable(),
+                Ref::keyword("EVENT").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("SCHEDULE").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("AT").to_matchable(),
+                    Ref::keyword("EVERY").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+                Ref::new("DatetimeUnitSegment").optional().to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("STARTS").to_matchable(),
+                            Ref::keyword("ENDS").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("COMPLETION").to_matchable(),
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::keyword("PRESERVE").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ENABLE").to_matchable(),
+                    Ref::keyword("DISABLE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DISABLE").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("REPLICA").to_matchable(),
+                            Ref::keyword("SLAVE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("CommentClauseSegment").optional().to_matchable(),
+                Ref::keyword("DO").to_matchable(),
+                Ref::new("StatementSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ALTER EVENT statement.
+    // https://dev.mysql.com/doc/refman/9.2/en/alter-event.html
+    mysql.add([(
+        "AlterEventStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterEventStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("ALTER").to_matchable(),
+                Ref::new("DefinerSegment").optional().to_matchable(),
+                Ref::keyword("EVENT").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("SCHEDULE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("AT").to_matchable(),
+                        Ref::keyword("EVERY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("DatetimeUnitSegment").optional().to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("STARTS").to_matchable(),
+                                Ref::keyword("ENDS").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("COMPLETION").to_matchable(),
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::keyword("PRESERVE").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("RENAME").to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ENABLE").to_matchable(),
+                    Ref::keyword("DISABLE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DISABLE").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("REPLICA").to_matchable(),
+                            Ref::keyword("SLAVE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("CommentClauseSegment").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DO").to_matchable(),
+                    Ref::new("StatementSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // DROP EVENT statement.
+    // https://dev.mysql.com/doc/refman/9.2/en/drop-event.html
+    mysql.add([(
+        "DropEventStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropEventStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("EVENT").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // StatementSegment - override to add MySQL-specific statements
     // ============================================================
 
@@ -3673,6 +3987,9 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("AlterDatabaseStatementSegment").to_matchable(),
                 Ref::new("ReturnStatementSegment").to_matchable(),
                 Ref::new("SetNamesStatementSegment").to_matchable(),
+                Ref::new("CreateEventStatementSegment").to_matchable(),
+                Ref::new("AlterEventStatementSegment").to_matchable(),
+                Ref::new("DropEventStatementSegment").to_matchable(),
             ]),
             None,
             None,
@@ -3969,11 +4286,16 @@ pub(crate) fn column_constraint_grammar(allow_persistent: bool) -> Matchable {
                 Ref::new("CollationReferenceSegment").to_matchable(),
             ])
             .to_matchable(),
-            // MySQL-specific: CHARACTER SET and COLLATE with NakedIdentifier
+            // MySQL-specific: CHARACTER SET and COLLATE constraints.
             Sequence::new(vec![
                 Ref::keyword("CHARACTER").to_matchable(),
                 Ref::keyword("SET").to_matchable(),
-                Ref::new("NakedIdentifierSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
+                    Ref::new("DoubleQuotedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![
@@ -3993,6 +4315,11 @@ pub(crate) fn column_constraint_grammar(allow_persistent: bool) -> Matchable {
                 one_of(generated_column_types)
                     .config(|this| this.optional())
                     .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("SRID").to_matchable(),
+                Ref::new("NumericLiteralSegment").to_matchable(),
             ])
             .to_matchable(),
         ])

@@ -12,7 +12,7 @@ use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{CaseFold, RegexParser};
+use sqruff_lib_core::parser::parsers::{CaseFold, RegexParser, StringParser};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 
@@ -343,27 +343,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec![
                     Ref::keyword("DATE").to_matchable(),
                     Ref::keyword("DATETIME").to_matchable(),
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::keyword("TIME").to_matchable(),
-                            Ref::keyword("TIMESTAMP").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            one_of(vec![
-                                Ref::keyword("WITH").to_matchable(),
-                                Ref::keyword("WITHOUT").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("TIME").to_matchable(),
-                            Ref::keyword("ZONE").to_matchable(),
-                        ])
-                        .config(|this| {
-                            this.optional();
-                        })
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("TimeWithTZGrammar").to_matchable(),
                     one_of(vec![
                         Ref::keyword("TIMETZ").to_matchable(),
                         Ref::keyword("TIMESTAMPTZ").to_matchable(),
@@ -375,21 +355,35 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "LiteralGrammar".into(),
+            ansi_dialect
+                .grammar("LiteralGrammar")
+                .copy(
+                    Some(vec![Ref::new("MaxLiteralSegment").to_matchable()]),
+                    None,
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                )
+                .into(),
+        ),
+        (
+            "MaxLiteralSegment".into(),
+            StringParser::new("max", SyntaxKind::MaxLiteral)
+                .to_matchable()
+                .into(),
+        ),
     ]);
     redshift_dialect.replace_grammar(
         "BracketedArguments",
         Bracketed::new(vec![
-            Delimited::new(vec![
-                one_of(vec![
-                    Ref::new("LiteralGrammar").to_matchable(),
-                    Ref::keyword("MAX").to_matchable(),
-                ])
+            Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                .config(|this| {
+                    this.optional();
+                })
                 .to_matchable(),
-            ])
-            .config(|this| {
-                this.optional();
-            })
-            .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -472,6 +466,13 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Ref::keyword("ANYELEMENT").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("DotSegment").to_matchable(),
+                        Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                    ])
+                    .allow_gaps(false)
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -1044,7 +1045,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Bracketed::new(vec![
                         Delimited::new(vec![
-                            AnyNumberOf::new(vec![
+                            one_of(vec![
                                 Sequence::new(vec![
                                     Ref::new("ColumnReferenceSegment").to_matchable(),
                                     Ref::new("DatatypeSegment").to_matchable(),
@@ -3490,7 +3491,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("QUALIFY").to_matchable(),
-                    MetaSegment::indent().to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
                     MetaSegment::dedent().to_matchable(),
                 ])
@@ -3534,6 +3535,44 @@ pub fn raw_dialect() -> Dialect {
                 Vec::new(),
                 false,
             ),
+    );
+
+    redshift_dialect.replace_grammar(
+        "GroupByClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("GROUP").to_matchable(),
+            Ref::keyword("BY").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            Delimited::new(vec![
+                one_of(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    Ref::new("CubeRollupClauseSegment").to_matchable(),
+                    Ref::new("GroupingSetsClauseSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Bracketed::new(vec![]).to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| {
+                this.terminators = vec![
+                    Sequence::new(vec![
+                        Ref::keyword("ORDER").to_matchable(),
+                        Ref::keyword("BY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("LIMIT").to_matchable(),
+                    Ref::keyword("HAVING").to_matchable(),
+                    Ref::keyword("QUALIFY").to_matchable(),
+                    Ref::keyword("WINDOW").to_matchable(),
+                    Ref::new("SetOperatorSegment").to_matchable(),
+                ];
+            })
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
     );
 
     redshift_dialect

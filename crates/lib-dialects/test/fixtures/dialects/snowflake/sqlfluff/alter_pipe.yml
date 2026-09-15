@@ -120,3 +120,16 @@ file:
     - tag_reference:
       - naked_identifier: bar
 - statement_terminator: ;
+- statement:
+  - alter_pipe_segment:
+    - keyword: ALTER
+    - keyword: PIPE
+    - object_reference:
+      - naked_identifier: mypipe
+    - keyword: SET
+    - keyword: ERROR_INTEGRATION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_notification_int
+- statement_terminator: ;

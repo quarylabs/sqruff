@@ -83,3 +83,207 @@ file:
 - statement_terminator: ;
 - statement:
   - keyword: GO
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '[HangFire]'
+        - dot: .
+        - quoted_identifier: '[JobParameter]'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+        - quoted_identifier: '[FK_HangFire_JobParameter_Job]'
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - quoted_identifier: '[JobId]'
+        - end_bracket: )
+      - references_constraint_grammar:
+        - keyword: REFERENCES
+        - table_reference:
+          - object_reference:
+            - quoted_identifier: '[HangFire]'
+            - dot: .
+            - quoted_identifier: '[Job]'
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - quoted_identifier: '[Id]'
+          - end_bracket: )
+        - keyword: ON
+        - keyword: UPDATE
+        - keyword: CASCADE
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: UserData
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+      - quoted_identifier: '[StrSkill]'
+    - comma: ','
+    - column_reference:
+      - quoted_identifier: '[StrItem]'
+    - comma: ','
+    - column_reference:
+      - quoted_identifier: '[StrSerial]'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: UserData
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+      - naked_identifier: StrSkill
+    - comma: ','
+    - column_reference:
+      - naked_identifier: StrItem
+    - comma: ','
+    - column_reference:
+      - naked_identifier: StrSerial
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[UserData]'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - quoted_identifier: '[strUserId]'
+          - data_type:
+            - quoted_identifier: '[char]'
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '21'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[strItem]'
+          - data_type:
+            - quoted_identifier: '[binary]'
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '400'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - quoted_identifier: '[strSkill]'
+          - data_type:
+            - quoted_identifier: '[binary]'
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '400'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: 'NULL'
+        - comma: ','
+        - table_constraint:
+          - keyword: CONSTRAINT
+          - object_reference:
+            - naked_identifier: PK_UserData
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: CLUSTERED
+          - bracketed_index_column_list_grammar:
+            - bracketed:
+              - start_bracket: (
+              - index_column_definition:
+                - quoted_identifier: '[strUserId]'
+                - keyword: ASC
+              - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[UserData]'
+    - keyword: ADD
+    - column_constraint_segment:
+      - keyword: CONSTRAINT
+      - object_reference:
+        - quoted_identifier: '[DF_UserData_strSkill]'
+      - keyword: DEFAULT
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '0x00'
+        - end_bracket: )
+    - keyword: FOR
+    - column_reference:
+      - quoted_identifier: '[strSkill]'
+- statement_terminator: ;
+- statement:
+  - keyword: GO
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '[TestTable]'
+    - keyword: DROP
+    - period_segment:
+      - keyword: PERIOD
+      - keyword: FOR
+      - keyword: SYSTEM_TIME
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - quoted_identifier: '[TestTable]'
+    - keyword: ADD
+    - period_segment:
+      - keyword: PERIOD
+      - keyword: FOR
+      - keyword: SYSTEM_TIME
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: StartDate
+        - comma: ','
+        - column_reference:
+          - naked_identifier: EndDate
+        - end_bracket: )
+- statement_terminator: ;

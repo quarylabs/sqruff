@@ -6,3 +6,5 @@ select
 from dbo.sql_modules;
 
 SELECT PROPERTY FROM example_table;
+
+SELECT test(default, 2);

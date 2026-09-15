@@ -29,6 +29,11 @@ const SUBSELECT_TYPES: SyntaxSet = SyntaxSet::new(&[
     SyntaxKind::ValuesClause,
 ]);
 
+/// Return an identifier's raw value without its quoting delimiters.
+pub fn normalize_identifier(segment: &ErasedSegment) -> SmolStr {
+    segment.raw_normalized()
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum QueryType {
     Simple,
@@ -388,7 +393,7 @@ impl<'me> Query<'me> {
         let mut ctes = IndexMap::default();
         for cte in cte_defs {
             let name_seg = cte.segments()[0].clone();
-            let name = name_seg.raw().to_uppercase_smolstr();
+            let name = normalize_identifier(&name_seg).to_uppercase_smolstr();
 
             let queries = cte.recursive_crawl(
                 const { &SELECTABLE_TYPES.union(&SUBSELECT_TYPES) },

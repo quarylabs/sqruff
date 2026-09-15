@@ -36,6 +36,7 @@ from jinja2_simple_tags import StandaloneTag
 from sqruff.templaters.jinja_templater import JinjaTemplater
 from sqruff.templaters.python_templater import (
     TemplatedFile,
+    SQLFluffSkipFile,
     SQLTemplaterError,
     FluffConfig,
     fluff_config_from_json,
@@ -198,6 +199,7 @@ class DbtTemplater(JinjaTemplater):
         self.project_dir = None
         self.profiles_dir = None
         self.working_dir = os.getcwd()
+        self.dbt_skip_compilation_error = True
         super().__init__(override_context=override_context)
 
     def config_pairs(self):
@@ -401,7 +403,11 @@ class DbtTemplater(JinjaTemplater):
         Defaults to the working directory.
         """
         dbt_project_dir = os.path.abspath(
-            os.path.expanduser(self.config.dbt_project_dir or os.getcwd())
+            os.path.expanduser(
+                self.config.dbt_project_dir
+                or os.getenv("DBT_PROJECT_DIR")
+                or os.getcwd()
+            )
         )
         if not os.path.exists(dbt_project_dir):
             templater_logger.error(
@@ -410,6 +416,10 @@ class DbtTemplater(JinjaTemplater):
             )
 
         return dbt_project_dir
+
+    def _get_dbt_skip_compilation_error(self) -> bool:
+        """Return whether fatal dbt compilation errors should skip the file."""
+        return self.config.dbt_skip_compilation_error
 
     def _get_profile(self) -> str:
         """Get a dbt profile name from the configuration."""
@@ -522,6 +532,7 @@ class DbtTemplater(JinjaTemplater):
         self.config = config
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
+        self.dbt_skip_compilation_error = self._get_dbt_skip_compilation_error()
         fname_absolute_path = os.path.abspath(fname) if fname != "stdin" else fname
 
         # NOTE: dbt exceptions are caught and handled safely for pickling by the outer
@@ -682,7 +693,9 @@ class DbtTemplater(JinjaTemplater):
                 # to happen if we tried to compile ephemeral models in the
                 # wrong order), but more often because a macro tries to query
                 # a table at compile time which doesn't exist.
-                raise Exception(
+                if self.dbt_skip_compilation_error is False:
+                    raise SQLTemplaterError(str(err))
+                raise SQLFluffSkipFile(
                     f"Skipped file {fname} because dbt raised a fatal "
                     f"exception during compilation: {err!s}"
                 )
@@ -867,7 +880,9 @@ def _get_or_create_templater(
     the dbt manifest and configuration for each file in the same project.
     """
     project_dir = os.path.abspath(
-        os.path.expanduser(config.dbt_project_dir or os.getcwd())
+        os.path.expanduser(
+            config.dbt_project_dir or os.getenv("DBT_PROJECT_DIR") or os.getcwd()
+        )
     )
 
     if project_dir not in _templater_cache:

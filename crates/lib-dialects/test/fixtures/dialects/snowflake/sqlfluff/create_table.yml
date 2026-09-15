@@ -904,21 +904,22 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - boolean_literal: 'TRUE'
-    - tag_bracketed_equals:
-      - keyword: WITH
-      - keyword: TAG
-      - bracketed:
-        - start_bracket: (
-        - tag_reference:
-          - naked_identifier: account_objects
-          - dot: .
-          - naked_identifier: tags
-          - dot: .
-          - naked_identifier: IRM
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: '''{"IRM":[{"Primary":"ABC123"}]}'''
-        - end_bracket: )
+    - dynamic_table_options:
+      - tag_bracketed_equals:
+        - keyword: WITH
+        - keyword: TAG
+        - bracketed:
+          - start_bracket: (
+          - tag_reference:
+            - naked_identifier: account_objects
+            - dot: .
+            - naked_identifier: tags
+            - dot: .
+            - naked_identifier: IRM
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''{"IRM":[{"Primary":"ABC123"}]}'''
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_table_statement:
@@ -999,15 +1000,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: names
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''1 minute'''
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''1 minute'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1065,20 +1067,635 @@ file:
   - create_table_statement:
     - keyword: CREATE
     - keyword: OR
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INTEGER
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INTEGER
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+    - keyword: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''fr'''
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: archival
+      - dot: .
+      - naked_identifier: iceberg_report_invoicesummary
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: _v
+        - data_type:
+          - data_type_identifier: string
+      - comma: ','
+      - column_definition:
+        - naked_identifier: partition_date
+        - data_type:
+          - data_type_identifier: date
+      - comma: ','
+      - column_definition:
+        - naked_identifier: clientid
+        - data_type:
+          - data_type_identifier: string
+      - comma: ','
+      - column_definition:
+        - naked_identifier: invoiceclientid
+        - data_type:
+          - data_type_identifier: string
+      - end_bracket: )
+    - iceberg_table_options:
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''iceberg_ext_vol'''
+      - keyword: CATALOG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''SNOWFLAKE'''
+      - keyword: BASE_LOCATION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''report_invoicesummary'''
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: iceberg1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: value
+        - data_type:
+          - data_type_identifier: string
+      - comma: ','
+      - column_definition:
+        - naked_identifier: partition_date
+        - data_type:
+          - data_type_identifier: date
+      - comma: ','
+      - column_definition:
+        - naked_identifier: clientid
+        - data_type:
+          - data_type_identifier: string
+      - comma: ','
+      - column_definition:
+        - naked_identifier: amount
+        - data_type:
+          - data_type_identifier: INTEGER
+      - end_bracket: )
+    - dynamic_table_options:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+        - column_reference:
+          - naked_identifier: amount
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<external_volume_name>'''
+      - keyword: CATALOG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''SNOWFLAKE'''
+      - keyword: BASE_LOCATION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<relative_path_from_external_volume>'''
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: example
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: iceberg2
+    - keyword: LIKE
+    - table_reference:
+      - naked_identifier: example
+    - keyword: CLUSTER
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - expression:
+        - column_reference:
+          - naked_identifier: amount
+      - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: amount
+        - data_type:
+          - data_type_identifier: number
+      - end_bracket: )
+    - keyword: COPY
+    - keyword: GRANTS
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: iceberg_glue
+    - iceberg_table_options:
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<external_volume_name>'''
+      - keyword: CATALOG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<catalog_integration_name>'''
+      - keyword: CATALOG_TABLE_NAME
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<catalog_table_name'''
+      - keyword: CATALOG_NAMESPACE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<catalog_namespace>'''
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'TRUE'
+      - keyword: AUTO_REFRESH
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'FALSE'
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<string_literal>'''
+    - dynamic_table_options:
+      - tag_bracketed_equals:
+        - keyword: WITH
+        - keyword: TAG
+        - bracketed:
+          - start_bracket: (
+          - tag_reference:
+            - naked_identifier: tag1
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''r'''
+          - comma: ','
+          - tag_reference:
+            - naked_identifier: tag2
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''rr'''
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: iceberg_object_storage
+    - iceberg_table_options:
+      - keyword: EXTERNAL_VOLUME
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<external_volume_name>'''
+      - keyword: CATALOG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<catalog_integration_name>'''
+      - keyword: METADATA_FILE_PATH
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<metadata_file_path>'''
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'false'
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<string_literal>'''
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: iceberg_object_delta
+    - iceberg_table_options:
+      - keyword: BASE_LOCATION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<relative_path_from_external_volume>'''
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: ICEBERG
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: iceberg_object_snowflake_open_catalog
+    - iceberg_table_options:
+      - keyword: CATALOG_TABLE_NAME
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''<rest_catalog_table_name>'''
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: NUMBER
+        - column_constraint_segment:
+          - constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: ref_hybrid_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: col1
+        - data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '32'
+              - end_bracket: )
+        - column_constraint_segment:
+          - constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col2
+        - data_type:
+          - data_type_identifier: NUMBER
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+        - column_constraint_segment:
+          - constraint_properties_segment:
+            - keyword: UNIQUE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: fk_hybrid_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: col1
+        - data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '32'
+              - end_bracket: )
+        - column_constraint_segment:
+          - constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col2
+        - data_type:
+          - data_type_identifier: NUMBER
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col3
+        - data_type:
+          - data_type_identifier: NUMBER
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+      - comma: ','
+      - constraint_properties_segment:
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: col2
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: ref_hybrid_table
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: col2
+          - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: INDEX
+        - data_type:
+          - data_type_identifier: index_col3
+        - bracketed:
+          - start_bracket: (
+          - word: col3
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: target_hybrid_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: col1
+        - data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '32'
+              - end_bracket: )
+        - column_constraint_segment:
+          - constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col2
+        - data_type:
+          - data_type_identifier: NUMBER
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+        - column_constraint_segment:
+          - constraint_properties_segment:
+            - keyword: UNIQUE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col3
+        - data_type:
+          - data_type_identifier: NUMBER
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: INDEX
+        - data_type:
+          - data_type_identifier: index_col3
+        - bracketed:
+          - start_bracket: (
+          - word: col3
+          - end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col2
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: col3
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: dept_employees
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: employee_id
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint_segment:
+          - constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+      - comma: ','
+      - column_definition:
+        - naked_identifier: department_id
+        - data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '200'
+              - end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: employee_id
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: department_id
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: company_employees
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: HYBRID
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: application_log
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: NUMBER
+        - column_constraint_segment:
+          - constraint_properties_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+          - keyword: AUTOINCREMENT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col1
+        - data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '20'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+        - naked_identifier: col2
+        - data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '20'
+              - end_bracket: )
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
     - keyword: REPLACE
     - keyword: DYNAMIC
     - keyword: TABLE
     - table_reference:
       - naked_identifier: DT_WITH_DOWNSTREAM_LAG
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - keyword: DOWNSTREAM
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: DOWNSTREAM
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1104,15 +1721,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: DT_WITH_DOWNSTREAM_QUOTED_LITERAL_LAG
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''DOWNSTREAM'''
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''DOWNSTREAM'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1138,15 +1756,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: DT_WITH_SINGLE_SECOND_LAG
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''1 second'''
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''1 second'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1172,15 +1791,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: DT_WITH_MULTIPLE_SECONDS_LAG
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''5 seconds'''
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''5 seconds'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1206,15 +1826,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: DT_WITH_SINGLE_MINUTE_LAG
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''1 minute'''
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''1 minute'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1240,15 +1861,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: DT_WITH_MULTIPLE_MINUTES_LAG
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''5 minutes'''
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''5 minutes'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1274,15 +1896,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: DT_WITH_SINGLE_HOUR_LAG
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''1 hour'''
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''1 hour'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1308,15 +1931,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: DT_WITH_MULTIPLE_HOURS_LAG
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''5 hours'''
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''5 hours'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1342,15 +1966,16 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: DT_WITH_SINGLE_DAY_LAG
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''1 day'''
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''1 day'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1375,16 +2000,52 @@ file:
     - keyword: DYNAMIC
     - keyword: TABLE
     - table_reference:
-      - naked_identifier: DT_WITH_MULTIPLE_DAYS_LAG
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''5 days'''
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+      - naked_identifier: my_table
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''5 days'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''${my_time_variable}'''
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:
@@ -1614,6 +2275,171 @@ file:
     - keyword: OR
     - keyword: REPLACE
     - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INTEGER
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: MY_FK
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: another_table
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+        - keyword: MATCH
+        - keyword: SIMPLE
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: RESTRICT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INTEGER
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: MY_FK
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: another_table
+        - keyword: MATCH
+        - keyword: FULL
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: RESTRICT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: ID
+        - data_type:
+          - data_type_identifier: INTEGER
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          - constraint_properties_segment:
+            - keyword: CONSTRAINT
+            - naked_identifier: MY_FK
+            - keyword: FOREIGN
+            - keyword: KEY
+            - keyword: REFERENCES
+            - table_reference:
+              - naked_identifier: another_table
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: id
+              - end_bracket: )
+            - keyword: MATCH
+            - keyword: PARTIAL
+            - keyword: ON
+            - keyword: DELETE
+            - keyword: RESTRICT
+            - keyword: ON
+            - keyword: UPDATE
+            - keyword: SET
+            - keyword: DEFAULT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: ID
+        - data_type:
+          - data_type_identifier: INTEGER
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - constraint_properties_segment:
+        - keyword: CONSTRAINT
+        - naked_identifier: MY_FK
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: ID
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - naked_identifier: another_table
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+        - keyword: MATCH
+        - keyword: SIMPLE
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: CASCADE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
@@ -1683,23 +2509,24 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: names
-    - keyword: TARGET_LAG
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - dynamic_table_lag_interval_segment: '''1 minute'''
-    - keyword: REFRESH_MODE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - keyword: AUTO
-    - keyword: INITIALIZE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - initialize_type: ON_CREATE
-    - keyword: WAREHOUSE
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - object_reference:
-      - naked_identifier: mywh
+    - dynamic_table_options:
+      - keyword: TARGET_LAG
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - dynamic_table_lag_interval_segment: '''1 minute'''
+      - keyword: REFRESH_MODE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: AUTO
+      - keyword: INITIALIZE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - initialize_type: ON_CREATE
+      - keyword: WAREHOUSE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: mywh
     - keyword: AS
     - select_statement:
       - select_clause:

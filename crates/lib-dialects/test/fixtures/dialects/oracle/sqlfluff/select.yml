@@ -1,0 +1,27 @@
+file:
+- oracle_batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: created_at
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: status
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: code
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: item_errors
+            - alias_expression:
+              - naked_identifier: error
+  - statement_terminator: ;

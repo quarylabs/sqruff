@@ -3,7 +3,7 @@ use crate::sparksql;
 use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::Config;
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -64,12 +64,81 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "newline",
     );
 
+    // Databricks notebook start and language magic cells:
+    // https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebooks-code#language-magic
+    databricks.insert_lexer_matchers(
+        vec![
+            Matcher::regex(
+                "notebook_start",
+                r"-- Databricks notebook source(\r?\n){1}",
+                SyntaxKind::NotebookStart,
+            ),
+            Matcher::regex(
+                "magic_line",
+                r"(-- MAGIC)( [^%]{1})([^\n]*)",
+                SyntaxKind::MagicLine,
+            ),
+            Matcher::regex(
+                "magic_start",
+                r"(-- MAGIC %)([^\n]{2,})(\r?\n)",
+                SyntaxKind::MagicStart,
+            ),
+        ],
+        "inline_comment",
+    );
+
     databricks.add([
         (
             "CommandCellSegment".into(),
             TypedParser::new(SyntaxKind::Command, SyntaxKind::StatementTerminator)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "NotebookStart".into(),
+            TypedParser::new(SyntaxKind::NotebookStart, SyntaxKind::NotebookStart)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MagicLineGrammar".into(),
+            TypedParser::new(SyntaxKind::MagicLine, SyntaxKind::MagicLine)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MagicStartGrammar".into(),
+            TypedParser::new(SyntaxKind::MagicStart, SyntaxKind::MagicStart)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "VariableNameIdentifierSegment".into(),
+            one_of(vec![
+                Ref::new("NakedIdentifierSegment").to_matchable(),
+                Ref::new("BackQuotedIdentifierSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MagicCellStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::MagicCellSegment, |_| {
+                Sequence::new(vec![
+                    Ref::new("NotebookStart").optional().to_matchable(),
+                    Ref::new("MagicStartGrammar").to_matchable(),
+                    AnyNumberOf::new(vec![Ref::new("MagicLineGrammar").to_matchable()])
+                        .config(|config| {
+                            config.terminators =
+                                vec![Ref::new("CommandCellSegment").optional().to_matchable()];
+                            config.reset_terminators = true;
+                        })
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "DoubleQuotedUDFBody".into(),
@@ -225,7 +294,27 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("FunctionParameterListGrammarWithComments").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("RETURNS").to_matchable(),
-                        Ref::new("DatatypeSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("TABLE").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![
+                                        Sequence::new(vec![
+                                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                                            Ref::new("DatatypeSegment").to_matchable(),
+                                            Ref::new("CommentGrammar").optional().to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .config(|config| config.optional())
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -295,7 +384,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "ColumnDefaultGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("DEFAULT").to_matchable(),
-                Ref::new("LiteralGrammar").to_matchable(),
+                one_of(vec![
+                    Ref::new("LiteralGrammar").to_matchable(),
+                    Ref::new("FunctionSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -641,11 +734,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "IdentifierClauseSegment".into(),
-            Sequence::new(vec![
-                Ref::keyword("IDENTIFIER").to_matchable(),
-                Bracketed::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
-                    .to_matchable(),
-            ])
+            NodeMatcher::new(SyntaxKind::IdentifierClauseSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("IDENTIFIER").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -774,6 +870,59 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 })
                 .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `SET VARIABLE` statement used to set session variables.
+            // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-aux-set-variable.html
+            "SetVariableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetVariableStatement, |_| {
+                let set_kv_pair = Sequence::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("VariableNameIdentifierSegment").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("DEFAULT").to_matchable(),
+                            optionally_bracketed(vec![
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+                let set_bracketed = Sequence::new(vec![
+                    Bracketed::new(vec![
+                        Ref::new("VariableNameIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Ref::new("SelectStatementSegment").to_matchable(),
+                            Ref::new("ValuesClauseSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("VAR").to_matchable(),
+                        Ref::keyword("VARIABLE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![set_kv_pair, set_bracketed]).to_matchable(),
+                ])
+                .allow_gaps(true)
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1207,6 +1356,34 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     databricks.replace_grammar(
+        "FunctionNameIdentifierSegment",
+        one_of(vec![
+            TypedParser::new(SyntaxKind::Word, SyntaxKind::FunctionNameIdentifier).to_matchable(),
+            Ref::new("BackQuotedIdentifierSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    databricks.replace_grammar(
+        "FunctionNameSegment",
+        Sequence::new(vec![
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("DotSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|config| config.terminators = vec![Ref::new("BracketedSegment").to_matchable()])
+            .to_matchable(),
+            Ref::new("FunctionNameIdentifierSegment").to_matchable(),
+        ])
+        .terminators(vec![Ref::new("BracketedSegment").to_matchable()])
+        .allow_gaps(false)
+        .to_matchable(),
+    );
+
+    databricks.replace_grammar(
         "ColumnConstraintSegment",
         Sequence::new(vec![
             Ref::new("NotNullGrammar").optional().to_matchable(),
@@ -1244,6 +1421,25 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable(),
             ])
             .config(|config| config.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    databricks.replace_grammar(
+        "ColumnFieldDefinitionSegment",
+        Sequence::new(vec![
+            Ref::new("ColumnReferenceSegment").to_matchable(),
+            Ref::new("DatatypeSegment").to_matchable(),
+            Bracketed::new(vec![Anything::new().to_matchable()])
+                .config(|config| config.optional())
+                .to_matchable(),
+            AnyNumberOf::new(vec![
+                Ref::new("ColumnConstraintSegment")
+                    .optional()
+                    .to_matchable(),
+                Ref::new("ColumnDefaultGrammar").optional().to_matchable(),
+            ])
             .to_matchable(),
         ])
         .to_matchable(),
@@ -1572,7 +1768,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .config(|config| config.optional())
                     .to_matchable(),
                     Ref::new("IfExistsGrammar").optional().to_matchable(),
-                    Bracketed::new(vec![
+                    optionally_bracketed(vec![
                         Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
                             .to_matchable(),
                     ])
@@ -1795,7 +1991,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("IdentifierClauseSegment").to_matchable(),
             ])
             .to_matchable(),
-            Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),
         ])
         .config(|config| {
             config.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
@@ -1880,6 +2075,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("OptimizeTableStatementSegment").to_matchable(),
                     Ref::new("CommentOnStatementSegment").to_matchable(),
                     Ref::new("DeclareOrReplaceVariableStatementSegment").to_matchable(),
+                    Ref::new("MagicCellStatementSegment").to_matchable(),
                 ]),
                 None,
                 None,

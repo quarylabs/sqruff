@@ -1,0 +1,52 @@
+file:
+- statement:
+  - drop_foreign_table_statement:
+    - keyword: drop
+    - keyword: foreign
+    - keyword: table
+    - table_reference:
+      - naked_identifier: test
+- statement_terminator: ;
+- statement:
+  - drop_foreign_table_statement:
+    - keyword: drop
+    - keyword: foreign
+    - keyword: table
+    - table_reference:
+      - naked_identifier: films
+    - comma: ','
+    - table_reference:
+      - naked_identifier: distributors
+- statement_terminator: ;
+- statement:
+  - drop_foreign_table_statement:
+    - keyword: drop
+    - keyword: foreign
+    - keyword: table
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+      - naked_identifier: test
+- statement_terminator: ;
+- statement:
+  - drop_foreign_table_statement:
+    - keyword: drop
+    - keyword: foreign
+    - keyword: table
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+      - naked_identifier: test
+    - keyword: cascade
+- statement_terminator: ;
+- statement:
+  - drop_foreign_table_statement:
+    - keyword: drop
+    - keyword: foreign
+    - keyword: table
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+      - naked_identifier: test
+    - keyword: restrict
+- statement_terminator: ;

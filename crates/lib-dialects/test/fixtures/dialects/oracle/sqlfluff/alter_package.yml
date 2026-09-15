@@ -1,0 +1,22 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_alter_package_statement:
+      - keyword: ALTER
+      - keyword: PACKAGE
+      - object_reference:
+        - naked_identifier: emp_mgmt
+      - keyword: COMPILE
+      - keyword: PACKAGE
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_package_statement:
+      - keyword: ALTER
+      - keyword: PACKAGE
+      - object_reference:
+        - naked_identifier: hr
+        - dot: .
+        - naked_identifier: emp_mgmt
+      - keyword: COMPILE
+      - keyword: BODY
+  - statement_terminator: ;

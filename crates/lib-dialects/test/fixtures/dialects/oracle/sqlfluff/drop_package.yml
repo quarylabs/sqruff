@@ -1,0 +1,9 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_drop_package_statement:
+      - keyword: DROP
+      - keyword: PACKAGE
+      - object_reference:
+        - naked_identifier: emp_mgmt
+  - statement_terminator: ;

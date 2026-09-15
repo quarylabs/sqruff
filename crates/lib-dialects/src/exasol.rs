@@ -859,7 +859,9 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("QUALIFY").to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -2079,11 +2081,13 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("UPDATE").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     one_of(vec![
                         Ref::new("TableReferenceSegment").to_matchable(),
                         Ref::new("AliasedTableReferenceGrammar").to_matchable(),
                     ])
                     .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                     Ref::new("SetClauseListSegment").to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),
                     Ref::new("WhereClauseSegment").optional().to_matchable(),

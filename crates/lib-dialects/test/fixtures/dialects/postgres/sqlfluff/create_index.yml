@@ -233,6 +233,28 @@ file:
   - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: user_my_column_idx
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: user
+    - bracketed:
+      - start_bracket: (
+      - index_element:
+        - column_reference:
+          - naked_identifier: my_column
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
     - database_reference:
       - naked_identifier: pointloc
     - keyword: ON

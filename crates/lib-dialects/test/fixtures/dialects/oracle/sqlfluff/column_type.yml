@@ -1,0 +1,108 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - oracle_declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: surname
+        - oracle_column_type_reference:
+          - column_reference:
+            - naked_identifier: employees
+            - dot: .
+            - naked_identifier: last_name
+          - binary_operator: '%'
+          - keyword: TYPE
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''surname='''
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - column_reference:
+                  - naked_identifier: surname
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - oracle_declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: name
+        - data_type:
+          - data_type_identifier: VARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '25'
+              - end_bracket: )
+        - keyword: NOT
+        - keyword: 'NULL'
+        - oracle_assignment_operator: :=
+        - expression:
+          - quoted_literal: '''Smith'''
+        - statement_terminator: ;
+        - naked_identifier: surname
+        - oracle_column_type_reference:
+          - column_reference:
+            - naked_identifier: name
+          - binary_operator: '%'
+          - keyword: TYPE
+        - oracle_assignment_operator: :=
+        - expression:
+          - quoted_literal: '''Jones'''
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''name='''
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - column_reference:
+                  - naked_identifier: name
+              - end_bracket: )
+      - statement_terminator: ;
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''surname='''
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - column_reference:
+                  - naked_identifier: surname
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

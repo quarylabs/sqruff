@@ -137,15 +137,34 @@ FROM
 impl RuleAL04 {
     #[allow(clippy::too_many_arguments)]
     pub fn lint_references_and_aliases(
-        table_aliases: Vec<AliasInfo>,
+        mut table_aliases: Vec<AliasInfo>,
         _: Vec<SmolStr>,
         _: Vec<ObjectReferenceSegment>,
         _: Vec<ColumnAliasInfo>,
         _: Vec<SmolStr>,
-        _: Option<ErasedSegment>,
-        _: &RuleContext,
+        parent_select: Option<ErasedSegment>,
+        rule_context: &RuleContext,
         _: &(),
     ) -> Vec<LintResult> {
+        let parent_select_info = parent_select.and_then(|parent| {
+            get_select_statement_info(&parent, rule_context.dialect.into(), true)
+        });
+        if let Some(parent_select_info) = parent_select_info {
+            // If we are looking at a subquery, include any table references
+            // from the parent (outer) select.
+            for table_alias in parent_select_info.table_aliases {
+                if !table_alias
+                    .from_expression_element
+                    .path_to(&rule_context.segment)
+                    .is_empty()
+                {
+                    // Skip the subquery alias itself.
+                    continue;
+                }
+                table_aliases.push(table_alias);
+            }
+        }
+
         let mut duplicates = IndexSet::default();
         let mut seen: HashSet<_> = HashSet::new();
 

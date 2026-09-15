@@ -129,6 +129,18 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "EqualsSegment".into(),
+            NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
+                Sequence::new(vec![
+                    Ref::new("RawEqualsSegment").to_matchable(),
+                    Ref::new("RawEqualsSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "QuotedLiteralSegment".into(),
             one_of(vec![
                 TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::QuotedLiteral).to_matchable(),
@@ -720,6 +732,35 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("MANAGEDLOCATION").to_matchable(),
                             Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterViewStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterViewStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("VIEW").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("TablePropertiesGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AS").to_matchable(),
+                            optionally_bracketed(vec![
+                                Ref::new("SelectStatementSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -1460,6 +1501,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("MsckRepairTableStatementSegment").to_matchable(),
                 Ref::new("MsckTableStatementSegment").to_matchable(),
                 Ref::new("SetStatementSegment").to_matchable(),
+                Ref::new("AlterViewStatementSegment").to_matchable(),
             ]),
             None,
             None,

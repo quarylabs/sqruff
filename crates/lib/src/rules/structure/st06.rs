@@ -78,44 +78,76 @@ from x
             ],
         ];
 
-        if context.parent_stack.len() >= 2
-            && matches!(
-                context.parent_stack[context.parent_stack.len() - 2].get_type(),
-                SyntaxKind::InsertStatement | SyntaxKind::SetExpression
+        // Inserts, merges, CREATE TABLE statements, and set expressions are
+        // order-sensitive regardless of how deeply the SELECT is nested.
+        if context.parent_stack.iter().rev().any(|segment| {
+            matches!(
+                segment.get_type(),
+                SyntaxKind::InsertStatement
+                    | SyntaxKind::SetExpression
+                    | SyntaxKind::CreateTableStatement
+                    | SyntaxKind::MergeStatement
             )
-        {
+        }) {
             return Vec::new();
         }
 
-        if context.parent_stack.len() >= 3
-            && matches!(
-                context.parent_stack[context.parent_stack.len() - 3].get_type(),
-                SyntaxKind::InsertStatement | SyntaxKind::SetExpression
-            )
-            && context.parent_stack[context.parent_stack.len() - 2].get_type()
-                == SyntaxKind::WithCompoundStatement
-        {
-            return Vec::new();
-        }
+        // A CTE is order-sensitive when it is referenced by SELECT * in a set
+        // expression, because reordering its columns changes union semantics.
+        for (cte_index, cte) in context.parent_stack.iter().enumerate().rev() {
+            if !cte.is_type(SyntaxKind::CommonTableExpression) {
+                continue;
+            }
 
-        if context.parent_stack.len() >= 3
-            && matches!(
-                context.parent_stack[context.parent_stack.len() - 3].get_type(),
-                SyntaxKind::CreateTableStatement | SyntaxKind::MergeStatement
-            )
-        {
-            return Vec::new();
-        }
+            let cte_identifier = cte
+                .child(
+                    const {
+                        &SyntaxSet::new(&[
+                            SyntaxKind::Identifier,
+                            SyntaxKind::NakedIdentifier,
+                            SyntaxKind::QuotedIdentifier,
+                        ])
+                    },
+                )
+                .expect("common table expression should have an identifier");
+            let Some(with_compound_statement) = cte_index
+                .checked_sub(1)
+                .and_then(|parent_index| context.parent_stack.get(parent_index))
+            else {
+                break;
+            };
 
-        if context.parent_stack.len() >= 4
-            && matches!(
-                context.parent_stack[context.parent_stack.len() - 4].get_type(),
-                SyntaxKind::CreateTableStatement | SyntaxKind::MergeStatement
-            )
-            && context.parent_stack[context.parent_stack.len() - 2].get_type()
-                == SyntaxKind::WithCompoundStatement
-        {
-            return Vec::new();
+            for table_reference in with_compound_statement.recursive_crawl(
+                const { &SyntaxSet::new(&[SyntaxKind::TableReference]) },
+                true,
+                &SyntaxSet::EMPTY,
+                false,
+            ) {
+                if !table_reference
+                    .raw()
+                    .eq_ignore_ascii_case(cte_identifier.raw())
+                {
+                    continue;
+                }
+
+                let path = with_compound_statement.path_to(&table_reference);
+                let used_in_set_expression = path
+                    .iter()
+                    .any(|step| step.segment.is_type(SyntaxKind::SetExpression));
+                let selected_with_wildcard = path.iter().any(|step| {
+                    matches!(
+                        step.segment.get_type(),
+                        SyntaxKind::SelectStatement | SyntaxKind::UnorderedSelectStatementSegment
+                    ) && step
+                        .segment
+                        .descendant_type_set()
+                        .contains(SyntaxKind::WildcardExpression)
+                });
+
+                if used_in_set_expression && selected_with_wildcard {
+                    return Vec::new();
+                }
+            }
         }
 
         let select_clause_segment = context.segment.clone();
@@ -182,8 +214,8 @@ from x
                                             | SyntaxKind::Literal
                                             | SyntaxKind::CastExpression
                                     )
-                                    && expression.segments().len() == 2
-                                    || expression.segments().len() == 1
+                                    && (expression.segments().len() == 2
+                                        || expression.segments().len() == 1)
                                 {
                                     validate(
                                         i,

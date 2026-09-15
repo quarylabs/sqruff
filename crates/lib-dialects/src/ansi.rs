@@ -925,6 +925,10 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable()
                 .into(),
         ),
+        (
+            "NotEnforcedGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
         // Odd syntax, but prevents eager parameters being confused for data types
         (
             "FunctionParameterGrammar".into(),
@@ -1176,6 +1180,20 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "ReferenceMatchGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("MATCH").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("FULL").to_matchable(),
+                    Ref::keyword("PARTIAL").to_matchable(),
+                    Ref::keyword("SIMPLE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ReferenceDefinitionGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("REFERENCES").to_matchable(),
@@ -1184,17 +1202,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("ReferencedColumnListGrammar")
                     .optional()
                     .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("MATCH").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("FULL").to_matchable(),
-                        Ref::keyword("PARTIAL").to_matchable(),
-                        Ref::keyword("SIMPLE").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
+                Ref::new("ReferenceMatchGrammar").optional().to_matchable(),
                 AnyNumberOf::new(vec![
                     // ON DELETE clause, e.g. ON DELETE NO ACTION
                     Sequence::new(vec![
@@ -1728,6 +1736,40 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "SequenceMinValueGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("MINVALUE").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NO").to_matchable(),
+                    Ref::keyword("MINVALUE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SequenceMaxValueGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("MAXVALUE").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NO").to_matchable(),
+                    Ref::keyword("MAXVALUE").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "AlterSequenceOptionsSegment".into(),
             NodeMatcher::new(SyntaxKind::AlterSequenceOptionsSegment, |_| {
                 one_of(vec![
@@ -1737,32 +1779,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("NumericLiteralSegment").to_matchable(),
                     ])
                     .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("MINVALUE").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NO").to_matchable(),
-                            Ref::keyword("MINVALUE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("MAXVALUE").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NO").to_matchable(),
-                            Ref::keyword("MAXVALUE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("SequenceMinValueGrammar").to_matchable(),
+                    Ref::new("SequenceMaxValueGrammar").to_matchable(),
                     one_of(vec![
                         Sequence::new(vec![
                             Ref::keyword("CACHE").to_matchable(),
@@ -1886,11 +1904,18 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("PrimaryKeyGrammar").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("PrimaryKeyGrammar").to_matchable(),
+                            Ref::new("NotEnforcedGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
                         Ref::new("UniqueKeyGrammar").to_matchable(), // UNIQUE
                         Ref::new("AutoIncrementGrammar").to_matchable(),
-                        Ref::new("ReferenceDefinitionGrammar").to_matchable(), /* REFERENCES reftable [ (
-                                                                                * refcolumn) ] */
+                        Sequence::new(vec![
+                            Ref::new("ReferenceDefinitionGrammar").to_matchable(),
+                            Ref::new("NotEnforcedGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(), /* REFERENCES reftable [ ( refcolumn) ] */
                         Ref::new("CommentClauseSegment").to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("COLLATE").to_matchable(),
@@ -2032,12 +2057,8 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("SET").to_matchable(),
                     MetaSegment::indent().to_matchable(),
-                    Ref::new("SetClauseSegment").to_matchable(),
-                    AnyNumberOf::new(vec![
-                        Ref::new("CommaSegment").to_matchable(),
-                        Ref::new("SetClauseSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Delimited::new(vec![Ref::new("SetClauseSegment").to_matchable()])
+                        .to_matchable(),
                     MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
@@ -2803,32 +2824,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("NumericLiteralSegment").to_matchable(),
                     ])
                     .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("MINVALUE").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NO").to_matchable(),
-                            Ref::keyword("MINVALUE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("MAXVALUE").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("NO").to_matchable(),
-                            Ref::keyword("MAXVALUE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("SequenceMinValueGrammar").to_matchable(),
+                    Ref::new("SequenceMaxValueGrammar").to_matchable(),
                     one_of(vec![
                         Sequence::new(vec![
                             Ref::keyword("CACHE").to_matchable(),
@@ -3029,11 +3026,13 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("UPDATE").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("AliasExpressionSegment")
                         .exclude(Ref::keyword("SET"))
                         .optional()
                         .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                     Ref::new("SetClauseListSegment").to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),
                     Ref::new("WhereClauseSegment").optional().to_matchable(),
@@ -4093,7 +4092,7 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::new("BracketedArguments").optional().to_matchable(),
-                        one_of(vec![
+                        AnyNumberOf::new(vec![
                             Ref::keyword("UNSIGNED").to_matchable(),
                             Ref::new("CharCharacterSetGrammar").to_matchable(),
                         ])
@@ -4227,6 +4226,12 @@ pub fn raw_dialect() -> Dialect {
         (
             "StructTypeSegment".into(),
             NodeMatcher::new(SyntaxKind::StructType, |_| Nothing::new().to_matchable())
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "MapTypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::MapType, |_| Nothing::new().to_matchable())
                 .to_matchable()
                 .into(),
         ),
@@ -4607,6 +4612,7 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     optionally_bracketed(vec![Ref::new("TableExpressionSegment").to_matchable()])
                         .to_matchable(),
+                    Ref::new("TemporalQuerySegment").optional().to_matchable(),
                     Ref::new("AliasExpressionSegment")
                         .exclude(one_of(vec![
                             Ref::new("FromClauseTerminatorGrammar").to_matchable(),
@@ -5063,6 +5069,7 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                                 Ref::new("FunctionSegment").to_matchable(),
                                 Ref::new("LocalAliasSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -5079,7 +5086,11 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
-                        Ref::new("StructTypeSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("StructTypeSegment").to_matchable(),
+                            Ref::new("MapTypeSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                         Bracketed::new(vec![
                             Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
                                 .to_matchable(),
@@ -5185,8 +5196,14 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // This is a hook point to allow subclassing for other dialects
+    // These are hook points to allow subclassing for other dialects.
     ansi_dialect.add([
+        (
+            "TemporalQuerySegment".into(),
+            NodeMatcher::new(SyntaxKind::TemporalQuery, |_| Nothing::new().to_matchable())
+                .to_matchable()
+                .into(),
+        ),
         (
             "PostTableExpressionGrammar".into(),
             Nothing::new().to_matchable().into(),
@@ -5263,7 +5280,7 @@ fn lexer_matchers() -> Vec<Matcher> {
         ),
         Matcher::regex(
             "double_quote",
-            r#""([^"\\]|\\.)*""#,
+            r#""(""|[^"\\]|\\.)*""#,
             SyntaxKind::DoubleQuote,
         ),
         Matcher::regex("back_quote", r"`[^`]*`", SyntaxKind::BackQuote),
@@ -5277,6 +5294,11 @@ fn lexer_matchers() -> Vec<Matcher> {
             "numeric_literal",
             numeric_literal,
             SyntaxKind::NumericLiteral,
+        ),
+        Matcher::regex(
+            "obevo_annotation",
+            r"////\s*(CHANGE|BODY|METADATA)[^\n]*",
+            SyntaxKind::Comment,
         ),
         Matcher::regex("like_operator", r"!?~~?\*?", SyntaxKind::LikeOperator),
         Matcher::regex("newline", r"(\r\n|\n)", SyntaxKind::Newline),

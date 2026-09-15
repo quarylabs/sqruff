@@ -51,3 +51,55 @@ ALTER TABLE "my_table" ALTER COLUMN "my_column" SET MASKING POLICY my_masking_po
 ALTER TABLE SAMPLE_DB.SAMPLE_SCHEMA.TBL UNSET COMMENT;
 
 ALTER TABLE table1 UNSET COMMENT, DATA_RETENTION_TIME_IN_DAYS;
+
+ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES addresses (address) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE table2 ADD CONSTRAINT constraint2 FOREIGN KEY (address) REFERENCES addresses (address) ON DELETE NO ACTION ON UPDATE SET NULL;
+
+ALTER TABLE table3 ADD CONSTRAINT constraint3 FOREIGN KEY (address) REFERENCES addresses (address) ON DELETE SET DEFAULT;
+
+ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES addresses (address) MATCH FULL;
+
+ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES addresses (address) MATCH SIMPLE;
+
+ALTER TABLE table1 ADD CONSTRAINT constraint1 FOREIGN KEY (address) REFERENCES addresses (address) MATCH PARTIAL;
+
+ALTER TABLE table1 DROP CONSTRAINT my_constraint;
+
+ALTER TABLE my_table SET TAG tag1 = "some_value";
+
+ALTER TABLE my_table SET TAG tag1 = "some_value", tag2 = "some_value", tag3 = "some_value", tag4 = "some_value";
+
+ALTER TABLE my_table UNSET TAG tag1 = "some_value";
+
+ALTER TABLE my_table UNSET TAG tag1 = "some_value", tag2 = "some_value", tag3 = "some_value", tag4 = "some_value";
+
+ALTER TABLE my_table ADD ROW ACCESS POLICY my_policy ON (col1);
+
+ALTER TABLE my_table ADD ROW ACCESS POLICY my_policy ON (col1, col2, col3);
+
+ALTER TABLE my_table DROP ROW ACCESS POLICY my_policy;
+
+ALTER TABLE my_table DROP ROW ACCESS POLICY my_policy, ADD ROW ACCESS POLICY my_policy ON (col1);
+
+ALTER TABLE my_table DROP ROW ACCESS POLICY my_policy, ADD ROW ACCESS POLICY my_policy ON (col1, col2, col3);
+
+ALTER TABLE my_table DROP ALL ROW ACCESS POLICIES;
+
+ALTER TABLE my_table SET AGGREGATION POLICY my_policy;
+
+ALTER TABLE my_table SET AGGREGATION POLICY my_policy ENTITY KEY (col1);
+
+ALTER TABLE my_table SET AGGREGATION POLICY my_policy ENTITY KEY (col1, col2, col3);
+
+ALTER TABLE my_table SET AGGREGATION POLICY my_policy FORCE;
+
+ALTER TABLE my_table SET AGGREGATION POLICY my_policy ENTITY KEY (col1) FORCE;
+
+ALTER TABLE my_table UNSET AGGREGATION POLICY;
+
+ALTER TABLE my_table SET JOIN POLICY my_policy;
+
+ALTER TABLE my_table SET JOIN POLICY my_policy FORCE;
+
+ALTER TABLE my_table UNSET JOIN POLICY;

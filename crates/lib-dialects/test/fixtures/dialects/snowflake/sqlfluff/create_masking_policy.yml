@@ -51,10 +51,11 @@ file:
           - expression:
             - quoted_literal: '''*** masked ***'''
         - keyword: END
-    - keyword: COMMENT
-    - comparison_operator:
-      - raw_comparison_operator: =
-    - quoted_literal: '''Applied 2021-07-13T03:12:16+0000'''
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''Applied 2021-07-13T03:12:16+0000'''
 - statement_terminator: ;
 - statement:
   - create_statement:

@@ -322,6 +322,7 @@ fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'stati
         | DialectKind::Vertica => Some(("\"", "\"")),
         DialectKind::Bigquery
         | DialectKind::Databricks
+        | DialectKind::Doris
         | DialectKind::Hive
         | DialectKind::Impala
         | DialectKind::Mariadb

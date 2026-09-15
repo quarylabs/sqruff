@@ -1,0 +1,108 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: rollup_options
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: total
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: AS
+          - expression:
+            - column_reference:
+              - naked_identifier: id
+            - binary_operator: +
+            - numeric_literal: '1'
+      - comma: ','
+      - index_definition:
+        - keyword: INDEX
+        - keyword: IF
+        - keyword: NOT
+        - keyword: EXISTS
+        - database_reference:
+          - naked_identifier: idx
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+        - keyword: USING
+        - keyword: BLOOM_FILTER
+        - keyword: PROPERTIES
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''fpp'''
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''0.01'''
+          - end_bracket: )
+        - keyword: COMMENT
+        - quoted_literal: '''lookup'''
+      - end_bracket: )
+    - keyword: ENGINE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - engine_type: BROKER
+    - keyword: UNIQUE
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: id
+      - end_bracket: )
+    - keyword: CLUSTER
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: id
+      - end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: RANDOM
+      - keyword: BUCKETS
+      - keyword: AUTO
+    - rollup_segment:
+      - keyword: ROLLUP
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+          - naked_identifier: r1
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+        - keyword: DUPLICATE
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+        - comma: ','
+        - object_reference:
+          - naked_identifier: r2
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - comma: ','
+          - column_reference:
+            - naked_identifier: total
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;

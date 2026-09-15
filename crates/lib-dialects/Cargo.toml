@@ -23,6 +23,7 @@ default = [
     "clickhouse",
     "databricks",
     "db2",
+    "doris",
     "duckdb",
     "exasol",
     "greenplum",
@@ -48,6 +49,7 @@ bigquery = []
 clickhouse = []
 databricks = ["sparksql"]
 db2 = []
+doris = ["mysql"]
 duckdb = ["postgres"]
 exasol = []
 greenplum = ["postgres"]

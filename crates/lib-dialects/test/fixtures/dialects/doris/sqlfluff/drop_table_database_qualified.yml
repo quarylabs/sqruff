@@ -1,0 +1,10 @@
+file:
+- statement:
+  - drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: database_name
+      - dot: .
+      - naked_identifier: table_name
+- statement_terminator: ;

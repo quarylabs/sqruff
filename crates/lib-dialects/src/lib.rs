@@ -24,6 +24,10 @@ pub mod databricks_keywords;
 pub mod db2;
 #[cfg(feature = "db2")]
 mod db2_keywords;
+#[cfg(feature = "doris")]
+pub mod doris;
+#[cfg(feature = "doris")]
+mod doris_keywords;
 #[cfg(feature = "duckdb")]
 pub mod duckdb;
 #[cfg(feature = "exasol")]
@@ -109,6 +113,8 @@ pub fn dialect_config_options(
         DialectKind::Databricks => databricks::DatabricksDialectConfig::config_options(),
         #[cfg(feature = "db2")]
         DialectKind::Db2 => db2::Db2DialectConfig::config_options(),
+        #[cfg(feature = "doris")]
+        DialectKind::Doris => doris::DorisDialectConfig::config_options(),
         #[cfg(feature = "duckdb")]
         DialectKind::Duckdb => duckdb::DuckDBDialectConfig::config_options(),
         #[cfg(feature = "exasol")]
@@ -165,6 +171,8 @@ pub fn kind_to_dialect(kind: &DialectKind, config: Option<&Value>) -> Option<Dia
         DialectKind::Databricks => databricks::dialect(config),
         #[cfg(feature = "db2")]
         DialectKind::Db2 => db2::dialect(config),
+        #[cfg(feature = "doris")]
+        DialectKind::Doris => doris::dialect(config),
         #[cfg(feature = "duckdb")]
         DialectKind::Duckdb => duckdb::dialect(config),
         #[cfg(feature = "exasol")]

@@ -1,0 +1,43 @@
+file:
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: test
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: p1
+      - comma: ','
+      - naked_identifier: p2
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: LABEL
+    - naked_identifier: label1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: c1
+      - comma: ','
+      - column_reference:
+        - naked_identifier: c2
+      - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: name
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: test2
+- statement_terminator: ;

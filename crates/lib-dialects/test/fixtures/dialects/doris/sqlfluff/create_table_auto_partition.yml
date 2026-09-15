@@ -1,0 +1,64 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t7
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: c1
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: c2
+        - keyword: DATETIME
+        - keyword: NOT
+        - keyword: 'NULL'
+      - end_bracket: )
+    - keyword: DUPLICATE
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: c1
+      - end_bracket: )
+    - partition_segment:
+      - keyword: AUTO
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: RANGE
+      - bracketed:
+        - start_bracket: (
+        - function:
+          - function_name:
+            - function_name_identifier: date_trunc
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: c2
+              - comma: ','
+              - expression:
+                - quoted_literal: '''day'''
+              - end_bracket: )
+        - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: RANDOM
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''replication_num'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''1'''
+      - end_bracket: )
+- statement_terminator: ;

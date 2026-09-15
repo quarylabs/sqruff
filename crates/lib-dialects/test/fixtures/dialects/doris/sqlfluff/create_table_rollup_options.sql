@@ -1,0 +1,10 @@
+CREATE OR REPLACE TABLE rollup_options (
+    id INT,
+    total INT AS id + 1,
+    INDEX IF NOT EXISTS idx (id) USING BLOOM_FILTER
+        PROPERTIES ('fpp' = '0.01') COMMENT 'lookup'
+)
+ENGINE=BROKER
+UNIQUE KEY (id) CLUSTER BY (id)
+DISTRIBUTED BY RANDOM BUCKETS AUTO
+ROLLUP (r1 (id) DUPLICATE KEY (id), r2 (id, total));

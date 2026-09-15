@@ -185,6 +185,8 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "STATIC",
         ],
         DialectKind::Sqlite => &["BINDING", "DATA", "MATCHED", "PARTIAL", "SCHEMA", "SIMPLE"],
+        // Inherited MySQL reference absent from the upstream Doris keyword sets.
+        DialectKind::Doris => &["OPTIMIZER_COSTS"],
         DialectKind::Starrocks => &["BITMAP", "OPTIMIZER_COSTS"],
         DialectKind::Trino => &["BINDING", "LANGUAGE", "RETURNS"],
         _ => &[],

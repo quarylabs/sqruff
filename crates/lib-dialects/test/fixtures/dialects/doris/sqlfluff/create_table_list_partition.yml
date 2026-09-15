@@ -1,0 +1,72 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t9
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: c1
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: c2
+        - data_type:
+          - data_type_identifier: DATE
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+    - keyword: DUPLICATE
+    - keyword: KEY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: c1
+      - end_bracket: )
+    - partition_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - keyword: LIST
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: c2
+        - end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - list_partition_definition:
+          - keyword: PARTITION
+          - object_reference:
+            - naked_identifier: p1
+          - keyword: VALUES
+          - keyword: IN
+          - bracketed:
+            - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: '''2020-01-01'''
+              - end_bracket: )
+            - comma: ','
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: '''2020-01-02'''
+              - end_bracket: )
+            - end_bracket: )
+        - end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: RANDOM
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''replication_num'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''1'''
+      - end_bracket: )
+- statement_terminator: ;

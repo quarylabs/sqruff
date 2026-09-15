@@ -1,0 +1,14 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: new_table
+    - keyword: LIKE
+    - table_reference:
+      - naked_identifier: existing_table
+- statement_terminator: ;

@@ -1,0 +1,15 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db1
+      - dot: .
+      - naked_identifier: new_table
+    - keyword: LIKE
+    - table_reference:
+      - naked_identifier: db2
+      - dot: .
+      - naked_identifier: existing_table
+- statement_terminator: ;

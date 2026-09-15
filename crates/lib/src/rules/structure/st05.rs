@@ -103,7 +103,7 @@ join c using(x)
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let functional_context = FunctionalContext::new(context);
-        let segment = functional_context.segment();
+        let mut segment = functional_context.segment();
         let parent_stack = functional_context.parent_stack();
 
         let is_select =
@@ -130,6 +130,18 @@ join c using(x)
                 .is_empty();
 
         let case_preference = get_case_preference(&segment);
+
+        // T-SQL requires WITH before INSERT, so wrap the INSERT when adding CTEs.
+        if !is_with
+            && context.dialect.name == DialectKind::Tsql
+            && let Some(insert_parent) = parent_stack
+                .base
+                .iter()
+                .rev()
+                .find(|it| it.is_type(SyntaxKind::InsertStatement))
+        {
+            segment = Segments::new(insert_parent.clone(), None);
+        }
 
         // Issue 3617: In T-SQL (and possibly other dialects) the automated fix
         // leaves parentheses in a location that causes a syntax error. This is an
@@ -211,14 +223,16 @@ join c using(x)
             _segment.children_where(|it: &ErasedSegment| {
                 matches!(
                     it.get_type(),
-                    SyntaxKind::SetExpression | SyntaxKind::SelectStatement
+                    SyntaxKind::SetExpression
+                        | SyntaxKind::SelectStatement
+                        | SyntaxKind::InsertStatement
                 )
             })
         } else {
             _segment.clone()
         };
 
-        // If there's no SELECT statement (e.g., WITH ... INSERT/UPDATE/DELETE),
+        // If there's no supported output statement (e.g., WITH ... UPDATE/DELETE),
         // we can't safely create fixes, so return lint results without fixes.
         if output_select.is_empty() {
             return results.into_iter().map(|result| result.0).collect();

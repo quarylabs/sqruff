@@ -1,0 +1,163 @@
+file:
+- statement:
+  - execute_script_statement:
+    - keyword: EXEC
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: usp_options
+    - statement_terminator: ;
+    - numeric_literal: '2'
+    - tsql_variable: '@value'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - numeric_literal: '1'
+    - keyword: WITH
+    - execute_option:
+      - keyword: RESULT
+      - keyword: SETS
+      - keyword: NONE
+    - statement_terminator: ;
+- statement:
+  - execute_script_statement:
+    - keyword: EXEC
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: usp_options
+    - keyword: WITH
+    - execute_option:
+      - keyword: RESULT
+      - keyword: SETS
+      - keyword: UNDEFINED
+    - statement_terminator: ;
+- statement:
+  - execute_script_statement:
+    - keyword: EXEC
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: usp_options
+    - keyword: WITH
+    - execute_option:
+      - keyword: RESULT
+      - keyword: SETS
+      - bracketed:
+        - start_bracket: (
+        - keyword: AS
+        - keyword: OBJECT
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: result_table
+        - end_bracket: )
+    - statement_terminator: ;
+- statement:
+  - execute_script_statement:
+    - keyword: EXEC
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: usp_options
+    - keyword: WITH
+    - execute_option:
+      - keyword: RESULT
+      - keyword: SETS
+      - bracketed:
+        - start_bracket: (
+        - keyword: AS
+        - keyword: TYPE
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: result_type
+        - end_bracket: )
+    - statement_terminator: ;
+- statement:
+  - execute_script_statement:
+    - keyword: EXEC
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: usp_options
+    - keyword: WITH
+    - execute_option:
+      - keyword: RESULT
+      - keyword: SETS
+      - bracketed:
+        - start_bracket: (
+        - keyword: AS
+        - keyword: FOR
+        - keyword: XML
+        - end_bracket: )
+    - statement_terminator: ;
+- statement:
+  - execute_script_statement:
+    - keyword: EXEC
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: usp_options
+    - keyword: WITH
+    - execute_option:
+      - keyword: RESULT
+      - keyword: SETS
+      - bracketed:
+        - start_bracket: (
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: name
+          - data_type:
+            - data_type_identifier: VARCHAR
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '20'
+                - end_bracket: )
+          - keyword: COLLATE
+          - object_reference:
+            - naked_identifier: Latin1_General_CI_AS
+          - keyword: 'NULL'
+          - end_bracket: )
+        - end_bracket: )
+    - statement_terminator: ;
+- statement:
+  - execute_script_statement:
+    - keyword: EXEC
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: N
+      - quoted_literal: '''SELECT ?'''
+      - binary_operator: +
+      - tsql_variable: '@sql'
+      - comma: ','
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@value'
+      - keyword: OUTPUT
+      - end_bracket: )
+    - login_user_segment:
+      - keyword: AS
+      - keyword: LOGIN
+      - raw_comparison_operator: =
+      - quoted_literal: '''reader'''
+    - keyword: AT
+    - object_reference:
+      - naked_identifier: linked_server
+    - statement_terminator: ;
+- statement:
+  - execute_script_statement:
+    - keyword: EXEC
+    - object_reference:
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: usp_options
+    - tsql_variable: '@message'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - naked_identifier: N
+      - quoted_literal: '''Unicode value'''
+    - statement_terminator: ;

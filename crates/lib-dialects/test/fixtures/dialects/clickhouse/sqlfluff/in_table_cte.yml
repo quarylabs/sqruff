@@ -164,7 +164,8 @@ file:
                   - numeric_literal: '0'
                 - end_bracket: )
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - naked_identifier: in_array_flag
       - from_clause:
         - keyword: from

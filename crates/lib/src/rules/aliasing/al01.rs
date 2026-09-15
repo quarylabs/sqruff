@@ -1,13 +1,13 @@
 use hashbrown::HashMap;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
-use crate::utils::reflow::sequence::{Filter, ReflowInsertPosition, ReflowSequence, TargetSide};
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Aliasing {
@@ -121,23 +121,19 @@ FROM foo AS voo
         if self.target_parent_types.contains(last_seg_ty) {
             let as_keyword = rule_cx
                 .segment
-                .get_raw_segments()
-                .into_iter()
-                .find(|seg| seg.raw().eq_ignore_ascii_case("AS"));
+                .child(&SyntaxSet::new(&[SyntaxKind::AliasOperator]));
 
             if let Some(as_keyword) = as_keyword {
                 if self.aliasing == Aliasing::Implicit {
                     return vec![LintResult::new(
                         as_keyword.clone().into(),
-                        ReflowSequence::from_around_target(
-                            &as_keyword,
-                            &rule_cx.parent_stack[0],
-                            TargetSide::Both,
-                            rule_cx.config,
-                        )
-                        .without(&as_keyword)
-                        .respace(rule_cx.tables, false, Filter::All)
-                        .fixes(),
+                        rule_cx
+                            .segment
+                            .child(&SyntaxSet::new(&[SyntaxKind::Whitespace]))
+                            .into_iter()
+                            .map(LintFix::delete)
+                            .chain(std::iter::once(LintFix::delete(as_keyword)))
+                            .collect(),
                         None,
                         None,
                     )];
@@ -150,21 +146,27 @@ FROM foo AS voo
                     .find(|seg| seg.is_code())
                     .expect("Failed to find identifier. Raise this as a bug on GitHub.");
 
+                let operator = SegmentBuilder::node(
+                    rule_cx.tables.next_id(),
+                    SyntaxKind::AliasOperator,
+                    rule_cx.dialect.name,
+                    vec![SegmentBuilder::keyword(rule_cx.tables.next_id(), "AS")],
+                );
+                let mut edit = Vec::new();
+                if !rule_cx
+                    .parent_stack
+                    .last()
+                    .and_then(|parent| parent.segments().get(..rule_cx.segment_idx))
+                    .and_then(|siblings| siblings.last())
+                    .is_some_and(|segment| segment.is_whitespace())
+                {
+                    edit.push(SegmentBuilder::whitespace(rule_cx.tables.next_id(), " "));
+                }
+                edit.push(operator.finish());
+                edit.push(SegmentBuilder::whitespace(rule_cx.tables.next_id(), " "));
                 return vec![LintResult::new(
                     rule_cx.segment.clone().into(),
-                    ReflowSequence::from_around_target(
-                        &identifier,
-                        &rule_cx.parent_stack[0],
-                        TargetSide::Before,
-                        rule_cx.config,
-                    )
-                    .insert(
-                        SegmentBuilder::keyword(rule_cx.tables.next_id(), "AS"),
-                        identifier,
-                        ReflowInsertPosition::Before,
-                    )
-                    .respace(rule_cx.tables, false, Filter::All)
-                    .fixes(),
+                    vec![LintFix::create_before(identifier, edit)],
                     None,
                     None,
                 )];

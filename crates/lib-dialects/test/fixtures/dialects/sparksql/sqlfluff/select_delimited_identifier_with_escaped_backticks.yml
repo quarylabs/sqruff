@@ -31,7 +31,8 @@ file:
             - table_reference:
               - quoted_identifier: '`some``table`'
           - alias_expression:
-            - keyword: as
+            - alias_operator:
+              - keyword: as
             - quoted_identifier: '`some``alias`'
 - statement_terminator: ;
 - statement:
@@ -99,7 +100,8 @@ file:
         - column_reference:
           - quoted_identifier: '`delimited ``identifier`'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - quoted_identifier: '`alias`'
     - from_clause:
       - keyword: FROM
@@ -109,6 +111,7 @@ file:
             - table_reference:
               - quoted_identifier: '`some``table`'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - quoted_identifier: '`some``alias`'
 - statement_terminator: ;

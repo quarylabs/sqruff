@@ -125,7 +125,8 @@ file:
                       - naked_identifier: time
                   - end_bracket: )
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: time
         - from_clause:
           - keyword: FROM
@@ -240,7 +241,8 @@ file:
                   - column_reference:
                     - naked_identifier: x
                   - alias_expression:
-                    - keyword: AS
+                    - alias_operator:
+                      - keyword: AS
                     - naked_identifier: y
             - end_bracket: )
         - select_statement:

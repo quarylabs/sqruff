@@ -16,7 +16,8 @@ file:
       - select_clause_element:
         - numeric_literal: '1'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: test
     - keyword: INTO
     - keyword: OUTFILE

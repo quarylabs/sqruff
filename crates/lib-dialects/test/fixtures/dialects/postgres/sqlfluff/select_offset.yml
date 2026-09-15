@@ -53,7 +53,8 @@ file:
             - table_reference:
               - naked_identifier: course_permissions
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: cp
     - where_clause:
       - keyword: WHERE

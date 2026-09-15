@@ -9,7 +9,8 @@ file:
           - dot: .
           - naked_identifier: nspname
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: constraint_schema
       - comma: ','
       - select_clause_element:
@@ -18,7 +19,8 @@ file:
           - dot: .
           - naked_identifier: conname
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: constraint_name
     - from_clause:
       - keyword: FROM

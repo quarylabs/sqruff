@@ -31,7 +31,8 @@ file:
             - data_type:
               - keyword: text
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: mycol
     - from_clause:
       - keyword: from
@@ -76,7 +77,8 @@ file:
             - data_type:
               - keyword: float
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: mycol
     - from_clause:
       - keyword: from
@@ -124,7 +126,8 @@ file:
                 - keyword: text
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: mycol
     - from_clause:
       - keyword: from

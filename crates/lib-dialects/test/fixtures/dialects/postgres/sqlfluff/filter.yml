@@ -24,7 +24,8 @@ file:
               - bare_function: CURRENT_TIMESTAMP
             - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: c_active
     - from_clause:
       - keyword: FROM

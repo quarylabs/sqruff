@@ -153,7 +153,8 @@ file:
         - select_clause_element:
           - numeric_literal: '1'
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: ID
 - statement_terminator: ;
 - statement:

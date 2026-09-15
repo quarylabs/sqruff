@@ -10,13 +10,15 @@ file:
             - expression:
               - numeric_literal: '1'
             - alias_expression:
-              - keyword: as
+              - alias_operator:
+                - keyword: as
               - naked_identifier: one
             - end_bracket: )
           - binary_operator: +
           - numeric_literal: '1'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: col_1
       - comma: ','
       - select_clause_element:
@@ -26,7 +28,8 @@ file:
           - binary_operator: +
           - numeric_literal: '3'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: col_2
       - comma: ','
       - select_clause_element:
@@ -36,7 +39,8 @@ file:
           - binary_operator: +
           - numeric_literal: '5'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: col_3
       - comma: ','
       - select_clause_element:
@@ -46,5 +50,6 @@ file:
           - binary_operator: +
           - numeric_literal: '7'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: col_4

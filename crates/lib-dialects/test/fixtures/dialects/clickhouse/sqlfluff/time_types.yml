@@ -11,7 +11,8 @@ file:
             - data_type:
               - data_type_identifier: Time
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: t1
 - statement_terminator: ;
 - statement:
@@ -31,6 +32,7 @@ file:
                   - numeric_literal: '3'
                   - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: t2
 - statement_terminator: ;

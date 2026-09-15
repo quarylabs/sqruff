@@ -21,7 +21,8 @@ file:
               - comma: ','
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: nums
       - comma: ','
       - select_clause_element:
@@ -45,7 +46,8 @@ file:
               - comma: ','
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: first_non_null
     - from_clause:
       - keyword: FROM

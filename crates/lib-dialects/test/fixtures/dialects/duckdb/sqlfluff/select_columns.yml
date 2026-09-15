@@ -162,7 +162,8 @@ file:
                               - column_reference:
                                 - naked_identifier: id
                             - alias_expression:
-                              - keyword: AS
+                              - alias_operator:
+                                - keyword: AS
                               - naked_identifier: number
                             - end_bracket: )
                       - end_bracket: )

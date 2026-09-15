@@ -825,6 +825,7 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::new("BracketedArguments").optional().to_matchable(),
+                Ref::keyword("UNSIGNED").optional().to_matchable(),
             ])
             .to_matchable(),
         ])

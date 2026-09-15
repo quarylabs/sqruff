@@ -708,6 +708,12 @@ fn create_table_options() -> DialectElementType {
                         kw("PERCENT").optional(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        kw("MAP"),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])

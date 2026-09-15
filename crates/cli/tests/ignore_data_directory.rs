@@ -248,3 +248,62 @@ fn test_lint_paths_traverses_ignored_directories() {
     // This test verifies that the file discovery mechanism itself works correctly
     // The actual ignore functionality is tested at the CLI level in the tests above
 }
+
+#[test]
+fn disregard_ignores_for_lint_and_fix() {
+    for command in ["lint", "fix"] {
+        for ignore_name in [".sqruffignore", ".sqlfluffignore"] {
+            for flag in ["--disregard-sqruffignores", "--disregard-sqlfluffignores"] {
+                for directory in [false, true] {
+                    let temp = TempDir::new().unwrap();
+                    let root = temp.path();
+                    fs::write(
+                        root.join(".sqruff"),
+                        "[sqruff]\ndialect = ansi\nrules = LT12\n",
+                    )
+                    .unwrap();
+                    fs::create_dir(root.join("ignored")).unwrap();
+                    let file = root.join("ignored/query.sql");
+                    fs::write(&file, "SELECT 1").unwrap();
+                    fs::write(
+                        root.join(ignore_name),
+                        if directory {
+                            "ignored/\n"
+                        } else {
+                            "ignored/query.sql\n"
+                        },
+                    )
+                    .unwrap();
+                    let path = if directory { root } else { &file };
+
+                    Command::new(sqruff_path())
+                        .current_dir(root)
+                        .arg(command)
+                        .arg(path)
+                        .assert()
+                        .success();
+                    assert_eq!(fs::read_to_string(&file).unwrap(), "SELECT 1");
+
+                    let mut cmd = Command::new(sqruff_path());
+                    cmd.current_dir(root)
+                        .arg(command)
+                        .arg(path)
+                        .arg(flag)
+                        .args(["-f", "json"]);
+                    let assertion = cmd.assert();
+                    if command == "fix" {
+                        assertion.success();
+                        assert_eq!(fs::read_to_string(&file).unwrap(), "SELECT 1\n");
+                    } else {
+                        let assertion = assertion.failure();
+                        assert!(
+                            String::from_utf8_lossy(&assertion.get_output().stdout)
+                                .contains("LT12")
+                        );
+                        assert_eq!(fs::read_to_string(&file).unwrap(), "SELECT 1");
+                    }
+                }
+            }
+        }
+    }
+}

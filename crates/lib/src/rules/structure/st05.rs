@@ -293,9 +293,13 @@ impl RuleST05 {
 
             // If the subquery anchor is a table expression, use its bracketed child.
             let bracket_anchor = if anchor.is_type(SyntaxKind::TableExpression) {
-                anchor
-                    .child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
-                    .expect("table_expression should have a bracketed segment")
+                let Some(bracketed) =
+                    anchor.child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
+                else {
+                    // An unbracketed table expression is not a subquery.
+                    continue;
+                };
+                bracketed
             } else {
                 anchor.clone()
             };

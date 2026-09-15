@@ -51,6 +51,12 @@ pub fn raw_dialect() -> Dialect {
 
     duckdb_dialect.add([
         (
+            "EqualsSegment_a".into(),
+            StringParser::new("==", SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "LambdaArrowSegment".into(),
             StringParser::new("->", SyntaxKind::LambdaArrow)
                 .to_matchable()
@@ -383,6 +389,23 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
+    duckdb_dialect.replace_grammar(
+        "ComparisonOperatorGrammar",
+        ansi_dialect.grammar("ComparisonOperatorGrammar").copy(
+            Some(vec![Ref::new("EqualsSegment_a").to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+    duckdb_dialect.patch_lexer_matchers(vec![Matcher::regex(
+        "equals",
+        "==?",
+        SyntaxKind::RawComparisonOperator,
+    )]);
 
     duckdb_dialect.insert_lexer_matchers(
         vec![Matcher::string(

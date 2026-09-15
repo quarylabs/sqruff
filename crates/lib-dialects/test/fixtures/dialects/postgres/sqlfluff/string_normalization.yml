@@ -493,13 +493,13 @@ file:
       - naked_identifier: test_table
     - bracketed:
       - start_bracket: (
-      - column_reference:
+      - column_definition:
         - naked_identifier: test_column
-      - data_type:
-        - keyword: text
-      - column_constraint_segment:
-        - keyword: primary
-        - keyword: key
+        - data_type:
+          - keyword: text
+        - column_constraint_segment:
+          - keyword: primary
+          - keyword: key
       - comma: ','
       - table_constraint:
         - keyword: CONSTRAINT

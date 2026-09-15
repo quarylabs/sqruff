@@ -160,3 +160,9 @@ test_pass_bigquery2:
   configs:
     core:
       dialect: bigquery
+
+test_fail_keyword_as_column_name_postgres:
+  fail_str: CREATE TABLE test_table (type varchar(30) NOT NULL)
+  configs:
+    core:
+      dialect: postgres

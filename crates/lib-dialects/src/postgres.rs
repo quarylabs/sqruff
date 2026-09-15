@@ -3077,6 +3077,25 @@ pub fn raw_dialect() -> Dialect {
     );
 
     postgres.replace_grammar(
+        "ColumnDefinitionSegment",
+        Sequence::new(vec![
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("DatatypeSegment").to_matchable(),
+            // COLLATE may appear before or after column constraints.
+            AnyNumberOf::new(vec![
+                Ref::new("ColumnConstraintSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("COLLATE").to_matchable(),
+                    Ref::new("CollationReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    postgres.replace_grammar(
         "CreateTableStatementSegment",
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),
@@ -3103,24 +3122,7 @@ pub fn raw_dialect() -> Dialect {
                     Bracketed::new(vec![
                         Delimited::new(vec![
                             one_of(vec![
-                                Sequence::new(vec![
-                                    Ref::new("ColumnReferenceSegment").to_matchable(),
-                                    Ref::new("DatatypeSegment").to_matchable(),
-                                    AnyNumberOf::new(vec![
-                                        one_of(vec![
-                                            Ref::new("ColumnConstraintSegment").to_matchable(),
-                                            Sequence::new(vec![
-                                                Ref::keyword("COLLATE").to_matchable(),
-                                                Ref::new("CollationReferenceSegment")
-                                                    .to_matchable(),
-                                            ])
-                                            .to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
+                                Ref::new("ColumnDefinitionSegment").to_matchable(),
                                 Ref::new("TableConstraintSegment").to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("LIKE").to_matchable(),

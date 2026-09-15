@@ -9171,6 +9171,11 @@ pub fn raw_dialect() -> Dialect {
         .copy(
             Some(vec![
                 position_function_contents(true),
+                Sequence::new(vec![
+                    Ref::keyword("VARIADIC").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
                 Delimited::new(vec![
                     Sequence::new(vec![
                         Ref::new("ExpressionSegment").to_matchable(),

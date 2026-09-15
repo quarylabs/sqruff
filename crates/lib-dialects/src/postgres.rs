@@ -9283,9 +9283,9 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::keyword("FOR").to_matchable(),
                     one_of(vec![
+                        Ref::keyword("PUBLIC").to_matchable(),
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
                         Ref::new("SessionInformationUserFunctionsGrammar").to_matchable(),
-                        Ref::keyword("PUBLIC").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::keyword("SERVER").to_matchable(),

@@ -1116,15 +1116,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable(),
             ])
             .config(|this| {
-                this.terminators = vec![
-                    Ref::keyword("ORDER").to_matchable(),
-                    Ref::keyword("LIMIT").to_matchable(),
-                    Ref::keyword("FETCH").to_matchable(),
-                    Ref::keyword("OFFSET").to_matchable(),
-                    Ref::keyword("HAVING").to_matchable(),
-                    Ref::keyword("QUALIFY").to_matchable(),
-                    Ref::keyword("WINDOW").to_matchable(),
-                ]
+                this.terminators = vec![Ref::new("GroupByClauseTerminatorGrammar").to_matchable()]
             })
             .to_matchable()
             .into(),
@@ -1678,9 +1670,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("BY").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::keyword("LIMIT").to_matchable(),
-                Ref::keyword("FETCH").to_matchable(),
-                Ref::keyword("OFFSET").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Ref::new("SetOperatorSegment").to_matchable(),
             ])
             .to_matchable()
@@ -1690,9 +1680,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "FromClauseTerminatorGrammar".into(),
             one_of(vec![
                 Ref::keyword("WHERE").to_matchable(),
-                Ref::keyword("LIMIT").to_matchable(),
-                Ref::keyword("FETCH").to_matchable(),
-                Ref::keyword("OFFSET").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("GROUP").to_matchable(),
                     Ref::keyword("BY").to_matchable(),
@@ -1716,9 +1704,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "WhereClauseTerminatorGrammar".into(),
             one_of(vec![
-                Ref::keyword("LIMIT").to_matchable(),
-                Ref::keyword("FETCH").to_matchable(),
-                Ref::keyword("OFFSET").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("GROUP").to_matchable(),
                     Ref::keyword("BY").to_matchable(),
@@ -1740,14 +1726,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "OrderByClauseTerminators".into(),
             one_of(vec![
-                Ref::keyword("LIMIT").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Ref::keyword("HAVING").to_matchable(),
                 Ref::keyword("QUALIFY").to_matchable(),
                 Ref::keyword("WINDOW").to_matchable(),
                 Ref::new("FrameClauseUnitGrammar").to_matchable(),
                 Ref::keyword("SEPARATOR").to_matchable(),
-                Ref::keyword("FETCH").to_matchable(),
-                Ref::keyword("OFFSET").to_matchable(),
                 Ref::keyword("MEASURES").to_matchable(),
             ])
             .to_matchable()
@@ -1761,9 +1745,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "GroupByClauseTerminatorGrammar".into(),
             one_of(vec![
                 Ref::keyword("ORDER").to_matchable(),
-                Ref::keyword("LIMIT").to_matchable(),
-                Ref::keyword("FETCH").to_matchable(),
-                Ref::keyword("OFFSET").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Ref::keyword("HAVING").to_matchable(),
                 Ref::keyword("QUALIFY").to_matchable(),
                 Ref::keyword("WINDOW").to_matchable(),
@@ -1779,11 +1761,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("BY").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::keyword("LIMIT").to_matchable(),
+                Ref::new("LimitClauseSegment").to_matchable(),
                 Ref::keyword("QUALIFY").to_matchable(),
                 Ref::keyword("WINDOW").to_matchable(),
-                Ref::keyword("FETCH").to_matchable(),
-                Ref::keyword("OFFSET").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -11411,21 +11391,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     snowflake_dialect.replace_grammar(
-        "SelectClauseSegment",
-        ansi::select_clause_segment().copy(
-            None,
-            None,
-            None,
-            None,
-            vec![
-                Ref::keyword("FETCH").to_matchable(),
-                Ref::keyword("OFFSET").to_matchable(),
-            ],
-            false,
-        ),
-    );
-
-    snowflake_dialect.replace_grammar(
         "OrderByClauseSegment",
         Sequence::new(vec![
             Ref::keyword("ORDER").to_matchable(),
@@ -11461,9 +11426,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             ])
             .config(|this| {
                 this.terminators = vec![
-                    Ref::keyword("LIMIT").to_matchable(),
-                    Ref::keyword("FETCH").to_matchable(),
-                    Ref::keyword("OFFSET").to_matchable(),
+                    Ref::new("LimitClauseSegment").to_matchable(),
                     Ref::new("FrameClauseUnitGrammar").to_matchable(),
                 ]
             })

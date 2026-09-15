@@ -1070,6 +1070,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("OpenSymmetricKeySegment").to_matchable(),
                             Ref::new("DeclareStatementSegment").to_matchable(),
                             Ref::new("SetVariableStatementSegment").to_matchable(),
+                            Ref::new("WaitForStatementSegment").to_matchable(),
                             Ref::new("ExecuteScriptSegment").to_matchable(),
                             Ref::new("PrintStatementSegment").to_matchable(),
                             Ref::new("RaiserrorStatementSegment").to_matchable(),
@@ -1580,75 +1581,272 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Preserve N-prefixed procedure arguments as literal components when the
+    // lexer represents the prefix and quoted string as separate tokens.
+    dialect.add([(
+        "ExecuteUnicodeLiteralExpressionSegment".into(),
+        NodeMatcher::new(SyntaxKind::Expression, |_| {
+            Sequence::new(vec![
+                StringParser::new("N", SyntaxKind::NakedIdentifier).to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "ExecuteOptionSegment".into(),
+        NodeMatcher::new(SyntaxKind::ExecuteOption, |_| {
+            let _result_sets_definition = one_of(vec![
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("COLLATE").to_matchable(),
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("NULL").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("NOT").to_matchable(),
+                                    Ref::keyword("NULL").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::keyword("OBJECT").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar")
+                            .optional()
+                            .to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::keyword("TYPE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        Ref::new("DotSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::keyword("XML").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
+            one_of(vec![
+                Ref::keyword("RECOMPILE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("RESULT").to_matchable(),
+                    Ref::keyword("SETS").to_matchable(),
+                    Ref::keyword("UNDEFINED").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("RESULT").to_matchable(),
+                    Ref::keyword("SETS").to_matchable(),
+                    Ref::keyword("NONE").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("RESULT").to_matchable(),
+                    Ref::keyword("SETS").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![_result_sets_definition.clone()]).to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "LoginUserSegment".into(),
+        NodeMatcher::new(SyntaxKind::LoginUserSegment, |_| {
+            Sequence::new(vec![
+                Ref::keyword("AS").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("LOGIN").to_matchable(),
+                    Ref::keyword("USER").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("RawEqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
     dialect.add([(
         "ExecuteScriptSegment".into(),
         NodeMatcher::new(SyntaxKind::ExecuteScriptStatement, |_| {
-            let argument_value = || {
-                one_of(vec![
-                    Ref::keyword("DEFAULT").to_matchable(),
-                    Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
-                    Ref::new("LiteralGrammar").to_matchable(),
-                    Ref::new("ParameterNameSegment").to_matchable(),
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
-                ])
-                .to_matchable()
-            };
-            let named_argument = || {
+            let _execute_stored_procedure_or_function = Sequence::new(vec![
                 Sequence::new(vec![
                     Ref::new("ParameterNameSegment").to_matchable(),
-                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("RawEqualsSegment").to_matchable(),
                 ])
                 .config(|this| this.optional())
-                .to_matchable()
-            };
-            let output = || Ref::keyword("OUTPUT").optional().to_matchable();
-
+                .to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("SemicolonSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                AnyNumberOf::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            one_of(vec![
+                                Ref::new("ExecuteUnicodeLiteralExpressionSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    Sequence::new(vec![Ref::keyword("OUTPUT").to_matchable()])
+                                        .config(|this| this.optional())
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("DEFAULT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::new("ExecuteOptionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let _execute_a_characters_string = Sequence::new(vec![
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.delimiter(Ref::new("PlusSegment"));
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("LoginUserSegment").optional().to_matchable(),
+            ])
+            .to_matchable();
+            let _execute_pass_through_command = Sequence::new(vec![
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.delimiter(Ref::new("PlusSegment"));
+                    })
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("CommaSegment").to_matchable(),
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::new("ExpressionSegment").to_matchable(),
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![Ref::keyword("OUTPUT").to_matchable()])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("LoginUserSegment").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("AT").to_matchable(),
+                    Sequence::new(vec![Ref::keyword("DATA_SOURCE").to_matchable()])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable();
             Sequence::new(vec![
                 one_of(vec![
                     Ref::keyword("EXEC").to_matchable(),
                     Ref::keyword("EXECUTE").to_matchable(),
                 ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::new("ParameterNameSegment").to_matchable(),
-                    Ref::new("EqualsSegment").to_matchable(),
-                ])
                 .config(|this| this.optional())
                 .to_matchable(),
                 one_of(vec![
-                    optionally_bracketed(vec![
-                        one_of(vec![
-                            Ref::new("ObjectReferenceSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Bracketed::new(vec![
-                        Ref::new("BaseExpressionElementGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    _execute_stored_procedure_or_function.clone(),
+                    _execute_a_characters_string.clone(),
+                    _execute_pass_through_command.clone(),
                 ])
                 .to_matchable(),
-                MetaSegment::indent().to_matchable(),
-                Sequence::new(vec![
-                    named_argument(),
-                    argument_value(),
-                    output(),
-                    AnyNumberOf::new(vec![
-                        Sequence::new(vec![
-                            Ref::new("CommaSegment").to_matchable(),
-                            named_argument(),
-                            argument_value(),
-                            output(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
-                MetaSegment::dedent().to_matchable(),
                 Ref::new("DelimiterGrammar").optional().to_matchable(),
             ])
             .to_matchable()
@@ -1657,6 +1855,114 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Context required by upstream EXECUTE regression fixtures.
+    dialect.add([(
+        "InsertStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("INSERT").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("INTO").optional().to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("OpenQuerySegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("PostTableExpressionGrammar")
+                    .optional()
+                    .to_matchable(),
+                Ref::new("BracketedColumnReferenceListGrammar")
+                    .optional()
+                    .to_matchable(),
+                Ref::new("OutputClauseSegment").optional().to_matchable(),
+                one_of(vec![
+                    Ref::new("SelectableGrammar").to_matchable(),
+                    Ref::new("ExecuteScriptSegment").to_matchable(),
+                    Ref::new("DefaultValuesGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "WaitForStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::WaitforStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("WAITFOR").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("DELAY").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TIME").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("TIMEOUT").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    dialect.add([(
+        "OutputClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::OutputClause, |_| {
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("OUTPUT").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Delimited::new(vec![
+                        AnyNumberOf::new(vec![
+                            Ref::new("WildcardExpressionSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                                Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        ])
+                        .config(|this| this.terminators = vec![Ref::keyword("INTO").to_matchable()])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INTO").to_matchable(),
+                        MetaSegment::indent().to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
@@ -1671,6 +1977,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AlterSecurityPolicySegment").to_matchable(),
             Ref::new("DropSecurityPolicySegment").to_matchable(),
             Ref::new("SetVariableStatementGrammar").to_matchable(),
+            Ref::new("WaitForStatementSegment").to_matchable(),
             Ref::new("ExecuteScriptSegment").to_matchable(),
             Ref::new("PrintStatementGrammar").to_matchable(),
             Ref::new("RaiserrorStatementSegment").to_matchable(),

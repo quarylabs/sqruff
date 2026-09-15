@@ -178,6 +178,7 @@ pub(crate) fn tsql_additional_reserved_keywords() -> HashSet<&'static str> {
         "TABLESAMPLE",
         "TEXTSIZE",
         "THEN",
+        "THROW",
         "TO",
         "TOP",
         "TRAN",
@@ -504,6 +505,11 @@ pub(crate) fn tsql_future_keywords() -> HashSet<&'static str> {
 /// T-SQL additional unreserved keywords (to be added to ANSI keywords)
 pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
     [
+        "DELAY",
+        "TIMEOUT",
+        "RESULT",
+        "SETS",
+        "UNDEFINED",
         "ACTION",
         "ALLOW_ENCRYPTED_VALUE_MODIFICATIONS",
         "APPEND",

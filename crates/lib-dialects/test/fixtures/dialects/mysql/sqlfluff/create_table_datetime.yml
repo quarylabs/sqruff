@@ -109,10 +109,11 @@ file:
       - column_definition:
         - naked_identifier: ts7
         - keyword: TIMESTAMP
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '6'
-          - end_bracket: )
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '6'
+            - end_bracket: )
         - keyword: DEFAULT
         - keyword: CURRENT_TIMESTAMP
         - bracketed:

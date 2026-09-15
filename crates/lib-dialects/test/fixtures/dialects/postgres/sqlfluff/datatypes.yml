@@ -314,20 +314,22 @@ file:
       - data_type:
         - datetime_type_identifier:
           - keyword: time
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '4'
-            - end_bracket: )
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '4'
+              - end_bracket: )
       - comma: ','
       - column_reference:
         - naked_identifier: d
       - data_type:
         - datetime_type_identifier:
           - keyword: time
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '4'
-            - end_bracket: )
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '4'
+              - end_bracket: )
           - keyword: with
           - keyword: time
           - keyword: zone
@@ -337,10 +339,11 @@ file:
       - data_type:
         - datetime_type_identifier:
           - keyword: time
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '4'
-            - end_bracket: )
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '4'
+              - end_bracket: )
           - keyword: without
           - keyword: time
           - keyword: zone
@@ -350,20 +353,22 @@ file:
       - data_type:
         - datetime_type_identifier:
           - keyword: timestamp
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '4'
-            - end_bracket: )
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '4'
+              - end_bracket: )
       - comma: ','
       - column_reference:
         - naked_identifier: g
       - data_type:
         - datetime_type_identifier:
           - keyword: timestamp
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '4'
-            - end_bracket: )
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '4'
+              - end_bracket: )
           - keyword: with
           - keyword: time
           - keyword: zone
@@ -373,10 +378,11 @@ file:
       - data_type:
         - datetime_type_identifier:
           - keyword: timestamp
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '4'
-            - end_bracket: )
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '4'
+              - end_bracket: )
           - keyword: without
           - keyword: time
           - keyword: zone

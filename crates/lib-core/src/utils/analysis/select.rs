@@ -161,7 +161,7 @@ pub fn get_aliases_from_select(
     };
 
     let mut standalone_aliases = Vec::new();
-    standalone_aliases.extend(get_pivot_table_columns(segment, dialect));
+    standalone_aliases.extend(get_pivot_table_aliases(segment, dialect));
     standalone_aliases.extend(get_lambda_argument_columns(segment, dialect));
 
     let mut table_aliases = Vec::new();
@@ -200,35 +200,39 @@ fn has_value_table_function(table_expr: ErasedSegment, dialect: Option<&Dialect>
     false
 }
 
-fn get_pivot_table_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<SmolStr> {
+fn get_pivot_table_aliases(segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<SmolStr> {
     let Some(_dialect) = dialect else {
         return Vec::new();
     };
 
-    let fc = segment.recursive_crawl(
+    let mut aliases = Vec::new();
+    for pivot in segment.recursive_crawl(
         const { &SyntaxSet::new(&[SyntaxKind::FromPivotExpression]) },
         true,
         &SyntaxSet::EMPTY,
         true,
-    );
-    if !fc.is_empty() {
-        return Vec::new();
-    }
-
-    let mut pivot_table_column_aliases = Vec::new();
-    for pivot_table_column_alias in segment.recursive_crawl(
-        const { &SyntaxSet::new(&[SyntaxKind::PivotColumnReference]) },
-        true,
-        &SyntaxSet::EMPTY,
-        true,
     ) {
-        let raw = pivot_table_column_alias.raw().clone();
-        if !pivot_table_column_aliases.contains(&raw) {
-            pivot_table_column_aliases.push(raw);
+        for alias in
+            pivot.recursive_crawl(
+                const {
+                    &SyntaxSet::new(&[SyntaxKind::PivotColumnReference, SyntaxKind::TableReference])
+                },
+                true,
+                &SyntaxSet::EMPTY,
+                true,
+            )
+        {
+            // Standalone aliases are strings here, so preserve both spellings
+            // before discarding the segment used to normalize quoted identifiers.
+            for name in [alias.raw().clone(), alias.raw_normalized()] {
+                if !aliases.contains(&name) {
+                    aliases.push(name);
+                }
+            }
         }
     }
 
-    pivot_table_column_aliases
+    aliases
 }
 
 fn get_lambda_argument_columns(segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<SmolStr> {

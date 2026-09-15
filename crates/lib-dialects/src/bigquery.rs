@@ -3180,7 +3180,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
                 Sequence::new(vec![
                     MetaSegment::indent().to_matchable(),
-                    Ref::keyword("AS").optional().to_matchable(),
+                    Ref::new("AsAliasOperatorSegment").optional().to_matchable(),
                     one_of(vec![
                         Ref::new("QuotedLiteralSegment").to_matchable(),
                         Ref::new("NumericLiteralSegment").to_matchable(),

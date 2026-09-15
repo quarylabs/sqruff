@@ -347,9 +347,10 @@ file:
               - end_bracket: )
       - comma: ','
       - select_clause_element:
-        - quoted_identifier: '[preceding]'
-        - alias_operator:
-          - raw_comparison_operator: =
+        - alias_expression:
+          - quoted_identifier: '[preceding]'
+          - alias_operator:
+            - raw_comparison_operator: =
         - function:
           - function_name:
             - function_name_identifier: count
@@ -379,9 +380,10 @@ file:
               - end_bracket: )
       - comma: ','
       - select_clause_element:
-        - quoted_identifier: '[central]'
-        - alias_operator:
-          - raw_comparison_operator: =
+        - alias_expression:
+          - quoted_identifier: '[central]'
+          - alias_operator:
+            - raw_comparison_operator: =
         - function:
           - function_name:
             - function_name_identifier: count
@@ -411,9 +413,10 @@ file:
               - end_bracket: )
       - comma: ','
       - select_clause_element:
-        - quoted_identifier: '[following]'
-        - alias_operator:
-          - raw_comparison_operator: =
+        - alias_expression:
+          - quoted_identifier: '[following]'
+          - alias_operator:
+            - raw_comparison_operator: =
         - function:
           - function_name:
             - function_name_identifier: count

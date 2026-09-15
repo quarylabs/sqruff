@@ -80,7 +80,8 @@ file:
         - naked_identifier: mar
       - end_bracket: )
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: q1
     - comma: ','
     - bracketed:
@@ -95,7 +96,8 @@ file:
         - naked_identifier: jun
       - end_bracket: )
     - alias_expression:
-      - keyword: AS
+      - alias_operator:
+        - keyword: AS
       - naked_identifier: q2
     - keyword: INTO
     - keyword: NAME
@@ -270,7 +272,8 @@ file:
                 - naked_identifier: mar
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: q1
               - comma: ','
               - bracketed:
@@ -282,7 +285,8 @@ file:
                 - naked_identifier: jun
                 - end_bracket: )
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: q2
               - end_bracket: )
             - end_bracket: )

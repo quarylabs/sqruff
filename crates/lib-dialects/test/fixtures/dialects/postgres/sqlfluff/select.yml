@@ -433,7 +433,8 @@ file:
                         - naked_identifier: columnb
                     - end_bracket: )
             - alias_expression:
-              - keyword: as
+              - alias_operator:
+                - keyword: as
               - naked_identifier: t
               - bracketed:
                 - start_bracket: (
@@ -913,7 +914,8 @@ file:
       - select_clause_element:
         - numeric_literal: '1'
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: bar
 - statement_terminator: ;
 - statement:

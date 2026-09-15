@@ -107,7 +107,8 @@ file:
               - star: '*'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: record_count
     - from_clause:
       - keyword: FROM
@@ -502,7 +503,8 @@ file:
             - table_reference:
               - naked_identifier: person
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: p
           - lateral_view_clause:
             - keyword: LATERAL
@@ -560,7 +562,8 @@ file:
             - table_reference:
               - naked_identifier: person
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: p
           - lateral_view_clause:
             - keyword: LATERAL
@@ -612,7 +615,8 @@ file:
             - table_reference:
               - naked_identifier: person
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: p
           - lateral_view_clause:
             - keyword: LATERAL
@@ -669,7 +673,8 @@ file:
             - table_reference:
               - naked_identifier: person
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: p
           - lateral_view_clause:
             - keyword: LATERAL
@@ -735,7 +740,8 @@ file:
                       - end_bracket: )
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: ptc
     - from_clause:
       - keyword: FROM
@@ -745,7 +751,8 @@ file:
             - table_reference:
               - naked_identifier: table1
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: t1
         - join_clause:
           - keyword: LEFT
@@ -755,7 +762,8 @@ file:
               - table_reference:
                 - naked_identifier: table2
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: t2
           - join_on_condition:
             - keyword: ON

@@ -22,7 +22,8 @@ file:
               - start_bracket: (
               - end_bracket: )
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: c1
     - from_clause:
       - keyword: from

@@ -1163,7 +1163,8 @@ file:
                     - naked_identifier: value
                 - end_bracket: )
           - alias_expression:
-            - keyword: AS
+            - alias_operator:
+              - keyword: AS
             - naked_identifier: total_value
       - from_clause:
         - keyword: FROM
@@ -1234,7 +1235,8 @@ file:
               - table_reference:
                 - naked_identifier: table1
             - alias_expression:
-              - keyword: AS
+              - alias_operator:
+                - keyword: AS
               - naked_identifier: t1
           - join_clause:
             - keyword: JOIN
@@ -1243,7 +1245,8 @@ file:
                 - table_reference:
                   - naked_identifier: table2
               - alias_expression:
-                - keyword: AS
+                - alias_operator:
+                  - keyword: AS
                 - naked_identifier: t2
             - join_on_condition:
               - keyword: ON

@@ -20,7 +20,8 @@ file:
             - dot: .
             - naked_identifier: rcp_cnt
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: fourth_cnt
     - from_clause:
       - keyword: from
@@ -55,7 +56,8 @@ file:
             - dot: .
             - naked_identifier: jar
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: fourth_cnt
     - from_clause:
       - keyword: from

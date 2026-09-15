@@ -20,7 +20,8 @@ file:
                 - quoted_literal: ''''''
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: field
     - from_clause:
       - keyword: FROM
@@ -302,7 +303,8 @@ file:
                   - keyword: END
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: json_column
     - from_clause:
       - keyword: FROM

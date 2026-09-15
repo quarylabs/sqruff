@@ -10,7 +10,8 @@ file:
           - keyword: IS
           - null_literal: 'NULL'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: standard_is_null
       - comma: ','
       - select_clause_element:
@@ -19,7 +20,8 @@ file:
             - naked_identifier: nullable_field
           - keyword: ISNULL
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: non_standard_is_null
       - comma: ','
       - select_clause_element:
@@ -30,7 +32,8 @@ file:
           - keyword: NOT
           - null_literal: 'NULL'
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: standard_not_null
       - comma: ','
       - select_clause_element:
@@ -39,7 +42,8 @@ file:
             - naked_identifier: nullable_field
           - keyword: NOTNULL
         - alias_expression:
-          - keyword: as
+          - alias_operator:
+            - keyword: as
           - naked_identifier: non_standard_not_null
     - from_clause:
       - keyword: FROM

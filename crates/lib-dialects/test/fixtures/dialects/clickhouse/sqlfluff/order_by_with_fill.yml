@@ -34,13 +34,15 @@ file:
                             - numeric_literal: '10'
                           - end_bracket: )
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: n
                   - comma: ','
                   - select_clause_element:
                     - quoted_literal: '''original'''
                     - alias_expression:
-                      - keyword: AS
+                      - alias_operator:
+                        - keyword: AS
                       - naked_identifier: source
                 - from_clause:
                   - keyword: FROM
@@ -107,7 +109,8 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d1
       - comma: ','
       - select_clause_element:
@@ -124,13 +127,15 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d2
       - comma: ','
       - select_clause_element:
         - quoted_literal: '''original'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: source
     - from_clause:
       - keyword: FROM
@@ -199,7 +204,8 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d1
       - comma: ','
       - select_clause_element:
@@ -216,13 +222,15 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d2
       - comma: ','
       - select_clause_element:
         - quoted_literal: '''original'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: source
     - from_clause:
       - keyword: FROM
@@ -291,7 +299,8 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d1
       - comma: ','
       - select_clause_element:
@@ -308,13 +317,15 @@ file:
                 - numeric_literal: '86400'
               - end_bracket: )
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: d2
       - comma: ','
       - select_clause_element:
         - quoted_literal: '''original'''
         - alias_expression:
-          - keyword: AS
+          - alias_operator:
+            - keyword: AS
           - naked_identifier: source
     - from_clause:
       - keyword: FROM

@@ -1100,6 +1100,19 @@ file:
 - statement_terminator: ;
 - statement:
   - access_statement:
+    - keyword: GRANT
+    - keyword: EXECUTE
+    - keyword: MANAGED
+    - keyword: TASK
+    - keyword: ON
+    - keyword: ACCOUNT
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
     - keyword: grant
     - keyword: import
     - keyword: share
@@ -1660,4 +1673,32 @@ file:
     - keyword: ROLE
     - object_reference:
       - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - keyword: ON
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - object_reference:
+      - naked_identifier: ext_vol
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: REVOKE
+    - keyword: USAGE
+    - keyword: ON
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - object_reference:
+      - naked_identifier: ext_vol
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: MY_ROLE
 - statement_terminator: ;

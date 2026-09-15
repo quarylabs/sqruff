@@ -91,6 +91,7 @@ grant apply tag on account to role my_role;
 grant attach policy on account to role my_role;
 grant execute alert on account to role my_role;
 grant execute task on account to role my_role;
+GRANT EXECUTE MANAGED TASK ON ACCOUNT TO ROLE MY_ROLE;
 grant import share on account to role my_role;
 grant manage grants on account to role my_role;
 grant monitor execution on account to role my_role;
@@ -135,3 +136,6 @@ GRANT OWNERSHIP ON MODEL MY_DB.MYSCHEMA.MYMODEL TO ROLE MYROLE;
 GRANT USAGE ON MODEL MY_DB.MYSCHEMA.MYMODEL TO ROLE MYROLE;
 REVOKE CREATE MODEL ON SCHEMA MY_DB.MYSCHEMA FROM ROLE MYROLE;
 REVOKE USAGE ON MODEL MY_DB.MYSCHEMA.MYMODEL FROM ROLE MYROLE;
+
+GRANT USAGE ON EXTERNAL VOLUME ext_vol TO ROLE MY_ROLE;
+REVOKE USAGE ON EXTERNAL VOLUME ext_vol FROM ROLE MY_ROLE;

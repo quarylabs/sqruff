@@ -11846,6 +11846,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("BY").to_matchable(),
+                    Ref::keyword("NAME").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![

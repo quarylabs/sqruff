@@ -180,13 +180,29 @@ JOIN baz ON bar.id = baz.id;
             );
             trim_whitespace_and_operators(&mut join_condition_segments);
 
+            let join_on_expression = SegmentBuilder::node(
+                context.tables.next_id(),
+                SyntaxKind::Expression,
+                context.dialect.name,
+                join_condition_segments,
+            )
+            .finish();
+            let join_on = SegmentBuilder::node(
+                context.tables.next_id(),
+                SyntaxKind::JoinOnCondition,
+                context.dialect.name,
+                vec![
+                    SegmentBuilder::keyword(context.tables.next_id(), "ON"),
+                    SegmentBuilder::whitespace(context.tables.next_id(), " "),
+                    join_on_expression,
+                ],
+            )
+            .finish();
             let mut join_edit_segments = join.segments().to_vec();
             join_edit_segments.extend([
                 SegmentBuilder::whitespace(context.tables.next_id(), " "),
-                SegmentBuilder::keyword(context.tables.next_id(), "ON"),
-                SegmentBuilder::whitespace(context.tables.next_id(), " "),
+                join_on,
             ]);
-            join_edit_segments.extend(join_condition_segments);
             let replacement_join = SegmentBuilder::node(
                 context.tables.next_id(),
                 SyntaxKind::JoinClause,

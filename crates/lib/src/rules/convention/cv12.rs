@@ -115,7 +115,7 @@ JOIN baz ON bar.id = baz.id;
                 .collect();
 
             if join_keywords.iter().any(|keyword| {
-                ["CROSS", "NATURAL", "POSITIONAL", "USING"]
+                ["CROSS", "NATURAL", "POSITIONAL", "USING", "APPLY"]
                     .iter()
                     .any(|expected| keyword.raw().eq_ignore_ascii_case(expected))
             }) || join_children

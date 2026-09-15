@@ -222,7 +222,8 @@ file:
                   - array_type_schema:
                     - start_angle_bracket: <
                     - data_type:
-                      - keyword: DOUBLE
+                      - primitive_type:
+                        - keyword: DOUBLE
                     - end_angle_bracket: '>'
               - end_bracket: )
 - statement_terminator: ;
@@ -255,7 +256,8 @@ file:
                     - bracketed:
                       - start_bracket: (
                       - data_type:
-                        - keyword: DOUBLE
+                        - primitive_type:
+                          - keyword: DOUBLE
                       - end_bracket: )
               - end_bracket: )
 - statement_terminator: ;
@@ -287,7 +289,8 @@ file:
                   - array_type_schema:
                     - start_angle_bracket: <
                     - data_type:
-                      - keyword: DOUBLE
+                      - primitive_type:
+                        - keyword: DOUBLE
                     - end_angle_bracket: '>'
               - end_bracket: )
 - statement_terminator: ;

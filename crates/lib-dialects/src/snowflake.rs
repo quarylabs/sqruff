@@ -2276,6 +2276,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("ScriptingBlockStatementSegment").to_matchable(),
                 Ref::new("ExceptionBlockStatementSegment").to_matchable(),
                 Ref::new("DropDynamicTableSegment").to_matchable(),
+                Ref::new("DropIcebergTableStatementSegment").to_matchable(),
                 Ref::new("CreateAuthenticationPolicySegment").to_matchable(),
                 Ref::new("ForInLoopSegment").to_matchable(),
                 Ref::new("CreateEventTableStatementSegment").to_matchable(),
@@ -12668,6 +12669,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A Snowflake `DROP ICEBERG TABLE` statement.
+            "DropIcebergTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropIcebergTableStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("ICEBERG").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
                 ])
                 .to_matchable()
             })

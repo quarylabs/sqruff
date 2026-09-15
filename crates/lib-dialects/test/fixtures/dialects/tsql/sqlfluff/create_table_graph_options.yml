@@ -1,0 +1,293 @@
+file:
+- statement:
+  - create_table_graph_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Related
+    - bracketed:
+      - start_bracket: (
+      - graph_table_constraint:
+        - connection_constraint_grammar:
+          - keyword: CONNECTION
+          - bracketed:
+            - start_bracket: (
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
+            - keyword: TO
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
+            - comma: ','
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
+            - keyword: TO
+            - table_reference:
+              - object_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Company
+            - comma: ','
+            - end_bracket: )
+          - keyword: ON
+          - keyword: UPDATE
+          - keyword: NO
+          - keyword: ACTION
+          - keyword: ON
+          - keyword: DELETE
+          - keyword: CASCADE
+      - end_bracket: )
+    - keyword: AS
+    - keyword: EDGE
+    - on_partition_or_filegroup_statement:
+      - filegroup_clause:
+        - keyword: ON
+        - filegroup_name:
+          - quoted_identifier: '[PRIMARY]'
+    - statement_terminator: ;
+- statement:
+  - create_table_graph_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: People
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - graph_table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: pk_people
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed_index_column_list_grammar:
+          - bracketed:
+            - start_bracket: (
+            - index_column_definition:
+              - naked_identifier: id
+            - end_bracket: )
+        - relational_index_options:
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: PAD_INDEX
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - keyword: ON
+            - comma: ','
+            - keyword: FILLFACTOR
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '80'
+            - end_bracket: )
+        - on_partition_or_filegroup_statement:
+          - filegroup_clause:
+            - keyword: ON
+            - filegroup_name:
+              - quoted_identifier: '[PRIMARY]'
+      - comma: ','
+      - graph_table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: ck_people
+        - check_constraint_grammar:
+          - keyword: CHECK
+          - keyword: NOT
+          - keyword: FOR
+          - keyword: REPLICATION
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: id
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '0'
+            - end_bracket: )
+      - comma: ','
+      - graph_table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: fk_people
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+        - references_constraint_grammar:
+          - keyword: REFERENCES
+          - table_reference:
+            - object_reference:
+              - naked_identifier: dbo
+              - dot: .
+              - naked_identifier: Person
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: id
+            - end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - keyword: NODE
+    - statement_terminator: ;
+- statement:
+  - create_table_graph_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: IndexedPeople
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - table_index_segment:
+        - keyword: INDEX
+        - object_reference:
+          - naked_identifier: ix_people
+        - keyword: NONCLUSTERED
+        - bracketed_index_column_list_grammar:
+          - bracketed:
+            - start_bracket: (
+            - index_column_definition:
+              - naked_identifier: id
+            - end_bracket: )
+        - relational_index_options:
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: ALLOW_PAGE_LOCKS
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - keyword: ON
+            - end_bracket: )
+        - on_partition_or_filegroup_statement:
+          - partition_scheme_clause:
+            - keyword: ON
+            - partition_scheme_name:
+              - naked_identifier: ps_people
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: id
+              - end_bracket: )
+        - filestream_on_option_statement:
+          - keyword: FILESTREAM_ON
+          - filegroup_name:
+            - quoted_identifier: '[PRIMARY]'
+      - end_bracket: )
+    - keyword: AS
+    - keyword: NODE
+    - on_partition_or_filegroup_statement:
+      - partition_scheme_clause:
+        - keyword: ON
+        - partition_scheme_name:
+          - naked_identifier: ps_people
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: id
+          - end_bracket: )
+    - statement_terminator: ;
+- statement:
+  - create_table_graph_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: OnlinePeople
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - table_index_segment:
+        - keyword: INDEX
+        - object_reference:
+          - naked_identifier: ix_online
+        - bracketed_index_column_list_grammar:
+          - bracketed:
+            - start_bracket: (
+            - index_column_definition:
+              - naked_identifier: id
+            - end_bracket: )
+        - relational_index_options:
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: ONLINE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - keyword: ON
+            - bracketed:
+              - start_bracket: (
+              - keyword: WAIT_AT_LOW_PRIORITY
+              - bracketed:
+                - start_bracket: (
+                - max_duration:
+                  - keyword: MAX_DURATION
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - numeric_literal: '5'
+                  - keyword: MINUTES
+                - comma: ','
+                - keyword: ABORT_AFTER_WAIT
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - keyword: SELF
+                - end_bracket: )
+              - end_bracket: )
+            - comma: ','
+            - keyword: COMPRESSION_DELAY
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '1'
+            - keyword: MINUTES
+            - comma: ','
+            - keyword: DATA_COMPRESSION
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - keyword: PAGE
+            - on_partitions_clause:
+              - keyword: ON
+              - keyword: PARTITIONS
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '1'
+                - keyword: TO
+                - numeric_literal: '3'
+                - end_bracket: )
+            - end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - keyword: NODE
+    - statement_terminator: ;

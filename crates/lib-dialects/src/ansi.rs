@@ -647,6 +647,10 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
+            "ColumnGeneratedGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
             // This is a placeholder for other dialects.
             "PreTableFunctionKeywordsGrammar".into(),
             Nothing::new().to_matchable().into(),
@@ -1979,6 +1983,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("CollationReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
+                        Ref::new("ColumnGeneratedGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])

@@ -16,19 +16,6 @@ use crate::utils::functional::context::FunctionalContext;
 
 const REORDERABLE_OPERATORS: &[&str] = &["=", "!=", "<>", "<=>", "<", ">", "<=", ">="];
 
-fn normalize_identifier(raw: &str) -> SmolStr {
-    let is_bracket_quoted = raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2;
-    let is_matching_quote_quoted = matches!(raw.chars().next(), Some('"') | Some('\'') | Some('`'))
-        && raw.len() >= 2
-        && raw.chars().next() == raw.chars().last();
-
-    if is_bracket_quoted || is_matching_quote_quoted {
-        raw[1..raw.len() - 1].into()
-    } else {
-        raw.into()
-    }
-}
-
 #[derive(Default, Debug, Clone)]
 pub struct RuleST09 {
     preferred_first_table_in_join_clause: String,
@@ -135,8 +122,8 @@ left join bar
         let from_expression_alias = from_expression_alias_info
             .segment
             .as_ref()
-            .map(|segment| normalize_identifier(segment.raw()))
-            .unwrap_or_else(|| normalize_identifier(from_expression_alias_info.ref_str.as_str()));
+            .map(ErasedSegment::raw_normalized)
+            .unwrap_or(from_expression_alias_info.ref_str);
 
         table_aliases.push(from_expression_alias);
 
@@ -154,8 +141,8 @@ left join bar
                 alias_info
                     .segment
                     .as_ref()
-                    .map(|segment| normalize_identifier(segment.raw()))
-                    .unwrap_or_else(|| normalize_identifier(alias_info.ref_str.as_str()))
+                    .map(ErasedSegment::raw_normalized)
+                    .unwrap_or(alias_info.ref_str)
             })
             .collect_vec();
 
@@ -240,8 +227,8 @@ left join bar
                 )
                 .unwrap();
 
-            let first_table = normalize_identifier(first_table_seg.raw()).to_uppercase_smolstr();
-            let second_table = normalize_identifier(second_table_seg.raw()).to_uppercase_smolstr();
+            let first_table = first_table_seg.raw_normalized().to_uppercase_smolstr();
+            let second_table = second_table_seg.raw_normalized().to_uppercase_smolstr();
 
             let raw_comparison_operator_opposites = |op| match op {
                 "<" => ">",

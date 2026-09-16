@@ -4396,6 +4396,11 @@ pub(crate) fn column_constraint_grammar(allow_persistent: bool) -> Matchable {
                 Ref::new("NumericLiteralSegment").to_matchable(),
             ])
             .to_matchable(),
+            one_of(vec![
+                Ref::keyword("INVISIBLE").to_matchable(),
+                Ref::keyword("VISIBLE").to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     ])

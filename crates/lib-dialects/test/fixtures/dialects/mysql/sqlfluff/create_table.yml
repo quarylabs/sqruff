@@ -590,3 +590,30 @@ file:
           - keyword: UNSIGNED
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: i
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: VISIBLE
+      - comma: ','
+      - column_definition:
+        - naked_identifier: j
+        - data_type:
+          - data_type_identifier: DATE
+        - column_constraint_segment:
+          - keyword: INVISIBLE
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - parameter: InnoDB
+- statement_terminator: ;

@@ -7113,6 +7113,12 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                             ])
                             .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("RENAME").to_matchable(),
+                                Ref::keyword("TO").to_matchable(),
+                                Ref::new("TableReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])

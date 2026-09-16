@@ -1306,7 +1306,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::ColumnPropertiesSegment, |_| {
                 one_of(vec![
                     Ref::new("NotNullGrammar").to_matchable(),
-                    Ref::new("GeneratedColumnDefinitionSegment").to_matchable(),
+                    Ref::new("ColumnGeneratedGrammar").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("DEFAULT").to_matchable(),
                         Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
@@ -1412,41 +1412,36 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     databricks.replace_grammar(
         "ColumnConstraintSegment",
         Sequence::new(vec![
-            Ref::new("NotNullGrammar").optional().to_matchable(),
             Sequence::new(vec![
+                Ref::keyword("CONSTRAINT").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .config(|config| config.optional())
+            .to_matchable(),
+            one_of(vec![
                 Sequence::new(vec![
-                    Ref::keyword("CONSTRAINT").to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                ])
-                .config(|config| config.optional())
-                .to_matchable(),
-                one_of(vec![
-                    Sequence::new(vec![
-                        Ref::new("PrimaryKeyGrammar").to_matchable(),
-                        Ref::new("ConstraintOptionGrammar")
-                            .optional()
-                            .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::new("ForeignKeyGrammar").optional().to_matchable(),
-                        Ref::keyword("REFERENCES").to_matchable(),
-                        Ref::new("TableReferenceSegment").to_matchable(),
-                        Ref::new("BracketedColumnReferenceListGrammar")
-                            .optional()
-                            .to_matchable(),
-                        one_of(vec![
-                            Ref::new("ForeignKeyOptionGrammar").to_matchable(),
-                            Ref::new("ConstraintOptionGrammar").to_matchable(),
-                        ])
-                        .config(|config| config.optional())
+                    Ref::new("PrimaryKeyGrammar").to_matchable(),
+                    Ref::new("ConstraintOptionGrammar")
+                        .optional()
                         .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ForeignKeyGrammar").optional().to_matchable(),
+                    Ref::keyword("REFERENCES").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar")
+                        .optional()
+                        .to_matchable(),
+                    one_of(vec![
+                        Ref::new("ForeignKeyOptionGrammar").to_matchable(),
+                        Ref::new("ConstraintOptionGrammar").to_matchable(),
                     ])
+                    .config(|config| config.optional())
                     .to_matchable(),
                 ])
                 .to_matchable(),
             ])
-            .config(|config| config.optional())
             .to_matchable(),
         ])
         .to_matchable(),
@@ -1461,10 +1456,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .config(|config| config.optional())
                 .to_matchable(),
             AnyNumberOf::new(vec![
-                Ref::new("ColumnConstraintSegment")
-                    .optional()
-                    .to_matchable(),
-                Ref::new("ColumnDefaultGrammar").optional().to_matchable(),
+                Ref::new("ColumnPropertiesSegment").to_matchable(),
+                Ref::new("ColumnConstraintSegment").to_matchable(),
+                Ref::new("ColumnDefaultGrammar").to_matchable(),
             ])
             .to_matchable(),
         ])
@@ -1473,61 +1467,53 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     // https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using.html
     databricks.replace_grammar(
-        "GeneratedColumnDefinitionSegment",
-        Sequence::new(vec![
-            Ref::new("SingleIdentifierGrammar").to_matchable(),
-            Ref::new("DatatypeSegment").to_matchable(),
-            Bracketed::new(vec![Anything::new().to_matchable()])
-                .config(|config| config.optional())
-                .to_matchable(),
-            one_of(vec![
-                Sequence::new(vec![
-                    Ref::keyword("GENERATED").to_matchable(),
-                    Ref::keyword("ALWAYS").to_matchable(),
-                    Ref::keyword("AS").to_matchable(),
-                    Bracketed::new(vec![
-                        one_of(vec![
-                            Ref::new("FunctionSegment").to_matchable(),
-                            Ref::new("BareFunctionSegment").to_matchable(),
-                            Ref::new("ExpressionSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+        "ColumnGeneratedGrammar",
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("GENERATED").to_matchable(),
+                Ref::keyword("ALWAYS").to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Ref::new("FunctionSegment").to_matchable(),
+                        Ref::new("BareFunctionSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
                 .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("GENERATED").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("ALWAYS").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("BY").to_matchable(),
-                            Ref::keyword("DEFAULT").to_matchable(),
-                        ])
-                        .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("GENERATED").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ALWAYS").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("BY").to_matchable(),
+                        Ref::keyword("DEFAULT").to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::keyword("AS").to_matchable(),
-                    Ref::keyword("IDENTITY").to_matchable(),
-                    Bracketed::new(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("START").to_matchable(),
-                            Ref::keyword("WITH").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
-                        .config(|config| config.optional())
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("INCREMENT").to_matchable(),
-                            Ref::keyword("BY").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
-                        .config(|config| config.optional())
-                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::keyword("IDENTITY").to_matchable(),
+                Bracketed::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("START").to_matchable(),
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INCREMENT").to_matchable(),
+                        Ref::keyword("BY").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
                     ])
                     .config(|config| config.optional())
                     .to_matchable(),
                 ])
+                .config(|config| config.optional())
                 .to_matchable(),
             ])
             .to_matchable(),

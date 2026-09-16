@@ -364,31 +364,33 @@ file:
           - primitive_type:
             - keyword: TIMESTAMP
       - comma: ','
-      - generated_column_definition:
-        - naked_identifier: date_of_birth
+      - column_definition:
+        - column_reference:
+          - naked_identifier: date_of_birth
         - data_type:
           - primitive_type:
             - keyword: DATE
-        - keyword: GENERATED
-        - keyword: ALWAYS
-        - keyword: AS
-        - bracketed:
-          - start_bracket: (
-          - function:
-            - function_name:
-              - function_name_identifier: CAST
-            - function_contents:
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - column_reference:
-                    - naked_identifier: birth_date
-                - keyword: AS
-                - data_type:
-                  - primitive_type:
-                    - keyword: DATE
-                - end_bracket: )
-          - end_bracket: )
+        - column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - bracketed:
+            - start_bracket: (
+            - function:
+              - function_name:
+                - function_name_identifier: CAST
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: birth_date
+                  - keyword: AS
+                  - data_type:
+                    - primitive_type:
+                      - keyword: DATE
+                  - end_bracket: )
+            - end_bracket: )
       - comma: ','
       - column_definition:
         - column_reference:

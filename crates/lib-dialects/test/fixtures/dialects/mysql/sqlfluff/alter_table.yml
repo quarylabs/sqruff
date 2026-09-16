@@ -864,3 +864,74 @@ file:
         - keyword: NOT
         - keyword: 'NULL'
 - statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: DROP
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: DEFAULT
+    - quoted_literal: '''some default'''
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: DEFAULT
+    - expression:
+      - bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: INVISIBLE
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: VISIBLE
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: VISIBLE
+    - keyword: DROP
+    - keyword: DEFAULT
+- statement_terminator: ;

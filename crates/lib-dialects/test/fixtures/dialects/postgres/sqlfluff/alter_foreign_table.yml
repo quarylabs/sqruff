@@ -112,3 +112,15 @@ file:
         - quoted_literal: $$(select my_column from my_table)$$
         - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - alter_foreign_table_statement:
+    - keyword: ALTER
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: test
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: test_renamed
+- statement_terminator: ;

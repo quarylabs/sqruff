@@ -2372,9 +2372,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
-                                .to_matchable(),
+                        one_of(vec![
+                            Bracketed::new(vec![
+                                Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
                         ])
                         .to_matchable(),
                     ])

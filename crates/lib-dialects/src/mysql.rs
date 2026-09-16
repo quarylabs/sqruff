@@ -2473,6 +2473,44 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    // ALTER column
+                    Sequence::new(vec![
+                        Ref::keyword("ALTER").to_matchable(),
+                        Ref::keyword("COLUMN").optional().to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        any_set_of(vec![
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("SET").to_matchable(),
+                                    Ref::keyword("DEFAULT").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("LiteralGrammar").to_matchable(),
+                                        Ref::new("ExpressionSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("DROP").to_matchable(),
+                                    Ref::keyword("DEFAULT").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("SET").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("INVISIBLE").to_matchable(),
+                                    Ref::keyword("VISIBLE").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.min_times(1))
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                     // MODIFY column
                     Sequence::new(vec![
                         Ref::keyword("MODIFY").to_matchable(),

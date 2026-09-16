@@ -867,3 +867,97 @@ file:
   - statement_terminator: ;
   - slash_buffer_executor:
     - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_package_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PACKAGE
+      - keyword: BODY
+      - object_reference:
+        - naked_identifier: test_package
+      - keyword: IS
+      - oracle_declare_segment:
+        - oracle_create_function_statement:
+          - keyword: FUNCTION
+          - oracle_function_name:
+            - function_name_identifier: test_function
+          - keyword: RETURN
+          - data_type:
+            - data_type_identifier: VARCHAR2
+          - keyword: IS
+          - oracle_declare_segment:
+            - naked_identifier: var_1
+            - data_type:
+              - data_type_identifier: NUMBER
+            - oracle_assignment_operator: :=
+            - expression:
+              - numeric_literal: '0'
+            - statement_terminator: ;
+          - oracle_begin_end_block:
+            - keyword: BEGIN
+            - statement:
+              - oracle_begin_end_block:
+                - keyword: BEGIN
+                - statement:
+                  - select_statement:
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                        - numeric_literal: '1'
+                    - oracle_into_clause:
+                      - keyword: INTO
+                      - naked_identifier: var_1
+                    - from_clause:
+                      - keyword: FROM
+                      - from_expression:
+                        - from_expression_element:
+                          - table_expression:
+                            - oracle_table_reference:
+                              - naked_identifier: DUAL
+                - statement_terminator: ;
+                - keyword: EXCEPTION
+                - keyword: WHEN
+                - naked_identifier: NO_DATA_FOUND
+                - keyword: THEN
+                - statement:
+                  - assignment_segment_statement:
+                    - object_reference:
+                      - naked_identifier: var_1
+                    - oracle_assignment_operator: :=
+                    - expression:
+                      - numeric_literal: '0'
+                - statement_terminator: ;
+                - keyword: WHEN
+                - keyword: OTHERS
+                - keyword: THEN
+                - statement:
+                  - function:
+                    - oracle_function_name:
+                      - naked_identifier: logger
+                      - dot: .
+                      - function_name_identifier: log_error
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - quoted_literal: '''Unhandled Exception'''
+                        - end_bracket: )
+                - statement_terminator: ;
+                - statement:
+                  - raise_statement:
+                    - keyword: RAISE
+                - statement_terminator: ;
+                - keyword: END
+            - statement_terminator: ;
+            - keyword: END
+            - object_reference:
+              - naked_identifier: test_function
+          - statement_terminator: ;
+      - keyword: END
+      - object_reference:
+        - naked_identifier: test_package
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

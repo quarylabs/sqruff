@@ -852,6 +852,12 @@ pub fn raw_dialect() -> Dialect {
                         })
                         .to_matchable(),
                         Sequence::new(vec![
+                            Ref::keyword("ENCODE").to_matchable(),
+                            Ref::new("ColumnEncodingGrammar").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
                             Ref::keyword("COLLATE").to_matchable(),
                             Ref::new("CollationReferenceSegment").to_matchable(),
                         ])

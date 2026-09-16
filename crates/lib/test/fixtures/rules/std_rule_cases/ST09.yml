@@ -539,3 +539,18 @@ test_fail_jinja_templated_issue_5506_reproduction:
     rules:
       structure.join_condition_order:
         preferred_first_table_in_join_clause: earlier
+
+test_fail_mixed_quote_escapes:
+  fail_str: |
+    SELECT *
+    FROM t1 AS [a"b]
+    JOIN t2 AS [c"d]
+      ON "c""d".id = "a""b".id
+  fix_str: |
+    SELECT *
+    FROM t1 AS [a"b]
+    JOIN t2 AS [c"d]
+      ON "a""b".id = "c""d".id
+  configs:
+    core:
+      dialect: tsql

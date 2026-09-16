@@ -26,6 +26,24 @@ pub fn raw_dialect() -> Dialect {
     let mut sparksql_dialect = ansi_dialect;
     sparksql_dialect.name = DialectKind::Sparksql;
 
+    sparksql_dialect.replace_grammar(
+        "ColumnGeneratedGrammar",
+        Sequence::new(vec![
+            Ref::keyword("GENERATED").to_matchable(),
+            Ref::keyword("ALWAYS").to_matchable(),
+            Ref::keyword("AS").to_matchable(),
+            Bracketed::new(vec![
+                one_of(vec![
+                    Ref::new("FunctionSegment").to_matchable(),
+                    Ref::new("BareFunctionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     sparksql_dialect.patch_lexer_matchers(vec![
         Matcher::regex("inline_comment", r"(--)[^\n]*", SyntaxKind::InlineComment),
         Matcher::regex("equals", r"==|<=>|=", SyntaxKind::RawComparisonOperator),
@@ -1146,7 +1164,6 @@ pub fn raw_dialect() -> Dialect {
                             Sequence::new(vec![
                                 one_of(vec![
                                     Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
-                                    Ref::new("GeneratedColumnDefinitionSegment").to_matchable(),
                                     Ref::new("TableConstraintSegment").to_matchable(),
                                 ])
                                 .to_matchable(),
@@ -3711,67 +3728,28 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
-    sparksql_dialect.add([
-        (
-            "PropertyNameSegment".into(),
-            NodeMatcher::new(SyntaxKind::PropertyNameIdentifier, |_| {
-                Sequence::new(vec![
-                    one_of(vec![
-                        Delimited::new(vec![
-                            Ref::new("PropertiesNakedIdentifierSegment").to_matchable(),
-                        ])
-                        .config(|config| {
-                            config.delimiter(Ref::new("DotSegment"));
-                            config.disallow_gaps();
-                        })
-                        .to_matchable(),
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+    sparksql_dialect.add([(
+        "PropertyNameSegment".into(),
+        NodeMatcher::new(SyntaxKind::PropertyNameIdentifier, |_| {
+            Sequence::new(vec![
+                one_of(vec![
+                    Delimited::new(vec![
+                        Ref::new("PropertiesNakedIdentifierSegment").to_matchable(),
                     ])
+                    .config(|config| {
+                        config.delimiter(Ref::new("DotSegment"));
+                        config.disallow_gaps();
+                    })
                     .to_matchable(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
-            "GeneratedColumnDefinitionSegment".into(),
-            NodeMatcher::new(SyntaxKind::GeneratedColumnDefinition, |_| {
-                Sequence::new(vec![
                     Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    Ref::new("DatatypeSegment").to_matchable(),
-                    Bracketed::new(vec![Anything::new().to_matchable()])
-                        .config(|config| {
-                            config.optional();
-                        })
-                        .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("GENERATED").to_matchable(),
-                        Ref::keyword("ALWAYS").to_matchable(),
-                        Ref::keyword("AS").to_matchable(),
-                        Bracketed::new(vec![
-                            one_of(vec![
-                                Ref::new("FunctionSegment").to_matchable(),
-                                Ref::new("BareFunctionSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    AnyNumberOf::new(vec![
-                        Ref::new("ColumnConstraintSegment")
-                            .optional()
-                            .to_matchable(),
-                    ])
-                    .to_matchable(),
                 ])
-                .to_matchable()
-            })
+                .to_matchable(),
+            ])
             .to_matchable()
-            .into(),
-        ),
-    ]);
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     sparksql_dialect.replace_grammar(
         "MergeUpdateClauseSegment",

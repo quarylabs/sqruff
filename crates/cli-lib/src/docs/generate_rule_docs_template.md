@@ -20,5 +20,20 @@ The following rules are available in this create. This list is generated from th
 
 **Fixable:** {% if rule.fixable %}Yes{% else %}No{% endif %}
 {{ rule.long_description }}
-{% if rule.has_dialects %}**Dialects where this rule is skipped:** {% for dialect in rule.dialects %}`{{ dialect }}`{% if not loop.last %}, {%endif %}{% endfor %}
+{% if rule.has_config_options %}
+**Configuration:**
+
+| Option | Accepted value | Description | Default |
+|--------|----------------|-------------|---------|
+{%- for option in rule.config_options %}
+| `{{ option.name }}` | {{ option.value }} | {{ option.description }} | `{{ option.default }}` |
+{%- endfor %}
+
+```ini
+[sqruff:rules:{{ rule.name }}]
+{%- for option in rule.config_options %}
+{{ option.name }} = {{ option.default }}
+{%- endfor %}
+```
+{% endif %}{% if rule.has_dialects %}**Dialects where this rule is skipped:** {% for dialect in rule.dialects %}`{{ dialect }}`{% if not loop.last %}, {%endif %}{% endfor %}
 {% endif %}{% endfor %}

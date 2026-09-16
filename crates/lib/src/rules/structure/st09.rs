@@ -29,30 +29,41 @@ fn normalize_identifier(raw: &str) -> SmolStr {
     }
 }
 
+sqruff_lib_core::config_enum!(
+    /// Which of the two tables in a join condition should be listed first.
+    PreferredFirstTableInJoinClause {
+        /// The table that was referenced earlier in the statement.
+        Earlier = "earlier",
+        /// The table that was referenced later in the statement.
+        Later = "later",
+    }
+);
+
+sqruff_lib_core::typed_config!(
+    /// The configuration accepted by [`RuleST09`].
+    RuleST09Config, context = "Rule ST09", {
+        /// Which table a join condition should reference first.
+        preferred_first_table_in_join_clause: PreferredFirstTableInJoinClause
+            = PreferredFirstTableInJoinClause::Earlier,
+            "Whether a join condition should list the table referenced earlier or later first.",
+    }
+);
+
 #[derive(Default, Debug, Clone)]
 pub struct RuleST09 {
-    preferred_first_table_in_join_clause: String,
+    config: RuleST09Config,
 }
 
 impl Rule for RuleST09 {
     fn load_from_config(&self, config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
-        match config["preferred_first_table_in_join_clause"].as_string() {
-            Some("earlier" | "later") => Ok(RuleST09 {
-                preferred_first_table_in_join_clause:
-                    config["preferred_first_table_in_join_clause"]
-                        .as_string()
-                        .unwrap()
-                        .to_owned(),
-            }
-            .erased()),
-            Some(value) => Err(format!(
-                "Invalid value for preferred_first_table_in_join_clause: {value}. Must be one of \
-                 [earlier, later]"
-            )),
-            None => {
-                Err("Rule ST09 expects a string for `preferred_first_table_in_join_clause`".into())
-            }
+        Ok(RuleST09 {
+            config: RuleST09Config::from_config(config)?,
         }
+        .erased())
+    }
+
+    fn config_options(&self) -> Vec<sqruff_lib_core::config::ConfigOption> {
+        RuleST09Config::config_options()
     }
 
     fn name(&self) -> &'static str {
@@ -260,7 +271,8 @@ left join bar
                     .iter()
                     .position(|x| x == &second_table)
                     .unwrap()
-                && self.preferred_first_table_in_join_clause == "earlier")
+                && self.config.preferred_first_table_in_join_clause
+                    == PreferredFirstTableInJoinClause::Earlier)
                 || (table_aliases
                     .iter()
                     .position(|x| x == &first_table)
@@ -269,7 +281,8 @@ left join bar
                         .iter()
                         .position(|x| x == &second_table)
                         .unwrap()
-                    && self.preferred_first_table_in_join_clause == "later")
+                    && self.config.preferred_first_table_in_join_clause
+                        == PreferredFirstTableInJoinClause::Later)
             {
                 fixes.push(LintFix::replace(
                     first_column_reference.clone(),
@@ -317,7 +330,7 @@ left join bar
             fixes,
             format!(
                 "Joins should list the table referenced {} first.",
-                self.preferred_first_table_in_join_clause
+                self.config.preferred_first_table_in_join_clause
             )
             .into(),
             None,
@@ -393,13 +406,11 @@ mod tests {
 
     #[test]
     fn st09_description_matches_python() {
-        let rule = RuleST09 {
-            preferred_first_table_in_join_clause: "earlier".into(),
-        };
+        let rule = RuleST09::default();
 
         let result = format!(
             "Joins should list the table referenced {} first.",
-            rule.preferred_first_table_in_join_clause
+            rule.config.preferred_first_table_in_join_clause
         );
         assert_eq!(
             result,
@@ -430,5 +441,28 @@ mod tests {
         )]);
 
         assert!(RuleST09::default().load_from_config(&config).is_ok());
+    }
+
+    #[test]
+    fn st09_load_from_config_uses_default_for_a_missing_value() {
+        assert!(
+            RuleST09::default()
+                .load_from_config(&HashMap::new())
+                .is_ok()
+        );
+    }
+
+    #[test]
+    fn st09_reports_its_config_options() {
+        assert_eq!(
+            RuleST09::default().config_options(),
+            vec![sqruff_lib_core::config::ConfigOption {
+                name: "preferred_first_table_in_join_clause",
+                description: "Whether a join condition should list the table referenced earlier or later \
+                     first.",
+                default: "earlier".into(),
+                kind: sqruff_lib_core::config::ConfigKind::Enum(&["earlier", "later"]),
+            }]
+        );
     }
 }

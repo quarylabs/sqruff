@@ -3000,15 +3000,19 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("CASE").to_matchable(),
                         MetaSegment::implicit_indent().to_matchable(),
-                        AnyNumberOf::new(vec![Ref::new("WhenClauseSegment").to_matchable()])
-                            .config(|config| {
-                                config.reset_terminators = true;
-                                config.terminators = vec![
-                                    Ref::keyword("ELSE").to_matchable(),
-                                    Ref::keyword("END").to_matchable(),
-                                ];
-                            })
-                            .to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Ref::new("WhenClauseSegment")
+                                .terminators(vec![Ref::keyword("WHEN").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .config(|config| {
+                            config.reset_terminators = true;
+                            config.terminators = vec![
+                                Ref::keyword("ELSE").to_matchable(),
+                                Ref::keyword("END").to_matchable(),
+                            ];
+                        })
+                        .to_matchable(),
                         Ref::new("ElseClauseSegment")
                             .optional()
                             .reset_terminators()
@@ -3021,15 +3025,19 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("CASE").to_matchable(),
                         MetaSegment::implicit_indent().to_matchable(),
-                        AnyNumberOf::new(vec![Ref::new("WhenClauseSegment").to_matchable()])
-                            .config(|config| {
-                                config.reset_terminators = true;
-                                config.terminators = vec![
-                                    Ref::keyword("ELSE").to_matchable(),
-                                    Ref::keyword("END").to_matchable(),
-                                ];
-                            })
-                            .to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Ref::new("WhenClauseSegment")
+                                .terminators(vec![Ref::keyword("WHEN").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .config(|config| {
+                            config.reset_terminators = true;
+                            config.terminators = vec![
+                                Ref::keyword("ELSE").to_matchable(),
+                                Ref::keyword("END").to_matchable(),
+                            ];
+                        })
+                        .to_matchable(),
                         Ref::new("ElseClauseSegment")
                             .optional()
                             .reset_terminators()
@@ -3052,15 +3060,19 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         MetaSegment::implicit_indent().to_matchable(),
-                        AnyNumberOf::new(vec![Ref::new("WhenClauseSegment").to_matchable()])
-                            .config(|config| {
-                                config.reset_terminators = true;
-                                config.terminators = vec![
-                                    Ref::keyword("ELSE").to_matchable(),
-                                    Ref::keyword("END").to_matchable(),
-                                ];
-                            })
-                            .to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Ref::new("WhenClauseSegment")
+                                .terminators(vec![Ref::keyword("WHEN").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .config(|config| {
+                            config.reset_terminators = true;
+                            config.terminators = vec![
+                                Ref::keyword("ELSE").to_matchable(),
+                                Ref::keyword("END").to_matchable(),
+                            ];
+                        })
+                        .to_matchable(),
                         Ref::new("ElseClauseSegment")
                             .optional()
                             .reset_terminators()

@@ -97,38 +97,26 @@ LIMIT 5
             self.maximum_empty_lines_between_statements
         };
 
-        let Some(parent) = context.parent_stack.last() else {
+        if context.raw_stack.len() < maximum_empty_lines {
             return Vec::new();
-        };
+        }
 
-        let siblings = parent.segments();
-        let Some(current_idx) = siblings.iter().position(|s| s == &context.segment) else {
-            return Vec::new();
-        };
-
-        // Count consecutive newlines including this one
-        let mut consecutive_newlines = 1;
-
-        // Count backwards from current position
-        for i in (0..current_idx).rev() {
-            if siblings[i].is_type(SyntaxKind::Newline) {
-                consecutive_newlines += 1;
-            } else {
-                break;
+        let start = context
+            .raw_stack
+            .len()
+            .saturating_sub(maximum_empty_lines + 1);
+        for raw_segment in &context.raw_stack[start..] {
+            if raw_segment.is_templated() || !raw_segment.is_type(SyntaxKind::Newline) {
+                return Vec::new();
             }
         }
 
-        // Too many consecutive newlines means too many empty lines
-        if consecutive_newlines > maximum_empty_lines + 1 {
-            return vec![LintResult::new(
-                context.segment.clone().into(),
-                vec![LintFix::delete(context.segment.clone())],
-                None,
-                None,
-            )];
-        }
-
-        Vec::new()
+        vec![LintResult::new(
+            context.segment.clone().into(),
+            vec![LintFix::delete(context.segment.clone())],
+            None,
+            None,
+        )]
     }
 
     fn is_fix_compatible(&self) -> bool {
@@ -136,6 +124,8 @@ LIMIT 5
     }
 
     fn crawl_behaviour(&self) -> Crawler {
-        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::Newline]) }).into()
+        SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::Newline]) })
+            .provide_raw_stack()
+            .into()
     }
 }

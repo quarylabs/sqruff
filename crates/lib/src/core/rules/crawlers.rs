@@ -79,6 +79,9 @@ impl BaseCrawler for SegmentSeekerCrawler {
         }
 
         if context.segment.segments().is_empty() || (self_match && !self.allow_recurse) {
+            if self.provide_raw_stack {
+                context.raw_stack.extend(context.segment.get_raw_segments());
+            }
             return;
         }
 
@@ -92,14 +95,16 @@ impl BaseCrawler for SegmentSeekerCrawler {
         }
 
         let segment = context.segment.clone();
+        let segment_idx = context.segment_idx;
         context.parent_stack.push(segment.clone());
         for (idx, child) in segment.segments().iter().enumerate() {
             context.segment = child.clone();
             context.segment_idx = idx;
-            let checkpoint = context.checkpoint();
             self.crawl(context, f);
-            context.restore(checkpoint);
         }
+        context.parent_stack.pop();
+        context.segment = segment;
+        context.segment_idx = segment_idx;
     }
 }
 

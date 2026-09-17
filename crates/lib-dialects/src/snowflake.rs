@@ -1663,6 +1663,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "SelectClauseTerminatorGrammar".into(),
             one_of(vec![
+                Ref::keyword("INTO").to_matchable(),
                 Ref::keyword("FROM").to_matchable(),
                 Ref::keyword("WHERE").to_matchable(),
                 Sequence::new(vec![
@@ -2895,16 +2896,27 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     snowflake_dialect.replace_grammar(
         "SelectStatementSegment",
-        ansi::select_statement().copy(
-            Some(vec![
-                Ref::new("QualifyClauseSegment").optional().to_matchable(),
-            ]),
-            None,
-            Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
-            None,
-            Vec::new(),
-            false,
-        ),
+        ansi::select_statement()
+            .copy(
+                Some(vec![
+                    Ref::new("QualifyClauseSegment").optional().to_matchable(),
+                ]),
+                None,
+                Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            )
+            .copy(
+                Some(vec![
+                    Ref::new("IntoClauseSegment").optional().to_matchable(),
+                ]),
+                None,
+                Some(Ref::new("FromClauseSegment").optional().to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            ),
     );
 
     snowflake_dialect.replace_grammar(
@@ -4144,17 +4156,41 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     snowflake_dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
-        ansi::get_unordered_select_statement_segment_grammar().copy(
-            Some(vec![
-                Ref::new("QualifyClauseSegment").optional().to_matchable(),
-            ]),
-            None,
-            Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
-            None,
-            Vec::new(),
-            false,
-        ),
+        ansi::get_unordered_select_statement_segment_grammar()
+            .copy(
+                Some(vec![
+                    Ref::new("QualifyClauseSegment").optional().to_matchable(),
+                ]),
+                None,
+                Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            )
+            .copy(
+                Some(vec![
+                    Ref::new("IntoClauseSegment").optional().to_matchable(),
+                ]),
+                None,
+                Some(Ref::new("FromClauseSegment").optional().to_matchable()),
+                None,
+                Vec::new(),
+                false,
+            ),
     );
+
+    snowflake_dialect.add([(
+        "IntoClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::IntoClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("INTO").to_matchable(),
+                Delimited::new(vec![Ref::new("BindVariableSegment").to_matchable()]).to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     snowflake_dialect.add([
         (
@@ -5223,7 +5259,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "BindVariableSegment".into(),
             NodeMatcher::new(SyntaxKind::BindVariable, |_| {
                 Sequence::new(vec![
-                    Ref::new("ColonSegment").to_matchable(),
+                    Ref::new("ColonPrefixSegment").to_matchable(),
                     Ref::new("LocalVariableNameSegment").to_matchable(),
                 ])
                 .config(|this| this.disallow_gaps())
@@ -10699,7 +10735,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("ReferencedVariableNameSegment").to_matchable(),
                         Ref::new("StorageLocation").to_matchable(),
                         Sequence::new(vec![
-                            Ref::new("ColonSegment").to_matchable(),
+                            Ref::new("ColonPrefixSegment").to_matchable(),
                             Ref::new("LocalVariableNameSegment").to_matchable(),
                         ])
                         .to_matchable(),

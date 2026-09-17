@@ -2425,6 +2425,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("PROCEDURE").to_matchable(),
                     Ref::new("FunctionNameSegment").to_matchable(),
                     Ref::new("ProcedureParameterListSegment").to_matchable(),
+                    Ref::keyword("NONATOMIC").optional().to_matchable(),
                     Ref::new("FunctionDefinitionGrammar").to_matchable(),
                 ])
                 .to_matchable()

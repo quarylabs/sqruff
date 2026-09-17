@@ -995,6 +995,15 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec![
                 Ref::new("ExpressionSegment").to_matchable(),
                 Ref::new("NamedArgumentSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("VARIADIC").to_matchable(),
+                    one_of(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Ref::new("NamedArgumentSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -9139,6 +9148,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec![
                     Ref::new("RightArrowSegment").to_matchable(),
                     Ref::new("WalrusOperatorSegment").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
                 ])
                 .to_matchable(),
                 Ref::new("ExpressionSegment").to_matchable(),
@@ -9175,11 +9185,6 @@ pub fn raw_dialect() -> Dialect {
         .copy(
             Some(vec![
                 position_function_contents(true),
-                Sequence::new(vec![
-                    Ref::keyword("VARIADIC").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
-                ])
-                .to_matchable(),
                 Delimited::new(vec![
                     Sequence::new(vec![
                         Ref::new("ExpressionSegment").to_matchable(),

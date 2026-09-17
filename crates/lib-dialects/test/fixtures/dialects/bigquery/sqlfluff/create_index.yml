@@ -70,6 +70,14 @@ file:
       - index_column_definition:
         - naked_identifier: example_column
       - end_bracket: )
+    - storing_segment:
+      - keyword: STORING
+      - bracketed:
+        - start_bracket: (
+        - naked_identifier: stored_column1
+        - comma: ','
+        - naked_identifier: stored_column2
+        - end_bracket: )
     - options_segment:
       - keyword: OPTIONS
       - bracketed:

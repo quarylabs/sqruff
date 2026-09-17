@@ -10,7 +10,9 @@ use sqruff_lib_core::dialects::init::{DialectConfig, DialectKind};
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
-use sqruff_lib_core::parser::grammar::anyof::{one_of, optionally_bracketed};
+use sqruff_lib_core::parser::grammar::anyof::{
+    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
+};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
@@ -154,6 +156,160 @@ pub fn raw_dialect() -> Dialect {
     mariadb.replace_grammar(
         "CreateUserStatementSegment",
         mysql::create_user_grammar(true),
+    );
+
+    // MariaDB CREATE INDEX supports OR REPLACE, IF NOT EXISTS, RTREE,
+    // MariaDB-specific index options, WAIT/NOWAIT, ALGORITHM, and LOCK.
+    // https://mariadb.com/kb/en/create-index/
+    mariadb.add([
+        (
+            "IndexTypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::IndexType, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("USING").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("BTREE").to_matchable(),
+                        Ref::keyword("HASH").to_matchable(),
+                        Ref::keyword("RTREE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "IndexOptionSegment".into(),
+            NodeMatcher::new(SyntaxKind::IndexOption, |_| {
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("KEY_BLOCK_SIZE").to_matchable(),
+                        Ref::new("EqualsSegment").optional().to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("IndexTypeSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("PARSER").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COMMENT").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CLUSTERING").to_matchable(),
+                        Ref::new("EqualsSegment").optional().to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("YES").to_matchable(),
+                            Ref::keyword("NO").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("IGNORED").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NOT").to_matchable(),
+                            Ref::keyword("IGNORED").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlgorithmOptionSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlgorithmOption, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALGORITHM").to_matchable(),
+                    Ref::new("EqualsSegment").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::keyword("INPLACE").to_matchable(),
+                        Ref::keyword("COPY").to_matchable(),
+                        Ref::keyword("NOCOPY").to_matchable(),
+                        Ref::keyword("INSTANT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LockOptionSegment".into(),
+            NodeMatcher::new(SyntaxKind::LockOption, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("LOCK").to_matchable(),
+                    Ref::new("EqualsSegment").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::keyword("NONE").to_matchable(),
+                        Ref::keyword("SHARED").to_matchable(),
+                        Ref::keyword("EXCLUSIVE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "WaitOptionSegment".into(),
+            NodeMatcher::new(SyntaxKind::WaitOption, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("WAIT").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("NOWAIT").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+    mariadb.replace_grammar(
+        "CreateIndexStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            one_of(vec![
+                Ref::keyword("UNIQUE").to_matchable(),
+                Ref::keyword("FULLTEXT").to_matchable(),
+                Ref::keyword("SPATIAL").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::keyword("INDEX").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("IndexReferenceSegment").to_matchable(),
+            Ref::new("IndexTypeSegment").optional().to_matchable(),
+            Ref::keyword("ON").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Ref::new("BracketedKeyPartListGrammar").to_matchable(),
+            Ref::new("WaitOptionSegment").optional().to_matchable(),
+            Ref::new("IndexOptionSegment").optional().to_matchable(),
+            any_set_of(vec![
+                Ref::new("AlgorithmOptionSegment").to_matchable(),
+                Ref::new("LockOptionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
     );
 
     // `CREATE [OR REPLACE] [TEMPORARY] TABLE`, additionally allowing the

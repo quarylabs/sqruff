@@ -68,8 +68,9 @@ file:
     - keyword: INDEX
     - database_reference:
       - naked_identifier: idx
-    - keyword: USING
-    - keyword: BTREE
+    - index_type:
+      - keyword: USING
+      - keyword: BTREE
     - keyword: ON
     - table_reference:
       - naked_identifier: tbl
@@ -85,8 +86,9 @@ file:
     - keyword: INDEX
     - database_reference:
       - naked_identifier: idx
-    - keyword: USING
-    - keyword: HASH
+    - index_type:
+      - keyword: USING
+      - keyword: HASH
     - keyword: ON
     - table_reference:
       - naked_identifier: tbl
@@ -161,8 +163,9 @@ file:
       - column_reference:
         - naked_identifier: col
       - end_bracket: )
-    - keyword: ALGORITHM
-    - keyword: DEFAULT
+    - algorithm_option:
+      - keyword: ALGORITHM
+      - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
   - create_index_statement:
@@ -178,8 +181,9 @@ file:
       - column_reference:
         - naked_identifier: col
       - end_bracket: )
-    - keyword: ALGORITHM
-    - keyword: NOCOPY
+    - algorithm_option:
+      - keyword: ALGORITHM
+      - keyword: NOCOPY
 - statement_terminator: ;
 - statement:
   - create_index_statement:
@@ -195,8 +199,9 @@ file:
       - column_reference:
         - naked_identifier: col
       - end_bracket: )
-    - keyword: ALGORITHM
-    - keyword: INSTANT
+    - algorithm_option:
+      - keyword: ALGORITHM
+      - keyword: INSTANT
 - statement_terminator: ;
 - statement:
   - create_index_statement:
@@ -212,8 +217,9 @@ file:
       - column_reference:
         - naked_identifier: col
       - end_bracket: )
-    - keyword: LOCK
-    - keyword: DEFAULT
+    - lock_option:
+      - keyword: LOCK
+      - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
   - create_index_statement:
@@ -248,5 +254,23 @@ file:
       - comma: ','
       - column_reference:
         - naked_identifier: col1
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+      - naked_identifier: index_name
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: field_name
       - end_bracket: )
 - statement_terminator: ;

@@ -1202,12 +1202,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("LocationGrammar").to_matchable(),
                     Ref::new("CommentGrammar").to_matchable(),
                     Ref::new("TablePropertiesGrammar").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("CLUSTER").to_matchable(),
-                        Ref::keyword("BY").to_matchable(),
-                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("TableClusterByClauseSegment").to_matchable(),
                 ])
                 .config(|config| {
                     config.optional();
@@ -1871,6 +1866,26 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                 ])
                 .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    sparksql_dialect.add([(
+        "TableClusterByClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::TableClusterByClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CLUSTER").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                one_of(vec![
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    Ref::keyword("NONE").to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
             ])
             .to_matchable()
         })

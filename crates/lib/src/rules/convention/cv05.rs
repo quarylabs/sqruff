@@ -121,6 +121,20 @@ WHERE a IS NULL
         let segment = context.parent_stack.last().unwrap().segments().to_vec();
 
         let siblings = Segments::from_vec(segment, None);
+        let before_op_list = siblings.before(&context.segment);
+        let prev_code = before_op_list.find_last_where(|sp: &ErasedSegment| sp.is_code());
+
+        // In a T-SQL SELECT clause, `@variable = NULL` assigns rather than compares.
+        if prev_code.first().is_some_and(|segment| {
+            segment.is_type(SyntaxKind::ParameterizedExpression) && segment.raw().starts_with('@')
+        }) && context
+            .parent_stack
+            .iter()
+            .any(|segment| segment.is_type(SyntaxKind::SelectClauseElement))
+        {
+            return Vec::new();
+        }
+
         let after_op_list = siblings.after(&context.segment);
 
         let next_code = after_op_list.find_first_where(|sp: &ErasedSegment| sp.is_code());

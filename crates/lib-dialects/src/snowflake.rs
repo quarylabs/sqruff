@@ -2265,6 +2265,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("DropDynamicTableSegment").to_matchable(),
                 Ref::new("DropIcebergTableStatementSegment").to_matchable(),
                 Ref::new("CreateAuthenticationPolicySegment").to_matchable(),
+                Ref::new("ScriptingIfStatementSegment").to_matchable(),
                 Ref::new("ScriptingRaiseStatementSegment").to_matchable(),
                 Ref::new("ForInLoopSegment").to_matchable(),
                 Ref::new("CreateEventTableStatementSegment").to_matchable(),
@@ -5363,6 +5364,117 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("ScriptingBlockStatementSegment")
                         .optional()
                         .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ScriptingIfStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ScriptingIfStatement, |_| {
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("IF").to_matchable(),
+                        Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                            .to_matchable(),
+                        Ref::keyword("THEN").to_matchable(),
+                        MetaSegment::indent().to_matchable(),
+                        Ref::new("StatementSegment").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("DelimiterGrammar").to_matchable(),
+                                Ref::new("StatementSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| {
+                            this.terminators = vec![
+                                Ref::keyword("ELSEIF").to_matchable(),
+                                Ref::keyword("ELSE").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("END").to_matchable(),
+                                    Ref::keyword("IF").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ];
+                        })
+                        .to_matchable(),
+                        Ref::new("DelimiterGrammar").to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ELSEIF").to_matchable(),
+                            Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                                .to_matchable(),
+                            Ref::keyword("THEN").to_matchable(),
+                            MetaSegment::indent().to_matchable(),
+                            Ref::new("StatementSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("DelimiterGrammar").to_matchable(),
+                                    Ref::new("StatementSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| {
+                                this.terminators = vec![
+                                    Ref::keyword("ELSEIF").to_matchable(),
+                                    Ref::keyword("ELSE").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("END").to_matchable(),
+                                        Ref::keyword("IF").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ];
+                            })
+                            .to_matchable(),
+                            Ref::new("DelimiterGrammar").to_matchable(),
+                            MetaSegment::dedent().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.terminators = vec![
+                            Ref::keyword("ELSE").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("END").to_matchable(),
+                                Ref::keyword("IF").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ];
+                    })
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ELSE").to_matchable(),
+                        MetaSegment::indent().to_matchable(),
+                        Ref::new("StatementSegment").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("DelimiterGrammar").to_matchable(),
+                                Ref::new("StatementSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| {
+                            this.terminators = vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("END").to_matchable(),
+                                    Ref::keyword("IF").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ];
+                        })
+                        .to_matchable(),
+                        Ref::new("DelimiterGrammar").to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("END").to_matchable(),
+                    Ref::keyword("IF").to_matchable(),
                 ])
                 .to_matchable()
             })

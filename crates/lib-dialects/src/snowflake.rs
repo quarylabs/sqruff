@@ -596,6 +596,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "4X-LARGE", "5X-LARGE", "6X-LARGE",
     ]);
 
+    snowflake_dialect.sets_mut("resource_constraints").clear();
+    snowflake_dialect.sets_mut("resource_constraints").extend([
+        "STANDARD_GEN_1",
+        "STANDARD_GEN_2",
+        "MEMORY_1X",
+        "MEMORY_1X_x86",
+        "MEMORY_16X",
+        "MEMORY_16X_x86",
+        "MEMORY_64X",
+        "MEMORY_64X_x86",
+        "MEMORY_256X",
+        "MEMORY_256X_x86",
+    ]);
+
     snowflake_dialect
         .sets_mut("warehouse_scaling_policies")
         .clear();
@@ -860,6 +874,32 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .map(|it| format!("'{it}'"))
                         .collect_vec(),
                     SyntaxKind::WarehouseSize,
+                )
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ResourceConstraint".into(),
+            one_of(vec![
+                MultiStringParser::new(
+                    snowflake_dialect
+                        .sets("resource_constraints")
+                        .into_iter()
+                        .filter(|it| !it.contains('-'))
+                        .map_into()
+                        .collect_vec(),
+                    SyntaxKind::ResourceConstraint,
+                )
+                .to_matchable(),
+                MultiStringParser::new(
+                    snowflake_dialect
+                        .sets("resource_constraints")
+                        .into_iter()
+                        .map(|it| format!("'{it}'"))
+                        .collect_vec(),
+                    SyntaxKind::ResourceConstraint,
                 )
                 .to_matchable(),
             ])
@@ -5956,6 +5996,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("WAREHOUSE_SIZE").to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),
                         Ref::new("WarehouseSize").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("RESOURCE_CONSTRAINT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("ResourceConstraint").to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![

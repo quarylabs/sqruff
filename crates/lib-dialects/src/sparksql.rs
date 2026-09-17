@@ -2209,6 +2209,14 @@ pub fn raw_dialect() -> Dialect {
             })
             .to_matchable(),
             Ref::new("OptionsGrammar").optional().to_matchable(),
+            one_of(vec![
+                Ref::new("PartitionSpecGrammar").to_matchable(),
+                Ref::new("TableClusterByClauseSegment").to_matchable(),
+            ])
+            .config(|config| {
+                config.optional();
+            })
+            .to_matchable(),
             Ref::new("CommentGrammar").optional().to_matchable(),
             Ref::new("TablePropertiesGrammar").optional().to_matchable(),
             Ref::new("CreateViewClausesGrammar")

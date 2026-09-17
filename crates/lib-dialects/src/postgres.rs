@@ -8391,10 +8391,8 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             one_of(vec![
                                 _table_definition.clone().to_matchable(),
-                                Bracketed::new(vec![
-                                    Ref::new("UnorderedSelectStatementSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
+                                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+                                    .to_matchable(),
                             ])
                             .to_matchable(),
                             Ref::keyword("TO").to_matchable(),
@@ -8409,10 +8407,8 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             one_of(vec![
                                 _table_definition.to_matchable(),
-                                Bracketed::new(vec![
-                                    Ref::new("UnorderedSelectStatementSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
+                                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+                                    .to_matchable(),
                             ])
                             .to_matchable(),
                             Ref::keyword("TO").to_matchable(),

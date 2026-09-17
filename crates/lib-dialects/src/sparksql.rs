@@ -1045,6 +1045,25 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "CreateViewClausesGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("SCHEMA").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("BINDING").to_matchable(),
+                    Ref::keyword("COMPENSATION").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TYPE").optional().to_matchable(),
+                        Ref::keyword("EVOLUTION").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "RawQuotedLiteralSegment".into(),
             one_of(vec![
                 TypedParser::new(SyntaxKind::RawSingleQuote, SyntaxKind::RawQuotedLiteral)
@@ -2192,6 +2211,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("OptionsGrammar").optional().to_matchable(),
             Ref::new("CommentGrammar").optional().to_matchable(),
             Ref::new("TablePropertiesGrammar").optional().to_matchable(),
+            Ref::new("CreateViewClausesGrammar")
+                .optional()
+                .to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("AS").to_matchable(),
                 optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])

@@ -177,3 +177,22 @@ file:
             - end_bracket: )
         - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - oracle_create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: t3
+      - bracketed:
+        - start_bracket: (
+        - oracle_column_definition:
+          - naked_identifier: id
+          - data_type:
+            - data_type_identifier: NUMBER
+          - column_constraint_segment:
+            - keyword: DEFAULT
+            - naked_identifier: some_seq
+            - dot: .
+            - keyword: NEXTVAL
+        - end_bracket: )
+  - statement_terminator: ;

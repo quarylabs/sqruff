@@ -3427,8 +3427,10 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("BULK").to_matchable(),
                     Ref::keyword("COLLECT").to_matchable(),
                     Ref::keyword("INTO").to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
                     Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
                         .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
             })

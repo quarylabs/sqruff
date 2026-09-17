@@ -1326,7 +1326,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::TableClausesSegment, |_| {
                 one_of(vec![
                     Ref::new("PartitionClauseSegment").to_matchable(),
-                    Ref::new("ClusterByClauseSegment").to_matchable(),
+                    Ref::new("TableClusterByClauseSegment").to_matchable(),
                     Ref::new("LocationWithCredentialGrammar").to_matchable(),
                     Ref::new("OptionsGrammar").to_matchable(),
                     Ref::new("CommentGrammar").to_matchable(),
@@ -1517,6 +1517,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable(),
             ])
             .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    databricks.replace_grammar(
+        "TableClusterByClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("CLUSTER").to_matchable(),
+            Ref::keyword("BY").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            one_of(vec![
+                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                Ref::keyword("AUTO").to_matchable(),
+                Ref::keyword("NONE").to_matchable(),
+            ])
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
         ])
         .to_matchable(),
     );
@@ -1903,7 +1920,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("UnsetTagsGrammar").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::new("ClusterByClauseSegment").to_matchable(),
+                Ref::new("TableClusterByClauseSegment").to_matchable(),
                 Ref::new("PredictiveOptimizationGrammar").to_matchable(),
             ])
             .to_matchable(),

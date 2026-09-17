@@ -1,197 +1,198 @@
 file:
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: select
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: pvt
-          - dot: .
-          - naked_identifier: cl1
-      - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: pvt
-          - dot: .
-          - naked_identifier: cl2
-      - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: pvt
-          - dot: .
-          - naked_identifier: cl3
-      - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '[1]'
-        - alias_expression:
-          - alias_operator:
-            - keyword: as
-          - naked_identifier: lvl_1
-      - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '[2]'
-        - alias_expression:
-          - alias_operator:
-            - keyword: as
-          - naked_identifier: lvl_2
-      - comma: ','
-      - select_clause_element:
-        - column_reference:
-          - quoted_identifier: '[3]'
-        - alias_expression:
-          - alias_operator:
-            - keyword: as
-          - naked_identifier: lvl_3
-    - from_clause:
-      - keyword: from
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: levels
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: pvt
+            - dot: .
+            - naked_identifier: cl1
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: pvt
+            - dot: .
+            - naked_identifier: cl2
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: pvt
+            - dot: .
+            - naked_identifier: cl3
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - quoted_identifier: '[1]'
           - alias_expression:
             - alias_operator:
               - keyword: as
-            - naked_identifier: lvl
-        - from_pivot_expression:
-          - keyword: pivot
-          - bracketed:
-            - start_bracket: (
-            - function:
-              - function_name:
-                - function_name_identifier: max
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: value
-                  - end_bracket: )
-            - keyword: for
-            - column_reference:
-              - naked_identifier: rn
-            - keyword: in
-            - bracketed:
-              - start_bracket: (
-              - pivot_column_reference:
-                - quoted_identifier: '[1]'
-              - comma: ','
-              - pivot_column_reference:
-                - quoted_identifier: '[2]'
-              - comma: ','
-              - pivot_column_reference:
-                - quoted_identifier: '[3]'
-              - end_bracket: )
-            - end_bracket: )
-          - keyword: as
-          - table_reference:
-            - object_reference:
-              - naked_identifier: pvt
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: pvt
-          - dot: .
-          - naked_identifier: cl1
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: levels
+            - naked_identifier: lvl_1
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - quoted_identifier: '[2]'
           - alias_expression:
             - alias_operator:
-              - keyword: AS
-            - naked_identifier: lvl
-        - from_pivot_expression:
-          - keyword: PIVOT
-          - bracketed:
-            - start_bracket: (
-            - function:
-              - function_name:
-                - function_name_identifier: MAX
-              - function_contents:
-                - bracketed:
-                  - start_bracket: (
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: value
-                  - end_bracket: )
-            - keyword: FOR
-            - column_reference:
-              - naked_identifier: rn
-            - keyword: IN
-            - bracketed:
-              - start_bracket: (
-              - pivot_column_reference:
-                - quoted_identifier: '[1]'
-              - comma: ','
-              - pivot_column_reference:
-                - quoted_identifier: '[2]'
-              - comma: ','
-              - pivot_column_reference:
-                - quoted_identifier: '[3]'
-              - end_bracket: )
-            - end_bracket: )
-          - keyword: AS
-          - table_reference:
-            - object_reference:
-              - quoted_identifier: '[pvt]'
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - column_reference:
-          - naked_identifier: unpvt
-          - dot: .
-          - naked_identifier: amount
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: monthly
+              - keyword: as
+            - naked_identifier: lvl_2
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - quoted_identifier: '[3]'
           - alias_expression:
             - alias_operator:
-              - keyword: AS
-            - naked_identifier: m
-        - from_pivot_expression:
-          - keyword: UNPIVOT
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: amount
-            - keyword: FOR
-            - column_reference:
-              - naked_identifier: month_name
-            - keyword: IN
+              - keyword: as
+            - naked_identifier: lvl_3
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: levels
+            - alias_expression:
+              - alias_operator:
+                - keyword: as
+              - naked_identifier: lvl
+          - from_pivot_expression:
+            - keyword: pivot
             - bracketed:
               - start_bracket: (
-              - pivot_column_reference:
-                - quoted_identifier: '[Jan]'
-              - comma: ','
-              - pivot_column_reference:
-                - quoted_identifier: '[Feb]'
-              - comma: ','
-              - pivot_column_reference:
-                - quoted_identifier: '[Mar]'
+              - function:
+                - function_name:
+                  - function_name_identifier: max
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: value
+                    - end_bracket: )
+              - keyword: for
+              - column_reference:
+                - naked_identifier: rn
+              - keyword: in
+              - bracketed:
+                - start_bracket: (
+                - pivot_column_reference:
+                  - quoted_identifier: '[1]'
+                - comma: ','
+                - pivot_column_reference:
+                  - quoted_identifier: '[2]'
+                - comma: ','
+                - pivot_column_reference:
+                  - quoted_identifier: '[3]'
+                - end_bracket: )
               - end_bracket: )
-            - end_bracket: )
-          - keyword: AS
-          - table_reference:
-            - object_reference:
-              - naked_identifier: unpvt
-- statement_terminator: ;
+            - keyword: as
+            - table_reference:
+              - object_reference:
+                - naked_identifier: pvt
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: pvt
+            - dot: .
+            - naked_identifier: cl1
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: levels
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - naked_identifier: lvl
+          - from_pivot_expression:
+            - keyword: PIVOT
+            - bracketed:
+              - start_bracket: (
+              - function:
+                - function_name:
+                  - function_name_identifier: MAX
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: value
+                    - end_bracket: )
+              - keyword: FOR
+              - column_reference:
+                - naked_identifier: rn
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - pivot_column_reference:
+                  - quoted_identifier: '[1]'
+                - comma: ','
+                - pivot_column_reference:
+                  - quoted_identifier: '[2]'
+                - comma: ','
+                - pivot_column_reference:
+                  - quoted_identifier: '[3]'
+                - end_bracket: )
+              - end_bracket: )
+            - keyword: AS
+            - table_reference:
+              - object_reference:
+                - quoted_identifier: '[pvt]'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: unpvt
+            - dot: .
+            - naked_identifier: amount
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: monthly
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - naked_identifier: m
+          - from_pivot_expression:
+            - keyword: UNPIVOT
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: amount
+              - keyword: FOR
+              - column_reference:
+                - naked_identifier: month_name
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - pivot_column_reference:
+                  - quoted_identifier: '[Jan]'
+                - comma: ','
+                - pivot_column_reference:
+                  - quoted_identifier: '[Feb]'
+                - comma: ','
+                - pivot_column_reference:
+                  - quoted_identifier: '[Mar]'
+                - end_bracket: )
+              - end_bracket: )
+            - keyword: AS
+            - table_reference:
+              - object_reference:
+                - naked_identifier: unpvt
+  - statement_terminator: ;

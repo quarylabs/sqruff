@@ -1,269 +1,270 @@
 file:
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: Employee
-          - temporal_query:
+- batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Employee
             - temporal_query:
-              - keyword: FOR
-              - keyword: SYSTEM_TIME
-              - keyword: BETWEEN
-              - quoted_literal: '''2021-01-01 00:00:00.0000000'''
-              - keyword: AND
-              - quoted_literal: '''2022-01-01 00:00:00.0000000'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: Employee
-          - temporal_query:
-            - temporal_query:
-              - keyword: FOR
-              - keyword: SYSTEM_TIME
-              - keyword: ALL
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: Employee
-          - temporal_query:
-            - temporal_query:
-              - keyword: FOR
-              - keyword: SYSTEM_TIME
-              - keyword: FROM
-              - quoted_literal: '''2021-01-01 00:00:00.0000000'''
-              - keyword: TO
-              - quoted_literal: '''2022-01-01 00:00:00.0000000'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: Employee
-          - temporal_query:
-            - temporal_query:
-              - keyword: FOR
-              - keyword: SYSTEM_TIME
-              - keyword: AS
-              - keyword: OF
-              - quoted_literal: '''2021-01-01 00:00:00.0000000'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: Employee
-          - temporal_query:
-            - temporal_query:
-              - keyword: FOR
-              - keyword: SYSTEM_TIME
-              - keyword: CONTAINED
-              - keyword: IN
-              - bracketed:
-                - start_bracket: (
+              - temporal_query:
+                - keyword: FOR
+                - keyword: SYSTEM_TIME
+                - keyword: BETWEEN
                 - quoted_literal: '''2021-01-01 00:00:00.0000000'''
-                - comma: ','
+                - keyword: AND
                 - quoted_literal: '''2022-01-01 00:00:00.0000000'''
-                - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - keyword: DECLARE
-  - tsql_variable: '@StartTime'
-  - data_type:
-    - data_type_identifier: DATETIME2
-  - assignment_operator:
-    - raw_comparison_operator: =
-  - expression:
-    - quoted_literal: '''2021-01-01 00:00:00'''
-- statement_terminator: ;
-- statement:
-  - keyword: DECLARE
-  - tsql_variable: '@EndTime'
-  - data_type:
-    - data_type_identifier: DATETIME2
-  - assignment_operator:
-    - raw_comparison_operator: =
-  - expression:
-    - quoted_literal: '''2022-01-01 00:00:00'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: Employee
-          - temporal_query:
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Employee
             - temporal_query:
-              - keyword: FOR
-              - keyword: SYSTEM_TIME
-              - keyword: FROM
-              - tsql_variable: '@StartTime'
-              - keyword: TO
-              - tsql_variable: '@EndTime'
-- statement_terminator: ;
-- statement:
-  - keyword: DECLARE
-  - tsql_variable: '@PointInTime'
-  - data_type:
-    - data_type_identifier: DATETIME2
-  - assignment_operator:
-    - raw_comparison_operator: =
-  - expression:
-    - quoted_literal: '''2021-01-01 00:00:00'''
-- statement_terminator: ;
-- statement:
-  - select_statement:
-    - select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-    - from_clause:
-      - keyword: FROM
-      - from_expression:
-        - from_expression_element:
-          - table_expression:
-            - table_reference:
-              - object_reference:
-                - naked_identifier: Employee
-          - temporal_query:
+              - temporal_query:
+                - keyword: FOR
+                - keyword: SYSTEM_TIME
+                - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Employee
             - temporal_query:
-              - keyword: FOR
-              - keyword: SYSTEM_TIME
-              - keyword: AS
-              - keyword: OF
-              - tsql_variable: '@PointInTime'
-- statement_terminator: ;
-- statement:
-  - create_table_statement:
+              - temporal_query:
+                - keyword: FOR
+                - keyword: SYSTEM_TIME
+                - keyword: FROM
+                - quoted_literal: '''2021-01-01 00:00:00.0000000'''
+                - keyword: TO
+                - quoted_literal: '''2022-01-01 00:00:00.0000000'''
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Employee
+            - temporal_query:
+              - temporal_query:
+                - keyword: FOR
+                - keyword: SYSTEM_TIME
+                - keyword: AS
+                - keyword: OF
+                - quoted_literal: '''2021-01-01 00:00:00.0000000'''
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Employee
+            - temporal_query:
+              - temporal_query:
+                - keyword: FOR
+                - keyword: SYSTEM_TIME
+                - keyword: CONTAINED
+                - keyword: IN
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_literal: '''2021-01-01 00:00:00.0000000'''
+                  - comma: ','
+                  - quoted_literal: '''2022-01-01 00:00:00.0000000'''
+                  - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@StartTime'
+    - data_type:
+      - data_type_identifier: DATETIME2
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''2021-01-01 00:00:00'''
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@EndTime'
+    - data_type:
+      - data_type_identifier: DATETIME2
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''2022-01-01 00:00:00'''
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Employee
+            - temporal_query:
+              - temporal_query:
+                - keyword: FOR
+                - keyword: SYSTEM_TIME
+                - keyword: FROM
+                - tsql_variable: '@StartTime'
+                - keyword: TO
+                - tsql_variable: '@EndTime'
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@PointInTime'
+    - data_type:
+      - data_type_identifier: DATETIME2
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: '''2021-01-01 00:00:00'''
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: Employee
+            - temporal_query:
+              - temporal_query:
+                - keyword: FOR
+                - keyword: SYSTEM_TIME
+                - keyword: AS
+                - keyword: OF
+                - tsql_variable: '@PointInTime'
+  - statement_terminator: ;
+  - statement:
     - create_table_statement:
-      - keyword: CREATE
-      - keyword: TABLE
-      - table_reference:
-        - object_reference:
-          - naked_identifier: Department
-      - bracketed:
-        - start_bracket: (
-        - column_definition:
-          - naked_identifier: DeptID
-          - data_type:
-            - data_type_identifier: INT
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-          - column_constraint_segment:
-            - keyword: PRIMARY
-            - keyword: KEY
-        - comma: ','
-        - column_definition:
-          - naked_identifier: DeptName
-          - data_type:
-            - data_type_identifier: VARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - numeric_literal: '50'
-                - end_bracket: )
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-          - naked_identifier: ValidFrom
-          - data_type:
-            - data_type_identifier: DATETIME2
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-        - comma: ','
-        - column_definition:
-          - naked_identifier: ValidTo
-          - data_type:
-            - data_type_identifier: DATETIME2
-          - column_constraint_segment:
-            - keyword: NOT
-            - keyword: 'NULL'
-        - comma: ','
-        - period_segment:
-          - keyword: PERIOD
-          - keyword: FOR
-          - keyword: SYSTEM_TIME
-          - bracketed:
-            - start_bracket: (
-            - column_reference:
-              - naked_identifier: ValidFrom
-            - comma: ','
-            - column_reference:
-              - naked_identifier: ValidTo
-            - end_bracket: )
-        - end_bracket: )
-- statement_terminator: ;
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Department
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: DeptID
+            - data_type:
+              - data_type_identifier: INT
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+            - column_constraint_segment:
+              - keyword: PRIMARY
+              - keyword: KEY
+          - comma: ','
+          - column_definition:
+            - naked_identifier: DeptName
+            - data_type:
+              - data_type_identifier: VARCHAR
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - integer_literal: '50'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+          - comma: ','
+          - column_definition:
+            - naked_identifier: ValidFrom
+            - data_type:
+              - data_type_identifier: DATETIME2
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+          - comma: ','
+          - column_definition:
+            - naked_identifier: ValidTo
+            - data_type:
+              - data_type_identifier: DATETIME2
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+          - comma: ','
+          - period_segment:
+            - keyword: PERIOD
+            - keyword: FOR
+            - keyword: SYSTEM_TIME
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: ValidFrom
+              - comma: ','
+              - column_reference:
+                - naked_identifier: ValidTo
+              - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;

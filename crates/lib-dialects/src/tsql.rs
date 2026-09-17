@@ -153,7 +153,7 @@ pub fn raw_dialect() -> Dialect {
     dialect.insert_lexer_matchers(
         vec![Matcher::regex(
             "hexadecimal_literal",
-            r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+            r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
             SyntaxKind::NumericLiteral,
         )],
         "numeric_literal",
@@ -759,7 +759,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "HexadecimalLiteralSegment".into(),
             RegexParser::new(
-                r"([xX]'([\da-fA-F][\da-fA-F])+'|0x[\da-fA-F]+)",
+                r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
                 SyntaxKind::NumericLiteral,
             )
             .to_matchable()

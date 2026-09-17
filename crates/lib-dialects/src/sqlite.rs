@@ -929,6 +929,7 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("UPDATE").to_matchable(),
                             Ref::keyword("SET").to_matchable(),
+                            MetaSegment::indent().to_matchable(),
                             Delimited::new(vec![
                                 Sequence::new(vec![
                                     one_of(vec![
@@ -943,6 +944,7 @@ pub fn raw_dialect() -> Dialect {
                                 .to_matchable(),
                             ])
                             .to_matchable(),
+                            MetaSegment::dedent().to_matchable(),
                             Sequence::new(vec![
                                 Ref::keyword("WHERE").to_matchable(),
                                 Ref::new("ExpressionSegment").to_matchable(),
@@ -1312,11 +1314,15 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("PRAGMA").to_matchable(),
                 Ref::new("PragmaReferenceSegment").to_matchable(),
-                Bracketed::new(vec![pragma_value.clone().to_matchable()])
-                    .config(|config| {
-                        config.optional();
-                    })
-                    .to_matchable(),
+                one_of(vec![
+                    Bracketed::new(vec![pragma_value.clone().to_matchable()]).to_matchable(),
+                    Bracketed::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
                 Sequence::new(vec![
                     Ref::new("EqualsSegment").to_matchable(),
                     optionally_bracketed(vec![pragma_value.to_matchable()]).to_matchable(),
@@ -1384,14 +1390,17 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("WHEN").to_matchable(),
+                MetaSegment::indent().to_matchable(),
                 optionally_bracketed(vec![Ref::new("ExpressionSegment").to_matchable()])
                     .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
             ])
             .config(|config| {
                 config.optional();
             })
             .to_matchable(),
             Ref::keyword("BEGIN").to_matchable(),
+            MetaSegment::indent().to_matchable(),
             Delimited::new(vec![
                 Ref::new("UpdateStatementSegment").to_matchable(),
                 Ref::new("InsertStatementSegment").to_matchable(),
@@ -1409,6 +1418,7 @@ pub fn raw_dialect() -> Dialect {
                 config.allow_trailing = true;
             })
             .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
             Ref::keyword("END").to_matchable(),
         ])
         .to_matchable(),

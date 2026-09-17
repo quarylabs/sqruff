@@ -2723,7 +2723,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    Ref::new("StoringSegment").optional().to_matchable(),
                     Ref::new("OptionsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "StoringSegment".into(),
+            NodeMatcher::new(SyntaxKind::StoringSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("STORING").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

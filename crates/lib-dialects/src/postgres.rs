@@ -40,10 +40,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     if dialect_config.pg_trgm {
         postgres.insert_lexer_matchers(
-            vec![Matcher::regex(
-                "trgm_operator",
-                r#"(<<<->|<->>>|<<->|<->>|<->|<<%|%>>|%>|<%|%)"#,
-                SyntaxKind::LikeOperator,
+            vec![Matcher::legacy(
+                "pg_trgm_operator",
+                |s| s.starts_with('<') || s.starts_with('%'),
+                r"<<<->|<->>>|<->>|<<->(?!>)|<<%|%>>|<%|%>",
+                SyntaxKind::PgTrgmOperator,
             )],
             "pgvector_operator",
         );
@@ -119,6 +120,7 @@ fn build_comparison_operator_grammar() -> Matchable {
         Ref::new("AdjacentSegment").to_matchable(),
         Ref::new("PostgisOperatorSegment").to_matchable(),
         Ref::new("PgvectorOperatorSegment").to_matchable(),
+        Ref::new("PgTrgmOperatorSegment").to_matchable(),
     ];
 
     one_of(operators).to_matchable()
@@ -635,6 +637,12 @@ pub fn raw_dialect() -> Dialect {
         (
             "PgvectorOperatorSegment".into(),
             TypedParser::new(SyntaxKind::PgvectorOperator, SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "PgTrgmOperatorSegment".into(),
+            TypedParser::new(SyntaxKind::PgTrgmOperator, SyntaxKind::BinaryOperator)
                 .to_matchable()
                 .into(),
         ),

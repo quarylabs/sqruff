@@ -1,35 +1,36 @@
 file:
-- statement:
-  - insert_statement:
-    - keyword: INSERT
-    - keyword: INTO
-    - table_reference:
-      - object_reference:
-        - naked_identifier: HumanResources
-        - dot: .
-        - naked_identifier: NewEmployee
-    - keyword: WITH
-    - bracketed:
-      - start_bracket: (
-      - keyword: TABLOCK
-      - end_bracket: )
-    - output_clause:
-      - keyword: OUTPUT
-      - wildcard_expression:
-        - wildcard_identifier:
-          - star: '*'
+- batch:
+  - statement:
+    - insert_statement:
+      - keyword: INSERT
       - keyword: INTO
       - table_reference:
         - object_reference:
-          - naked_identifier: Results
-    - execute_script_statement:
-      - keyword: EXEC
-      - object_reference:
-        - naked_identifier: FindEmployeesFunc
-      - tsql_variable: '@lastName'
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - expression:
-        - quoted_literal: '''Picard'''
-- statement:
-  - keyword: GO
+          - naked_identifier: HumanResources
+          - dot: .
+          - naked_identifier: NewEmployee
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: TABLOCK
+        - end_bracket: )
+      - output_clause:
+        - keyword: OUTPUT
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+        - keyword: INTO
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Results
+      - execute_script_statement:
+        - keyword: EXEC
+        - object_reference:
+          - naked_identifier: FindEmployeesFunc
+        - tsql_variable: '@lastName'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - expression:
+          - quoted_literal: '''Picard'''
+  - go_statement:
+    - keyword: GO

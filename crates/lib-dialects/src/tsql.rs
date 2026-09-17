@@ -42,6 +42,9 @@ pub fn raw_dialect() -> Dialect {
     // Start with ANSI SQL as the base dialect and customize for T-SQL
     let mut dialect = ansi::raw_dialect();
     dialect.name = DialectKind::Tsql;
+    // GO is a client-side batch delimiter and must not be parsed as an
+    // unqualified procedure name by ExecuteScriptSegment.
+    dialect.sets_mut("reserved_keywords").insert("GO");
     dialect.sets_mut("unreserved_keywords").extend([
         "ABORT_AFTER_WAIT",
         "BLOCKERS",
@@ -148,14 +151,21 @@ pub fn raw_dialect() -> Dialect {
         "!<", "!>", // Special comparison operators
     ]);
 
-    // T-SQL hexadecimal literals must be tokenized before ordinary numeric
-    // literals, which would otherwise consume only the leading zero in `0x...`.
+    // T-SQL hexadecimal and file-size literals must be tokenized before ordinary
+    // numeric literals, which would otherwise consume only their numeric prefix.
     dialect.insert_lexer_matchers(
-        vec![Matcher::regex(
-            "hexadecimal_literal",
-            r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
-            SyntaxKind::NumericLiteral,
-        )],
+        vec![
+            Matcher::regex(
+                "hexadecimal_literal",
+                r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
+                SyntaxKind::NumericLiteral,
+            ),
+            Matcher::regex(
+                "size_literal",
+                r"[0-9]+(?i:KB|MB|GB|TB)(?-u:\b)",
+                SyntaxKind::SizeLiteral,
+            ),
+        ],
         "numeric_literal",
     );
 
@@ -435,7 +445,26 @@ pub fn raw_dialect() -> Dialect {
         (
             "AssignmentOperatorSegment".into(),
             NodeMatcher::new(SyntaxKind::AssignmentOperator, |_| {
-                Ref::new("RawEqualsSegment").to_matchable()
+                one_of(vec![
+                    Ref::new("RawEqualsSegment").to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::new("PlusSegment").to_matchable(),
+                            Ref::new("MinusSegment").to_matchable(),
+                            Ref::new("DivideSegment").to_matchable(),
+                            Ref::new("MultiplySegment").to_matchable(),
+                            Ref::new("ModuloSegment").to_matchable(),
+                            Ref::new("BitwiseAndSegment").to_matchable(),
+                            Ref::new("BitwiseOrSegment").to_matchable(),
+                            Ref::new("BitwiseXorSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("RawEqualsSegment").to_matchable(),
+                    ])
+                    .config(|this| this.allow_gaps = false)
+                    .to_matchable(),
+                ])
+                .to_matchable()
             })
             .to_matchable()
             .into(),
@@ -765,6 +794,39 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "PercentSegment".into(),
+            TypedParser::new(SyntaxKind::Percent, SyntaxKind::Percent)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "IntegerLiteralSegment".into(),
+            RegexParser::new(r"[0-9]+", SyntaxKind::IntegerLiteral)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "BinaryLiteralSegment".into(),
+            RegexParser::new(r"0[xX][\da-fA-F]*", SyntaxKind::BinaryLiteral)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "SizeLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::SizeLiteral, SyntaxKind::SizeLiteral)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "NakedOrQuotedIdentifierGrammar".into(),
+            one_of(vec![
+                Ref::new("NakedIdentifierSegment").to_matchable(),
+                Ref::new("QuotedIdentifierSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     dialect.add([(
@@ -854,84 +916,100 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // SET statement for variables
+    // SET statements support session options and one or more variable assignments.
     dialect.add([
         (
             "SetVariableStatementSegment".into(),
-            Ref::new("SetVariableStatementGrammar")
-                .to_matchable()
-                .into(),
+            NodeMatcher::new(SyntaxKind::SetSegment, |_| {
+                Ref::new("SetVariableStatementGrammar").to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "SetVariableStatementGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("SET").to_matchable(),
-                one_of(vec![
-                    // Variable assignment
-                    Sequence::new(vec![
-                        Ref::new("TsqlVariableSegment").to_matchable(),
-                        Ref::new("AssignmentOperatorSegment").to_matchable(),
-                        Ref::new("ExpressionSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    // SET DEADLOCK_PRIORITY
-                    Sequence::new(vec![
-                        Ref::keyword("DEADLOCK_PRIORITY").to_matchable(),
-                        one_of(vec![
-                            Ref::keyword("LOW").to_matchable(),
-                            Ref::keyword("NORMAL").to_matchable(),
-                            Ref::keyword("HIGH").to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(), // Positive numbers
-                            Sequence::new(vec![
-                                // Negative numbers
-                                Ref::new("MinusSegment").to_matchable(),
-                                Ref::new("NumericLiteralSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::new("TsqlVariableSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    // SET options - supports both individual and shared ON/OFF
+                Delimited::new(vec![
                     one_of(vec![
-                        // Individual ON/OFF: SET NOCOUNT ON, XACT_ABORT OFF
-                        Delimited::new(vec![
-                            Sequence::new(vec![
-                                one_of(vec![
-                                    Ref::keyword("NOCOUNT").to_matchable(),
-                                    Ref::keyword("XACT_ABORT").to_matchable(),
-                                    Ref::keyword("QUOTED_IDENTIFIER").to_matchable(),
-                                    Ref::keyword("ANSI_NULLS").to_matchable(),
-                                    Ref::keyword("ANSI_PADDING").to_matchable(),
-                                    Ref::keyword("ANSI_WARNINGS").to_matchable(),
-                                    Ref::keyword("ARITHABORT").to_matchable(),
-                                    Ref::keyword("CONCAT_NULL_YIELDS_NULL").to_matchable(),
-                                    Ref::keyword("NUMERIC_ROUNDABORT").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("TRANSACTION").to_matchable(),
+                            Ref::keyword("ISOLATION").to_matchable(),
+                            Ref::keyword("LEVEL").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("SNAPSHOT").to_matchable(),
+                                Ref::keyword("SERIALIZABLE").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("REPEATABLE").to_matchable(),
+                                    Ref::keyword("READ").to_matchable(),
                                 ])
                                 .to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("ON").to_matchable(),
-                                    Ref::keyword("OFF").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("READ").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("COMMITTED").to_matchable(),
+                                        Ref::keyword("UNCOMMITTED").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
                             .to_matchable(),
                         ])
                         .to_matchable(),
-                        // Shared ON/OFF: SET NOCOUNT, XACT_ABORT ON
                         Sequence::new(vec![
                             Delimited::new(vec![
                                 one_of(vec![
-                                    Ref::keyword("NOCOUNT").to_matchable(),
-                                    Ref::keyword("XACT_ABORT").to_matchable(),
+                                    Ref::keyword("DATEFIRST").to_matchable(),
+                                    Ref::keyword("DATEFORMAT").to_matchable(),
+                                    Ref::keyword("DEADLOCK_PRIORITY").to_matchable(),
+                                    Ref::keyword("LOCK_TIMEOUT").to_matchable(),
+                                    Ref::keyword("CONCAT_NULL_YIELDS_NULL").to_matchable(),
+                                    Ref::keyword("CURSOR_CLOSE_ON_COMMIT").to_matchable(),
+                                    Ref::keyword("FIPS_FLAGGER").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("IDENTITY_INSERT").to_matchable(),
+                                        Ref::new("TableReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::keyword("LANGUAGE").to_matchable(),
+                                    Ref::keyword("OFFSETS").to_matchable(),
                                     Ref::keyword("QUOTED_IDENTIFIER").to_matchable(),
+                                    Ref::keyword("ARITHABORT").to_matchable(),
+                                    Ref::keyword("ARITHIGNORE").to_matchable(),
+                                    Ref::keyword("FMTONLY").to_matchable(),
+                                    Ref::keyword("NOCOUNT").to_matchable(),
+                                    Ref::keyword("NOEXEC").to_matchable(),
+                                    Ref::keyword("NUMERIC_ROUNDABORT").to_matchable(),
+                                    Ref::keyword("PARSEONLY").to_matchable(),
+                                    Ref::keyword("QUERY_GOVERNOR_COST_LIMIT").to_matchable(),
+                                    Ref::keyword("RESULT_SET_CACHING").to_matchable(),
+                                    Ref::keyword("ROWCOUNT").to_matchable(),
+                                    Ref::keyword("TEXTSIZE").to_matchable(),
+                                    Ref::keyword("ANSI_DEFAULTS").to_matchable(),
+                                    Ref::keyword("ANSI_NULL_DFLT_OFF").to_matchable(),
+                                    Ref::keyword("ANSI_NULL_DFLT_ON").to_matchable(),
                                     Ref::keyword("ANSI_NULLS").to_matchable(),
                                     Ref::keyword("ANSI_PADDING").to_matchable(),
                                     Ref::keyword("ANSI_WARNINGS").to_matchable(),
-                                    Ref::keyword("ARITHABORT").to_matchable(),
-                                    Ref::keyword("CONCAT_NULL_YIELDS_NULL").to_matchable(),
-                                    Ref::keyword("NUMERIC_ROUNDABORT").to_matchable(),
+                                    Ref::keyword("FORCEPLAN").to_matchable(),
+                                    Ref::keyword("SHOWPLAN_ALL").to_matchable(),
+                                    Ref::keyword("SHOWPLAN_TEXT").to_matchable(),
+                                    Ref::keyword("SHOWPLAN_XML").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("STATISTICS").to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("IO").to_matchable(),
+                                            Ref::keyword("PROFILE").to_matchable(),
+                                            Ref::keyword("TIME").to_matchable(),
+                                            Ref::keyword("XML").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::keyword("IMPLICIT_TRANSACTIONS").to_matchable(),
+                                    Ref::keyword("REMOTE_PROC_TRANSACTIONS").to_matchable(),
+                                    Ref::keyword("XACT_ABORT").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
@@ -939,6 +1017,27 @@ pub fn raw_dialect() -> Dialect {
                             one_of(vec![
                                 Ref::keyword("ON").to_matchable(),
                                 Ref::keyword("OFF").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("ExpressionSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("LOW").to_matchable(),
+                                Ref::keyword("NORMAL").to_matchable(),
+                                Ref::keyword("HIGH").to_matchable(),
+                                Ref::new("TsqlVariableSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::new("QualifiedNumericLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("TsqlVariableSegment").to_matchable(),
+                            Ref::new("AssignmentOperatorSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ExpressionSegment").to_matchable(),
+                                Ref::new("SelectableGrammar").to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -986,31 +1085,16 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::new("CommaSegment").to_matchable(),
-                        one_of(vec![
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                            Ref::new("QualifiedNumericLiteralSegment").to_matchable(),
-                            Ref::new("ParameterNameSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
                         Ref::new("CommaSegment").to_matchable(),
-                        one_of(vec![
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                            Ref::new("QualifiedNumericLiteralSegment").to_matchable(),
-                            Ref::new("ParameterNameSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
                         AnyNumberOf::new(vec![
                             Sequence::new(vec![
                                 Ref::new("CommaSegment").to_matchable(),
-                                one_of(vec![
-                                    Ref::new("LiteralGrammar").to_matchable(),
-                                    Ref::new("ParameterNameSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
                             ])
                             .to_matchable(),
                         ])
-                        .config(|this| this.max_times(20))
                         .to_matchable(),
                     ])
                     .to_matchable(),
@@ -1345,7 +1429,7 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // GO batch separator - T-SQL uses GO to separate batches
+    // T-SQL files are sequences of batches separated by GO statements.
     dialect.add([
         (
             "BatchSeparatorSegment".into(),
@@ -1357,24 +1441,64 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "BatchDelimiterGrammar".into(),
-            Ref::new("BatchSeparatorGrammar").to_matchable().into(),
+            Ref::new("GoStatementSegment").to_matchable().into(),
+        ),
+        (
+            "StatementAndDelimiterGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::new("StatementSegment").to_matchable(),
+                    Ref::new("DelimiterGrammar").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("DelimiterGrammar").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "OneOrMoreStatementsGrammar".into(),
+            AnyNumberOf::new(vec![
+                Ref::new("StatementAndDelimiterGrammar").to_matchable(),
+            ])
+            .config(|this| this.min_times(1))
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "GoStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::GoStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("GO").to_matchable(),
+                    Ref::new("IntegerLiteralSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "BatchSegment".into(),
+            NodeMatcher::new(SyntaxKind::Batch, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
+                        Ref::new("BatchDelimiterGrammar").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("BatchDelimiterGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
     ]);
 
     // Override FileSegment to handle T-SQL batch separators (GO statements)
     dialect.replace_grammar(
         "FileSegment",
-        AnyNumberOf::new(vec![
-            one_of(vec![
-                Ref::new("StatementSegment")
-                    .terminators(vec![Ref::new("BatchDelimiterGrammar").to_matchable()])
-                    .to_matchable(),
-                Ref::new("BatchDelimiterGrammar").to_matchable(),
-            ])
-            .to_matchable(),
-            Ref::new("DelimiterGrammar").optional().to_matchable(),
-        ])
-        .to_matchable(),
+        AnyNumberOf::new(vec![Ref::new("BatchSegment").to_matchable()]).to_matchable(),
     );
 
     dialect.add([(
@@ -1963,6 +2087,8 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+    add_database_grammars(&mut dialect);
+
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
@@ -1976,7 +2102,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateSecurityPolicySegment").to_matchable(),
             Ref::new("AlterSecurityPolicySegment").to_matchable(),
             Ref::new("DropSecurityPolicySegment").to_matchable(),
-            Ref::new("SetVariableStatementGrammar").to_matchable(),
+            Ref::new("SetVariableStatementSegment").to_matchable(),
             Ref::new("WaitForStatementSegment").to_matchable(),
             Ref::new("ExecuteScriptSegment").to_matchable(),
             Ref::new("PrintStatementGrammar").to_matchable(),
@@ -1986,7 +2112,6 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("WhileStatementGrammar").to_matchable(),
             Ref::new("GotoStatementSegment").to_matchable(),
             Ref::new("LabelSegment").to_matchable(),
-            Ref::new("BatchSeparatorGrammar").to_matchable(),
             Ref::new("UseStatementGrammar").to_matchable(),
             // Include all ANSI statement types
             Ref::new("SelectableGrammar").to_matchable(),
@@ -2012,6 +2137,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropSchemaStatementSegment").to_matchable(),
             Ref::new("DropTypeStatementSegment").to_matchable(),
             Ref::new("CreateDatabaseStatementSegment").to_matchable(),
+            Ref::new("AlterDatabaseStatementSegment").to_matchable(),
             Ref::new("DropDatabaseStatementSegment").to_matchable(),
             Ref::new("CreateIndexStatementSegment").to_matchable(),
             Ref::new("DropIndexStatementSegment").to_matchable(),
@@ -2020,16 +2146,10 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DeleteStatementSegment").to_matchable(),
             Ref::new("OpenQueryUpdateStatementSegment").to_matchable(),
             Ref::new("UpdateStatementSegment").to_matchable(),
-            Ref::new("CreateCastStatementSegment").to_matchable(),
-            Ref::new("DropCastStatementSegment").to_matchable(),
             Ref::new("CreateFunctionStatementSegment").to_matchable(),
             Ref::new("DropFunctionStatementSegment").to_matchable(),
             Ref::new("CreateProcedureStatementSegment").to_matchable(),
             Ref::new("DropProcedureStatementSegment").to_matchable(),
-            Ref::new("CreateModelStatementSegment").to_matchable(),
-            Ref::new("DropModelStatementSegment").to_matchable(),
-            Ref::new("DescribeStatementSegment").to_matchable(),
-            Ref::new("ExplainStatementSegment").to_matchable(),
             Ref::new("CreateSequenceStatementSegment").to_matchable(),
             Ref::new("AlterSequenceStatementSegment").to_matchable(),
             Ref::new("DropSequenceStatementSegment").to_matchable(),
@@ -4106,19 +4226,29 @@ pub fn raw_dialect() -> Dialect {
         ),
     );
 
-    // Add T-SQL variable support to LiteralGrammar
+    // T-SQL literal handling distinguishes integers and binary literals while
+    // retaining variables as literals.
+    dialect.replace_grammar(
+        "NumericLiteralSegment",
+        one_of(vec![
+            RegexParser::new(r"[0-9]+", SyntaxKind::NumericLiteral).to_matchable(),
+            TypedParser::new(SyntaxKind::NumericLiteral, SyntaxKind::NumericLiteral).to_matchable(),
+        ])
+        .to_matchable(),
+    );
     dialect.add([(
         "LiteralGrammar".into(),
         one_of(vec![
             Ref::new("QuotedLiteralSegment").to_matchable(),
+            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+            Ref::new("IntegerLiteralSegment").to_matchable(),
+            Ref::new("BinaryLiteralSegment").to_matchable(),
             Ref::new("NumericLiteralSegment").to_matchable(),
             Ref::new("BooleanLiteralGrammar").to_matchable(),
             Ref::new("QualifiedNumericLiteralSegment").to_matchable(),
             Ref::new("NullLiteralSegment").to_matchable(),
             Ref::new("DateTimeLiteralGrammar").to_matchable(),
-            Ref::new("ArrayLiteralSegment").to_matchable(),
             Ref::new("TypedArrayLiteralSegment").to_matchable(),
-            Ref::new("ObjectLiteralSegment").to_matchable(),
             Ref::new("ParameterizedSegment").to_matchable(), // Add T-SQL variables
         ])
         .to_matchable()
@@ -6123,4 +6253,794 @@ pub fn raw_dialect() -> Dialect {
     // expand() must be called after all grammar modifications
 
     dialect
+}
+
+fn add_database_grammars(dialect: &mut Dialect) {
+    dialect.replace_grammar(
+        "CollationReferenceSegment",
+        one_of(vec![
+            Ref::new("QuotedLiteralSegment").to_matchable(),
+            Ref::new("NakedIdentifierSegment").to_matchable(),
+            Ref::keyword("DATABASE_DEFAULT").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    dialect.add([
+        (
+            "LogicalFileNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::LogicalFileName, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("NAME").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FileSpecFileNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FileSpecFileName, |_| {
+                Sequence::new(vec![
+                    Ref::new("CommaSegment").optional().to_matchable(),
+                    Ref::keyword("FILENAME").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FileSpecNewNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FileSpecNewName, |_| {
+                Sequence::new(vec![
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::keyword("NEWNAME").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FileSpecSizeSegment".into(),
+            NodeMatcher::new(SyntaxKind::FileSpecSize, |_| {
+                Sequence::new(vec![
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::keyword("SIZE").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SizeLiteralSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("KB").to_matchable(),
+                                Ref::keyword("MB").to_matchable(),
+                                Ref::keyword("GB").to_matchable(),
+                                Ref::keyword("TB").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FileSpecMaxSizeSegment".into(),
+            NodeMatcher::new(SyntaxKind::FileSpecMaxSize, |_| {
+                Sequence::new(vec![
+                    Ref::new("CommaSegment").optional().to_matchable(),
+                    Ref::keyword("MAXSIZE").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SizeLiteralSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("KB").to_matchable(),
+                                Ref::keyword("MB").to_matchable(),
+                                Ref::keyword("GB").to_matchable(),
+                                Ref::keyword("TB").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("UNLIMITED").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FileSpecFileGrowthSegment".into(),
+            NodeMatcher::new(SyntaxKind::FileSpecFileGrowth, |_| {
+                Sequence::new(vec![
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::keyword("FILEGROWTH").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SizeLiteralSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("KB").to_matchable(),
+                                Ref::keyword("MB").to_matchable(),
+                                Ref::keyword("GB").to_matchable(),
+                                Ref::keyword("TB").to_matchable(),
+                                Ref::new("PercentSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UnbracketedFileSpecSegment".into(),
+            NodeMatcher::new(SyntaxKind::FileSpecWithoutBracket, |_| {
+                Sequence::new(vec![
+                    Ref::new("LogicalFileNameSegment").optional().to_matchable(),
+                    Ref::new("FileSpecFileNameSegment").to_matchable(),
+                    Ref::new("FileSpecSizeSegment").optional().to_matchable(),
+                    Ref::new("FileSpecMaxSizeSegment").optional().to_matchable(),
+                    Ref::new("FileSpecFileGrowthSegment")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FileSpecSegment".into(),
+            NodeMatcher::new(SyntaxKind::FileSpec, |_| {
+                Bracketed::new(vec![Ref::new("UnbracketedFileSpecSegment").to_matchable()])
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FileSpecSegmentInAlterDatabase".into(),
+            NodeMatcher::new(SyntaxKind::FileSpec, |_| {
+                Bracketed::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("LogicalFileNameSegment").optional().to_matchable(),
+                        Ref::new("FileSpecNewNameSegment").optional().to_matchable(),
+                        Ref::new("FileSpecFileNameSegment")
+                            .optional()
+                            .to_matchable(),
+                        Ref::new("FileSpecSizeSegment").optional().to_matchable(),
+                        Ref::new("FileSpecMaxSizeSegment").optional().to_matchable(),
+                        Ref::new("FileSpecFileGrowthSegment")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CompatibilityLevelSegment".into(),
+            NodeMatcher::new(SyntaxKind::CompatibilityLevel, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("COMPATIBILITY_LEVEL").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AutoOptionSegment".into(),
+            NodeMatcher::new(SyntaxKind::AutoOption, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("AUTO_CLOSE").to_matchable(),
+                            Ref::keyword("AUTO_SHRINK").to_matchable(),
+                            Ref::keyword("AUTO_UPDATE_STATISTICS").to_matchable(),
+                            Ref::keyword("AUTO_UPDATE_STATISTICS_ASYNC").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::keyword("OFF").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AUTO_CREATE_STATISTICS").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::keyword("OFF").to_matchable(),
+                            Bracketed::new(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("INCREMENTAL").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("ON").to_matchable(),
+                                        Ref::keyword("OFF").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ServiceObjectiveSegment".into(),
+            NodeMatcher::new(SyntaxKind::ServiceObjective, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("SERVICE_OBJECTIVE").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ELASTIC_POOL").to_matchable(),
+                            Bracketed::new(vec![
+                                Ref::keyword("NAME").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("NakedOrQuotedIdentifierGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "EditionSegment".into(),
+            NodeMatcher::new(SyntaxKind::Edition, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EDITION").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AllowConnectionsSegment".into(),
+            NodeMatcher::new(SyntaxKind::AllowConnections, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALLOW_CONNECTIONS").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ALL").to_matchable(),
+                        Ref::keyword("NO").to_matchable(),
+                        Ref::keyword("READ_ONLY").to_matchable(),
+                        Ref::keyword("READ_WRITE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "BackupStorageRedundancySegment".into(),
+            NodeMatcher::new(SyntaxKind::BackupStorageRedundancy, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("BACKUP_STORAGE_REDUNDANCY").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    dialect.replace_grammar("CreateDatabaseStatementSegment", {
+        let file_group = Sequence::new(vec![
+            Ref::keyword("FILEGROUP").to_matchable(),
+            Ref::new("NakedOrQuotedIdentifierGrammar").to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("CONTAINS").to_matchable(),
+                        Ref::keyword("FILESTREAM").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("DEFAULT").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("CONTAINS").to_matchable(),
+                    Ref::keyword("MEMORY_OPTIMIZED_DATA").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Delimited::new(vec![Ref::new("FileSpecSegment").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable();
+
+        let filestream_option = one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("NON_TRANSACTED_ACCESS").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("OFF").to_matchable(),
+                    Ref::keyword("READ_ONLY").to_matchable(),
+                    Ref::keyword("FULL").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("DIRECTORY_NAME").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable();
+
+        let language_option = |keyword| {
+            Sequence::new(vec![
+                Ref::keyword(keyword).to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        };
+        let on_off_option = |keyword| {
+            Sequence::new(vec![
+                Ref::keyword(keyword).to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("OFF").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        };
+        let create_database_option = one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("FILESTREAM").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![filestream_option])
+                        .config(|this| this.min_delimiters = 1)
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            language_option("DEFAULT_FULLTEXT_LANGUAGE"),
+            language_option("DEFAULT_LANGUAGE"),
+            on_off_option("NESTED_TRIGGERS"),
+            on_off_option("TRANSFORM_NOISE_WORDS"),
+            Sequence::new(vec![
+                Ref::keyword("TWO_DIGIT_YEAR_CUTOFF").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("NumericLiteralSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("DB_CHAINING").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("OFF").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("TRUSTWORTHY").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("OFF").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("PERSISTENT_LOG_BUFFER").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Bracketed::new(vec![
+                    Ref::keyword("DIRECTORY_NAME").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("LEDGER").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("OFF").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("CATALOG_COLLATION").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("CollationReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable();
+
+        let normal = Sequence::new(vec![
+            Sequence::new(vec![
+                Ref::keyword("CONTAINMENT").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("NONE").to_matchable(),
+                    Ref::keyword("PARTIAL").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("PRIMARY").optional().to_matchable(),
+                Delimited::new(vec![Ref::new("FileSpecSegment").to_matchable()]).to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("CommaSegment").to_matchable(),
+                    Delimited::new(vec![file_group])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LOG").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Delimited::new(vec![Ref::new("FileSpecSegment").to_matchable()]).to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("COLLATE").to_matchable(),
+                Ref::new("CollationReferenceSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Delimited::new(vec![create_database_option]).to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .to_matchable();
+
+        let attach_option = one_of(vec![
+            Ref::keyword("ENABLE_BROKER").to_matchable(),
+            Ref::keyword("NEW_BROKER").to_matchable(),
+            Ref::keyword("ERROR_BROKER_CONVERSATIONS").to_matchable(),
+            Ref::keyword("RESTRICTED_USER").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("FILESTREAM").to_matchable(),
+                Bracketed::new(vec![
+                    Ref::keyword("DIRECTORY_NAME").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable();
+        let attach = Sequence::new(vec![
+            Ref::keyword("ON").to_matchable(),
+            Delimited::new(vec![Ref::new("FileSpecSegment").to_matchable()]).to_matchable(),
+            Ref::keyword("FOR").to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("ATTACH").to_matchable(),
+                    Sequence::new(vec![Ref::keyword("WITH").to_matchable(), attach_option])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("ATTACH_REBUILD_LOG").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable();
+        let snapshot = Sequence::new(vec![
+            Ref::keyword("ON").to_matchable(),
+            Delimited::new(vec![
+                Bracketed::new(vec![
+                    Ref::new("LogicalFileNameSegment").optional().to_matchable(),
+                    Ref::new("FileSpecFileNameSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.min_delimiters = 1)
+            .to_matchable(),
+            Ref::keyword("AS").to_matchable(),
+            Ref::keyword("SNAPSHOT").to_matchable(),
+            Ref::keyword("OF").to_matchable(),
+            Ref::new("NakedIdentifierSegment").to_matchable(),
+        ])
+        .to_matchable();
+
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::keyword("DATABASE").to_matchable(),
+            Ref::new("DatabaseReferenceSegment").to_matchable(),
+            one_of(vec![normal, attach, snapshot])
+                .config(|this| this.optional())
+                .to_matchable(),
+        ])
+        .to_matchable()
+    });
+
+    dialect.add([(
+        "AlterDatabaseStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterDatabaseStatement, |_| {
+            let modify_name = Sequence::new(vec![
+                Ref::keyword("MODIFY").to_matchable(),
+                Ref::keyword("NAME").to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                Ref::new("DatabaseReferenceSegment").to_matchable(),
+            ])
+            .to_matchable();
+            let add_or_modify_files = one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("FILE").to_matchable(),
+                    Ref::new("FileSpecSegmentInAlterDatabase").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TO").to_matchable(),
+                        Ref::keyword("FILEGROUP").to_matchable(),
+                        Ref::new("NakedOrQuotedIdentifierGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("LOG").to_matchable(),
+                    Ref::keyword("FILE").to_matchable(),
+                    Delimited::new(vec![
+                        Ref::new("FileSpecSegmentInAlterDatabase").to_matchable(),
+                    ])
+                    .config(|this| this.min_delimiters = 1)
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("REMOVE").to_matchable(),
+                    Ref::keyword("FILE").to_matchable(),
+                    Ref::new("LiteralGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("MODIFY").to_matchable(),
+                    Ref::keyword("FILE").to_matchable(),
+                    Ref::new("FileSpecSegmentInAlterDatabase").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let filegroups = Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("REMOVE").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("FILEGROUP").to_matchable(),
+            ])
+            .to_matchable();
+            let accelerated_recovery = Sequence::new(vec![
+                Ref::keyword("ACCELERATED_DATABASE_RECOVERY").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("OFF").to_matchable(),
+                ])
+                .to_matchable(),
+                Bracketed::new(vec![
+                    Ref::keyword("PERSISTENT_VERSION_STORE_FILEGROUP").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("NakedOrQuotedIdentifierGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let set_option = Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                optionally_bracketed(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("CompatibilityLevelSegment").to_matchable(),
+                            Ref::new("AutoOptionSegment").to_matchable(),
+                            accelerated_recovery,
+                            Sequence::new(vec![
+                                Ref::new("NakedIdentifierSegment").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ON").to_matchable(),
+                                    Ref::keyword("OFF").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("NakedIdentifierSegment").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("KB").to_matchable(),
+                                    Ref::keyword("MB").to_matchable(),
+                                    Ref::keyword("GB").to_matchable(),
+                                    Ref::keyword("TB").to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let secondary = Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("REMOVE").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("SECONDARY").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("SERVER").to_matchable(),
+                Ref::new("NakedOrQuotedIdentifierGrammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::new("AllowConnectionsSegment").to_matchable(),
+                                Ref::new("ServiceObjectiveSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let modify_options = Sequence::new(vec![
+                Ref::keyword("MODIFY").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("FileSpecMaxSizeSegment").to_matchable(),
+                            Ref::new("EditionSegment").to_matchable(),
+                            Ref::new("ServiceObjectiveSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("MANUAL_CUTOVER").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let modify_backup = Sequence::new(vec![
+                Ref::keyword("MODIFY").to_matchable(),
+                Ref::new("BackupStorageRedundancySegment").to_matchable(),
+            ])
+            .to_matchable();
+
+            Sequence::new(vec![
+                Ref::keyword("ALTER").to_matchable(),
+                Ref::keyword("DATABASE").to_matchable(),
+                one_of(vec![
+                    Ref::new("DatabaseReferenceSegment").to_matchable(),
+                    Ref::keyword("CURRENT").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    modify_name,
+                    modify_backup,
+                    add_or_modify_files,
+                    filegroups,
+                    modify_options,
+                    Ref::new("CollateGrammar").to_matchable(),
+                    set_option,
+                    secondary,
+                    Ref::keyword("PERFORM_CUTOVER").to_matchable(),
+                    Ref::keyword("FAILOVER").to_matchable(),
+                    Ref::keyword("FORCE_FAILOVER_ALLOW_DATA_LOSS").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 }

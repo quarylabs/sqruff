@@ -1,12 +1,13 @@
 file:
-- statement:
-  - execute_script_statement:
-    - keyword: EXEC
-    - object_reference:
-      - naked_identifier: sp_help
-    - expression:
-      - column_reference:
-        - naked_identifier: doc_exc
-    - statement_terminator: ;
-- statement:
-  - keyword: GO
+- batch:
+  - statement:
+    - execute_script_statement:
+      - keyword: EXEC
+      - object_reference:
+        - naked_identifier: sp_help
+      - expression:
+        - column_reference:
+          - naked_identifier: doc_exc
+      - statement_terminator: ;
+  - go_statement:
+    - keyword: GO

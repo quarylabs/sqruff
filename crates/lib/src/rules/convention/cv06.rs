@@ -78,11 +78,18 @@ FROM foo;
                 // First we can simply handle the case of existing semi-colon alignment.
                 // If it's a terminator then we know it's raw.
 
-                res =
-                    self.handle_semicolon(context.tables, segment.clone(), context.segment.clone());
+                if Self::is_segment_semicolon(segment) {
+                    res = self.handle_semicolon(
+                        context.tables,
+                        segment.clone(),
+                        context.segment.clone(),
+                    );
+                }
             } else if self.require_final_semicolon && idx == context.segment.segments().len() - 1 {
                 // Otherwise, handle the end of the file separately.
-                res = self.ensure_final_semicolon(context.tables, context.segment.clone());
+                if !Self::has_final_non_semicolon_terminator(&context.segment) {
+                    res = self.ensure_final_semicolon(context.tables, context.segment.clone());
+                }
             }
             if let Some(res) = res {
                 results.push(res);
@@ -101,6 +108,51 @@ FROM foo;
 }
 
 impl RuleCV06 {
+    fn is_segment_semicolon(segment: &ErasedSegment) -> bool {
+        segment.is_type(SyntaxKind::StatementTerminator) && segment.raw() == ";"
+    }
+
+    fn get_last_statement(file_segment: &ErasedSegment) -> Option<ErasedSegment> {
+        file_segment
+            .recursive_crawl(
+                const { &SyntaxSet::new(&[SyntaxKind::Statement]) },
+                false,
+                &SyntaxSet::EMPTY,
+                false,
+            )
+            .into_iter()
+            .last()
+    }
+
+    fn get_final_statement_terminator(file_segment: &ErasedSegment) -> Option<ErasedSegment> {
+        let last_statement = Self::get_last_statement(file_segment)?;
+        let statement_end = last_statement.get_position_marker()?.templated_slice.end;
+
+        file_segment
+            .recursive_crawl(
+                const {
+                    &SyntaxSet::new(&[
+                        SyntaxKind::StatementTerminator,
+                        SyntaxKind::SlashBufferExecutor,
+                    ])
+                },
+                true,
+                &SyntaxSet::EMPTY,
+                false,
+            )
+            .into_iter()
+            .rfind(|segment| {
+                segment
+                    .get_position_marker()
+                    .is_some_and(|marker| marker.templated_slice.end >= statement_end)
+            })
+    }
+
+    fn has_final_non_semicolon_terminator(file_segment: &ErasedSegment) -> bool {
+        Self::get_final_statement_terminator(file_segment)
+            .is_some_and(|segment| !Self::is_segment_semicolon(&segment))
+    }
+
     // Adjust anchor_segment to not move trailing inline comment.
     //
     // We don't want to move inline comments that are on the same line
@@ -359,7 +411,8 @@ impl RuleCV06 {
         // if the final semicolon is already present.
         let mut anchor_segment = parent_segment.segments().last().cloned();
         let trigger_segment = parent_segment.segments().last().cloned();
-        let mut semi_colon_exist_flag = false;
+        let mut semi_colon_exist_flag = Self::get_final_statement_terminator(&parent_segment)
+            .is_some_and(|segment| Self::is_segment_semicolon(&segment));
         let mut is_one_line = false;
         let mut before_segment = vec![];
 
@@ -367,7 +420,9 @@ impl RuleCV06 {
         for segment in parent_segment.segments().iter().rev() {
             anchor_segment = Some(segment.clone());
             if segment.is_type(SyntaxKind::StatementTerminator) {
-                semi_colon_exist_flag = true;
+                if Self::is_segment_semicolon(segment) {
+                    semi_colon_exist_flag = true;
+                }
             } else if segment.is_code() {
                 is_one_line = Self::is_one_line_statement(parent_segment.clone(), segment.clone());
                 found_code = true;

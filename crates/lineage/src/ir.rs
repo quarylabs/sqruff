@@ -805,7 +805,9 @@ pub(crate) fn specific_statement_segment(parsed: ErasedSegment) -> Vec<ErasedSeg
             | SyntaxKind::SelectStatement => {
                 segments.push(top_segment.clone());
             }
-            SyntaxKind::Batch => unimplemented!(),
+            SyntaxKind::Batch => {
+                segments.extend(specific_statement_segment(top_segment.clone()));
+            }
             _ => {}
         }
     }

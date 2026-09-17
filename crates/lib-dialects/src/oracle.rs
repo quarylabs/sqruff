@@ -4327,8 +4327,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("LiteralGrammar").to_matchable(),
             Ref::new("FunctionSegment").to_matchable(),
             Ref::new("BareFunctionSegment").to_matchable(),
-            Ref::new("ExpressionSegment").to_matchable(),
             Ref::new("SequenceNextValGrammar").to_matchable(),
+            Ref::new("ExpressionSegment").to_matchable(),
         ])
         .to_matchable(),
     );

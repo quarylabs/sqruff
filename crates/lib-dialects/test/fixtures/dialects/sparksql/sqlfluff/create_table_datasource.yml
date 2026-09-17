@@ -434,3 +434,55 @@ file:
         - naked_identifier: activity_date_partition
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: cluster_by_table_none
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+          - naked_identifier: col1
+        - data_type:
+          - primitive_type:
+            - keyword: STRING
+      - end_bracket: )
+    - using_clause:
+      - keyword: USING
+      - data_source_format:
+        - keyword: DELTA
+    - table_cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - keyword: NONE
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: cluster_by_table_cols
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+          - naked_identifier: col1
+        - data_type:
+          - primitive_type:
+            - keyword: STRING
+      - end_bracket: )
+    - using_clause:
+      - keyword: USING
+      - data_source_format:
+        - keyword: DELTA
+    - table_cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: col1
+        - end_bracket: )
+- statement_terminator: ;

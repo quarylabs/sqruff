@@ -979,6 +979,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("VolumeReferenceSegment").to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COLUMN").to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     // TODO Split out individual items if they have references
                     Sequence::new(vec![
                         one_of(vec![

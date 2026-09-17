@@ -87,3 +87,59 @@ test_fail_bad_edge_case:
       layout.newlines:
         maximum_empty_lines_between_statements: 1
         maximum_empty_lines_within_statements: 0
+
+# yamllint disable rule:empty-lines
+# We need extra lines to test this rules!
+test_fail_macros_with_newlines:
+  fail_str: |
+    select {{ my_macro(5) }}
+    from t
+    where
+        x =
+
+
+
+
+
+
+        {{ my_macro(4) }}
+
+
+    and y = 2
+    ;
+  fix_str: |
+    select {{ my_macro(5) }}
+    from t
+    where
+        x =
+
+        {{ my_macro(4) }}
+
+    and y = 2
+    ;
+  configs:
+    core:
+      templater: jinja
+    templater:
+      jinja:
+        load_macros_from_path:
+          - test/fixtures/rules/std_rule_cases/LT15_fail_macros.sql
+
+test_pass_macros_with_embedded_newlines:
+  pass_str: |
+    select {{ my_macro(5) }}
+    from t
+    where
+
+        x = {{ my_macro(4) }}
+
+        and y = 2
+    ;
+  configs:
+    core:
+      templater: jinja
+    templater:
+      jinja:
+        load_macros_from_path:
+          - test/fixtures/rules/std_rule_cases/LT15_pass_macros.sql
+# yamllint enable

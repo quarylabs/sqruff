@@ -5,11 +5,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''abc'''
           - binary_operator: '%'
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''abd'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -17,11 +15,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: text
-          - comparison_operator: <%
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''word'''
+          - binary_operator: <%
+          - quoted_literal: '''some word here'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -29,11 +25,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: text
-          - comparison_operator: '%>'
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''some word here'''
+          - binary_operator: '%>'
+          - quoted_literal: '''word'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -41,11 +35,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: text
-          - comparison_operator: <<%
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''text'''
+          - binary_operator: <<%
+          - quoted_literal: '''some text example'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -53,11 +45,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: text
-          - comparison_operator: '%>>'
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''some text example'''
+          - binary_operator: '%>>'
+          - quoted_literal: '''text'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -65,11 +55,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: text
-          - comparison_operator: <->
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''str1'''
+          - binary_operator: <->
+          - quoted_literal: '''str2'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -77,11 +65,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: text
-          - comparison_operator: <<->
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''item'''
+          - binary_operator: <<->
+          - quoted_literal: '''some item value'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -89,11 +75,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: text
-          - comparison_operator: <->>
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''some item value'''
+          - binary_operator: <->>
+          - quoted_literal: '''item'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -101,11 +85,9 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: text
-          - comparison_operator: <<<->
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''name'''
+          - binary_operator: <<<->
+          - quoted_literal: '''some name field'''
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -113,9 +95,7 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - expression:
-          - column_reference:
-            - naked_identifier: text
-          - comparison_operator: <->>>
-          - column_reference:
-            - naked_identifier: text
+          - quoted_literal: '''some name field'''
+          - binary_operator: <->>>
+          - quoted_literal: '''name'''
 - statement_terminator: ;

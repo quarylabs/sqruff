@@ -156,12 +156,14 @@ file:
                 - frame_clause:
                   - keyword: RANGE
                   - keyword: BETWEEN
-                  - keyword: INTERVAL
-                  - quoted_literal: '''1 YEAR - 1 DAYS'''
+                  - interval_expression:
+                    - keyword: INTERVAL
+                    - quoted_literal: '''1 YEAR - 1 DAYS'''
                   - keyword: PRECEDING
                   - keyword: AND
-                  - keyword: INTERVAL
-                  - quoted_literal: '''15 DAYS'''
+                  - interval_expression:
+                    - keyword: INTERVAL
+                    - quoted_literal: '''15 DAYS'''
                   - keyword: PRECEDING
               - end_bracket: )
 - statement_terminator: ;

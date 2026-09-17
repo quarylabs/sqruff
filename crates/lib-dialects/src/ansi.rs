@@ -4343,6 +4343,15 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("DatetimeUnitSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -5387,12 +5396,9 @@ pub fn frame_extent() -> AnyNumberOf {
         Sequence::new(vec![
             one_of(vec![
                 Ref::new("NumericLiteralSegment").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("INTERVAL").to_matchable(),
-                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("IntervalExpressionSegment").to_matchable(),
                 Ref::keyword("UNBOUNDED").to_matchable(),
+                Ref::new("ColumnReferenceSegment").to_matchable(),
             ])
             .to_matchable(),
             one_of(vec![

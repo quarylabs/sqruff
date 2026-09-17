@@ -8269,6 +8269,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
+                        Ref::keyword("MULTI_LINE").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("BooleanLiteralGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
                         Ref::keyword("FILE_EXTENSION").to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),
                         Ref::new("QuotedLiteralSegment").to_matchable(),

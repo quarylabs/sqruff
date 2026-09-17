@@ -2414,6 +2414,7 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("EXECUTE").to_matchable(),
                     Ref::keyword("IMMEDIATE").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
                     one_of(vec![
                         Ref::new("IntoClauseSegment").to_matchable(),
@@ -2450,6 +2451,23 @@ pub fn raw_dialect() -> Dialect {
                         config.optional();
                     })
                     .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("RETURNING").to_matchable(),
+                            Ref::keyword("RETURN").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::new("IntoClauseSegment").to_matchable(),
+                            Ref::new("BulkCollectIntoClauseSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
             })

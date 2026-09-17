@@ -486,3 +486,29 @@ file:
       - raw_comparison_operator: =
     - quoted_literal: '''case_insensitive'''
 - statement_terminator: ;
+- statement:
+  - copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+      - naked_identifier: mytable1
+    - keyword: from
+    - storage_location:
+      - bucket_path: '''s3://bucket/source'''
+    - keyword: file_format
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - file_format_segment:
+      - bracketed:
+        - start_bracket: (
+        - csv_file_format_type_parameters:
+          - keyword: type
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - file_type: csv
+          - keyword: MULTI_LINE
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - boolean_literal: 'FALSE'
+        - end_bracket: )
+- statement_terminator: ;

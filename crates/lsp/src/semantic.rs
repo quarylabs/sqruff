@@ -187,6 +187,9 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SetClause
         | FetchClause
         | FunctionDefinition
+        | AlgorithmOption
+        | LockOption
+        | WaitOption
         | AlterSequenceOptionsSegment
         | RoleReference
         | TablespaceReference

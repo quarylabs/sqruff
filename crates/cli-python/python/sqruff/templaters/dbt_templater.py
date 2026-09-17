@@ -16,6 +16,7 @@ from collections import deque
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import cached_property
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -340,18 +341,51 @@ class DbtTemplater(JinjaTemplater):
             )
 
         from dbt.graph.selector_methods import (
-            MethodManager as DbtSelectorMethodManager,
-        )
-        from dbt.graph.selector_methods import (
             MethodName as DbtMethodName,
         )
 
-        selector_methods_manager = DbtSelectorMethodManager(
-            self.dbt_manifest, previous_state=None
-        )
-        _dbt_selector_method = selector_methods_manager.get_method(
-            DbtMethodName.Path, method_arguments=[]
-        )
+        if self.dbt_version_tuple >= (1, 5):
+            from dbt.graph.selector_methods import MethodManager
+        else:  # pragma: no cover
+            from dbt.graph.selector_methods import (
+                SelectorMethodManager as MethodManager,
+            )
+
+        selector_methods_manager = MethodManager(self.dbt_manifest, previous_state=None)
+
+        if self.dbt_version_tuple >= (1, 5):
+            _dbt_selector_method = selector_methods_manager.get_method(
+                DbtMethodName.Path, method_arguments=[]
+            )
+        else:  # pragma: no cover
+            from dbt.graph.selector_methods import SelectorMethod
+
+            class ProjectPathSelectorMethod(SelectorMethod):
+                def search(self, included_nodes, selector):
+                    """Yield nodes from included that match the given path."""
+                    project_root = Path(self.project_dir)
+                    paths = set(project_root.glob(selector))
+
+                    for unique_id, node in self.all_nodes(included_nodes):
+                        original_file_path = project_root / node.original_file_path
+                        if original_file_path in paths:
+                            yield unique_id
+                        if node.patch_path:
+                            patch_file_path = (
+                                project_root / node.patch_path.split("://")[1]
+                            )
+                            if patch_file_path in paths:
+                                yield unique_id
+                        if any(
+                            parent in paths for parent in original_file_path.parents
+                        ):
+                            yield unique_id
+
+            _dbt_selector_method = ProjectPathSelectorMethod(
+                selector_methods_manager.manifest,
+                None,
+                [],
+            )
 
         if self.formatter:  # pragma: no cover TODO?
             self.formatter.dispatch_compilation_header(
@@ -505,7 +539,10 @@ class DbtTemplater(JinjaTemplater):
 
                 already_yielded.add(full_paths[fpath])
 
-        outs.extend(fnames)
+        for fname in fnames:
+            if fname not in already_yielded:
+                templater_logger.debug("Yielding file: %s", fname)
+                outs.append(fname)
         return outs
 
     @handle_dbt_errors(
@@ -537,13 +574,14 @@ class DbtTemplater(JinjaTemplater):
 
         # NOTE: dbt exceptions are caught and handled safely for pickling by the outer
         # `handle_dbt_errors` decorator.
-        try:
-            os.chdir(self.project_dir)
-            return self._unsafe_process(fname_absolute_path, in_str, config)
-        finally:
-            os.chdir(self.working_dir)
+        return self._unsafe_process(
+            fname_absolute_path,
+            in_str,
+            config,
+            self.project_dir,
+        )
 
-    def _find_node(self, fname, config=None):
+    def _find_node(self, fname, config=None, dbt_dir=os.getcwd()):
         if not config:  # pragma: no cover
             raise ValueError(
                 "For the dbt templater, the `process()` method "
@@ -557,7 +595,8 @@ class DbtTemplater(JinjaTemplater):
             raise Exception(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
-        relative_fname = os.path.relpath(fname, start=os.getcwd())
+        relative_fname = os.path.relpath(fname, start=dbt_dir)
+        absolute_fname = (Path(dbt_dir) / relative_fname).resolve()
         selected = self.dbt_selector_method.search(
             included_nodes=self.dbt_manifest.nodes,
             # Selector needs to be a relative path
@@ -566,7 +605,7 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
-            skip_reason = self._find_skip_reason(fname)
+            skip_reason = self._find_skip_reason(absolute_fname)
             if skip_reason:
                 return None, skip_reason
             raise Exception(
@@ -577,20 +616,21 @@ class DbtTemplater(JinjaTemplater):
     def _find_skip_reason(self, fname) -> Optional[str]:
         """Return string reason if model okay to skip, otherwise None."""
         # Scan macros.
-        abspath = os.path.abspath(fname)
         for macro in self.dbt_manifest.macros.values():
-            if os.path.abspath(macro.original_file_path) == abspath:
+            if (Path(self.project_dir) / macro.original_file_path).resolve() == fname:
                 return "dbt macro"
 
         # Scan disabled nodes.
         for nodes in self.dbt_manifest.disabled.values():
             for node in nodes:
-                if os.path.abspath(node.original_file_path) == abspath:
+                if (
+                    Path(self.project_dir) / node.original_file_path
+                ).resolve() == fname:
                     return "dbt model disabled"
         return None
 
-    def _unsafe_process(self, fname, in_str=None, config=None):
-        original_file_path = os.path.relpath(fname, start=os.getcwd())
+    def _unsafe_process(self, fname, in_str=None, config=None, dbt_dir=os.getcwd()):
+        original_file_path = os.path.relpath(fname, start=dbt_dir)
 
         # Below, we monkeypatch Environment.from_string() to intercept when dbt
         # compiles (i.e. runs Jinja) to expand the "node" corresponding to fname.
@@ -647,15 +687,22 @@ class DbtTemplater(JinjaTemplater):
         # https://github.com/dbt-labs/dbt-core/pull/7949
         # On the 1.5.x branch this was between 1.5.1 and 1.5.2
         try:
-            from dbt.task.contextvars import cv_project_root
+            from dbt_common.events.contextvars import set_task_contextvars
 
-            cv_project_root.set(self.project_dir)  # pragma: no cover
-        except ImportError:
-            cv_project_root = None
+            set_task_contextvars(project_root=self.project_dir)
+        except ImportError:  # pragma: no cover
+            try:
+                from dbt.events.contextvars import set_task_contextvars
+
+                set_task_contextvars(project_root=self.project_dir)
+            except ImportError:
+                from dbt.task.contextvars import cv_project_root
+
+                cv_project_root.set(self.project_dir)
 
         # NOTE: _find_node will raise a compilation exception if the project
         # fails to compile, and we catch that in the outer `.process()` method.
-        node, skip_reason = self._find_node(fname, config)
+        node, skip_reason = self._find_node(fname, config, dbt_dir)
         if node is None:
             return None, skip_reason
 
@@ -682,6 +729,7 @@ class DbtTemplater(JinjaTemplater):
                 node = self.dbt_compiler.compile_node(
                     node=node,
                     manifest=self.dbt_manifest,
+                    write=False,
                 )
             except UndefinedMacroError as err:
                 # The explanation on the undefined macro error is already fairly

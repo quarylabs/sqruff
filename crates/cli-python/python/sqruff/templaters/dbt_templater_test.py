@@ -186,6 +186,65 @@ def test_project_dir_from_env(tmp_path, monkeypatch):
     assert templater._get_project_dir() == str(explicit_project_dir.resolve())
 
 
+def test_process_passes_project_dir_without_changing_cwd(tmp_path, monkeypatch):
+    """Pass the dbt project root explicitly instead of changing process cwd."""
+    project_dir = tmp_path / "nested" / "dbt_project"
+    profiles_dir = project_dir / "profiles"
+    model = project_dir / "models" / "customers.sql"
+    profiles_dir.mkdir(parents=True)
+    model.parent.mkdir()
+    model.write_text("select 1\n")
+
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_apply_dbt_builtins=True,
+        jinja_library_paths=None,
+        jinja_templater_paths=None,
+        jinja_exclude_macros_from_path=None,
+        jinja_loader_search_path=None,
+        jinja_ignore_templating=None,
+        dbt_target=None,
+        dbt_profile=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=str(project_dir),
+        dbt_profiles_dir=str(profiles_dir),
+    )
+    templater = DbtTemplater(sqlfluff_config=config)
+    captured = {}
+
+    def fake_unsafe_process(fname, in_str, passed_config, dbt_dir):
+        captured.update(
+            fname=fname,
+            in_str=in_str,
+            config=passed_config,
+            dbt_dir=dbt_dir,
+        )
+        return "processed"
+
+    monkeypatch.setattr(templater, "_unsafe_process", fake_unsafe_process)
+    monkeypatch.setattr(
+        os,
+        "chdir",
+        lambda path: pytest.fail(f"process() changed cwd to {path}"),
+    )
+
+    assert (
+        templater.process(
+            fname=str(model),
+            in_str="select 1\n",
+            config=config,
+        )
+        == "processed"
+    )
+    assert captured == {
+        "fname": str(model.resolve()),
+        "in_str": "select 1\n",
+        "config": config,
+        "dbt_dir": str(project_dir.resolve()),
+    }
+
+
 def test_templater_caching():
     """Test that templater instances are cached per project directory."""
     current = Path(os.path.dirname(os.path.abspath(__file__)))

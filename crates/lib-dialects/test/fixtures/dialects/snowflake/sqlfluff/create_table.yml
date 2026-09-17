@@ -2609,3 +2609,22 @@ file:
               - table_reference:
                 - naked_identifier: raw
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: DELTA
+        - data_type:
+          - data_type_identifier: INT
+      - end_bracket: )
+- statement_terminator: ;

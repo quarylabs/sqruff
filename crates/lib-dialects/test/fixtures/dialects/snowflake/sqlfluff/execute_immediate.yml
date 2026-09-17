@@ -76,14 +76,14 @@ file:
   - execute_immediate_clause:
     - keyword: EXECUTE
     - keyword: IMMEDIATE
-    - colon: ':'
+    - colon_prefix: ':'
     - variable: three
 - statement_terminator: ;
 - statement:
   - execute_immediate_clause:
     - keyword: EXECUTE
     - keyword: IMMEDIATE
-    - colon: ':'
+    - colon_prefix: ':'
     - variable: three
     - keyword: USING
     - bracketed:

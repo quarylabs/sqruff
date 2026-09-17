@@ -2100,7 +2100,7 @@ file:
       - bracketed:
         - start_bracket: (
         - bind_variable:
-          - colon: ':'
+          - colon_prefix: ':'
           - variable: SOME_TABLE
         - end_bracket: )
     - bracketed:

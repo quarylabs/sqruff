@@ -163,6 +163,12 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
+            "ColonPrefixSegment".into(),
+            StringParser::new(":", SyntaxKind::ColonPrefix)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "StartBracketSegment".into(),
             StringParser::new("(", SyntaxKind::StartBracket)
                 .to_matchable()

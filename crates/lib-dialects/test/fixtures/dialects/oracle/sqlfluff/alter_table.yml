@@ -119,6 +119,21 @@ file:
       - oracle_table_reference:
         - naked_identifier: table_name
       - alter_table_constraint_clauses:
+        - keyword: RENAME
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: source_constraint_name
+        - keyword: TO
+        - object_reference:
+          - naked_identifier: target_constraint_name
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: table_name
+      - alter_table_constraint_clauses:
         - keyword: DROP
         - keyword: CONSTRAINT
         - object_reference:

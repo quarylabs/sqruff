@@ -6828,6 +6828,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 ])
                                 .to_matchable(),
                                 Sequence::new(vec![
+                                    Ref::keyword("NETWORK").to_matchable(),
+                                    Ref::keyword("RULE").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
                                     Ref::keyword("RESOURCE").to_matchable(),
                                     Ref::keyword("MONITOR").to_matchable(),
                                 ])
@@ -7456,6 +7461,45 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             .to_matchable(),
                     ])
                     .config(|this| this.optional())
+                    .to_matchable(),
+                    any_set_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("TYPE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("IPV4").to_matchable(),
+                                Ref::keyword("AWSVPCEID").to_matchable(),
+                                Ref::keyword("AZURELINKID").to_matchable(),
+                                Ref::keyword("HOST_PORT").to_matchable(),
+                                Ref::keyword("PRIVATE_HOST_PORT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("VALUE_LIST").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("MODE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("INGRESS").to_matchable(),
+                                Ref::keyword("INTERNAL_STAGE").to_matchable(),
+                                Ref::keyword("EGRESS").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
                     .to_matchable(),
                     Ref::new("CommentEqualsClauseSegment")
                         .optional()

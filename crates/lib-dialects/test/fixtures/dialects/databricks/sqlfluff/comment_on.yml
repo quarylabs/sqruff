@@ -92,3 +92,27 @@ file:
   - keyword: IS
   - quoted_literal: '''Huge volume'''
 - statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: COLUMN
+  - column_reference:
+    - naked_identifier: my_catalog
+    - dot: .
+    - naked_identifier: my_schema
+    - dot: .
+    - naked_identifier: my_table
+    - dot: .
+    - naked_identifier: my_column
+  - keyword: IS
+  - quoted_literal: '''This is my column in a catalog'''
+- statement_terminator: ;
+- statement:
+  - keyword: COMMENT
+  - keyword: ON
+  - keyword: COLUMN
+  - column_reference:
+    - naked_identifier: my_column
+  - keyword: IS
+  - quoted_literal: '''This is my column'''
+- statement_terminator: ;

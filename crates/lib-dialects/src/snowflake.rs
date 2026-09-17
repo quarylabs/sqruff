@@ -2265,6 +2265,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("DropDynamicTableSegment").to_matchable(),
                 Ref::new("DropIcebergTableStatementSegment").to_matchable(),
                 Ref::new("CreateAuthenticationPolicySegment").to_matchable(),
+                Ref::new("ScriptingRaiseStatementSegment").to_matchable(),
                 Ref::new("ForInLoopSegment").to_matchable(),
                 Ref::new("CreateEventTableStatementSegment").to_matchable(),
                 Ref::new("CreatePasswordPolicyStatementSegment").to_matchable(),
@@ -5364,6 +5365,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                 ])
                 .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ScriptingRaiseStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ScriptingRaiseStatement, |_| {
+                Ref::keyword("RAISE").to_matchable()
             })
             .to_matchable()
             .into(),

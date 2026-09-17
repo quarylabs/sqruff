@@ -84,6 +84,13 @@ file:
         - data_type:
           - data_type_identifier: commissions
         - statement_terminator: ;
+        - naked_identifier: current_date
+        - data_type:
+          - data_type_identifier: DATE
+        - oracle_assignment_operator: :=
+        - expression:
+          - bare_function: SYSDATE
+        - statement_terminator: ;
       - keyword: BEGIN
       - statement:
         - assignment_segment_statement:
@@ -194,6 +201,62 @@ file:
             - numeric_literal: '20000'
             - binary_operator: '*'
             - numeric_literal: '0.15'
+      - statement_terminator: ;
+      - statement:
+        - oracle_if_then_statement:
+          - oracle_if_clause:
+            - keyword: IF
+            - expression:
+              - column_reference:
+                - naked_identifier: counter
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+              - numeric_literal: '5'
+            - keyword: THEN
+          - statement:
+            - assignment_segment_statement:
+              - object_reference:
+                - naked_identifier: wages
+              - oracle_assignment_operator: :=
+              - expression:
+                - column_reference:
+                  - naked_identifier: wages
+                - binary_operator: '*'
+                - numeric_literal: '1.10'
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - statement:
+        - assignment_segment_statement:
+          - object_reference:
+            - naked_identifier: bonus
+          - oracle_assignment_operator: :=
+          - expression:
+            - case_expression:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - column_reference:
+                    - naked_identifier: wages
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                  - numeric_literal: '60000'
+                - keyword: THEN
+                - expression:
+                  - column_reference:
+                    - naked_identifier: wages
+                  - binary_operator: '*'
+                  - numeric_literal: '0.15'
+              - else_clause:
+                - keyword: ELSE
+                - expression:
+                  - column_reference:
+                    - naked_identifier: wages
+                  - binary_operator: '*'
+                  - numeric_literal: '0.10'
+              - keyword: END
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
@@ -361,5 +424,65 @@ file:
       - statement_terminator: ;
       - keyword: END
   - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: FUNCTION
+      - oracle_function_name:
+        - function_name_identifier: CALCULATE_BONUS
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - parameter: base_salary
+          - data_type:
+            - data_type_identifier: NUMBER
+          - oracle_assignment_operator: :=
+          - expression:
+            - numeric_literal: '50000'
+          - comma: ','
+          - parameter: bonus_rate
+          - data_type:
+            - data_type_identifier: NUMBER
+          - oracle_assignment_operator: :=
+          - expression:
+            - numeric_literal: '0.10'
+          - end_bracket: )
+      - keyword: RETURN
+      - data_type:
+        - data_type_identifier: NUMBER
+      - keyword: AS
+      - oracle_declare_segment:
+        - naked_identifier: result_bonus
+        - data_type:
+          - data_type_identifier: NUMBER
+        - statement_terminator: ;
+      - oracle_begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - assignment_segment_statement:
+            - object_reference:
+              - naked_identifier: result_bonus
+            - oracle_assignment_operator: :=
+            - expression:
+              - column_reference:
+                - naked_identifier: base_salary
+              - binary_operator: '*'
+              - column_reference:
+                - naked_identifier: bonus_rate
+        - statement_terminator: ;
+        - statement:
+          - oracle_return_statement:
+            - keyword: RETURN
+            - expression:
+              - column_reference:
+                - naked_identifier: result_bonus
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
   - slash_buffer_executor:
     - slash: /

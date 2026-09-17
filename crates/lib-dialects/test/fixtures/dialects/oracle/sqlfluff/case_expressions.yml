@@ -1709,3 +1709,56 @@ file:
               - oracle_table_reference:
                 - naked_identifier: abc
   - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - case_expression:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - column_reference:
+                    - naked_identifier: abc
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - numeric_literal: '1'
+                - keyword: THEN
+                - expression:
+                  - null_literal: 'NULL'
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: defg
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - numeric_literal: '2'
+                      - binary_operator: AND
+                      - column_reference:
+                        - naked_identifier: hijk
+                      - comparison_operator:
+                        - raw_comparison_operator: =
+                      - numeric_literal: '3'
+                    - end_bracket: )
+                - keyword: THEN
+                - expression:
+                  - null_literal: 'NULL'
+              - keyword: END
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: result
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: abc
+  - statement_terminator: ;

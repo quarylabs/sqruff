@@ -1,90 +1,92 @@
 file:
-- statement:
-  - create_trigger_statement:
-    - create_trigger:
-      - keyword: CREATE
-      - keyword: OR
-      - keyword: ALTER
-      - keyword: TRIGGER
-      - trigger_reference:
-        - naked_identifier: reminder1
-      - keyword: ON
-      - table_reference:
-        - object_reference:
-          - naked_identifier: Sales
-          - dot: .
-          - naked_identifier: Customer
-      - keyword: AFTER
-      - keyword: INSERT
-      - comma: ','
-      - keyword: UPDATE
-      - keyword: AS
-      - statement:
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - numeric_literal: '1'
-- statement_terminator: ;
-- statement:
-  - keyword: GO
-- statement:
-  - create_trigger_statement:
-    - create_trigger:
-      - keyword: CREATE
-      - keyword: TRIGGER
-      - trigger_reference:
-        - naked_identifier: reminder
-      - keyword: ON
-      - table_reference:
-        - object_reference:
-          - naked_identifier: person
-          - dot: .
-          - naked_identifier: address
-      - keyword: AFTER
-      - keyword: UPDATE
-      - keyword: AS
-      - statement:
-        - keyword: IF
-        - expression:
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: UPDATE
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: stateprovinceid
-                    - end_bracket: )
-              - binary_operator: OR
-              - function:
-                - function_name:
-                  - function_name_identifier: UPDATE
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - column_reference:
-                        - naked_identifier: postalcode
-                    - end_bracket: )
-            - end_bracket: )
+- batch:
+  - statement:
+    - create_trigger_statement:
+      - create_trigger:
+        - keyword: CREATE
+        - keyword: OR
+        - keyword: ALTER
+        - keyword: TRIGGER
+        - trigger_reference:
+          - naked_identifier: reminder1
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Sales
+            - dot: .
+            - naked_identifier: Customer
+        - keyword: AFTER
+        - keyword: INSERT
+        - comma: ','
+        - keyword: UPDATE
+        - keyword: AS
         - statement:
-          - keyword: BEGIN
-          - raiserror_statement:
-            - keyword: RAISERROR
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - integer_literal: '1'
+  - statement_terminator: ;
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - create_trigger_statement:
+      - create_trigger:
+        - keyword: CREATE
+        - keyword: TRIGGER
+        - trigger_reference:
+          - naked_identifier: reminder
+        - keyword: ON
+        - table_reference:
+          - object_reference:
+            - naked_identifier: person
+            - dot: .
+            - naked_identifier: address
+        - keyword: AFTER
+        - keyword: UPDATE
+        - keyword: AS
+        - statement:
+          - keyword: IF
+          - expression:
             - bracketed:
               - start_bracket: (
-              - numeric_literal: '50009'
-              - comma: ','
-              - numeric_literal: '16'
-              - comma: ','
-              - numeric_literal: '10'
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: UPDATE
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: stateprovinceid
+                      - end_bracket: )
+                - binary_operator: OR
+                - function:
+                  - function_name:
+                    - function_name_identifier: UPDATE
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: postalcode
+                      - end_bracket: )
               - end_bracket: )
-          - keyword: END
-- statement_terminator: ;
-- statement:
-  - keyword: GO
+          - statement:
+            - keyword: BEGIN
+            - raiserror_statement:
+              - keyword: RAISERROR
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '50009'
+                - comma: ','
+                - numeric_literal: '16'
+                - comma: ','
+                - numeric_literal: '10'
+                - end_bracket: )
+            - keyword: END
+  - statement_terminator: ;
+  - go_statement:
+    - keyword: GO

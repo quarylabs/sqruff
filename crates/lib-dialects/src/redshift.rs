@@ -256,6 +256,251 @@ pub fn raw_dialect() -> Dialect {
 
     redshift_dialect.add([
         (
+            "FromIntegrationClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::FromIntegrationClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::keyword("INTEGRATION").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DATABASE").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    })
+                    .to_matchable(),
+                    any_set_of(vec![
+                        Ref::keyword("SET").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ACCEPTINVCHARS").to_matchable(),
+                            Ref::new("EqualsSegment").optional().to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("QUERY_ALL_STATES").to_matchable(),
+                            Ref::new("EqualsSegment").optional().to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REFRESH_INTERVAL").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("TRUNCATECOLUMNS").to_matchable(),
+                            Ref::new("EqualsSegment").optional().to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("HISTORY_MODE").to_matchable(),
+                            Ref::new("EqualsSegment").optional().to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "IamRoleClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::IamRoleClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("IAM_ROLE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "IsolationLevelClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::IsolationLevelClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ISOLATION").to_matchable(),
+                    Ref::keyword("LEVEL").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("SERIALIZABLE").to_matchable(),
+                        Ref::keyword("SNAPSHOT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CollationClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::CollationClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("COLLATE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("CASE_SENSITIVE").to_matchable(),
+                        Ref::keyword("CS").to_matchable(),
+                        Ref::keyword("CASE_INSENSITIVE").to_matchable(),
+                        Ref::keyword("CI").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ConnectionLimitSegment".into(),
+            NodeMatcher::new(SyntaxKind::ConnectionLimitSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CONNECTION").to_matchable(),
+                    Ref::keyword("LIMIT").to_matchable(),
+                    one_of(vec![
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::keyword("UNLIMITED").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateDatabaseWithOptionsSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateDatabaseWithOptions, |_| {
+                any_set_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("OWNER").to_matchable(),
+                        Ref::new("EqualsSegment").optional().to_matchable(),
+                        Ref::new("RoleReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ConnectionLimitSegment").to_matchable(),
+                    Ref::new("CollationClauseSegment").to_matchable(),
+                    Ref::new("IsolationLevelClauseSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FromDatashareClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::FromDatashareClause, |_| {
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("PERMISSIONS").to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    })
+                    .to_matchable(),
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::keyword("DATASHARE").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::keyword("OF").to_matchable(),
+                    Sequence::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ACCOUNT").to_matchable(),
+                            one_of(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| {
+                            this.optional();
+                        })
+                        .to_matchable(),
+                        Ref::keyword("NAMESPACE").to_matchable(),
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ArnCatalogSchemaSegment".into(),
+            NodeMatcher::new(SyntaxKind::ArnCatalogSchemaSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::keyword("ARN").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("DATA").to_matchable(),
+                            Ref::keyword("CATALOG").to_matchable(),
+                            Ref::keyword("SCHEMA").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("NO").to_matchable(),
+                            Ref::keyword("DATA").to_matchable(),
+                            Ref::keyword("CATALOG").to_matchable(),
+                            Ref::keyword("SCHEMA").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateDatabaseStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateDatabaseStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("DATABASE").to_matchable(),
+                    Ref::new("DatabaseReferenceSegment").to_matchable(),
+                    any_set_of(vec![
+                        Ref::new("FromIntegrationClauseSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::new("CreateDatabaseWithOptionsSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ArnCatalogSchemaSegment").to_matchable(),
+                        Ref::new("IamRoleClauseSegment").to_matchable(),
+                        Ref::new("FromDatashareClauseSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "FromUnpivotExpressionSegment".into(),
             NodeMatcher::new(SyntaxKind::FromUnpivotExpression, |_| {
                 Sequence::new(vec![
@@ -2883,16 +3128,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("QuotedLiteralSegment").to_matchable(),
                 ])
                 .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("CONNECTION").to_matchable(),
-                    Ref::keyword("LIMIT").to_matchable(),
-                    one_of(vec![
-                        Ref::new("NumericLiteralSegment").to_matchable(),
-                        Ref::keyword("UNLIMITED").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("ConnectionLimitSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("SESSION").to_matchable(),
                     Ref::keyword("TIMEOUT").to_matchable(),
@@ -2981,16 +3217,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("ObjectReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("CONNECTION").to_matchable(),
-                            Ref::keyword("LIMIT").to_matchable(),
-                            one_of(vec![
-                                Ref::new("NumericLiteralSegment").to_matchable(),
-                                Ref::keyword("UNLIMITED").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("ConnectionLimitSegment").to_matchable(),
                         one_of(vec![
                             Sequence::new(vec![
                                 Ref::keyword("SESSION").to_matchable(),

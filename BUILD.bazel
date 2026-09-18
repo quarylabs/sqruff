@@ -496,7 +496,7 @@ test_suite(
     ],
 )
 
-# Validate the same cached site that is published by //:website.
+# Verify the cached Zensical build produced the expected site entry points.
 sh_test(
     name = "zensical_build",
     size = "small",

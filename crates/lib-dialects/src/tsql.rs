@@ -55,9 +55,18 @@ pub fn raw_dialect() -> Dialect {
         "MAXDOP",
         "MINUTES",
         "PARTITIONS",
+        "BASE64",
+        "ELEMENTS",
+        "EXPLICIT",
+        "INCLUDE_NULL_VALUES",
+        "ROOT",
         "SWITCH",
         "TRUNCATE_TARGET",
         "WAIT_AT_LOW_PRIORITY",
+        "WITHOUT_ARRAY_WRAPPER",
+        "XMLDATA",
+        "XMLSCHEMA",
+        "XSINIL",
     ]);
     dialect.replace_grammar("NanLiteralSegment", Nothing::new().to_matchable());
 
@@ -583,24 +592,145 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // T-SQL permits adjacent SELECT statements without semicolons, as used by
-    // the JSON function fixtures. Preserve the existing clauses but remove
-    // ANSI's greedy parsing and statement terminators, matching upstream T-SQL.
+    // T-SQL permits adjacent SELECT statements without semicolons. Preserve
+    // the existing clauses while removing ANSI's greedy parsing and statement
+    // terminators, then add the T-SQL result-formatting clause.
     for (name, grammar) in [
         ("SelectClauseSegment", ansi::select_clause_segment()),
         (
             "UnorderedSelectStatementSegment",
             ansi::get_unordered_select_statement_segment_grammar(),
         ),
-        ("SelectStatementSegment", ansi::select_statement()),
     ] {
         dialect.replace_grammar(
             name,
             Sequence::new(grammar.elements().to_vec()).to_matchable(),
         );
     }
+    let mut select_elements = ansi::select_statement().elements().to_vec();
+    select_elements.push(Ref::new("ForClauseSegment").optional().to_matchable());
+    dialect.replace_grammar(
+        "SelectStatementSegment",
+        Sequence::new(select_elements).to_matchable(),
+    );
 
     dialect.add([
+        (
+            "ForClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::ForClause, |_| {
+                let optional_literal = || {
+                    Bracketed::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                        .config(|this| this.optional())
+                        .to_matchable()
+                };
+                let common_xml_directives = AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("BINARY").to_matchable(),
+                        Ref::keyword("BASE64").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("TYPE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ROOT").to_matchable(),
+                        optional_literal(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+                let elements = Sequence::new(vec![
+                    Ref::keyword("ELEMENTS").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("XSINIL").to_matchable(),
+                        Ref::keyword("ABSENT").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable();
+
+                Sequence::new(vec![
+                    Ref::keyword("FOR").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("BROWSE").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("JSON").to_matchable(),
+                            Delimited::new(vec![
+                                one_of(vec![
+                                    Ref::keyword("AUTO").to_matchable(),
+                                    Ref::keyword("PATH").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ROOT").to_matchable(),
+                                    optional_literal(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                                Ref::keyword("INCLUDE_NULL_VALUES")
+                                    .optional()
+                                    .to_matchable(),
+                                Ref::keyword("WITHOUT_ARRAY_WRAPPER")
+                                    .optional()
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("XML").to_matchable(),
+                            one_of(vec![
+                                Delimited::new(vec![
+                                    Sequence::new(vec![
+                                        Ref::keyword("PATH").to_matchable(),
+                                        optional_literal(),
+                                    ])
+                                    .to_matchable(),
+                                    common_xml_directives.clone(),
+                                    elements.clone(),
+                                ])
+                                .to_matchable(),
+                                Delimited::new(vec![
+                                    Ref::keyword("EXPLICIT").to_matchable(),
+                                    common_xml_directives.clone(),
+                                    Ref::keyword("XMLDATA").optional().to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Delimited::new(vec![
+                                    one_of(vec![
+                                        Ref::keyword("AUTO").to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("RAW").to_matchable(),
+                                            optional_literal(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    common_xml_directives,
+                                    elements,
+                                    one_of(vec![
+                                        Ref::keyword("XMLDATA").to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("XMLSCHEMA").to_matchable(),
+                                            optional_literal(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "JsonFunctionNameSegment".into(),
             NodeMatcher::new(SyntaxKind::FunctionName, |_| {

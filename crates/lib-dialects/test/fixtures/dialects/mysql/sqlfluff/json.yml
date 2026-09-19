@@ -43,10 +43,11 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: sentence
+        - expression:
+          - column_reference:
+            - naked_identifier: sentence
           - column_path_operator: ->
-          - json_path: '"$.mascot"'
+          - quoted_literal: '"$.mascot"'
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -60,10 +61,11 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: sentence
+        - expression:
+          - column_reference:
+            - naked_identifier: sentence
           - column_path_operator: ->
-          - json_path: '''$.mascot'''
+          - quoted_literal: '''$.mascot'''
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -77,10 +79,11 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: sentence
-          - inline_path_operator: ->>
-          - json_path: '"$.mascot"'
+        - expression:
+          - column_reference:
+            - naked_identifier: sentence
+          - column_path_operator: ->>
+          - quoted_literal: '"$.mascot"'
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -94,10 +97,11 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
-          - naked_identifier: sentence
-          - inline_path_operator: ->>
-          - json_path: '''$.mascot'''
+        - expression:
+          - column_reference:
+            - naked_identifier: sentence
+          - column_path_operator: ->>
+          - quoted_literal: '''$.mascot'''
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -132,8 +136,8 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: sentence
-                  - column_path_operator: ->
-                  - json_path: '"$.mascot"'
+                - column_path_operator: ->
+                - quoted_literal: '"$.mascot"'
               - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: =
@@ -158,8 +162,8 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: sentence
-          - column_path_operator: ->
-          - json_path: '"$.mascot"'
+        - column_path_operator: ->
+        - quoted_literal: '"$.mascot"'
         - keyword: IS
         - null_literal: 'NULL'
 - statement_terminator: ;

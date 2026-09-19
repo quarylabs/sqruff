@@ -26,6 +26,12 @@
 
 Try it in the browser: https://playground.quary.dev
 
+## Table of contents
+
+1. [Quickstart](#quickstart)
+2. [Editor integrations](#editor-integrations)
+3. [Documentation](#documentation)
+
 ## Quickstart
 
 ### Install (macOS)

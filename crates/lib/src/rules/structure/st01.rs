@@ -58,6 +58,10 @@ from x
         &[RuleGroups::All, RuleGroups::Structure]
     }
 
+    fn is_fix_compatible(&self) -> bool {
+        true
+    }
+
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {
         let anchor = context.segment.clone();
 

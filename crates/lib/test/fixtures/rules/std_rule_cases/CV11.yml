@@ -412,3 +412,20 @@ test_pass_cast_inside_aggregate_function:
   configs:
     core:
       dialect: postgres
+
+test_pass_macro_cast:
+  # If a cast is in a templated section, it shouldn't
+  # mean the ones in the file are inconsistent.
+  pass_str: |
+    {% macro cast_macro(col) %}
+        CAST(col as int)
+    {% endmacro %}
+
+    select
+        a,
+        {{ cast_macro('b') }},
+        c::date as d
+    from tbl
+  configs:
+    core:
+      templater: jinja

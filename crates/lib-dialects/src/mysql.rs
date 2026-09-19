@@ -218,11 +218,11 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
-    // SystemVariableSegment - @@session.var or @@global.var.
+    // SystemVariableSegment - @@var, @@session.var, or @@global.var.
     mysql.add([(
         "SystemVariableSegment".into(),
         RegexParser::new(
-            r"@@(session|global)\.[A-Za-z0-9_]+",
+            r"@@((session|global)\.)?[A-Za-z0-9_]+",
             SyntaxKind::SystemVariable,
         )
         .to_matchable()
@@ -363,7 +363,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "InlinePathOperatorSegment".into(),
-            StringParser::new("->>", SyntaxKind::InlinePathOperator)
+            StringParser::new("->>", SyntaxKind::ColumnPathOperator)
                 .to_matchable()
                 .into(),
         ),
@@ -719,6 +719,22 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("ModOperatorSegment").to_matchable(),
         ])
         .to_matchable(),
+    );
+
+    let binary_operator_grammar = mysql.grammar("BinaryOperatorGrammar");
+    mysql.replace_grammar(
+        "BinaryOperatorGrammar",
+        binary_operator_grammar.copy(
+            Some(vec![
+                Ref::new("ColumnPathOperatorSegment").to_matchable(),
+                Ref::new("InlinePathOperatorSegment").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            vec![],
+            false,
+        ),
     );
 
     // MySQL 8.0+ supports CTEs with DML statements.
@@ -1561,6 +1577,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("QuotedLiteralSegment").to_matchable(),
                             Ref::new("DoubleQuotedLiteralSegment").to_matchable(),
                             Ref::new("SessionVariableNameSegment").to_matchable(),
+                            Ref::new("SystemVariableSegment").to_matchable(),
                             Ref::new("BooleanDynamicSystemVariablesGrammar").to_matchable(),
                             Ref::new("LocalVariableNameSegment").to_matchable(),
                             Ref::new("FunctionSegment").to_matchable(),
@@ -2487,6 +2504,14 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("KEYS").to_matchable(),
                     ])
                     .to_matchable(),
+                    // CONVERT TO CHARACTER SET charset_name [COLLATE collation_name]
+                    Sequence::new(vec![
+                        Ref::keyword("CONVERT").to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        AnyNumberOf::new(vec![Ref::new("AlterOptionSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])
@@ -2851,11 +2876,13 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("UPDATE").to_matchable(),
             Ref::keyword("LOW_PRIORITY").optional().to_matchable(),
             Ref::keyword("IGNORE").optional().to_matchable(),
+            MetaSegment::indent().to_matchable(),
             Delimited::new(vec![
                 Ref::new("TableReferenceSegment").to_matchable(),
                 Ref::new("FromExpressionSegment").to_matchable(),
             ])
             .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
             Ref::new("SetClauseListSegment").to_matchable(),
             Ref::new("WhereClauseSegment").optional().to_matchable(),
             Ref::new("OrderByClauseSegment").optional().to_matchable(),
@@ -3152,33 +3179,6 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("TRIGGER").to_matchable(),
             Ref::new("IfExistsGrammar").optional().to_matchable(),
             Ref::new("TriggerReferenceSegment").to_matchable(),
-        ])
-        .to_matchable(),
-    );
-
-    // ColumnReferenceSegment - add JSON path operators.
-    // Base is a delimited list of identifiers (ANSI), plus optional JSON path.
-    let base_col_ref = Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
-        .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
-        .to_matchable();
-    mysql.replace_grammar(
-        "ColumnReferenceSegment",
-        one_of(vec![
-            Sequence::new(vec![
-                base_col_ref.clone(),
-                one_of(vec![
-                    Ref::new("ColumnPathOperatorSegment").to_matchable(),
-                    Ref::new("InlinePathOperatorSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                one_of(vec![
-                    Ref::new("DoubleQuotedJSONPath").to_matchable(),
-                    Ref::new("SingleQuotedJSONPath").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            base_col_ref,
         ])
         .to_matchable(),
     );

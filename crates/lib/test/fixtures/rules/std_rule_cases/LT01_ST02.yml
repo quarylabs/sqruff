@@ -1,0 +1,15 @@
+rule: LT01,ST02
+
+test_fix_simple_case_without_function_spacing:
+  # SQLFluff issue #6366
+  fail_str: |
+    select
+        case
+            when ended_at is null or date(ended_at) > current_date()
+            then true else false
+        end as is_active
+    from foo
+  fix_str: |
+    select
+        coalesce(ended_at is null or date(ended_at) > current_date(), false) as is_active
+    from foo

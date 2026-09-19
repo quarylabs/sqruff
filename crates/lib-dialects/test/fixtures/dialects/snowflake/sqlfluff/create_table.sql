@@ -117,6 +117,23 @@ AS
 SELECT var:id::int id, var:fname::string first_name,
 var:lname::string last_name FROM raw;
 
+CREATE OR ALTER TABLE some_table (
+  id INTEGER NOT NULL
+);
+
+CREATE OR REPLACE DYNAMIC TABLE names(
+  id,
+  first_name,
+  last_name
+)
+REFRESH_MODE = AUTO
+TARGET_LAG = '1 minute'
+INITIALIZE = ON_CREATE
+WAREHOUSE = 'mywh'
+AS
+SELECT var:id::int id, var:fname::string first_name,
+var:lname::string last_name FROM raw;
+
 CREATE OR REPLACE DYNAMIC TABLE DT_WITH_DOWNSTREAM_LAG
 TARGET_LAG = DOWNSTREAM
 WAREHOUSE = mywh
@@ -194,6 +211,33 @@ CREATE TABLE some_schema.some_table
   , some_text_value VARCHAR(100)
   , some_event_date_time_utc VARCHAR AS (TO_TIMESTAMP(SUBSTR(some_text_value, 5, 13)))
   , some_other_event_date_time_utc TIMESTAMP AS (IFF(is_condition_true AND TRY_TO_NUMBER(some_text_value) IS NOT NULL, TO_TIMESTAMP(SUBSTR(some_text_value, 5, 13)), '1900-01-01')) COMMENT 'The date and time of the other event'
+);
+
+
+CREATE OR REPLACE TABLE some_table (
+  id INTEGER NOT NULL,
+  CONSTRAINT MY_FK FOREIGN KEY (id) REFERENCES another_table(id) MATCH SIMPLE ON DELETE RESTRICT
+);
+
+CREATE OR REPLACE TABLE some_table (
+  id INTEGER NOT NULL,
+  CONSTRAINT MY_FK FOREIGN KEY (id) REFERENCES another_table MATCH FULL ON DELETE RESTRICT
+);
+
+
+CREATE OR REPLACE TABLE some_table (
+    ID INTEGER NOT NULL CONSTRAINT MY_FK
+    FOREIGN KEY REFERENCES another_table (id)
+    MATCH PARTIAL
+    ON DELETE RESTRICT
+    ON UPDATE SET DEFAULT
+);
+
+CREATE OR REPLACE TABLE some_table (
+    ID INTEGER NOT NULL,
+    CONSTRAINT MY_FK FOREIGN KEY (ID) REFERENCES another_table (id)
+    MATCH SIMPLE
+    ON DELETE CASCADE
 );
 
 CREATE OR REPLACE TABLE IF NOT EXISTS EXAMPLE_TABLE_WITH_RLS (

@@ -323,6 +323,7 @@ fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'stati
         DialectKind::Bigquery
         | DialectKind::Databricks
         | DialectKind::Hive
+        | DialectKind::Impala
         | DialectKind::Mariadb
         | DialectKind::Mysql
         | DialectKind::Sparksql
@@ -349,6 +350,7 @@ mod tests {
             (DialectKind::Exasol, Some(("\"", "\""))),
             (DialectKind::Greenplum, Some(("\"", "\""))),
             (DialectKind::Hive, Some(("`", "`"))),
+            (DialectKind::Impala, Some(("`", "`"))),
             (DialectKind::Mariadb, Some(("`", "`"))),
             (DialectKind::Mysql, Some(("`", "`"))),
             (DialectKind::Oracle, Some(("\"", "\""))),

@@ -1,4 +1,5 @@
 use hashbrown::HashMap;
+use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 
 use crate::core::config::Value;
@@ -93,6 +94,16 @@ ORDER BY a ASC, b DESC
             });
 
         if skip {
+            return Vec::new();
+        }
+
+        // BigQuery does not support implicit ordering inside array expressions,
+        // so AM06 should not apply to GROUP BY or ORDER BY clauses nested in one.
+        if context.dialect.name == DialectKind::Bigquery
+            && FunctionalContext::new(context)
+                .parent_stack()
+                .any_match(|it| it.is_type(SyntaxKind::ArrayExpression))
+        {
             return Vec::new();
         }
 

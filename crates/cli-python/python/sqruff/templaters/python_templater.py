@@ -49,6 +49,10 @@ class SQLTemplaterError(Exception):
         self.message = message
 
 
+class SQLFluffSkipFile(RuntimeError):
+    """An error returned from a templater to skip a file."""
+
+
 def zero_slice(i: int) -> slice:
     """Construct a zero slice from a single integer."""
     return slice(i, i)

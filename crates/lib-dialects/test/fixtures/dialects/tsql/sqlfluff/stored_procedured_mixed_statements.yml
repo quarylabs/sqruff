@@ -89,7 +89,7 @@ file:
       - keyword: TABLE
       - table_reference:
         - object_reference:
-          - naked_identifier: '#TempTest'
+          - hash_identifier: '#TempTest'
       - keyword: WITH
       - bracketed:
         - start_bracket: (

@@ -14,6 +14,7 @@ Sqruff currently supports the following SQL dialects:
 - [exasol](#exasol)
 - [greenplum](#greenplum)
 - [hive](#hive)
+- [impala](#impala)
 - [mariadb](#mariadb)
 - [materialize](#materialize)
 - [mysql](#mysql)
@@ -65,9 +66,9 @@ Amazon Athena SQL dialect for querying data in S3.
 
 Google BigQuery SQL dialect for analytics and data warehousing.
 
-**Default Casing:** `UPPERCASE`
+**Default Casing:** BigQuery resolves unquoted column identifiers case-insensitively, and table and dataset identifiers case-sensitively by default. Columns retain the case used by each reference in result-set labels.
 
-**Quotes:** String literals: `''`, `""`, `@`, or `@@`; quoted strings also support `r`/`R` raw or regex prefixes and `b`/`B` byte-string prefixes. Identifiers: `""` or backticks. Unquoted aliases resolve case-insensitively but retain their case in result sets.
+**Quotes:** String literals: `''`, `""`, `@`, or `@@`; quoted strings also support `r`/`R` raw or regex prefixes and `b`/`B` byte-string prefixes. Identifiers: `""` or backticks.
 
 **Documentation:** [https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax](https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax)
 
@@ -80,6 +81,10 @@ Google BigQuery SQL dialect for analytics and data warehousing.
 ### clickhouse
 
 ClickHouse SQL dialect for real-time analytics.
+
+**Default Casing:** ClickHouse is case-sensitive throughout, regardless of quoting. An unquoted reference using the wrong case raises an `UNKNOWN_IDENTIFIER` error.
+
+**Quotes:** String literals: `''`; identifiers: `""` or backticks. Because identifiers are always resolved case-sensitively, quoting is only needed for invalid characters or reserved keywords.
 
 **Documentation:** [https://clickhouse.com/docs/en/sql-reference/](https://clickhouse.com/docs/en/sql-reference/)
 
@@ -162,6 +167,18 @@ Apache Hive SQL dialect for data warehousing.
 **Configuration:**
 ```ini
 [sqruff:dialect:hive]
+```
+
+
+### impala
+
+Apache Impala SQL dialect for distributed SQL queries.
+
+**Documentation:** [https://impala.apache.org/docs/build/html/topics/impala_langref.html](https://impala.apache.org/docs/build/html/topics/impala_langref.html)
+
+**Configuration:**
+```ini
+[sqruff:dialect:impala]
 ```
 
 
@@ -343,7 +360,7 @@ Teradata SQL dialect for the Teradata analytics platform.
 
 Trino (formerly PrestoSQL) dialect for distributed SQL queries.
 
-**Default Casing:** `UPPERCASE`
+**Default Casing:** `lowercase`, although the case of a reference is used in its result-set column label.
 
 **Quotes:** String literals: `''`; identifiers: `""`.
 

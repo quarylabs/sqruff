@@ -27,6 +27,7 @@ default = [
     "exasol",
     "greenplum",
     "hive",
+    "impala",
     "mariadb",
     "mysql",
     "materialize",
@@ -51,6 +52,7 @@ duckdb = ["postgres"]
 exasol = []
 greenplum = ["postgres"]
 hive = []
+impala = ["hive"]
 mariadb = ["mysql"]
 mysql = []
 materialize = ["postgres"]

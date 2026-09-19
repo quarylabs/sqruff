@@ -61,7 +61,6 @@ SELECT a, b FROM table_2
             DialectKind::Duckdb,
             DialectKind::Exasol,
             DialectKind::Postgres,
-            DialectKind::Snowflake,
             DialectKind::Sparksql,
         ]
     }
@@ -131,6 +130,8 @@ mod tests {
             DialectKind::Clickhouse,
             DialectKind::Databricks,
             DialectKind::Db2,
+            DialectKind::Snowflake,
+            DialectKind::Trino,
         ] {
             assert!(!skipped.contains(&dialect));
         }

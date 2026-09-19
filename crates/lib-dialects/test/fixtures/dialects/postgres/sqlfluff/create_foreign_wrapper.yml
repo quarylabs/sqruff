@@ -1,0 +1,13 @@
+file:
+- statement:
+  - create_foreign_data_wrapper:
+    - keyword: create
+    - keyword: foreign
+    - keyword: data
+    - keyword: wrapper
+    - naked_identifier: stripe_wrapper
+    - keyword: handler
+    - naked_identifier: stripe_fdw_handler
+    - keyword: validator
+    - naked_identifier: stripe_fdw_validator
+- statement_terminator: ;

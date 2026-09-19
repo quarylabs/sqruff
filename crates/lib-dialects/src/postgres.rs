@@ -334,6 +334,7 @@ fn build_datatype_segment_grammar(pgvector: bool) -> Matchable {
             Ref::new("WellKnownTextGeometrySegment").to_matchable(),
             Ref::new("DateTimeTypeIdentifier").to_matchable(),
             Ref::new("StructTypeSegment").to_matchable(),
+            Ref::new("MapTypeSegment").to_matchable(),
             Sequence::new(vec![one_of(known_types).to_matchable()]).to_matchable(),
             Ref::new("DatatypeIdentifierSegment").to_matchable(),
         ])
@@ -522,6 +523,11 @@ pub fn raw_dialect() -> Dialect {
             r#"[bBxX]'[0-9a-fA-F]*'"#,
             SyntaxKind::BitStringLiteral
         ),
+        Matcher::string(
+            "full_text_search_operator",
+            "!!",
+            SyntaxKind::FullTextSearchOperator,
+        ),
     ], "like_operator");
 
     postgres.insert_lexer_matchers(
@@ -651,6 +657,15 @@ pub fn raw_dialect() -> Dialect {
             StringParser::new(":=", SyntaxKind::AssignmentOperator)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "FullTextSearchOperatorSegment".into(),
+            TypedParser::new(
+                SyntaxKind::FullTextSearchOperator,
+                SyntaxKind::FullTextSearchOperator,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "SimpleGeometryGrammar".into(),
@@ -854,6 +869,26 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    let expression_c_grammar = postgres.grammar("Expression_C_Grammar");
+    postgres.replace_grammar(
+        "Expression_C_Grammar",
+        Sequence::new(vec![
+            Ref::new("WalrusOperatorSegment").optional().to_matchable(),
+            one_of(vec![
+                expression_c_grammar,
+                Sequence::new(vec![
+                    Ref::new("FullTextSearchOperatorSegment")
+                        .optional()
+                        .to_matchable(),
+                    Ref::new("ShorthandCastSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     postgres.add([
         (
             "LikeGrammar".into(),
@@ -1028,7 +1063,19 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("DatatypeSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::new("ParameterNameSegment").to_matchable(),
-                        Ref::new("DatatypeSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("IN").to_matchable(),
+                            Ref::keyword("OUT").to_matchable(),
+                            Ref::keyword("INOUT").to_matchable(),
+                            Ref::keyword("VARIADIC").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Ref::new("ColumnTypeReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -1045,6 +1092,21 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.optional())
                 .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A column type reference (e.g. `table_name.column_name%type`).
+            // https://www.postgresql.org/docs/current/sql-createfunction.html
+            "ColumnTypeReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnTypeReference, |_| {
+                Sequence::new(vec![
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("ModuloSegment").to_matchable(),
+                    Ref::keyword("TYPE").to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1330,28 +1392,7 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::DatetimeTypeIdentifier, |_| {
             one_of(vec![
                 Ref::keyword("DATE").to_matchable(),
-                Sequence::new(vec![
-                    one_of(vec![
-                        Ref::keyword("TIME").to_matchable(),
-                        Ref::keyword("TIMESTAMP").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::keyword("WITH").to_matchable(),
-                            Ref::keyword("WITHOUT").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::keyword("TIME").to_matchable(),
-                        Ref::keyword("ZONE").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("TimeWithTZGrammar").to_matchable(),
                 Sequence::new(vec![
                     one_of(vec![
                         Ref::keyword("INTERVAL").to_matchable(),
@@ -2382,6 +2423,44 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "FetchClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::FetchClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FETCH").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("FIRST").to_matchable(),
+                        Ref::keyword("NEXT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("ExpressionSegment")
+                            .exclude(Ref::keyword("ROW"))
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ROW").to_matchable(),
+                        Ref::keyword("ROWS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ONLY").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("TIES").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     postgres.replace_grammar(
@@ -2420,20 +2499,14 @@ pub fn raw_dialect() -> Dialect {
             .unwrap()
             .copy(
                 Some(vec![
+                    Ref::new("NamedWindowSegment").optional().to_matchable(),
                     Ref::new("OrderByClauseSegment").optional().to_matchable(),
                     Ref::new("LimitClauseSegment").optional().to_matchable(),
-                    Ref::new("NamedWindowSegment").optional().to_matchable(),
+                    Ref::new("FetchClauseSegment").optional().to_matchable(),
+                    Ref::new("ForClauseSegment").optional().to_matchable(),
                 ]),
                 None,
                 None,
-                None,
-                vec![],
-                false,
-            )
-            .copy(
-                Some(vec![Ref::new("ForClauseSegment").optional().to_matchable()]),
-                None,
-                Some(Ref::new("LimitClauseSegment").optional().to_matchable()),
                 None,
                 vec![
                     Ref::new("SetOperatorSegment").to_matchable(),
@@ -3354,47 +3427,50 @@ pub fn raw_dialect() -> Dialect {
     // https://www.postgresql.org/docs/current/sql-alteraggregate.html
     postgres.add([(
         "AlterAggregateStatementSegment".into(),
-        Sequence::new(vec![
-            Ref::keyword("ALTER").to_matchable(),
-            Ref::keyword("AGGREGATE").to_matchable(),
-            Ref::new("ObjectReferenceSegment").to_matchable(),
-            Bracketed::new(vec![
-                one_of(vec![
-                    Ref::new("FunctionParameterListGrammar").to_matchable(),
-                    Anything::new().to_matchable(),
-                    Ref::new("StarSegment").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            one_of(vec![
-                Sequence::new(vec![
-                    Ref::keyword("RENAME").to_matchable(),
-                    Ref::keyword("TO").to_matchable(),
-                    Ref::new("FunctionNameSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("OWNER").to_matchable(),
-                    Ref::keyword("TO").to_matchable(),
+        NodeMatcher::new(SyntaxKind::AlterAggregateStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("ALTER").to_matchable(),
+                Ref::keyword("AGGREGATE").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Bracketed::new(vec![
                     one_of(vec![
-                        Ref::keyword("CURRENT_ROLE").to_matchable(),
-                        Ref::keyword("CURRENT_USER").to_matchable(),
-                        Ref::keyword("SESSION_USER").to_matchable(),
-                        Ref::new("RoleReferenceSegment").to_matchable(),
+                        Ref::new("FunctionParameterListGrammar").to_matchable(),
+                        Anything::new().to_matchable(),
+                        Ref::new("StarSegment").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
                 .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("SET").to_matchable(),
-                    Ref::keyword("SCHEMA").to_matchable(),
-                    Ref::new("SchemaReferenceSegment").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("RENAME").to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        Ref::new("FunctionNameSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("OWNER").to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("CURRENT_ROLE").to_matchable(),
+                            Ref::keyword("CURRENT_USER").to_matchable(),
+                            Ref::keyword("SESSION_USER").to_matchable(),
+                            Ref::new("RoleReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SET").to_matchable(),
+                        Ref::keyword("SCHEMA").to_matchable(),
+                        Ref::new("SchemaReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
             ])
-            .to_matchable(),
-        ])
+            .to_matchable()
+        })
         .to_matchable()
         .into(),
     )]);
@@ -4149,6 +4225,27 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateForeignDataWrapperStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateForeignDataWrapper, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("ForeignDataWrapperGrammar").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::keyword("HANDLER").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::keyword("VALIDATOR").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -5201,6 +5298,8 @@ pub fn raw_dialect() -> Dialect {
                                 one_of(vec![
                                     Ref::keyword("DEFAULT").to_matchable(),
                                     Ref::new("LiteralGrammar").to_matchable(),
+                                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                                    Ref::new("QuotedIdentifierSegment").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
@@ -6825,6 +6924,87 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    postgres.add([(
+        "DropForeignTableStatement".into(),
+        NodeMatcher::new(SyntaxKind::DropForeignTableStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("FOREIGN").to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Delimited::new(vec![Ref::new("TableReferenceSegment").to_matchable()])
+                    .to_matchable(),
+                Ref::new("CascadeRestrictGrammar").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    postgres.add([(
+        "CreateOperatorStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateOperatorStatement, |_| {
+            let operator_symbols = |kind| {
+                AnyNumberOf::new(vec![
+                    RegexParser::new(r"^[+\-*/<>=~!@#%^&|`?]+$", kind).to_matchable(),
+                ])
+                .to_matchable()
+            };
+
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("OPERATOR").to_matchable(),
+                operator_symbols(SyntaxKind::Commutator),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("LEFTARG").to_matchable(),
+                                Ref::keyword("RIGHTARG").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("COMMUTATOR").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            operator_symbols(SyntaxKind::Commutator),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NEGATOR").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            operator_symbols(SyntaxKind::Negator),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("RESTRICT").to_matchable(),
+                                Ref::keyword("JOIN").to_matchable(),
+                                Ref::keyword("PROCEDURE").to_matchable(),
+                                Ref::keyword("FUNCTION").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("FunctionNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("HASHES").to_matchable(),
+                        Ref::keyword("MERGES").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     postgres.replace_grammar("StatementSegment", statement_segment());
 
     postgres.replace_grammar(
@@ -8436,11 +8616,13 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("UPDATE").to_matchable(),
                     Ref::keyword("ONLY").optional().to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("AliasExpressionSegment")
                         .exclude(Ref::keyword("SET"))
                         .optional()
                         .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                     Ref::new("SetClauseListSegment").to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),
                     one_of(vec![
@@ -8787,17 +8969,48 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    let function_contents = postgres.grammar("FunctionContentsGrammar").copy(
-        Some(vec![
-            optionally_bracketed(vec![Ref::new("SetExpressionSegment").to_matchable()])
-                .to_matchable(),
-        ]),
-        Some(1),
-        None,
-        None,
-        vec![],
-        false,
-    );
+    let position_function_contents = |allow_expressions: bool| {
+        let argument = || {
+            let mut alternatives = vec![
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Ref::new("ColumnReferenceSegment").to_matchable(),
+            ];
+            if allow_expressions {
+                alternatives.push(Ref::new("ExpressionSegment").to_matchable());
+            }
+            one_of(alternatives).to_matchable()
+        };
+
+        Sequence::new(vec![
+            argument(),
+            Ref::keyword("IN").to_matchable(),
+            argument(),
+        ])
+        .to_matchable()
+    };
+    let previous_position_function_contents = position_function_contents(false);
+    let function_contents = postgres
+        .grammar("FunctionContentsGrammar")
+        .copy(
+            Some(vec![position_function_contents(true)]),
+            None,
+            Some(previous_position_function_contents.clone()),
+            Some(vec![previous_position_function_contents]),
+            vec![],
+            false,
+        )
+        .copy(
+            Some(vec![
+                optionally_bracketed(vec![Ref::new("SetExpressionSegment").to_matchable()])
+                    .to_matchable(),
+            ]),
+            Some(1),
+            None,
+            None,
+            vec![],
+            false,
+        );
     postgres.replace_grammar("FunctionContentsGrammar", function_contents);
 
     postgres.replace_grammar(
@@ -9469,6 +9682,9 @@ pub fn statement_segment() -> Matchable {
             Ref::new("CreateExtensionStatementSegment").to_matchable(),
             Ref::new("DropExtensionStatementSegment").to_matchable(),
             Ref::new("AlterExtensionStatementSegment").to_matchable(),
+            Ref::new("CreateForeignDataWrapperStatementSegment").to_matchable(),
+            Ref::new("DropForeignTableStatement").to_matchable(),
+            Ref::new("CreateOperatorStatementSegment").to_matchable(),
             Ref::new("CreateSubscriptionStatementSegment").to_matchable(),
             Ref::new("AlterSubscriptionStatementSegment").to_matchable(),
             Ref::new("DropSubscriptionStatementSegment").to_matchable(),

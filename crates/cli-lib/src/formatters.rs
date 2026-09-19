@@ -86,9 +86,10 @@ impl OutputStreamFormatter {
         let mut text_buffer = String::new();
 
         let show = !violations.is_empty();
+        let success = violations.iter().all(|violation| violation.warning);
 
         if self.verbosity > 0 || show {
-            let text = self.format_filename(fname, !show);
+            let text = self.format_filename(fname, success);
             text_buffer.push_str(&text);
             text_buffer.push('\n');
         }
@@ -126,6 +127,10 @@ impl OutputStreamFormatter {
     fn format_violation(&self, violation: &SQLBaseError, max_line_length: usize) -> String {
         let mut desc = violation.desc().to_string();
 
+        if violation.warning {
+            desc = format!("WARNING: {desc}");
+        }
+
         let line_elem = format!("{:4}", violation.line_no);
         let pos_elem = format!("{:4}", violation.line_pos);
 
@@ -136,7 +141,11 @@ impl OutputStreamFormatter {
         }
 
         let split_desc = split_string_on_spaces(&desc, max_line_length - 25);
-        let mut section_color = AnsiColor::Blue.on_default();
+        let mut section_color = if violation.warning {
+            AnsiColor::BrightBlack.on_default()
+        } else {
+            AnsiColor::Blue.on_default()
+        };
 
         let mut out_buff = String::new();
         for (idx, line) in split_desc.into_iter().enumerate() {
@@ -253,6 +262,7 @@ mod tests {
 
         let v = SQLBaseError {
             fixable: false,
+            warning: false,
             line_no: 3,
             line_pos: 3,
             description: "DESC".into(),
@@ -266,6 +276,28 @@ mod tests {
         let f = formatter.format_violation(&v, 90);
 
         assert_eq!(escape_ansi(&f), "L:   3 | P:   3 | DESC | DESC [some-name]");
+    }
+
+    #[test]
+    fn test_cli_formatters_warning() {
+        let formatter = mk_formatter();
+        let warning = SQLBaseError {
+            warning: true,
+            line_no: 4,
+            line_pos: 9,
+            description: "Expected single whitespace".into(),
+            rule: Some(ErrorStructRule {
+                name: "layout.spacing",
+                code: "LT01",
+            }),
+            ..Default::default()
+        };
+
+        let actual = formatter.format_file_violations("warning.sql", &[warning]);
+        assert_eq!(
+            escape_ansi(&actual),
+            "== [warning.sql] PASS\nL:   4 | P:   9 | LT01 | WARNING: Expected single whitespace [layout.spacing]\n"
+        );
     }
 
     #[test]

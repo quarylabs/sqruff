@@ -18,10 +18,9 @@ file:
     - where_clause:
       - keyword: WHERE
       - expression:
-        - column_reference:
-          - quoted_literal: '''{"x": "y"}'''
-          - column_path_operator: ->>
-          - quoted_literal: '''$.x'''
+        - quoted_literal: '''{"x": "y"}'''
+        - column_path_operator: ->>
+        - quoted_literal: '''$.x'''
         - comparison_operator:
           - raw_comparison_operator: =
         - quoted_literal: '''y'''
@@ -45,18 +44,17 @@ file:
     - where_clause:
       - keyword: WHERE
       - expression:
-        - column_reference:
-          - function:
-            - function_name:
-              - function_name_identifier: Upper
-            - function_contents:
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - quoted_literal: '''{"x": "y"}'''
-                - end_bracket: )
-          - column_path_operator: ->>
-          - quoted_literal: '''$.x'''
+        - function:
+          - function_name:
+            - function_name_identifier: Upper
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''{"x": "y"}'''
+              - end_bracket: )
+        - column_path_operator: ->>
+        - quoted_literal: '''$.x'''
         - comparison_operator:
           - raw_comparison_operator: =
         - quoted_literal: '''y'''
@@ -66,7 +64,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":2,"c":[4,5,{"f":7}]}'''
           - column_path_operator: ->
           - quoted_literal: '''$'''
@@ -76,17 +74,18 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":2,"c":[4,5,{"f":7}]}'''
           - column_path_operator: ->
-          - quoted_identifier: '"$"'
+          - column_reference:
+            - quoted_identifier: '"$"'
 - statement_terminator: ;
 - statement:
   - select_statement:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":2,"c":[4,5,{"f":7}]}'''
           - column_path_operator: ->
           - quoted_literal: '''$.c'''
@@ -96,7 +95,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":2,"c":[4,5,{"f":7}]}'''
           - column_path_operator: ->
           - quoted_literal: '''c'''
@@ -106,7 +105,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":2,"c":[4,5,{"f":7}]}'''
           - column_path_operator: ->
           - quoted_literal: '''$.c[2]'''
@@ -116,7 +115,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":2,"c":[4,5,{"f":7}]}'''
           - column_path_operator: ->
           - quoted_literal: '''$.c[2].f'''
@@ -126,7 +125,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":2,"c":[4,5,{"f":7}]}'''
           - column_path_operator: ->>
           - quoted_literal: '''$.c[2].f'''
@@ -136,7 +135,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":2,"c":[4,5,{"f":7}]}'''
           - column_path_operator: ->
           - quoted_literal: '''c'''
@@ -150,7 +149,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":2,"c":[4,5],"f":7}'''
           - column_path_operator: ->
           - quoted_literal: '''$.c[#-1]'''
@@ -160,7 +159,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":2,"c":[4,5,{"f":7}]}'''
           - column_path_operator: ->
           - quoted_literal: '''$.x'''
@@ -170,7 +169,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''[11,22,33,44]'''
           - column_path_operator: ->
           - numeric_literal: '3'
@@ -180,7 +179,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''[11,22,33,44]'''
           - column_path_operator: ->>
           - numeric_literal: '3'
@@ -190,7 +189,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":"xyz"}'''
           - column_path_operator: ->
           - quoted_literal: '''$.a'''
@@ -200,7 +199,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":"xyz"}'''
           - column_path_operator: ->>
           - quoted_literal: '''$.a'''
@@ -210,7 +209,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":null}'''
           - column_path_operator: ->
           - quoted_literal: '''$.a'''
@@ -220,7 +219,7 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - column_reference:
+        - expression:
           - quoted_literal: '''{"a":null}'''
           - column_path_operator: ->>
           - quoted_literal: '''$.a'''

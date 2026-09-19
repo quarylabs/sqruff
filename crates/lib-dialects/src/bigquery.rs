@@ -43,7 +43,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             ),
             Matcher::regex(
                 "double_at_sign_literal",
-                r"@@[a-zA-Z_][\w]*",
+                r"@@[a-zA-Z_][\w\.]*",
                 SyntaxKind::DoubleAtSignLiteral,
             ),
         ],
@@ -403,6 +403,19 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "NotEnforcedGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("NOT").to_matchable(),
+                Ref::keyword("ENFORCED").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ReferenceMatchGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
     ]);
 
     // Set Keywords
@@ -615,7 +628,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("QUALIFY").to_matchable(),
-                    MetaSegment::indent().to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
                     optionally_bracketed(vec![Ref::new("ExpressionSegment").to_matchable()])
                         .to_matchable(),
                     MetaSegment::dedent().to_matchable(),
@@ -1821,6 +1834,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                         ])
                         .to_matchable(),
+                        Ref::new("SystemVariableSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::new("EqualsSegment").to_matchable(),
@@ -1871,6 +1885,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("SingleIdentifierFullGrammar").to_matchable(),
                             Ref::new("FunctionSegment").to_matchable(),
                             Ref::new("CaseExpressionSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
                             Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
                                 .to_matchable(),
                         ])

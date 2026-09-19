@@ -22,20 +22,24 @@ file:
     - keyword: VIEW
     - table_reference:
       - object_reference:
-        - keyword: IDENTIFIER
-        - bracketed:
-          - start_bracket: (
-          - quoted_identifier: '''tempsc1.v1'''
-          - end_bracket: )
+        - identifier_clause_segment:
+          - keyword: IDENTIFIER
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''tempsc1.v1'''
+            - end_bracket: )
     - keyword: RENAME
     - keyword: TO
     - table_reference:
       - object_reference:
-        - keyword: IDENTIFIER
-        - bracketed:
-          - start_bracket: (
-          - quoted_identifier: '''tempsc1.v2'''
-          - end_bracket: )
+        - identifier_clause_segment:
+          - keyword: IDENTIFIER
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - quoted_literal: '''tempsc1.v2'''
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
   - alter_view_statement:

@@ -4,7 +4,7 @@ use hashbrown::HashMap;
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::IndexMap;
-use sqruff_lib_core::utils::analysis::query::Query;
+use sqruff_lib_core::utils::analysis::query::{Query, normalize_identifier};
 
 use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
@@ -83,7 +83,7 @@ FROM cte1
             const { &SyntaxSet::EMPTY },
             true,
         ) {
-            remaining_ctes.shift_remove(&reference.raw().to_uppercase_smolstr());
+            remaining_ctes.shift_remove(&normalize_identifier(&reference).to_uppercase_smolstr());
         }
 
         for name in remaining_ctes.values() {

@@ -1,0 +1,40 @@
+file:
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: '@OLD_UNIQUE_CHECKS'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - system_variable: '@@UNIQUE_CHECKS'
+    - comma: ','
+    - variable: UNIQUE_CHECKS
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - variable: '0'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: '@OLD_FOREIGN_KEY_CHECKS'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - system_variable: '@@FOREIGN_KEY_CHECKS'
+    - comma: ','
+    - variable: FOREIGN_KEY_CHECKS
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - variable: '0'
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - variable: '@OLD_SQL_MODE'
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - system_variable: '@@SQL_MODE'
+    - comma: ','
+    - variable: SQL_MODE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'''
+- statement_terminator: ;

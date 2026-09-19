@@ -683,6 +683,22 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    let binary_operator_grammar = sqlite_dialect.grammar("BinaryOperatorGrammar");
+    sqlite_dialect.replace_grammar(
+        "BinaryOperatorGrammar",
+        binary_operator_grammar.copy(
+            Some(vec![
+                Ref::new("ColumnPathOperatorSegment").to_matchable(),
+                Ref::new("InlinePathOperatorSegment").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
     // SQLite does not support GROUPING SETS, despite inheriting ANSI's
     // GroupByClauseSegment.
     sqlite_dialect.replace_grammar("GroupingSetsClauseSegment", Nothing::new().to_matchable());
@@ -731,42 +747,22 @@ pub fn raw_dialect() -> Dialect {
         Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
             .config(|this| this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar")))
             .to_matchable();
+    sqlite_dialect.replace_grammar(
+        "ColumnReferenceSegment",
+        one_of(vec![
+            base_column_reference.clone(),
+            Ref::new("FunctionSegment").to_matchable(),
+            Ref::new("BareFunctionSegment").to_matchable(),
+            Ref::new("LiteralGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     let json_path_operator = one_of(vec![
         Ref::new("ColumnPathOperatorSegment").to_matchable(),
         Ref::new("InlinePathOperatorSegment").to_matchable(),
     ])
     .to_matchable();
-
-    sqlite_dialect.replace_grammar(
-        "ColumnReferenceSegment",
-        one_of(vec![
-            Sequence::new(vec![
-                one_of(vec![
-                    base_column_reference.clone(),
-                    Ref::new("FunctionSegment").to_matchable(),
-                    Ref::new("BareFunctionSegment").to_matchable(),
-                    Ref::new("LiteralGrammar").to_matchable(),
-                ])
-                .to_matchable(),
-                AnyNumberOf::new(vec![
-                    Sequence::new(vec![
-                        json_path_operator.clone(),
-                        one_of(vec![
-                            Ref::new("LiteralGrammar").to_matchable(),
-                            Ref::new("QuotedIdentifierSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .config(|this| this.min_times(1))
-                .to_matchable(),
-            ])
-            .to_matchable(),
-            base_column_reference,
-        ])
-        .to_matchable(),
-    );
 
     let base_table_reference = sqlite_dialect
         .grammar("TableReferenceSegment")
@@ -814,6 +810,15 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         one_of(vec![Ref::keyword("CHARACTER").to_matchable()]).to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![Ref::keyword("CHARACTER").to_matchable()]).to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("VARYING").to_matchable(),
+                            Ref::keyword("NATIVE").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::new("DatatypeIdentifierSegment").to_matchable(),
@@ -1041,9 +1046,12 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                     Ref::keyword("SET").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     Delimited::new(vec![
                         Sequence::new(vec![
                             one_of(vec![
@@ -1057,6 +1065,7 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),
                     Ref::new("WhereClauseSegment").optional().to_matchable(),
                     Ref::new("ReturningClauseSegment").optional().to_matchable(),
@@ -1472,6 +1481,39 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    sqlite_dialect.add([(
+        "CreateVirtualTableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateVirtualTableStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("VIRTUAL").to_matchable(),
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::keyword("USING").to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     sqlite_dialect.replace_grammar(
         "CreateViewStatementSegment",
         Sequence::new(vec![
@@ -1495,6 +1537,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("AlterTableStatementSegment").to_matchable(),
             Ref::new("CreateIndexStatementSegment").to_matchable(),
             Ref::new("CreateTableStatementSegment").to_matchable(),
+            Ref::new("CreateVirtualTableStatementSegment").to_matchable(),
             Ref::new("CreateTriggerStatementSegment").to_matchable(),
             Ref::new("CreateViewStatementSegment").to_matchable(),
             Ref::new("DeleteStatementSegment").to_matchable(),

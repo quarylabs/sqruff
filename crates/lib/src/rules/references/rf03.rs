@@ -8,7 +8,9 @@ use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::helpers::capitalize;
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::object_reference::ObjectReferenceSegment;
+use sqruff_lib_core::parser::segments::object_reference::{
+    ObjectReferenceLevel, ObjectReferenceSegment,
+};
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 use sqruff_lib_core::utils::analysis::query::Query;
 
@@ -26,6 +28,7 @@ pub struct RuleRF03 {
 impl RuleRF03 {
     fn visit_queries(
         tables: &Tables,
+        dialect_name: DialectKind,
         single_table_references: &str,
         is_struct_dialect: bool,
         query: Query<'_>,
@@ -64,6 +67,7 @@ impl RuleRF03 {
 
                 let results = check_references(
                     tables,
+                    dialect_name,
                     select_info.table_aliases,
                     select_info.standalone_aliases,
                     select_info.reference_buffer,
@@ -82,6 +86,7 @@ impl RuleRF03 {
         for child in children {
             acc.extend(Self::visit_queries(
                 tables,
+                dialect_name,
                 single_table_references,
                 is_struct_dialect,
                 child,
@@ -137,6 +142,7 @@ fn iter_available_targets(query: Query<'_>, subquery: Option<Query<'_>>) -> Vec<
 #[allow(clippy::too_many_arguments)]
 fn check_references(
     tables: &Tables,
+    dialect_name: DialectKind,
     table_aliases: Vec<AliasInfo>,
     standalone_aliases: Vec<SmolStr>,
     references: Vec<ObjectReferenceSegment>,
@@ -175,6 +181,7 @@ fn check_references(
 
         let lint_res = validate_one_reference(
             tables,
+            dialect_name,
             single_table_references,
             reference,
             this_ref_type,
@@ -197,6 +204,7 @@ fn check_references(
         {
             let results = check_references(
                 tables,
+                dialect_name,
                 table_aliases.clone(),
                 standalone_aliases.clone(),
                 references.clone(),
@@ -219,6 +227,7 @@ fn check_references(
 #[allow(clippy::too_many_arguments)]
 fn validate_one_reference(
     tables: &Tables,
+    dialect_name: DialectKind,
     single_table_references: &str,
     ref_: ObjectReferenceSegment,
     this_ref_type: &str,
@@ -238,6 +247,19 @@ fn validate_one_reference(
     }
 
     if standalone_aliases.contains(ref_.0.raw()) {
+        return None;
+    }
+
+    if ref_.is_qualified()
+        && ref_
+            .extract_possible_references(ObjectReferenceLevel::Table, dialect_name)
+            .into_iter()
+            .any(|part| {
+                part.segments
+                    .first()
+                    .is_some_and(|segment| standalone_aliases.contains(segment.raw()))
+            })
+    {
         return None;
     }
 
@@ -416,6 +438,7 @@ FROM foo
 
         Self::visit_queries(
             context.tables,
+            context.dialect.name,
             single_table_references,
             is_struct_dialect,
             query,

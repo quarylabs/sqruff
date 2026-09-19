@@ -528,3 +528,39 @@ test_fail_postgres_dml_ctes_not_flagged:
       dialect: postgres
   line_numbers:
     - 2
+
+test_pass_bigquery_quoted_cte_unquoted_ref:
+  pass_str: |
+    with `tabx` as (
+      select 1
+    )
+
+    select *
+    from tabx;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_quoted_cte_quoted_ref:
+  pass_str: |
+    with `tabx` as (
+      select 1
+    )
+
+    select *
+    from `tabx`;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_unquoted_cte_quoted_ref:
+  pass_str: |
+    with tabx as (
+      select 1
+    )
+
+    select *
+    from `tabx`;
+  configs:
+    core:
+      dialect: bigquery

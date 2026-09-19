@@ -23,6 +23,33 @@ test_pass_templated_plus_raw_newlines:
     core:
       templater: jinja
 
+test_pass_templated_consume_whitespace:
+  pass_str: "select * from {{ 'trim_whitespace_table' -}}\n"
+  configs:
+    core:
+      templater: jinja
+
+test_fail_templated_consume_whitespace_nothing:
+  fail_str: "select * from {{ 'trim_whitespace_table' -}}"
+  fix_str: "select * from {{ 'trim_whitespace_table' -}}\n"
+  configs:
+    core:
+      templater: jinja
+
+test_fail_templated_consume_whitespace_whitespace:
+  fail_str: "select * from {{ 'trim_whitespace_table' -}}   "
+  fix_str: "select * from {{ 'trim_whitespace_table' -}}\n"
+  configs:
+    core:
+      templater: jinja
+
+test_fail_templated_consume_whitespace_extra:
+  fail_str: "select * from {{ 'trim_whitespace_table' -}}\n\n\n"
+  fix_str: "select * from {{ 'trim_whitespace_table' -}}\n"
+  configs:
+    core:
+      templater: jinja
+
 test_fail_templated_plus_raw_newlines:
   ignored: "jinja is not set"
   fail_str: "{{ '\n\n' }}"

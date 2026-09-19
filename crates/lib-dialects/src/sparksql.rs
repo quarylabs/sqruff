@@ -76,7 +76,7 @@ pub fn raw_dialect() -> Dialect {
 
     sparksql_dialect.insert_lexer_matchers(
         vec![
-            Matcher::regex("file_literal", r#"[a-zA-Z0-9]*:?([a-zA-Z0-9\-_\.]*(/|\\)){2,}((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)|([a-zA-Z0-9\-_\.]*\.[a-z]+))"#, SyntaxKind::FileLiteral),
+            Matcher::regex("file_literal", r#"[a-zA-Z0-9]+:([a-zA-Z0-9\-_\.]*(/|\\)){2,}((([a-zA-Z0-9\-_\.]*(:|\?|=|&)[a-zA-Z0-9\-_\.]*)+)|([a-zA-Z0-9\-_\.]*\.[a-z]+))"#, SyntaxKind::RawFileLiteral),
         ],
         "newline",
     );
@@ -523,9 +523,32 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect.add([
         (
             "FileLiteralSegment".into(),
-            TypedParser::new(SyntaxKind::FileLiteral, SyntaxKind::FileLiteral)
+            NodeMatcher::new(SyntaxKind::FileLiteral, |_| {
+                one_of(vec![
+                    TypedParser::new(SyntaxKind::RawFileLiteral, SyntaxKind::Literal)
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SlashSegment").optional().to_matchable(),
+                        Delimited::new(vec![
+                            Delimited::new(vec![
+                                TypedParser::new(SyntaxKind::Word, SyntaxKind::PathSegment)
+                                    .to_matchable(),
+                            ])
+                            .config(|this| this.delimiter(Ref::new("DotSegment")))
+                            .to_matchable(),
+                        ])
+                        .config(|this| {
+                            this.allow_gaps = false;
+                            this.delimiter(Ref::new("SlashSegment"));
+                        })
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
                 .to_matchable()
-                .into(),
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "BackQuotedIdentifierSegment".into(),
@@ -1237,7 +1260,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("QUALIFY").to_matchable(),
-                    MetaSegment::indent().to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
                     optionally_bracketed(vec![Ref::new("ExpressionSegment").to_matchable()])
                         .to_matchable(),
                     MetaSegment::dedent().to_matchable(),
@@ -2085,6 +2108,7 @@ pub fn raw_dialect() -> Dialect {
                     Delimited::new(vec![
                         Sequence::new(vec![
                             Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").optional().to_matchable(),
                             Ref::new("CommentGrammar").optional().to_matchable(),
                         ])
                         .to_matchable(),
@@ -2450,25 +2474,9 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::HintFunction, |_| {
                 Sequence::new(vec![
                     Ref::new("FunctionNameSegment").to_matchable(),
-                    Bracketed::new(vec![
-                        Delimited::new(vec![
-                            AnyNumberOf::new(vec![
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                                Ref::new("NumericLiteralSegment").to_matchable(),
-                                Ref::new("TableReferenceSegment").to_matchable(),
-                                Ref::new("ColumnReferenceSegment").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.min_times = 1;
-                            })
-                            .to_matchable(),
-                        ])
+                    Ref::new("FunctionContentsSegment")
+                        .optional()
                         .to_matchable(),
-                    ])
-                    .config(|config| {
-                        config.optional();
-                    })
-                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -3005,8 +3013,11 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("ADD").to_matchable(),
                     Ref::keyword("FILE").to_matchable(),
-                    AnyNumberOf::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
-                        .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("FileLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -3245,8 +3256,11 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("LIST").to_matchable(),
                     Ref::keyword("FILE").to_matchable(),
-                    AnyNumberOf::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
-                        .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("FileLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -3259,8 +3273,11 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("LIST").to_matchable(),
                     Ref::keyword("JAR").to_matchable(),
-                    AnyNumberOf::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
-                        .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("FileLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -3773,6 +3790,7 @@ pub fn raw_dialect() -> Dialect {
         "UpdateStatementSegment",
         Sequence::new(vec![
             Ref::keyword("UPDATE").to_matchable(),
+            MetaSegment::indent().to_matchable(),
             one_of(vec![
                 Ref::new("FileReferenceSegment").to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
@@ -3785,6 +3803,7 @@ pub fn raw_dialect() -> Dialect {
                     config.exclude = Ref::keyword("SET").to_matchable().into();
                 })
                 .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
             Ref::new("SetClauseListSegment").to_matchable(),
             Ref::new("WhereClauseSegment").optional().to_matchable(),
         ])

@@ -71,11 +71,10 @@ file:
             - raw_comparison_operator: =
           - file_type: parquet
         - end_bracket: )
-    - copy_options:
-      - keyword: max_file_size
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - numeric_literal: '32000000'
+    - keyword: max_file_size
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '32000000'
     - keyword: header
     - comparison_operator:
       - raw_comparison_operator: =

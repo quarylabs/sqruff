@@ -343,27 +343,7 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec![
                     Ref::keyword("DATE").to_matchable(),
                     Ref::keyword("DATETIME").to_matchable(),
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::keyword("TIME").to_matchable(),
-                            Ref::keyword("TIMESTAMP").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            one_of(vec![
-                                Ref::keyword("WITH").to_matchable(),
-                                Ref::keyword("WITHOUT").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("TIME").to_matchable(),
-                            Ref::keyword("ZONE").to_matchable(),
-                        ])
-                        .config(|this| {
-                            this.optional();
-                        })
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("TimeWithTZGrammar").to_matchable(),
                     one_of(vec![
                         Ref::keyword("TIMETZ").to_matchable(),
                         Ref::keyword("TIMESTAMPTZ").to_matchable(),
@@ -3490,7 +3470,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::QualifyClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("QUALIFY").to_matchable(),
-                    MetaSegment::indent().to_matchable(),
+                    MetaSegment::implicit_indent().to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
                     MetaSegment::dedent().to_matchable(),
                 ])

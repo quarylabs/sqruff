@@ -312,6 +312,7 @@ pub(crate) fn tsql_future_keywords() -> HashSet<&'static str> {
         "INITIALIZE",
         "INITIALLY",
         "INOUT",
+        "INLINE",
         "INPUT",
         "INT",
         "INTEGER",
@@ -502,6 +503,8 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
     [
         "ACTION",
         "APPEND",
+        "INLINE",
+        "LOG",
         "PERSISTED",
         "FORCE",
         "MASTER",
@@ -512,6 +515,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "SPLIT",
         "USED",
         // PERIOD FOR SYSTEM_TIME (temporal tables, #4654)
+        "CONTAINED",
         "DATA_CONSISTENCY_CHECK",
         "HISTORY_RETENTION_PERIOD",
         "HISTORY_TABLE",
@@ -526,6 +530,7 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         // sqlcmd commands (#4653)
         "R",
         "SETVAR",
+        "SETERROR",
         // CREATE EXTERNAL FILE FORMAT (#4647)
         "FORMAT_TYPE",
         "FORMAT_OPTIONS",
@@ -631,6 +636,17 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "ROWTERMINATOR",
         "FIRSTROW",
         "AUTO_CREATE_TABLE",
+        // OPENROWSET (#6584)
+        "CODEPAGE",
+        "DATASOURCE",
+        "ERRORFILE_DATA_SOURCE",
+        "FORMATFILE",
+        "FORMATFILE_DATA_SOURCE",
+        "LASTROW",
+        "ROWS",
+        "SINGLE_BLOB",
+        "SINGLE_CLOB",
+        "SINGLE_NCLOB",
         // CREATE FULLTEXT INDEX (#5274)
         "AUTO",
         "CHANGE_TRACKING",

@@ -96,3 +96,12 @@ file:
         - raw_comparison_operator: =
       - numeric_literal: '60'
 - statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+      - naked_identifier: my_wh
+- statement_terminator: ;

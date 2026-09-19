@@ -13,12 +13,8 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: payload
-              - expression:
-                - column_reference:
-                  - naked_identifier: format
-              - expression:
-                - column_reference:
-                  - naked_identifier: json
+              - keyword: format
+              - keyword: json
               - comma: ','
               - expression:
                 - quoted_literal: '''lax $.unstructured.abcd[*].field?(@ > 0.5)'''
@@ -104,12 +100,8 @@ file:
               - expression:
                 - column_reference:
                   - naked_identifier: payload
-              - expression:
-                - column_reference:
-                  - naked_identifier: format
-              - expression:
-                - column_reference:
-                  - naked_identifier: json
+              - keyword: format
+              - keyword: json
               - comma: ','
               - expression:
                 - quoted_literal: '''lax $.unstructured.abcd[*].field?(@ > 0.5)'''

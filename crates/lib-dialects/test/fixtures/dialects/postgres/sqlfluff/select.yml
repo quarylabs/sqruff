@@ -779,6 +779,9 @@ file:
       - column_reference:
         - naked_identifier: sync_time
       - keyword: ASC
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '1'
     - for_clause:
       - keyword: FOR
       - keyword: SHARE
@@ -790,9 +793,6 @@ file:
         - naked_identifier: mytable2
       - keyword: SKIP
       - keyword: LOCKED
-    - limit_clause:
-      - keyword: LIMIT
-      - numeric_literal: '1'
 - statement_terminator: ;
 - statement:
   - select_statement:
@@ -915,4 +915,55 @@ file:
         - alias_expression:
           - keyword: AS
           - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: film_id
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: title
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: film
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: title
+    - fetch_clause:
+      - keyword: FETCH
+      - keyword: FIRST
+      - numeric_literal: '10'
+      - keyword: ROW
+      - keyword: ONLY
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: foo
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: bar
+    - limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '1'
+    - for_clause:
+      - keyword: FOR
+      - keyword: UPDATE
 - statement_terminator: ;

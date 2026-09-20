@@ -2365,6 +2365,36 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
+            "InsertSourceGrammar".into(),
+            one_of(vec![
+                AnyNumberOf::new(vec![Ref::new("ValuesClauseSegment").to_matchable()])
+                    .config(|config| {
+                        config.min_times = 1;
+                    })
+                    .to_matchable(),
+                Ref::new("SelectableGrammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("TABLE").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::keyword("SELECT").to_matchable(),
+                    Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                    Ref::new("WhereClauseSegment").optional().to_matchable(),
+                    Ref::new("GroupByClauseSegment").optional().to_matchable(),
+                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                    Ref::new("LimitClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "InsertStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
                 Sequence::new(vec![
@@ -2376,32 +2406,26 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                     Ref::keyword("TABLE").optional().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
-                    Ref::new("PartitionSpecGrammar").optional().to_matchable(),
-                    Ref::new("InsertBracketedColumnReferenceListGrammar")
-                        .optional()
-                        .to_matchable(),
                     one_of(vec![
-                        AnyNumberOf::new(vec![Ref::new("ValuesClauseSegment").to_matchable()])
-                            .config(|config| {
-                                config.min_times = 1;
-                            })
-                            .to_matchable(),
-                        Ref::new("SelectableGrammar").to_matchable(),
                         Sequence::new(vec![
-                            Ref::keyword("TABLE").optional().to_matchable(),
-                            Ref::new("TableReferenceSegment").to_matchable(),
+                            Ref::new("PartitionSpecGrammar").optional().to_matchable(),
+                            Ref::new("InsertBracketedColumnReferenceListGrammar")
+                                .optional()
+                                .to_matchable(),
+                            Ref::new("InsertSourceGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
-                            Ref::keyword("FROM").to_matchable(),
-                            Ref::new("TableReferenceSegment").to_matchable(),
-                            Ref::keyword("SELECT").to_matchable(),
-                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
-                                .to_matchable(),
-                            Ref::new("WhereClauseSegment").optional().to_matchable(),
-                            Ref::new("GroupByClauseSegment").optional().to_matchable(),
-                            Ref::new("OrderByClauseSegment").optional().to_matchable(),
-                            Ref::new("LimitClauseSegment").optional().to_matchable(),
+                            Ref::keyword("REPLACE").to_matchable(),
+                            Ref::new("WhereClauseSegment").to_matchable(),
+                            Ref::new("InsertSourceGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REPLACE").to_matchable(),
+                            Ref::keyword("USING").to_matchable(),
+                            Ref::new("InsertBracketedColumnReferenceListGrammar").to_matchable(),
+                            Ref::new("InsertSourceGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                     ])

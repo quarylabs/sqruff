@@ -1202,11 +1202,9 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::keyword("TABLE").to_matchable(),
                                 Bracketed::new(vec![
                                     Delimited::new(vec![
-                                        one_of(vec![
-                                            Ref::new("TableConstraintSegment").to_matchable(),
-                                            Ref::new("ColumnDefinitionSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
+                                        Ref::new("TableConstraintSegment").to_matchable(),
+                                        Ref::new("ComputedColumnDefinitionSegment").to_matchable(),
+                                        Ref::new("ColumnDefinitionSegment").to_matchable(),
                                     ])
                                     .config(|this| this.allow_trailing())
                                     .to_matchable(),

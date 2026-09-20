@@ -1377,6 +1377,7 @@ SELECT
 FROM foo;
 ```
 
+**Dialects where this rule is skipped:** `athena`, `teradata`, `trino`
 
 ### convention.join_condition
 

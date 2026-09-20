@@ -39,6 +39,9 @@ pub(crate) fn run_lint(
 pub(crate) fn run_lint_stdin(
     config: FluffConfig,
     format: Format,
+    stdin_filename: Option<&Path>,
+    ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
+    disregard_ignores: bool,
     collect_parse_errors: bool,
 ) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
@@ -50,6 +53,10 @@ pub(crate) fn run_lint_stdin(
             return 1;
         }
     };
+    if crate::stdin::stdin_filename_is_ignored(stdin_filename, !disregard_ignores, ignorer) {
+        linter.formatter().unwrap().completion_message(0);
+        return 0;
+    }
     let result = match linter.lint_string(&read_in, None, false) {
         Ok(result) => result,
         Err(e) => {

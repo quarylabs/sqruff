@@ -1,5 +1,7 @@
 use std::io::Read;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+
+use sqruff_lib::core::linter::discovery::paths_from_path_check_non_existent;
 
 /// Check if the given input is the flag to use stdin as input.
 ///
@@ -24,6 +26,35 @@ pub(crate) fn read_std_in() -> Result<String, String> {
         .read_to_string(&mut buffer)
         .map_err(|e| e.to_string())?;
     Ok(buffer)
+}
+
+/// Return whether a virtual stdin filename is excluded by ignore files.
+pub(crate) fn stdin_filename_is_ignored(
+    filename: Option<&Path>,
+    ignore_files: bool,
+    ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
+) -> bool {
+    let Some(filename) = filename else {
+        return false;
+    };
+
+    let paths = paths_from_path_check_non_existent(
+        filename.to_path_buf(),
+        None,
+        None,
+        Some(ignore_files),
+        None,
+        &[String::new()],
+        Some(ignorer),
+    );
+    let ignored = paths.is_empty();
+    if ignored {
+        eprintln!(
+            "Exact file path {} was given but it was ignored by an ignore pattern; re-run with `--disregard-sqlfluffignores` to not process ignore files.",
+            filename.display()
+        );
+    }
+    ignored
 }
 
 #[cfg(test)]

@@ -130,6 +130,61 @@ fn stdin_filename_nested_config_and_inline_override() {
     assert!(!nested.join("test.sql").exists());
 }
 
+#[test]
+fn stdin_filename_respects_sqlfluffignore() {
+    let temp = tempfile::TempDir::new().unwrap();
+    fs::write(
+        temp.path().join(".sqruff"),
+        "[sqruff]\ndialect = ansi\nrules = LT12\n",
+    )
+    .unwrap();
+    fs::write(temp.path().join(".sqlfluffignore"), "ignored.sql\n").unwrap();
+
+    for command in ["lint", "fix"] {
+        let mut cmd = Command::new(sqruff_path());
+        cmd.current_dir(temp.path())
+            .args([command, "--stdin-filename", "ignored.sql", "-"])
+            .write_stdin("SELECT 1");
+        let assertion = cmd.assert().success();
+        assert!(
+            String::from_utf8_lossy(&assertion.get_output().stderr)
+                .contains("re-run with `--disregard-sqlfluffignores`")
+        );
+        if command == "fix" {
+            assert_eq!(assertion.get_output().stdout, b"SELECT 1");
+        }
+    }
+
+    let mut lint = Command::new(sqruff_path());
+    lint.current_dir(temp.path())
+        .args([
+            "lint",
+            "--stdin-filename",
+            "ignored.sql",
+            "--disregard-sqlfluffignores",
+            "-",
+        ])
+        .write_stdin("SELECT 1");
+    let lint_assertion = lint.assert().failure();
+    assert!(String::from_utf8_lossy(&lint_assertion.get_output().stderr).contains("LT12"));
+
+    Command::new(sqruff_path())
+        .current_dir(temp.path())
+        .args([
+            "fix",
+            "--stdin-filename",
+            "ignored.sql",
+            "--disregard-sqlfluffignores",
+            "-",
+        ])
+        .write_stdin("SELECT 1")
+        .assert()
+        .success()
+        .stdout("SELECT 1\n");
+
+    assert!(!temp.path().join("ignored.sql").exists());
+}
+
 #[cfg(feature = "parser")]
 #[test]
 fn parse_stdin_filename_inline_configuration() {

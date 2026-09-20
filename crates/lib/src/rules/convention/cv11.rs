@@ -1,5 +1,6 @@
 use hashbrown::HashMap;
 use itertools::chain;
+use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
@@ -121,6 +122,14 @@ FROM foo;
 
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Convention]
+    }
+
+    fn dialect_skip(&self) -> &'static [DialectKind] {
+        &[
+            DialectKind::Athena,
+            DialectKind::Teradata,
+            DialectKind::Trino,
+        ]
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {

@@ -1,0 +1,9 @@
+file:
+- statement:
+  - set_statement:
+    - keyword: SET
+    - quoted_literal: '''table.exec.state.ttl'''
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''10d'''
+- statement_terminator: ;

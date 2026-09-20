@@ -141,6 +141,7 @@ where
         let ignore_file = Arc::clone(&ignore_file);
         move |path: &Path| ignore_file.is_ignored(path)
     };
+    let stdin_filename = cli.stdin_filename.clone();
 
     match cli.command {
         Commands::Lint(args) => match is_std_in_flag_input(&args.paths) {
@@ -149,7 +150,14 @@ where
                 1
             }
             Ok(false) => commands_lint::run_lint(args, config, ignorer, collect_parse_errors),
-            Ok(true) => commands_lint::run_lint_stdin(config, args.format, collect_parse_errors),
+            Ok(true) => commands_lint::run_lint_stdin(
+                config,
+                args.format,
+                stdin_filename.as_deref(),
+                &ignorer,
+                args.disregard_sqruffignores,
+                collect_parse_errors,
+            ),
         },
         Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
             Err(e) => {
@@ -157,7 +165,14 @@ where
                 1
             }
             Ok(false) => commands_fix::run_fix(args, config, ignorer, collect_parse_errors),
-            Ok(true) => commands_fix::run_fix_stdin(config, args.format, collect_parse_errors),
+            Ok(true) => commands_fix::run_fix_stdin(
+                config,
+                args.format,
+                stdin_filename.as_deref(),
+                &ignorer,
+                args.disregard_sqruffignores,
+                collect_parse_errors,
+            ),
         },
         Commands::Lsp => {
             sqruff_lsp::run();

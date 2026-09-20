@@ -121,6 +121,7 @@ fn build_comparison_operator_grammar() -> Matchable {
         Ref::new("PostgisOperatorSegment").to_matchable(),
         Ref::new("PgvectorOperatorSegment").to_matchable(),
         Ref::new("PgTrgmOperatorSegment").to_matchable(),
+        Ref::new("QualifiedOperatorSegment").to_matchable(),
     ];
 
     one_of(operators).to_matchable()
@@ -651,6 +652,31 @@ pub fn raw_dialect() -> Dialect {
             TypedParser::new(SyntaxKind::PostgisOperator, SyntaxKind::BinaryOperator)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "QualifiedOperatorSegment".into(),
+            NodeMatcher::new(SyntaxKind::QualifiedOperator, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("OPERATOR").to_matchable(),
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("DotSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                RegexParser::new(r"^[!<>=~@#%^&|`?+\-*/]+$", SyntaxKind::Operator)
+                                    .to_matchable(),
+                            ])
+                            .config(|this| this.min_times(1))
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "WalrusOperatorSegment".into(),

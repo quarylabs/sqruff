@@ -624,19 +624,65 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .sets_mut("initialize_types")
         .extend(["ON_CREATE", "ON_SCHEDULE"]);
 
-    snowflake_dialect.add([(
-        "AlterOrReplaceGrammar".into(),
-        one_of(vec![
-            Sequence::new(vec![
-                Ref::keyword("OR").to_matchable(),
-                Ref::keyword("ALTER").to_matchable(),
+    snowflake_dialect.add([
+        (
+            "AlterOrReplaceGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("OR").to_matchable(),
+                    Ref::keyword("ALTER").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("OrReplaceGrammar").to_matchable(),
             ])
-            .to_matchable(),
-            Ref::new("OrReplaceGrammar").to_matchable(),
-        ])
-        .to_matchable()
-        .into(),
-    )]);
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SearchMethodGrammar".into(),
+            one_of(vec![
+                Ref::keyword("GEO").to_matchable(),
+                Ref::keyword("SUBSTRING").to_matchable(),
+                Ref::keyword("EQUALITY").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SearchMethodWithTargetGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("SearchMethodGrammar").to_matchable(),
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                AnyNumberOf::new(vec![Ref::new("AccessorGrammar").to_matchable()])
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("StarSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PurposeGrammar".into(),
+            one_of(vec![
+                Ref::keyword("STEWARD").to_matchable(),
+                Ref::keyword("SUPPORT").to_matchable(),
+                Ref::keyword("ACCESS_APPROVAL").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     // Snowflake supports CTEs with DML statements (INSERT, UPDATE, DELETE, MERGE)
     // We add these to NonWithSelectableGrammar so WithCompoundStatementSegment can use them
@@ -2302,6 +2348,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("AlterProcedureStatementSegment").to_matchable(),
                 Ref::new("ScriptingBlockStatementSegment").to_matchable(),
                 Ref::new("ExceptionBlockStatementSegment").to_matchable(),
+                Ref::new("AlterDynamicTableStatementSegment").to_matchable(),
                 Ref::new("DropDynamicTableSegment").to_matchable(),
                 Ref::new("DropIcebergTableStatementSegment").to_matchable(),
                 Ref::new("CreateAuthenticationPolicySegment").to_matchable(),
@@ -3179,7 +3226,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("UNSET").to_matchable(),
-                        Ref::new("TagEqualsSegment").to_matchable(),
+                        Ref::keyword("TAG").to_matchable(),
+                        Delimited::new(vec![Ref::new("TagReferenceSegment").to_matchable()])
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
@@ -3634,6 +3683,238 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("NakedIdentifierSegment").to_matchable(),
                         Ref::keyword("TO").to_matchable(),
                         Ref::new("NakedIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SearchOptimizationActionSegment".into(),
+            NodeMatcher::new(SyntaxKind::SearchOptimizationAction, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ADD").to_matchable(),
+                            Ref::keyword("SEARCH").to_matchable(),
+                            Ref::keyword("OPTIMIZATION").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("ON").to_matchable(),
+                                Delimited::new(vec![
+                                    Ref::new("SearchMethodWithTargetGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("EQUALITY").optional().to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("DROP").to_matchable(),
+                                Ref::keyword("SUSPEND").to_matchable(),
+                                Ref::keyword("RESUME").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("SEARCH").to_matchable(),
+                            Ref::keyword("OPTIMIZATION").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("ON").to_matchable(),
+                                Delimited::new(vec![
+                                    Sequence::new(vec![
+                                        one_of(vec![
+                                            Ref::new("SearchMethodWithTargetGrammar")
+                                                .to_matchable(),
+                                            Ref::new("NumericLiteralSegment").to_matchable(),
+                                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Ref::keyword("EQUALITY").optional().to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TableColumnCommentActionSegment".into(),
+            NodeMatcher::new(SyntaxKind::TableColumnCommentAction, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("ALTER").to_matchable(),
+                        Ref::keyword("MODIFY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    optionally_bracketed(vec![
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("COLUMN").optional().to_matchable(),
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("CommentClauseSegment").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("UNSET").to_matchable(),
+                                        Ref::keyword("COMMENT").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterDynamicTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterDynamicTableStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("DYNAMIC").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("SUSPEND").to_matchable(),
+                        Ref::keyword("RESUME").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RENAME").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SWAP").to_matchable(),
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REFRESH").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("COPY").to_matchable(),
+                                Ref::keyword("SESSION").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("AlterTableClusteringActionSegment").to_matchable(),
+                        Ref::new("TableColumnCommentActionSegment").to_matchable(),
+                        Ref::new("DataGovernancePolicyTagActionSegment").to_matchable(),
+                        Ref::new("SearchOptimizationActionSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            any_set_of(vec![
+                                Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("TARGET_LAG").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                        Ref::keyword("DOWNSTREAM").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("WAREHOUSE").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("DATA_RETENTION_TIME_IN_DAYS").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("MAX_DATA_EXTENSION_TIME_IN_DAYS").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("DEFAULT_DDL_COLLATION").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("LogLevelEqualsSegment").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CONTACT").to_matchable(),
+                                    Bracketed::new(vec![
+                                        Delimited::new(vec![
+                                            Sequence::new(vec![
+                                                Ref::new("PurposeGrammar").to_matchable(),
+                                                Ref::new("EqualsSegment").to_matchable(),
+                                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("IMMUTABLE").to_matchable(),
+                                    Ref::keyword("WHERE").to_matchable(),
+                                    Bracketed::new(vec![
+                                        Ref::new("ExpressionSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.min_times(1))
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            any_set_of(vec![
+                                Ref::keyword("COMMENT").to_matchable(),
+                                Ref::keyword("DATA_RETENTION_TIME_IN_DAYS").to_matchable(),
+                                Ref::keyword("MAX_DATA_EXTENSION_TIME_IN_DAYS").to_matchable(),
+                                Ref::keyword("DEFAULT_DDL_COLLATION").to_matchable(),
+                                Ref::keyword("LOG_LEVEL").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CONTACT").to_matchable(),
+                                    Ref::new("PurposeGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("IMMUTABLE").to_matchable(),
+                            ])
+                            .config(|this| this.min_times(1))
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])

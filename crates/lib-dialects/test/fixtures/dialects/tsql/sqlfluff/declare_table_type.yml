@@ -40,3 +40,66 @@ file:
             - end_bracket: )
       - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@myTable'
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: ID
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: MyCol1
+        - data_type:
+          - data_type_identifier: BIT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: MyCol2
+        - data_type:
+          - data_type_identifier: BIT
+      - comma: ','
+      - computed_column_definition:
+        - naked_identifier: MyComputedCol
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - case_expression:
+              - keyword: CASE
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - column_reference:
+                    - naked_identifier: MyCol1
+                  - comparison_operator:
+                    - ampersand: '&'
+                  - column_reference:
+                    - naked_identifier: MyCol2
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - integer_literal: '0'
+                - keyword: THEN
+                - expression:
+                  - integer_literal: '1'
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - column_reference:
+                    - naked_identifier: MyCol2
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - integer_literal: '0'
+                - keyword: THEN
+                - expression:
+                  - integer_literal: '2'
+              - else_clause:
+                - keyword: ELSE
+                - expression:
+                  - integer_literal: '3'
+              - keyword: END
+          - end_bracket: )
+      - end_bracket: )
+  - statement_terminator: ;

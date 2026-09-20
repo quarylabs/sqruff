@@ -8,8 +8,45 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
 
 use super::elements::ReflowBlock;
 use crate::core::rules::LintResult;
-use crate::utils::reflow::config::Spacing;
+use crate::utils::reflow::config::{AlignmentCoordinateSpace, Spacing};
 use crate::utils::reflow::helpers::pretty_segment_name;
+
+fn position_line(pos_marker: &PositionMarker, use_source: bool) -> usize {
+    if use_source {
+        pos_marker.line_no()
+    } else {
+        pos_marker.working_line_no
+    }
+}
+
+fn position_column(pos_marker: &PositionMarker, use_source: bool) -> usize {
+    if use_source {
+        pos_marker.line_pos()
+    } else {
+        pos_marker.working_line_pos
+    }
+}
+
+fn has_templated_content(
+    parent_segment: &ErasedSegment,
+    siblings: &[ErasedSegment],
+    next_seg: &ErasedSegment,
+) -> bool {
+    next_seg
+        .get_position_marker()
+        .is_some_and(|pos_marker| !pos_marker.is_literal())
+        || siblings.iter().any(|sibling| {
+            sibling
+                .get_position_marker()
+                .is_some_and(|pos_marker| !pos_marker.is_literal())
+        })
+        || parent_segment.get_raw_segments().iter().any(|segment| {
+            segment.is_code()
+                && segment
+                    .get_position_marker()
+                    .is_some_and(|pos_marker| !pos_marker.is_literal())
+        })
+}
 
 fn unpack_constraint(constraint: Spacing, strip_newlines: bool) -> (Spacing, bool) {
     match constraint {
@@ -178,6 +215,7 @@ pub fn process_spacing(
     )
 }
 
+#[allow(clippy::too_many_arguments)]
 fn determine_aligned_inline_spacing(
     root_segment: &ErasedSegment,
     whitespace_seg: &ErasedSegment,
@@ -186,6 +224,7 @@ fn determine_aligned_inline_spacing(
     segment_type: SyntaxKind,
     align_within: Option<SyntaxKind>,
     align_scope: Option<SyntaxKind>,
+    coordinate_space: Option<AlignmentCoordinateSpace>,
 ) -> String {
     // Find the level of segment that we're aligning.
     let mut parent_segment = None;
@@ -245,30 +284,39 @@ fn determine_aligned_inline_spacing(
         next_pos = pos_marker.clone();
     }
 
+    let use_source_positions = match coordinate_space {
+        Some(AlignmentCoordinateSpace::Source) => true,
+        Some(AlignmentCoordinateSpace::Templated) => false,
+        None => has_templated_content(&parent_segment, &siblings, next_seg),
+    };
+
     let mut siblings_by_line: BTreeMap<usize, Vec<ErasedSegment>> = BTreeMap::new();
     for sibling in siblings {
         let Some(pos_marker) = sibling.get_position_marker() else {
             continue;
         };
         siblings_by_line
-            .entry(pos_marker.working_line_no)
+            .entry(position_line(pos_marker, use_source_positions))
             .or_default()
             .push(sibling);
     }
 
     for line_siblings in siblings_by_line.values_mut() {
-        line_siblings
-            .sort_by_key(|sibling| sibling.get_position_marker().unwrap().working_line_pos);
+        line_siblings.sort_by_key(|sibling| {
+            position_column(sibling.get_position_marker().unwrap(), use_source_positions)
+        });
     }
 
-    let Some(current_line_segments) = siblings_by_line.get(&next_pos.working_line_no) else {
+    let current_line = position_line(&next_pos, use_source_positions);
+    let Some(current_line_segments) = siblings_by_line.get(&current_line) else {
         return " ".to_string();
     };
 
     let Some(target_index) = current_line_segments.iter().position(|segment| {
-        segment
-            .get_position_marker()
-            .is_some_and(|pos_marker| pos_marker.working_line_pos == next_pos.working_line_pos)
+        segment.get_position_marker().is_some_and(|pos_marker| {
+            position_column(pos_marker, use_source_positions)
+                == position_column(&next_pos, use_source_positions)
+        })
     }) else {
         return " ".to_string();
     };
@@ -294,10 +342,13 @@ fn determine_aligned_inline_spacing(
                 && seg_pos.working_loc() == sibling_pos.working_loc()
                 && let Some(last_code) = &last_code
             {
-                let loc = last_code
-                    .get_position_marker()
-                    .unwrap()
-                    .working_loc_after(last_code.raw());
+                let last_code_pos = last_code.get_position_marker().unwrap();
+                let loc = if use_source_positions {
+                    let end_pos = last_code_pos.end_point_marker();
+                    (end_pos.line_no(), end_pos.line_pos())
+                } else {
+                    last_code_pos.working_loc_after(last_code.raw())
+                };
 
                 if loc.1 > max_desired_line_pos {
                     max_desired_line_pos = loc.1;
@@ -310,11 +361,10 @@ fn determine_aligned_inline_spacing(
         }
     }
 
-    let ws_pos = whitespace_seg
-        .get_position_marker()
-        .as_ref()
-        .unwrap()
-        .working_line_pos;
+    let ws_pos = position_column(
+        whitespace_seg.get_position_marker().as_ref().unwrap(),
+        use_source_positions,
+    );
 
     // If the existing whitespace is already beyond the desired position, we
     // shouldn't attempt to create a negative repeat length. Saturating the
@@ -379,6 +429,7 @@ pub fn handle_respace_inline_with_space(
                     seg_type,
                     within,
                     scope,
+                    coordinate_space,
                 },
                 Some(next_block),
             ) => {
@@ -405,6 +456,7 @@ pub fn handle_respace_inline_with_space(
                         seg_type,
                         within,
                         scope,
+                        coordinate_space,
                     );
                     ("Item misaligned".to_string(), desired_space)
                 } else {

@@ -778,13 +778,9 @@ file:
       - naked_identifier: my_table
     - data_governance_policy_tag_action_segment:
       - keyword: UNSET
-      - tag_equals:
-        - keyword: TAG
-        - tag_reference:
-          - naked_identifier: tag1
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: '"some_value"'
+      - keyword: TAG
+      - tag_reference:
+        - naked_identifier: tag1
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -794,31 +790,18 @@ file:
       - naked_identifier: my_table
     - data_governance_policy_tag_action_segment:
       - keyword: UNSET
-      - tag_equals:
-        - keyword: TAG
-        - tag_reference:
-          - naked_identifier: tag1
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: '"some_value"'
-        - comma: ','
-        - tag_reference:
-          - naked_identifier: tag2
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: '"some_value"'
-        - comma: ','
-        - tag_reference:
-          - naked_identifier: tag3
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: '"some_value"'
-        - comma: ','
-        - tag_reference:
-          - naked_identifier: tag4
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: '"some_value"'
+      - keyword: TAG
+      - tag_reference:
+        - naked_identifier: tag1
+      - comma: ','
+      - tag_reference:
+        - naked_identifier: tag2
+      - comma: ','
+      - tag_reference:
+        - naked_identifier: tag3
+      - comma: ','
+      - tag_reference:
+        - naked_identifier: tag4
 - statement_terminator: ;
 - statement:
   - alter_table_statement:

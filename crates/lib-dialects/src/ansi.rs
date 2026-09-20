@@ -1394,15 +1394,22 @@ pub fn raw_dialect() -> Dialect {
         (
             "FileSegment".into(),
             NodeMatcher::new(SyntaxKind::File, |_| {
-                Delimited::new(vec![Ref::new("StatementSegment").to_matchable()])
-                    .config(|this| {
-                        this.allow_trailing();
-                        this.delimiter(
-                            AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
-                                .config(|config| config.min_times(1)),
-                        );
-                    })
-                    .to_matchable()
+                Sequence::new(vec![
+                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                        .to_matchable(),
+                    Delimited::new(vec![Ref::new("StatementSegment").to_matchable()])
+                        .config(|this| {
+                            this.allow_trailing();
+                            this.delimiter(
+                                AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                                    .config(|config| config.min_times(1)),
+                            );
+                        })
+                        .to_matchable(),
+                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
             })
             .to_matchable()
             .into(),

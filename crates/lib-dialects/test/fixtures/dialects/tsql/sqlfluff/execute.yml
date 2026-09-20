@@ -282,7 +282,7 @@ file:
       - null_literal: 'NULL'
   - statement_terminator: ;
   - statement:
-    - set_segment:
+    - set_local_variable_segment:
       - keyword: SET
       - tsql_variable: '@s1'
       - assignment_operator:
@@ -291,7 +291,7 @@ file:
         - quoted_literal: '''select '''
   - statement_terminator: ;
   - statement:
-    - set_segment:
+    - set_local_variable_segment:
       - keyword: SET
       - tsql_variable: '@s2'
       - assignment_operator:

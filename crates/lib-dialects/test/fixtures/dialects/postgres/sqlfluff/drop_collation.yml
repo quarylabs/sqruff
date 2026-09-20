@@ -1,0 +1,33 @@
+file:
+- statement:
+  - drop_collation_statement:
+    - keyword: DROP
+    - keyword: COLLATION
+    - object_reference:
+      - naked_identifier: case_insensitive
+- statement_terminator: ;
+- statement:
+  - drop_collation_statement:
+    - keyword: DROP
+    - keyword: COLLATION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: german
+- statement_terminator: ;
+- statement:
+  - drop_collation_statement:
+    - keyword: DROP
+    - keyword: COLLATION
+    - object_reference:
+      - naked_identifier: german
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - drop_collation_statement:
+    - keyword: DROP
+    - keyword: COLLATION
+    - object_reference:
+      - naked_identifier: german
+    - keyword: RESTRICT
+- statement_terminator: ;

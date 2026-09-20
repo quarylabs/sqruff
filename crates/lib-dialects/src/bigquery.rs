@@ -806,6 +806,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     dialect.replace_grammar(
         "FileSegment",
         Sequence::new(vec![
+            AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()]).to_matchable(),
             Sequence::new(vec![
                 one_of(vec![
                     Ref::new("MultiStatementSegment").to_matchable(),
@@ -823,7 +824,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable(),
             ])
             .to_matchable(),
-            Ref::new("DelimiterGrammar").optional().to_matchable(),
+            AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()]).to_matchable(),
         ])
         .to_matchable(),
     );

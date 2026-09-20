@@ -3,6 +3,9 @@ rule: ST12
 test_pass_single_semicolon:
   pass_str: "SELECT 1;"
 
+test_pass_single_leading_semicolon:
+  pass_str: ";SELECT 1;"
+
 test_pass_multiple_statements:
   pass_str: |
     SELECT 1;
@@ -32,3 +35,39 @@ test_fail_triple_semicolon:
 
 test_pass_no_semicolons:
   pass_str: "SELECT 1"
+
+test_pass_comment_breaks_run:
+  pass_str: "SELECT 1; /* comment */ ; SELECT 2;"
+
+test_fail_complex_multistatement:
+  fail_str: |
+    ;;SELECT col1 FROM tbl1;
+    SELECT col2 FROM tbl2;;
+    SELECT col3 FROM tbl3;;;;SELECT col4 FROM tbl4;
+    ; ; ;SELECT col5 FROM tbl5;   ;  ;
+    SELECT col6 FROM tbl6;;;;;;
+    SELECT col6 FROM tbl6;;;
+  line_numbers: [1, 2, 3, 3, 4, 5, 6]
+
+test_fix_multiple_runs:
+  fail_str: "SELECT 1;; SELECT 2;;; SELECT 3;"
+  fix_str: "SELECT 1; SELECT 2; SELECT 3;"
+
+test_pass_templated_loop_no_false_positive:
+  pass_str: |
+    {% for i in range(3) %}
+    SELECT {{ i }};
+    {% endfor %}
+  configs:
+    core:
+      templater: jinja
+
+test_fail_templated_consecutive_semicolons:
+  fail_str: |
+    {% for _ in range(2) %}
+    ;SELECT 1;;
+    {% endfor %}
+  line_numbers: [2]
+  configs:
+    core:
+      templater: jinja

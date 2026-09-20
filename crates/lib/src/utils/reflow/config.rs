@@ -180,7 +180,26 @@ pub enum Spacing {
         seg_type: SyntaxKind,
         within: Option<SyntaxKind>,
         scope: Option<SyntaxKind>,
+        coordinate_space: Option<AlignmentCoordinateSpace>,
     },
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub enum AlignmentCoordinateSpace {
+    Source,
+    Templated,
+}
+
+impl FromStr for AlignmentCoordinateSpace {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "source" => Ok(Self::Source),
+            "templated" => Ok(Self::Templated),
+            _ => Err(()),
+        }
+    }
 }
 
 impl FromStr for Spacing {
@@ -201,11 +220,13 @@ impl FromStr for Spacing {
                     let seg_type = args.next().map(|it| it.parse().unwrap()).unwrap();
                     let within = args.next().map(|it| it.parse().unwrap());
                     let scope = args.next().map(|it| it.parse().unwrap());
+                    let coordinate_space = args.next().map(|it| it.parse().unwrap());
 
                     Spacing::Align {
                         seg_type,
                         within,
                         scope,
+                        coordinate_space,
                     }
                 } else {
                     unimplemented!("{s}")
@@ -398,6 +419,12 @@ fn spacing_from_map(
                 .transpose()
                 .unwrap()
                 .map(|it| it.parse().unwrap()),
+            coordinate_space: map_value
+                .get("alignment_coordinate_space")
+                .map(string_value)
+                .transpose()
+                .unwrap()
+                .map(|it| it.parse().unwrap()),
         })
     } else {
         Some(spacing.parse().unwrap())
@@ -428,6 +455,10 @@ mod tests {
         layout.insert("spacing_before".into(), Value::String("align".into()));
         layout.insert("align_within".into(), Value::String("select_clause".into()));
         layout.insert("align_scope".into(), Value::String("statement".into()));
+        layout.insert(
+            "alignment_coordinate_space".into(),
+            Value::String("source".into()),
+        );
 
         let config = LayoutTypeConfig::from_value_map(SyntaxKind::AliasExpression, layout);
 
@@ -437,6 +468,20 @@ mod tests {
                 seg_type: SyntaxKind::AliasExpression,
                 within: Some(SyntaxKind::SelectClause),
                 scope: Some(SyntaxKind::Statement),
+                coordinate_space: Some(AlignmentCoordinateSpace::Source),
+            })
+        );
+    }
+
+    #[test]
+    fn parses_align_coordinate_space_suffix() {
+        assert_eq!(
+            "align:alias_expression:select_clause:bracketed:templated".parse(),
+            Ok(Spacing::Align {
+                seg_type: SyntaxKind::AliasExpression,
+                within: Some(SyntaxKind::SelectClause),
+                scope: Some(SyntaxKind::Bracketed),
+                coordinate_space: Some(AlignmentCoordinateSpace::Templated),
             })
         );
     }

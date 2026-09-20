@@ -197,7 +197,7 @@ file:
     - keyword: BEGIN
     - keyword: CATCH
     - statement:
-      - set_segment:
+      - set_local_variable_segment:
         - keyword: SET
         - tsql_variable: '@v_nSysErrorNum'
         - assignment_operator:
@@ -212,7 +212,7 @@ file:
                 - end_bracket: )
     - statement_terminator: ;
     - statement:
-      - set_segment:
+      - set_local_variable_segment:
         - keyword: SET
         - tsql_variable: '@v_vchCode'
         - assignment_operator:
@@ -227,7 +227,7 @@ file:
                 - end_bracket: )
     - statement_terminator: ;
     - statement:
-      - set_segment:
+      - set_local_variable_segment:
         - keyword: SET
         - tsql_variable: '@v_vchMsg'
         - assignment_operator:
@@ -237,7 +237,7 @@ file:
           - quoted_literal: '''Missing control type.'''
     - statement_terminator: ;
     - statement:
-      - set_segment:
+      - set_local_variable_segment:
         - keyword: SET
         - tsql_variable: '@v_vchMsg'
         - assignment_operator:

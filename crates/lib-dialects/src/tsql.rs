@@ -987,6 +987,165 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // Cursor definitions and cursor statement support.
+    dialect.add([
+        (
+            "CursorNameGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("GLOBAL").optional().to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("ParameterNameSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CursorDefinitionSegment".into(),
+            NodeMatcher::new(SyntaxKind::CursorDefinition, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CURSOR").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("LOCAL").to_matchable(),
+                        Ref::keyword("GLOBAL").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("FORWARD_ONLY").to_matchable(),
+                        Ref::keyword("SCROLL").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("STATIC").to_matchable(),
+                        Ref::keyword("KEYSET").to_matchable(),
+                        Ref::keyword("DYNAMIC").to_matchable(),
+                        Ref::keyword("FAST_FORWARD").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("READ_ONLY").to_matchable(),
+                        Ref::keyword("SCROLL_LOCKS").to_matchable(),
+                        Ref::keyword("OPTIMISTIC").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("TYPE_WARNING").optional().to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::new("SelectStatementSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DeclareCursorStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DeclareSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DECLARE").to_matchable(),
+                    Ref::new("CursorNameGrammar").to_matchable(),
+                    one_of(vec![
+                        Ref::new("CursorDefinitionSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("INSENSITIVE").optional().to_matchable(),
+                            Ref::keyword("SCROLL").optional().to_matchable(),
+                            Ref::keyword("CURSOR").to_matchable(),
+                            Ref::keyword("FOR").to_matchable(),
+                            Ref::new("SelectStatementSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "OpenCursorStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::OpenCursorStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("OPEN").to_matchable(),
+                    Ref::keyword("GLOBAL").optional().to_matchable(),
+                    Ref::new("CursorNameGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CloseCursorStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CloseCursorStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CLOSE").to_matchable(),
+                    Ref::keyword("GLOBAL").optional().to_matchable(),
+                    Ref::new("CursorNameGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DeallocateCursorStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DeallocateCursorStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DEALLOCATE").to_matchable(),
+                    Ref::keyword("GLOBAL").optional().to_matchable(),
+                    Ref::new("CursorNameGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FetchCursorStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::FetchCursorStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FETCH").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("NEXT").to_matchable(),
+                        Ref::keyword("PRIOR").to_matchable(),
+                        Ref::keyword("FIRST").to_matchable(),
+                        Ref::keyword("LAST").to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("ABSOLUTE").to_matchable(),
+                                Ref::keyword("RELATIVE").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("SignedSegmentGrammar").optional().to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("FROM").optional().to_matchable(),
+                    Ref::new("CursorNameGrammar").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INTO").to_matchable(),
+                        Delimited::new(vec![Ref::new("ParameterNameSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // DECLARE statement for variable declarations
     // Syntax: DECLARE @var1 INT = 10, @var2 VARCHAR(50) = 'text'
     dialect.add([
@@ -1006,6 +1165,7 @@ pub fn raw_dialect() -> Dialect {
                             .config(|this| this.optional())
                             .to_matchable(),
                         one_of(vec![
+                            Ref::keyword("CURSOR").to_matchable(),
                             // Regular variable declaration
                             Sequence::new(vec![
                                 Ref::new("DatatypeSegment").to_matchable(),
@@ -1046,7 +1206,49 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    // SET statements support session options and one or more variable assignments.
+    // SET local variable statements, including cursor-valued variables.
+    dialect.add([(
+        "SetLocalVariableStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SetLocalVariableSegment, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                Delimited::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("AssignmentOperatorSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ExpressionSegment").to_matchable(),
+                                Ref::new("SelectableGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::new("NakedIdentifierSegment").to_matchable(),
+                                Ref::new("CursorDefinitionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // SET statements support session options.
     dialect.add([
         (
             "SetVariableStatementSegment".into(),
@@ -1162,16 +1364,6 @@ pub fn raw_dialect() -> Dialect {
                             .to_matchable(),
                         ])
                         .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::new("TsqlVariableSegment").to_matchable(),
-                            Ref::new("AssignmentOperatorSegment").to_matchable(),
-                            one_of(vec![
-                                Ref::new("ExpressionSegment").to_matchable(),
-                                Ref::new("SelectableGrammar").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -1282,8 +1474,14 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("CreateTableStatementSegment").to_matchable(),
                             Ref::new("DropTableStatementSegment").to_matchable(),
                             Ref::new("OpenSymmetricKeySegment").to_matchable(),
+                            Ref::new("DeclareCursorStatementSegment").to_matchable(),
+                            Ref::new("OpenCursorStatementSegment").to_matchable(),
+                            Ref::new("FetchCursorStatementSegment").to_matchable(),
+                            Ref::new("CloseCursorStatementSegment").to_matchable(),
+                            Ref::new("DeallocateCursorStatementSegment").to_matchable(),
                             Ref::new("DeclareStatementSegment").to_matchable(),
                             Ref::new("SetVariableStatementSegment").to_matchable(),
+                            Ref::new("SetLocalVariableStatementSegment").to_matchable(),
                             Ref::new("WaitForStatementSegment").to_matchable(),
                             Ref::new("ExecuteScriptSegment").to_matchable(),
                             Ref::new("PrintStatementSegment").to_matchable(),
@@ -2234,12 +2432,18 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BeginEndBlockGrammar").to_matchable(),
             Ref::new("TryBlockSegment").to_matchable(),
             Ref::new("AtomicBlockSegment").to_matchable(),
+            Ref::new("DeclareCursorStatementSegment").to_matchable(),
+            Ref::new("OpenCursorStatementSegment").to_matchable(),
+            Ref::new("FetchCursorStatementSegment").to_matchable(),
+            Ref::new("CloseCursorStatementSegment").to_matchable(),
+            Ref::new("DeallocateCursorStatementSegment").to_matchable(),
             Ref::new("DeclareStatementGrammar").to_matchable(),
             Ref::new("SetContextInfoSegment").to_matchable(),
             Ref::new("CreateSecurityPolicySegment").to_matchable(),
             Ref::new("AlterSecurityPolicySegment").to_matchable(),
             Ref::new("DropSecurityPolicySegment").to_matchable(),
             Ref::new("SetVariableStatementSegment").to_matchable(),
+            Ref::new("SetLocalVariableStatementSegment").to_matchable(),
             Ref::new("WaitForStatementSegment").to_matchable(),
             Ref::new("ExecuteScriptSegment").to_matchable(),
             Ref::new("PrintStatementGrammar").to_matchable(),

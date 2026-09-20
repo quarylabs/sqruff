@@ -206,7 +206,7 @@ file:
       - keyword: AS
       - statement:
         - keyword: BEGIN
-        - set_segment:
+        - set_local_variable_segment:
           - keyword: SET
           - tsql_variable: '@output'
           - assignment_operator:

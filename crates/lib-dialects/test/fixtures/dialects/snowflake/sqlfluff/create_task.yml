@@ -634,3 +634,19 @@ file:
               - start_bracket: (
               - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: mytask
+    - keyword: AS
+    - statement:
+      - alter_dynamic_table_statement:
+        - keyword: ALTER
+        - keyword: DYNAMIC
+        - keyword: TABLE
+        - table_reference:
+          - naked_identifier: foo
+        - keyword: REFRESH
+- statement_terminator: ;

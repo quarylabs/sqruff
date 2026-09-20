@@ -1550,6 +1550,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("CREATE").to_matchable(),
                 Ref::new("DefinerSegment").optional().to_matchable(),
                 Ref::keyword("PROCEDURE").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("FunctionNameSegment").to_matchable(),
                 Ref::new("ProcedureParameterListGrammar")
                     .optional()

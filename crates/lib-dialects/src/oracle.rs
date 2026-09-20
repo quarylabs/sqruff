@@ -330,12 +330,10 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // ---- Lexer ----
-    // SQLFluff: RegexLexer("word", r"[\p{L}][\p{L}\p{N}_$#]*", WordSegment)
-    // sqruff doesn't support Unicode categories, so we use ASCII approximation
     // SQLFluff: numeric_literal regex prevents 1. from consuming dot when followed by another dot
     // This is critical for FOR i IN 1..5 LOOP syntax
     oracle.patch_lexer_matchers(vec![
-        Matcher::regex("word", r"[a-zA-Z_][a-zA-Z0-9_$#]*", SyntaxKind::Word),
+        Matcher::regex("word", r"[\p{L}][\p{L}\p{N}_$#]*", SyntaxKind::Word),
         Matcher::legacy(
             "numeric_literal",
             |s| s.starts_with(|ch: char| ch.is_ascii_digit() || ch == '.'),
@@ -394,10 +392,13 @@ pub fn raw_dialect() -> Dialect {
             let pattern = reserved_keywords.iter().join("|");
             let anti_template = format!("^({pattern})$");
 
-            RegexParser::new(r"[A-Z0-9_]*[A-Z][A-Z0-9_#$]*", SyntaxKind::NakedIdentifier)
-                .anti_template(&anti_template)
-                .casefold(CaseFold::Upper)
-                .to_matchable()
+            RegexParser::new(
+                r"[\p{L}\p{N}_]*[\p{L}][\p{L}\p{N}_#$]*",
+                SyntaxKind::NakedIdentifier,
+            )
+            .anti_template(&anti_template)
+            .casefold(CaseFold::Upper)
+            .to_matchable()
         })
         .into(),
     )]);

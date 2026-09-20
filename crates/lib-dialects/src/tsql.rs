@@ -976,6 +976,26 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+    dialect.add([(
+        "SetLanguageStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SetLanguageStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                Ref::keyword("LANGUAGE").to_matchable(),
+                one_of(vec![
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    // T-SQL square-bracket identifiers are lexed as quoted identifiers.
+                    Ref::new("QuotedIdentifierSegment").to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("DelimiterGrammar").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
     dialect.replace_grammar(
         "SingleIdentifierGrammar",
         one_of(vec![
@@ -1480,6 +1500,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("CloseCursorStatementSegment").to_matchable(),
                             Ref::new("DeallocateCursorStatementSegment").to_matchable(),
                             Ref::new("DeclareStatementSegment").to_matchable(),
+                            Ref::new("SetLanguageStatementSegment").to_matchable(),
                             Ref::new("SetVariableStatementSegment").to_matchable(),
                             Ref::new("SetLocalVariableStatementSegment").to_matchable(),
                             Ref::new("WaitForStatementSegment").to_matchable(),
@@ -2439,6 +2460,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DeallocateCursorStatementSegment").to_matchable(),
             Ref::new("DeclareStatementGrammar").to_matchable(),
             Ref::new("SetContextInfoSegment").to_matchable(),
+            Ref::new("SetLanguageStatementSegment").to_matchable(),
             Ref::new("CreateSecurityPolicySegment").to_matchable(),
             Ref::new("AlterSecurityPolicySegment").to_matchable(),
             Ref::new("DropSecurityPolicySegment").to_matchable(),

@@ -90,7 +90,7 @@ file:
           - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - set_segment:
+    - set_local_variable_segment:
       - keyword: SET
       - tsql_variable: '@BinVar'
       - assignment_operator:

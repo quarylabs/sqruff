@@ -511,6 +511,16 @@ pub(crate) fn tsql_additional_unreserved_keywords() -> HashSet<&'static str> {
         "SETS",
         "UNDEFINED",
         "ACTION",
+        // Cursor statements (#7130)
+        "ABSOLUTE",
+        "FAST_FORWARD",
+        "FORWARD_ONLY",
+        "INSENSITIVE",
+        "KEYSET",
+        "OPTIMISTIC",
+        "RELATIVE",
+        "SCROLL_LOCKS",
+        "TYPE_WARNING",
         "ALLOW_ENCRYPTED_VALUE_MODIFICATIONS",
         "APPEND",
         // CREATE LOGIN

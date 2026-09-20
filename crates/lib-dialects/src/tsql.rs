@@ -1610,13 +1610,20 @@ pub fn raw_dialect() -> Dialect {
         (
             "BatchSegment".into(),
             NodeMatcher::new(SyntaxKind::Batch, |_| {
-                one_of(vec![
-                    Sequence::new(vec![
-                        Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
-                        Ref::new("BatchDelimiterGrammar").optional().to_matchable(),
+                Sequence::new(vec![
+                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                        .to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
+                            Ref::new("BatchDelimiterGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("BatchDelimiterGrammar").to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::new("BatchDelimiterGrammar").to_matchable(),
+                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                        .to_matchable(),
                 ])
                 .to_matchable()
             })

@@ -9094,6 +9094,21 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "DropCollationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropCollationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("COLLATION").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::new("DropBehaviorGrammar").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     postgres.replace_grammar(
@@ -10188,6 +10203,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("LockTableStatementSegment").to_matchable(),
             Ref::new("ClusterStatementSegment").to_matchable(),
             Ref::new("CreateCollationStatementSegment").to_matchable(),
+            Ref::new("DropCollationStatementSegment").to_matchable(),
             Ref::new("CallStoredProcedureSegment").to_matchable(),
             Ref::new("CreateServerStatementSegment").to_matchable(),
             Ref::new("CreateUserMappingStatementSegment").to_matchable(),

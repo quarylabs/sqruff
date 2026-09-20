@@ -114,7 +114,12 @@ FROM table;
             let equal_alias = alias_expression
                 .child(&SyntaxSet::new(&[SyntaxKind::AliasOperator]))
                 .is_some_and(|operator| operator.raw() == "=");
-            if whitespace.is_none() && !equal_alias {
+            // Quoted column identifiers do not require whitespace before the alias
+            // expression. Layout rules are responsible for that spacing, but AL09
+            // must still recognize and remove an exact self-alias in this form.
+            let quoted_without_whitespace =
+                column_identifier.is_type(SyntaxKind::QuotedIdentifier) && whitespace.is_none();
+            if whitespace.is_none() && !equal_alias && !quoted_without_whitespace {
                 log::warn!(
                     "AL09 found unexpected syntax in an alias expression. Unable to determine if \
                      this is a self-alias. Please report this as a bug on GitHub.\n\nDebug \

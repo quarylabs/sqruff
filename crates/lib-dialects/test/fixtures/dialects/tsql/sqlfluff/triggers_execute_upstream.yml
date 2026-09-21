@@ -53,6 +53,6 @@ file:
                 - raw_comparison_operator: =
               - expression:
                 - quoted_literal: '''Reminder'''
-              - statement_terminator: ;
+          - statement_terminator: ;
   - go_statement:
     - keyword: GO

@@ -28,11 +28,12 @@ file:
       - procedure_statement:
         - statement:
           - keyword: begin
-          - return_segment:
-            - keyword: return
-            - expression:
-              - parameterized_expression:
-                - tsql_variable: '@my_parameter'
+          - statement:
+            - return_segment:
+              - keyword: return
+              - expression:
+                - parameterized_expression:
+                  - tsql_variable: '@my_parameter'
           - keyword: end
   - go_statement:
     - keyword: go

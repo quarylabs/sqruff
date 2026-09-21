@@ -262,11 +262,12 @@ file:
       - integer_literal: '0'
     - statement:
       - keyword: BEGIN
-      - fetch_cursor_statement:
-        - keyword: FETCH
-        - keyword: NEXT
-        - keyword: FROM
-        - tsql_variable: '@CursorVar'
+      - statement:
+        - fetch_cursor_statement:
+          - keyword: FETCH
+          - keyword: NEXT
+          - keyword: FROM
+          - tsql_variable: '@CursorVar'
       - keyword: END
   - statement_terminator: ;
   - statement:

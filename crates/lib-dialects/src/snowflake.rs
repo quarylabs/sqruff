@@ -2790,8 +2790,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("IN").to_matchable(),
                         Bracketed::new(vec![
                             one_of(vec![
-                                Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                                Delimited::new(vec![
+                                    Sequence::new(vec![
+                                        Ref::new("LiteralGrammar").to_matchable(),
+                                        Ref::new("AliasExpressionSegment")
+                                            .optional()
+                                            .to_matchable(),
+                                    ])
                                     .to_matchable(),
+                                ])
+                                .to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("ANY").to_matchable(),
                                     Ref::new("OrderByClauseSegment").optional().to_matchable(),

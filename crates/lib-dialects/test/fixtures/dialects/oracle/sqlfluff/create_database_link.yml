@@ -1,0 +1,49 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_create_database_link_statement:
+      - keyword: CREATE
+      - keyword: PUBLIC
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+        - naked_identifier: remote
+      - keyword: USING
+      - quoted_identifier: '''remote'''
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_database_link_statement:
+      - keyword: CREATE
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+        - naked_identifier: local
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: hr
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: password
+      - keyword: USING
+      - quoted_identifier: '''local'''
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_database_link_statement:
+      - keyword: CREATE
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+        - naked_identifier: remote
+        - dot: .
+        - naked_identifier: us
+        - dot: .
+        - naked_identifier: example
+        - dot: .
+        - naked_identifier: com
+      - keyword: CONNECT
+      - keyword: TO
+      - keyword: CURRENT_USER
+      - keyword: USING
+      - quoted_identifier: '''remote'''
+  - statement_terminator: ;

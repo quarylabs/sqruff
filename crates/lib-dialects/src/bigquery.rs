@@ -608,20 +608,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
-    dialect.replace_grammar(
-        "ArrayTypeSegment",
-        Sequence::new(vec![
-            Ref::keyword("ARRAY").to_matchable(),
-            Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
-                .config(|this| {
-                    this.bracket_type = "angle";
-                    this.bracket_pairs_set = "angle_bracket_pairs";
-                    this.optional();
-                })
-                .to_matchable(),
-        ])
-        .to_matchable(),
-    );
+    dialect.add([(
+        "ArrayTypeSegment".into(),
+        NodeMatcher::new(SyntaxKind::DataType, |_| {
+            Sequence::new(vec![
+                Ref::keyword("ARRAY").to_matchable(),
+                Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                    .config(|this| {
+                        this.bracket_type = "angle";
+                        this.bracket_pairs_set = "angle_bracket_pairs";
+                        this.optional();
+                    })
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     dialect.add([
         (
@@ -1684,16 +1688,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable()
     });
 
-    dialect.replace_grammar(
-        "StructTypeSegment",
-        Sequence::new(vec![
-            Ref::keyword("STRUCT").to_matchable(),
-            Ref::new("StructTypeSchemaSegment")
-                .optional()
-                .to_matchable(),
-        ])
-        .to_matchable(),
-    );
+    dialect.add([(
+        "StructTypeSegment".into(),
+        NodeMatcher::new(SyntaxKind::DataType, |_| {
+            Sequence::new(vec![
+                Ref::keyword("STRUCT").to_matchable(),
+                Ref::new("StructTypeSchemaSegment")
+                    .optional()
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     dialect.add([(
         "StructTypeSchemaSegment".into(),

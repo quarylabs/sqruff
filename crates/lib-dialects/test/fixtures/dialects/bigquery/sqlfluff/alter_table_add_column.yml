@@ -29,7 +29,7 @@ file:
     - column_definition:
       - naked_identifier: C
       - data_type:
-        - array_type:
+        - data_type:
           - keyword: ARRAY
           - start_angle_bracket: <
           - data_type:
@@ -65,7 +65,7 @@ file:
     - column_definition:
       - naked_identifier: A
       - data_type:
-        - struct_type:
+        - data_type:
           - keyword: STRUCT
           - struct_type_schema:
             - start_angle_bracket: <
@@ -75,7 +75,7 @@ file:
             - comma: ','
             - parameter: C
             - data_type:
-              - array_type:
+              - data_type:
                 - keyword: ARRAY
                 - start_angle_bracket: <
                 - data_type:

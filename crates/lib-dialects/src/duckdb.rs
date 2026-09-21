@@ -555,6 +555,52 @@ pub fn raw_dialect() -> Dialect {
         Ref::new("ListComprehensionExpressionSegment").to_matchable(),
     );
 
+    duckdb_dialect.replace_grammar(
+        "InOperatorGrammar",
+        Sequence::new(vec![
+            Ref::keyword("NOT").optional().to_matchable(),
+            Ref::keyword("IN").to_matchable(),
+            one_of(vec![
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Delimited::new(vec![Ref::new("Expression_A_Grammar").to_matchable()])
+                            .config(|this| this.allow_trailing())
+                            .to_matchable(),
+                        Ref::new("SelectableGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.parse_mode(ParseMode::Greedy))
+                .to_matchable(),
+                Ref::new("FunctionSegment").to_matchable(),
+                Ref::new("ArrayLiteralSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+                Ref::new("ColumnReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
+        "ArrayLiteralSegment",
+        Bracketed::new(vec![
+            Delimited::new(vec![
+                Ref::new("BaseExpressionElementGrammar").to_matchable(),
+            ])
+            .config(|this| {
+                this.optional();
+                this.allow_trailing();
+            })
+            .to_matchable(),
+        ])
+        .config(|this| {
+            this.bracket_type("square");
+            this.parse_mode(ParseMode::Greedy);
+        })
+        .to_matchable(),
+    );
+
     let base_expression = duckdb_dialect.grammar("BaseExpressionElementGrammar");
     duckdb_dialect.replace_grammar(
         "BaseExpressionElementGrammar",

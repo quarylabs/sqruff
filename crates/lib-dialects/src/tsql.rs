@@ -3580,7 +3580,7 @@ pub fn raw_dialect() -> Dialect {
                                     .to_matchable(),
                                     Delimited::new(vec![
                                         Sequence::new(vec![
-                                            Ref::keyword("DATASOURCE").to_matchable(),
+                                            Ref::keyword("DATA_SOURCE").to_matchable(),
                                             Ref::new("EqualsSegment").to_matchable(),
                                             Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
                                         ])

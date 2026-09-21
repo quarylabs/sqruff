@@ -93,12 +93,12 @@ file:
       - column_definition:
         - naked_identifier: ProductID
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - comma: ','
       - column_definition:
         - naked_identifier: Quantity
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -141,12 +141,12 @@ file:
       - column_definition:
         - naked_identifier: NewScrapReasonID
         - data_type:
-          - data_type_identifier: SMALLINT
+          - keyword: SMALLINT
       - comma: ','
       - column_definition:
         - naked_identifier: Name
         - data_type:
-          - data_type_identifier: VARCHAR
+          - keyword: VARCHAR
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -156,7 +156,7 @@ file:
       - column_definition:
         - naked_identifier: ModifiedDate
         - data_type:
-          - data_type_identifier: DATETIME
+          - keyword: DATETIME
       - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -248,7 +248,7 @@ file:
       - column_definition:
         - naked_identifier: EmpID
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -256,12 +256,12 @@ file:
       - column_definition:
         - naked_identifier: OldVacationHours
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - comma: ','
       - column_definition:
         - naked_identifier: NewVacationHours
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -388,27 +388,27 @@ file:
       - column_definition:
         - naked_identifier: OldScrapReasonID
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - comma: ','
       - column_definition:
         - naked_identifier: NewScrapReasonID
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - comma: ','
       - column_definition:
         - naked_identifier: WorkOrderID
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - comma: ','
       - column_definition:
         - naked_identifier: ProductID
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - comma: ','
       - column_definition:
         - naked_identifier: ProductName
         - data_type:
-          - data_type_identifier: NVARCHAR
+          - keyword: NVARCHAR
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -520,7 +520,7 @@ file:
       - column_definition:
         - naked_identifier: ChangeType
         - data_type:
-          - data_type_identifier: NVARCHAR
+          - keyword: NVARCHAR
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -530,7 +530,7 @@ file:
       - column_definition:
         - naked_identifier: ProductID
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -787,12 +787,12 @@ file:
           - column_definition:
             - naked_identifier: ProductID
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
           - comma: ','
           - column_definition:
             - naked_identifier: DeletedQuantity
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
           - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -837,12 +837,12 @@ file:
       - column_definition:
         - naked_identifier: ProdID
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - comma: ','
       - column_definition:
         - naked_identifier: Qty
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - end_bracket: )
   - statement_terminator: ;
   - statement:

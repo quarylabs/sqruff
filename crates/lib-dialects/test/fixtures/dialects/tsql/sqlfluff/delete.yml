@@ -73,7 +73,7 @@ file:
                 - tsql_variable: '@@ROWCOUNT'
             - keyword: as
             - data_type:
-              - data_type_identifier: char
+              - keyword: char
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -569,7 +569,7 @@ file:
       - column_definition:
         - naked_identifier: ProductID
         - data_type:
-          - data_type_identifier: int
+          - keyword: int
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -577,7 +577,7 @@ file:
       - column_definition:
         - naked_identifier: ProductName
         - data_type:
-          - data_type_identifier: nvarchar
+          - keyword: nvarchar
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -590,7 +590,7 @@ file:
       - column_definition:
         - naked_identifier: ProductModelID
         - data_type:
-          - data_type_identifier: int
+          - keyword: int
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -598,7 +598,7 @@ file:
       - column_definition:
         - naked_identifier: PhotoID
         - data_type:
-          - data_type_identifier: int
+          - keyword: int
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'

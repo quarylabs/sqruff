@@ -82,7 +82,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@BinVar'
     - data_type:
-      - data_type_identifier: varbinary
+      - keyword: varbinary
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -117,7 +117,7 @@ file:
                       - end_bracket: )
               - keyword: AS
               - data_type:
-                - data_type_identifier: varbinary
+                - keyword: varbinary
                 - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (

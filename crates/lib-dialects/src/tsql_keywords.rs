@@ -885,6 +885,28 @@ pub(crate) fn tsql_unreserved_keywords() -> HashSet<&'static str> {
         "XMLSCHEMA",
         "XSINIL",
         "YEARS",
+        // Data type keywords
+        // https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql
+        "TINYINT",
+        "BIGINT",
+        "MONEY",
+        "SMALLMONEY",
+        "SMALLDATETIME",
+        "DATETIME",
+        "DATETIME2",
+        "DATETIMEOFFSET",
+        "TEXT",
+        "NVARCHAR",
+        "NTEXT",
+        "VARBINARY",
+        "IMAGE",
+        "SQL_VARIANT",
+        "ROWVERSION",
+        "UNIQUEIDENTIFIER",
+        "GEOGRAPHY",
+        "GEOMETRY",
+        "HIERARCHYID",
+        "VECTOR",
     ]
     .into_iter()
     .collect()

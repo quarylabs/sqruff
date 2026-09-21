@@ -111,7 +111,7 @@ file:
             - column_reference:
               - naked_identifier: name
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (

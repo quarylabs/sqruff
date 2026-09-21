@@ -98,7 +98,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@LastName'
     - data_type:
-      - data_type_identifier: VARCHAR
+      - keyword: VARCHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -107,7 +107,7 @@ file:
     - comma: ','
     - tsql_variable: '@FirstName'
     - data_type:
-      - data_type_identifier: VARCHAR
+      - keyword: VARCHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (

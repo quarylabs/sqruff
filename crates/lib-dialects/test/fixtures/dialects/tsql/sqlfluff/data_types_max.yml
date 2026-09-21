@@ -4,7 +4,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@LargeText'
     - data_type:
-      - data_type_identifier: NVARCHAR
+      - keyword: NVARCHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -15,7 +15,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@BigString'
     - data_type:
-      - data_type_identifier: VARCHAR
+      - keyword: VARCHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -26,7 +26,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@BinaryData'
     - data_type:
-      - data_type_identifier: VARBINARY
+      - keyword: VARBINARY
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -37,7 +37,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@LargeText2'
     - data_type:
-      - data_type_identifier: NVARCHAR
+      - keyword: NVARCHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -50,7 +50,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@BigString2'
     - data_type:
-      - data_type_identifier: VARCHAR
+      - keyword: VARCHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -63,7 +63,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@BinaryData2'
     - data_type:
-      - data_type_identifier: VARBINARY
+      - keyword: VARBINARY
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (

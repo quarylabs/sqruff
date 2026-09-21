@@ -129,7 +129,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@StartTime'
     - data_type:
-      - data_type_identifier: DATETIME2
+      - keyword: DATETIME2
     - assignment_operator:
       - raw_comparison_operator: =
     - expression:
@@ -139,7 +139,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@EndTime'
     - data_type:
-      - data_type_identifier: DATETIME2
+      - keyword: DATETIME2
     - assignment_operator:
       - raw_comparison_operator: =
     - expression:
@@ -174,7 +174,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@PointInTime'
     - data_type:
-      - data_type_identifier: DATETIME2
+      - keyword: DATETIME2
     - assignment_operator:
       - raw_comparison_operator: =
     - expression:
@@ -217,7 +217,7 @@ file:
           - column_definition:
             - naked_identifier: DeptID
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -228,7 +228,7 @@ file:
           - column_definition:
             - naked_identifier: DeptName
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -241,7 +241,7 @@ file:
           - column_definition:
             - naked_identifier: ValidFrom
             - data_type:
-              - data_type_identifier: DATETIME2
+              - keyword: DATETIME2
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -249,7 +249,7 @@ file:
           - column_definition:
             - naked_identifier: ValidTo
             - data_type:
-              - data_type_identifier: DATETIME2
+              - keyword: DATETIME2
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'

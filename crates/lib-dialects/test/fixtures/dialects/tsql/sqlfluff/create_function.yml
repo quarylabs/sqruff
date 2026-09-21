@@ -25,13 +25,14 @@ file:
         - keyword: on
         - keyword: 'null'
         - keyword: input
-      - statement:
-        - keyword: begin
-        - return_segment:
-          - keyword: return
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@my_parameter'
-        - keyword: end
+      - procedure_statement:
+        - statement:
+          - keyword: begin
+          - return_segment:
+            - keyword: return
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@my_parameter'
+          - keyword: end
   - go_statement:
     - keyword: go

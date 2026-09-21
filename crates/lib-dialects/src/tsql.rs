@@ -5406,41 +5406,21 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "ProcedureDefinitionGrammar".into(),
-            one_of(vec![
-                // External CLR procedures (check this first as it's simpler)
-                Sequence::new(vec![
-                    Ref::keyword("EXTERNAL").to_matchable(),
-                    Ref::keyword("NAME").to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                // Atomic blocks for natively compiled procedures
-                Ref::new("AtomicBlockSegment").to_matchable(),
-                // Single statement or block
-                Ref::new("StatementSegment").to_matchable(),
-                // Multiple statements for procedures without BEGIN...END
-                AnyNumberOf::new(vec![
+            NodeMatcher::new(SyntaxKind::ProcedureStatement, |_| {
+                one_of(vec![
+                    Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
+                    Ref::new("AtomicBlockSegment").to_matchable(),
                     Sequence::new(vec![
-                        Ref::new("StatementSegment").to_matchable(),
-                        Ref::new("DelimiterGrammar").optional().to_matchable(),
+                        Ref::keyword("EXTERNAL").to_matchable(),
+                        Ref::keyword("NAME").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
-                .config(|this| {
-                    this.min_times(2); // At least 2 statements to use this branch
-                    this.parse_mode = ParseMode::Greedy;
-                    // Don't terminate on delimiters, keep consuming statements
-                    this.terminators = vec![Ref::new("BatchSeparatorGrammar").to_matchable()];
-                })
-                .to_matchable(),
-            ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
-        ),
-        (
-            "ProcedureStatementSegment".into(),
-            // Just use StatementSegment for now - the ordering should handle precedence
-            Ref::new("StatementSegment").to_matchable().into(),
         ),
         (
             "AtomicBlockSegment".into(),

@@ -1,80 +1,81 @@
 # Rules
 
-The following rules are available in this create. This list is generated from the `rules` module in the source code and can be turned on or off and configured in the config file. 
+The following rules are available in this create. This list is generated from the `rules` module in the source code and can be turned on or off and configured in the config file.
 
 ## Rule Index
 
 | Rule Code | Rule Name | Description |
 |-----------|-----------|-------------|
-| AL01 | [aliasing.table](#aliasingtable) | Implicit/explicit aliasing of table. | 
-| AL02 | [aliasing.column](#aliasingcolumn) | Implicit/explicit aliasing of columns. | 
-| AL03 | [aliasing.expression](#aliasingexpression) | Column expression without alias. Use explicit `AS` clause. | 
-| AL04 | [aliasing.unique.table](#aliasinguniquetable) | Table aliases should be unique within each clause. | 
-| AL05 | [aliasing.unused](#aliasingunused) | Tables should not be aliased if that alias is not used. | 
-| AL06 | [aliasing.length](#aliasinglength) | Identify aliases in from clause and join conditions | 
-| AL07 | [aliasing.forbid](#aliasingforbid) | Avoid table aliases in from clauses and join conditions. | 
-| AL08 | [aliasing.unique.column](#aliasinguniquecolumn) | Column aliases should be unique within each clause. | 
-| AL09 | [aliasing.self_alias.column](#aliasingself_aliascolumn) | Find self-aliased columns and fix them | 
-| AM01 | [ambiguous.distinct](#ambiguousdistinct) | Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'. | 
-| AM02 | [ambiguous.union](#ambiguousunion) | Look for UNION keyword not immediately followed by DISTINCT or ALL | 
-| AM03 | [ambiguous.order_by](#ambiguousorder_by) | Ambiguous ordering directions for columns in order by clause. | 
-| AM04 | [ambiguous.column_count](#ambiguouscolumn_count) | Outermost query should produce known number of columns. | 
-| AM05 | [ambiguous.join](#ambiguousjoin) | Join clauses should be fully qualified. | 
-| AM06 | [ambiguous.column_references](#ambiguouscolumn_references) | Inconsistent column references in 'GROUP BY/ORDER BY' clauses. | 
-| AM07 | [ambiguous.set_columns](#ambiguousset_columns) | All queries in set expression should return the same number of columns. | 
-| AM08 | [ambiguous.join_condition](#ambiguousjoin_condition) | Implicit cross join detected. | 
-| AM09 | [ambiguous.order_by_limit](#ambiguousorder_by_limit) | LIMIT/OFFSET without ORDER BY. | 
-| CP01 | [capitalisation.keywords](#capitalisationkeywords) | Inconsistent capitalisation of keywords. | 
-| CP02 | [capitalisation.identifiers](#capitalisationidentifiers) | Inconsistent capitalisation of unquoted identifiers. | 
-| CP03 | [capitalisation.functions](#capitalisationfunctions) | Inconsistent capitalisation of function names. | 
-| CP04 | [capitalisation.literals](#capitalisationliterals) | Inconsistent capitalisation of boolean/null literal. | 
-| CP05 | [capitalisation.types](#capitalisationtypes) | Inconsistent capitalisation of datatypes. | 
-| CV01 | [convention.not_equal](#conventionnot_equal) | Consistent usage of ``!=`` or ``<>`` for "not equal to" operator. | 
-| CV02 | [convention.coalesce](#conventioncoalesce) | Use 'COALESCE' instead of 'IFNULL' or 'NVL'. | 
-| CV03 | [convention.select_trailing_comma](#conventionselect_trailing_comma) | Trailing commas within select clause | 
-| CV04 | [convention.count_rows](#conventioncount_rows) | Use consistent syntax to express "count number of rows". | 
-| CV05 | [convention.is_null](#conventionis_null) | Relational operators should not be used to check for NULL values. | 
-| CV06 | [convention.terminator](#conventionterminator) | Statements must end with a semi-colon. | 
-| CV07 | [convention.statement_brackets](#conventionstatement_brackets) | Top-level statements should not be wrapped in brackets. | 
-| CV08 | [convention.left_join](#conventionleft_join) | Use LEFT JOIN instead of RIGHT JOIN. | 
-| CV09 | [convention.blocked_words](#conventionblocked_words) | Block a list of configurable words from being used. | 
-| CV10 | [convention.quoted_literals](#conventionquoted_literals) | Consistent usage of preferred quotes for quoted literals. | 
-| CV11 | [convention.casting_style](#conventioncasting_style) | Enforce consistent type casting style. | 
-| CV12 | [convention.join_condition](#conventionjoin_condition) | Join conditions should use the JOIN ... ON syntax. | 
-| JJ01 | [jinja.padding](#jinjapadding) | Jinja tags should have a single whitespace on either side. | 
-| LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. | 
-| LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. | 
-| LT03 | [layout.operators](#layoutoperators) | Operators should follow a standard for being before/after newlines. | 
-| LT04 | [layout.commas](#layoutcommas) | Leading/Trailing comma enforcement. | 
-| LT05 | [layout.long_lines](#layoutlong_lines) | Line is too long. | 
-| LT06 | [layout.functions](#layoutfunctions) | Function name not immediately followed by parenthesis. | 
-| LT07 | [layout.cte_bracket](#layoutcte_bracket) | 'WITH' clause closing bracket should be on a new line. | 
-| LT08 | [layout.cte_newline](#layoutcte_newline) | Blank line expected but not found after CTE closing bracket. | 
-| LT09 | [layout.select_targets](#layoutselect_targets) | Select targets should be on a new line unless there is only one select target. | 
-| LT10 | [layout.select_modifiers](#layoutselect_modifiers) | 'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'. | 
-| LT11 | [layout.set_operators](#layoutset_operators) | Set operators should be surrounded by newlines. | 
-| LT12 | [layout.end_of_file](#layoutend_of_file) | Files must end with a single trailing newline. | 
-| LT13 | [layout.start_of_file](#layoutstart_of_file) | Files must not begin with newlines or whitespace. | 
-| LT14 | [layout.keyword_newline](#layoutkeyword_newline) | Keyword clause newline enforcement. | 
-| LT15 | [layout.newlines](#layoutnewlines) | Too many consecutive blank lines. | 
-| RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | 
-| RF02 | [references.qualification](#referencesqualification) | References should be qualified if select has more than one referenced table/view. | 
-| RF03 | [references.consistent](#referencesconsistent) | Column references should be qualified consistently in single table statements. | 
-| RF04 | [references.keywords](#referenceskeywords) | Keywords should not be used as identifiers. | 
-| RF05 | [references.special_chars](#referencesspecial_chars) | Do not use special characters in identifiers. | 
-| RF06 | [references.quoting](#referencesquoting) | Unnecessary quoted identifier. | 
-| ST01 | [structure.else_null](#structureelse_null) | Do not specify 'else null' in a case when statement (redundant). | 
-| ST02 | [structure.simple_case](#structuresimple_case) | Unnecessary 'CASE' statement. | 
-| ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. | 
-| ST04 | [structure.nested_case](#structurenested_case) | Nested ``CASE`` statement in ``ELSE`` clause could be flattened. | 
-| ST05 | [structure.subquery](#structuresubquery) | Join/From clauses should not contain subqueries. Use CTEs instead. | 
-| ST06 | [structure.column_order](#structurecolumn_order) | Select wildcards then simple targets before calculations and aggregates. | 
-| ST07 | [structure.using](#structureusing) | Prefer specifying join keys instead of using ``USING``. | 
-| ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket | 
-| ST09 | [structure.join_condition_order](#structurejoin_condition_order) | Joins should list the table referenced earlier/later first. | 
-| ST10 | [structure.constant_expression](#structureconstant_expression) | Redundant constant expression. | 
-| ST11 | [structure.unused_join](#structureunused_join) | Joined table not referenced in query. | 
-| ST12 | [structure.consecutive_semicolons](#structureconsecutive_semicolons) | Remove consecutive semicolons. | 
+| AL01 | [aliasing.table](#aliasingtable) | Implicit/explicit aliasing of table. |
+| AL02 | [aliasing.column](#aliasingcolumn) | Implicit/explicit aliasing of columns. |
+| AL03 | [aliasing.expression](#aliasingexpression) | Column expression without alias. Use explicit `AS` clause. |
+| AL04 | [aliasing.unique.table](#aliasinguniquetable) | Table aliases should be unique within each clause. |
+| AL05 | [aliasing.unused](#aliasingunused) | Tables should not be aliased if that alias is not used. |
+| AL06 | [aliasing.length](#aliasinglength) | Identify aliases in from clause and join conditions |
+| AL07 | [aliasing.forbid](#aliasingforbid) | Avoid table aliases in from clauses and join conditions. |
+| AL08 | [aliasing.unique.column](#aliasinguniquecolumn) | Column aliases should be unique within each clause. |
+| AL09 | [aliasing.self_alias.column](#aliasingself_aliascolumn) | Find self-aliased columns and fix them |
+| AM01 | [ambiguous.distinct](#ambiguousdistinct) | Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'. |
+| AM02 | [ambiguous.union](#ambiguousunion) | Look for UNION keyword not immediately followed by DISTINCT or ALL |
+| AM03 | [ambiguous.order_by](#ambiguousorder_by) | Ambiguous ordering directions for columns in order by clause. |
+| AM04 | [ambiguous.column_count](#ambiguouscolumn_count) | Outermost query should produce known number of columns. |
+| AM05 | [ambiguous.join](#ambiguousjoin) | Join clauses should be fully qualified. |
+| AM06 | [ambiguous.column_references](#ambiguouscolumn_references) | Inconsistent column references in 'GROUP BY/ORDER BY' clauses. |
+| AM07 | [ambiguous.set_columns](#ambiguousset_columns) | All queries in set expression should return the same number of columns. |
+| AM08 | [ambiguous.join_condition](#ambiguousjoin_condition) | Implicit cross join detected. |
+| AM09 | [ambiguous.order_by_limit](#ambiguousorder_by_limit) | LIMIT/OFFSET without ORDER BY. |
+| CP01 | [capitalisation.keywords](#capitalisationkeywords) | Inconsistent capitalisation of keywords. |
+| CP02 | [capitalisation.identifiers](#capitalisationidentifiers) | Inconsistent capitalisation of unquoted identifiers. |
+| CP03 | [capitalisation.functions](#capitalisationfunctions) | Inconsistent capitalisation of function names. |
+| CP04 | [capitalisation.literals](#capitalisationliterals) | Inconsistent capitalisation of boolean/null literal. |
+| CP05 | [capitalisation.types](#capitalisationtypes) | Inconsistent capitalisation of datatypes. |
+| CV01 | [convention.not_equal](#conventionnot_equal) | Consistent usage of ``!=`` or ``<>`` for "not equal to" operator. |
+| CV02 | [convention.coalesce](#conventioncoalesce) | Use 'COALESCE' instead of 'IFNULL' or 'NVL'. |
+| CV03 | [convention.select_trailing_comma](#conventionselect_trailing_comma) | Trailing commas within select clause |
+| CV04 | [convention.count_rows](#conventioncount_rows) | Use consistent syntax to express "count number of rows". |
+| CV05 | [convention.is_null](#conventionis_null) | Relational operators should not be used to check for NULL values. |
+| CV06 | [convention.terminator](#conventionterminator) | Statements must end with a semi-colon. |
+| CV07 | [convention.statement_brackets](#conventionstatement_brackets) | Top-level statements should not be wrapped in brackets. |
+| CV08 | [convention.left_join](#conventionleft_join) | Use LEFT JOIN instead of RIGHT JOIN. |
+| CV09 | [convention.blocked_words](#conventionblocked_words) | Block a list of configurable words from being used. |
+| CV10 | [convention.quoted_literals](#conventionquoted_literals) | Consistent usage of preferred quotes for quoted literals. |
+| CV11 | [convention.casting_style](#conventioncasting_style) | Enforce consistent type casting style. |
+| CV12 | [convention.join_condition](#conventionjoin_condition) | Join conditions should use the JOIN ... ON syntax. |
+| JJ01 | [jinja.padding](#jinjapadding) | Jinja tags should have a single whitespace on either side. |
+| LT01 | [layout.spacing](#layoutspacing) | Inappropriate Spacing. |
+| LT02 | [layout.indent](#layoutindent) | Incorrect Indentation. |
+| LT03 | [layout.operators](#layoutoperators) | Operators should follow a standard for being before/after newlines. |
+| LT04 | [layout.commas](#layoutcommas) | Leading/Trailing comma enforcement. |
+| LT05 | [layout.long_lines](#layoutlong_lines) | Line is too long. |
+| LT06 | [layout.functions](#layoutfunctions) | Function name not immediately followed by parenthesis. |
+| LT07 | [layout.cte_bracket](#layoutcte_bracket) | 'WITH' clause closing bracket should be on a new line. |
+| LT08 | [layout.cte_newline](#layoutcte_newline) | Blank line expected but not found after CTE closing bracket. |
+| LT09 | [layout.select_targets](#layoutselect_targets) | Select targets should be on a new line unless there is only one select target. |
+| LT10 | [layout.select_modifiers](#layoutselect_modifiers) | 'SELECT' modifiers (e.g. 'DISTINCT') must be on the same line as 'SELECT'. |
+| LT11 | [layout.set_operators](#layoutset_operators) | Set operators should be surrounded by newlines. |
+| LT12 | [layout.end_of_file](#layoutend_of_file) | Files must end with a single trailing newline. |
+| LT13 | [layout.start_of_file](#layoutstart_of_file) | Files must not begin with newlines or whitespace. |
+| LT14 | [layout.keyword_newline](#layoutkeyword_newline) | Keyword clause newline enforcement. |
+| LT15 | [layout.newlines](#layoutnewlines) | Too many consecutive blank lines. |
+| RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. |
+| RF02 | [references.qualification](#referencesqualification) | References should be qualified if select has more than one referenced table/view. |
+| RF03 | [references.consistent](#referencesconsistent) | Column references should be qualified consistently in single table statements. |
+| RF04 | [references.keywords](#referenceskeywords) | Keywords should not be used as identifiers. |
+| RF05 | [references.special_chars](#referencesspecial_chars) | Do not use special characters in identifiers. |
+| RF06 | [references.quoting](#referencesquoting) | Unnecessary quoted identifier. |
+| ST01 | [structure.else_null](#structureelse_null) | Do not specify 'else null' in a case when statement (redundant). |
+| ST02 | [structure.simple_case](#structuresimple_case) | Unnecessary 'CASE' statement. |
+| ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. |
+| ST04 | [structure.nested_case](#structurenested_case) | Nested ``CASE`` statement in ``ELSE`` clause could be flattened. |
+| ST05 | [structure.subquery](#structuresubquery) | Join/From clauses should not contain subqueries. Use CTEs instead. |
+| ST06 | [structure.column_order](#structurecolumn_order) | Select wildcards then simple targets before calculations and aggregates. |
+| ST07 | [structure.using](#structureusing) | Prefer specifying join keys instead of using ``USING``. |
+| ST08 | [structure.distinct](#structuredistinct) | Looking for DISTINCT before a bracket |
+| ST09 | [structure.join_condition_order](#structurejoin_condition_order) | Joins should list the table referenced earlier/later first. |
+| ST10 | [structure.constant_expression](#structureconstant_expression) | Redundant constant expression. |
+| ST11 | [structure.unused_join](#structureunused_join) | Joined table not referenced in query. |
+| ST12 | [structure.consecutive_semicolons](#structureconsecutive_semicolons) | Remove consecutive semicolons. |
+| TQ02 | [tsql.procedure_begin_end](#tsqlprocedure_begin_end) | Procedure body with multiple statements should be wrapped in BEGIN/END block. |
 
 ## Rule Details
 
@@ -2793,5 +2794,41 @@ Use only a single semicolon.
 
 ```sql
 SELECT 1;
+```
+
+
+### tsql.procedure_begin_end
+
+Procedure body with multiple statements should be wrapped in BEGIN/END block.
+
+**Code:** `TQ02`
+
+**Groups:** `all`, `tsql`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+Procedure bodies with multiple statements should be wrapped in `BEGIN`/`END`
+for clarity and consistency.
+
+```sql
+CREATE PROCEDURE Reporting.MultipleStatements
+AS
+SELECT * FROM Table1;
+SELECT * FROM Table2;
+```
+
+**Best practice**
+
+Wrap procedure bodies with multiple statements in `BEGIN`/`END` blocks.
+
+```sql
+CREATE PROCEDURE Reporting.MultipleStatements
+AS
+BEGIN
+    SELECT * FROM Table1;
+    SELECT * FROM Table2;
+END
 ```
 

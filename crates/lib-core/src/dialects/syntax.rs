@@ -695,6 +695,7 @@ pub enum SyntaxKind {
     IntoClause,
     IntoOutfileClause,
     IntoTableClause,
+    InvalidateMetadataStatement,
     IsolationLevelClause,
     IterateStatement,
     JoinClause,

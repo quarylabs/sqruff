@@ -258,6 +258,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateTableStatement
         | AccessStatement
         | InsertStatement
+        | InvalidateMetadataStatement
         | TransactionStatement
         | DropTableStatement
         | DropViewStatement

@@ -4093,6 +4093,27 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    // BigQuery allows pipe statements, including bare FROM clauses, in CTEs.
+    dialect.replace_grammar(
+        "CTEDefinitionSegment",
+        Sequence::new(vec![
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("CTEColumnList").optional().to_matchable(),
+            Ref::keyword("AS").optional().to_matchable(),
+            Bracketed::new(vec![
+                one_of(vec![
+                    Ref::new("SelectableGrammar").to_matchable(),
+                    Ref::new("PipeStatementSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.parse_mode(ParseMode::Greedy))
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     dialect.expand();
     dialect
 }

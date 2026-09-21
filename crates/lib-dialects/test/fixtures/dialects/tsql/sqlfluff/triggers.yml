@@ -20,13 +20,14 @@ file:
         - comma: ','
         - keyword: UPDATE
         - keyword: AS
-        - statement:
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - integer_literal: '1'
-  - statement_terminator: ;
+        - procedure_statement:
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -46,47 +47,48 @@ file:
         - keyword: AFTER
         - keyword: UPDATE
         - keyword: AS
-        - statement:
-          - keyword: IF
-          - expression:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: UPDATE
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: stateprovinceid
-                      - end_bracket: )
-                - binary_operator: OR
-                - function:
-                  - function_name:
-                    - function_name_identifier: UPDATE
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: postalcode
-                      - end_bracket: )
-              - end_bracket: )
+        - procedure_statement:
           - statement:
-            - keyword: BEGIN
-            - raiserror_statement:
-              - keyword: RAISERROR
+            - keyword: IF
+            - expression:
               - bracketed:
                 - start_bracket: (
-                - numeric_literal: '50009'
-                - comma: ','
-                - numeric_literal: '16'
-                - comma: ','
-                - numeric_literal: '10'
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: UPDATE
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: stateprovinceid
+                        - end_bracket: )
+                  - binary_operator: OR
+                  - function:
+                    - function_name:
+                      - function_name_identifier: UPDATE
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: postalcode
+                        - end_bracket: )
                 - end_bracket: )
-            - keyword: END
-  - statement_terminator: ;
+            - statement:
+              - keyword: BEGIN
+              - raiserror_statement:
+                - keyword: RAISERROR
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '50009'
+                  - comma: ','
+                  - numeric_literal: '16'
+                  - comma: ','
+                  - numeric_literal: '10'
+                  - end_bracket: )
+              - keyword: END
+          - statement_terminator: ;
   - go_statement:
     - keyword: GO

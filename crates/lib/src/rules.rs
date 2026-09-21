@@ -11,6 +11,7 @@ pub mod jinja;
 pub mod layout;
 pub mod references;
 pub mod structure;
+pub mod tsql;
 
 pub fn rules() -> Vec<ErasedRule> {
     chain!(
@@ -21,7 +22,8 @@ pub fn rules() -> Vec<ErasedRule> {
         jinja::rules(),
         layout::rules(),
         references::rules(),
-        structure::rules()
+        structure::rules(),
+        tsql::rules()
     )
     .collect_vec()
 }

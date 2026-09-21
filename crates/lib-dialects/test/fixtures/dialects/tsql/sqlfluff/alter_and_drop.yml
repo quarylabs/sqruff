@@ -23,7 +23,7 @@ file:
           - raw_comparison_operator: =
         - keyword: ON
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - drop_table_statement:
       - keyword: DROP

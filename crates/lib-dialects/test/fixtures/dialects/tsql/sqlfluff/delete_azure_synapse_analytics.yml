@@ -58,7 +58,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '1'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - delete_statement:
       - keyword: DELETE
@@ -87,7 +87,7 @@ file:
       - table_reference:
         - object_reference:
           - naked_identifier: Table1
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - delete_statement:
       - keyword: DELETE
@@ -103,7 +103,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: '>'
           - numeric_literal: '1000.00'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - delete_statement:
       - keyword: DELETE
@@ -122,7 +122,7 @@ file:
             - naked_identifier: N
             - quoted_literal: '''label1'''
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - delete_statement:
       - keyword: DELETE
@@ -210,7 +210,7 @@ file:
             - keyword: HASH
             - keyword: JOIN
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - delete_statement:
       - keyword: DELETE
@@ -314,4 +314,4 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '1'
-      - statement_terminator: ;
+  - statement_terminator: ;

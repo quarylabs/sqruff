@@ -56,7 +56,7 @@ file:
           - keyword: ON
           - filegroup_name:
             - quoted_identifier: '[PRIMARY]'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - create_table_graph_statement:
       - keyword: CREATE
@@ -150,7 +150,7 @@ file:
         - end_bracket: )
       - keyword: AS
       - keyword: NODE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - create_table_graph_statement:
       - keyword: CREATE
@@ -214,7 +214,7 @@ file:
             - column_reference:
               - naked_identifier: id
             - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - create_table_graph_statement:
       - keyword: CREATE
@@ -291,4 +291,4 @@ file:
         - end_bracket: )
       - keyword: AS
       - keyword: NODE
-      - statement_terminator: ;
+  - statement_terminator: ;

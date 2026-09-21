@@ -58,83 +58,92 @@ file:
         - statement_terminator: ;
         - statement:
           - keyword: BEGIN
-          - set_segment:
-            - keyword: SET
-            - keyword: NOCOUNT
-            - keyword: ON
-          - set_segment:
-            - keyword: SET
-            - keyword: DEADLOCK_PRIORITY
-            - keyword: LOW
-          - set_segment:
-            - keyword: SET
-            - keyword: DEADLOCK_PRIORITY
-            - keyword: NORMAL
-          - set_segment:
-            - keyword: SET
-            - keyword: DEADLOCK_PRIORITY
-            - keyword: HIGH
-          - set_segment:
-            - keyword: SET
-            - keyword: DEADLOCK_PRIORITY
-            - tsql_variable: '@deadlock_var'
-          - set_segment:
-            - keyword: SET
-            - keyword: DEADLOCK_PRIORITY
-            - numeric_literal: '10'
-          - set_segment:
-            - keyword: SET
-            - keyword: DEADLOCK_PRIORITY
-            - numeric_literal:
-              - sign_indicator: '-'
-              - numeric_literal: '5'
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - integer_literal: '1'
-          - create_table_statement:
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - keyword: NOCOUNT
+              - keyword: ON
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - keyword: LOW
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - keyword: NORMAL
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - keyword: HIGH
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - tsql_variable: '@deadlock_var'
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - numeric_literal: '10'
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - keyword: DEADLOCK_PRIORITY
+              - numeric_literal:
+                - sign_indicator: '-'
+                - numeric_literal: '5'
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement:
             - create_table_statement:
-              - keyword: CREATE
-              - keyword: TABLE
-              - table_reference:
-                - object_reference:
-                  - hash_identifier: '#TempTest'
-              - keyword: WITH
-              - bracketed:
-                - start_bracket: (
-                - keyword: DISTRIBUTION
-                - comparison_operator:
-                  - raw_comparison_operator: =
-                - keyword: ROUND_ROBIN
-                - comma: ','
-                - keyword: HEAP
-                - end_bracket: )
-              - keyword: AS
-              - bracketed:
-                - start_bracket: (
-                - select_statement:
-                  - select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                      - integer_literal: '2'
-                      - alias_expression:
-                        - alias_operator:
-                          - keyword: AS
-                        - naked_identifier: Two
-                    - comma: ','
-                    - select_clause_element:
-                      - integer_literal: '3'
-                      - alias_expression:
-                        - alias_operator:
-                          - keyword: AS
-                        - naked_identifier: Three
-                    - comma: ','
-                    - select_clause_element:
-                      - integer_literal: '4'
-                      - alias_expression:
-                        - alias_operator:
-                          - keyword: AS
-                        - naked_identifier: Four
-                - end_bracket: )
+              - create_table_statement:
+                - keyword: CREATE
+                - keyword: TABLE
+                - table_reference:
+                  - object_reference:
+                    - hash_identifier: '#TempTest'
+                - keyword: WITH
+                - bracketed:
+                  - start_bracket: (
+                  - keyword: DISTRIBUTION
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - keyword: ROUND_ROBIN
+                  - comma: ','
+                  - keyword: HEAP
+                  - end_bracket: )
+                - keyword: AS
+                - bracketed:
+                  - start_bracket: (
+                  - select_statement:
+                    - select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                        - integer_literal: '2'
+                        - alias_expression:
+                          - alias_operator:
+                            - keyword: AS
+                          - naked_identifier: Two
+                      - comma: ','
+                      - select_clause_element:
+                        - integer_literal: '3'
+                        - alias_expression:
+                          - alias_operator:
+                            - keyword: AS
+                          - naked_identifier: Three
+                      - comma: ','
+                      - select_clause_element:
+                        - integer_literal: '4'
+                        - alias_expression:
+                          - alias_operator:
+                            - keyword: AS
+                          - naked_identifier: Four
+                  - end_bracket: )
           - keyword: END

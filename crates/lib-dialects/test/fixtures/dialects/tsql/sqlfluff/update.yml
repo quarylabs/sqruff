@@ -54,7 +54,7 @@ file:
               - raw_comparison_operator: =
             - quoted_literal: '''Cases'''
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - update_statement:
       - keyword: update
@@ -105,7 +105,7 @@ file:
                   - naked_identifier: src
                   - dot: .
                   - naked_identifier: _id
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - update_statement:
       - keyword: UPDATE

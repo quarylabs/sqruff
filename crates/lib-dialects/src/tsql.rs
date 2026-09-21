@@ -2868,6 +2868,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropExternalTableStatementSegment").to_matchable(),
             Ref::new("CopyIntoTableStatementSegment").to_matchable(),
             Ref::new("CreateFullTextIndexStatementSegment").to_matchable(),
+            Ref::new("CreateFullTextCatalogStatementSegment").to_matchable(),
             Ref::new("CreateColumnstoreIndexStatementSegment").to_matchable(),
             Ref::new("ReconfigureStatementSegment").to_matchable(),
             Ref::new("CreatePartitionFunctionSegment").to_matchable(),
@@ -4229,6 +4230,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("BareFunctionSegment").to_matchable(),
             Ref::new("OpenRowSetSegment").to_matchable(),
             Ref::new("OpenJsonSegment").to_matchable(),
+            Ref::new("OpenXmlSegment").to_matchable(),
             Ref::new("OpenQuerySegment").to_matchable(),
             Ref::new("FunctionSegment").to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),
@@ -5027,7 +5029,21 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
             Sequence::new(vec![
-                Ref::keyword("CHECK").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("CHECK").to_matchable(),
+                        Ref::keyword("NOCHECK").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("CHECK").to_matchable(),
+                    Ref::keyword("NOCHECK").to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::keyword("CONSTRAINT").to_matchable(),
                 Ref::new("ObjectReferenceSegment").to_matchable(),
             ])
@@ -5071,7 +5087,11 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Sequence::new(vec![
                     Ref::keyword("WITH").to_matchable(),
-                    Ref::keyword("CHECK").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("CHECK").to_matchable(),
+                        Ref::keyword("NOCHECK").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
@@ -6056,6 +6076,102 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "CreateFullTextCatalogStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateFulltextCatalogStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("FULLTEXT").to_matchable(),
+                    Ref::keyword("CATALOG").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::keyword("FILEGROUP").to_matchable(),
+                            Ref::new("FilegroupNameSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("IN").to_matchable(),
+                            Ref::keyword("PATH").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("ACCENT_SENSITIVITY").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("ON").to_matchable(),
+                                Ref::keyword("OFF").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AS").to_matchable(),
+                            Ref::keyword("DEFAULT").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AUTHORIZATION").to_matchable(),
+                            Ref::new("RoleReferenceSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "OpenXmlSegment".into(),
+            NodeMatcher::new(SyntaxKind::OpenxmlSegment, |_| {
+                let xml_schema_declaration = Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").optional().to_matchable(),
+                ])
+                .to_matchable();
+
+                Sequence::new(vec![
+                    Ref::keyword("OPENXML").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                            Ref::new("NumericLiteralSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        one_of(vec![
+                            Bracketed::new(vec![
+                                Delimited::new(vec![xml_schema_declaration]).to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "FilestreamOnOptionSegment".into(),
             NodeMatcher::new(SyntaxKind::FilestreamOnOptionStatement, |_| {
                 Sequence::new(vec![
@@ -6619,8 +6735,14 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("FOR").to_matchable(),
                     Ref::keyword("VALUES").to_matchable(),
                     Bracketed::new(vec![
-                        Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::new("LiteralGrammar").to_matchable(),
+                                Ref::new("HexadecimalLiteralSegment").to_matchable(),
+                            ])
                             .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -7802,6 +7924,33 @@ fn add_database_grammars(dialect: &mut Dialect) {
                 .to_matchable(),
             ])
             .to_matchable();
+            let filestream_option = Sequence::new(vec![
+                Ref::keyword("FILESTREAM").to_matchable(),
+                optionally_bracketed(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("NON_TRANSACTED_ACCESS").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("OFF").to_matchable(),
+                                Ref::keyword("READ_ONLY").to_matchable(),
+                                Ref::keyword("FULL").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DIRECTORY_NAME").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
             let set_option = Sequence::new(vec![
                 Ref::keyword("SET").to_matchable(),
                 one_of(vec![
@@ -7811,13 +7960,18 @@ fn add_database_grammars(dialect: &mut Dialect) {
                                 Ref::new("CompatibilityLevelSegment").to_matchable(),
                                 Ref::new("AutoOptionSegment").to_matchable(),
                                 accelerated_recovery,
+                                filestream_option,
                                 Sequence::new(vec![
                                     Ref::new("NakedIdentifierSegment").to_matchable(),
-                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("EqualsSegment").optional().to_matchable(),
                                     one_of(vec![
                                         Ref::keyword("ON").to_matchable(),
                                         Ref::keyword("OFF").to_matchable(),
+                                        Ref::keyword("LOCAL").to_matchable(),
+                                        Ref::keyword("NONE").to_matchable(),
+                                        Ref::keyword("DISABLED").to_matchable(),
                                     ])
+                                    .config(|this| this.optional())
                                     .to_matchable(),
                                 ])
                                 .to_matchable(),

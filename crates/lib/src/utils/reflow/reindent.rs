@@ -578,6 +578,15 @@ pub enum IndentUnit {
     Space(usize),
 }
 
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, EnumString)]
+#[strum(serialize_all = "lowercase")]
+pub enum ImplicitIndents {
+    #[default]
+    Forbid,
+    Allow,
+    Require,
+}
+
 impl Default for IndentUnit {
     fn default() -> Self {
         IndentUnit::Space(4)
@@ -650,7 +659,7 @@ fn update_crawl_balances(
 
 fn crawl_indent_points(
     elements: &ReflowSequenceType,
-    allow_implicit_indents: bool,
+    implicit_indents: ImplicitIndents,
 ) -> Vec<IndentPoint> {
     let mut acc = Vec::new();
 
@@ -668,7 +677,7 @@ fn crawl_indent_points(
             if !indent_stats.implicit_indents.is_empty() {
                 let mut unclosed_bracket = false;
 
-                if allow_implicit_indents
+                if implicit_indents != ImplicitIndents::Forbid
                     && elements[idx + 1]
                         .class_types()
                         .contains(SyntaxKind::StartBracket)
@@ -699,7 +708,7 @@ fn crawl_indent_points(
                     }
                 }
 
-                if unclosed_bracket || !allow_implicit_indents {
+                if unclosed_bracket || implicit_indents == ImplicitIndents::Forbid {
                     indent_stats.implicit_indents = Default::default();
                 }
             }
@@ -802,25 +811,34 @@ fn crawl_indent_points(
 
 fn map_line_buffers(
     elements: &ReflowSequenceType,
-    allow_implicit_indents: bool,
-) -> (Vec<IndentLine>, Vec<usize>) {
+    implicit_indents: ImplicitIndents,
+) -> (Vec<IndentLine>, Vec<usize>, HashSet<usize>) {
     let mut lines = Vec::new();
     let mut point_buffer = Vec::new();
     let mut previous_points = HashMap::new();
     let mut untaken_indent_locs = HashMap::new();
     let mut imbalanced_locs = Vec::new();
+    let mut implicit_indent_locs = HashSet::new();
 
-    for indent_point in crawl_indent_points(elements, allow_implicit_indents) {
+    for indent_point in crawl_indent_points(elements, implicit_indents) {
         point_buffer.push(indent_point.clone());
         previous_points.insert(indent_point.idx, indent_point.clone());
 
-        if !indent_point.is_line_break {
-            let indent_stats = elements[indent_point.idx]
-                .as_point()
-                .unwrap()
-                .indent_impulse();
+        let indent_stats = elements[indent_point.idx]
+            .as_point()
+            .unwrap()
+            .indent_impulse();
 
-            if (indent_stats.implicit_indents.is_empty() || !allow_implicit_indents)
+        if implicit_indents == ImplicitIndents::Require
+            && !indent_stats.implicit_indents.is_empty()
+            && indent_point.is_line_break
+        {
+            implicit_indent_locs.insert(indent_point.idx);
+        }
+
+        if !indent_point.is_line_break {
+            if (indent_stats.implicit_indents.is_empty()
+                || implicit_indents == ImplicitIndents::Forbid)
                 && indent_point.indent_impulse > indent_point.indent_trough
             {
                 untaken_indent_locs.insert(
@@ -901,7 +919,7 @@ fn map_line_buffers(
         lines.push(IndentLine::from_points(point_buffer));
     }
 
-    (lines, imbalanced_locs)
+    (lines, imbalanced_locs, implicit_indent_locs)
 }
 
 fn deduce_line_current_indent(
@@ -1052,10 +1070,11 @@ fn lint_line_untaken_positive_indents(
     indent_line: &IndentLine,
     single_indent: &str,
     imbalanced_indent_locs: &[usize],
+    implicit_indent_locs: &HashSet<usize>,
 ) -> (Vec<LintResult>, Vec<usize>) {
     // First check whether this line contains any of the untaken problem points.
     for ip in &indent_line.indent_points {
-        if imbalanced_indent_locs.contains(&ip.idx) {
+        if imbalanced_indent_locs.contains(&ip.idx) && !implicit_indent_locs.contains(&ip.idx) {
             // Force it at the relevant position.
             let desired_indent = single_indent.repeat(
                 (ip.closing_indent_balance() - ip.untaken_indents.len() as isize).max(0) as usize,
@@ -1257,6 +1276,7 @@ fn lint_line_buffer_indents(
     single_indent: &str,
     forced_indents: &mut Vec<usize>,
     imbalanced_indent_locs: &[usize],
+    implicit_indent_locs: &HashSet<usize>,
 ) -> Vec<LintResult> {
     let mut results = Vec::new();
 
@@ -1275,6 +1295,7 @@ fn lint_line_buffer_indents(
         &indent_line,
         single_indent,
         imbalanced_indent_locs,
+        implicit_indent_locs,
     );
 
     if !new_results.is_empty() {
@@ -1296,15 +1317,58 @@ fn lint_line_buffer_indents(
     results
 }
 
+fn convert_newlines_to_spaces(
+    tables: &Tables,
+    elem_buffer: &ReflowSequenceType,
+    implicit_indent_locs: &HashSet<usize>,
+) -> Vec<LintResult> {
+    let mut results = Vec::new();
+
+    for &idx in implicit_indent_locs {
+        let Some(elem) = elem_buffer.get(idx).and_then(ReflowElement::as_point) else {
+            continue;
+        };
+
+        if elem.num_newlines() == 0 || elem.segments().is_empty() {
+            continue;
+        }
+
+        let mut replacement_segments = elem
+            .segments()
+            .iter()
+            .filter(|seg| seg.is_type(SyntaxKind::Implicit))
+            .cloned()
+            .collect_vec();
+        replacement_segments.push(SegmentBuilder::whitespace(tables.next_id(), " "));
+
+        let mut fixes = vec![LintFix::replace(
+            elem.segments()[0].clone(),
+            replacement_segments,
+            None,
+        )];
+        fixes.extend(elem.segments()[1..].iter().cloned().map(LintFix::delete));
+
+        results.push(LintResult::new(
+            elem.segments()[0].clone().into(),
+            fixes,
+            Some("Removed line break in favor of implicit indentation.".into()),
+            Some("reflow.indent.require_implicit".into()),
+        ));
+    }
+
+    results
+}
+
 pub fn lint_indent_points(
     tables: &Tables,
     elements: ReflowSequenceType,
     single_indent: &str,
     _skip_indentation_in: HashSet<String>,
-    allow_implicit_indents: bool,
+    implicit_indents: ImplicitIndents,
     ignore_comment_lines: bool,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
-    let (mut lines, imbalanced_indent_locs) = map_line_buffers(&elements, allow_implicit_indents);
+    let (mut lines, imbalanced_indent_locs, implicit_indent_locs) =
+        map_line_buffers(&elements, implicit_indents);
 
     let mut results = Vec::new();
     let mut elem_buffer = elements.clone();
@@ -1326,9 +1390,17 @@ pub fn lint_indent_points(
             single_indent,
             &mut forced_indents,
             &imbalanced_indent_locs,
+            &implicit_indent_locs,
         );
 
         results.extend(line_results);
+    }
+
+    if implicit_indents == ImplicitIndents::Require && !implicit_indent_locs.is_empty() {
+        let mut implicit_results =
+            convert_newlines_to_spaces(tables, &elem_buffer, &implicit_indent_locs);
+        implicit_results.extend(results);
+        results = implicit_results;
     }
 
     (elem_buffer, results)
@@ -1468,11 +1540,11 @@ fn match_indents(
     line_elements: ReflowSequenceType,
     rebreak_priorities: HashMap<usize, usize>,
     newline_idx: usize,
-    allow_implicit_indents: bool,
+    implicit_indents: ImplicitIndents,
 ) -> MatchedIndentsType {
     let mut balance = 0;
     let mut matched_indents: MatchedIndentsType = HashMap::new();
-    let mut implicit_indents = HashMap::new();
+    let mut implicit_indent_dict = HashMap::new();
 
     for (idx, e) in enumerate(&line_elements) {
         let ReflowElement::Point(point) = e else {
@@ -1485,7 +1557,7 @@ fn match_indents(
             (newline_idx as isize - line_elements.len() as isize + idx as isize + 1) as usize;
 
         if !indent_stats.implicit_indents.is_empty() {
-            implicit_indents.insert(e_idx, indent_stats.implicit_indents.clone());
+            implicit_indent_dict.insert(e_idx, indent_stats.implicit_indents.clone());
         }
 
         let nmi;
@@ -1504,7 +1576,7 @@ fn match_indents(
 
     matched_indents.retain(|_key, value| value != &[newline_idx]);
 
-    if allow_implicit_indents {
+    if implicit_indents != ImplicitIndents::Forbid {
         let keys: Vec<_> = matched_indents.keys().copied().collect();
         for indent_level in keys {
             let major_points: HashSet<_> = matched_indents[&indent_level]
@@ -1514,7 +1586,7 @@ fn match_indents(
                 .difference(&HashSet::from([newline_idx]))
                 .copied()
                 .collect::<HashSet<_>>()
-                .difference(&implicit_indents.keys().copied().collect::<HashSet<_>>())
+                .difference(&implicit_indent_dict.keys().copied().collect::<HashSet<_>>())
                 .copied()
                 .collect();
 
@@ -1756,7 +1828,7 @@ pub fn lint_line_length(
     root_segment: &ErasedSegment,
     single_indent: &str,
     line_length_limit: usize,
-    allow_implicit_indents: bool,
+    implicit_indents: ImplicitIndents,
     trailing_comments: TrailingComments,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     if line_length_limit == 0 {
@@ -1814,7 +1886,7 @@ pub fn lint_line_length(
             let rebreak_priorities = rebreak_priorities(spans, combined_elements.len());
 
             let matched_indents =
-                match_indents(line_elements, rebreak_priorities, i, allow_implicit_indents);
+                match_indents(line_elements, rebreak_priorities, i, implicit_indents);
 
             let desc = format!("Line is too long ({line_len} > {line_length_limit}).");
 
@@ -1977,7 +2049,7 @@ mod tests {
     use sqruff_lib_core::dialects::syntax::SyntaxKind;
     use sqruff_lib_core::parser::segments::{BlockType, SegmentBuilder, TemplateInfo};
 
-    use super::{IndentLine, IndentPoint, crawl_indent_points};
+    use super::{ImplicitIndents, IndentLine, IndentPoint, crawl_indent_points};
     use crate::utils::reflow::config::ReflowConfig;
     use crate::utils::reflow::depth_map::DepthInfo;
     use crate::utils::reflow::elements::{ReflowBlock, ReflowPoint};
@@ -2036,7 +2108,7 @@ mod tests {
             block(SegmentBuilder::token(5, "", SyntaxKind::EndOfFile).finish()),
         ];
 
-        let points = crawl_indent_points(&elements, false);
+        let points = crawl_indent_points(&elements, ImplicitIndents::Forbid);
         let point_impulses = points
             .iter()
             .map(|point| (point.idx, point.indent_impulse))

@@ -3741,9 +3741,17 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
                     Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("EDITIONABLE").to_matchable(),
+                        Ref::keyword("NONEDITIONABLE").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     Ref::keyword("PUBLIC").optional().to_matchable(),
                     Ref::keyword("SYNONYM").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::new("SharingClauseGrammar").optional().to_matchable(),
                     Ref::keyword("FOR").to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
                     Sequence::new(vec![
@@ -3768,6 +3776,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("DROP").to_matchable(),
                     Ref::keyword("PUBLIC").optional().to_matchable(),
                     Ref::keyword("SYNONYM").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
                     Ref::keyword("FORCE").optional().to_matchable(),
                 ])
@@ -3784,6 +3793,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("ALTER").to_matchable(),
                     Ref::keyword("PUBLIC").optional().to_matchable(),
                     Ref::keyword("SYNONYM").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
                     one_of(vec![
                         Ref::keyword("EDITIONABLE").to_matchable(),

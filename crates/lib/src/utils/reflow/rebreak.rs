@@ -126,13 +126,12 @@ pub enum LinePosition {
 fn first_create_anchor(
     elem_buff: &ReflowSequenceType,
     loc_range: impl Iterator<Item = isize>,
-) -> Vec<ErasedSegment> {
+) -> Option<Vec<ErasedSegment>> {
     loc_range
         .filter_map(|idx| elem_buff.get(idx as usize))
         .map(ReflowElement::segments)
         .find(|segments| !segments.is_empty())
         .map(<[ErasedSegment]>::to_vec)
-        .unwrap_or_else(|| panic!("Could not find anchor for creation."))
 }
 
 impl RebreakLocation {
@@ -446,6 +445,14 @@ pub fn rebreak_sequence(
 
                 new_results
             } else {
+                let Some(create_anchor) = first_create_anchor(
+                    &elem_buff,
+                    (loc.next.adj_pt_idx..=loc.next.pre_code_pt_idx).rev(),
+                ) else {
+                    log::debug!("Skipping trailing tricky case: cannot find anchor.");
+                    continue;
+                };
+
                 fixes.push(LintFix::delete(loc.target.clone()));
                 for seg in elem_buff[loc.prev.adj_pt_idx as usize].segments() {
                     if !seg.is_type(SyntaxKind::Dedent) {
@@ -461,11 +468,6 @@ pub fn rebreak_sequence(
                     Vec::new(),
                     false,
                     "after",
-                );
-
-                let create_anchor = first_create_anchor(
-                    &elem_buff,
-                    (loc.next.adj_pt_idx..=loc.next.pre_code_pt_idx).rev(),
                 );
 
                 fixes.push(LintFix::create_after(
@@ -521,6 +523,13 @@ pub fn rebreak_sequence(
 
                 new_results
             } else {
+                let Some(lead_create_anchor) =
+                    first_create_anchor(&elem_buff, loc.prev.pre_code_pt_idx..=loc.prev.adj_pt_idx)
+                else {
+                    log::debug!("Skipping leading tricky case: cannot find anchor.");
+                    continue;
+                };
+
                 fixes.push(LintFix::delete(loc.target.clone()));
                 for seg in elem_buff[loc.next.adj_pt_idx as usize].segments() {
                     fixes.push(LintFix::delete(seg.clone()));
@@ -536,8 +545,6 @@ pub fn rebreak_sequence(
                     "before",
                 );
 
-                let lead_create_anchor =
-                    first_create_anchor(&elem_buff, loc.prev.pre_code_pt_idx..=loc.prev.adj_pt_idx);
                 if let Some(prev_code_anchor) = lead_create_anchor
                     .iter()
                     .find(|segment| !segment.is_type(SyntaxKind::Dedent))

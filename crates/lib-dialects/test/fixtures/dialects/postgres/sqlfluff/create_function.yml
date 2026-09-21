@@ -334,8 +334,8 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: dup_result
+    - data_type:
+      - data_type_identifier: dup_result
     - keyword: AS
     - bracketed:
       - start_bracket: (

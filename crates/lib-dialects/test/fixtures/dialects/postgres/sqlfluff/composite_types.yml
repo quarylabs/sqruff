@@ -3,8 +3,8 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: my_type
+    - data_type:
+      - data_type_identifier: my_type
     - keyword: AS
     - bracketed:
       - start_bracket: (

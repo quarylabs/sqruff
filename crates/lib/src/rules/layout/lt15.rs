@@ -1,4 +1,5 @@
 use hashbrown::HashMap;
+use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 
@@ -11,6 +12,7 @@ use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 pub struct RuleLT15 {
     maximum_empty_lines_between_statements: usize,
     maximum_empty_lines_inside_statements: usize,
+    maximum_empty_lines_between_batches: usize,
 }
 
 impl Default for RuleLT15 {
@@ -18,6 +20,7 @@ impl Default for RuleLT15 {
         Self {
             maximum_empty_lines_between_statements: 2,
             maximum_empty_lines_inside_statements: 1,
+            maximum_empty_lines_between_batches: 1,
         }
     }
 }
@@ -35,6 +38,11 @@ impl Rule for RuleLT15 {
                 .and_then(Value::as_int)
                 .map(|v| v as usize)
                 .unwrap_or(self.maximum_empty_lines_inside_statements),
+            maximum_empty_lines_between_batches: config
+                .get("maximum_empty_lines_between_batches")
+                .and_then(Value::as_int)
+                .map(|v| v as usize)
+                .unwrap_or(self.maximum_empty_lines_between_batches),
         }
         .erased())
     }
@@ -90,9 +98,17 @@ LIMIT 5
             .parent_stack
             .iter()
             .any(|seg| seg.is_type(SyntaxKind::Statement));
+        let inside_batch = context
+            .parent_stack
+            .iter()
+            .any(|seg| seg.is_type(SyntaxKind::Batch));
 
         let maximum_empty_lines = if inside_statement {
             self.maximum_empty_lines_inside_statements
+        } else if inside_batch {
+            self.maximum_empty_lines_between_statements
+        } else if context.dialect.name == DialectKind::Tsql {
+            self.maximum_empty_lines_between_batches
         } else {
             self.maximum_empty_lines_between_statements
         };

@@ -76,6 +76,7 @@ The following rules are available in this create. This list is generated from th
 | ST11 | [structure.unused_join](#structureunused_join) | Joined table not referenced in query. |
 | ST12 | [structure.consecutive_semicolons](#structureconsecutive_semicolons) | Remove consecutive semicolons. |
 | TQ02 | [tsql.procedure_begin_end](#tsqlprocedure_begin_end) | Procedure body with multiple statements should be wrapped in BEGIN/END block. |
+| TQ03 | [tsql.empty_batch](#tsqlempty_batch) | Remove empty batches. |
 
 ## Rule Details
 
@@ -2830,5 +2831,44 @@ BEGIN
     SELECT * FROM Table1;
     SELECT * FROM Table2;
 END
+```
+
+
+### tsql.empty_batch
+
+Remove empty batches.
+
+**Code:** `TQ03`
+
+**Groups:** `all`, `tsql`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+Empty batches (containing only `GO` statements) should be removed.
+
+```sql
+CREATE TABLE dbo.test (
+    testcol1 INT NOT NULL,
+    testcol2 INT NOT NULL
+);
+
+GO
+
+GO
+```
+
+**Best practice**
+
+Remove empty batches.
+
+```sql
+CREATE TABLE dbo.test (
+    testcol1 INT NOT NULL,
+    testcol2 INT NOT NULL
+);
+
+GO
 ```
 

@@ -10,7 +10,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
         - end_bracket: )
       - keyword: AS
       - keyword: RANGE
@@ -36,7 +36,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier: CHAR
+          - keyword: CHAR
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (
@@ -67,7 +67,7 @@ file:
       - bracketed:
         - start_bracket: (
         - data_type:
-          - data_type_identifier: date
+          - keyword: date
         - end_bracket: )
       - keyword: AS
       - keyword: RANGE

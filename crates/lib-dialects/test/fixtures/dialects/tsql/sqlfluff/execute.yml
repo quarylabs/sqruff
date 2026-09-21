@@ -224,7 +224,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@statement'
     - data_type:
-      - data_type_identifier: nvarchar
+      - keyword: nvarchar
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -255,7 +255,7 @@ file:
     - tsql_variable: '@s1'
     - keyword: AS
     - data_type:
-      - data_type_identifier: varchar
+      - keyword: varchar
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -270,7 +270,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@s2'
     - data_type:
-      - data_type_identifier: varchar
+      - keyword: varchar
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -387,7 +387,7 @@ file:
     - tsql_variable: '@CheckDate'
     - keyword: AS
     - data_type:
-      - data_type_identifier: DATETIME
+      - keyword: DATETIME
     - assignment_operator:
       - raw_comparison_operator: =
     - expression:
@@ -448,7 +448,7 @@ file:
     - tsql_variable: '@retstat'
     - keyword: AS
     - data_type:
-      - data_type_identifier: INT
+      - keyword: INT
   - statement_terminator: ;
   - statement:
     - execute_script_statement:
@@ -474,7 +474,7 @@ file:
     - tsql_variable: '@proc_name'
     - keyword: AS
     - data_type:
-      - data_type_identifier: VARCHAR
+      - keyword: VARCHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -592,7 +592,7 @@ file:
     - tsql_variable: '@returnstatus'
     - keyword: AS
     - data_type:
-      - data_type_identifier: NVARCHAR
+      - keyword: NVARCHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -645,21 +645,21 @@ file:
             - column_reference:
               - quoted_identifier: '[Reporting Level]'
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - keyword: NOT
             - keyword: 'NULL'
             - comma: ','
             - column_reference:
               - quoted_identifier: '[ID of Employee]'
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - keyword: NOT
             - keyword: 'NULL'
             - comma: ','
             - column_reference:
               - quoted_identifier: '[Employee First Name]'
             - data_type:
-              - data_type_identifier: NVARCHAR
+              - keyword: NVARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -671,7 +671,7 @@ file:
             - column_reference:
               - quoted_identifier: '[Employee Last Name]'
             - data_type:
-              - data_type_identifier: NVARCHAR
+              - keyword: NVARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -683,7 +683,7 @@ file:
             - column_reference:
               - quoted_identifier: '[Employee ID of Manager]'
             - data_type:
-              - data_type_identifier: NVARCHAR
+              - keyword: NVARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -695,7 +695,7 @@ file:
             - column_reference:
               - quoted_identifier: '[Manager First Name]'
             - data_type:
-              - data_type_identifier: NVARCHAR
+              - keyword: NVARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -707,7 +707,7 @@ file:
             - column_reference:
               - quoted_identifier: '[Manager Last Name]'
             - data_type:
-              - data_type_identifier: NVARCHAR
+              - keyword: NVARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -738,7 +738,7 @@ file:
             - column_reference:
               - naked_identifier: ProductID
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - comma: ','
             - column_reference:
               - quoted_identifier: '[Name]'
@@ -748,7 +748,7 @@ file:
             - column_reference:
               - naked_identifier: ListPrice
             - data_type:
-              - data_type_identifier: MONEY
+              - keyword: MONEY
             - end_bracket: )
           - comma: ','
           - bracketed:
@@ -761,7 +761,7 @@ file:
             - column_reference:
               - naked_identifier: NumberOfOrders
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - end_bracket: )
           - end_bracket: )
       - statement_terminator: ;

@@ -81,7 +81,7 @@ file:
                   - quoted_identifier: '[InventoryTs]'
               - keyword: AS
               - data_type:
-                - data_type_identifier: date
+                - keyword: date
               - end_bracket: )
   - statement_terminator: ;
   - go_statement:
@@ -183,7 +183,7 @@ file:
           - column_definition:
             - quoted_identifier: '[strUserId]'
             - data_type:
-              - quoted_identifier: '[char]'
+              - data_type_identifier: '[char]'
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -196,7 +196,7 @@ file:
           - column_definition:
             - quoted_identifier: '[strItem]'
             - data_type:
-              - quoted_identifier: '[binary]'
+              - data_type_identifier: '[binary]'
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -208,7 +208,7 @@ file:
           - column_definition:
             - quoted_identifier: '[strSkill]'
             - data_type:
-              - quoted_identifier: '[binary]'
+              - data_type_identifier: '[binary]'
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (

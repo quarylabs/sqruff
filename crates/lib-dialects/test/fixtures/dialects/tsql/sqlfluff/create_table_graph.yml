@@ -22,7 +22,7 @@ file:
         - column_definition:
           - quoted_identifier: '[name]'
           - data_type:
-            - data_type_identifier: VARCHAR
+            - keyword: VARCHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -52,7 +52,7 @@ file:
         - column_definition:
           - naked_identifier: start_date
           - data_type:
-            - data_type_identifier: DATE
+            - keyword: DATE
         - end_bracket: )
       - keyword: AS
       - keyword: EDGE

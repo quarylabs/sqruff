@@ -14,7 +14,7 @@ file:
           - keyword: DECLARE
           - tsql_variable: '@DATEFUNCTION'
           - data_type:
-            - data_type_identifier: DATE
+            - keyword: DATE
           - assignment_operator:
             - raw_comparison_operator: =
           - expression:
@@ -39,7 +39,7 @@ file:
           - keyword: DECLARE
           - tsql_variable: '@deadlock_var'
           - data_type:
-            - data_type_identifier: NCHAR
+            - keyword: NCHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (

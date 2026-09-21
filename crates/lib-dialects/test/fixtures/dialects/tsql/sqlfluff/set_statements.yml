@@ -13,7 +13,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@BinaryVariable2'
     - data_type:
-      - data_type_identifier: BINARY
+      - keyword: BINARY
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (

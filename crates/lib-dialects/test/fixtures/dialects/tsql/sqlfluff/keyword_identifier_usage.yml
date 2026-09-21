@@ -145,12 +145,12 @@ file:
           - column_definition:
             - naked_identifier: Type
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
           - comma: ','
           - column_definition:
             - naked_identifier: Value
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -160,7 +160,7 @@ file:
           - column_definition:
             - naked_identifier: Format
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -170,7 +170,7 @@ file:
           - column_definition:
             - naked_identifier: Class
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -180,7 +180,7 @@ file:
           - column_definition:
             - naked_identifier: Array
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -190,12 +190,12 @@ file:
           - column_definition:
             - quoted_identifier: '[SELECT]'
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
           - comma: ','
           - column_definition:
             - quoted_identifier: '[UPDATE]'
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -205,7 +205,7 @@ file:
           - column_definition:
             - naked_identifier: Name
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -647,12 +647,12 @@ file:
           - column_definition:
             - naked_identifier: Type
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
           - comma: ','
           - column_definition:
             - naked_identifier: Value
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -662,7 +662,7 @@ file:
           - column_definition:
             - naked_identifier: Name
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -672,7 +672,7 @@ file:
           - column_definition:
             - naked_identifier: Data
             - data_type:
-              - data_type_identifier: VARBINARY
+              - keyword: VARBINARY
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (
@@ -682,7 +682,7 @@ file:
           - column_definition:
             - naked_identifier: Format
             - data_type:
-              - data_type_identifier: VARCHAR
+              - keyword: VARCHAR
               - bracketed_arguments:
                 - bracketed:
                   - start_bracket: (

@@ -14,7 +14,7 @@ file:
         - column_definition:
           - naked_identifier: column_name_1
           - data_type:
-            - data_type_identifier: VARCHAR
+            - keyword: VARCHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -24,7 +24,7 @@ file:
         - column_definition:
           - naked_identifier: column_name_2
           - data_type:
-            - data_type_identifier: VARCHAR
+            - keyword: VARCHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -36,7 +36,7 @@ file:
         - column_definition:
           - naked_identifier: column_name_3
           - data_type:
-            - data_type_identifier: VARCHAR
+            - keyword: VARCHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -97,7 +97,7 @@ file:
         - column_definition:
           - naked_identifier: column_name_1
           - data_type:
-            - data_type_identifier: VARCHAR
+            - keyword: VARCHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -107,7 +107,7 @@ file:
         - column_definition:
           - naked_identifier: column_name_2
           - data_type:
-            - data_type_identifier: VARCHAR
+            - keyword: VARCHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -119,7 +119,7 @@ file:
         - column_definition:
           - naked_identifier: column_name_3
           - data_type:
-            - data_type_identifier: VARCHAR
+            - keyword: VARCHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -183,7 +183,7 @@ file:
         - column_definition:
           - naked_identifier: o_orderkey
           - data_type:
-            - data_type_identifier: DECIMAL
+            - keyword: DECIMAL
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -196,7 +196,7 @@ file:
         - column_definition:
           - naked_identifier: o_custkey
           - data_type:
-            - data_type_identifier: DECIMAL
+            - keyword: DECIMAL
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -209,7 +209,7 @@ file:
         - column_definition:
           - naked_identifier: o_orderstatus
           - data_type:
-            - data_type_identifier: CHAR
+            - keyword: CHAR
           - column_constraint_segment:
             - keyword: COLLATE
             - collation_reference:
@@ -221,7 +221,7 @@ file:
         - column_definition:
           - naked_identifier: o_totalprice
           - data_type:
-            - data_type_identifier: DECIMAL
+            - keyword: DECIMAL
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -236,7 +236,7 @@ file:
         - column_definition:
           - naked_identifier: o_orderdate
           - data_type:
-            - data_type_identifier: DATETIME2
+            - keyword: DATETIME2
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -249,7 +249,7 @@ file:
         - column_definition:
           - naked_identifier: o_orderpriority
           - data_type:
-            - data_type_identifier: CHAR
+            - keyword: CHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -266,7 +266,7 @@ file:
         - column_definition:
           - naked_identifier: o_clerk
           - data_type:
-            - data_type_identifier: CHAR
+            - keyword: CHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -283,7 +283,7 @@ file:
         - column_definition:
           - naked_identifier: o_shippriority
           - data_type:
-            - data_type_identifier: DECIMAL
+            - keyword: DECIMAL
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -296,7 +296,7 @@ file:
         - column_definition:
           - naked_identifier: o_comment
           - data_type:
-            - data_type_identifier: VARCHAR
+            - keyword: VARCHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (

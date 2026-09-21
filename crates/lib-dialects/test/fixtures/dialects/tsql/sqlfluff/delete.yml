@@ -9,7 +9,7 @@ file:
           - naked_identifier: Sales
           - dot: .
           - naked_identifier: SalesPersonQuotaHistory
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -30,7 +30,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: '>'
           - numeric_literal: '1000.00'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -56,7 +56,7 @@ file:
             - naked_identifier: EndDate
           - keyword: IS
           - null_literal: 'NULL'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - keyword: PRINT
     - expression:
@@ -191,7 +191,7 @@ file:
       - keyword: CURRENT
       - keyword: OF
       - naked_identifier: complex_cursor
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - close_cursor_statement:
       - keyword: CLOSE
@@ -247,7 +247,7 @@ file:
                     - raw_comparison_operator: '>'
                   - numeric_literal: '2500000.00'
             - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -311,7 +311,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: '>'
           - numeric_literal: '2500000.00'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -372,7 +372,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: '>'
           - numeric_literal: '2500000.00'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - delete_statement:
       - keyword: DELETE
@@ -396,7 +396,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: <
           - quoted_literal: '''20020701'''
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -444,7 +444,7 @@ file:
                   - naked_identifier: DueDate
                 - keyword: ASC
             - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -468,7 +468,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: '>'
           - integer_literal: '16'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -536,7 +536,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '17'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - delete_statement:
       - keyword: DELETE
@@ -559,7 +559,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '20621'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - keyword: DECLARE
     - tsql_variable: '@MyTableVar'
@@ -682,4 +682,4 @@ file:
           - integer_literal: '120'
           - keyword: and
           - integer_literal: '130'
-      - statement_terminator: ;
+  - statement_terminator: ;

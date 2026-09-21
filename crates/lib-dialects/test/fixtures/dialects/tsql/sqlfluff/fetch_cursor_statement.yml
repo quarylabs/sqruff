@@ -66,11 +66,12 @@ file:
       - integer_literal: '0'
     - statement:
       - keyword: BEGIN
-      - fetch_cursor_statement:
-        - keyword: FETCH
-        - keyword: NEXT
-        - keyword: FROM
-        - naked_identifier: CONTACT_CURSOR
+      - statement:
+        - fetch_cursor_statement:
+          - keyword: FETCH
+          - keyword: NEXT
+          - keyword: FROM
+          - naked_identifier: CONTACT_CURSOR
       - statement_terminator: ;
       - keyword: END
   - statement:
@@ -183,26 +184,28 @@ file:
       - integer_literal: '0'
     - statement:
       - keyword: BEGIN
-      - keyword: PRINT
-      - expression:
-        - quoted_literal: '''Contact Name: '''
-        - binary_operator: +
-        - parameterized_expression:
-          - tsql_variable: '@FirstName'
-        - binary_operator: +
-        - quoted_literal: ''' '''
-        - binary_operator: +
-        - parameterized_expression:
+      - statement:
+        - keyword: PRINT
+        - expression:
+          - quoted_literal: '''Contact Name: '''
+          - binary_operator: +
+          - parameterized_expression:
+            - tsql_variable: '@FirstName'
+          - binary_operator: +
+          - quoted_literal: ''' '''
+          - binary_operator: +
+          - parameterized_expression:
+            - tsql_variable: '@LastName'
+      - statement:
+        - fetch_cursor_statement:
+          - keyword: FETCH
+          - keyword: NEXT
+          - keyword: FROM
+          - naked_identifier: CONTACT_CURSOR
+          - keyword: INTO
           - tsql_variable: '@LastName'
-      - fetch_cursor_statement:
-        - keyword: FETCH
-        - keyword: NEXT
-        - keyword: FROM
-        - naked_identifier: CONTACT_CURSOR
-        - keyword: INTO
-        - tsql_variable: '@LastName'
-        - comma: ','
-        - tsql_variable: '@FirstName'
+          - comma: ','
+          - tsql_variable: '@FirstName'
       - statement_terminator: ;
       - keyword: END
   - statement:

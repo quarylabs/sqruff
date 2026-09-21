@@ -284,60 +284,61 @@ file:
 - batch:
   - statement:
     - keyword: BEGIN
-    - insert_statement:
-      - keyword: INSERT
-      - keyword: INTO
-      - table_reference:
-        - object_reference:
-          - naked_identifier: HumanResources
-          - dot: .
-          - naked_identifier: NewEmployee
-      - select_statement:
-        - select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: EmpID
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: LastName
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: FirstName
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: Phone
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: Address
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: City
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: StateProvince
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: PostalCode
-          - comma: ','
-          - select_clause_element:
-            - column_reference:
-              - naked_identifier: CurrentFlag
-        - from_clause:
-          - keyword: FROM
-          - from_expression:
-            - from_expression_element:
-              - table_expression:
-                - table_reference:
-                  - object_reference:
-                    - naked_identifier: EmployeeTemp
+    - statement:
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - object_reference:
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: NewEmployee
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: EmpID
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: LastName
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: FirstName
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: Phone
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: Address
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: City
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: StateProvince
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: PostalCode
+            - comma: ','
+            - select_clause_element:
+              - column_reference:
+                - naked_identifier: CurrentFlag
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - object_reference:
+                      - naked_identifier: EmployeeTemp
     - statement_terminator: ;
     - keyword: END
   - go_statement:

@@ -976,7 +976,6 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("NakedIdentifierSegment").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::new("DelimiterGrammar").optional().to_matchable(),
             ])
             .to_matchable()
         })
@@ -1451,7 +1450,6 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("RETURN").to_matchable(),
                 Ref::new("ExpressionSegment").optional().to_matchable(),
-                Ref::new("DelimiterGrammar").optional().to_matchable(),
             ])
             .to_matchable()
         })
@@ -1466,67 +1464,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("BEGIN").to_matchable(),
                 MetaSegment::indent().to_matchable(),
-                AnyNumberOf::new(vec![
-                    Sequence::new(vec![
-                        one_of(vec![
-                            Ref::new("SelectableGrammar").to_matchable(),
-                            Ref::new("OpenQueryInsertStatementSegment").to_matchable(),
-                            Ref::new("InsertStatementSegment").to_matchable(),
-                            Ref::new("OpenQueryUpdateStatementSegment").to_matchable(),
-                            Ref::new("UpdateStatementSegment").to_matchable(),
-                            Ref::new("OpenQueryDeleteStatementSegment").to_matchable(),
-                            Ref::new("DeleteStatementSegment").to_matchable(),
-                            Ref::new("CreateTableStatementSegment").to_matchable(),
-                            Ref::new("DropTableStatementSegment").to_matchable(),
-                            Ref::new("OpenSymmetricKeySegment").to_matchable(),
-                            Ref::new("DeclareCursorStatementSegment").to_matchable(),
-                            Ref::new("OpenCursorStatementSegment").to_matchable(),
-                            Ref::new("FetchCursorStatementSegment").to_matchable(),
-                            Ref::new("CloseCursorStatementSegment").to_matchable(),
-                            Ref::new("DeallocateCursorStatementSegment").to_matchable(),
-                            Ref::new("DeclareStatementSegment").to_matchable(),
-                            Ref::new("SetLanguageStatementSegment").to_matchable(),
-                            Ref::new("SetVariableStatementSegment").to_matchable(),
-                            Ref::new("SetLocalVariableStatementSegment").to_matchable(),
-                            Ref::new("WaitForStatementSegment").to_matchable(),
-                            Ref::new("ExecuteScriptSegment").to_matchable(),
-                            Ref::new("PrintStatementSegment").to_matchable(),
-                            Ref::new("RaiserrorStatementSegment").to_matchable(),
-                            Ref::new("ReturnStatementSegment").to_matchable(),
-                            Ref::new("IfStatementSegment").to_matchable(),
-                            Ref::new("WhileStatementSegment").to_matchable(),
-                            Ref::new("TryBlockSegment").to_matchable(),
-                            Ref::new("GotoStatementSegment").to_matchable(),
-                            Ref::new("LabelSegment").to_matchable(),
-                            Ref::new("BeginEndBlockSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("DelimiterGrammar").optional().to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .config(|this| {
-                    this.terminators = vec![
-                        // Terminate on END keyword
-                        Ref::keyword("END").to_matchable(),
-                        // Also terminate on statement keywords to help with boundary detection
-                        Ref::keyword("SELECT").to_matchable(),
-                        Ref::keyword("INSERT").to_matchable(),
-                        Ref::keyword("UPDATE").to_matchable(),
-                        Ref::keyword("DELETE").to_matchable(),
-                        Ref::keyword("CREATE").to_matchable(),
-                        Ref::keyword("DROP").to_matchable(),
-                        Ref::keyword("DECLARE").to_matchable(),
-                        Ref::keyword("SET").to_matchable(),
-                        Ref::keyword("PRINT").to_matchable(),
-                        Ref::keyword("IF").to_matchable(),
-                        Ref::keyword("WHILE").to_matchable(),
-                        Ref::keyword("BEGIN").to_matchable(),
-                        Ref::keyword("GOTO").to_matchable(),
-                    ];
-                })
-                .config(|this| this.min_times(0))
-                .to_matchable(),
+                Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
                 MetaSegment::dedent().to_matchable(),
                 Ref::keyword("END").to_matchable(),
             ])
@@ -1546,17 +1484,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("BEGIN").to_matchable(),
             Ref::keyword("TRY").to_matchable(),
             MetaSegment::indent().to_matchable(),
-            AnyNumberOf::new(vec![
-                Sequence::new(vec![
-                    Ref::new("StatementSegment").to_matchable(),
-                    Ref::new("DelimiterGrammar").optional().to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .config(|this| {
-                this.terminators = vec![Ref::keyword("END").to_matchable()];
-            })
-            .to_matchable(),
+            Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
             MetaSegment::dedent().to_matchable(),
             Ref::keyword("END").to_matchable(),
             Ref::keyword("TRY").to_matchable(),
@@ -1565,15 +1493,8 @@ pub fn raw_dialect() -> Dialect {
             MetaSegment::indent().to_matchable(),
             // A CATCH block may be empty.
             AnyNumberOf::new(vec![
-                Sequence::new(vec![
-                    Ref::new("StatementSegment").to_matchable(),
-                    Ref::new("DelimiterGrammar").optional().to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("StatementAndDelimiterGrammar").to_matchable(),
             ])
-            .config(|this| {
-                this.terminators = vec![Ref::keyword("END").to_matchable()];
-            })
             .to_matchable(),
             MetaSegment::dedent().to_matchable(),
             Ref::keyword("END").to_matchable(),
@@ -1814,20 +1735,13 @@ pub fn raw_dialect() -> Dialect {
         (
             "BatchSegment".into(),
             NodeMatcher::new(SyntaxKind::Batch, |_| {
-                Sequence::new(vec![
-                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
-                        .to_matchable(),
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
-                            Ref::new("BatchDelimiterGrammar").optional().to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("BatchDelimiterGrammar").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
+                        Ref::new("BatchDelimiterGrammar").optional().to_matchable(),
                     ])
                     .to_matchable(),
-                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
-                        .to_matchable(),
+                    Ref::new("BatchDelimiterGrammar").to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -2038,7 +1952,6 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
-                Ref::new("DelimiterGrammar").optional().to_matchable(),
             ])
             .to_matchable()
         })
@@ -2312,7 +2225,6 @@ pub fn raw_dialect() -> Dialect {
                     _execute_pass_through_command.clone(),
                 ])
                 .to_matchable(),
-                Ref::new("DelimiterGrammar").optional().to_matchable(),
             ])
             .to_matchable()
         })
@@ -2448,7 +2360,6 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Ref::new("OptionClauseSegment").optional().to_matchable(),
-                    Ref::new("DelimiterGrammar").optional().to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -2476,7 +2387,6 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("FromClauseSegment").optional().to_matchable(),
                     Ref::new("WhereClauseSegment").optional().to_matchable(),
                     Ref::new("OptionClauseSegment").optional().to_matchable(),
-                    Ref::new("DelimiterGrammar").optional().to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -5580,11 +5490,7 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 MetaSegment::indent().to_matchable(),
-                AnyNumberOf::new(vec![
-                    Ref::new("StatementSegment").to_matchable(),
-                    Ref::new("DelimiterGrammar").optional().to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
                 MetaSegment::dedent().to_matchable(),
                 Ref::keyword("END").to_matchable(),
             ])
@@ -5847,7 +5753,6 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("OnPartitionOrFilegroupOptionSegment")
                         .optional()
                         .to_matchable(),
-                    Ref::new("DelimiterGrammar").optional().to_matchable(),
                 ])
                 .to_matchable()
             })

@@ -72,27 +72,40 @@ FROM foo;
         debug_assert!(context.segment.is_type(SyntaxKind::File));
 
         let mut results = vec![];
-        for (idx, segment) in context.segment.segments().iter().enumerate() {
-            let mut res = None;
-            if segment.is_type(SyntaxKind::StatementTerminator) {
-                // First we can simply handle the case of existing semi-colon alignment.
-                // If it's a terminator then we know it's raw.
+        let mut containers = vec![context.segment.clone()];
+        containers.extend(
+            context
+                .segment
+                .segments()
+                .iter()
+                .filter(|segment| segment.is_type(SyntaxKind::Batch))
+                .cloned(),
+        );
 
-                if Self::is_segment_semicolon(segment) {
-                    res = self.handle_semicolon(
-                        context.tables,
-                        segment.clone(),
-                        context.segment.clone(),
-                    );
+        for container in containers {
+            for (idx, segment) in container.segments().iter().enumerate() {
+                let mut res = None;
+                if segment.is_type(SyntaxKind::StatementTerminator) {
+                    // T-SQL statement terminators are peers of statements inside a batch.
+                    if Self::is_segment_semicolon(segment) {
+                        res = self.handle_semicolon(
+                            context.tables,
+                            segment.clone(),
+                            container.clone(),
+                        );
+                    }
+                } else if self.require_final_semicolon
+                    && container == context.segment
+                    && idx == container.segments().len() - 1
+                {
+                    // Only enforce the final terminator once, at file level.
+                    if !Self::has_final_non_semicolon_terminator(&container) {
+                        res = self.ensure_final_semicolon(context.tables, container.clone());
+                    }
                 }
-            } else if self.require_final_semicolon && idx == context.segment.segments().len() - 1 {
-                // Otherwise, handle the end of the file separately.
-                if !Self::has_final_non_semicolon_terminator(&context.segment) {
-                    res = self.ensure_final_semicolon(context.tables, context.segment.clone());
+                if let Some(res) = res {
+                    results.push(res);
                 }
-            }
-            if let Some(res) = res {
-                results.push(res);
             }
         }
         results
@@ -122,6 +135,24 @@ impl RuleCV06 {
             )
             .into_iter()
             .last()
+    }
+
+    fn get_statement_container(
+        parent_segment: &ErasedSegment,
+        statement: &ErasedSegment,
+    ) -> Option<ErasedSegment> {
+        if parent_segment
+            .segments()
+            .iter()
+            .any(|segment| segment == statement)
+        {
+            return Some(parent_segment.clone());
+        }
+
+        parent_segment
+            .segments()
+            .iter()
+            .find_map(|segment| Self::get_statement_container(segment, statement))
     }
 
     fn get_final_statement_terminator(file_segment: &ErasedSegment) -> Option<ErasedSegment> {
@@ -407,24 +438,34 @@ impl RuleCV06 {
         tables: &Tables,
         parent_segment: ErasedSegment,
     ) -> Option<LintResult> {
-        // Iterate backwards over complete stack to find
-        // if the final semicolon is already present.
-        let mut anchor_segment = parent_segment.segments().last().cloned();
-        let trigger_segment = parent_segment.segments().last().cloned();
-        let mut semi_colon_exist_flag = Self::get_final_statement_terminator(&parent_segment)
-            .is_some_and(|segment| Self::is_segment_semicolon(&segment));
+        let last_statement = Self::get_last_statement(&parent_segment)?;
+        let statement_container = Self::get_statement_container(&parent_segment, &last_statement)?;
+        let last_statement_idx = statement_container
+            .segments()
+            .iter()
+            .position(|segment| segment == &last_statement)?;
+
+        // A T-SQL terminator is a peer of its statement. Do not add a second one.
+        for segment in &statement_container.segments()[last_statement_idx + 1..] {
+            if Self::is_segment_semicolon(segment) {
+                return None;
+            }
+            if segment.is_code() {
+                break;
+            }
+        }
+
+        let mut anchor_segment = statement_container.segments().last().cloned();
+        let trigger_segment = statement_container.segments().last().cloned();
         let mut is_one_line = false;
         let mut before_segment = vec![];
 
         let mut found_code = false;
-        for segment in parent_segment.segments().iter().rev() {
+        for segment in statement_container.segments().iter().rev() {
             anchor_segment = Some(segment.clone());
-            if segment.is_type(SyntaxKind::StatementTerminator) {
-                if Self::is_segment_semicolon(segment) {
-                    semi_colon_exist_flag = true;
-                }
-            } else if segment.is_code() {
-                is_one_line = Self::is_one_line_statement(parent_segment.clone(), segment.clone());
+            if segment.is_code() {
+                is_one_line =
+                    Self::is_one_line_statement(parent_segment.clone(), last_statement.clone());
                 found_code = true;
                 break;
             } else if !segment.is_meta() {
@@ -441,60 +482,46 @@ impl RuleCV06 {
         } else {
             self.multiline_newline
         };
-        if !semi_colon_exist_flag {
-            // Create the final semicolon if it does not yet exist.
 
-            // Semicolon on same line.
-            return if !semicolon_newline {
-                let fixes = vec![LintFix::create_after(
-                    anchor_segment.unwrap().clone(),
-                    vec![
-                        SegmentBuilder::token(
-                            tables.next_id(),
-                            ";",
-                            SyntaxKind::StatementTerminator,
-                        )
+        // Create the final semicolon if it does not yet exist.
+        if !semicolon_newline {
+            let fixes = vec![LintFix::create_after(
+                anchor_segment.unwrap().clone(),
+                vec![
+                    SegmentBuilder::token(tables.next_id(), ";", SyntaxKind::StatementTerminator)
                         .finish(),
-                    ],
-                    None,
-                )];
-                Some(LintResult::new(
-                    Some(trigger_segment.unwrap().clone()),
-                    fixes,
-                    None,
-                    None,
-                ))
-            } else {
-                // Semi-colon on new line.
-                // Adjust before_segment and anchor_segment for inline
-                // comments.
-                let (_before_segment, anchor_segment) = Self::handle_preceding_inline_comments(
-                    Segments::from_vec(before_segment, None),
-                    anchor_segment.unwrap().clone(),
-                );
-                let fixes = vec![LintFix::create_after(
-                    anchor_segment.clone(),
-                    vec![
-                        SegmentBuilder::newline(tables.next_id(), "\n"),
-                        SegmentBuilder::token(
-                            tables.next_id(),
-                            ";",
-                            SyntaxKind::StatementTerminator,
-                        )
+                ],
+                None,
+            )];
+            Some(LintResult::new(
+                Some(trigger_segment.unwrap().clone()),
+                fixes,
+                None,
+                None,
+            ))
+        } else {
+            // Semi-colon on new line. Preserve any trailing inline comment.
+            let (_before_segment, anchor_segment) = Self::handle_preceding_inline_comments(
+                Segments::from_vec(before_segment, None),
+                anchor_segment.unwrap().clone(),
+            );
+            let fixes = vec![LintFix::create_after(
+                anchor_segment.clone(),
+                vec![
+                    SegmentBuilder::newline(tables.next_id(), "\n"),
+                    SegmentBuilder::token(tables.next_id(), ";", SyntaxKind::StatementTerminator)
                         .finish(),
-                    ],
-                    None,
-                )];
+                ],
+                None,
+            )];
 
-                Some(LintResult::new(
-                    Some(trigger_segment.unwrap().clone()),
-                    fixes,
-                    None,
-                    None,
-                ))
-            };
+            Some(LintResult::new(
+                Some(trigger_segment.unwrap().clone()),
+                fixes,
+                None,
+                None,
+            ))
         }
-        None
     }
 
     fn get_segment_move_context(

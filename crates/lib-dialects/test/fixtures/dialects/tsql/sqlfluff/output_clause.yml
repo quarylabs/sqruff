@@ -22,7 +22,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '20621'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -51,7 +51,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '20621'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -80,7 +80,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '20621'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -128,7 +128,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '20621'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -307,7 +307,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: <
           - integer_literal: '10'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -375,7 +375,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: <
           - integer_literal: '10'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -507,7 +507,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '16'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -824,7 +824,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '20621'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -880,7 +880,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '20621'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -945,6 +945,6 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '680'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO

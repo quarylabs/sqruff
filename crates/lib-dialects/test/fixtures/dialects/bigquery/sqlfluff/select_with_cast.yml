@@ -80,11 +80,8 @@ file:
               - keyword: AS
               - data_type:
                 - data_type_identifier: STRING
-              - expression:
-                - column_reference:
-                  - naked_identifier: FORMAT
-              - expression:
-                - quoted_literal: '''ASCII'''
+              - keyword: FORMAT
+              - quoted_literal: '''ASCII'''
               - end_bracket: )
         - alias_expression:
           - alias_operator:
@@ -108,11 +105,8 @@ file:
               - keyword: AS
               - data_type:
                 - data_type_identifier: STRING
-              - expression:
-                - column_reference:
-                  - naked_identifier: FORMAT
-              - expression:
-                - quoted_literal: '''YYYY-MM-DD HH24:MI:SS TZH:TZM'''
+              - keyword: FORMAT
+              - quoted_literal: '''YYYY-MM-DD HH24:MI:SS TZH:TZM'''
               - end_bracket: )
         - alias_expression:
           - alias_operator:
@@ -135,11 +129,8 @@ file:
               - keyword: AS
               - data_type:
                 - data_type_identifier: BYTES
-              - expression:
-                - column_reference:
-                  - naked_identifier: FORMAT
-              - expression:
-                - quoted_literal: '''ASCII'''
+              - keyword: FORMAT
+              - quoted_literal: '''ASCII'''
               - end_bracket: )
         - alias_expression:
           - alias_operator:
@@ -163,11 +154,8 @@ file:
               - keyword: AS
               - data_type:
                 - data_type_identifier: STRING
-              - expression:
-                - column_reference:
-                  - naked_identifier: FORMAT
-              - expression:
-                - quoted_literal: '''YYYY'''
+              - keyword: FORMAT
+              - quoted_literal: '''YYYY'''
               - end_bracket: )
         - alias_expression:
           - alias_operator:
@@ -191,11 +179,8 @@ file:
               - keyword: AS
               - data_type:
                 - data_type_identifier: STRING
-              - expression:
-                - column_reference:
-                  - naked_identifier: FORMAT
-              - expression:
-                - quoted_literal: '''HH24'''
+              - keyword: FORMAT
+              - quoted_literal: '''HH24'''
               - end_bracket: )
         - alias_expression:
           - alias_operator:
@@ -219,17 +204,14 @@ file:
               - keyword: AS
               - data_type:
                 - data_type_identifier: STRING
-              - expression:
-                - column_reference:
-                  - naked_identifier: FORMAT
-              - expression:
-                - quoted_literal: '''TZH'''
-                - time_zone_grammar:
-                  - keyword: AT
-                  - keyword: TIME
-                  - keyword: ZONE
-                  - expression:
-                    - quoted_literal: '''Asia/Kolkata'''
+              - keyword: FORMAT
+              - quoted_literal: '''TZH'''
+              - time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - expression:
+                  - quoted_literal: '''Asia/Kolkata'''
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -248,11 +230,8 @@ file:
               - keyword: AS
               - data_type:
                 - data_type_identifier: TIME
-              - expression:
-                - column_reference:
-                  - naked_identifier: FORMAT
-              - expression:
-                - quoted_literal: '''HH:MI P.M.'''
+              - keyword: FORMAT
+              - quoted_literal: '''HH:MI P.M.'''
               - end_bracket: )
         - alias_expression:
           - alias_operator:
@@ -280,11 +259,8 @@ file:
               - keyword: AS
               - data_type:
                 - data_type_identifier: STRING
-              - expression:
-                - column_reference:
-                  - naked_identifier: FORMAT
-              - expression:
-                - quoted_literal: '''$999,999.999'''
+              - keyword: FORMAT
+              - quoted_literal: '''$999,999.999'''
               - end_bracket: )
         - alias_expression:
           - alias_operator:
@@ -340,11 +316,8 @@ file:
               - keyword: AS
               - data_type:
                 - data_type_identifier: STRING
-              - expression:
-                - column_reference:
-                  - naked_identifier: FORMAT
-              - expression:
-                - quoted_literal: '''99.99'''
+              - keyword: FORMAT
+              - quoted_literal: '''99.99'''
               - end_bracket: )
         - alias_expression:
           - alias_operator:
@@ -369,11 +342,8 @@ file:
               - keyword: AS
               - data_type:
                 - data_type_identifier: STRING
-              - expression:
-                - column_reference:
-                  - naked_identifier: FORMAT
-              - expression:
-                - quoted_literal: '''9.999EEEE'''
+              - keyword: FORMAT
+              - quoted_literal: '''9.999EEEE'''
               - end_bracket: )
         - alias_expression:
           - alias_operator:

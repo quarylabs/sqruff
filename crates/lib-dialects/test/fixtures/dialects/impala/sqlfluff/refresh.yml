@@ -1,0 +1,32 @@
+file:
+- statement:
+  - refresh_statement:
+    - keyword: REFRESH
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - refresh_statement:
+    - keyword: REFRESH
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: foo
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col1
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+      - comma: ','
+      - column_reference:
+        - naked_identifier: part_col2
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''a'''
+      - end_bracket: )
+- statement_terminator: ;

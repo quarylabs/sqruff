@@ -301,11 +301,42 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    impala.add([
+        (
+            "InvalidateMetadataStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::InvalidateMetadataStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("INVALIDATE").to_matchable(),
+                    Ref::keyword("METADATA").to_matchable(),
+                    Ref::new("TableReferenceSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "RefreshStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::RefreshStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("REFRESH").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("PartitionSpecGrammar").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     let statement_segment = super::ansi::statement_segment().copy(
         Some(vec![
             Ref::new("CreateTableAsSelectStatementSegment").to_matchable(),
             Ref::new("ComputeStatsStatementSegment").to_matchable(),
             Ref::new("InsertStatementSegment").to_matchable(),
+            Ref::new("InvalidateMetadataStatementSegment").to_matchable(),
+            Ref::new("RefreshStatementSegment").to_matchable(),
             Ref::new("AlterDatabaseStatementSegment").to_matchable(),
             Ref::new("MsckRepairTableStatementSegment").to_matchable(),
             Ref::new("MsckTableStatementSegment").to_matchable(),

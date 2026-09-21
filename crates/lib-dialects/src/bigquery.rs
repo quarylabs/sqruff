@@ -165,6 +165,42 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "DatatypeIdentifierSegment".into(),
+            MultiStringParser::new(
+                vec![
+                    "INT64".into(),
+                    "INT".into(),
+                    "SMALLINT".into(),
+                    "INTEGER".into(),
+                    "BIGINT".into(),
+                    "TINYINT".into(),
+                    "BYTEINT".into(),
+                    "FLOAT64".into(),
+                    "NUMERIC".into(),
+                    "DECIMAL".into(),
+                    "BIGNUMERIC".into(),
+                    "BIGDECIMAL".into(),
+                    "BOOL".into(),
+                    "BOOLEAN".into(),
+                    "STRING".into(),
+                    "BYTES".into(),
+                    "DATE".into(),
+                    "DATETIME".into(),
+                    "TIME".into(),
+                    "TIMESTAMP".into(),
+                    "GEOGRAPHY".into(),
+                    "INTERVAL".into(),
+                    "JSON".into(),
+                    "RANGE".into(),
+                    "ARRAY".into(),
+                    "STRUCT".into(),
+                ],
+                SyntaxKind::DataTypeIdentifier,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
             "DefaultDeclareOptionsGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("DEFAULT").to_matchable(),

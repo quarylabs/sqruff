@@ -430,6 +430,21 @@ pub fn raw_dialect() -> Dialect {
             false,
         ),
     );
+    duckdb_dialect.replace_grammar(
+        "FilterClauseGrammar",
+        Sequence::new(vec![
+            Ref::keyword("FILTER").to_matchable(),
+            Bracketed::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("WHERE").optional().to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
     duckdb_dialect.add([(
         "UnpackingOperatorSegment".into(),
         TypedParser::new(SyntaxKind::Star, SyntaxKind::UnpackingOperator)

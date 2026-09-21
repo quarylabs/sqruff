@@ -4,7 +4,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@myVar'
     - data_type:
-      - data_type_identifier: CHAR
+      - keyword: CHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -35,7 +35,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@state'
     - data_type:
-      - data_type_identifier: CHAR
+      - keyword: CHAR
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -113,7 +113,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@NewBalance'
     - data_type:
-      - data_type_identifier: INT
+      - keyword: INT
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:
@@ -294,7 +294,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@rows'
     - data_type:
-      - data_type_identifier: INT
+      - keyword: INT
   - statement_terminator: ;
   - statement:
     - set_local_variable_segment:

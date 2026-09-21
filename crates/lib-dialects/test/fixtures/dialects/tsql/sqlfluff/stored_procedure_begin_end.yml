@@ -63,20 +63,17 @@ file:
         - quoted_identifier: '[usp_process_tran_log]'
       - tsql_variable: '@out_vchCode'
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_code
+        - data_type_identifier: uddt_output_code
       - keyword: OUTPUT
       - comma: ','
       - tsql_variable: '@out_vchMsg'
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_msg
+        - data_type_identifier: uddt_output_msg
       - keyword: OUTPUT
       - comma: ','
       - tsql_variable: '@in_debug'
       - data_type:
-        - data_type:
-          - data_type_identifier: INT
+        - keyword: INT
       - comparison_operator:
         - raw_comparison_operator: =
       - integer_literal: '1'
@@ -112,20 +109,17 @@ file:
         - quoted_identifier: '[usp_process_tran_log]'
       - tsql_variable: '@out_vchCode'
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_code
+        - data_type_identifier: uddt_output_code
       - keyword: OUTPUT
       - comma: ','
       - tsql_variable: '@out_vchMsg'
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_msg
+        - data_type_identifier: uddt_output_msg
       - keyword: OUT
       - comma: ','
       - tsql_variable: '@in_debug'
       - data_type:
-        - data_type:
-          - data_type_identifier: INT
+        - keyword: INT
       - comparison_operator:
         - raw_comparison_operator: =
       - integer_literal: '1'
@@ -160,20 +154,17 @@ file:
         - quoted_identifier: '[usp_process_tran_log]'
       - tsql_variable: '@out_vchCode'
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_code
+        - data_type_identifier: uddt_output_code
       - keyword: OUTPUT
       - comma: ','
       - tsql_variable: '@out_vchMsg'
       - data_type:
-        - data_type:
-          - data_type_identifier: uddt_output_msg
+        - data_type_identifier: uddt_output_msg
       - keyword: OUTPUT
       - comma: ','
       - tsql_variable: '@in_debug'
       - data_type:
-        - data_type:
-          - data_type_identifier: INT
+        - keyword: INT
       - comparison_operator:
         - raw_comparison_operator: =
       - integer_literal: '1'

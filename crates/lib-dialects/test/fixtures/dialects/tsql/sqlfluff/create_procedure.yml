@@ -144,8 +144,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - keyword: UNIQUEIDENTIFIER
         - end_bracket: )
       - keyword: AS
       - procedure_statement:
@@ -171,8 +170,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - keyword: UNIQUEIDENTIFIER
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -180,13 +178,12 @@ file:
         - comma: ','
         - tsql_variable: '@fooReadonly'
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - integer_literal: '42'
-                - end_bracket: )
+          - keyword: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - integer_literal: '42'
+              - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: =
         - naked_identifier: N
@@ -195,8 +192,7 @@ file:
         - comma: ','
         - tsql_variable: '@bar'
         - data_type:
-          - data_type:
-            - data_type_identifier: BIT
+          - keyword: BIT
         - keyword: VARYING
         - keyword: 'NULL'
         - comparison_operator:
@@ -206,8 +202,7 @@ file:
         - comma: ','
         - tsql_variable: '@output'
         - data_type:
-          - data_type:
-            - data_type_identifier: TINYINT
+          - keyword: TINYINT
         - keyword: OUT
         - end_bracket: )
       - keyword: AS
@@ -279,8 +274,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - keyword: UNIQUEIDENTIFIER
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -288,13 +282,12 @@ file:
         - comma: ','
         - tsql_variable: '@bar'
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - integer_literal: '32'
-                - end_bracket: )
+          - keyword: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - integer_literal: '32'
+              - end_bracket: )
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -335,8 +328,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - keyword: UNIQUEIDENTIFIER
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -344,13 +336,12 @@ file:
         - comma: ','
         - tsql_variable: '@bar'
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - integer_literal: '32'
-                - end_bracket: )
+          - keyword: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - integer_literal: '32'
+              - end_bracket: )
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -400,8 +391,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
+          - keyword: INT
         - keyword: NOT
         - keyword: 'NULL'
         - end_bracket: )
@@ -475,8 +465,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
+          - keyword: INT
         - keyword: NOT
         - keyword: 'NULL'
         - end_bracket: )
@@ -534,8 +523,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
+          - keyword: INT
         - keyword: NOT
         - keyword: 'NULL'
         - end_bracket: )
@@ -651,8 +639,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - keyword: UNIQUEIDENTIFIER
         - comparison_operator:
           - raw_comparison_operator: =
         - function:
@@ -665,19 +652,17 @@ file:
         - comma: ','
         - tsql_variable: '@output'
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - integer_literal: '32'
-                - end_bracket: )
+          - keyword: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - integer_literal: '32'
+              - end_bracket: )
         - keyword: OUTPUT
         - comma: ','
         - tsql_variable: '@activated'
         - data_type:
-          - data_type:
-            - data_type_identifier: BIT
+          - keyword: BIT
         - keyword: OUT
         - keyword: READONLY
         - end_bracket: )

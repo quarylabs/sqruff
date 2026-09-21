@@ -9,7 +9,7 @@ file:
       - column_definition:
         - naked_identifier: EmpID
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -17,17 +17,17 @@ file:
       - column_definition:
         - naked_identifier: OldVacationHours
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - comma: ','
       - column_definition:
         - naked_identifier: NewVacationHours
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - comma: ','
       - column_definition:
         - naked_identifier: ModifiedDate
         - data_type:
-          - data_type_identifier: DATETIME
+          - keyword: DATETIME
       - comma: ','
       - table_constraint:
         - keyword: PRIMARY
@@ -49,17 +49,17 @@ file:
       - column_definition:
         - naked_identifier: ID
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
       - comma: ','
       - column_definition:
         - naked_identifier: MyCol1
         - data_type:
-          - data_type_identifier: BIT
+          - keyword: BIT
       - comma: ','
       - column_definition:
         - naked_identifier: MyCol2
         - data_type:
-          - data_type_identifier: BIT
+          - keyword: BIT
       - comma: ','
       - computed_column_definition:
         - naked_identifier: MyComputedCol

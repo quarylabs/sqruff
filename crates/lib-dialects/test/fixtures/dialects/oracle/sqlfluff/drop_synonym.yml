@@ -1,0 +1,10 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_drop_synonym_statement:
+      - keyword: DROP
+      - keyword: PUBLIC
+      - keyword: SYNONYM
+      - object_reference:
+        - naked_identifier: customers
+  - statement_terminator: ;

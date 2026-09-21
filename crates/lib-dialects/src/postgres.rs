@@ -9247,6 +9247,11 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("RETURNING").to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ]),
             None,
             Some(previous_position_function_contents.clone()),

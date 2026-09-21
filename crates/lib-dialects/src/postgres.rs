@@ -2754,7 +2754,36 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "CompositeValueExpansionSegment".into(),
+            NodeMatcher::new(SyntaxKind::CompositeValueExpansion, |_| {
+                Sequence::new(vec![
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                    Ref::new("DotSegment").to_matchable(),
+                    Ref::new("StarSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
+
+    let base_expression = postgres.grammar("BaseExpressionElementGrammar");
+    postgres.replace_grammar(
+        "BaseExpressionElementGrammar",
+        base_expression.copy(
+            Some(vec![
+                Ref::new("CompositeValueExpansionSegment").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
 
     postgres.replace_grammar(
         "CreateRoleStatementSegment",

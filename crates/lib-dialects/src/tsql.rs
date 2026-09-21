@@ -170,16 +170,18 @@ pub fn raw_dialect() -> Dialect {
     // Insert other T-SQL specific matchers
     dialect.insert_lexer_matchers(
         vec![
-            // Local and global temporary table names, including numeric names.
+            // Local and global temporary table names. Subsequent characters may
+            // include the T-SQL identifier characters @, $, and #.
             Matcher::regex(
                 "hash_identifier",
-                r"##?[a-zA-Z0-9_]+",
+                r"##?[a-zA-Z0-9_@$#]+",
                 SyntaxKind::HashIdentifier,
             ),
-            // Variables: @MyVar (local) or @@ROWCOUNT (global/system)
+            // Variables: @MyVar (local) or @@ROWCOUNT (global/system). Characters
+            // after the prefix may include @, $, and #.
             Matcher::regex(
                 "tsql_variable",
-                r"@@?[a-zA-Z_][a-zA-Z0-9_]*",
+                r"@@?[a-zA-Z0-9_@$#]+",
                 SyntaxKind::TsqlVariable,
             ),
             // OUTPUT clauses in MERGE statements expose the special $ACTION value.
@@ -204,10 +206,10 @@ pub fn raw_dialect() -> Dialect {
 
     // T-SQL specific lexer patches:
     // 1. T-SQL only uses -- for inline comments, not # (which is used in temp table names)
-    // 2. Allow Unicode letters and a trailing # (SQL Server 2017+ syntax).
+    // 2. Allow the full set of T-SQL subsequent identifier characters.
     dialect.patch_lexer_matchers(vec![
         Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
-        Matcher::regex("word", r"[0-9a-zA-Z_\p{L}]+#?", SyntaxKind::Word),
+        Matcher::regex("word", r"[0-9a-zA-Z_#@$\p{L}]+", SyntaxKind::Word),
     ]);
 
     // Since T-SQL uses square brackets as quoted identifiers and the lexer
@@ -870,8 +872,8 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // Override identifier handling for T-SQL identifiers ending in # and
-    // temporary table names beginning with # or ##.
+    // Override identifier handling for T-SQL. The first character must be a
+    // letter or underscore; subsequent characters may also include @, $, and #.
     dialect.add([
         (
             "NakedIdentifierSegment".into(),
@@ -881,7 +883,7 @@ pub fn raw_dialect() -> Dialect {
                 let anti_template = format!("^({pattern})$");
 
                 RegexParser::new(
-                    r"[A-Za-z0-9_\p{L}]*[A-Za-z\p{L}][A-Za-z0-9_\p{L}]*#?",
+                    r"[A-Za-z_\p{L}][A-Za-z0-9_@$#\p{L}]*",
                     SyntaxKind::NakedIdentifier,
                 )
                 .anti_template(&anti_template)
@@ -1674,10 +1676,13 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
-                // Optional transaction/savepoint name
-                Ref::new("SingleIdentifierGrammar")
-                    .optional()
-                    .to_matchable(),
+                // Optional transaction/savepoint name or variable.
+                one_of(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("TsqlVariableSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
             ])
             .to_matchable()
         })

@@ -407,7 +407,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
             self.elements,
             &single_indent,
             <_>::default(),
-            self.reflow_config.allow_implicit_indents,
+            self.reflow_config.implicit_indents,
             self.reflow_config.ignore_comment_lines,
         );
 
@@ -433,7 +433,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
             self.root_segment,
             &single_indent,
             self.reflow_config.max_line_length,
-            self.reflow_config.allow_implicit_indents,
+            self.reflow_config.implicit_indents,
             self.reflow_config.trailing_comments,
         );
 

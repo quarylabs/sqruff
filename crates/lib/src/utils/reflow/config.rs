@@ -6,7 +6,7 @@ use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::core::config::{FluffConfig, Value};
 use crate::utils::reflow::depth_map::{DepthInfo, StackPositionType};
 use crate::utils::reflow::rebreak::LinePosition;
-use crate::utils::reflow::reindent::{IndentUnit, TrailingComments};
+use crate::utils::reflow::reindent::{ImplicitIndents, IndentUnit, TrailingComments};
 
 type ConfigDictType = HashMap<SyntaxKind, LayoutTypeConfig>;
 
@@ -164,7 +164,7 @@ pub struct ReflowConfig {
     pub(crate) indent_unit: IndentUnit,
     pub(crate) max_line_length: usize,
     pub(crate) hanging_indents: bool,
-    pub(crate) allow_implicit_indents: bool,
+    pub(crate) implicit_indents: ImplicitIndents,
     pub(crate) trailing_comments: TrailingComments,
     pub(crate) ignore_comment_lines: bool,
 }
@@ -323,6 +323,11 @@ impl ReflowConfig {
             .unwrap();
         let trailing_comments = TrailingComments::from_str(trailing_comments).unwrap();
 
+        let implicit_indents = config.raw["indentation"]["implicit_indents"]
+            .as_string()
+            .unwrap();
+        let implicit_indents = ImplicitIndents::from_str(implicit_indents).unwrap();
+
         let tab_space_size = config.raw["indentation"]["tab_space_size"]
             .as_int()
             .unwrap() as usize;
@@ -339,9 +344,7 @@ impl ReflowConfig {
             hanging_indents: config.raw["indentation"]["hanging_indents"]
                 .as_bool()
                 .unwrap_or_default(),
-            allow_implicit_indents: config.raw["indentation"]["allow_implicit_indents"]
-                .as_bool()
-                .unwrap(),
+            implicit_indents,
             trailing_comments,
             ignore_comment_lines: config.raw["indentation"]["ignore_comment_lines"]
                 .as_bool()

@@ -94,22 +94,39 @@ impl LintedFile {
     ) -> String {
         // Iterate through the patches, building up the new string.
         let mut str_buff = String::new();
+        let mut patches = source_patches.iter().peekable();
         for source_slice in source_file_slices.iter() {
+            // Patches which start before this slice can't apply to it or to anything after it.
+            while patches
+                .next_if(|patch| patch.source_slice.start < source_slice.start)
+                .is_some()
+            {}
+
             // Is it one in the patch buffer:
-            let mut is_patched = false;
-            for patch in source_patches.iter() {
-                if patch.source_slice == *source_slice {
-                    str_buff.push_str(&patch.fixed_raw);
-                    is_patched = true;
-                    break;
-                }
-            }
-            if !is_patched {
+            if let Some(patch) = patches.next_if(|patch| patch.source_slice == *source_slice) {
+                str_buff.push_str(&patch.fixed_raw);
+            } else {
                 // Use the raw string
                 str_buff.push_str(&raw_source_string[source_slice.start..source_slice.end]);
             }
         }
         str_buff
+    }
+
+    pub fn source_patches(&self) -> Vec<FixPatch> {
+        let patches = Self::generate_source_patches(self.patches.clone(), &self.templated_file);
+
+        let mut source_idx = 0;
+        patches
+            .into_iter()
+            .filter(|patch| {
+                if patch.source_slice.start < source_idx {
+                    return false;
+                }
+                source_idx = patch.source_slice.end;
+                true
+            })
+            .collect()
     }
 
     pub fn fix_string(self) -> String {
@@ -143,7 +160,7 @@ impl LintedFile {
         templated_file: &TemplatedFile,
     ) -> Vec<FixPatch> {
         let mut filtered_source_patches = Vec::new();
-        let mut dedupe_buffer: HashSet<Range<usize>> = HashSet::new();
+        let mut dedupe_buffer = HashSet::new();
 
         for patch in patches {
             if !dedupe_buffer.insert(patch.dedupe_tuple()) {
@@ -309,6 +326,16 @@ mod test {
                 )],
                 "a {{b}} c",
                 "a {{ b }} c",
+            ),
+            // Two distinct insertions at the same point are applied in order.
+            (
+                vec![0..1, 1..1, 1..1, 1..2],
+                vec![
+                    FixPatch::new(1..1, "b".into(), 1..1, "".into(), "".into()),
+                    FixPatch::new(1..1, "c".into(), 1..1, "".into(), "".into()),
+                ],
+                "ad",
+                "abcd",
             ),
         ];
 

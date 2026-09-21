@@ -503,14 +503,23 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // FromClauseTerminatorGrammar - add index hints, partition, FOR, check options, INTO.
+    // Index hints and partition selection belong to each table expression so
+    // they also parse correctly before joins.
+    mysql.replace_grammar(
+        "PostTableExpressionGrammar",
+        one_of(vec![
+            Ref::new("IndexHintClauseSegment").to_matchable(),
+            Ref::new("SelectPartitionClauseSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // FromClauseTerminatorGrammar - add FOR, check options, and INTO.
     let from_clause_terminator = mysql.grammar("FromClauseTerminatorGrammar");
     mysql.replace_grammar(
         "FromClauseTerminatorGrammar",
         from_clause_terminator.copy(
             Some(vec![
-                Ref::new("IndexHintClauseSegment").to_matchable(),
-                Ref::new("SelectPartitionClauseSegment").to_matchable(),
                 Ref::new("ForClauseSegment").to_matchable(),
                 Ref::new("SetOperatorSegment").to_matchable(),
                 Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),

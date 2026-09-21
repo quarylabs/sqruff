@@ -1023,6 +1023,37 @@ fn test_clickhouse_ternary_spacing_no_false_positive() {
     );
 }
 
+/// Ports SQLFluff's regression coverage for fixes generated beside an
+/// unparsable T-SQL section.
+#[test]
+fn test_rules_unparsable_tsql_does_not_crash() {
+    let config = FluffConfig::from_source(
+        r#"
+[sqruff]
+dialect = tsql
+rules = LT09, LT02, LT05
+"#,
+        None,
+    );
+    let mut lnt = Linter::new(config, None, None, true).unwrap();
+    let sql = concat!(
+        "SELECT\n",
+        "  Race, SELECT, Cha, Authority, Points, Gold, Bind, PX, PZ, PY, ",
+        "col2, col3, col4, col5,col6\n",
+        "FROM USERDATA",
+    );
+
+    let linted = lnt.lint_string_wrapped(sql, true).unwrap();
+
+    assert!(
+        linted
+            .violations()
+            .iter()
+            .any(|violation| violation.description.contains("Unparsable")),
+        "the reserved identifier should leave an unparsable section",
+    );
+}
+
 #[test]
 fn test_clickhouse_datetime64_rejects_timezone_without_precision() {
     let config = FluffConfig::new(

@@ -675,6 +675,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("ColumnReferenceSegment").to_matchable(),
                         Bracketed::new(vec![
                             Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .config(|this| this.allow_trailing())
                                 .to_matchable(),
                         ])
                         .to_matchable(),
@@ -700,6 +701,7 @@ pub fn raw_dialect() -> Dialect {
                                 ])
                                 .to_matchable(),
                             ])
+                            .config(|this| this.allow_trailing())
                             .to_matchable(),
                         ])
                         .to_matchable(),
@@ -730,6 +732,7 @@ pub fn raw_dialect() -> Dialect {
                                 ])
                                 .to_matchable(),
                             ])
+                            .config(|this| this.allow_trailing())
                             .to_matchable(),
                         ])
                         .to_matchable(),

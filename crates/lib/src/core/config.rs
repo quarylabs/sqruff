@@ -183,7 +183,7 @@ impl FluffConfig {
 
     // TODO This is not a translation that is particularly accurate.
     pub fn new(
-        configs: HashMap<String, Value>,
+        mut configs: HashMap<String, Value>,
         extra_config_path: Option<String>,
         indentation: Option<FluffConfigIndentation>,
     ) -> Self {
@@ -204,6 +204,9 @@ impl FluffConfig {
             }
             a
         }
+
+        normalize_implicit_indents_map(&mut configs, "configuration")
+            .expect("invalid implicit_indents configuration");
 
         let values = ConfigLoader::get_config_elems_from_file(
             None,
@@ -378,7 +381,9 @@ impl FluffConfig {
             SQLFluffUserError::new(format!("Invalid inline configuration value: {raw_value}"))
         })?;
         let mut raw = self.raw.clone();
-        ConfigLoader::incorporate_vals(&mut raw, vec![(parts, value)]);
+        let mut elems = vec![(parts, value)];
+        normalize_implicit_indents_elems(&mut elems, "inline configuration")?;
+        ConfigLoader::incorporate_vals(&mut raw, elems);
         *self = Self::new(
             raw,
             self.extra_config_path.clone(),
@@ -628,11 +633,14 @@ impl ConfigLoader {
             })?,
         };
 
-        if is_toml_config(config_path) {
-            return parse_toml_config_elems(&content, config_path);
-        }
+        let mut elems = if is_toml_config(config_path) {
+            parse_toml_config_elems(&content, config_path)?
+        } else {
+            parse_ini_config_elems(&content, config_path)?
+        };
 
-        parse_ini_config_elems(&content, config_path)
+        normalize_implicit_indents_elems(&mut elems, &config_reference(config_path))?;
+        Ok(elems)
     }
 
     fn incorporate_vals(ctx: &mut HashMap<String, Value>, values: Vec<(Vec<String>, Value)>) {
@@ -664,10 +672,121 @@ fn is_toml_config(config_path: Option<&Path>) -> bool {
 }
 
 fn config_error(config_path: Option<&Path>, message: impl std::fmt::Display) -> SQLFluffUserError {
-    let location = config_path
-        .map(|path| path.display().to_string())
-        .unwrap_or_else(|| "config source".to_owned());
+    let location = config_reference(config_path);
     SQLFluffUserError::new(format!("Error loading config from {location}: {}", message))
+}
+
+fn config_reference(config_path: Option<&Path>) -> String {
+    config_path
+        .map(|path| path.display().to_string())
+        .unwrap_or_else(|| "config source".to_owned())
+}
+
+const ALLOWABLE_IMPLICIT_INDENTS_VALUES: [&str; 3] = ["forbid", "allow", "require"];
+
+fn validate_implicit_indents_value(
+    value: &Value,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    if value
+        .as_string()
+        .is_some_and(|value| ALLOWABLE_IMPLICIT_INDENTS_VALUES.contains(&value))
+    {
+        return Ok(());
+    }
+
+    Err(SQLFluffUserError::new(format!(
+        "Config file {logging_reference:?} set an invalid value for `implicit_indents`: {value:?}. \
+         Valid options are: {}.",
+        ALLOWABLE_IMPLICIT_INDENTS_VALUES.join(", ")
+    )))
+}
+
+fn translate_allow_implicit_indents(
+    value: &Value,
+    logging_reference: &str,
+) -> Result<Value, SQLFluffUserError> {
+    let Some(value) = value.as_bool() else {
+        return Err(SQLFluffUserError::new(format!(
+            "Config file {logging_reference:?} set an invalid value for the deprecated \
+             `allow_implicit_indents` option: {value:?}. Expected true or false."
+        )));
+    };
+
+    Ok(Value::String(if value { "allow" } else { "forbid" }.into()))
+}
+
+fn warn_implicit_indents_migration(logging_reference: &str, duplicate: bool) {
+    if duplicate {
+        log::warn!(
+            "Config file {logging_reference} sets both deprecated `allow_implicit_indents` and \
+             `implicit_indents`; the new value takes precedence."
+        );
+    } else {
+        log::warn!(
+            "Config file {logging_reference} uses deprecated `allow_implicit_indents`; use \
+             `implicit_indents = forbid`, `allow`, or `require` instead."
+        );
+    }
+}
+
+fn normalize_implicit_indents_elems(
+    elems: &mut Vec<(Vec<String>, Value)>,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    let is_old = |path: &[String]| {
+        path.len() == 2 && path[0] == "indentation" && path[1] == "allow_implicit_indents"
+    };
+    let is_new = |path: &[String]| {
+        path.len() == 2 && path[0] == "indentation" && path[1] == "implicit_indents"
+    };
+
+    if let Some(old_idx) = elems.iter().position(|(path, _)| is_old(path)) {
+        let new_exists = elems.iter().any(|(path, _)| is_new(path));
+        warn_implicit_indents_migration(logging_reference, new_exists);
+        if new_exists {
+            elems.remove(old_idx);
+        } else {
+            let translated =
+                translate_allow_implicit_indents(&elems[old_idx].1, logging_reference)?;
+            elems[old_idx] = (
+                vec!["indentation".into(), "implicit_indents".into()],
+                translated,
+            );
+        }
+    }
+
+    if let Some((_, value)) = elems.iter().find(|(path, _)| is_new(path)) {
+        validate_implicit_indents_value(value, logging_reference)?;
+    }
+
+    Ok(())
+}
+
+fn normalize_implicit_indents_map(
+    configs: &mut HashMap<String, Value>,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    let Some(indentation) = configs.get_mut("indentation").and_then(Value::as_map_mut) else {
+        return Ok(());
+    };
+
+    if let Some(old_value) = indentation.remove("allow_implicit_indents") {
+        let new_exists = indentation.contains_key("implicit_indents");
+        warn_implicit_indents_migration(logging_reference, new_exists);
+        if !new_exists {
+            indentation.insert(
+                "implicit_indents".into(),
+                translate_allow_implicit_indents(&old_value, logging_reference)?,
+            );
+        }
+    }
+
+    if let Some(value) = indentation.get("implicit_indents") {
+        validate_implicit_indents_value(value, logging_reference)?;
+    }
+
+    Ok(())
 }
 
 fn parse_ini_config_elems(
@@ -1522,6 +1641,51 @@ max_line_length = 44
         assert!(
             err.to_string()
                 .contains("Error loading config from sqruff.toml")
+        );
+    }
+
+    #[test]
+    fn test_implicit_indents_values_are_validated() {
+        for value in ["invalid", "true", "REQUIRE", "", "123"] {
+            let source = format!("[sqruff:indentation]\nimplicit_indents = {value}\n");
+            let err = FluffConfig::try_from_source(&source, None).unwrap_err();
+            assert!(
+                err.to_string()
+                    .contains("set an invalid value for `implicit_indents`")
+            );
+            assert!(
+                err.to_string()
+                    .contains("Valid options are: forbid, allow, require")
+            );
+        }
+
+        for value in ALLOWABLE_IMPLICIT_INDENTS_VALUES {
+            let source = format!("[sqruff:indentation]\nimplicit_indents = {value}\n");
+            let config = FluffConfig::try_from_source(&source, None).unwrap();
+            assert_eq!(
+                config.raw["indentation"]["implicit_indents"].as_string(),
+                Some(value)
+            );
+        }
+    }
+
+    #[test]
+    fn test_allow_implicit_indents_is_migrated() {
+        for (old_value, expected) in [("true", "allow"), ("false", "forbid")] {
+            let source = format!("[sqruff:indentation]\nallow_implicit_indents = {old_value}\n");
+            let config = FluffConfig::try_from_source(&source, None).unwrap();
+            let indentation = config.raw["indentation"].as_map().unwrap();
+            assert_eq!(indentation["implicit_indents"].as_string(), Some(expected));
+            assert!(!indentation.contains_key("allow_implicit_indents"));
+        }
+
+        let mut config = FluffConfig::default();
+        config
+            .process_inline_config("-- sqlfluff:indentation:allow_implicit_indents:true")
+            .unwrap();
+        assert_eq!(
+            config.raw["indentation"]["implicit_indents"].as_string(),
+            Some("allow")
         );
     }
 

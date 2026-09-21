@@ -1853,7 +1853,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     MetaSegment::indent().to_matchable(),
-                    Bracketed::new(vec![
+                    optionally_bracketed(vec![
                         Delimited::new(vec![
                             Sequence::new(vec![
                                 Ref::new("ColumnFieldDefinitionSegment").to_matchable(),

@@ -3,15 +3,15 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: foo
+    - data_type:
+      - data_type_identifier: foo
 - statement_terminator: ;
 - statement:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: bar
+    - data_type:
+      - data_type_identifier: bar
     - keyword: AS
     - keyword: ENUM
     - bracketed:
@@ -22,8 +22,8 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: bar
+    - data_type:
+      - data_type_identifier: bar
     - keyword: AS
     - keyword: ENUM
     - bracketed:
@@ -37,8 +37,8 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: foobar
+    - data_type:
+      - data_type_identifier: foobar
     - keyword: AS
     - keyword: RANGE
     - bracketed:
@@ -52,8 +52,8 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: barbar
+    - data_type:
+      - data_type_identifier: barbar
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -70,8 +70,8 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: foofoo
+    - data_type:
+      - data_type_identifier: foofoo
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -88,8 +88,8 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: person
+    - data_type:
+      - data_type_identifier: person
     - keyword: AS
     - bracketed:
       - start_bracket: (

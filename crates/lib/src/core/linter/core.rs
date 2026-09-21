@@ -1653,4 +1653,119 @@ from test;
 
         assert_eq!(fixed, expected);
     }
+
+    fn postgres_linter_with_rules(rules: &str) -> Linter {
+        let config = FluffConfig::from_source(
+            &format!("[sqruff]\ndialect = postgres\nrules = {rules}\n"),
+            None,
+        );
+        Linter::new(config, None, None, true).unwrap()
+    }
+
+    fn source_patch_summary(
+        sql: &str,
+        rules: &str,
+    ) -> (Vec<(std::ops::Range<usize>, String)>, String) {
+        let linted = postgres_linter_with_rules(rules)
+            .lint_string_wrapped(sql, true)
+            .unwrap();
+        let patches = linted
+            .source_patches()
+            .into_iter()
+            .map(|patch| (patch.source_slice, patch.fixed_raw.to_string()))
+            .collect();
+        (patches, linted.fix_string())
+    }
+
+    /// Apply `source_patches()` to the original input, like an external
+    /// consumer would.
+    fn apply_source_patches(source: &str, patches: &[(std::ops::Range<usize>, String)]) -> String {
+        let mut fixed = String::new();
+        let mut idx = 0;
+        for (range, replacement) in patches {
+            fixed.push_str(&source[idx..range.start]);
+            fixed.push_str(replacement);
+            idx = range.end;
+        }
+        fixed.push_str(&source[idx..]);
+        fixed
+    }
+
+    #[test]
+    fn test_source_patches_are_granular_for_literal_files() {
+        let sql = "DELETE FROM jobs where id = $1";
+        let (patches, fixed) = source_patch_summary(sql, "CP01");
+
+        assert_eq!(patches, vec![(17..22, "WHERE".to_string())]);
+        assert_eq!(fixed, "DELETE FROM jobs WHERE id = $1");
+        assert_eq!(apply_source_patches(sql, &patches), fixed);
+    }
+
+    #[test]
+    fn test_source_patches_cover_deletion_alongside_insertion() {
+        let sql = "select a,b   from   t where x=1 and y  = 2";
+        let (patches, fixed) = source_patch_summary(sql, "LT01");
+
+        assert_eq!(
+            patches,
+            vec![
+                (9..9, " ".to_string()),
+                (10..13, " ".to_string()),
+                (17..20, " ".to_string()),
+                (29..29, " ".to_string()),
+                (30..30, " ".to_string()),
+                (37..39, " ".to_string()),
+            ]
+        );
+        assert_eq!(fixed, "select a, b from t where x = 1 and y = 2");
+        assert_eq!(apply_source_patches(sql, &patches), fixed);
+    }
+
+    #[test]
+    fn test_source_patches_keep_multiple_insertions_at_same_point() {
+        let sql = "select\n    a AND\n    -- comment1!\n    b\nfrom foo\n";
+        let (patches, fixed) = source_patch_summary(sql, "LT03");
+
+        assert_eq!(
+            patches,
+            vec![
+                (12..16, String::new()),
+                (38..38, "AND".to_string()),
+                (38..38, " ".to_string()),
+            ]
+        );
+        assert_eq!(
+            fixed,
+            "select\n    a\n    -- comment1!\n    AND b\nfrom foo\n"
+        );
+        assert_eq!(apply_source_patches(sql, &patches), fixed);
+    }
+
+    #[test]
+    fn test_source_patches_use_original_crlf_byte_offsets() {
+        let sql = "SELECT 1\r\nwhere id = $1";
+        let (patches, fixed) = source_patch_summary(sql, "CP01");
+
+        assert_eq!(patches, vec![(10..15, "WHERE".to_string())]);
+        assert_eq!(
+            apply_source_patches(sql, &patches),
+            "SELECT 1\r\nWHERE id = $1"
+        );
+        // `fix_string()` still works on the normalised source.
+        assert_eq!(fixed, "SELECT 1\nWHERE id = $1");
+    }
+
+    #[test]
+    fn test_source_patches_apply_to_crlf_input_when_edits_touch_newlines() {
+        // The trailing whitespace deletions run into the `\r\n`, and the later
+        // patches sit behind several collapsed newlines.
+        let sql = "select a  \r\n  from   t  \r\nwhere x=1\r\n";
+        let (patches, fixed) = source_patch_summary(sql, "LT01");
+
+        assert_eq!(
+            apply_source_patches(sql, &patches),
+            "select a\r\n  from t\r\nwhere x = 1\r\n"
+        );
+        assert_eq!(fixed, "select a\n  from t\nwhere x = 1\n");
+    }
 }

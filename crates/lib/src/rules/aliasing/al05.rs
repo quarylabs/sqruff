@@ -312,6 +312,7 @@ impl RuleAL05 {
                             | DialectKind::Snowflake
                             | DialectKind::Tsql
                             | DialectKind::Postgres
+                            | DialectKind::Mariadb
                     )
                 } else {
                     segment
@@ -626,5 +627,33 @@ dialect = postgres
             .unwrap();
 
         assert_eq!(linted.fix_string(), POSTGRES_JSON_ALIAS_REPRODUCER);
+    }
+
+    #[test]
+    fn test_al05_mariadb_values_derived_table_alias_is_required() {
+        let sql = r#"INSERT INTO test
+(col1, col2)
+SELECT *
+FROM (
+    VALUES
+    (1, "a"),
+    (2, "b")
+) AS temp(col1, col2) WHERE NOT EXISTS (
+        SELECT NULL FROM test
+    );
+"#;
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+rules = AL05
+dialect = mariadb
+"#,
+            None,
+        );
+        let mut linter = Linter::new(config, None, None, true).unwrap();
+        let linted = linter.lint_string_wrapped(sql, true).unwrap();
+
+        assert_eq!(linted.violations(), &[]);
+        assert_eq!(linted.fix_string(), sql);
     }
 }

@@ -544,7 +544,7 @@ pub fn raw_dialect() -> Dialect {
             SyntaxKind::SingleQuote,
         ),
         Matcher::regex("double_quote", r#"(?s)".+?""#, SyntaxKind::DoubleQuote),
-        Matcher::regex("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", SyntaxKind::Word),
+        Matcher::regex("word", r"[\p{L}_][\p{L}\p{N}_$]*", SyntaxKind::Word),
     ]);
 
     let keywords = postgres_keywords();
@@ -1005,7 +1005,7 @@ pub fn raw_dialect() -> Dialect {
                 let pattern = reserved_keywords.iter().join("|");
                 let anti_template = format!("^({pattern})$");
 
-                RegexParser::new(r"[A-Z_][A-Z0-9_$]*", SyntaxKind::NakedIdentifier)
+                RegexParser::new(r"[\p{L}_][\p{L}\p{N}_$]*", SyntaxKind::NakedIdentifier)
                     .anti_template(&anti_template)
                     .casefold(CaseFold::Lower)
                     .to_matchable()

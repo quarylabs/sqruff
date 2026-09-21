@@ -328,6 +328,23 @@ fn dialects() {
 }
 
 #[test]
+fn bigquery_cast_as_float_is_unparsable() {
+    let dialect = kind_to_dialect(&DialectKind::Bigquery, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+    let (tokens, lex_errors) = lexer.lex(&tables, "SELECT CAST('4.0' AS FLOAT)");
+
+    assert!(lex_errors.is_empty());
+
+    let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+    assert!(
+        !check_no_unparsable_segments(&tree).is_empty(),
+        "BigQuery only supports FLOAT64, so FLOAT must not parse as a data type",
+    );
+}
+
+#[test]
 fn bracketed_matching_modes() {
     use sqruff_lib_core::helpers::ToMatchable;
     use sqruff_lib_core::parser::context::ParseContext;

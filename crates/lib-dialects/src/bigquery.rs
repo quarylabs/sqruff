@@ -1377,6 +1377,101 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "ArrayAggFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("ARRAY_AGG", SyntaxKind::FunctionNameIdentifier).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ArrayAggFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Sequence::new(vec![
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("DISTINCT").optional().to_matchable(),
+                            Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
+                            Ref::new("AggregateOrderByClause").optional().to_matchable(),
+                            Ref::new("LimitClauseSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ArrayAccessorSegment").optional().to_matchable(),
+                ])
+                .config(|this| this.allow_gaps = false)
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ArrayConcatAggFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("ARRAY_CONCAT_AGG", SyntaxKind::FunctionNameIdentifier)
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ArrayConcatAggFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Sequence::new(vec![
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Delimited::new(vec![
+                                Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("AggregateOrderByClause").optional().to_matchable(),
+                            Ref::new("LimitClauseSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ArrayAccessorSegment").optional().to_matchable(),
+                ])
+                .config(|this| this.allow_gaps = false)
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "StringAggFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("STRING_AGG", SyntaxKind::FunctionNameIdentifier).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "StringAggFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Sequence::new(vec![
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("DISTINCT").optional().to_matchable(),
+                            Delimited::new(vec![
+                                Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("AggregateOrderByClause").optional().to_matchable(),
+                            Ref::new("LimitClauseSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.allow_gaps = false)
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ExtractFunctionNameSegment".into(),
             NodeMatcher::new(SyntaxKind::FunctionName, |_| {
                 StringParser::new("EXTRACT", SyntaxKind::FunctionNameIdentifier).to_matchable()
@@ -1466,6 +1561,21 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         Sequence::new(vec![
             one_of(vec![
                 Sequence::new(vec![
+                    Ref::new("ArrayAggFunctionNameSegment").to_matchable(),
+                    Ref::new("ArrayAggFunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ArrayConcatAggFunctionNameSegment").to_matchable(),
+                    Ref::new("ArrayConcatAggFunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("StringAggFunctionNameSegment").to_matchable(),
+                    Ref::new("StringAggFunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
                     // BigQuery EXTRACT allows optional TimeZone
                     Ref::new("ExtractFunctionNameSegment").to_matchable(),
                     Ref::new("ExtractFunctionContentsSegment").to_matchable(),
@@ -1480,7 +1590,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     // Treat functions which take date parts separately
                     Ref::new("DatePartFunctionNameSegment")
-                        .exclude(Ref::new("ExtractFunctionNameSegment"))
+                        .exclude(one_of(vec![
+                            Ref::new("ExtractFunctionNameSegment").to_matchable(),
+                            Ref::new("ArrayAggFunctionNameSegment").to_matchable(),
+                            Ref::new("ArrayConcatAggFunctionNameSegment").to_matchable(),
+                            Ref::new("StringAggFunctionNameSegment").to_matchable(),
+                        ]))
                         .to_matchable(),
                     Ref::new("DateTimeFunctionContentsSegment").to_matchable(),
                 ])
@@ -1492,6 +1607,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::new("DatePartFunctionNameSegment").to_matchable(),
                                 Ref::new("NormalizeFunctionNameSegment").to_matchable(),
                                 Ref::new("ValuesClauseSegment").to_matchable(),
+                                Ref::new("ArrayAggFunctionNameSegment").to_matchable(),
+                                Ref::new("ArrayConcatAggFunctionNameSegment").to_matchable(),
+                                Ref::new("StringAggFunctionNameSegment").to_matchable(),
                             ]))
                             .to_matchable(),
                         Ref::new("FunctionContentsSegment").to_matchable(),

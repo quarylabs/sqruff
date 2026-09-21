@@ -105,14 +105,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("GROUP").to_matchable(),
             Ref::keyword("BY").to_matchable(),
             MetaSegment::indent().to_matchable(),
-            one_of(vec![
-                Ref::new("ColumnReferenceSegment").to_matchable(),
-                Ref::new("NumericLiteralSegment").to_matchable(),
-                Ref::new("ExpressionSegment").to_matchable(),
-            ])
-            .to_matchable(),
-            AnyNumberOf::new(vec![
-                Ref::new("CommaSegment").to_matchable(),
+            Delimited::new(vec![
                 one_of(vec![
                     Ref::new("ColumnReferenceSegment").to_matchable(),
                     Ref::new("NumericLiteralSegment").to_matchable(),
@@ -120,6 +113,29 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
             ])
+            .config(|this| {
+                this.terminators = vec![
+                    Ref::keyword("HAVING").to_matchable(),
+                    Ref::keyword("WINDOW").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ORDER").to_matchable(),
+                        Ref::keyword("BY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("OPTION").to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::keyword("UNION").to_matchable(),
+                    Ref::keyword("INTERSECT").to_matchable(),
+                    Ref::keyword("EXCEPT").to_matchable(),
+                    Ref::keyword("SELECT").to_matchable(),
+                    Ref::keyword("INSERT").to_matchable(),
+                    Ref::keyword("UPDATE").to_matchable(),
+                    Ref::keyword("DELETE").to_matchable(),
+                    Ref::keyword("MERGE").to_matchable(),
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::new("DelimiterGrammar").to_matchable(),
+                ];
+            })
             .to_matchable(),
             Ref::new("WithRollupClauseSegment")
                 .optional()
@@ -591,6 +607,7 @@ pub fn raw_dialect() -> Dialect {
         );
     }
     let mut select_elements = ansi::select_statement().elements().to_vec();
+    select_elements.push(Ref::new("OptionClauseSegment").optional().to_matchable());
     select_elements.push(Ref::new("ForClauseSegment").optional().to_matchable());
     dialect.replace_grammar(
         "SelectStatementSegment",

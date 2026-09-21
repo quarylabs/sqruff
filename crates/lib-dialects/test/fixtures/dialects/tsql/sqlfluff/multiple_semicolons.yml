@@ -130,9 +130,10 @@ file:
   - statement_terminator: ;
   - go_statement:
     - keyword: GO
-  - statement_terminator: ;
 - batch:
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO
+- batch:
   - statement_terminator: ;
   - statement_terminator: ;

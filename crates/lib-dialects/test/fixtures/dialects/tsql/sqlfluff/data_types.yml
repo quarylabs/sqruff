@@ -349,13 +349,6 @@ file:
   - statement_terminator: ;
   - statement:
     - keyword: DECLARE
-    - tsql_variable: '@national_char_var'
-    - data_type:
-      - keyword: NATIONAL
-      - keyword: CHAR
-  - statement_terminator: ;
-  - statement:
-    - keyword: DECLARE
     - tsql_variable: '@national_char_n_var'
     - data_type:
       - keyword: NATIONAL
@@ -942,11 +935,12 @@ file:
       - procedure_statement:
         - statement:
           - keyword: BEGIN
-          - return_segment:
-            - keyword: RETURN
-            - expression:
-              - integer_literal: '1'
-            - statement_terminator: ;
+          - statement:
+            - return_segment:
+              - keyword: RETURN
+              - expression:
+                - integer_literal: '1'
+          - statement_terminator: ;
           - keyword: END
         - statement_terminator: ;
   - go_statement:
@@ -991,12 +985,13 @@ file:
       - procedure_statement:
         - statement:
           - keyword: BEGIN
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@param_bigint'
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - parameterized_expression:
+                    - tsql_variable: '@param_bigint'
           - statement_terminator: ;
           - keyword: END
         - statement_terminator: ;

@@ -23,7 +23,7 @@ file:
           - raw_comparison_operator: =
         - keyword: ON
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - alter_table_switch_statement:
       - keyword: ALTER
@@ -37,7 +37,7 @@ file:
       - keyword: TO
       - object_reference:
         - naked_identifier: NonPartitionTable
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - alter_table_switch_statement:
       - keyword: ALTER
@@ -53,7 +53,7 @@ file:
         - quoted_identifier: '[OrdersHistory]'
       - keyword: PARTITION
       - numeric_literal: '2'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - alter_table_switch_statement:
       - keyword: ALTER
@@ -69,7 +69,7 @@ file:
         - quoted_identifier: '[OrdersHistory]'
       - keyword: PARTITION
       - numeric_literal: '3'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - alter_table_switch_statement:
       - keyword: ALTER
@@ -103,7 +103,7 @@ file:
           - keyword: NONE
           - end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - alter_table_switch_statement:
       - keyword: ALTER
@@ -136,4 +136,4 @@ file:
           - keyword: SELF
           - end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;

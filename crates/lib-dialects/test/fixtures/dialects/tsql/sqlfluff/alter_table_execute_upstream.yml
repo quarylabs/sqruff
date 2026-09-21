@@ -8,6 +8,6 @@ file:
       - expression:
         - column_reference:
           - naked_identifier: doc_exc
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
     - keyword: GO

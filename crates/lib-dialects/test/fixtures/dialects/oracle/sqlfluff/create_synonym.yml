@@ -1,0 +1,49 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_create_synonym_statement:
+      - keyword: CREATE
+      - keyword: SYNONYM
+      - object_reference:
+        - naked_identifier: offices
+      - keyword: FOR
+      - object_reference:
+        - naked_identifier: hr
+        - dot: .
+        - naked_identifier: locations
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_synonym_statement:
+      - keyword: CREATE
+      - keyword: PUBLIC
+      - keyword: SYNONYM
+      - object_reference:
+        - naked_identifier: emp_table
+      - keyword: FOR
+      - object_reference:
+        - naked_identifier: hr
+        - dot: .
+        - naked_identifier: employees
+      - at_sign: '@'
+      - database_link_reference:
+        - naked_identifier: remote
+        - dot: .
+        - naked_identifier: us
+        - dot: .
+        - naked_identifier: example
+        - dot: .
+        - naked_identifier: com
+  - statement_terminator: ;
+  - statement:
+    - oracle_create_synonym_statement:
+      - keyword: CREATE
+      - keyword: PUBLIC
+      - keyword: SYNONYM
+      - object_reference:
+        - naked_identifier: customers
+      - keyword: FOR
+      - object_reference:
+        - naked_identifier: oe
+        - dot: .
+        - naked_identifier: customers
+  - statement_terminator: ;

@@ -4,7 +4,7 @@ file:
     - keyword: declare
     - tsql_variable: '@var1'
     - data_type:
-      - data_type_identifier: binary
+      - keyword: binary
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -24,7 +24,7 @@ file:
     - keyword: declare
     - tsql_variable: '@var2'
     - data_type:
-      - data_type_identifier: binary
+      - keyword: binary
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -44,7 +44,7 @@ file:
     - keyword: declare
     - tsql_variable: '@var3'
     - data_type:
-      - data_type_identifier: binary
+      - keyword: binary
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -64,7 +64,7 @@ file:
     - keyword: declare
     - tsql_variable: '@var4'
     - data_type:
-      - data_type_identifier: binary
+      - keyword: binary
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (

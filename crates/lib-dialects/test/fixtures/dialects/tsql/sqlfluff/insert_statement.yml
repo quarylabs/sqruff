@@ -74,7 +74,7 @@ file:
                       - quoted_identifier: '[POPULATION]'
                   - keyword: AS
                   - data_type:
-                    - data_type_identifier: BIGINT
+                    - keyword: BIGINT
                   - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -97,7 +97,7 @@ file:
                       - quoted_identifier: '[WEEKLY_COUNT]'
                   - keyword: AS
                   - data_type:
-                    - data_type_identifier: BIGINT
+                    - keyword: BIGINT
                   - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -156,7 +156,7 @@ file:
                           - end_bracket: )
                   - keyword: AS
                   - data_type:
-                    - data_type_identifier: DATE
+                    - keyword: DATE
                   - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -221,7 +221,7 @@ file:
                           - end_bracket: )
                   - keyword: AS
                   - data_type:
-                    - data_type_identifier: DATE
+                    - keyword: DATE
                   - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -240,7 +240,7 @@ file:
                       - quoted_identifier: '[RATE_14_DAY]'
                   - keyword: AS
                   - data_type:
-                    - data_type_identifier: FLOAT
+                    - keyword: FLOAT
                   - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -259,7 +259,7 @@ file:
                       - quoted_identifier: '[CUMULATIVE_COUNT]'
                   - keyword: AS
                   - data_type:
-                    - data_type_identifier: BIGINT
+                    - keyword: BIGINT
                   - end_bracket: )
             - alias_expression:
               - alias_operator:

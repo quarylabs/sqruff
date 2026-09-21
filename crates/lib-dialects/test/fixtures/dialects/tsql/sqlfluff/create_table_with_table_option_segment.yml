@@ -15,7 +15,7 @@ file:
           - column_definition:
             - quoted_identifier: '[id]'
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -64,7 +64,7 @@ file:
           - column_definition:
             - quoted_identifier: '[id]'
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -119,7 +119,7 @@ file:
           - column_definition:
             - quoted_identifier: '[id]'
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -169,7 +169,7 @@ file:
           - column_definition:
             - quoted_identifier: '[id]'
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -219,7 +219,7 @@ file:
           - column_definition:
             - quoted_identifier: '[id]'
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -269,7 +269,7 @@ file:
           - column_definition:
             - quoted_identifier: '[id]'
             - data_type:
-              - data_type_identifier: INT
+              - keyword: INT
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'

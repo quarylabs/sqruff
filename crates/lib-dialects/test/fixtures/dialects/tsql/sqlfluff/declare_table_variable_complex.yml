@@ -9,7 +9,7 @@ file:
       - column_definition:
         - naked_identifier: OrderId
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
         - column_constraint_segment:
           - keyword: IDENTITY
           - bracketed:
@@ -25,7 +25,7 @@ file:
       - column_definition:
         - naked_identifier: CustomerId
         - data_type:
-          - data_type_identifier: INT
+          - keyword: INT
         - column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -33,7 +33,7 @@ file:
       - column_definition:
         - naked_identifier: OrderDate
         - data_type:
-          - data_type_identifier: DATETIME
+          - keyword: DATETIME
         - column_constraint_segment:
           - keyword: DEFAULT
           - function:
@@ -47,7 +47,7 @@ file:
       - column_definition:
         - naked_identifier: Amount
         - data_type:
-          - data_type_identifier: DECIMAL
+          - keyword: DECIMAL
           - bracketed_arguments:
             - bracketed:
               - start_bracket: (

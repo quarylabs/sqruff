@@ -166,7 +166,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@id_key'
     - data_type:
-      - data_type_identifier: nvarchar
+      - keyword: nvarchar
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -180,7 +180,7 @@ file:
     - comma: ','
     - tsql_variable: '@id_value'
     - data_type:
-      - data_type_identifier: nvarchar
+      - keyword: nvarchar
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -386,7 +386,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@id_value'
     - data_type:
-      - data_type_identifier: nvarchar
+      - keyword: nvarchar
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (

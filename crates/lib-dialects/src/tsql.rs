@@ -4638,6 +4638,170 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // T-SQL data types have type-specific argument placement. In particular,
+    // the VARYING keyword precedes bracketed arguments in forms such as
+    // `CHAR VARYING(100)`, so the generic ANSI datatype grammar is not broad
+    // enough for the complete T-SQL type family.
+    dialect.replace_grammar(
+        "DatatypeSegment",
+        Sequence::new(vec![
+            // Optional schema qualification, including bracketed schemas.
+            Sequence::new(vec![
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Ref::new("DotSegment").to_matchable(),
+            ])
+            .config(|this| {
+                this.disallow_gaps();
+                this.optional();
+            })
+            .to_matchable(),
+            one_of(vec![
+                // Square-bracketed data type identifiers such as [sysname].
+                Sequence::new(vec![
+                    TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DataTypeIdentifier)
+                        .to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                // Exact numeric types without parameters.
+                one_of(vec![
+                    Ref::keyword("TINYINT").to_matchable(),
+                    Ref::keyword("SMALLINT").to_matchable(),
+                    Ref::keyword("INT").to_matchable(),
+                    Ref::keyword("BIGINT").to_matchable(),
+                    Ref::keyword("BIT").to_matchable(),
+                    Ref::keyword("MONEY").to_matchable(),
+                    Ref::keyword("SMALLMONEY").to_matchable(),
+                ])
+                .to_matchable(),
+                // Exact numeric types with optional precision and scale.
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("DECIMAL").to_matchable(),
+                        Ref::keyword("NUMERIC").to_matchable(),
+                        Ref::keyword("DEC").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                // Approximate numeric types.
+                Sequence::new(vec![
+                    Ref::keyword("FLOAT").to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("REAL").to_matchable(),
+                // Date and time types.
+                one_of(vec![
+                    Ref::keyword("DATE").to_matchable(),
+                    Ref::keyword("SMALLDATETIME").to_matchable(),
+                    Ref::keyword("DATETIME").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("TIME").to_matchable(),
+                        Ref::keyword("DATETIME2").to_matchable(),
+                        Ref::keyword("DATETIMEOFFSET").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                // Character string types.
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("CHAR").to_matchable(),
+                        Ref::keyword("CHARACTER").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("VARYING").optional().to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("VARCHAR").to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("TEXT").to_matchable(),
+                // Unicode character string types.
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("NCHAR").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NATIONAL").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("CHAR").to_matchable(),
+                                Ref::keyword("CHARACTER").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("VARYING").optional().to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("NVARCHAR").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NATIONAL").to_matchable(),
+                            Ref::keyword("CHARACTER").to_matchable(),
+                            Ref::keyword("VARYING").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("NTEXT").to_matchable(),
+                // Binary string types.
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("BINARY").to_matchable(),
+                        Ref::keyword("VARBINARY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("IMAGE").to_matchable(),
+                // Other, spatial, and vector types.
+                one_of(vec![
+                    Ref::keyword("CURSOR").to_matchable(),
+                    Ref::keyword("SQL_VARIANT").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::keyword("TIMESTAMP").to_matchable(),
+                    Ref::keyword("ROWVERSION").to_matchable(),
+                    Ref::keyword("UNIQUEIDENTIFIER").to_matchable(),
+                    Ref::keyword("XML").to_matchable(),
+                    Ref::keyword("JSON").to_matchable(),
+                    Ref::keyword("GEOGRAPHY").to_matchable(),
+                    Ref::keyword("GEOMETRY").to_matchable(),
+                    Ref::keyword("HIERARCHYID").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("VECTOR").to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                // User-defined data types.
+                Ref::new("DatatypeIdentifierSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("CharCharacterSetGrammar")
+                .optional()
+                .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // APPLY clause support (CROSS APPLY and OUTER APPLY)
     // APPLY invokes a table-valued function for each row of the outer table
     // CROSS APPLY: Like INNER JOIN - returns only rows with results
@@ -5319,29 +5483,10 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
-            "TsqlDatatypeSegment".into(),
-            NodeMatcher::new(SyntaxKind::DataType, |_| {
-                one_of(vec![
-                    // Square bracket data type like [int], [varchar](100)
-                    Sequence::new(vec![
-                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DataTypeIdentifier)
-                            .to_matchable(),
-                        Ref::new("BracketedArguments").optional().to_matchable(),
-                    ])
-                    .to_matchable(),
-                    // Regular data type (includes DatatypeIdentifierSegment for user-defined types)
-                    Ref::new("DatatypeSegment").to_matchable(),
-                ])
-                .to_matchable()
-            })
-            .to_matchable()
-            .into(),
-        ),
-        (
             "ProcedureParameterGrammar".into(),
             Sequence::new(vec![
                 Ref::new("ParameterNameSegment").to_matchable(),
-                Ref::new("TsqlDatatypeSegment").to_matchable(),
+                Ref::new("DatatypeSegment").to_matchable(),
                 // Optional VARYING keyword (for cursors and some special types)
                 Ref::keyword("VARYING").optional().to_matchable(),
                 // Optional NULL/NOT NULL

@@ -11,11 +11,11 @@ file:
           - start_bracket: (
           - tsql_variable: '@my_parameter'
           - data_type:
-            - data_type_identifier: int
+            - keyword: int
           - end_bracket: )
       - keyword: returns
       - data_type:
-        - data_type_identifier: int
+        - keyword: int
       - function_option_segment:
         - keyword: with
         - keyword: schemabinding

@@ -2,7 +2,7 @@ file:
 - statement:
   - keyword: CREATE
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: customer_cat
 - statement_terminator: ;
 - statement:
@@ -11,7 +11,7 @@ file:
   - keyword: IF
   - keyword: NOT
   - keyword: EXISTS
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: customer_cat
 - statement_terminator: ;
 - statement:
@@ -20,7 +20,7 @@ file:
   - keyword: IF
   - keyword: NOT
   - keyword: EXISTS
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: customer_cat
   - keyword: COMMENT
   - quoted_literal: '''This is customer catalog'''

@@ -920,6 +920,7 @@ pub enum SyntaxKind {
     PipeOperator,
     PipeOperatorClause,
     PipeStatement,
+    PipelineParameter,
     PivotClause,
     PivotColumnReference,
     PivotForClause,

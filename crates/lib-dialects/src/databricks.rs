@@ -382,6 +382,26 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "SetTagOnGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                Ref::keyword("TAG").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UnsetTagOnGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("UNSET").to_matchable(),
+                Ref::keyword("TAG").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "SetTagsGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("SET").to_matchable(),
@@ -1005,6 +1025,120 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // An `UNSET TAG ON` statement.
+            // https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-set-tag
+            "UnsetTagStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::TagStatement, |_| {
+                Sequence::new(vec![
+                    Ref::new("UnsetTagOnGrammar").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("CATALOG").to_matchable(),
+                            Ref::new("CatalogReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("DATABASE").to_matchable(),
+                                Ref::keyword("SCHEMA").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("DatabaseReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("TABLE").to_matchable(),
+                                Ref::keyword("VIEW").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("VOLUME").to_matchable(),
+                            Ref::new("VolumeReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("COLUMN").to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::new("BackQuotedIdentifierSegment").to_matchable(),
+                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            // A `SET TAG ON` statement.
+            // https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-set-tag
+            "TagStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::TagStatement, |_| {
+                Sequence::new(vec![
+                    Ref::new("SetTagOnGrammar").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("CATALOG").to_matchable(),
+                            Ref::new("CatalogReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("DATABASE").to_matchable(),
+                                Ref::keyword("SCHEMA").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("DatabaseReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("TABLE").to_matchable(),
+                                Ref::keyword("VIEW").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("VOLUME").to_matchable(),
+                            Ref::new("VolumeReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("COLUMN").to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::new("BackQuotedIdentifierSegment").to_matchable(),
+                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("BackQuotedIdentifierSegment").to_matchable(),
+                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -2134,6 +2268,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("OptimizeTableStatementSegment").to_matchable(),
                     Ref::new("CommentOnStatementSegment").to_matchable(),
                     Ref::new("DeclareOrReplaceVariableStatementSegment").to_matchable(),
+                    Ref::new("TagStatementSegment").to_matchable(),
+                    Ref::new("UnsetTagStatementSegment").to_matchable(),
                     Ref::new("MagicCellStatementSegment").to_matchable(),
                 ]),
                 None,

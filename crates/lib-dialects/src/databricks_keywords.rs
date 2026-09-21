@@ -41,6 +41,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "RELY",
     "SCHEDULE",
     "SQL",
+    "TAG",
     "TAGS",
     "TIMESERIES",
     "VOLUME",

@@ -337,3 +337,94 @@ file:
       - object_reference:
         - naked_identifier: PK_TransactionHistoryArchive_TransactionID
   - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[Production]'
+          - dot: .
+          - quoted_identifier: '[ProductCostHistory]'
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+        - quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Purchasing
+          - dot: .
+          - naked_identifier: PurchaseOrderHeader
+      - keyword: NOCHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+        - naked_identifier: FK_PurchaseOrderHeader_Employee_EmployeeID
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: CHECK
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+        - quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: CHECK
+      - keyword: NOCHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+        - quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: NOCHECK
+      - keyword: NOCHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+        - quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: NOCHECK
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+        - quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;

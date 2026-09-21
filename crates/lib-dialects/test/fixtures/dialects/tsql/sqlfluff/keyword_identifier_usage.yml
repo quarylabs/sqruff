@@ -224,23 +224,26 @@ file:
         - set_clause:
           - column_reference:
             - naked_identifier: Type
-          - comparison_operator:
+          - assignment_operator:
             - raw_comparison_operator: =
-          - integer_literal: '1'
+          - expression:
+            - integer_literal: '1'
         - comma: ','
         - set_clause:
           - column_reference:
             - naked_identifier: Value
-          - comparison_operator:
+          - assignment_operator:
             - raw_comparison_operator: =
-          - quoted_literal: '''test'''
+          - expression:
+            - quoted_literal: '''test'''
         - comma: ','
         - set_clause:
           - column_reference:
             - naked_identifier: Class
-          - comparison_operator:
+          - assignment_operator:
             - raw_comparison_operator: =
-          - quoted_literal: '''warrior'''
+          - expression:
+            - quoted_literal: '''warrior'''
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -249,7 +252,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - quoted_literal: '''json'''
-  - statement_terminator: ;
+      - statement_terminator: ;
   - statement:
     - insert_statement:
       - keyword: INSERT
@@ -737,16 +740,18 @@ file:
         - set_clause:
           - column_reference:
             - naked_identifier: Value
-          - comparison_operator:
+          - assignment_operator:
             - raw_comparison_operator: =
-          - quoted_literal: '''updated'''
+          - expression:
+            - quoted_literal: '''updated'''
         - comma: ','
         - set_clause:
           - column_reference:
             - naked_identifier: Format
-          - comparison_operator:
+          - assignment_operator:
             - raw_comparison_operator: =
-          - quoted_literal: '''xml'''
+          - expression:
+            - quoted_literal: '''xml'''
       - where_clause:
         - keyword: WHERE
         - expression:
@@ -755,4 +760,4 @@ file:
           - comparison_operator:
             - raw_comparison_operator: =
           - integer_literal: '1'
-  - statement_terminator: ;
+      - statement_terminator: ;

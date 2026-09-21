@@ -202,6 +202,7 @@ pub fn raw_dialect() -> Dialect {
         "CONSTANT",
         "CONTAINER",
         "CONTEXT",
+        "CREDENTIAL",
         "CROSSEDITION",
         "CURSOR",
         "DBA_RECYCLEBIN",
@@ -3634,19 +3635,41 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("PUBLIC").optional().to_matchable(),
                     Ref::keyword("DATABASE").to_matchable(),
                     Ref::keyword("LINK").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::new("DatabaseLinkReferenceSegment").to_matchable(),
                     Sequence::new(vec![
-                        Ref::keyword("CONNECT").to_matchable(),
-                        Ref::keyword("TO").to_matchable(),
                         one_of(vec![
-                            Ref::keyword("CURRENT_USER").to_matchable(),
                             Sequence::new(vec![
-                                Ref::new("RoleReferenceSegment").to_matchable(),
-                                Ref::keyword("IDENTIFIED").to_matchable(),
-                                Ref::keyword("BY").to_matchable(),
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Ref::keyword("CONNECT").to_matchable(),
+                                one_of(vec![
+                                    Sequence::new(vec![
+                                        Ref::keyword("TO").to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("CURRENT_USER").to_matchable(),
+                                            Sequence::new(vec![
+                                                Ref::new("RoleReferenceSegment").to_matchable(),
+                                                Ref::keyword("IDENTIFIED").to_matchable(),
+                                                Ref::keyword("BY").to_matchable(),
+                                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                                Ref::new("DBLinkAuthenticationGrammar")
+                                                    .optional()
+                                                    .to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("WITH").to_matchable(),
+                                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
+                            Ref::new("DBLinkAuthenticationGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -3677,6 +3700,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("PUBLIC").optional().to_matchable(),
                     Ref::keyword("DATABASE").to_matchable(),
                     Ref::keyword("LINK").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
                     Ref::new("DatabaseLinkReferenceSegment").to_matchable(),
                 ])
                 .to_matchable()

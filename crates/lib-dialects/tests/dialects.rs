@@ -138,7 +138,6 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
         DialectKind::Materialize => &["EXECUTION"],
         DialectKind::Oracle => &[
             "AUTHENTICATION",
-            "CREDENTIAL",
             "EXCEPTIONS",
             "HASH",
             "METADATA",

@@ -84,6 +84,29 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .into(),
     )]);
 
+    let function_contents_grammar = dialect.grammar("FunctionContentsGrammar").copy(
+        Some(vec![
+            Sequence::new(vec![
+                Ref::new("ExpressionSegment").to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::new("DatatypeSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("FORMAT").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("TimeZoneGrammar").optional().to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ]),
+        None,
+        None,
+        None,
+        vec![],
+        false,
+    );
+
     dialect.add([
         (
             "DoubleQuotedLiteralSegment".into(),
@@ -348,6 +371,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             ])
             .to_matchable()
             .into(),
+        ),
+        (
+            "FunctionContentsGrammar".into(),
+            function_contents_grammar.into(),
         ),
         (
             "TrimParametersGrammar".into(),

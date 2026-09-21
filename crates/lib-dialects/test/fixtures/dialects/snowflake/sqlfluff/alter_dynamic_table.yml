@@ -874,6 +874,25 @@ file:
     - table_reference:
       - naked_identifier: my_dynamic_table
     - keyword: SET
+    - keyword: WAREHOUSE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_warehouse
+    - comma: ','
+    - keyword: TARGET_LAG
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''1 hour'''
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_dynamic_table
+    - keyword: SET
     - keyword: IMMUTABLE
     - keyword: WHERE
     - bracketed:
@@ -977,4 +996,16 @@ file:
       - naked_identifier: my_dynamic_table
     - keyword: UNSET
     - keyword: IMMUTABLE
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_dynamic_table
+    - keyword: UNSET
+    - keyword: IMMUTABLE
+    - comma: ','
+    - keyword: LOG_LEVEL
 - statement_terminator: ;

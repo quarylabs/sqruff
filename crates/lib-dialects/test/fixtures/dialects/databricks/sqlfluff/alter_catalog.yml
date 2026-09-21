@@ -2,7 +2,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: OWNER
   - keyword: TO
@@ -11,7 +11,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: OWNER
   - keyword: TO
@@ -20,7 +20,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: SET
   - keyword: OWNER
@@ -30,7 +30,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: SET
   - keyword: OWNER
@@ -40,7 +40,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: SET
   - keyword: TAGS
@@ -56,7 +56,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: SET
   - keyword: TAGS
@@ -78,7 +78,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: UNSET
   - keyword: TAGS
@@ -91,7 +91,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: UNSET
   - keyword: TAGS
@@ -107,7 +107,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: ENABLE
   - keyword: PREDICTIVE
@@ -116,7 +116,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: INHERIT
   - keyword: PREDICTIVE
@@ -125,7 +125,7 @@ file:
 - statement:
   - keyword: ALTER
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: some_cat
   - keyword: DISABLE
   - keyword: PREDICTIVE

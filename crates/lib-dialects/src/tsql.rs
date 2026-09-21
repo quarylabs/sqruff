@@ -5644,6 +5644,20 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     dialect.add([(
+        "SelectVariableAssignmentSegment".into(),
+        NodeMatcher::new(SyntaxKind::SelectVariableAssignment, |_| {
+            Sequence::new(vec![
+                Ref::new("ParameterNameSegment").to_matchable(),
+                Ref::new("AssignmentOperatorSegment").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
         "AltAliasExpressionSegment".into(),
         NodeMatcher::new(SyntaxKind::AliasExpression, |_| {
             Sequence::new(vec![
@@ -5681,6 +5695,8 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             // Wildcard expressions
             Ref::new("WildcardExpressionSegment").to_matchable(),
+            // SELECT @variable = expression (variable assignment)
+            Ref::new("SelectVariableAssignmentSegment").to_matchable(),
             // Everything else
             Sequence::new(vec![
                 Ref::new("BaseExpressionElementGrammar").to_matchable(),

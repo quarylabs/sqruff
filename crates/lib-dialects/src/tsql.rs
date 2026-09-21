@@ -7882,35 +7882,48 @@ fn add_database_grammars(dialect: &mut Dialect) {
                 .to_matchable(),
             ])
             .to_matchable();
+            let recovery_options = Sequence::new(vec![
+                Ref::keyword("RECOVERY").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("FULL").to_matchable(),
+                    Ref::keyword("SIMPLE").to_matchable(),
+                    Ref::keyword("BULK_LOGGED").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
             let set_option = Sequence::new(vec![
                 Ref::keyword("SET").to_matchable(),
-                optionally_bracketed(vec![
-                    Delimited::new(vec![
-                        one_of(vec![
-                            Ref::new("CompatibilityLevelSegment").to_matchable(),
-                            Ref::new("AutoOptionSegment").to_matchable(),
-                            accelerated_recovery,
-                            Sequence::new(vec![
-                                Ref::new("NakedIdentifierSegment").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("ON").to_matchable(),
-                                    Ref::keyword("OFF").to_matchable(),
+                one_of(vec![
+                    optionally_bracketed(vec![
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::new("CompatibilityLevelSegment").to_matchable(),
+                                Ref::new("AutoOptionSegment").to_matchable(),
+                                accelerated_recovery,
+                                Sequence::new(vec![
+                                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("ON").to_matchable(),
+                                        Ref::keyword("OFF").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::new("NakedIdentifierSegment").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                Ref::new("NumericLiteralSegment").to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("KB").to_matchable(),
-                                    Ref::keyword("MB").to_matchable(),
-                                    Ref::keyword("GB").to_matchable(),
-                                    Ref::keyword("TB").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("KB").to_matchable(),
+                                        Ref::keyword("MB").to_matchable(),
+                                        Ref::keyword("GB").to_matchable(),
+                                        Ref::keyword("TB").to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
                                 ])
-                                .config(|this| this.optional())
                                 .to_matchable(),
                             ])
                             .to_matchable(),
@@ -7918,6 +7931,7 @@ fn add_database_grammars(dialect: &mut Dialect) {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    recovery_options,
                 ])
                 .to_matchable(),
             ])

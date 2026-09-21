@@ -3833,7 +3833,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("SearchOptimizationActionSegment").to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("SET").to_matchable(),
-                            any_set_of(vec![
+                            Delimited::new(vec![
                                 Ref::new("CommentEqualsClauseSegment").to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("TARGET_LAG").to_matchable(),
@@ -3900,13 +3900,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 ])
                                 .to_matchable(),
                             ])
-                            .config(|this| this.min_times(1))
                             .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("UNSET").to_matchable(),
-                            any_set_of(vec![
+                            Delimited::new(vec![
                                 Ref::keyword("COMMENT").to_matchable(),
                                 Ref::keyword("DATA_RETENTION_TIME_IN_DAYS").to_matchable(),
                                 Ref::keyword("MAX_DATA_EXTENSION_TIME_IN_DAYS").to_matchable(),
@@ -3919,7 +3918,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                                 Ref::keyword("IMMUTABLE").to_matchable(),
                             ])
-                            .config(|this| this.min_times(1))
                             .to_matchable(),
                         ])
                         .to_matchable(),

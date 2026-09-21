@@ -106,6 +106,11 @@ JOIN baz ON bar.id = baz.id;
             let Some(join_table_reference) = join_table_references.first() else {
                 continue;
             };
+            if from_expression_element_function(join_table_reference)
+                .is_some_and(|function| function.eq_ignore_ascii_case("UNNEST"))
+            {
+                continue;
+            }
             encountered_references.insert(from_expression_element_alias(join_table_reference));
 
             let join_children = join.segments();
@@ -309,6 +314,23 @@ fn from_expression_element_alias(from_expression_element: &ErasedSegment) -> Str
     }
 
     from_expression_element.raw().to_uppercase()
+}
+
+fn from_expression_element_function(from_expression_element: &ErasedSegment) -> Option<String> {
+    let table_expression =
+        from_expression_element.child(const { &SyntaxSet::single(SyntaxKind::TableExpression) })?;
+    if !table_expression
+        .direct_descendant_type_set()
+        .contains(SyntaxKind::Function)
+    {
+        return None;
+    }
+
+    table_expression
+        .child(const { &SyntaxSet::single(SyntaxKind::Function) })?
+        .child(const { &SyntaxSet::single(SyntaxKind::FunctionName) })?
+        .child(const { &SyntaxSet::single(SyntaxKind::FunctionNameIdentifier) })
+        .map(|identifier| identifier.raw().to_uppercase())
 }
 
 fn is_where_clause_simplifiable(where_clause: &ErasedSegment) -> bool {

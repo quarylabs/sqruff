@@ -53,6 +53,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "equals",
     );
 
+    // Databricks Pipeline Parameters:
+    // https://docs.databricks.com/en/delta-live-tables/parameters.html
+    // Must come before dollar_quote since both start with `$`.
+    databricks.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "pipeline_parameter",
+            r"\$\{[A-Za-z_][A-Za-z0-9_]*\}",
+            SyntaxKind::PipelineParameter,
+        )],
+        "dollar_quote",
+    );
+
     // Databricks SQL notebook cell delimiter:
     // https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebook-export-import#sql-1
     databricks.insert_lexer_matchers(
@@ -176,6 +188,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "DollarQuotedUDFBody".into(),
             TypedParser::new(SyntaxKind::DollarQuote, SyntaxKind::UdfBody)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "PipelineParameterSegment".into(),
+            TypedParser::new(SyntaxKind::PipelineParameter, SyntaxKind::PipelineParameter)
                 .to_matchable()
                 .into(),
         ),
@@ -624,7 +642,28 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         // https://docs.databricks.com/data-governance/unity-catalog/create-catalogs.html
         (
             "CatalogReferenceSegment".into(),
-            Ref::new("ObjectReferenceSegment").to_matchable().into(),
+            NodeMatcher::new(SyntaxKind::CatalogReference, |_| {
+                one_of(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("IdentifierClauseSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                        config.terminators =
+                            vec![Ref::new("ObjectReferenceTerminatorGrammar").to_matchable()];
+                        config.disallow_gaps();
+                    })
+                    .to_matchable(),
+                    Ref::new("ParameterizedSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         // An `ALTER CATALOG` statement.
         // https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-alter-catalog.html
@@ -911,6 +950,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 })
                 .to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ParameterizedSegment".into(),
+            NodeMatcher::new(SyntaxKind::ParameterizedExpression, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("ColonSegment").to_matchable(),
+                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                    ])
+                    .allow_gaps(false)
+                    .to_matchable(),
+                    Ref::new("PipelineParameterSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1496,6 +1552,47 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    databricks.replace_grammar(
+        "SingleIdentifierGrammar",
+        raw_sparksql.grammar("SingleIdentifierGrammar").copy(
+            Some(vec![Ref::new("ParameterizedSegment").to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
+    databricks.replace_grammar(
+        "LiteralGrammar",
+        raw_sparksql.grammar("LiteralGrammar").copy(
+            Some(vec![Ref::new("ParameterizedSegment").to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
+    databricks.replace_grammar(
+        "LimitClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("LIMIT").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            one_of(vec![
+                Ref::new("NumericLiteralSegment").to_matchable(),
+                Ref::keyword("ALL").to_matchable(),
+                Ref::new("FunctionSegment").to_matchable(),
+                Ref::new("ParameterizedSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     databricks.replace_grammar(
         "DelimiterGrammar",

@@ -5,7 +5,7 @@ file:
     - keyword: TAG
     - keyword: ON
     - keyword: CATALOG
-    - object_reference:
+    - catalog_reference:
       - naked_identifier: catalog
     - quoted_identifier: '`tag1`'
     - comparison_operator:
@@ -117,7 +117,7 @@ file:
     - keyword: TAG
     - keyword: ON
     - keyword: CATALOG
-    - object_reference:
+    - catalog_reference:
       - naked_identifier: catalog
     - quoted_identifier: '`tag1`'
 - statement_terminator: ;

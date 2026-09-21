@@ -3,7 +3,7 @@ file:
   - keyword: COMMENT
   - keyword: ON
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: my_catalog
   - keyword: IS
   - quoted_literal: '''This is my catalog'''

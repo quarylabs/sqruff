@@ -1,0 +1,73 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+        - naked_identifier: private_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: hr
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: hr_new_password
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: PUBLIC
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+        - naked_identifier: public_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: scott
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: scott_new_password
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: SHARED
+      - keyword: PUBLIC
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+        - naked_identifier: shared_pub_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: scott
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: scott_new_password
+      - keyword: AUTHENTICATED
+      - keyword: BY
+      - role_reference:
+        - naked_identifier: hr
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: hr_new_password
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_database_link_statement:
+      - keyword: ALTER
+      - keyword: SHARED
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+        - naked_identifier: shared_pub_link
+      - keyword: CONNECT
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: scott
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - naked_identifier: scott_new_password
+  - statement_terminator: ;

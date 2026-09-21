@@ -1,0 +1,11 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_drop_database_link_statement:
+      - keyword: DROP
+      - keyword: PUBLIC
+      - keyword: DATABASE
+      - keyword: LINK
+      - database_link_reference:
+        - naked_identifier: remote
+  - statement_terminator: ;

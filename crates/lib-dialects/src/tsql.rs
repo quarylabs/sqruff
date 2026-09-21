@@ -6005,6 +6005,15 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INCLUDE").to_matchable(),
+                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    })
+                    .to_matchable(),
+                    Ref::new("WhereClauseSegment").optional().to_matchable(),
                     Ref::new("RelationalIndexOptionsSegment")
                         .optional()
                         .to_matchable(),

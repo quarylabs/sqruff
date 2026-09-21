@@ -5651,6 +5651,15 @@ fn access_permission_segment() -> Matchable {
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
+                    Ref::keyword("USE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("SCHEMA").to_matchable(),
+                        Ref::keyword("CATALOG").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
                     Ref::keyword("IMPORTED").to_matchable(),
                     Ref::keyword("PRIVILEGES").to_matchable(),
                 ])
@@ -5709,6 +5718,7 @@ fn access_object_segment() -> Matchable {
                 Ref::keyword("INTEGRATION").to_matchable(),
                 Ref::keyword("LANGUAGE").to_matchable(),
                 Ref::keyword("SCHEMA").to_matchable(),
+                Ref::keyword("CATALOG").to_matchable(),
                 Ref::keyword("ROLE").to_matchable(),
                 Ref::keyword("TABLESPACE").to_matchable(),
                 Ref::keyword("TYPE").to_matchable(),

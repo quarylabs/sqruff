@@ -580,6 +580,9 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | RestoreTableStatement
         | ConstraintStatement
         | ApplyChangesIntoStatement
+        | CdcSpecificationSegment
+        | CreateFlowStatement
+        | FlowReference
         | UsingClause
         | DataSourceFormat
         | IcebergTransformation

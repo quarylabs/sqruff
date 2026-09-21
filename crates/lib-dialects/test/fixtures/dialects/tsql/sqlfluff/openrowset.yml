@@ -278,6 +278,11 @@ file:
                   - keyword: BULK
                   - quoted_literal: '''https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet'''
                   - comma: ','
+                  - keyword: DATA_SOURCE
+                  - comparison_operator:
+                    - raw_comparison_operator: =
+                  - quoted_literal: '''MyAzureBlobStorage'''
+                  - comma: ','
                   - keyword: FORMAT
                   - comparison_operator:
                     - raw_comparison_operator: =

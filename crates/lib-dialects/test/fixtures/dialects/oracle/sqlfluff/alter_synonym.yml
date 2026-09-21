@@ -1,0 +1,27 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_alter_synonym_statement:
+      - keyword: ALTER
+      - keyword: SYNONYM
+      - object_reference:
+        - naked_identifier: offices
+      - keyword: COMPILE
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_synonym_statement:
+      - keyword: ALTER
+      - keyword: PUBLIC
+      - keyword: SYNONYM
+      - object_reference:
+        - naked_identifier: emp_table
+      - keyword: COMPILE
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_synonym_statement:
+      - keyword: ALTER
+      - keyword: SYNONYM
+      - object_reference:
+        - naked_identifier: offices
+      - keyword: NONEDITIONABLE
+  - statement_terminator: ;

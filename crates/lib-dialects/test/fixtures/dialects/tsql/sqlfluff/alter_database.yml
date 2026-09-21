@@ -59,6 +59,45 @@ file:
       - keyword: ALTER
       - keyword: DATABASE
       - database_reference:
+        - naked_identifier: testDB
+      - keyword: SET
+      - keyword: RECOVERY
+      - keyword: FULL
+  - statement_terminator: ;
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+        - naked_identifier: testDB
+      - keyword: SET
+      - keyword: RECOVERY
+      - keyword: SIMPLE
+  - statement_terminator: ;
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+        - quoted_identifier: '[testDB]'
+      - keyword: SET
+      - keyword: RECOVERY
+      - keyword: BULK_LOGGED
+  - statement_terminator: ;
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
         - naked_identifier: WideWorldImporters
       - keyword: ADD
       - keyword: FILE

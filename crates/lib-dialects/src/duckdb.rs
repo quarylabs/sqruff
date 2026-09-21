@@ -38,6 +38,7 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.name = DialectKind::Duckdb;
 
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "SUMMARIZE");
+    duckdb_dialect.add_keyword_to_set("reserved_keywords", "LAMBDA");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT_LONGER");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "PIVOT_WIDER");
@@ -816,18 +817,40 @@ pub fn raw_dialect() -> Dialect {
         (
             "LambdaExpressionSegment".into(),
             NodeMatcher::new(SyntaxKind::LambdaFunction, |_| {
-                Sequence::new(vec![
-                    one_of(vec![
-                        Ref::new("ParameterNameSegment").to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![Ref::new("ParameterNameSegment").to_matchable()])
+                one_of(vec![
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                ])
                                 .to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
+                        Ref::new("LambdaArrowSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::new("LambdaArrowSegment").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("LAMBDA").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ColonSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

@@ -2343,6 +2343,151 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    databricks.add([
+        (
+            "CDCSpecificationSegment".into(),
+            NodeMatcher::new(SyntaxKind::CdcSpecificationSegment, |_| {
+                Sequence::new(vec![
+                    Ref::new("FromClauseSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("KEYS").to_matchable(),
+                        MetaSegment::indent().to_matchable(),
+                        Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("IGNORE").to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                        Ref::keyword("UPDATES").to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                    Ref::new("WhereClauseSegment").optional().to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("APPLY").to_matchable(),
+                            Ref::keyword("AS").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("DELETE").to_matchable(),
+                                Ref::keyword("TRUNCATE").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("WHEN").to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| config.max_times = Some(2))
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SEQUENCE").to_matchable(),
+                        Ref::keyword("BY").to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COLUMNS").to_matchable(),
+                        one_of(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("StarSegment").to_matchable(),
+                                Ref::keyword("EXCEPT").to_matchable(),
+                                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("STORED").to_matchable(),
+                        Ref::keyword("AS").to_matchable(),
+                        Ref::keyword("SCD").to_matchable(),
+                        Ref::keyword("TYPE").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TRACK").to_matchable(),
+                        Ref::keyword("HISTORY").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        one_of(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("StarSegment").to_matchable(),
+                                Ref::keyword("EXCEPT").to_matchable(),
+                                Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ApplyChangesIntoStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ApplyChangesIntoStatement, |_| {
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("APPLY").to_matchable(),
+                        Ref::keyword("CHANGES").to_matchable(),
+                        Ref::keyword("INTO").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("TableExpressionSegment").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Ref::new("CDCSpecificationSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FlowReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::FlowReference, |_| {
+                Ref::new("ObjectReferenceSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateFlowStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateFlowStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("FLOW").to_matchable(),
+                    Ref::new("FlowReferenceSegment").to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::keyword("AUTO").to_matchable(),
+                    Ref::keyword("CDC").to_matchable(),
+                    Ref::keyword("INTO").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Ref::new("CDCSpecificationSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // Override statement segment
     databricks.replace_grammar(
         "StatementSegment",
@@ -2368,6 +2513,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("TagStatementSegment").to_matchable(),
                     Ref::new("UnsetTagStatementSegment").to_matchable(),
                     Ref::new("MagicCellStatementSegment").to_matchable(),
+                    Ref::new("ApplyChangesIntoStatementSegment").to_matchable(),
+                    Ref::new("CreateFlowStatementSegment").to_matchable(),
                 ]),
                 None,
                 None,

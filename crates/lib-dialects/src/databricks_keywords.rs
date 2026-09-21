@@ -21,11 +21,13 @@ pub(crate) const RESERVED_KEYWORDS: &[&str] = &[
 pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "AUTO",
     "CATALOG",
+    "CDC",
     "COMPENSATION",
     "CRON",
     "ENFORCED",
     "EVOLUTION",
     "FEATURE",
+    "FLOW",
     "IDENTIFIER",
     "MANAGED",
     "MASK",

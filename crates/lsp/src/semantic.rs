@@ -153,7 +153,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         DataTypeIdentifier | PrimitiveType => Highlight::Type,
 
         // Parameters.
-        Parameter => Highlight::Parameter,
+        Parameter | PipelineParameter => Highlight::Parameter,
 
         // Variables / placeholders.
         Variable | TsqlVariable | Placeholder => Highlight::Macro,

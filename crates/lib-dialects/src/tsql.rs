@@ -42,32 +42,39 @@ pub fn raw_dialect() -> Dialect {
     // Start with ANSI SQL as the base dialect and customize for T-SQL
     let mut dialect = ansi::raw_dialect();
     dialect.name = DialectKind::Tsql;
-    // GO is a client-side batch delimiter and must not be parsed as an
-    // unqualified procedure name by ExecuteScriptSegment.
-    dialect.sets_mut("reserved_keywords").insert("GO");
-    dialect.sets_mut("unreserved_keywords").extend([
-        "ABORT_AFTER_WAIT",
-        "BLOCKERS",
-        "COLUMNSTORE_ARCHIVE",
-        "COMPRESSION_DELAY",
-        "DROP_EXISTING",
-        "MAX_DURATION",
-        "MAXDOP",
-        "MINUTES",
-        "PARTITIONS",
-        "BASE64",
-        "ELEMENTS",
-        "EXPLICIT",
-        "INCLUDE_NULL_VALUES",
-        "ROOT",
-        "SWITCH",
-        "TRUNCATE_TARGET",
-        "WAIT_AT_LOW_PRIORITY",
-        "WITHOUT_ARRAY_WRAPPER",
-        "XMLDATA",
-        "XMLSCHEMA",
-        "XSINIL",
-    ]);
+
+    // SQLFluff keeps the keyword parsers inherited from ANSI even after it
+    // replaces the classification sets below. Materialize the equivalent
+    // parser references before clearing those sets in sqruff.
+    let keyword_references = dialect
+        .sets("reserved_keywords")
+        .into_iter()
+        .chain(dialect.sets("unreserved_keywords"))
+        .chain(tsql_keywords::tsql_additional_parser_keywords())
+        .collect_vec();
+    dialect.add(keyword_references.into_iter().map(|keyword| {
+        (
+            keyword.into(),
+            StringParser::new(keyword, SyntaxKind::Keyword)
+                .to_matchable()
+                .into(),
+        )
+    }));
+
+    // T-SQL has its own complete keyword classification. In particular,
+    // future-reserved words are legal as unquoted identifiers today.
+    dialect.sets_mut("reserved_keywords").clear();
+    dialect.sets_mut("unreserved_keywords").clear();
+    dialect.sets_mut("future_reserved_keywords").clear();
+    dialect
+        .sets_mut("reserved_keywords")
+        .extend(tsql_keywords::tsql_reserved_keywords());
+    dialect
+        .sets_mut("unreserved_keywords")
+        .extend(tsql_keywords::tsql_unreserved_keywords());
+    dialect
+        .sets_mut("future_reserved_keywords")
+        .extend(tsql_keywords::tsql_future_keywords());
     dialect.replace_grammar("NanLiteralSegment", Nothing::new().to_matchable());
 
     dialect.replace_grammar(
@@ -78,17 +85,6 @@ pub fn raw_dialect() -> Dialect {
         "NaturalJoinKeywordsGrammar",
         Ref::keyword("CROSS").to_matchable(),
     );
-
-    // Extend ANSI keywords with T-SQL specific keywords
-    // IMPORTANT: Don't clear ANSI keywords as they contain fundamental SQL keywords
-    dialect
-        .sets_mut("reserved_keywords")
-        .extend(tsql_keywords::tsql_additional_reserved_keywords());
-    dialect.sets_mut("reserved_keywords").remove("DAY");
-    dialect.sets_mut("reserved_keywords").remove("ROWS");
-    dialect
-        .sets_mut("unreserved_keywords")
-        .extend(tsql_keywords::tsql_additional_unreserved_keywords());
 
     // T-SQL permits a `WITH ROLLUP` clause after the `GROUP BY` expression list.
     dialect.add([(
@@ -132,27 +128,6 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
-
-    // Add table hint keywords to unreserved keywords
-    dialect.sets_mut("unreserved_keywords").extend([
-        "NOLOCK",
-        "READUNCOMMITTED",
-        "READCOMMITTED",
-        "REPEATABLEREAD",
-        "SERIALIZABLE",
-        "READPAST",
-        "ROWLOCK",
-        "TABLOCK",
-        "TABLOCKX",
-        "UPDLOCK",
-        "XLOCK",
-        "NOEXPAND",
-        "INDEX",
-        "FORCESEEK",
-        "FORCESCAN",
-        "HOLDLOCK",
-        "SNAPSHOT",
-    ]);
 
     // T-SQL specific operators
     dialect.sets_mut("operator_symbols").extend([
@@ -6068,9 +6043,11 @@ pub fn raw_dialect() -> Dialect {
     // T-SQL specific data type identifier - allows case-insensitive user-defined types
     dialect.add([(
         "DatatypeIdentifierSegment".into(),
-        SegmentGenerator::new(|_| {
-            // Generate the anti template from the set of reserved keywords
-            let anti_template = format!("^({})$", "NOT");
+        SegmentGenerator::new(|dialect| {
+            // Future-reserved words remain valid data type identifiers in T-SQL.
+            let reserved_keywords = dialect.sets("reserved_keywords");
+            let pattern = reserved_keywords.iter().join("|");
+            let anti_template = format!("^({pattern})$");
 
             one_of(vec![
                 // Case-insensitive pattern for T-SQL data type identifiers (including UDTs)

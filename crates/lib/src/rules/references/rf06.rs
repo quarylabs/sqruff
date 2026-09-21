@@ -154,6 +154,10 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
             || context
                 .dialect
                 .sets("unreserved_keywords")
+                .contains(identifier_contents.to_uppercase().as_str())
+            || context
+                .dialect
+                .sets("future_reserved_keywords")
                 .contains(identifier_contents.to_uppercase().as_str());
 
         let context_policy = if self.prefer_quoted_identifiers {

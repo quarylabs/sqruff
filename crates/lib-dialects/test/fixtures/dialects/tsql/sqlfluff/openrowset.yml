@@ -227,8 +227,14 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - keyword: BULK
-                  - naked_identifier: N
-                  - quoted_literal: '''D:\XChange\test-csv.csv'''
+                  - bracketed:
+                    - start_bracket: (
+                    - naked_identifier: N
+                    - quoted_literal: '''D:\XChange\test-csv.csv'''
+                    - comma: ','
+                    - naked_identifier: N
+                    - quoted_literal: '''D:\XChange\test-csv2.csv'''
+                    - end_bracket: )
                   - comma: ','
                   - keyword: FORMATFILE
                   - comparison_operator:

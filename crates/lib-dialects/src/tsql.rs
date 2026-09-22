@@ -4294,7 +4294,26 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("UPDLOCK").to_matchable(),
                 Ref::keyword("XLOCK").to_matchable(),
                 Ref::keyword("NOEXPAND").to_matchable(),
-                Ref::keyword("FORCESEEK").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("FORCESEEK").to_matchable(),
+                    Bracketed::new(vec![
+                        Ref::new("IndexReferenceSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Ref::new("CommaSegment").to_matchable(),
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::keyword("FORCESCAN").to_matchable(),
                 Ref::keyword("HOLDLOCK").to_matchable(),
                 Ref::keyword("SNAPSHOT").to_matchable(),
@@ -4308,6 +4327,19 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::new("NumericLiteralSegment").to_matchable(),
                             ])
                             .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("INDEX").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    optionally_bracketed(vec![
+                        one_of(vec![
+                            Ref::new("IndexReferenceSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
                         ])
                         .to_matchable(),
                     ])

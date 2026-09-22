@@ -387,6 +387,17 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    // Snowflake supports DIRECTED joins for enforcing join order.
+    // https://docs.snowflake.com/en/sql-reference/constructs/join
+    snowflake_dialect.replace_grammar(
+        "JoinKeywordsGrammar",
+        Sequence::new(vec![
+            Ref::keyword("DIRECTED").optional().to_matchable(),
+            Ref::keyword("JOIN").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     snowflake_dialect.replace_grammar(
         "JoinClauseSegment",
         one_of(vec![

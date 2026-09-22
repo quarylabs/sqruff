@@ -246,6 +246,44 @@ pub fn raw_dialect() -> Dialect {
     );
 
     duckdb_dialect.replace_grammar(
+        "IntervalExpressionSegment",
+        NodeMatcher::new(SyntaxKind::IntervalExpression, |_| {
+            Sequence::new(vec![
+                Ref::keyword("INTERVAL").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("DatetimeUnitSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("DatetimeUnitSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Ref::new("DatetimeUnitSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
         "InsertStatementSegment",
         Sequence::new(vec![
             Ref::keyword("INSERT").to_matchable(),

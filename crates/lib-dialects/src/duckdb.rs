@@ -32,10 +32,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
 pub fn raw_dialect() -> Dialect {
     let ansi_dialect = ansi::raw_dialect();
-    let postgres_dialect = postgres::dialect(None);
+    let postgres_dialect = postgres::raw_dialect();
     let postgres_non_set_selectable = postgres_dialect.grammar("NonSetSelectableGrammar");
     let mut duckdb_dialect = postgres_dialect;
     duckdb_dialect.name = DialectKind::Duckdb;
+
+    duckdb_dialect.sets_mut("datetime_units").extend([
+        "DAYS",
+        "HOURS",
+        "MICROSECOND",
+        "MINUTES",
+        "MONTHS",
+        "QUARTERS",
+        "SECONDS",
+        "WEEKS",
+        "YEARS",
+    ]);
 
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "SUMMARIZE");
     duckdb_dialect.add_keyword_to_set("reserved_keywords", "LAMBDA");

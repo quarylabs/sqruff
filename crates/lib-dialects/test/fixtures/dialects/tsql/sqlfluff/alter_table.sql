@@ -34,6 +34,9 @@ DROP CONSTRAINT PK_TransactionHistoryArchive_TransactionID;
 ALTER TABLE Production.TransactionHistoryArchive
 DROP CONSTRAINT IF EXISTS PK_TransactionHistoryArchive_TransactionID;
 
+ALTER TABLE Production.Transactionhistoryarchive
+DROP Pk_transactionhistoryarchive_transactionid;
+
 ALTER TABLE Production.TransactionHistoryArchive
 CHECK CONSTRAINT PK_TransactionHistoryArchive_TransactionID;
 
@@ -58,3 +61,14 @@ NOCHECK CONSTRAINT [FK_Attachment_EmailMessage];
 ALTER TABLE [dbo].[Attachment]
 WITH NOCHECK
 CHECK CONSTRAINT [FK_Attachment_EmailMessage];
+
+ALTER TABLE [TestTable] REBUILD;
+ALTER TABLE [TestTable] REBUILD PARTITION=ALL;
+ALTER TABLE [TestTable] REBUILD PARTITION=1;
+ALTER TABLE [TestTable] REBUILD WITH (DATA_COMPRESSION=PAGE, XML_COMPRESSION=ON);
+ALTER TABLE [TestTable] REBUILD PARTITION=1 WITH (DATA_COMPRESSION=ROW);
+ALTER TABLE [TestTable] REBUILD PARTITION=ALL WITH (
+  XML_COMPRESSION = ON,
+  DATA_COMPRESSION = NONE ON PARTITIONS (4),
+  DATA_COMPRESSION = COLUMNSTORE ON PARTITIONS (1, 5 TO 7, 10, 20 TO 40)
+  );

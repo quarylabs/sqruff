@@ -105,6 +105,9 @@ pub struct ParseArgs {
     /// The output format for the parse tree.
     #[arg(default_value_t, short, long)]
     pub format: ParseFormat,
+    /// Include meta segments and source position information in JSON or YAML output.
+    #[arg(long)]
+    pub include_meta: bool,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum, Display)]
@@ -121,6 +124,7 @@ pub enum Format {
 #[strum(serialize_all = "kebab-case")]
 pub enum ParseFormat {
     Json,
+    Yaml,
     #[default]
     Pretty,
     /// Produce no output. Used mostly for testing.

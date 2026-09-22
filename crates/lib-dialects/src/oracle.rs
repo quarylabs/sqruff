@@ -3457,8 +3457,14 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::OracleIntoClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("INTO").to_matchable(),
-                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("SqlplusVariableGrammar").to_matchable(),
+                        ])
                         .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -3578,11 +3584,17 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::keyword("OLD").to_matchable(),
                                 Ref::keyword("NEW").to_matchable(),
                             ])
+                            .config(|config| {
+                                config.optional();
+                            })
                             .to_matchable(),
-                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            one_of(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("ExpressionSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     one_of(vec![
@@ -4512,107 +4524,133 @@ pub fn raw_dialect() -> Dialect {
     oracle.add([(
         "InsertStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::OracleInsertStatement, |_| {
-            Sequence::new(vec![
-                Ref::keyword("INSERT").to_matchable(),
-                one_of(vec![
-                    // Standard INSERT INTO
-                    Sequence::new(vec![
-                        Ref::keyword("INTO").to_matchable(),
-                        one_of(vec![
-                            Ref::new("TableReferenceSegment").to_matchable(),
-                            Bracketed::new(vec![Ref::new("SelectStatementSegment").to_matchable()])
-                                .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Ref::new("AliasExpressionSegment")
-                            .exclude(one_of(vec![
-                                Ref::keyword("VALUES").to_matchable(),
-                                Ref::keyword("VALUE").to_matchable(),
-                                Ref::keyword("SET").to_matchable(),
-                                Ref::keyword("SELECT").to_matchable(),
-                                Ref::keyword("WITH").to_matchable(),
-                            ]))
-                            .optional()
+            let insert_into_clause = || {
+                Sequence::new(vec![
+                    Ref::keyword("INTO").to_matchable(),
+                    one_of(vec![
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                        Bracketed::new(vec![Ref::new("SelectStatementSegment").to_matchable()])
                             .to_matchable(),
-                        Bracketed::new(vec![
-                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
-                                .to_matchable(),
-                        ])
-                        .config(|config| {
-                            config.optional();
-                        })
+                    ])
+                    .to_matchable(),
+                    Ref::new("AliasExpressionSegment")
+                        .exclude(one_of(vec![
+                            Ref::keyword("VALUES").to_matchable(),
+                            Ref::keyword("VALUE").to_matchable(),
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::keyword("SELECT").to_matchable(),
+                            Ref::keyword("WITH").to_matchable(),
+                        ]))
+                        .optional()
                         .to_matchable(),
-                        one_of(vec![
-                            Ref::new("ValuesClauseSegment").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("SET").to_matchable(),
-                                Delimited::new(vec![Ref::new("SetClauseSegment").to_matchable()])
-                                    .to_matchable(),
-                            ])
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
                             .to_matchable(),
-                            Ref::new("SelectableGrammar").to_matchable(),
-                        ])
-                        .config(|config| {
-                            config.optional();
-                        })
-                        .to_matchable(),
-                        Ref::new("ReturningClauseSegment").optional().to_matchable(),
-                        // LOG ERRORS clause
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            };
+
+            let insert_set_or_values_clause = || {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("ValuesClauseSegment").to_matchable(),
                         Sequence::new(vec![
-                            Ref::keyword("LOG").to_matchable(),
-                            Ref::keyword("ERRORS").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("INTO").to_matchable(),
-                                Ref::new("TableReferenceSegment").to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
-                            Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
-                                .config(|config| {
-                                    config.optional();
-                                })
+                            Ref::keyword("SET").to_matchable(),
+                            Delimited::new(vec![Ref::new("SetClauseSegment").to_matchable()])
                                 .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("REJECT").to_matchable(),
-                                Ref::keyword("LIMIT").to_matchable(),
-                                one_of(vec![
-                                    Ref::new("NumericLiteralSegment").to_matchable(),
-                                    Ref::keyword("UNLIMITED").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .config(|config| {
-                                config.optional();
-                            })
-                            .to_matchable(),
                         ])
-                        .config(|config| {
-                            config.optional();
-                        })
                         .to_matchable(),
                     ])
                     .to_matchable(),
-                    // INSERT ALL
+                    Ref::new("ReturningClauseSegment").optional().to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable()
+            };
+
+            let error_logging_clause = || {
+                Sequence::new(vec![
+                    Ref::keyword("LOG").to_matchable(),
+                    Ref::keyword("ERRORS").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INTO").to_matchable(),
+                        Ref::new("TableReferenceSegment").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .config(|config| {
+                            config.optional();
+                        })
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("REJECT").to_matchable(),
+                        Ref::keyword("LIMIT").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::keyword("UNLIMITED").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable()
+            };
+
+            let by_name_position_subquery_clause = || {
+                Sequence::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("BY").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("NAME").to_matchable(),
+                            Ref::keyword("POSITION").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
+                    Ref::new("SelectableGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            };
+
+            Sequence::new(vec![
+                Ref::keyword("INSERT").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        insert_into_clause(),
+                        one_of(vec![
+                            insert_set_or_values_clause(),
+                            by_name_position_subquery_clause(),
+                        ])
+                        .to_matchable(),
+                        error_logging_clause(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("ALL").to_matchable(),
                         AnyNumberOf::new(vec![
                             Sequence::new(vec![
-                                Ref::keyword("INTO").to_matchable(),
-                                Ref::new("TableReferenceSegment").to_matchable(),
-                                Ref::new("AliasExpressionSegment").optional().to_matchable(),
-                                Bracketed::new(vec![
-                                    Delimited::new(vec![
-                                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .config(|config| {
-                                    config.optional();
-                                })
-                                .to_matchable(),
-                                Ref::new("ValuesClauseSegment").optional().to_matchable(),
+                                insert_into_clause(),
+                                insert_set_or_values_clause(),
+                                error_logging_clause(),
                             ])
                             .to_matchable(),
                         ])
@@ -4620,7 +4658,7 @@ pub fn raw_dialect() -> Dialect {
                             config.min_times = 1;
                         })
                         .to_matchable(),
-                        Ref::new("SelectableGrammar").to_matchable(),
+                        by_name_position_subquery_clause(),
                     ])
                     .to_matchable(),
                 ])

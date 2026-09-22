@@ -97,13 +97,9 @@ file:
               - numeric_literal: '100'
           - oracle_returning_clause:
             - keyword: RETURNING
-            - expression:
-              - column_reference:
-                - naked_identifier: last_name
+            - naked_identifier: last_name
             - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: salary
+            - naked_identifier: salary
             - oracle_into_clause:
               - keyword: INTO
               - naked_identifier: emp_info
@@ -272,13 +268,9 @@ file:
                 - naked_identifier: emp_id
           - oracle_returning_clause:
             - keyword: RETURNING
-            - expression:
-              - column_reference:
-                - naked_identifier: first_name
+            - naked_identifier: first_name
             - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: last_name
+            - naked_identifier: last_name
             - oracle_into_clause:
               - keyword: INTO
               - naked_identifier: emp_first_name
@@ -378,13 +370,9 @@ file:
               - numeric_literal: '30'
           - oracle_returning_clause:
             - keyword: RETURNING
-            - expression:
-              - column_reference:
-                - naked_identifier: employee_id
+            - naked_identifier: employee_id
             - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: last_name
+            - naked_identifier: last_name
             - bulk_collect_into_clause:
               - keyword: BULK
               - keyword: COLLECT
@@ -560,9 +548,7 @@ file:
             - keyword: NEW
             - naked_identifier: salary
             - comma: ','
-            - expression:
-              - column_reference:
-                - naked_identifier: last_name
+            - naked_identifier: last_name
             - bulk_collect_into_clause:
               - keyword: BULK
               - keyword: COLLECT
@@ -787,13 +773,9 @@ file:
                       - end_bracket: )
             - oracle_returning_clause:
               - keyword: RETURNING
-              - expression:
-                - column_reference:
-                  - naked_identifier: employee_id
+              - naked_identifier: employee_id
               - comma: ','
-              - expression:
-                - column_reference:
-                  - naked_identifier: department_id
+              - naked_identifier: department_id
               - bulk_collect_into_clause:
                 - keyword: BULK
                 - keyword: COLLECT
@@ -1009,13 +991,9 @@ file:
                 - end_bracket: )
             - oracle_returning_clause:
               - keyword: RETURNING
-              - expression:
-                - column_reference:
-                  - naked_identifier: id
+              - naked_identifier: id
               - comma: ','
-              - expression:
-                - column_reference:
-                  - naked_identifier: description
+              - naked_identifier: description
               - bulk_collect_into_clause:
                 - keyword: BULK
                 - keyword: COLLECT
@@ -1204,9 +1182,7 @@ file:
                         - end_bracket: )
                 - oracle_returning_clause:
                   - keyword: RETURNING
-                  - expression:
-                    - column_reference:
-                      - naked_identifier: empno
+                  - naked_identifier: empno
                   - comma: ','
                   - keyword: OLD
                   - naked_identifier: sal

@@ -331,6 +331,19 @@ file:
         - object_reference:
           - naked_identifier: Production
           - dot: .
+          - naked_identifier: Transactionhistoryarchive
+      - keyword: DROP
+      - object_reference:
+        - naked_identifier: Pk_transactionhistoryarchive_transactionid
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: Production
+          - dot: .
           - naked_identifier: TransactionHistoryArchive
       - keyword: CHECK
       - keyword: CONSTRAINT
@@ -427,4 +440,137 @@ file:
       - keyword: CONSTRAINT
       - object_reference:
         - quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: PAGE
+        - comma: ','
+        - keyword: XML_COMPRESSION
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: ON
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - numeric_literal: '1'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: ROW
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: ALL
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: XML_COMPRESSION
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: ON
+        - comma: ','
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: NONE
+        - on_partitions_clause:
+          - keyword: ON
+          - keyword: PARTITIONS
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '4'
+            - end_bracket: )
+        - comma: ','
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: COLUMNSTORE
+        - on_partitions_clause:
+          - keyword: ON
+          - keyword: PARTITIONS
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '5'
+            - keyword: TO
+            - numeric_literal: '7'
+            - comma: ','
+            - numeric_literal: '10'
+            - comma: ','
+            - numeric_literal: '20'
+            - keyword: TO
+            - numeric_literal: '40'
+            - end_bracket: )
+        - end_bracket: )
   - statement_terminator: ;

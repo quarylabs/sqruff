@@ -247,6 +247,60 @@ pub fn raw_dialect() -> Dialect {
     );
 
     duckdb_dialect.replace_grammar(
+        "SetStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("SET").to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("VARIABLE").to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("TO").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::new("LiteralGrammar").to_matchable(),
+                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                        Ref::new("QuotedIdentifierSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("SESSION").to_matchable(),
+                        Ref::keyword("LOCAL").to_matchable(),
+                        Ref::keyword("GLOBAL").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("TO").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Delimited::new(vec![
+                            Ref::new("LiteralGrammar").to_matchable(),
+                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("QuotedIdentifierSegment").to_matchable(),
+                            Ref::new("OnKeywordAsIdentifierSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
         "StructTypeSegment",
         Sequence::new(vec![
             Ref::keyword("STRUCT").to_matchable(),

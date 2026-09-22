@@ -5074,13 +5074,70 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    let rebuild_table_option = one_of(vec![
+        Sequence::new(vec![
+            Ref::keyword("DATA_COMPRESSION").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            one_of(vec![
+                Ref::keyword("NONE").to_matchable(),
+                Ref::keyword("ROW").to_matchable(),
+                Ref::keyword("PAGE").to_matchable(),
+                Ref::keyword("COLUMNSTORE").to_matchable(),
+                Ref::keyword("COLUMNSTORE_ARCHIVE").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("OnPartitionsSegment").optional().to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("XML_COMPRESSION").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            one_of(vec![
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("OFF").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("OnPartitionsSegment").optional().to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable();
+
     let alter_table_options = dialect.grammar("AlterTableOptionsGrammar").copy(
         Some(vec![
             Sequence::new(vec![
                 Ref::keyword("DROP").to_matchable(),
-                Ref::keyword("CONSTRAINT").to_matchable(),
-                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("CONSTRAINT").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
                 Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("REBUILD").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ALL").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![rebuild_table_option]).to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![

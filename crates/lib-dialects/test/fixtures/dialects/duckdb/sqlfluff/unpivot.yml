@@ -6,23 +6,29 @@ file:
       - table_reference:
         - naked_identifier: monthly_sales
     - keyword: ON
-    - column_reference:
-      - naked_identifier: jan
+    - expression:
+      - column_reference:
+        - naked_identifier: jan
     - comma: ','
-    - column_reference:
-      - naked_identifier: feb
+    - expression:
+      - column_reference:
+        - naked_identifier: feb
     - comma: ','
-    - column_reference:
-      - naked_identifier: mar
+    - expression:
+      - column_reference:
+        - naked_identifier: mar
     - comma: ','
-    - column_reference:
-      - naked_identifier: apr
+    - expression:
+      - column_reference:
+        - naked_identifier: apr
     - comma: ','
-    - column_reference:
-      - naked_identifier: may
+    - expression:
+      - column_reference:
+        - naked_identifier: may
     - comma: ','
-    - column_reference:
-      - naked_identifier: jun
+    - expression:
+      - column_reference:
+        - naked_identifier: jun
     - keyword: INTO
     - keyword: NAME
     - naked_identifier: month
@@ -36,25 +42,27 @@ file:
       - table_reference:
         - naked_identifier: monthly_sales
     - keyword: ON
-    - function_name:
-      - keyword: COLUMNS
-    - function_contents:
-      - bracketed:
-        - start_bracket: (
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-          - wildcard_exclude:
-            - keyword: EXCLUDE
-            - bracketed:
-              - start_bracket: (
-              - column_reference:
-                - naked_identifier: empid
-              - comma: ','
-              - column_reference:
-                - naked_identifier: dept
-              - end_bracket: )
-        - end_bracket: )
+    - expression:
+      - function:
+        - function_name:
+          - keyword: COLUMNS
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+              - wildcard_exclude:
+                - keyword: EXCLUDE
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                    - naked_identifier: empid
+                  - comma: ','
+                  - column_reference:
+                    - naked_identifier: dept
+                  - end_bracket: )
+            - end_bracket: )
     - keyword: INTO
     - keyword: NAME
     - naked_identifier: month
@@ -70,14 +78,17 @@ file:
     - keyword: ON
     - bracketed:
       - start_bracket: (
-      - column_reference:
-        - naked_identifier: jan
+      - expression:
+        - column_reference:
+          - naked_identifier: jan
       - comma: ','
-      - column_reference:
-        - naked_identifier: feb
+      - expression:
+        - column_reference:
+          - naked_identifier: feb
       - comma: ','
-      - column_reference:
-        - naked_identifier: mar
+      - expression:
+        - column_reference:
+          - naked_identifier: mar
       - end_bracket: )
     - alias_expression:
       - alias_operator:
@@ -86,14 +97,17 @@ file:
     - comma: ','
     - bracketed:
       - start_bracket: (
-      - column_reference:
-        - naked_identifier: apr
+      - expression:
+        - column_reference:
+          - naked_identifier: apr
       - comma: ','
-      - column_reference:
-        - naked_identifier: may
+      - expression:
+        - column_reference:
+          - naked_identifier: may
       - comma: ','
-      - column_reference:
-        - naked_identifier: jun
+      - expression:
+        - column_reference:
+          - naked_identifier: jun
       - end_bracket: )
     - alias_expression:
       - alias_operator:
@@ -123,25 +137,27 @@ file:
             - table_reference:
               - naked_identifier: monthly_sales
           - keyword: ON
-          - function_name:
-            - keyword: COLUMNS
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - wildcard_expression:
-                - wildcard_identifier:
-                  - star: '*'
-                - wildcard_exclude:
-                  - keyword: EXCLUDE
-                  - bracketed:
-                    - start_bracket: (
-                    - column_reference:
-                      - naked_identifier: empid
-                    - comma: ','
-                    - column_reference:
-                      - naked_identifier: dept
-                    - end_bracket: )
-              - end_bracket: )
+          - expression:
+            - function:
+              - function_name:
+                - keyword: COLUMNS
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - wildcard_expression:
+                    - wildcard_identifier:
+                      - star: '*'
+                    - wildcard_exclude:
+                      - keyword: EXCLUDE
+                      - bracketed:
+                        - start_bracket: (
+                        - column_reference:
+                          - naked_identifier: empid
+                        - comma: ','
+                        - column_reference:
+                          - naked_identifier: dept
+                        - end_bracket: )
+                  - end_bracket: )
           - keyword: INTO
           - keyword: NAME
           - naked_identifier: month
@@ -162,6 +178,90 @@ file:
             - table_expression:
               - table_reference:
                 - naked_identifier: unpivot_alias
+- statement_terminator: ;
+- statement:
+  - simplified_unpivot:
+    - keyword: UNPIVOT
+    - table_expression:
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '42'
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: col1
+            - comma: ','
+            - select_clause_element:
+              - quoted_literal: '''woot'''
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: col2
+        - end_bracket: )
+    - keyword: ON
+    - expression:
+      - cast_expression:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: col1
+            - binary_operator: '*'
+            - numeric_literal: '2'
+          - end_bracket: )
+        - casting_operator: '::'
+        - data_type:
+          - keyword: VARCHAR
+    - comma: ','
+    - expression:
+      - column_reference:
+        - naked_identifier: col2
+- statement_terminator: ;
+- statement:
+  - simplified_unpivot:
+    - keyword: UNPIVOT
+    - table_expression:
+      - table_reference:
+        - naked_identifier: monthly_sales
+    - keyword: ON
+    - expression:
+      - cast_expression:
+        - function:
+          - function_name:
+            - keyword: COLUMNS
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - wildcard_expression:
+                - wildcard_identifier:
+                  - star: '*'
+                - wildcard_exclude:
+                  - keyword: EXCLUDE
+                  - bracketed:
+                    - start_bracket: (
+                    - column_reference:
+                      - naked_identifier: empid
+                    - comma: ','
+                    - column_reference:
+                      - naked_identifier: dept
+                    - end_bracket: )
+              - end_bracket: )
+        - casting_operator: '::'
+        - data_type:
+          - keyword: float4
+    - alias_expression:
+      - alias_operator:
+        - keyword: AS
+      - quoted_identifier: '''\1_\2'''
+    - keyword: INTO
+    - keyword: NAME
+    - naked_identifier: month
+    - keyword: VALUE
+    - naked_identifier: sales
 - statement_terminator: ;
 - statement:
   - select_statement:

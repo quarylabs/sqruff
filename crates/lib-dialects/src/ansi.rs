@@ -4927,6 +4927,23 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "QuantifiedComparisonOperatorGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("ComparisonOperatorGrammar").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Ref::keyword("ANY").to_matchable(),
+                    Ref::keyword("SOME").to_matchable(),
+                ])
+                .to_matchable(),
+                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
+                    .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             // Expression_A_Grammar
             // https://www.cockroachlabs.com/docs/v20.2/sql-grammar.html#a_expr
             // The upstream grammar is defined recursively, which if implemented naively
@@ -4976,6 +4993,10 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec![
                         // Like grammar with NOT and optional ESCAPE
                         Ref::new("LikeExpressionGrammar").to_matchable(),
+                        // Quantified comparison operators (ANY, ALL, SOME). This must
+                        // precede the binary-operator alternative because sqruff keeps
+                        // the first alternative when both consume the same span.
+                        Ref::new("QuantifiedComparisonOperatorGrammar").to_matchable(),
                         // Binary operator grammar
                         Sequence::new(vec![
                             Ref::new("BinaryOperatorGrammar").to_matchable(),

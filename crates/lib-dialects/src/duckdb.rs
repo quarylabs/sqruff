@@ -1170,26 +1170,29 @@ pub fn raw_dialect() -> Dialect {
                             one_of(vec![
                                 Bracketed::new(vec![
                                     Delimited::new(vec![
-                                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                                        Ref::new("ExpressionSegment").to_matchable(),
                                     ])
                                     .to_matchable(),
                                 ])
                                 .to_matchable(),
-                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
                             ])
                             .to_matchable(),
                             Ref::new("AliasExpressionSegment").optional().to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("ColumnsExpressionGrammar").to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::keyword("INTO").to_matchable(),
-                    Ref::keyword("NAME").to_matchable(),
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    Ref::keyword("VALUE").to_matchable(),
-                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
-                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INTO").to_matchable(),
+                        Ref::keyword("NAME").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::keyword("VALUE").to_matchable(),
+                        Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     Ref::new("OrderByClauseSegment").optional().to_matchable(),
                     Ref::new("LimitClauseSegment").optional().to_matchable(),
                 ])

@@ -674,6 +674,50 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            // SQLite does not support quantified comparison operators.
+            "Expression_A_Grammar".into(),
+            Sequence::new(vec![
+                Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
+                AnyNumberOf::new(vec![
+                    one_of(vec![
+                        Ref::new("LikeExpressionGrammar").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("BinaryOperatorGrammar").to_matchable(),
+                            Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("InOperatorGrammar").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("IS").to_matchable(),
+                            Ref::keyword("NOT").optional().to_matchable(),
+                            Ref::new("IsClauseGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("IsNullGrammar").to_matchable(),
+                        Ref::new("NotNullGrammar").to_matchable(),
+                        Ref::new("CollateGrammar").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NOT").optional().to_matchable(),
+                            Ref::keyword("BETWEEN").to_matchable(),
+                            Ref::new("Expression_B_Grammar").to_matchable(),
+                            Ref::keyword("AND").to_matchable(),
+                            Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("PatternMatchingGrammar").to_matchable(),
+                            Ref::new("Expression_A_Grammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "IsDistinctFromGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("IS").to_matchable(),

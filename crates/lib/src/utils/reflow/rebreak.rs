@@ -12,6 +12,7 @@ use crate::core::rules::LintResult;
 use crate::utils::reflow::depth_map::StackPositionType;
 use crate::utils::reflow::elements::ReflowPoint;
 use crate::utils::reflow::helpers::{deduce_line_indent, fixes_from_results, pretty_segment_name};
+use crate::utils::reflow::reindent::IndentUnit;
 
 #[derive(Debug)]
 pub struct RebreakSpan {
@@ -357,6 +358,8 @@ pub fn rebreak_sequence(
     tables: &Tables,
     elements: ReflowSequenceType,
     root_segment: &ErasedSegment,
+    indent_unit: IndentUnit,
+    tab_space_size: usize,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let mut lint_results = Vec::new();
     let mut fixes = Vec::new();
@@ -437,6 +440,8 @@ pub fn rebreak_sequence(
                     new_results,
                     true,
                     "before",
+                    indent_unit,
+                    tab_space_size,
                 );
 
                 // Update the points in the buffer
@@ -468,6 +473,8 @@ pub fn rebreak_sequence(
                     Vec::new(),
                     false,
                     "after",
+                    indent_unit,
+                    tab_space_size,
                 );
 
                 fixes.push(LintFix::create_after(
@@ -515,6 +522,8 @@ pub fn rebreak_sequence(
                     new_results,
                     true,
                     "before",
+                    indent_unit,
+                    tab_space_size,
                 );
 
                 // Update the points in the buffer
@@ -543,6 +552,8 @@ pub fn rebreak_sequence(
                     Vec::new(),
                     false,
                     "before",
+                    indent_unit,
+                    tab_space_size,
                 );
 
                 if let Some(prev_code_anchor) = lead_create_anchor
@@ -648,6 +659,8 @@ pub fn rebreak_keywords_sequence(
     tables: &Tables,
     elements: ReflowSequenceType,
     root_segment: &ErasedSegment,
+    indent_unit: IndentUnit,
+    tab_space_size: usize,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let mut lint_results = Vec::new();
     let mut fixes = Vec::new();
@@ -697,6 +710,8 @@ pub fn rebreak_keywords_sequence(
                 new_results,
                 true,
                 "before",
+                indent_unit,
+                tab_space_size,
             );
 
             elem_buff[loc.prev.adj_pt_idx as usize] = prev_point.into();
@@ -733,6 +748,8 @@ pub fn rebreak_keywords_sequence(
                 new_results,
                 true,
                 "before",
+                indent_unit,
+                tab_space_size,
             );
 
             elem_buff[loc.prev.adj_pt_idx as usize] = prev_point.into();

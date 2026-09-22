@@ -14,6 +14,7 @@ use super::depth_map::DepthInfo;
 use super::respace::determine_constraints;
 use crate::core::rules::LintResult;
 use crate::utils::reflow::rebreak::LinePosition;
+use crate::utils::reflow::reindent::IndentUnit;
 use crate::utils::reflow::respace::{
     handle_respace_inline_with_space, handle_respace_inline_without_space, process_spacing,
 };
@@ -432,6 +433,8 @@ impl ReflowPoint {
         lint_results: Vec<LintResult>,
         strip_newlines: bool,
         anchor_on: &'static str,
+        indent_unit: IndentUnit,
+        tab_space_size: usize,
     ) -> (Vec<LintResult>, ReflowPoint) {
         let mut existing_results = lint_results;
 
@@ -547,6 +550,8 @@ impl ReflowPoint {
                 root_segment,
                 segment_buffer,
                 last_whitespace,
+                indent_unit,
+                tab_space_size,
             );
 
             new_results.extend(results);

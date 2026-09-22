@@ -10,6 +10,14 @@ use super::elements::ReflowBlock;
 use crate::core::rules::LintResult;
 use crate::utils::reflow::config::{AlignmentCoordinateSpace, Spacing};
 use crate::utils::reflow::helpers::pretty_segment_name;
+use crate::utils::reflow::reindent::IndentUnit;
+
+fn construct_alignment_whitespace(width: usize, indent_unit: IndentUnit) -> String {
+    match indent_unit {
+        IndentUnit::Tab => "\t".repeat(width),
+        IndentUnit::Space(_) => " ".repeat(width),
+    }
+}
 
 fn position_line(pos_marker: &PositionMarker, use_source: bool) -> usize {
     if use_source {
@@ -19,9 +27,16 @@ fn position_line(pos_marker: &PositionMarker, use_source: bool) -> usize {
     }
 }
 
-fn position_column(pos_marker: &PositionMarker, use_source: bool) -> usize {
+fn position_column(
+    pos_marker: &PositionMarker,
+    use_source: bool,
+    tab_space_size: usize,
+    indent_unit: IndentUnit,
+) -> usize {
     if use_source {
         pos_marker.line_pos()
+    } else if indent_unit == IndentUnit::Tab {
+        pos_marker.working_visual_column(tab_space_size)
     } else {
         pos_marker.working_line_pos
     }
@@ -225,6 +240,8 @@ fn determine_aligned_inline_spacing(
     align_within: Option<SyntaxKind>,
     align_scope: Option<SyntaxKind>,
     coordinate_space: Option<AlignmentCoordinateSpace>,
+    indent_unit: IndentUnit,
+    tab_space_size: usize,
 ) -> String {
     // Find the level of segment that we're aligning.
     let mut parent_segment = None;
@@ -303,7 +320,12 @@ fn determine_aligned_inline_spacing(
 
     for line_siblings in siblings_by_line.values_mut() {
         line_siblings.sort_by_key(|sibling| {
-            position_column(sibling.get_position_marker().unwrap(), use_source_positions)
+            position_column(
+                sibling.get_position_marker().unwrap(),
+                use_source_positions,
+                tab_space_size,
+                indent_unit,
+            )
         });
     }
 
@@ -314,8 +336,12 @@ fn determine_aligned_inline_spacing(
 
     let Some(target_index) = current_line_segments.iter().position(|segment| {
         segment.get_position_marker().is_some_and(|pos_marker| {
-            position_column(pos_marker, use_source_positions)
-                == position_column(&next_pos, use_source_positions)
+            position_column(
+                pos_marker,
+                use_source_positions,
+                tab_space_size,
+                indent_unit,
+            ) == position_column(&next_pos, use_source_positions, tab_space_size, indent_unit)
         })
     }) else {
         return " ".to_string();
@@ -345,14 +371,22 @@ fn determine_aligned_inline_spacing(
                 let last_code_pos = last_code.get_position_marker().unwrap();
                 let loc = if use_source_positions {
                     let end_pos = last_code_pos.end_point_marker();
-                    (end_pos.line_no(), end_pos.line_pos())
+                    (
+                        end_pos.line_no(),
+                        position_column(&end_pos, true, tab_space_size, indent_unit),
+                    )
                 } else {
                     last_code_pos.working_loc_after(last_code.raw())
                 };
 
-                if loc.1 > max_desired_line_pos {
-                    max_desired_line_pos = loc.1;
-                }
+                let desired_line_pos = if indent_unit == IndentUnit::Tab {
+                    last_code_pos
+                        .end_point_marker()
+                        .working_visual_column(tab_space_size)
+                } else {
+                    loc.1
+                };
+                max_desired_line_pos = max_desired_line_pos.max(desired_line_pos);
             }
         }
 
@@ -361,18 +395,67 @@ fn determine_aligned_inline_spacing(
         }
     }
 
-    let ws_pos = position_column(
-        whitespace_seg.get_position_marker().as_ref().unwrap(),
-        use_source_positions,
-    );
+    let whitespace_pos = whitespace_seg.get_position_marker().unwrap();
+    let whitespace_line = position_line(whitespace_pos, use_source_positions);
+    let whitespace_location = if use_source_positions {
+        (whitespace_pos.line_no(), whitespace_pos.line_pos())
+    } else {
+        whitespace_pos.working_loc()
+    };
 
-    // If the existing whitespace is already beyond the desired position, we
-    // shouldn't attempt to create a negative repeat length. Saturating the
-    // subtraction guards against underflow which would otherwise cause a
-    // capacity overflow panic when calling `repeat`.
-    let diff = max_desired_line_pos.saturating_sub(ws_pos);
+    let mut code_before_whitespace = None;
+    for segment in parent_segment.get_raw_segments() {
+        let Some(segment_pos) = segment.get_position_marker() else {
+            continue;
+        };
+        let segment_location = if use_source_positions {
+            (segment_pos.line_no(), segment_pos.line_pos())
+        } else {
+            segment_pos.working_loc()
+        };
+        if segment_location >= whitespace_location {
+            break;
+        }
+        if segment.is_code() && position_line(segment_pos, use_source_positions) == whitespace_line
+        {
+            code_before_whitespace = Some(segment);
+        }
+    }
 
-    " ".repeat(1 + diff)
+    let current_whitespace_pos = if let Some(code_before_whitespace) = code_before_whitespace {
+        let code_pos = code_before_whitespace.get_position_marker().unwrap();
+        if use_source_positions || indent_unit == IndentUnit::Tab {
+            position_column(
+                &code_pos.end_point_marker(),
+                use_source_positions,
+                tab_space_size,
+                indent_unit,
+            )
+        } else {
+            code_pos.working_loc_after(code_before_whitespace.raw()).1
+        }
+    } else {
+        position_column(
+            whitespace_pos,
+            use_source_positions,
+            tab_space_size,
+            indent_unit,
+        )
+    };
+
+    let pad_width = 1 + max_desired_line_pos.saturating_sub(current_whitespace_pos);
+    if indent_unit == IndentUnit::Tab {
+        let target_column = ((max_desired_line_pos / tab_space_size) + 1) * tab_space_size;
+        let mut tab_count = 0;
+        let mut position = current_whitespace_pos;
+        while position < target_column {
+            position = ((position / tab_space_size) + 1) * tab_space_size;
+            tab_count += 1;
+        }
+        construct_alignment_whitespace(tab_count, IndentUnit::Tab)
+    } else {
+        construct_alignment_whitespace(pad_width, indent_unit)
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -385,6 +468,8 @@ pub fn handle_respace_inline_with_space(
     root_segment: &ErasedSegment,
     mut segment_buffer: Vec<ErasedSegment>,
     last_whitespace: ErasedSegment,
+    indent_unit: IndentUnit,
+    tab_space_size: usize,
 ) -> (Vec<ErasedSegment>, Vec<LintResult>) {
     // Get some indices so that we can reference around them
     let ws_idx = segment_buffer
@@ -457,6 +542,8 @@ pub fn handle_respace_inline_with_space(
                         within,
                         scope,
                         coordinate_space,
+                        indent_unit,
+                        tab_space_size,
                     );
                     ("Item misaligned".to_string(), desired_space)
                 } else {
@@ -660,6 +747,7 @@ mod tests {
     use crate::utils::reflow::depth_map::DepthMap;
     use crate::utils::reflow::elements::ReflowBlock;
     use crate::utils::reflow::helpers::fixes_from_results;
+    use crate::utils::reflow::reindent::IndentUnit;
     use crate::utils::reflow::respace::Tables;
     use crate::utils::reflow::sequence::{Filter, ReflowSequence};
 
@@ -845,6 +933,8 @@ mod tests {
                 Vec::new(),
                 strip_newlines,
                 "before",
+                IndentUnit::Space(4),
+                4,
             );
 
             assert_eq!(new_pnt.raw(), raw_point_sql_out);

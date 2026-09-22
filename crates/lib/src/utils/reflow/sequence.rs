@@ -274,6 +274,8 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
                 lint_results,
                 strip_newlines,
                 "before",
+                self.reflow_config.indent_unit,
+                self.reflow_config.tab_space_size,
             );
 
             let ignore = if new_point
@@ -321,9 +323,21 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
         }
 
         let (elem_buff, lint_results) = if rebreak_type == RebreakType::Lines {
-            rebreak_sequence(tables, self.elements, self.root_segment)
+            rebreak_sequence(
+                tables,
+                self.elements,
+                self.root_segment,
+                self.reflow_config.indent_unit,
+                self.reflow_config.tab_space_size,
+            )
         } else {
-            rebreak_keywords_sequence(tables, self.elements, self.root_segment)
+            rebreak_keywords_sequence(
+                tables,
+                self.elements,
+                self.root_segment,
+                self.reflow_config.indent_unit,
+                self.reflow_config.tab_space_size,
+            )
         };
 
         ReflowSequence {

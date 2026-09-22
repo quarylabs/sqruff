@@ -502,3 +502,47 @@ test_align_alias_with_jinja_force_templated_space:
         alias_expression:
           # Force templated coordinate space via align suffix
           spacing_before: align:alias_expression:select_clause:bracketed:templated
+
+test_align_alias_with_tabs:
+  # Test that alignment uses tabs when indent_unit is tab
+  fail_str: "SELECT\n\tcol1 AS alias1,\n\tcol2 AS alias2\nFROM table1\n"
+  fix_str: "SELECT\n\tcol1\tAS alias1,\n\tcol2\tAS alias2\nFROM table1\n"
+  configs:
+    indentation:
+      indent_unit: tab
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
+
+test_align_alias_with_tabs_different_lengths:
+  # Test tab alignment with different length column names
+  fail_str: "SELECT\n\tshort_col AS a,\n\tvery_long_column AS b\nFROM table1\n"
+  fix_str: "SELECT\n\tshort_col\t\t\tAS a,\n\tvery_long_column\tAS b\nFROM table1\n"
+  configs:
+    indentation:
+      indent_unit: tab
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
+
+test_align_alias_with_tabs_custom_tab_size:
+  # Test tab alignment with custom tab_space_size (2 instead of default 4)
+  # With tab_space_size=2, positions are: tab=2, short_col ends at 11, needs 5 tabs to reach 20
+  fail_str: "SELECT\n\tshort_col AS a,\n\tvery_long_column AS b\nFROM table1\n"
+  fix_str: "SELECT\n\tshort_col\t\t\t\t\tAS a,\n\tvery_long_column\tAS b\nFROM table1\n"
+  configs:
+    indentation:
+      indent_unit: tab
+      tab_space_size: 2
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed

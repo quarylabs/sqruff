@@ -190,6 +190,7 @@ pub fn raw_dialect() -> Dialect {
         "AUTHID",
         "BECOME",
         "BODY",
+        "BUILD",
         "BULK",
         "COMMITTED",
         "CONSTRAINTS",
@@ -202,6 +203,7 @@ pub fn raw_dialect() -> Dialect {
         "CONSTANT",
         "CONTAINER",
         "CONTEXT",
+        "COST",
         "CREDENTIAL",
         "CROSSEDITION",
         "CURSOR",
@@ -229,10 +231,14 @@ pub fn raw_dialect() -> Dialect {
         "EXPIRE",
         "EXTERNALLY",
         "FINE",
+        "FIREWALL",
         "FLASHBACK",
+        "FOLDER",
         "FOLLOWS",
         "FORALL",
         "GLOBALLY",
+        "GRAINED",
+        "GRAPH",
         "GUARD",
         "HIERARCHY",
         "HTTP",
@@ -248,6 +254,7 @@ pub fn raw_dialect() -> Dialect {
         "LOCKDOWN",
         "LOG",
         "LOGMINING",
+        "MANAGEMENT",
         "MEASURE",
         "MINING",
         "MUTABLE",
@@ -294,6 +301,7 @@ pub fn raw_dialect() -> Dialect {
         "REWRITE",
         "ROWTYPE",
         "SCHEDULER",
+        "SEGMENT",
         "SERIALIZABLE",
         "SERVICE",
         "SHARD",
@@ -308,6 +316,7 @@ pub fn raw_dialect() -> Dialect {
         "TIME_ZONE",
         "TIMEOUT",
         "TYPENAME",
+        "TUNING",
         "UNLIMITED",
         "VARRAY",
         "VISIBILITY",
@@ -5688,14 +5697,29 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("USER").to_matchable(),
             ])
             .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("CHANGE").to_matchable(),
+                Ref::keyword("NOTIFICATION").to_matchable(),
+            ])
+            .to_matchable(),
             Ref::keyword("COMMENT").to_matchable(),
             Ref::keyword("CREATE").to_matchable(),
             Ref::keyword("DEBUG").to_matchable(),
             Ref::keyword("DELETE").to_matchable(),
             Ref::keyword("DROP").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ENABLE").to_matchable(),
+                Ref::keyword("DIAGNOSTICS").to_matchable(),
+            ])
+            .to_matchable(),
             Ref::keyword("EXECUTE").to_matchable(),
             Ref::keyword("EXEMPT").to_matchable(),
-            Ref::keyword("FLASHBACK").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("FLASHBACK").to_matchable(),
+                Ref::keyword("ARCHIVE").optional().to_matchable(),
+                Ref::keyword("ADMINISTER").optional().to_matchable(),
+            ])
+            .to_matchable(),
             Ref::keyword("FORCE").to_matchable(),
             Ref::keyword("GRANT").to_matchable(),
             Ref::keyword("INDEX").to_matchable(),
@@ -5706,11 +5730,32 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("LOGMINING").to_matchable(),
             Ref::keyword("MANAGE").to_matchable(),
             Ref::keyword("MERGE").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("COMMIT").to_matchable(),
+                Ref::keyword("REFRESH").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("PURGE").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("GLOBAL").optional().to_matchable(),
+                Ref::keyword("QUERY").to_matchable(),
+                Ref::keyword("REWRITE").to_matchable(),
+            ])
+            .to_matchable(),
             Ref::keyword("READ").to_matchable(),
+            Ref::keyword("REDEFINE").to_matchable(),
             Ref::keyword("REFERENCES").to_matchable(),
             Ref::keyword("RESTRICTED").to_matchable(),
+            Ref::keyword("RESUMABLE").to_matchable(),
             Ref::keyword("SELECT").to_matchable(),
             Ref::keyword("SET").to_matchable(),
+            Ref::keyword("SIGN").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::keyword("RETENTION").to_matchable(),
+            ])
+            .to_matchable(),
             Ref::keyword("TRANSLATE").to_matchable(),
             Ref::keyword("UNDER").to_matchable(),
             Ref::keyword("UNLIMITED").to_matchable(),
@@ -5728,6 +5773,22 @@ pub fn raw_dialect() -> Dialect {
         "AccessObjectSegment".into(),
         one_of(vec![
             Sequence::new(vec![
+                Ref::keyword("ACCESS").to_matchable(),
+                Ref::keyword("POLICY").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ANALYTIC").to_matchable(),
+                Ref::keyword("VIEW").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ATTRIBUTE").to_matchable(),
+                Ref::keyword("DIMENSION").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("CLASS").to_matchable(),
+            Sequence::new(vec![
                 Ref::keyword("CONNECT").to_matchable(),
                 Ref::keyword("SESSION").to_matchable(),
             ])
@@ -5735,6 +5796,20 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("CLUSTER").to_matchable(),
             Ref::keyword("CONTAINER").to_matchable(),
             Ref::keyword("CONTEXT").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("CUBE").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("DIMENSION").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("BUILD").to_matchable(),
+                        Ref::keyword("PROCESS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("DATABASE").to_matchable(),
                 one_of(vec![
@@ -5745,14 +5820,39 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
             ])
             .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("DATE").to_matchable(),
+                Ref::keyword("TIME").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("DBA_RECYCLEBIN").to_matchable(),
             Ref::keyword("DICTIONARY").to_matchable(),
             Ref::keyword("DIMENSION").to_matchable(),
+            Ref::keyword("DIRECTIVE").to_matchable(),
             Ref::keyword("DIRECTORY").to_matchable(),
+            Ref::keyword("DOMAIN").to_matchable(),
             Ref::keyword("EDITION").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("FINE").to_matchable(),
+                Ref::keyword("GRAINED").to_matchable(),
+                Ref::keyword("AUDIT").to_matchable(),
+                Ref::keyword("POLICY").to_matchable(),
+            ])
+            .to_matchable(),
             Ref::keyword("HIERARCHY").to_matchable(),
             Ref::keyword("INDEX").to_matchable(),
             Ref::keyword("INDEXTYPE").to_matchable(),
-            Ref::keyword("JOB").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("EXTERNAL").optional().to_matchable(),
+                Ref::keyword("JOB").to_matchable(),
+                Ref::keyword("RESOURCE").optional().to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("KEY").to_matchable(),
+                Ref::keyword("MANAGEMENT").to_matchable(),
+            ])
+            .to_matchable(),
             Ref::keyword("LIBRARY").to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("LOCKDOWN").to_matchable(),
@@ -5765,8 +5865,18 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
             Sequence::new(vec![
+                Ref::keyword("MEASURE").to_matchable(),
+                Ref::keyword("FOLDER").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
                 Ref::keyword("MINING").to_matchable(),
                 Ref::keyword("MODEL").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("OBJECT").to_matchable(),
+                Ref::keyword("PRIVILEGE").optional().to_matchable(),
             ])
             .to_matchable(),
             Ref::keyword("OPERATOR").to_matchable(),
@@ -5781,11 +5891,69 @@ pub fn raw_dialect() -> Dialect {
             Ref::keyword("PROCEDURE").to_matchable(),
             Ref::keyword("PROFILE").to_matchable(),
             Ref::keyword("PROGRAM").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("PROPERTY").to_matchable(),
+                Ref::keyword("GRAPH").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("REDACTION").to_matchable(),
+                Ref::keyword("POLICY").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("REMOTE").optional().to_matchable(),
+                Ref::keyword("PRIVILEGES").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("RESOURCE").to_matchable(),
+                Ref::keyword("COST").to_matchable(),
+            ])
+            .to_matchable(),
             Ref::keyword("ROLE").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ROLLBACK").to_matchable(),
+                Ref::keyword("SEGMENT").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ROW").to_matchable(),
+                Ref::keyword("LEVEL").to_matchable(),
+                Ref::keyword("SECURITY").to_matchable(),
+                Ref::keyword("POLICY").to_matchable(),
+            ])
+            .to_matchable(),
             Ref::keyword("SCHEDULER").to_matchable(),
             Ref::keyword("SEQUENCE").to_matchable(),
             Ref::keyword("SESSION").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("SQL").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("FIREWALL").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("MANAGEMENT").to_matchable(),
+                        Ref::keyword("OBJECT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("PROFILE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TRANSLATION").to_matchable(),
+                        Ref::keyword("PROFILE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TUNING").to_matchable(),
+                        Ref::keyword("SET").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
             Ref::keyword("SYNONYM").to_matchable(),
+            Ref::keyword("SYSGUID").to_matchable(),
             Ref::keyword("SYSTEM").to_matchable(),
             Ref::keyword("TABLE").to_matchable(),
             Ref::keyword("TABLESPACE").to_matchable(),
@@ -5813,6 +5981,12 @@ pub fn raw_dialect() -> Dialect {
                 .config(|config| config.optional())
                 .to_matchable(),
                 Ref::new("AccessObjectSegment").optional().to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
             ])
             .to_matchable(),
             Ref::new("RoleReferenceSegment").to_matchable(),
@@ -5828,80 +6002,121 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::AccessStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("GRANT").to_matchable(),
-                Ref::new("AccessPermissionsSegment").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("ON").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("USER").to_matchable(),
-                        Ref::keyword("DIRECTORY").to_matchable(),
-                        Ref::keyword("EDITION").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("AccessPermissionsSegment").to_matchable(),
                         Sequence::new(vec![
-                            Ref::keyword("MINING").to_matchable(),
-                            Ref::keyword("MODEL").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("JAVA").to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
                             one_of(vec![
-                                Ref::keyword("SOURCE").to_matchable(),
-                                Ref::keyword("RESOURCE").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SCHEMA").to_matchable(),
+                                    Ref::new("SchemaReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::keyword("USER").to_matchable(),
+                                        Ref::keyword("DIRECTORY").to_matchable(),
+                                        Ref::keyword("EDITION").to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("MINING").to_matchable(),
+                                            Ref::keyword("MODEL").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("JAVA").to_matchable(),
+                                            one_of(vec![
+                                                Ref::keyword("SOURCE").to_matchable(),
+                                                Ref::keyword("RESOURCE").to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("SQL").to_matchable(),
+                                            Ref::keyword("TRANSLATION").to_matchable(),
+                                            Ref::keyword("PROFILE").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .config(|config| config.optional())
+                                    .to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::keyword("PUBLIC").to_matchable(),
+                                Ref::new("RoleReferenceSegment").to_matchable(),
                             ])
                             .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
-                            Ref::keyword("SQL").to_matchable(),
-                            Ref::keyword("TRANSLATION").to_matchable(),
-                            Ref::keyword("PROFILE").to_matchable(),
+                            Ref::keyword("IDENTIFIED").to_matchable(),
+                            Ref::keyword("BY").to_matchable(),
+                            Delimited::new(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("ADMIN").to_matchable(),
+                                Ref::keyword("DELEGATE").to_matchable(),
+                                Ref::keyword("GRANT").to_matchable(),
+                                Ref::keyword("HIERARCHY").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("OPTION").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CONTAINER").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("CURRENT").to_matchable(),
+                                Ref::keyword("ALL").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("FUNCTION").to_matchable(),
+                            Ref::keyword("PROCEDURE").to_matchable(),
+                            Ref::keyword("PACKAGE").to_matchable(),
                         ])
                         .to_matchable(),
-                    ])
-                    .config(|config| config.optional())
-                    .to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                ])
-                .config(|config| config.optional())
-                .to_matchable(),
-                Ref::keyword("TO").to_matchable(),
-                Delimited::new(vec![
-                    one_of(vec![
-                        Ref::keyword("PUBLIC").to_matchable(),
-                        Ref::new("RoleReferenceSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("IDENTIFIED").to_matchable(),
-                    Ref::keyword("BY").to_matchable(),
-                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                        Sequence::new(vec![
+                            Ref::new("SchemaReferenceSegment").to_matchable(),
+                            Ref::new("DotSegment").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
                         .to_matchable(),
-                ])
-                .config(|config| config.optional())
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("WITH").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("ADMIN").to_matchable(),
-                        Ref::keyword("DELEGATE").to_matchable(),
-                        Ref::keyword("GRANT").to_matchable(),
-                        Ref::keyword("HIERARCHY").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::keyword("OPTION").to_matchable(),
-                ])
-                .config(|config| config.optional())
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("CONTAINER").to_matchable(),
-                    Ref::new("EqualsSegment").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("CURRENT").to_matchable(),
-                        Ref::keyword("ALL").to_matchable(),
+                        Ref::new("FunctionNameSegment").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
-                .config(|config| config.optional())
                 .to_matchable(),
             ])
             .to_matchable()
@@ -5917,54 +6132,108 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::AccessStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("REVOKE").to_matchable(),
-                Ref::new("AccessPermissionsSegment").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("ON").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("USER").to_matchable(),
-                        Ref::keyword("DIRECTORY").to_matchable(),
-                        Ref::keyword("EDITION").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("MINING").to_matchable(),
-                            Ref::keyword("MODEL").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .config(|config| config.optional())
-                    .to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                ])
-                .config(|config| config.optional())
-                .to_matchable(),
-                Ref::keyword("FROM").to_matchable(),
-                Delimited::new(vec![
-                    one_of(vec![
-                        Ref::keyword("PUBLIC").to_matchable(),
-                        Ref::new("ObjectReferenceSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
                 one_of(vec![
                     Sequence::new(vec![
-                        Ref::keyword("CASCADE").to_matchable(),
-                        Ref::keyword("CONSTRAINTS").to_matchable(),
+                        Ref::new("AccessPermissionsSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ON").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("SCHEMA").to_matchable(),
+                                    Ref::new("SchemaReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::keyword("USER").to_matchable(),
+                                        Ref::keyword("DIRECTORY").to_matchable(),
+                                        Ref::keyword("EDITION").to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("MINING").to_matchable(),
+                                            Ref::keyword("MODEL").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("JAVA").to_matchable(),
+                                            one_of(vec![
+                                                Ref::keyword("SOURCE").to_matchable(),
+                                                Ref::keyword("RESOURCE").to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("SQL").to_matchable(),
+                                            Ref::keyword("TRANSLATION").to_matchable(),
+                                            Ref::keyword("PROFILE").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .config(|config| config.optional())
+                                    .to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                        Ref::keyword("FROM").to_matchable(),
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Ref::keyword("PUBLIC").to_matchable(),
+                                Ref::new("RoleReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("CASCADE").to_matchable(),
+                                Ref::keyword("CONSTRAINTS").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("FORCE").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CONTAINER").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("CURRENT").to_matchable(),
+                                Ref::keyword("ALL").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::keyword("FORCE").to_matchable(),
-                ])
-                .config(|config| config.optional())
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("CONTAINER").to_matchable(),
-                    Ref::new("EqualsSegment").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("CURRENT").to_matchable(),
-                        Ref::keyword("ALL").to_matchable(),
+                    Sequence::new(vec![
+                        Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                        Ref::keyword("FROM").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("FUNCTION").to_matchable(),
+                            Ref::keyword("PROCEDURE").to_matchable(),
+                            Ref::keyword("PACKAGE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("SchemaReferenceSegment").to_matchable(),
+                            Ref::new("DotSegment").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                        Ref::new("FunctionNameSegment").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
-                .config(|config| config.optional())
                 .to_matchable(),
             ])
             .to_matchable()

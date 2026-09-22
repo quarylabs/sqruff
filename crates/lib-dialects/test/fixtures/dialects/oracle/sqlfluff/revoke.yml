@@ -1,0 +1,152 @@
+file:
+- oracle_batch:
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - keyword: DROP
+        - keyword: ANY
+        - keyword: TABLE
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: hr
+        - comma: ','
+        - role_reference:
+          - naked_identifier: oe
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - role_reference:
+          - naked_identifier: dw_manager
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: sh
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - keyword: CREATE
+        - keyword: TABLESPACE
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: dw_manager
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - role_reference:
+          - naked_identifier: dw_user
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: dw_manager
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - keyword: DELETE
+        - keyword: ON
+        - object_reference:
+          - naked_identifier: orders
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: hr
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - keyword: ALL
+        - keyword: ON
+        - object_reference:
+          - naked_identifier: orders
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: hr
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - keyword: UPDATE
+        - keyword: ON
+        - object_reference:
+          - naked_identifier: emp_details_view
+        - keyword: FROM
+        - keyword: public
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - keyword: INHERIT
+        - keyword: PRIVILEGES
+        - keyword: ON
+        - keyword: USER
+        - object_reference:
+          - naked_identifier: sh
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: hr
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - keyword: SELECT
+        - keyword: ON
+        - object_reference:
+          - naked_identifier: hr
+          - dot: .
+          - naked_identifier: departments_seq
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: oe
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - keyword: REFERENCES
+        - keyword: ON
+        - object_reference:
+          - naked_identifier: hr
+          - dot: .
+          - naked_identifier: employees
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: oe
+        - keyword: CASCADE
+        - keyword: CONSTRAINTS
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - keyword: READ
+        - keyword: ON
+        - keyword: DIRECTORY
+        - object_reference:
+          - naked_identifier: bfile_dir
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: hr
+  - statement_terminator: ;
+  - statement:
+    - access_statement:
+      - access_statement:
+        - keyword: REVOKE
+        - keyword: UPDATE
+        - keyword: ON
+        - object_reference:
+          - naked_identifier: hr
+          - dot: .
+          - naked_identifier: employees
+        - keyword: FROM
+        - role_reference:
+          - naked_identifier: oe
+  - statement_terminator: ;

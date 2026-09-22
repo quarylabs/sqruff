@@ -353,4 +353,34 @@ ignore_templated_areas = False
 
         assert_eq!(processed.templated(), "\n    \n    SELECT 1\n\n");
     }
+
+    #[test]
+    fn test_jinja_templater_dotted_context_config() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+templater = jinja
+
+[sqruff:templater:jinja:context]
+namespace.projectname = myproject
+namespace.env = prod
+"#,
+            None,
+        );
+
+        let results = JinjaTemplater.process(
+            &[(
+                "SELECT * FROM `{{ namespace.projectname }}.{{ namespace.env }}_test.table`",
+                "test.sql",
+            )],
+            &config,
+            &None,
+        );
+        let processed = results.into_iter().next().unwrap().unwrap();
+
+        assert_eq!(
+            processed.templated(),
+            "SELECT * FROM `myproject.prod_test.table`"
+        );
+    }
 }

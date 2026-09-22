@@ -154,7 +154,7 @@ fn parse_syntax_kind_alias(seg_type: &str) -> Option<SyntaxKind> {
 /// This acts as the primary translation engine between configuration
 /// held either in dicts for testing, or in the FluffConfig in live
 /// usage, and the configuration used during reflow operations.
-#[derive(Debug, Default, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ReflowConfig {
     configs: ConfigDictType,
     config_types: SyntaxSet,
@@ -162,11 +162,28 @@ pub struct ReflowConfig {
     /// use `.from_fluff_config`, but the defaults are here to aid in
     /// testing.
     pub(crate) indent_unit: IndentUnit,
+    pub(crate) tab_space_size: usize,
     pub(crate) max_line_length: usize,
     pub(crate) hanging_indents: bool,
     pub(crate) implicit_indents: ImplicitIndents,
     pub(crate) trailing_comments: TrailingComments,
     pub(crate) ignore_comment_lines: bool,
+}
+
+impl Default for ReflowConfig {
+    fn default() -> Self {
+        Self {
+            configs: Default::default(),
+            config_types: Default::default(),
+            indent_unit: Default::default(),
+            tab_space_size: 4,
+            max_line_length: 0,
+            hanging_indents: false,
+            implicit_indents: Default::default(),
+            trailing_comments: Default::default(),
+            ignore_comment_lines: false,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -340,6 +357,7 @@ impl ReflowConfig {
             configs: convert_to_config_dict(configs),
             config_types,
             indent_unit,
+            tab_space_size,
             max_line_length: config.raw["core"]["max_line_length"].as_int().unwrap() as usize,
             hanging_indents: config.raw["indentation"]["hanging_indents"]
                 .as_bool()

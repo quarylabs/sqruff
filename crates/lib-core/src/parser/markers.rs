@@ -115,6 +115,29 @@ impl PositionMarker {
         self.source_position().1
     }
 
+    /// Calculate the zero-indexed visual column, expanding tabs to tab stops.
+    pub fn working_visual_column(&self, tab_space_size: usize) -> usize {
+        assert!(
+            tab_space_size > 0,
+            "tab_space_size must be greater than zero"
+        );
+
+        let templated = self.templated_file.templated();
+        let position = self.templated_slice.start.min(templated.len());
+        let before_position = templated.get(..position).unwrap_or(templated);
+        let line_start = before_position.rfind('\n').map_or(0, |idx| idx + 1);
+
+        before_position[line_start..]
+            .chars()
+            .fold(0, |visual_column, character| {
+                if character == '\t' {
+                    ((visual_column / tab_space_size) + 1) * tab_space_size
+                } else {
+                    visual_column + 1
+                }
+            })
+    }
+
     #[track_caller]
     pub fn from_child_markers<'a>(
         markers: impl Iterator<Item = &'a PositionMarker>,
@@ -330,6 +353,24 @@ mod tests {
 
         assert_eq!(marker.source_position(), (2, 1));
         assert_eq!(marker.templated_position(), (1, 1));
+    }
+
+    #[test]
+    fn test_working_visual_column_expands_tabs() {
+        let raw = "SELECT\n\tshort_col\tAS";
+        let templated_file: TemplatedFile = raw.into();
+        let marker_at = |position| {
+            PositionMarker::from_point(position, position, templated_file.clone(), None, None)
+        };
+
+        assert_eq!(marker_at(7).working_visual_column(4), 0);
+        assert_eq!(marker_at(8).working_visual_column(4), 4);
+        assert_eq!(marker_at(17).working_visual_column(4), 13);
+        assert_eq!(marker_at(18).working_visual_column(4), 16);
+
+        assert_eq!(marker_at(8).working_visual_column(2), 2);
+        assert_eq!(marker_at(17).working_visual_column(2), 11);
+        assert_eq!(marker_at(18).working_visual_column(2), 12);
     }
 
     /// Test that we can correctly infer positions from strings.

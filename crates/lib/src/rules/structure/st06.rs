@@ -150,6 +150,12 @@ from x
             }
         }
 
+        // Reordering the SELECT targets would corrupt the positional mapping
+        // declared by an explicit CREATE VIEW column list.
+        if is_view_with_explicit_columns(context) {
+            return Vec::new();
+        }
+
         let select_clause_segment = context.segment.clone();
         let select_target_elements: Vec<_> = select_clause_segment
             .children(const { &SyntaxSet::new(&[SyntaxKind::SelectClauseElement]) })
@@ -289,6 +295,26 @@ from x
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(const { SyntaxSet::new(&[SyntaxKind::SelectClause]) }).into()
     }
+}
+
+fn is_view_with_explicit_columns(context: &RuleContext) -> bool {
+    for parent in &context.parent_stack {
+        if !parent.is_type(SyntaxKind::CreateViewStatement) {
+            continue;
+        }
+
+        return parent.segments().iter().any(|child| {
+            if !child.is_type(SyntaxKind::Bracketed) {
+                return false;
+            }
+
+            let descendant_types = child.descendant_type_set();
+            descendant_types.contains(SyntaxKind::ColumnReference)
+                || descendant_types.contains(SyntaxKind::IndexColumnDefinition)
+        });
+    }
+
+    false
 }
 
 enum Validate {

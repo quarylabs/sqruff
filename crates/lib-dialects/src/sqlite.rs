@@ -66,6 +66,17 @@ pub fn raw_dialect() -> Dialect {
         "single_quote",
     );
 
+    // SQLite hexadecimal literals must be tokenized before ordinary numeric
+    // literals, which would otherwise consume only the leading zero.
+    sqlite_dialect.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "hexadecimal_literal",
+            r"0x[\da-fA-F]+",
+            SyntaxKind::NumericLiteral,
+        )],
+        "numeric_literal",
+    );
+
     // SQLite bind parameters: @name, :name, ?NNN and $name. These must be
     // lexed before the bare `question`/`colon` matchers so the full parameter
     // token is captured (e.g. `>= @since` instead of splitting `>=`).

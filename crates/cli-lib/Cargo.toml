@@ -40,6 +40,7 @@ clap-markdown = { workspace = true, optional = true }
 minijinja = { workspace = true, optional = true }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0" }
+serde_yaml = "0.9.34"
 
 [dev-dependencies]
 assert_cmd = "2.2.2"

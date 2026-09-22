@@ -270,7 +270,7 @@ impl ErasedSegment {
 
     #[cfg(feature = "stringify")]
     pub fn stringify(&self, code_only: bool) -> String {
-        serde_yaml::to_string(&self.to_serialised(code_only, true)).unwrap()
+        serde_yaml::to_string(&self.to_serialised(code_only, true, true, false)).unwrap()
     }
 
     pub fn child(&self, seg_types: &SyntaxSet) -> Option<ErasedSegment> {
@@ -1067,6 +1067,16 @@ pub mod serde {
 
     use crate::parser::segments::ErasedSegment;
 
+    #[derive(Deserialize)]
+    struct SerialisedPosition {
+        start_line_no: usize,
+        start_line_pos: usize,
+        start_file_pos: usize,
+        end_line_no: usize,
+        end_line_pos: usize,
+        end_file_pos: usize,
+    }
+
     #[derive(Serialize, Deserialize)]
     #[serde(untagged)]
     pub enum SerialisedSegmentValue {
@@ -1075,14 +1085,26 @@ pub mod serde {
     }
 
     #[derive(Deserialize)]
-    pub struct TupleSerialisedSegment(String, SerialisedSegmentValue);
+    pub struct TupleSerialisedSegment(
+        String,
+        SerialisedSegmentValue,
+        #[serde(default)] Option<SerialisedPosition>,
+    );
 
     impl Serialize for TupleSerialisedSegment {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where
             S: serde::Serializer,
         {
-            let mut map = serializer.serialize_map(None)?;
+            let mut map = serializer.serialize_map(Some(if self.2.is_some() { 7 } else { 1 }))?;
+            if let Some(position) = &self.2 {
+                map.serialize_entry("start_line_no", &position.start_line_no)?;
+                map.serialize_entry("start_line_pos", &position.start_line_pos)?;
+                map.serialize_entry("start_file_pos", &position.start_file_pos)?;
+                map.serialize_entry("end_line_no", &position.end_line_no)?;
+                map.serialize_entry("end_line_pos", &position.end_line_pos)?;
+                map.serialize_entry("end_file_pos", &position.end_file_pos)?;
+            }
             map.serialize_key(&self.0)?;
             map.serialize_value(&self.1)?;
             map.end()
@@ -1090,39 +1112,85 @@ pub mod serde {
     }
 
     impl TupleSerialisedSegment {
-        pub fn sinlge(key: String, value: String) -> Self {
-            Self(key, SerialisedSegmentValue::Single(value))
+        fn single(key: String, value: String, position: Option<SerialisedPosition>) -> Self {
+            Self(key, SerialisedSegmentValue::Single(value), position)
         }
 
-        pub fn nested(key: String, segments: Vec<TupleSerialisedSegment>) -> Self {
-            Self(key, SerialisedSegmentValue::Nested(segments))
+        fn nested(
+            key: String,
+            segments: Vec<TupleSerialisedSegment>,
+            position: Option<SerialisedPosition>,
+        ) -> Self {
+            Self(key, SerialisedSegmentValue::Nested(segments), position)
         }
     }
 
     impl ErasedSegment {
-        pub fn to_serialised(&self, code_only: bool, show_raw: bool) -> TupleSerialisedSegment {
+        fn serialised_position(&self, include_position: bool) -> Option<SerialisedPosition> {
+            let marker = include_position
+                .then(|| self.get_position_marker())
+                .flatten()?;
+            let (start_line_no, start_line_pos) = marker.source_position();
+            let (end_line_no, end_line_pos) = marker
+                .templated_file
+                .get_line_pos_of_char_pos(marker.source_slice.end, true);
+
+            Some(SerialisedPosition {
+                start_line_no,
+                start_line_pos,
+                start_file_pos: marker.source_slice.start,
+                end_line_no,
+                end_line_pos,
+                end_file_pos: marker.source_slice.end,
+            })
+        }
+
+        pub fn to_serialised(
+            &self,
+            code_only: bool,
+            show_raw: bool,
+            include_meta: bool,
+            include_position: bool,
+        ) -> TupleSerialisedSegment {
+            let position = self.serialised_position(include_position);
+
             if show_raw && self.segments().is_empty() {
-                TupleSerialisedSegment::sinlge(
-                    self.get_type().as_str().to_string(),
-                    self.raw().to_string(),
-                )
+                let raw = if self.get_type() == crate::dialects::syntax::SyntaxKind::Placeholder {
+                    self.source_str().to_string()
+                } else {
+                    self.raw().to_string()
+                };
+                TupleSerialisedSegment::single(self.get_type().as_str().to_string(), raw, position)
             } else if code_only {
                 let segments = self
                     .segments()
                     .iter()
                     .filter(|seg| seg.is_code() && !seg.is_meta())
-                    .map(|seg| seg.to_serialised(code_only, show_raw))
+                    .map(|seg| {
+                        seg.to_serialised(code_only, show_raw, include_meta, include_position)
+                    })
                     .collect::<Vec<_>>();
 
-                TupleSerialisedSegment::nested(self.get_type().as_str().to_string(), segments)
+                TupleSerialisedSegment::nested(
+                    self.get_type().as_str().to_string(),
+                    segments,
+                    position,
+                )
             } else {
                 let segments = self
                     .segments()
                     .iter()
-                    .map(|seg| seg.to_serialised(code_only, show_raw))
+                    .filter(|seg| include_meta || !seg.is_meta())
+                    .map(|seg| {
+                        seg.to_serialised(code_only, show_raw, include_meta, include_position)
+                    })
                     .collect::<Vec<_>>();
 
-                TupleSerialisedSegment::nested(self.get_type().as_str().to_string(), segments)
+                TupleSerialisedSegment::nested(
+                    self.get_type().as_str().to_string(),
+                    segments,
+                    position,
+                )
             }
         }
     }

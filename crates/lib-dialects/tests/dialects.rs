@@ -317,7 +317,7 @@ fn dialects() {
                     );
                 }
 
-                let tree = tree.to_serialised(true, true);
+                let tree = tree.to_serialised(true, true, false, false);
 
                 serde_yaml::to_string(&tree).unwrap()
             };

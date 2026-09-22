@@ -828,7 +828,7 @@ fn parse_ini_config_elems(
                 }
 
                 let mut key = key.clone();
-                key.push(name.clone());
+                key.extend(name.split('.').map(ToOwned::to_owned));
                 buff.push((key, value));
             }
         }
@@ -1508,6 +1508,53 @@ line_position = "trailing"
         assert_eq!(
             config.raw["layout"]["type"]["comma"]["line_position"].as_string(),
             Some("trailing")
+        );
+    }
+
+    #[test]
+    fn test_ini_dotted_keys_create_nested_structures_with_coerced_values() {
+        let configs = ConfigLoader::from_source(
+            r#"
+[sqruff:templater:jinja:context]
+namespace.projectname = test
+namespace.count = 42
+namespace.ratio = 3.14
+namespace.enabled = true
+namespace.disabled = false
+namespace.nullable = none
+other.nested.key = value
+simple_key = simple_value
+"#,
+            None,
+        );
+
+        let context = &configs["templater"]["jinja"]["context"];
+        assert_eq!(
+            context["namespace"]["projectname"].as_string(),
+            Some("test")
+        );
+        assert_eq!(context["namespace"]["count"].as_int(), Some(42));
+        assert_eq!(context["namespace"]["ratio"], Value::Float(3.14));
+        assert_eq!(context["namespace"]["enabled"].as_bool(), Some(true));
+        assert_eq!(context["namespace"]["disabled"].as_bool(), Some(false));
+        assert!(context["namespace"]["nullable"].is_none());
+        assert_eq!(context["other"]["nested"]["key"].as_string(), Some("value"));
+        assert_eq!(context["simple_key"].as_string(), Some("simple_value"));
+    }
+
+    #[test]
+    fn test_ini_dotted_keys_apply_to_all_sections() {
+        let configs = ConfigLoader::from_source(
+            r#"
+[sqruff:rules]
+some.nested.config = value
+"#,
+            None,
+        );
+
+        assert_eq!(
+            configs["rules"]["some"]["nested"]["config"].as_string(),
+            Some("value")
         );
     }
 

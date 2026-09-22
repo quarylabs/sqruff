@@ -878,3 +878,13 @@ test_fail_alter_quoted_consumer_group_exasol:
   configs:
     core:
       dialect: exasol
+
+test_snowflake_default_keyword:
+  pass_str: |
+    SELECT
+      foo,
+      "DEFAULT"
+    FROM my_table;
+  configs:
+    core:
+      dialect: snowflake

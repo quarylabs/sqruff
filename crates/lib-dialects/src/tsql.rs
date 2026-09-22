@@ -7252,6 +7252,13 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("VALUE").to_matchable(),
                     Ref::keyword("FOR").to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("OVER").to_matchable(),
+                        Bracketed::new(vec![Ref::new("OrderByClauseSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

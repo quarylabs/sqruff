@@ -3583,7 +3583,13 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("BULK").to_matchable(),
-                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                            optionally_bracketed(vec![
+                                Delimited::new(vec![
+                                    Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
                             Ref::new("CommaSegment").to_matchable(),
                             one_of(vec![
                                 Sequence::new(vec![

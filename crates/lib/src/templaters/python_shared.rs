@@ -1,8 +1,9 @@
 use crate::core::config::{FluffConfig, Value};
 use crate::templaters::TemplaterKind;
 use hashbrown::HashMap;
+use pyo3::IntoPyObjectExt;
 use pyo3::prelude::*;
-use pyo3::types::PyDict;
+use pyo3::types::{PyDict, PyList};
 use pyo3::{Bound, Python};
 use serde::{Deserialize, Serialize};
 use sqruff_lib_core::errors::SQLFluffUserError;
@@ -146,25 +147,41 @@ impl<'py> FluffConfig {
         templater: TemplaterKind,
     ) -> Result<Bound<'py, PyDict>, SQLFluffUserError> {
         let empty = HashMap::default();
-        let hashmap = self
-            .templater_context(templater)
-            .unwrap_or(&empty)
-            .iter()
-            .map(|(k, v)| {
-                let value = v.as_string().ok_or(SQLFluffUserError::new(
-                    "Python templater context values must be strings".to_string(),
-                ))?;
-                Ok((k.to_string(), value.to_string()))
-            })
-            .collect::<Result<HashMap<String, String>, SQLFluffUserError>>()?;
-        // pass object with Rust tuple of positional arguments
+        let context = self.templater_context(templater).unwrap_or(&empty);
         let py_dict = PyDict::new(py);
-        for (k, v) in hashmap {
+        for (key, value) in context {
+            let value = config_value_to_python(py, value).map_err(|error| {
+                SQLFluffUserError::new(format!("Python templater error: {error:?}"))
+            })?;
             py_dict
-                .set_item(k, v)
+                .set_item(key, value)
                 .map_err(|e| SQLFluffUserError::new(format!("Python templater error: {e:?}")))?;
         }
         Ok(py_dict)
+    }
+}
+
+fn config_value_to_python(py: Python<'_>, value: &Value) -> PyResult<Py<PyAny>> {
+    match value {
+        Value::Int(value) => value.into_py_any(py),
+        Value::Bool(value) => value.into_py_any(py),
+        Value::Float(value) => value.into_py_any(py),
+        Value::String(value) => value.as_ref().into_py_any(py),
+        Value::Map(values) => {
+            let dict = PyDict::new(py);
+            for (key, value) in values {
+                dict.set_item(key, config_value_to_python(py, value)?)?;
+            }
+            Ok(dict.into_any().unbind())
+        }
+        Value::Array(values) => {
+            let list = PyList::empty(py);
+            for value in values {
+                list.append(config_value_to_python(py, value)?)?;
+            }
+            Ok(list.into_any().unbind())
+        }
+        Value::None => Ok(py.None()),
     }
 }
 

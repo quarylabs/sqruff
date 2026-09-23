@@ -545,6 +545,16 @@ pub fn raw_dialect() -> Dialect {
         ),
         Matcher::regex("double_quote", r#"(?s)".+?""#, SyntaxKind::DoubleQuote),
         Matcher::regex("word", r"[\p{L}_][\p{L}\p{N}_$]*", SyntaxKind::Word),
+        Matcher::legacy(
+            "numeric_literal",
+            |s| {
+                s.as_bytes()
+                    .first()
+                    .is_some_and(|byte| byte.is_ascii_digit() || *byte == b'.')
+            },
+            r"(?>\d+(_\d+)*\.\d+(_\d+)*|\d+(_\d+)*\.(?![\.\w])|\.\d+(_\d+)*|\d+(_\d+)*)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            SyntaxKind::NumericLiteral,
+        ),
     ]);
 
     let keywords = postgres_keywords();

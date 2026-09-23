@@ -2167,26 +2167,191 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     databricks.replace_grammar(
         "CreateViewStatementSegment",
-        raw_sparksql
-            .grammar("CreateViewStatementSegment")
-            .match_grammar(&raw_sparksql)
-            .unwrap()
-            .copy(
-                Some(vec![
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            Ref::keyword("TEMPORARY").optional().to_matchable(),
+            Ref::keyword("VIEW").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Bracketed::new(vec![
+                Delimited::new(vec![
                     Sequence::new(vec![
-                        Ref::keyword("PRIVATE").optional().to_matchable(),
-                        Ref::keyword("MATERIALIZED").to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Ref::new("CommentGrammar").optional().to_matchable(),
                     ])
-                    .config(|this| this.optional())
                     .to_matchable(),
-                ]),
-                None,
-                Some(Ref::keyword("MATERIALIZED").optional().to_matchable()),
-                Some(vec![Ref::keyword("MATERIALIZED").optional().to_matchable()]),
-                Vec::new(),
-                false,
-            ),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            AnyNumberOf::new(vec![
+                Ref::new("CommentGrammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DEFAULT").to_matchable(),
+                    Ref::keyword("COLLATION").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("TablePropertiesGrammar").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LANGUAGE").to_matchable(),
+                    Ref::keyword("YAML").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("METRICS").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SCHEMA").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("BINDING").to_matchable(),
+                                Ref::keyword("COMPENSATION").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("TYPE").optional().to_matchable(),
+                                    Ref::keyword("EVOLUTION").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("AS").to_matchable(),
+            one_of(vec![
+                optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                    .to_matchable(),
+                Ref::new("DollarQuotedUDFBody").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
     );
+
+    databricks.add([(
+        "CreateMaterializedViewStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateMaterializedViewStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                one_of(vec![
+                    Ref::new("OrReplaceGrammar").to_matchable(),
+                    Ref::new("OrRefreshGrammar").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("PRIVATE").optional().to_matchable(),
+                Ref::keyword("MATERIALIZED").to_matchable(),
+                Ref::keyword("VIEW").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                AnyNumberOf::new(vec![
+                    Ref::new("PartitionSpecGrammar").to_matchable(),
+                    Ref::new("TableClusterByClauseSegment").to_matchable(),
+                    Ref::new("CommentGrammar").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::keyword("COLLATION").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("TablePropertiesGrammar").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SCHEDULE").to_matchable(),
+                            Ref::keyword("REFRESH").optional().to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("EVERY").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("HOUR").to_matchable(),
+                                        Ref::keyword("HOURS").to_matchable(),
+                                        Ref::keyword("DAY").to_matchable(),
+                                        Ref::keyword("DAYS").to_matchable(),
+                                        Ref::keyword("WEEK").to_matchable(),
+                                        Ref::keyword("WEEKS").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CRON").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("AT").to_matchable(),
+                                        Ref::keyword("TIME").to_matchable(),
+                                        Ref::keyword("ZONE").to_matchable(),
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("TRIGGER").to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::keyword("UPDATE").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("AT").to_matchable(),
+                                Ref::keyword("MOST").to_matchable(),
+                                Ref::keyword("EVERY").to_matchable(),
+                                Ref::new("IntervalExpressionSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("ROW").to_matchable(),
+                        Ref::keyword("FILTER").to_matchable(),
+                        Ref::new("FunctionNameSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ON").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     databricks.replace_grammar(
         "AlterViewStatementSegment",
@@ -2515,6 +2680,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("MagicCellStatementSegment").to_matchable(),
                     Ref::new("ApplyChangesIntoStatementSegment").to_matchable(),
                     Ref::new("CreateFlowStatementSegment").to_matchable(),
+                    Ref::new("CreateMaterializedViewStatementSegment").to_matchable(),
                 ]),
                 None,
                 None,

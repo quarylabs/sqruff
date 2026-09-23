@@ -9,8 +9,8 @@ use crate::core::linter::discovery::paths_from_path;
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
 use crate::core::rules::noqa::IgnoreMask;
-use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack};
-use crate::rules::get_ruleset;
+use crate::core::rules::{ErasedRule, Exception, LintPhase, RulePack, RuleSet};
+use crate::rules::rules;
 use crate::templaters::{ProcessingMode, Templater, TemplaterKind};
 use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
@@ -266,8 +266,14 @@ impl Linter {
     }
 
     pub fn get_rulepack(&self) -> Result<RulePack, SQLFluffUserError> {
-        let rs = get_ruleset();
+        let rs = RuleSet::from_iter(rules());
         rs.get_rulepack(&self.config)
+    }
+
+    pub fn set_ruleset(&self, rule_set: &RuleSet) -> Result<(), SQLFluffUserError> {
+        self.rulepack
+            .set(rule_set.get_rulepack(&self.config)?)
+            .map_err(|_| SQLFluffUserError::new("Can not call `Linter::set_ruleset` more then once or after `get_rulepack` has been called".to_string()))
     }
 
     pub fn render_file(&self, fname: String) -> RenderedFile {

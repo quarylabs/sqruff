@@ -1702,3 +1702,33 @@ file:
     - object_reference:
       - naked_identifier: MY_ROLE
 - statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - keyword: ON
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: foo
+    - keyword: TO
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - keyword: REVOKE
+    - keyword: CREATE
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - keyword: ON
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: foo
+    - keyword: FROM
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: bar
+- statement_terminator: ;

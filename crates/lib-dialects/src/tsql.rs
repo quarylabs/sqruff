@@ -869,10 +869,14 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec![
                     Ref::new("ExpressionSegment").to_matchable(),
                     Ref::new("CommaSegment").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
+                    one_of(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .config(|this| {
+                            this.terminators = vec![Ref::keyword("RETURNING").to_matchable()];
+                        })
+                        .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("RETURNING").to_matchable(),
-                        Ref::keyword("JSON").to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -1084,6 +1088,8 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("DatePartFunctionNameSegment").to_matchable(),
                             Ref::new("ColumnsExpressionFunctionNameSegment").to_matchable(),
                             Ref::new("ValuesClauseSegment").to_matchable(),
+                            Ref::new("JsonScalarFunctionNameSegment").to_matchable(),
+                            Ref::new("JsonAggFunctionNameSegment").to_matchable(),
                         ]))
                         .to_matchable(),
                     Ref::new("FunctionContentsSegment").to_matchable(),

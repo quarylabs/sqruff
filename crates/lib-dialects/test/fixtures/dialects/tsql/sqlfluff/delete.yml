@@ -187,10 +187,11 @@ file:
           - naked_identifier: HumanResources
           - dot: .
           - naked_identifier: EmployeePayHistory
-      - keyword: WHERE
-      - keyword: CURRENT
-      - keyword: OF
-      - naked_identifier: complex_cursor
+      - where_current_of_cursor_segment:
+        - keyword: WHERE
+        - keyword: CURRENT
+        - keyword: OF
+        - naked_identifier: complex_cursor
   - statement_terminator: ;
   - statement:
     - close_cursor_statement:

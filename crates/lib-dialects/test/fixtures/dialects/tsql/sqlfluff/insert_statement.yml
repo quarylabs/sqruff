@@ -465,3 +465,34 @@ file:
           - end_bracket: )
   - go_statement:
     - keyword: GO
+- batch:
+  - statement:
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: TOP
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - integer_literal: '10'
+        - end_bracket: )
+      - keyword: PERCENT
+      - keyword: INTO
+      - table_reference:
+        - object_reference:
+          - naked_identifier: SomeTable
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - wildcard_expression:
+              - wildcard_identifier:
+                - star: '*'
+        - from_clause:
+          - keyword: FROM
+          - from_expression:
+            - from_expression_element:
+              - table_expression:
+                - table_reference:
+                  - object_reference:
+                    - naked_identifier: SomeOtherTable
+  - statement_terminator: ;

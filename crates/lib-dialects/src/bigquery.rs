@@ -7,7 +7,7 @@ use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_br
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
-use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::lexer::{Cursor, Matcher};
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{
@@ -63,6 +63,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             |s| s.starts_with(['"', 'R', 'r', 'B', 'b']),
             r#"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")"#,
             SyntaxKind::DoubleQuote
+        ),
+        Matcher::native(
+            "numeric_literal",
+            bigquery_numeric_literal,
+            SyntaxKind::NumericLiteral,
         ),
     ]);
 
@@ -4305,4 +4310,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     dialect.expand();
     dialect
+}
+
+fn bigquery_numeric_literal(cursor: &mut Cursor) -> bool {
+    if cursor.peek() != '0' || !matches!(cursor.peek_next(), 'x' | 'X') {
+        return ansi::numeric_literal(cursor);
+    }
+
+    cursor.shift();
+    cursor.shift();
+    if !cursor.peek().is_ascii_hexdigit() {
+        return false;
+    }
+    cursor.shift_while(|c| c.is_ascii_hexdigit());
+
+    let next_char = cursor.peek();
+    !(next_char.is_ascii_alphanumeric() || next_char == '_')
 }

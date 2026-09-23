@@ -977,6 +977,7 @@ fn lint_line_starting_indent(
     indent_line: &IndentLine,
     single_indent: &str,
     forced_indents: &[usize],
+    starting_indent_compensation_spaces: usize,
 ) -> Vec<LintResult> {
     let indent_points = &indent_line.indent_points;
     // Set up the default anchor
@@ -988,9 +989,11 @@ fn lint_line_starting_indent(
         deduce_line_current_indent(elements, indent_points.last().unwrap().last_line_break_idx);
     let initial_point = elements[initial_point_idx].as_point().unwrap();
     let desired_indent_units = indent_line.desired_indent_units(forced_indents);
-    let desired_starting_indent = desired_indent_units
-        .try_into()
-        .map_or(String::new(), |n| single_indent.repeat(n));
+    let desired_starting_indent = calculate_desired_starting_indent(
+        desired_indent_units,
+        single_indent,
+        starting_indent_compensation_spaces,
+    );
 
     if current_indent == desired_starting_indent {
         return Vec::new();
@@ -1062,6 +1065,34 @@ fn lint_line_starting_indent(
     elements[initial_point_idx] = new_point.into();
 
     new_results
+}
+
+fn calculate_desired_starting_indent(
+    desired_indent_units: isize,
+    single_indent: &str,
+    starting_indent_compensation_spaces: usize,
+) -> String {
+    let mut desired_starting_indent = desired_indent_units
+        .try_into()
+        .map_or(String::new(), |n| single_indent.repeat(n));
+
+    if starting_indent_compensation_spaces == 0 {
+        return desired_starting_indent;
+    }
+
+    if desired_starting_indent.len() < starting_indent_compensation_spaces {
+        log::warn!(
+            "Not enough space to compensate indentation. Ignoring indentation compensation."
+        );
+        return desired_starting_indent;
+    }
+
+    log::debug!(
+        "Compensating the starting indent by {starting_indent_compensation_spaces} spaces."
+    );
+    desired_starting_indent
+        .truncate(desired_starting_indent.len() - starting_indent_compensation_spaces);
+    desired_starting_indent
 }
 
 fn lint_line_untaken_positive_indents(
@@ -1269,14 +1300,19 @@ fn lint_line_untaken_negative_indents(
     results
 }
 
+struct LineIndentContext<'a> {
+    single_indent: &'a str,
+    imbalanced_indent_locs: &'a [usize],
+    starting_indent_compensation_spaces: usize,
+    implicit_indent_locs: &'a HashSet<usize>,
+}
+
 fn lint_line_buffer_indents(
     tables: &Tables,
     elements: &mut ReflowSequenceType,
     indent_line: IndentLine,
-    single_indent: &str,
     forced_indents: &mut Vec<usize>,
-    imbalanced_indent_locs: &[usize],
-    implicit_indent_locs: &HashSet<usize>,
+    context: LineIndentContext<'_>,
 ) -> Vec<LintResult> {
     let mut results = Vec::new();
 
@@ -1284,8 +1320,9 @@ fn lint_line_buffer_indents(
         tables,
         elements,
         &indent_line,
-        single_indent,
+        context.single_indent,
         forced_indents,
+        context.starting_indent_compensation_spaces,
     );
     results.append(&mut new_results);
 
@@ -1293,9 +1330,9 @@ fn lint_line_buffer_indents(
         tables,
         elements,
         &indent_line,
-        single_indent,
-        imbalanced_indent_locs,
-        implicit_indent_locs,
+        context.single_indent,
+        context.imbalanced_indent_locs,
+        context.implicit_indent_locs,
     );
 
     if !new_results.is_empty() {
@@ -1308,7 +1345,7 @@ fn lint_line_buffer_indents(
         tables,
         elements,
         &indent_line,
-        single_indent,
+        context.single_indent,
         forced_indents,
     ));
 
@@ -1366,6 +1403,7 @@ pub fn lint_indent_points(
     _skip_indentation_in: HashSet<String>,
     implicit_indents: ImplicitIndents,
     ignore_comment_lines: bool,
+    indentation_align_following: &HashMap<SyntaxKind, usize>,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
     let (mut lines, imbalanced_indent_locs, implicit_indent_locs) =
         map_line_buffers(&elements, implicit_indents);
@@ -1383,14 +1421,20 @@ pub fn lint_indent_points(
             continue;
         }
 
+        let starting_indent_compensation_spaces =
+            calculate_indent_compensation(&elements, &line, indentation_align_following);
+
         let line_results = lint_line_buffer_indents(
             tables,
             &mut elem_buffer,
             line,
-            single_indent,
             &mut forced_indents,
-            &imbalanced_indent_locs,
-            &implicit_indent_locs,
+            LineIndentContext {
+                single_indent,
+                imbalanced_indent_locs: &imbalanced_indent_locs,
+                starting_indent_compensation_spaces,
+                implicit_indent_locs: &implicit_indent_locs,
+            },
         );
 
         results.extend(line_results);
@@ -1404,6 +1448,29 @@ pub fn lint_indent_points(
     }
 
     (elem_buffer, results)
+}
+
+fn calculate_indent_compensation(
+    elements: &ReflowSequenceType,
+    line: &IndentLine,
+    indentation_align_following: &HashMap<SyntaxKind, usize>,
+) -> usize {
+    let Some(block) = line.blocks(elements).next() else {
+        return 0;
+    };
+    let segment = block.segment();
+    let Some(spaces_after) = indentation_align_following.get(&segment.get_type()) else {
+        return 0;
+    };
+
+    let compensation = segment.raw().chars().count() + spaces_after;
+    log::debug!(
+        "Compensating line starting with {:?}: token width {}, following spaces {}.",
+        segment.get_type(),
+        segment.raw().chars().count(),
+        spaces_after
+    );
+    compensation
 }
 
 fn source_char_len(elements: &[ReflowElement]) -> usize {
@@ -2049,7 +2116,10 @@ mod tests {
     use sqruff_lib_core::dialects::syntax::SyntaxKind;
     use sqruff_lib_core::parser::segments::{BlockType, SegmentBuilder, TemplateInfo};
 
-    use super::{ImplicitIndents, IndentLine, IndentPoint, crawl_indent_points};
+    use super::{
+        ImplicitIndents, IndentLine, IndentPoint, calculate_desired_starting_indent,
+        crawl_indent_points,
+    };
     use crate::utils::reflow::config::ReflowConfig;
     use crate::utils::reflow::depth_map::DepthInfo;
     use crate::utils::reflow::elements::{ReflowBlock, ReflowPoint};
@@ -2071,6 +2141,13 @@ mod tests {
 
             assert_eq!(indent_out, elem.get_indent().as_deref());
         }
+    }
+
+    #[test]
+    fn test_desired_starting_indent_compensation() {
+        assert_eq!(calculate_desired_starting_indent(1, "    ", 2), "  ");
+        assert_eq!(calculate_desired_starting_indent(1, "  ", 4), "  ");
+        assert_eq!(calculate_desired_starting_indent(1, "    ", 0), "    ");
     }
 
     #[test]

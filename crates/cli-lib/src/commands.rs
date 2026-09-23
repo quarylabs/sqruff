@@ -116,6 +116,7 @@ pub enum Format {
     Human,
     GithubAnnotationNative,
     Json,
+    Sarif,
     /// Produce no output. Used mostly for testing.
     None,
 }

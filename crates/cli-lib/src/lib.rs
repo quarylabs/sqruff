@@ -15,6 +15,7 @@ use crate::commands::{Cli, Commands};
 use crate::docs::codegen_docs;
 use crate::formatters::github_annotation_native_formatter::GithubAnnotationNativeFormatter;
 use crate::formatters::json::JsonFormatter;
+use crate::formatters::sarif::SarifFormatter;
 use crate::formatters::{NullFormatter, OutputStreamFormatter};
 
 pub mod commands;
@@ -221,6 +222,10 @@ pub(crate) fn linter(
         }
         Format::Json => {
             let formatter = JsonFormatter::default();
+            Arc::new(formatter)
+        }
+        Format::Sarif => {
+            let formatter = SarifFormatter::default();
             Arc::new(formatter)
         }
         Format::None => {

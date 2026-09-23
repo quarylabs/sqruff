@@ -1021,6 +1021,7 @@ Ensure all "not equal to" comparisons are consistent, not mixing `!=` and `<>`.
 SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
 ```
 
+**Dialects where this rule is skipped:** `teradata`
 
 ### convention.coalesce
 

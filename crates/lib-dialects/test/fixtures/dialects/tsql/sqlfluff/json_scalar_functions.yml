@@ -275,13 +275,12 @@ file:
                 - expression:
                   - function:
                     - function_name:
-                      - function_name_identifier: CONVERT
+                      - keyword: CONVERT
                     - function_contents:
                       - bracketed:
                         - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: JSON
+                        - data_type:
+                          - keyword: JSON
                         - comma: ','
                         - expression:
                           - quoted_literal: '''{"age":30}'''
@@ -308,13 +307,12 @@ file:
                 - expression:
                   - function:
                     - function_name:
-                      - function_name_identifier: CONVERT
+                      - keyword: CONVERT
                     - function_contents:
                       - bracketed:
                         - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: JSON
+                        - data_type:
+                          - keyword: JSON
                         - comma: ','
                         - expression:
                           - quoted_literal: '''{"price":99.99}'''
@@ -348,13 +346,12 @@ file:
                 - expression:
                   - function:
                     - function_name:
-                      - function_name_identifier: CONVERT
+                      - keyword: CONVERT
                     - function_contents:
                       - bracketed:
                         - start_bracket: (
-                        - expression:
-                          - column_reference:
-                            - naked_identifier: JSON
+                        - data_type:
+                          - keyword: JSON
                         - comma: ','
                         - expression:
                           - quoted_literal: '''{"created":"2024-01-01"}'''

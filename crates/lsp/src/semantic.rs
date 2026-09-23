@@ -1323,7 +1323,12 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateSourceLoadGeneratorStatement
         | CreateSourcePostgresStatement
         | CreateSourceWebhookStatement
+        | AlterAuthorizationStatement
+        | DenyStatement
         | GrantStatement
+        | PermissionsSegment
+        | RevokeStatement
+        | SecurableSegment
         | ShowCreateStatement
         | ShowIndexesStatement
         | ShowMaterializedViewsStatement

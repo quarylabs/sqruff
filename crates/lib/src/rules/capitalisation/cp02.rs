@@ -159,6 +159,12 @@ from foo as bar
             return Vec::new();
         }
 
+        // Skip templated segments (e.g. placeholder parameters like `:accountId`)
+        // to avoid incorrect capitalisation suggestions.
+        if context.segment.is_templated() {
+            return vec![LintResult::new(None, Vec::new(), None, None)];
+        }
+
         let policy = self
             .unquoted_identifiers_policy
             .as_deref()

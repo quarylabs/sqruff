@@ -4675,6 +4675,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
+                        Ref::keyword("DYNAMIC").to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
                         Ref::keyword("EXTERNAL").to_matchable(),
                         Ref::keyword("TABLE").to_matchable(),
                     ])

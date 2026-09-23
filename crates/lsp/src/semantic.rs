@@ -1359,6 +1359,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SegmentedbyClause
         | TimeseriesClauseStatement
         | TransactionalStatement
+        | WhereCurrentOfCursorSegment
         | WithinGroupClauseStatement => return None,
     };
 

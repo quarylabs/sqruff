@@ -1016,6 +1016,40 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "ConvertFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                one_of(vec![
+                    Ref::keyword("CONVERT").to_matchable(),
+                    Ref::keyword("TRY_CONVERT").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ConvertFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ReplicateFunctionNameSegment".into(),
             NodeMatcher::new(SyntaxKind::FunctionName, |_| {
                 Ref::keyword("REPLICATE").to_matchable()
@@ -1049,6 +1083,11 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::new("DatePartFunctionNameSegment").to_matchable(),
                 Ref::new("DateTimeFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::new("ConvertFunctionNameSegment").to_matchable(),
+                Ref::new("ConvertFunctionContentsSegment").to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![
@@ -1090,6 +1129,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("ValuesClauseSegment").to_matchable(),
                             Ref::new("JsonScalarFunctionNameSegment").to_matchable(),
                             Ref::new("JsonAggFunctionNameSegment").to_matchable(),
+                            Ref::new("ConvertFunctionNameSegment").to_matchable(),
                         ]))
                         .to_matchable(),
                     Ref::new("FunctionContentsSegment").to_matchable(),
@@ -1284,6 +1324,19 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("TYPE_WARNING").optional().to_matchable(),
                     Ref::keyword("FOR").to_matchable(),
                     Ref::new("SelectStatementSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("FOR").to_matchable(),
+                        Ref::keyword("UPDATE").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("OF").to_matchable(),
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -1304,6 +1357,28 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("CURSOR").to_matchable(),
                             Ref::keyword("FOR").to_matchable(),
                             Ref::new("SelectStatementSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("FOR").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("READ_ONLY").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("UPDATE").to_matchable(),
+                                        Sequence::new(vec![
+                                            Ref::keyword("OF").to_matchable(),
+                                            Delimited::new(vec![
+                                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                        ])
+                                        .config(|this| this.optional())
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -1319,7 +1394,6 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::OpenCursorStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("OPEN").to_matchable(),
-                    Ref::keyword("GLOBAL").optional().to_matchable(),
                     Ref::new("CursorNameGrammar").to_matchable(),
                 ])
                 .to_matchable()
@@ -1332,7 +1406,6 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::CloseCursorStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CLOSE").to_matchable(),
-                    Ref::keyword("GLOBAL").optional().to_matchable(),
                     Ref::new("CursorNameGrammar").to_matchable(),
                 ])
                 .to_matchable()
@@ -1345,7 +1418,6 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::DeallocateCursorStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("DEALLOCATE").to_matchable(),
-                    Ref::keyword("GLOBAL").optional().to_matchable(),
                     Ref::new("CursorNameGrammar").to_matchable(),
                 ])
                 .to_matchable()
@@ -1369,8 +1441,15 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::keyword("RELATIVE").to_matchable(),
                             ])
                             .to_matchable(),
-                            Ref::new("SignedSegmentGrammar").optional().to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::new("SignedSegmentGrammar").optional().to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -2482,6 +2561,7 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::InsertStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("INSERT").to_matchable(),
+                Ref::new("TopPercentGrammar").optional().to_matchable(),
                 one_of(vec![
                     Sequence::new(vec![
                         Ref::keyword("INTO").optional().to_matchable(),
@@ -2534,6 +2614,20 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "WhereCurrentOfCursorSegment".into(),
+            NodeMatcher::new(SyntaxKind::WhereCurrentOfCursorSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("WHERE").to_matchable(),
+                    Ref::keyword("CURRENT").to_matchable(),
+                    Ref::keyword("OF").to_matchable(),
+                    Ref::new("CursorNameGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "DeleteStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::DeleteStatement, |_| {
                 Sequence::new(vec![
@@ -2579,13 +2673,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("FromClauseSegment").optional().to_matchable(),
                             one_of(vec![
                                 Ref::new("WhereClauseSegment").to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("WHERE").to_matchable(),
-                                    Ref::keyword("CURRENT").to_matchable(),
-                                    Ref::keyword("OF").to_matchable(),
-                                    Ref::new("CursorNameGrammar").to_matchable(),
-                                ])
-                                .to_matchable(),
+                                Ref::new("WhereCurrentOfCursorSegment").to_matchable(),
                             ])
                             .config(|this| this.optional())
                             .to_matchable(),
@@ -2615,6 +2703,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::UpdateStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("UPDATE").to_matchable(),
+                    Ref::new("TopPercentGrammar").optional().to_matchable(),
                     MetaSegment::indent().to_matchable(),
                     one_of(vec![
                         Ref::new("TableReferenceSegment").to_matchable(),
@@ -2629,7 +2718,12 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("SetClauseListSegment").to_matchable(),
                     Ref::new("OutputClauseSegment").optional().to_matchable(),
                     Ref::new("FromClauseSegment").optional().to_matchable(),
-                    Ref::new("WhereClauseSegment").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::new("WhereClauseSegment").to_matchable(),
+                        Ref::new("WhereCurrentOfCursorSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     Ref::new("OptionClauseSegment").optional().to_matchable(),
                 ])
                 .to_matchable()

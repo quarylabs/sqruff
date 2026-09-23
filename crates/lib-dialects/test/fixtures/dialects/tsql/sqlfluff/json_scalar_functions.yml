@@ -268,55 +268,30 @@ file:
         - select_clause_element:
           - function:
             - function_name:
-              - function_name_identifier: JSON_VALUE
+              - keyword: JSON_VALUE
             - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - quoted_literal: '''{"age":30}'''
-                - comma: ','
-                - expression:
-                  - quoted_literal: '''$.age'''
-                - expression:
-                  - column_reference:
-                    - naked_identifier: RETURNING
-                - expression:
-                  - column_reference:
-                    - naked_identifier: int
-                - end_bracket: )
-  - statement_terminator: ;
-  - statement:
-    - select_statement:
-      - select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-          - function:
-            - function_name:
-              - function_name_identifier: JSON_VALUE
-            - function_contents:
-              - bracketed:
-                - start_bracket: (
-                - expression:
-                  - quoted_literal: '''{"price":99.99}'''
-                - comma: ','
-                - expression:
-                  - quoted_literal: '''$.price'''
-                - expression:
-                  - column_reference:
-                    - naked_identifier: RETURNING
                 - expression:
                   - function:
                     - function_name:
-                      - function_name_identifier: decimal
+                      - function_name_identifier: CONVERT
                     - function_contents:
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                          - integer_literal: '10'
+                          - column_reference:
+                            - naked_identifier: JSON
                         - comma: ','
                         - expression:
-                          - integer_literal: '2'
+                          - quoted_literal: '''{"age":30}'''
                         - end_bracket: )
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''$.age'''
+                - keyword: RETURNING
+                - data_type:
+                  - keyword: int
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -326,21 +301,70 @@ file:
         - select_clause_element:
           - function:
             - function_name:
-              - function_name_identifier: JSON_VALUE
+              - keyword: JSON_VALUE
             - function_contents:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                  - quoted_literal: '''{"created":"2024-01-01"}'''
+                  - function:
+                    - function_name:
+                      - function_name_identifier: CONVERT
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: JSON
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''{"price":99.99}'''
+                        - end_bracket: )
+                - comma: ','
+                - expression:
+                  - quoted_literal: '''$.price'''
+                - keyword: RETURNING
+                - data_type:
+                  - keyword: decimal
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - integer_literal: '10'
+                      - comma: ','
+                      - integer_literal: '2'
+                      - end_bracket: )
+                - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - function:
+            - function_name:
+              - keyword: JSON_VALUE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: CONVERT
+                    - function_contents:
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                          - column_reference:
+                            - naked_identifier: JSON
+                        - comma: ','
+                        - expression:
+                          - quoted_literal: '''{"created":"2024-01-01"}'''
+                        - end_bracket: )
                 - comma: ','
                 - expression:
                   - quoted_literal: '''$.created'''
-                - expression:
-                  - column_reference:
-                    - naked_identifier: RETURNING
-                - expression:
-                  - column_reference:
-                    - naked_identifier: datetime2
+                - keyword: RETURNING
+                - data_type:
+                  - keyword: datetime2
                 - end_bracket: )
   - statement_terminator: ;
   - statement:

@@ -1,0 +1,39 @@
+file:
+- batch:
+  - statement:
+    - alter_role_statement:
+      - keyword: ALTER
+      - keyword: ROLE
+      - role_reference:
+        - naked_identifier: SomeRole
+      - keyword: ADD
+      - keyword: MEMBER
+      - role_reference:
+        - naked_identifier: SomeUser
+  - statement_terminator: ;
+  - statement:
+    - alter_role_statement:
+      - keyword: ALTER
+      - keyword: ROLE
+      - role_reference:
+        - naked_identifier: SomeRole
+      - keyword: DROP
+      - keyword: MEMBER
+      - role_reference:
+        - naked_identifier: SomeUser
+  - statement_terminator: ;
+  - statement:
+    - alter_role_statement:
+      - keyword: ALTER
+      - keyword: ROLE
+      - role_reference:
+        - naked_identifier: SomeRole
+      - keyword: WITH
+      - keyword: NAME
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - role_reference:
+        - naked_identifier: NewName
+  - statement_terminator: ;
+  - go_statement:
+    - keyword: GO

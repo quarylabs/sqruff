@@ -5835,7 +5835,7 @@ pub fn wildcard_expression_segment() -> Matchable {
     Sequence::new(vec![Ref::new("WildcardIdentifierSegment").to_matchable()]).to_matchable()
 }
 
-fn numeric_literal(cursor: &mut Cursor) -> bool {
+pub(super) fn numeric_literal(cursor: &mut Cursor) -> bool {
     let first_char = cursor.shift();
     match first_char {
         '0'..='9' | '.' => {

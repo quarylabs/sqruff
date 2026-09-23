@@ -1,4 +1,5 @@
 use hashbrown::HashMap;
+use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::SegmentBuilder;
@@ -74,6 +75,10 @@ SELECT * FROM X WHERE 1 != 2 AND 3 != 4;
 
     fn groups(&self) -> &'static [RuleGroups] {
         &[RuleGroups::All, RuleGroups::Convention]
+    }
+
+    fn dialect_skip(&self) -> &'static [DialectKind] {
+        &[DialectKind::Teradata]
     }
 
     fn eval(&self, context: &RuleContext) -> Vec<LintResult> {

@@ -744,6 +744,33 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "JsonScalarFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                one_of(vec![
+                    Ref::keyword("ISJSON").to_matchable(),
+                    Ref::keyword("JSON_VALUE").to_matchable(),
+                    Ref::keyword("JSON_QUERY").to_matchable(),
+                    Ref::keyword("JSON_MODIFY").to_matchable(),
+                    Ref::keyword("JSON_PATH_EXISTS").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonAggFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                one_of(vec![
+                    Ref::keyword("JSON_ARRAYAGG").to_matchable(),
+                    Ref::keyword("JSON_OBJECTAGG").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "JsonFunctionContentsSegment".into(),
             NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
                 let null_clause = one_of(vec![
@@ -814,6 +841,177 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "IsjsonFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("CommaSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("VALUE").to_matchable(),
+                            Ref::keyword("ARRAY").to_matchable(),
+                            Ref::keyword("OBJECT").to_matchable(),
+                            Ref::keyword("SCALAR").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonValueFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("RETURNING").to_matchable(),
+                        Ref::keyword("JSON").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonQueryFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("ARRAY").to_matchable(),
+                        Ref::keyword("WRAPPER").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonModifyFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonPathExistsFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonAggFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                let null_on_null = Sequence::new(vec![
+                    Ref::keyword("NULL").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("NULL").to_matchable(),
+                ])
+                .to_matchable();
+                let absent_on_null = Sequence::new(vec![
+                    Ref::keyword("ABSENT").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("NULL").to_matchable(),
+                ])
+                .to_matchable();
+                let json_null_clause = one_of(vec![null_on_null.clone(), absent_on_null.clone()])
+                    .config(|this| this.optional())
+                    .to_matchable();
+
+                Bracketed::new(vec![
+                    Sequence::new(vec![
+                        one_of(vec![Ref::new("ExpressionSegment").to_matchable()])
+                            .config(|this| {
+                                this.terminators = vec![
+                                    Ref::new("ColonSegment").to_matchable(),
+                                    null_on_null.clone(),
+                                    absent_on_null.clone(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("ORDER").to_matchable(),
+                                        Ref::keyword("BY").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::keyword("RETURNING").to_matchable(),
+                                ];
+                            })
+                            .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("ColonSegment").to_matchable(),
+                            one_of(vec![Ref::new("ExpressionSegment").to_matchable()])
+                                .config(|this| {
+                                    this.terminators = vec![
+                                        null_on_null,
+                                        absent_on_null,
+                                        Sequence::new(vec![
+                                            Ref::keyword("ORDER").to_matchable(),
+                                            Ref::keyword("BY").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Ref::keyword("RETURNING").to_matchable(),
+                                    ];
+                                })
+                                .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ORDER").to_matchable(),
+                            Ref::keyword("BY").to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        json_null_clause,
+                        Sequence::new(vec![
+                            Ref::keyword("RETURNING").to_matchable(),
+                            Ref::keyword("JSON").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ReplicateFunctionNameSegment".into(),
             NodeMatcher::new(SyntaxKind::FunctionName, |_| {
                 Ref::keyword("REPLICATE").to_matchable()
@@ -854,11 +1052,29 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("ReplicateFunctionContentsSegment").to_matchable(),
             ])
             .to_matchable(),
+            Sequence::new(vec![
+                Ref::new("JsonScalarFunctionNameSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("IsjsonFunctionContentsSegment").to_matchable(),
+                    Ref::new("JsonValueFunctionContentsSegment").to_matchable(),
+                    Ref::new("JsonQueryFunctionContentsSegment").to_matchable(),
+                    Ref::new("JsonModifyFunctionContentsSegment").to_matchable(),
+                    Ref::new("JsonPathExistsFunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
             // Try the JSON syntax before generic function arguments, which can
             // otherwise misclassify ON NULL as a typed literal expression.
             Sequence::new(vec![
                 Ref::new("JsonFunctionNameSegment").to_matchable(),
                 Ref::new("JsonFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::new("JsonAggFunctionNameSegment").to_matchable(),
+                Ref::new("JsonAggFunctionContentsSegment").to_matchable(),
+                Ref::new("PostFunctionGrammar").optional().to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![

@@ -2,6 +2,7 @@ pub(crate) mod github_annotation_native_formatter;
 pub(crate) mod json;
 pub(crate) mod json_types;
 pub(crate) mod rules;
+pub(crate) mod sarif;
 pub(crate) mod utils;
 
 use std::borrow::Cow;

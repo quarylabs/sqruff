@@ -80,6 +80,10 @@ impl LintedFile {
         &self.violations
     }
 
+    pub fn source_position(&self, byte_pos: usize) -> (usize, usize) {
+        self.templated_file.get_line_pos_of_char_pos(byte_pos, true)
+    }
+
     ///  Use patches and raw file to fix the source file.
     ///
     ///  This assumes that patches and slices have already

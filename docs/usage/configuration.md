@@ -43,6 +43,27 @@ The `warnings` setting makes selected violations visible without causing lint
 to fail. It accepts either rule codes or rule names, for example
 `warnings = LT01,layout.end_of_file`.
 
+## Aligning after leading punctuation
+
+The `leading:align-following` line-position modifier aligns the element after a
+leading comma or binary operator with the surrounding expressions. For example:
+
+```ini
+[sqruff:layout:type:comma]
+line_position = leading:align-following
+```
+
+With that configuration, this indentation is valid:
+
+```sql
+SELECT
+   col_a AS a
+ , col_b AS b
+FROM foo;
+```
+
+The same modifier can be configured for `binary_operator`.
+
 ## Keyword line position exclusions
 
 LT14 supports `keyword_line_position_exclusions`, a comma-separated list of

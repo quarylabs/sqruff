@@ -24,11 +24,16 @@ struct LayoutTypeConfig {
 pub struct LinePositionConfig {
     position: LinePosition,
     strict: bool,
+    align_following: bool,
 }
 
 impl LinePositionConfig {
     pub const fn new(position: LinePosition, strict: bool) -> Self {
-        Self { position, strict }
+        Self {
+            position,
+            strict,
+            align_following: false,
+        }
     }
 
     pub const fn position(self) -> LinePosition {
@@ -37,6 +42,10 @@ impl LinePositionConfig {
 
     pub const fn is_strict(self) -> bool {
         self.strict
+    }
+
+    pub const fn aligns_following(self) -> bool {
+        self.align_following
     }
 }
 
@@ -50,21 +59,25 @@ impl FromStr for LinePositionConfig {
             .ok_or_else(|| "line_position cannot be empty".to_string())?
             .parse::<LinePosition>()
             .map_err(|_| format!("Unexpected line_position value: {s}"))?;
-        let strict = match parts.next() {
-            Some("strict") => true,
-            Some(other) => {
-                return Err(format!(
-                    "Unexpected line_position modifier '{other}' in '{s}'"
-                ));
+        let mut strict = false;
+        let mut align_following = false;
+        for modifier in parts {
+            match modifier {
+                "strict" => strict = true,
+                "align-following" => align_following = true,
+                other => {
+                    return Err(format!(
+                        "Unexpected line_position modifier '{other}' in '{s}'"
+                    ));
+                }
             }
-            None => false,
-        };
-
-        if parts.next().is_some() {
-            return Err(format!("Unexpected line_position value: {s}"));
         }
 
-        Ok(Self::new(position, strict))
+        Ok(Self {
+            position,
+            strict,
+            align_following,
+        })
     }
 }
 
@@ -468,6 +481,13 @@ mod tests {
 
         assert_eq!(config.position(), LinePosition::Alone);
         assert!(config.is_strict());
+        assert!(!config.aligns_following());
+
+        let config: LinePositionConfig = "leading:align-following".parse().unwrap();
+
+        assert_eq!(config.position(), LinePosition::Leading);
+        assert!(!config.is_strict());
+        assert!(config.aligns_following());
     }
 
     #[test]

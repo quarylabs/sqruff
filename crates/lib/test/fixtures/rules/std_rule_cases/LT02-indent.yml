@@ -2115,6 +2115,84 @@ test_fail_issue_4680:
         col1 > 0
       {% endif %}
 
+test_indent_leading_comma_align_following:
+  fail_str: |
+    SELECT
+        a
+        , b
+    FROM foo;
+  fix_str: |
+    SELECT
+        a
+      , b
+    FROM foo;
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: "leading:align-following"
+
+test_indent_leading_comma_align_following_touch:
+  fail_str: |
+    SELECT
+        a
+        ,b
+    FROM foo;
+  fix_str: |
+    SELECT
+        a
+       ,b
+    FROM foo;
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: "leading:align-following"
+          spacing_after: touch
+
+test_indent_leading_segment_align_following_window_function:
+  fail_str: |
+    SELECT
+        table_1.a AS col_1
+        , table_1.b
+        , ROW_NUMBER() OVER (
+            PARTITION BY table_1.a
+            ORDER BY table_1.d
+        )         AS col_2
+    FROM
+        table_1
+        INNER JOIN table_2
+            ON
+                table_1.a = table_2.a
+                AND table_1.b = table_2.b
+                OR table_1.c = table_2.c;
+  fix_str: |
+    SELECT
+        table_1.a AS col_1
+      , table_1.b
+      , ROW_NUMBER() OVER (
+            PARTITION BY table_1.a
+            ORDER BY table_1.d
+        )         AS col_2
+    FROM
+        table_1
+        INNER JOIN table_2
+            ON
+                table_1.a = table_2.a
+            AND table_1.b = table_2.b
+             OR table_1.c = table_2.c;
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: "leading:align-following"
+        binary_operator:
+          line_position: "leading:align-following"
+    indentation:
+      indented_joins: true
+      implicit_indents: forbid
+      indented_on_contents: true
+
 test_pass_loop_indent_2:
   pass_str: |
     select

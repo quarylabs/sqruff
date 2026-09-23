@@ -1,15 +1,16 @@
 use std::cmp::PartialEq;
 use std::mem::take;
 
+use hashbrown::HashMap;
 use itertools::Itertools;
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
+use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 
-use super::config::ReflowConfig;
+use super::config::{ReflowConfig, Spacing};
 use super::depth_map::DepthMap;
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
-use super::rebreak::{rebreak_keywords_sequence, rebreak_sequence};
+use super::rebreak::{LinePosition, rebreak_keywords_sequence, rebreak_sequence};
 use super::reindent::{construct_single_indent, lint_indent_points, lint_line_length};
 use crate::core::config::FluffConfig;
 use crate::core::rules::LintResult;
@@ -415,6 +416,26 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
         }
 
         let single_indent = construct_single_indent(self.reflow_config.indent_unit);
+        let mut indentation_align_following = HashMap::new();
+
+        for syntax_kind in [SyntaxKind::Comma, SyntaxKind::BinaryOperator] {
+            let block_config = self
+                .reflow_config
+                .get_block_config(&SyntaxSet::new(&[syntax_kind]), None);
+            if block_config.line_position.is_some_and(|position| {
+                position.position() == LinePosition::Leading && position.aligns_following()
+            }) {
+                let spaces_after = match block_config.spacing_after {
+                    Spacing::Single => 1,
+                    Spacing::Touch => 0,
+                    spacing_after => panic!(
+                        "spacing after type of `{spacing_after:?}` is not supported with \
+                         line_position = leading:align-following"
+                    ),
+                };
+                indentation_align_following.insert(syntax_kind, spaces_after);
+            }
+        }
 
         let (elements, indent_results) = lint_indent_points(
             tables,
@@ -423,6 +444,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
             <_>::default(),
             self.reflow_config.implicit_indents,
             self.reflow_config.ignore_comment_lines,
+            &indentation_align_following,
         );
 
         Self {

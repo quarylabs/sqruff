@@ -193,7 +193,7 @@ file:
                 - naked_identifier: id
 - statement_terminator: ;
 - statement:
-  - create_view_statement:
+  - create_materialized_view_statement:
     - keyword: CREATE
     - keyword: OR
     - keyword: REFRESH

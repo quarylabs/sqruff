@@ -817,30 +817,41 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         Bracketed::new(vec![Ref::new("SetExpressionSegment").to_matchable()]).to_matchable(),
     );
 
-    dialect.replace_grammar("SelectStatementSegment", {
-        ansi::select_statement().copy(
-            Some(vec![
-                Ref::new("QualifyClauseSegment").optional().to_matchable(),
-            ]),
-            None,
-            Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
-            None,
-            vec![Ref::new("PipeOperatorSegment").to_matchable()],
-            false,
-        )
-    });
+    let unordered_select_statement = ansi::get_unordered_select_statement_segment_grammar().copy(
+        Some(vec![
+            Ref::new("QualifyClauseSegment").optional().to_matchable(),
+        ]),
+        None,
+        Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
+        None,
+        vec![Ref::new("PipeOperatorSegment").to_matchable()],
+        false,
+    );
 
     dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
-        ansi::get_unordered_select_statement_segment_grammar().copy(
+        unordered_select_statement.clone(),
+    );
+
+    dialect.replace_grammar(
+        "SelectStatementSegment",
+        unordered_select_statement.copy(
             Some(vec![
-                Ref::new("QualifyClauseSegment").optional().to_matchable(),
+                Ref::new("NamedWindowSegment").optional().to_matchable(),
+                Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                Ref::new("LimitClauseSegment").optional().to_matchable(),
+                Ref::new("OffsetClauseSegment").optional().to_matchable(),
             ]),
             None,
-            Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
             None,
-            vec![Ref::new("PipeOperatorSegment").to_matchable()],
-            false,
+            None,
+            vec![
+                Ref::new("PipeOperatorSegment").to_matchable(),
+                Ref::new("SetOperatorSegment").to_matchable(),
+                Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
+                Ref::new("WithDataClauseSegment").to_matchable(),
+            ],
+            true,
         ),
     );
 

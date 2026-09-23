@@ -500,11 +500,6 @@ file:
           - raw_comparison_operator: <
           - raw_comparison_operator: =
         - numeric_literal: '3'
-    - orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-        - naked_identifier: item
     - named_window:
       - keyword: WINDOW
       - named_window_expression:
@@ -533,4 +528,9 @@ file:
               - numeric_literal: '2'
               - keyword: FOLLOWING
           - end_bracket: )
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: item
 - statement_terminator: ;

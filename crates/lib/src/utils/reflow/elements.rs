@@ -202,7 +202,7 @@ impl ReflowPoint {
         } else if self.num_newlines() != 0 {
             if let Some(indent_seg) = indent_seg {
                 if indent_seg.raw() == desired_indent {
-                    unimplemented!()
+                    return (Vec::new(), self.clone());
                 } else if desired_indent.is_empty() {
                     let idx = self
                         .segments
@@ -286,11 +286,7 @@ impl ReflowPoint {
 
                 (
                     vec![LintResult::new(
-                        if let Some(before) = before {
-                            before.into()
-                        } else {
-                            unimplemented!()
-                        },
+                        before.unwrap_or_else(|| last_newline.clone()).into(),
                         vec![LintFix::replace(
                             last_newline.clone(),
                             vec![last_newline.clone(), new_indent],
@@ -928,5 +924,40 @@ mod tests {
 
         assert!(results.is_empty());
         assert_eq!(new_point, point);
+    }
+
+    #[test]
+    fn indent_to_leaves_matching_indent_unchanged() {
+        let newline = SegmentBuilder::newline(0, "\n");
+        let indent = SegmentBuilder::whitespace(1, "    ");
+        let point = ReflowPoint::new(vec![newline, indent]);
+        let tables = Tables::default();
+
+        let (results, new_point) = point.indent_to(
+            &tables,
+            "    ",
+            None,
+            Some(SegmentBuilder::keyword(2, "select")),
+            None,
+            None,
+        );
+
+        assert!(results.is_empty());
+        assert_eq!(new_point, point);
+    }
+
+    #[test]
+    fn indent_to_without_before_anchors_on_newline() {
+        let newline = SegmentBuilder::token(0, "\n", SyntaxKind::Newline)
+            .with_position(PositionMarker::default())
+            .finish();
+        let point = ReflowPoint::new(vec![newline.clone()]);
+        let tables = Tables::default();
+
+        let (results, new_point) = point.indent_to(&tables, "    ", None, None, None, None);
+
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].anchor.as_ref().unwrap().id(), newline.id());
+        assert_eq!(new_point.raw(), "\n    ");
     }
 }

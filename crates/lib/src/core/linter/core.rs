@@ -1301,4 +1301,74 @@ from test;
 
         assert_eq!(fixed, expected);
     }
+
+    fn postgres_linter_with_rules(rules: &str) -> Linter {
+        let config = FluffConfig::from_source(
+            &format!("[sqruff]\ndialect = postgres\nrules = {rules}\n"),
+            None,
+        );
+        Linter::new(config, None, None, true).unwrap()
+    }
+
+    fn source_patch_summary(
+        sql: &str,
+        rules: &str,
+    ) -> (Vec<(std::ops::Range<usize>, String)>, String) {
+        let linted = postgres_linter_with_rules(rules)
+            .lint_string_wrapped(sql, true)
+            .unwrap();
+        let patches = linted
+            .source_patches()
+            .into_iter()
+            .map(|patch| (patch.source_slice, patch.fixed_raw.to_string()))
+            .collect();
+        (patches, linted.fix_string())
+    }
+
+    #[test]
+    fn test_source_patches_are_granular_for_literal_files() {
+        let sql = "DELETE FROM jobs where id = $1";
+        let (patches, fixed) = source_patch_summary(sql, "CP01");
+
+        assert_eq!(patches, vec![(17..22, "WHERE".to_string())]);
+        assert_eq!(fixed, "DELETE FROM jobs WHERE id = $1");
+    }
+
+    #[test]
+    fn test_source_patches_cover_deletion_alongside_insertion() {
+        let sql = "select a,b   from   t where x=1 and y  = 2";
+        let (patches, fixed) = source_patch_summary(sql, "LT01");
+
+        assert_eq!(
+            patches,
+            vec![
+                (9..9, " ".to_string()),
+                (10..13, " ".to_string()),
+                (17..20, " ".to_string()),
+                (29..29, " ".to_string()),
+                (30..30, " ".to_string()),
+                (37..39, " ".to_string()),
+            ]
+        );
+        assert_eq!(fixed, "select a, b from t where x = 1 and y = 2");
+    }
+
+    #[test]
+    fn test_source_patches_keep_multiple_insertions_at_same_point() {
+        let sql = "select\n    a AND\n    -- comment1!\n    b\nfrom foo\n";
+        let (patches, fixed) = source_patch_summary(sql, "LT03");
+
+        assert_eq!(
+            patches,
+            vec![
+                (12..16, String::new()),
+                (38..38, "AND".to_string()),
+                (38..38, " ".to_string()),
+            ]
+        );
+        assert_eq!(
+            fixed,
+            "select\n    a\n    -- comment1!\n    AND b\nfrom foo\n"
+        );
+    }
 }

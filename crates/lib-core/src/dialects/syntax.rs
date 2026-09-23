@@ -1255,6 +1255,7 @@ pub enum SyntaxKind {
     WarehouseSize,
     WhenClause,
     WhereClause,
+    WhereCurrentOfCursorSegment,
     WhileLoopStatement,
     WhileStatement,
     WhileStatements,

@@ -385,17 +385,15 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("VALUES").to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::new("SelectStatementSegment").to_matchable(),
+                Ref::new("SelectableGrammar").to_matchable(),
                 Sequence::new(vec![
                     Ref::new("BracketedColumnReferenceListGrammar")
                         .optional()
                         .to_matchable(),
                     one_of(vec![
                         Ref::new("ValuesClauseSegment").to_matchable(),
-                        optionally_bracketed(vec![
-                            Ref::new("SelectStatementSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                 ])

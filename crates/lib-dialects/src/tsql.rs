@@ -1590,6 +1590,7 @@ pub fn raw_dialect() -> Dialect {
                                 Bracketed::new(vec![
                                     Delimited::new(vec![
                                         Ref::new("TableConstraintSegment").to_matchable(),
+                                        Ref::new("TableIndexSegment").to_matchable(),
                                         Ref::new("ComputedColumnDefinitionSegment").to_matchable(),
                                         Ref::new("ColumnDefinitionSegment").to_matchable(),
                                     ])
@@ -5234,8 +5235,10 @@ pub fn raw_dialect() -> Dialect {
         Sequence::new(vec![
             Ref::keyword("IDENTITY").to_matchable(),
             Bracketed::new(vec![
+                Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                 Ref::new("NumericLiteralSegment").to_matchable(), // seed
                 Ref::new("CommaSegment").to_matchable(),
+                Ref::new("SignedSegmentGrammar").optional().to_matchable(),
                 Ref::new("NumericLiteralSegment").to_matchable(), // increment
             ])
             .config(|this| this.optional())
@@ -5506,13 +5509,19 @@ pub fn raw_dialect() -> Dialect {
         Some(vec![
             Sequence::new(vec![
                 Ref::keyword("DROP").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("CONSTRAINT").to_matchable(),
-                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("CONSTRAINT").to_matchable(),
+                            Ref::new("IfExistsGrammar").optional().to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
-                .config(|this| this.optional())
                 .to_matchable(),
-                Ref::new("ObjectReferenceSegment").to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![
@@ -5570,10 +5579,16 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("DROP").to_matchable(),
-                Ref::keyword("COLUMN").to_matchable(),
-                Ref::new("IfExistsGrammar").optional().to_matchable(),
-                Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                Delimited::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("COLUMN").to_matchable(),
+                        Ref::new("IfExistsGrammar").optional().to_matchable(),
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
                     .to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![
@@ -5618,6 +5633,16 @@ pub fn raw_dialect() -> Dialect {
         false,
     );
     dialect.replace_grammar("AlterTableOptionsGrammar", alter_table_options);
+    dialect.replace_grammar(
+        "AlterTableStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("ALTER").to_matchable(),
+            Ref::keyword("TABLE").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Ref::new("AlterTableOptionsGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     // T-SQL permits DEFAULT as a function argument expression.
     let expression_d_without_brackets =
@@ -7802,13 +7827,22 @@ pub fn raw_dialect() -> Dialect {
             let default_database = Sequence::new(vec![
                 Ref::keyword("DEFAULT_DATABASE").to_matchable(),
                 Ref::new("EqualsSegment").to_matchable(),
-                Ref::new("QuotedLiteralSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable();
             let default_language = Sequence::new(vec![
                 Ref::keyword("DEFAULT_LANGUAGE").to_matchable(),
                 Ref::new("EqualsSegment").to_matchable(),
-                Ref::new("QuotedLiteralSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable();
             let secondary_option = one_of(vec![
@@ -7851,7 +7885,7 @@ pub fn raw_dialect() -> Dialect {
             let password_options = Sequence::new(vec![
                 Ref::keyword("PASSWORD").to_matchable(),
                 Ref::new("EqualsSegment").to_matchable(),
-                Ref::new("QuotedLiteralSegment").to_matchable(),
+                Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
                 Ref::keyword("MUST_CHANGE").optional().to_matchable(),
                 Ref::new("CommaSegment").optional().to_matchable(),
                 Delimited::new(vec![secondary_option])

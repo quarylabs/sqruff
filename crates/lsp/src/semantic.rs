@@ -497,6 +497,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateExternalFunctionStatement
         | WarehouseObjectProperties
         | ConstraintPropertiesSegment
+        | IndexPropertiesSegment
         | CopyOptions
         | SchemaObjectProperties
         | CreateTaskStatement

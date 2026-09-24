@@ -1,11 +1,16 @@
 file:
 - statement:
   - access_statement:
-    - keyword: grant
-    - keyword: select
-    - keyword: on
-    - object_reference:
-      - naked_identifier: mytable
-    - keyword: to
-    - role_reference:
-      - naked_identifier: public
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - object_reference:
+          - naked_identifier: mytable
+      - keyword: to
+      - access_target:
+        - role_reference:
+          - naked_identifier: public

@@ -18,3 +18,8 @@ file:
     - keyword: RESOURCE
     - keyword: MONITORS
 - statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: WORKSPACES
+- statement_terminator: ;

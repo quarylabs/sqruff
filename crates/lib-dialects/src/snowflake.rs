@@ -4660,6 +4660,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     "PIPE",
                     "NOTEBOOK",
                     "MODEL",
+                    "WORKSPACE",
                 ];
 
                 let schema_object_names_keywrods: Vec<Matchable> = schema_object_names
@@ -10763,6 +10764,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("STREAMS").to_matchable(),
                     Ref::keyword("STREAMLITS").to_matchable(),
                     Ref::keyword("TASKS").to_matchable(),
+                    Ref::keyword("WORKSPACES").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("USER").to_matchable(),
                         Ref::keyword("FUNCTIONS").to_matchable(),
@@ -10816,6 +10818,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("USER").to_matchable(),
                             Ref::keyword("WAREHOUSE").to_matchable(),
                             Ref::keyword("VIEW").to_matchable(),
+                            Ref::keyword("WORKSPACE").to_matchable(),
                         ])
                         .to_matchable(),
                         Ref::new("ObjectReferenceSegment").optional().to_matchable(),

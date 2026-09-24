@@ -3996,86 +3996,63 @@ pub fn raw_dialect() -> Dialect {
                             ])
                             .to_matchable(),
                             Ref::new("CommaSegment").to_matchable(),
-                            one_of(vec![
+                            Delimited::new(vec![
                                 Sequence::new(vec![
-                                    Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::keyword("DATA_SOURCE").to_matchable(),
+                                        Ref::keyword("CODEPAGE").to_matchable(),
+                                        Ref::keyword("DATAFILETYPE").to_matchable(),
+                                        Ref::keyword("FORMAT").to_matchable(),
                                         Ref::keyword("FORMATFILE").to_matchable(),
-                                        Ref::new("EqualsSegment").to_matchable(),
-                                        Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
-                                        Ref::new("CommaSegment").to_matchable(),
+                                        Ref::keyword("FORMATFILE_DATA_SOURCE").to_matchable(),
+                                        Ref::keyword("FIELDTERMINATOR").to_matchable(),
+                                        Ref::keyword("ROWTERMINATOR").to_matchable(),
+                                        Ref::keyword("FIELDQUOTE").to_matchable(),
+                                        Ref::keyword("ESCAPE_CHAR").to_matchable(),
+                                        Ref::keyword("DATA_COMPRESSION").to_matchable(),
+                                        Ref::keyword("PARSER_VERSION").to_matchable(),
+                                        Ref::keyword("ERRORFILE").to_matchable(),
+                                        Ref::keyword("ERRORFILE_LOCATION").to_matchable(),
+                                        Ref::keyword("ERRORFILE_DATA_SOURCE").to_matchable(),
+                                        Ref::keyword("ROWSET_OPTIONS").to_matchable(),
                                     ])
-                                    .config(|this| this.optional())
                                     .to_matchable(),
-                                    Delimited::new(vec![
-                                        Sequence::new(vec![
-                                            Ref::keyword("DATA_SOURCE").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("ERRORFILE").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("ERRORFILE_DATA_SOURCE").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("MAXERRORS").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("NumericLiteralSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("FIRSTROW").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("NumericLiteralSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("LASTROW").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("NumericLiteralSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("CODEPAGE").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("FORMAT").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("FIELDQUOTE").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("FORMATFILE").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("FORMATFILE_DATA_SOURCE").to_matchable(),
-                                            Ref::new("EqualsSegment").to_matchable(),
-                                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::keyword("FIRSTROW").to_matchable(),
+                                        Ref::keyword("LASTROW").to_matchable(),
+                                        Ref::keyword("MAXERRORS").to_matchable(),
+                                        Ref::keyword("ROWS_PER_BATCH").to_matchable(),
+                                        Ref::keyword("HEADER_ROW").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("LiteralGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ORDER").to_matchable(),
+                                    optionally_bracketed(vec![
+                                        Delimited::new(vec![
+                                            Sequence::new(vec![
+                                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                                one_of(vec![
+                                                    Ref::keyword("ASC").to_matchable(),
+                                                    Ref::keyword("DESC").to_matchable(),
+                                                ])
+                                                .config(|this| this.optional())
+                                                .to_matchable(),
+                                            ])
+                                            .to_matchable(),
                                         ])
                                         .to_matchable(),
                                     ])
-                                    .config(|this| this.optional())
                                     .to_matchable(),
+                                    Ref::new("UniqueKeyGrammar").optional().to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Ref::keyword("SINGLE_BLOB").to_matchable(),

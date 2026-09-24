@@ -6,7 +6,6 @@ file:
       - select_clause_element:
         - expression:
           - numeric_literal: '3'
-          - binary_operator:
-            - keyword: DIV
+          - binary_operator: DIV
           - numeric_literal: '2'
 - statement_terminator: ;

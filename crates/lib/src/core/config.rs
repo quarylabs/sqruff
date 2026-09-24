@@ -971,17 +971,39 @@ fn resolve_relative_config_path(mut value: Value, config_path: Option<&Path>) ->
     value
 }
 
+fn resolve_config_path_pattern(value: Value, config_path: Option<&Path>) -> Vec<Value> {
+    let resolved = resolve_relative_config_path(value, config_path);
+    let Some(pattern) = resolved.as_string() else {
+        return Vec::new();
+    };
+    let Ok(matches) = glob::glob(pattern) else {
+        return Vec::new();
+    };
+
+    matches
+        .filter_map(Result::ok)
+        .map(|path| Value::String(path.to_string_lossy().into_owned().into()))
+        .collect()
+}
+
 fn resolve_comma_separated_config_paths(value: Value, config_path: Option<&Path>) -> Value {
     let Some(Value::Array(paths)) = split_string_or_array(&value) else {
         return value;
     };
 
-    Value::Array(
+    let resolved_paths = paths
+        .iter()
+        .cloned()
+        .flat_map(|path| resolve_config_path_pattern(path, config_path))
+        .collect::<Vec<_>>();
+
+    // Preserve the original patterns if none of them match. This mirrors
+    // SQLFluff's fallback while keeping sqruff's array-valued config invariant.
+    Value::Array(if resolved_paths.is_empty() {
         paths
-            .into_iter()
-            .map(|path| resolve_relative_config_path(path, config_path))
-            .collect(),
-    )
+    } else {
+        resolved_paths
+    })
 }
 
 fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, Value> {
@@ -1269,10 +1291,141 @@ library_path = none
     }
 
     #[test]
+    fn test_config_path_patterns_expand_globs_and_exact_files() {
+        let root = temp_config_dir("path-globs");
+        let macros = root.join("macros");
+        let nested = macros.join("nested");
+        fs::create_dir_all(&nested).unwrap();
+        for path in [
+            macros.join("macro1.sql"),
+            macros.join("macro2.sql"),
+            macros.join("other.txt"),
+            nested.join("macro3.sql"),
+        ] {
+            fs::write(path, "").unwrap();
+        }
+        let config_path = root.join(".sqruff");
+
+        let mut sql_matches =
+            resolve_config_path_pattern(Value::String("macros/*.sql".into()), Some(&config_path));
+        sql_matches.sort_by(|left, right| left.as_string().cmp(&right.as_string()));
+        assert_eq!(
+            sql_matches,
+            vec![
+                Value::String(
+                    macros
+                        .join("macro1.sql")
+                        .to_string_lossy()
+                        .into_owned()
+                        .into()
+                ),
+                Value::String(
+                    macros
+                        .join("macro2.sql")
+                        .to_string_lossy()
+                        .into_owned()
+                        .into()
+                ),
+            ]
+        );
+
+        assert_eq!(
+            resolve_config_path_pattern(
+                Value::String("macros/nested/macro3.sql".into()),
+                Some(&config_path),
+            ),
+            vec![Value::String(
+                nested
+                    .join("macro3.sql")
+                    .to_string_lossy()
+                    .into_owned()
+                    .into()
+            )]
+        );
+        assert!(
+            resolve_config_path_pattern(Value::String("missing/*.sql".into()), Some(&config_path),)
+                .is_empty()
+        );
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_comma_separated_config_paths_expand_globs() {
+        let root = temp_config_dir("comma-path-globs");
+        let macros = root.join("macros");
+        let nested = macros.join("nested");
+        fs::create_dir_all(&nested).unwrap();
+        for path in [
+            macros.join("macro1.sql"),
+            macros.join("macro2.sql"),
+            nested.join("macro3.sql"),
+        ] {
+            fs::write(path, "").unwrap();
+        }
+        let config_path = root.join(".sqruff");
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff:templater:jinja]
+load_macros_from_path = macros/*.sql, macros/nested/*.sql
+"#,
+            Some(&config_path),
+        );
+
+        let paths = config.raw["templater"]["jinja"]["load_macros_from_path"]
+            .as_array()
+            .unwrap();
+        assert_eq!(paths.len(), 3);
+        assert!(
+            paths
+                .iter()
+                .any(|path| path.as_string().unwrap().ends_with("macro1.sql"))
+        );
+        assert!(
+            paths
+                .iter()
+                .any(|path| path.as_string().unwrap().ends_with("macro2.sql"))
+        );
+        assert!(
+            paths
+                .iter()
+                .any(|path| path.as_string().unwrap().ends_with("macro3.sql"))
+        );
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_comma_separated_config_paths_preserve_unmatched_patterns() {
+        let root = temp_config_dir("unmatched-path-globs");
+        let config_path = root.join(".sqruff");
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff:templater:jinja]
+load_macros_from_path = empty/*.sql, missing/*.sql
+"#,
+            Some(&config_path),
+        );
+
+        assert_eq!(
+            config.raw["templater"]["jinja"]["load_macros_from_path"]
+                .as_array()
+                .unwrap(),
+            &[
+                Value::String("empty/*.sql".into()),
+                Value::String("missing/*.sql".into()),
+            ]
+        );
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
     fn test_jinja_loader_search_path_resolves_each_ini_path() {
-        let config_path = std::env::temp_dir()
-            .join("sqruff-loader-search-path")
-            .join(".sqruff");
+        let root = temp_config_dir("loader-search-path-ini");
+        fs::create_dir_all(root.join("search_a")).unwrap();
+        fs::create_dir_all(root.join("search_b/subdir")).unwrap();
+        let config_path = root.join(".sqruff");
         let config = FluffConfig::from_source(
             r#"
 [sqruff:templater:jinja]
@@ -1315,13 +1468,17 @@ loader_search_path = search_a, search_b/subdir
                     .to_string(),
             ]
         );
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
     fn test_jinja_macro_paths_resolve_each_ini_path() {
-        let config_path = std::env::temp_dir()
-            .join("sqruff-macro-paths")
-            .join(".sqruff");
+        let root = temp_config_dir("macro-paths-ini");
+        fs::create_dir_all(root.join("macros/excluded")).unwrap();
+        fs::create_dir_all(root.join("shared")).unwrap();
+        fs::write(root.join("shared/macros.sql"), "").unwrap();
+        fs::write(root.join("shared/ignored.sql"), "").unwrap();
+        let config_path = root.join(".sqruff");
         let config = FluffConfig::from_source(
             r#"
 [sqruff:templater:jinja]
@@ -1368,13 +1525,17 @@ exclude_macros_from_path = macros/excluded, shared/ignored.sql
                 .collect::<Vec<_>>();
             assert_eq!(paths, expected);
         }
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
     fn test_jinja_macro_paths_resolve_toml_arrays() {
-        let config_path = std::env::temp_dir()
-            .join("sqruff-macro-paths")
-            .join("pyproject.toml");
+        let root = temp_config_dir("macro-paths-toml");
+        fs::create_dir_all(root.join("macros/excluded")).unwrap();
+        fs::create_dir_all(root.join("shared")).unwrap();
+        fs::write(root.join("shared/macros.sql"), "").unwrap();
+        fs::write(root.join("shared/ignored.sql"), "").unwrap();
+        let config_path = root.join("pyproject.toml");
         let config = FluffConfig::from_source(
             r#"
 [tool.sqruff.templater.jinja]
@@ -1404,13 +1565,15 @@ exclude_macros_from_path = ["macros/excluded", "shared/ignored.sql"]
                 Path::new(value.as_string().unwrap()).starts_with(config_path.parent().unwrap())
             }));
         }
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
     fn test_jinja_loader_search_path_resolves_toml_array() {
-        let config_path = std::env::temp_dir()
-            .join("sqruff-loader-search-path")
-            .join("pyproject.toml");
+        let root = temp_config_dir("loader-search-path-toml");
+        fs::create_dir_all(root.join("search_a")).unwrap();
+        fs::create_dir_all(root.join("search_b/subdir")).unwrap();
+        let config_path = root.join("pyproject.toml");
         let config = FluffConfig::from_source(
             r#"
 [tool.sqruff.templater.jinja]
@@ -1456,6 +1619,7 @@ loader_search_path = ["search_a", "search_b/subdir"]
                     .as_ref()
             )
         );
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]

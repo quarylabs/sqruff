@@ -7797,6 +7797,51 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "AlterSystemStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterSystemStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("SYSTEM").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("TO").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("DEFAULT").to_matchable(),
+                                Delimited::new(vec![
+                                    Ref::new("LiteralGrammar").to_matchable(),
+                                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                                    Ref::new("QuotedIdentifierSegment").to_matchable(),
+                                    Ref::new("OnKeywordAsIdentifierSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RESET").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("ALL").to_matchable(),
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "CreatePolicyStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreatePolicyStatement, |_| {
                 Sequence::new(vec![
@@ -10220,6 +10265,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("DropAggregateStatementSegment").to_matchable(),
             Ref::new("CreateAggregateStatementSegment").to_matchable(),
             Ref::new("SetStatementSegment").to_matchable(),
+            Ref::new("AlterSystemStatementSegment").to_matchable(),
             Ref::new("AlterPolicyStatementSegment").to_matchable(),
             Ref::new("CreatePolicyStatementSegment").to_matchable(),
             Ref::new("DropPolicyStatementSegment").to_matchable(),

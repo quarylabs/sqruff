@@ -72,11 +72,11 @@ file:
               - bracketed:
                 - start_bracket: (
                 - quoted_literal: '''name'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: '''value'''
                 - comma: ','
                 - quoted_literal: '''new'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - integer_literal: '1'
                 - end_bracket: )
   - statement_terminator: ;
@@ -92,11 +92,11 @@ file:
               - bracketed:
                 - start_bracket: (
                 - quoted_literal: '''name'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: '''value'''
                 - comma: ','
                 - quoted_literal: '''type'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - null_literal: 'NULL'
                 - keyword: ABSENT
                 - keyword: ON
@@ -114,11 +114,11 @@ file:
               - bracketed:
                 - start_bracket: (
                 - quoted_literal: '''name'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: '''value'''
                 - comma: ','
                 - quoted_literal: '''type'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                   - function_name:
                     - keyword: JSON_ARRAY
@@ -142,11 +142,11 @@ file:
               - bracketed:
                 - start_bracket: (
                 - quoted_literal: '''name'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - quoted_literal: '''value'''
                 - comma: ','
                 - quoted_literal: '''type'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                   - function_name:
                     - keyword: JSON_OBJECT
@@ -154,11 +154,11 @@ file:
                     - bracketed:
                       - start_bracket: (
                       - quoted_literal: '''type_id'''
-                      - colon: ':'
+                      - colon_delimiter: ':'
                       - integer_literal: '1'
                       - comma: ','
                       - quoted_literal: '''name'''
-                      - colon: ':'
+                      - colon_delimiter: ':'
                       - quoted_literal: '''a'''
                       - end_bracket: )
                 - end_bracket: )
@@ -209,7 +209,7 @@ file:
               - bracketed:
                 - start_bracket: (
                 - quoted_literal: '''user_name'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - function:
                   - function_name:
                     - function_name_identifier: USER_NAME
@@ -219,12 +219,12 @@ file:
                       - end_bracket: )
                 - comma: ','
                 - tsql_variable: '@id_key'
-                - colon: ':'
+                - colon_delimiter: ':'
                 - parameterized_expression:
                   - tsql_variable: '@id_value'
                 - comma: ','
                 - quoted_literal: '''sid'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - bracketed:
                   - start_bracket: (
                   - select_statement:
@@ -254,21 +254,21 @@ file:
               - bracketed:
                 - start_bracket: (
                 - quoted_literal: '''security_id'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - column_reference:
                   - naked_identifier: s
                   - dot: .
                   - naked_identifier: security_id
                 - comma: ','
                 - quoted_literal: '''login'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - column_reference:
                   - naked_identifier: s
                   - dot: .
                   - naked_identifier: login_name
                 - comma: ','
                 - quoted_literal: '''status'''
-                - colon: ':'
+                - colon_delimiter: ':'
                 - column_reference:
                   - naked_identifier: s
                   - dot: .
@@ -325,11 +325,11 @@ file:
                       - bracketed:
                         - start_bracket: (
                         - quoted_literal: '''name'''
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - quoted_literal: '''value'''
                         - comma: ','
                         - quoted_literal: '''type'''
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - integer_literal: '1'
                         - end_bracket: )
                 - end_bracket: )
@@ -356,11 +356,11 @@ file:
                       - bracketed:
                         - start_bracket: (
                         - quoted_literal: '''name'''
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - quoted_literal: '''value'''
                         - comma: ','
                         - quoted_literal: '''type'''
-                        - colon: ':'
+                        - colon_delimiter: ':'
                         - integer_literal: '1'
                         - end_bracket: )
                 - comma: ','

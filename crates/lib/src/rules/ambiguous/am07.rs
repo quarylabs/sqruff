@@ -138,13 +138,16 @@ impl RuleAM07 {
     /// The selectable may opr may not have (*) wildcard expressions. If it
     /// does, we attempt to resolve them.
     fn resolve_selectable(&self, selectable: Selectable, root_query: Query<'_>) -> (usize, bool) {
-        debug_assert!(selectable.select_info().is_some());
+        let Some(select_info) = selectable.select_info() else {
+            // Dialects such as DuckDB allow FROM-first syntax with an implicit
+            // SELECT *. We cannot resolve that implicit wildcard here.
+            return (0, false);
+        };
 
         let wildcard_info = selectable.wildcard_info();
 
         // Start with the number of non-wildcard columns.
-        let mut num_cols =
-            selectable.select_info().unwrap().select_targets.len() - wildcard_info.len();
+        let mut num_cols = select_info.select_targets.len() - wildcard_info.len();
 
         // If there are no wildcards, we're done.
         if wildcard_info.is_empty() {

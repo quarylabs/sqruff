@@ -2636,7 +2636,7 @@
           "REPO_MAPPING:rules_rust+,rules_cc rules_cc+",
           "REPO_MAPPING:rules_rust+,rules_rust rules_rust+",
           "FILE:@@//Cargo.lock 6843d1680db3660603ebcac0368429e3dfd91f9ec2e42e2f957f6f1cbd08de23",
-          "FILE:@@//Cargo.toml f944ca788468f438f909027ec5982683f0b82a2d59fc7d040bafdf4e3a64f94e",
+          "FILE:@@//Cargo.toml 75c3ce3b5cdf5f1d5cca20e59485ba5ec17b21f73d063edf20a909ee5d092a65",
           "FILE:@@//crates/cli/Cargo.toml b1668b3aeb25e8cac0ed1b2e41ca229eaf543ad7c773aab6b6ea991b856d754d",
           "FILE:@@//crates/cli-lib/Cargo.toml 06ee134aaa8bfd3a718386b90e062333927d22ecdfdb9902a758703639282a7a",
           "FILE:@@//crates/cli-python/Cargo.toml 7a4307b8bf718c65f746fe859557c2f512e07dee134d9f66fb686e541cbf0d03",

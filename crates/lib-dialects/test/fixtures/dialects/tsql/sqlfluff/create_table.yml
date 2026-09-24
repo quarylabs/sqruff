@@ -294,3 +294,89 @@ file:
               - keyword: UNIQUE
           - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Test
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: ID
+            - data_type:
+              - keyword: int
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+            - column_constraint_segment:
+              - keyword: primary
+              - keyword: key
+          - comma: ','
+          - column_definition:
+            - naked_identifier: name
+            - data_type:
+              - keyword: varchar
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - integer_literal: '128'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: 'NULL'
+            - table_index_segment:
+              - keyword: index
+              - object_reference:
+                - naked_identifier: _name
+              - bracketed_index_column_list_grammar:
+                - bracketed:
+                  - start_bracket: (
+                  - index_column_definition:
+                    - naked_identifier: name
+                  - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_table_statement:
+      - create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: Test
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+            - naked_identifier: ID
+            - data_type:
+              - keyword: int
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+            - column_constraint_segment:
+              - keyword: primary
+              - keyword: key
+          - comma: ','
+          - column_definition:
+            - naked_identifier: name
+            - data_type:
+              - keyword: varchar
+              - bracketed_arguments:
+                - bracketed:
+                  - start_bracket: (
+                  - integer_literal: '128'
+                  - end_bracket: )
+            - column_constraint_segment:
+              - keyword: 'NULL'
+            - column_constraint_segment:
+              - keyword: index
+              - object_reference:
+                - naked_identifier: _name
+          - end_bracket: )
+  - statement_terminator: ;

@@ -12,7 +12,7 @@ use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Nothing, Ref};
-use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::lexer::{Cursor, Matcher};
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
@@ -28,6 +28,78 @@ use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(TSQLDialectConfig {});
+
+fn is_tsql_currency_symbol(ch: char) -> bool {
+    matches!(
+        ch,
+        '$' | '¢'
+            | '£'
+            | '¤'
+            | '¥'
+            | '৲'
+            | '৳'
+            | '฿'
+            | '៛'
+            | '₠'
+            | '₡'
+            | '₢'
+            | '₣'
+            | '₤'
+            | '₥'
+            | '₦'
+            | '₧'
+            | '₨'
+            | '₩'
+            | '₪'
+            | '₫'
+            | '€'
+            | '₭'
+            | '₮'
+            | '₯'
+            | '₰'
+            | '₱'
+            | '﷼'
+            | '﹩'
+            | '＄'
+            | '￠'
+            | '￡'
+            | '￥'
+            | '￦'
+    )
+}
+
+fn tsql_money_literal(cursor: &mut Cursor) -> bool {
+    cursor.shift_while(|ch| matches!(ch, '+' | '-'));
+
+    if !is_tsql_currency_symbol(cursor.peek()) {
+        return false;
+    }
+    cursor.shift();
+    cursor.shift_while(|ch| is_tsql_currency_symbol(ch) || matches!(ch, '+' | '-'));
+
+    match cursor.shift() {
+        '0'..='9' => {
+            cursor.shift_while(|ch| ch.is_ascii_digit());
+            if cursor.peek() == '.' {
+                cursor.shift();
+                if cursor.peek().is_ascii_digit() {
+                    cursor.shift_while(|ch| ch.is_ascii_digit());
+                } else {
+                    let next = cursor.peek();
+                    if next == '.' || next.is_alphanumeric() || next == '_' {
+                        return false;
+                    }
+                }
+            }
+            true
+        }
+        '.' if cursor.peek().is_ascii_digit() => {
+            cursor.shift_while(|ch| ch.is_ascii_digit());
+            true
+        }
+        _ => false,
+    }
+}
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure
@@ -151,10 +223,17 @@ pub fn raw_dialect() -> Dialect {
         "!<", "!>", // Special comparison operators
     ]);
 
-    // T-SQL hexadecimal and file-size literals must be tokenized before ordinary
-    // numeric literals, which would otherwise consume only their numeric prefix.
+    // T-SQL money, hexadecimal, and file-size literals must be tokenized before
+    // ordinary numeric literals, which would otherwise consume only their numeric
+    // prefix. Money literals accept SQL Server's documented currency symbols and
+    // sign placement.
     dialect.insert_lexer_matchers(
         vec![
+            Matcher::native(
+                "money_literal",
+                tsql_money_literal,
+                SyntaxKind::NumericLiteral,
+            ),
             Matcher::regex(
                 "hexadecimal_literal",
                 r"([xX]'([\da-fA-F][\da-fA-F])+'|0[xX][\da-fA-F]*)",
@@ -5090,8 +5169,12 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("BracketedArguments").optional().to_matchable(),
                 ])
                 .to_matchable(),
-                // User-defined data types.
-                Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                // User-defined data types with optional arguments.
+                Sequence::new(vec![
+                    Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                    Ref::new("BracketedArguments").optional().to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
             Ref::new("CharCharacterSetGrammar")
@@ -5268,6 +5351,19 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("COLLATE").to_matchable(),
                             Ref::new("CollationReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        // Inline index without a column list. Forms with a
+                        // bracketed column list are matched by TableIndexSegment.
+                        Sequence::new(vec![
+                            Ref::keyword("INDEX").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("CLUSTERED").to_matchable(),
+                                Ref::keyword("NONCLUSTERED").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -6656,6 +6752,21 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    // T-SQL permits an inline table index after a column's constraints.
+    dialect.replace_grammar(
+        "ColumnDefinitionSegment",
+        Sequence::new(vec![
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("DatatypeSegment").to_matchable(),
+            AnyNumberOf::new(vec![
+                Ref::new("ColumnConstraintSegment").to_matchable(),
+                Ref::new("TableIndexSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     // T-SQL CREATE TABLE with Azure Synapse Analytics support
     dialect.replace_grammar(

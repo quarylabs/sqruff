@@ -221,3 +221,41 @@ file:
             - alias_expression:
               - naked_identifier: x
   - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: $0
+          - alias_expression:
+            - naked_identifier: DollarAmt
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: $-1
+          - alias_expression:
+            - naked_identifier: NegAmt
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: -$.01
+          - alias_expression:
+            - naked_identifier: NegPenny
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: -+$-+$+++2
+          - alias_expression:
+            - naked_identifier: CrazyButValid
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: ￡100
+          - alias_expression:
+            - naked_identifier: FWPoundAmt
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: ￠100
+          - alias_expression:
+            - naked_identifier: FWCent
+  - statement_terminator: ;

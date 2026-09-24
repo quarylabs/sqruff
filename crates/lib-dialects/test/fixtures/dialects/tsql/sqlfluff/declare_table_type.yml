@@ -143,3 +143,28 @@ file:
               - end_bracket: )
       - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - keyword: declare
+    - tsql_variable: '@var'
+    - keyword: table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - keyword: int
+        - column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+      - comma: ','
+      - table_index_segment:
+        - keyword: index
+        - object_reference:
+          - naked_identifier: idx
+        - bracketed_index_column_list_grammar:
+          - bracketed:
+            - start_bracket: (
+            - index_column_definition:
+              - naked_identifier: id
+            - end_bracket: )
+      - end_bracket: )

@@ -574,3 +574,43 @@ file:
             - end_bracket: )
         - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeTable
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+        - naked_identifier: SomeConstraint
+      - comma: ','
+      - keyword: CONSTRAINT
+      - object_reference:
+        - naked_identifier: SomeOtherConstraint
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeTable
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: SomeColumn
+      - comma: ','
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+        - naked_identifier: SomeOtherColumn
+  - statement_terminator: ;

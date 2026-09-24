@@ -509,6 +509,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateTaskStatement
         | SnowflakeTaskExpressionSegment
         | CreateStatement
+        | DefineStatement
         | CreateFileFormatSegment
         | AlterFileFormatSegment
         | CsvFileFormatTypeParameters
@@ -528,6 +529,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | GcsExternalStageParameters
         | AzureBlobStorageExternalStageParameters
         | CreateStageStatement
+        | DefineStageStatement
         | AlterStageStatement
         | CreateStreamStatement
         | AlterStreamStatement

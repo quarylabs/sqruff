@@ -1,0 +1,33 @@
+file:
+- statement:
+  - define_statement:
+    - keyword: DEFINE
+    - keyword: TAG
+    - object_reference:
+      - naked_identifier: boo
+- statement_terminator: ;
+- statement:
+  - define_statement:
+    - keyword: DEFINE
+    - keyword: TAG
+    - object_reference:
+      - naked_identifier: cost_center
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''cost_center tag'''
+- statement_terminator: ;
+- statement:
+  - define_statement:
+    - keyword: DEFINE
+    - keyword: TAG
+    - object_reference:
+      - naked_identifier: DATA_CLASSIFICATION
+    - keyword: ALLOWED_VALUES
+    - quoted_literal: '''RESTRICTED'''
+    - comma: ','
+    - quoted_literal: '''CONFIDENTIAL'''
+    - comma: ','
+    - quoted_literal: '''PII'''
+- statement_terminator: ;

@@ -1,0 +1,17 @@
+file:
+- statement:
+  - define_stage_statement:
+    - keyword: DEFINE
+    - keyword: STAGE
+    - object_reference:
+      - naked_identifier: FINANCE_DB
+      - dot: .
+      - naked_identifier: RAW
+      - dot: .
+      - naked_identifier: TASTY_BYTES_ORDERS
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''Internal stage for uploading files'''
+- statement_terminator: ;

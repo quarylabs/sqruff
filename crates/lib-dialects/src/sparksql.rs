@@ -1280,11 +1280,9 @@ pub fn raw_dialect() -> Dialect {
         ),
         (
             "DivBinaryOperatorSegment".into(),
-            NodeMatcher::new(SyntaxKind::BinaryOperator, |_| {
-                Ref::keyword("DIV").to_matchable()
-            })
-            .to_matchable()
-            .into(),
+            StringParser::new("DIV", SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
         ),
         (
             "QualifyClauseSegment".into(),

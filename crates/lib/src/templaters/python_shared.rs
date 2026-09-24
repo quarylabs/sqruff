@@ -188,6 +188,22 @@ fn config_value_to_python(py: Python<'_>, value: &Value) -> PyResult<Py<PyAny>> 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
+    use std::path::PathBuf;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn temp_config_dir(name: &str) -> PathBuf {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!(
+            "sqruff-python-config-{name}-{}-{nonce}",
+            std::process::id()
+        ));
+        fs::create_dir_all(&path).unwrap();
+        path
+    }
 
     #[test]
     fn test_fluff_base_config() {
@@ -230,9 +246,10 @@ library_paths = ./my_library
 
     #[test]
     fn test_jinja_loader_search_paths_are_serialized_as_a_list() {
-        let config_path = std::env::temp_dir()
-            .join("sqruff-loader-search-path")
-            .join(".sqruff");
+        let root = temp_config_dir("loader-search-path");
+        fs::create_dir_all(root.join("search_a")).unwrap();
+        fs::create_dir_all(root.join("search_b/subdir")).unwrap();
+        let config_path = root.join(".sqruff");
         let source = r#"
 [sqruff]
 templater = jinja
@@ -259,13 +276,16 @@ loader_search_path = search_a, search_b/subdir
                     .to_string(),
             ]
         );
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
     fn test_jinja_macro_paths_are_serialized_separately() {
-        let config_path = std::env::temp_dir()
-            .join("sqruff-macro-paths")
-            .join(".sqruff");
+        let root = temp_config_dir("macro-paths");
+        fs::create_dir_all(root.join("macros/excluded")).unwrap();
+        fs::create_dir_all(root.join("shared")).unwrap();
+        fs::write(root.join("shared/macros.sql"), "").unwrap();
+        let config_path = root.join(".sqruff");
         let source = r#"
 [sqruff]
 templater = jinja
@@ -304,6 +324,7 @@ exclude_macros_from_path = macros/excluded
                     .to_string()
             ]
         );
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]

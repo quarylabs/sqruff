@@ -301,6 +301,31 @@ pub fn raw_dialect() -> Dialect {
     );
 
     duckdb_dialect.replace_grammar(
+        "ValuesClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("VALUES").to_matchable(),
+            Delimited::new(vec![
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Ref::keyword("DEFAULT").to_matchable(),
+                    ])
+                    .config(|this| this.allow_trailing())
+                    .to_matchable(),
+                ])
+                .config(|this| this.parse_mode(ParseMode::Greedy))
+                .to_matchable(),
+            ])
+            .config(|this| this.allow_trailing())
+            .to_matchable(),
+            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+            Ref::new("OrderByClauseSegment").optional().to_matchable(),
+            Ref::new("LimitClauseSegment").optional().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
         "StructTypeSegment",
         Sequence::new(vec![
             Ref::keyword("STRUCT").to_matchable(),

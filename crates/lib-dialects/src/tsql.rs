@@ -874,7 +874,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("ParameterNameSegment").to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::new("ColonSegment").to_matchable(),
+                    Ref::new("ColonDelimiterSegment").to_matchable(),
                     Sequence::new(vec![
                         one_of(vec![
                             Ref::new("QuotedLiteralSegment").to_matchable(),
@@ -1041,7 +1041,7 @@ pub fn raw_dialect() -> Dialect {
                         one_of(vec![Ref::new("ExpressionSegment").to_matchable()])
                             .config(|this| {
                                 this.terminators = vec![
-                                    Ref::new("ColonSegment").to_matchable(),
+                                    Ref::new("ColonDelimiterSegment").to_matchable(),
                                     null_on_null.clone(),
                                     absent_on_null.clone(),
                                     Sequence::new(vec![
@@ -1054,7 +1054,7 @@ pub fn raw_dialect() -> Dialect {
                             })
                             .to_matchable(),
                         Sequence::new(vec![
-                            Ref::new("ColonSegment").to_matchable(),
+                            Ref::new("ColonDelimiterSegment").to_matchable(),
                             one_of(vec![Ref::new("ExpressionSegment").to_matchable()])
                                 .config(|this| {
                                     this.terminators = vec![

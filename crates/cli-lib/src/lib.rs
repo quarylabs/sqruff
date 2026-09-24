@@ -50,7 +50,10 @@ where
 {
     let _ = logger::init();
     let cli = Cli::parse_from(args);
-    let collect_parse_errors = cli.parsing_errors;
+    // `fix` must retain parser and templater errors so that it can explain why
+    // fixes were not applied to an unparsable file. Keep the explicit flag for
+    // commands such as `lint`, where collecting parse errors remains opt-in.
+    let collect_parse_errors = cli.parsing_errors || matches!(&cli.command, Commands::Fix(_));
 
     let stdin_input = match &cli.command {
         Commands::Lint(args) => is_std_in_flag_input(&args.paths).unwrap_or(false),

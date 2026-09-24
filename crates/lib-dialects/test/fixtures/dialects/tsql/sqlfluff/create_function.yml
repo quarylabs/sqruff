@@ -37,3 +37,58 @@ file:
           - keyword: end
   - go_statement:
     - keyword: go
+- batch:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: f
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+      - keyword: RETURNS
+      - tsql_variable: '@t'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: i
+          - data_type:
+            - keyword: int
+          - table_index_segment:
+            - keyword: index
+            - object_reference:
+              - naked_identifier: _i
+            - bracketed_index_column_list_grammar:
+              - bracketed:
+                - start_bracket: (
+                - index_column_definition:
+                  - naked_identifier: i
+                - end_bracket: )
+        - end_bracket: )
+      - keyword: AS
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - insert_statement:
+              - keyword: INSERT
+              - keyword: INTO
+              - table_reference:
+                - tsql_variable: '@t'
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - integer_literal: '1'
+          - statement_terminator: ;
+          - statement:
+            - return_segment:
+              - keyword: RETURN
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+  - go_statement:
+    - keyword: GO

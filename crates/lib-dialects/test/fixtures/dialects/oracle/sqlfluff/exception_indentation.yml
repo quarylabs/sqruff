@@ -1,0 +1,170 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - oracle_table_reference:
+                    - naked_identifier: dual
+      - statement_terminator: ;
+      - keyword: EXCEPTION
+      - keyword: WHEN
+      - naked_identifier: no_data_found
+      - keyword: THEN
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''No data'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: WHEN
+      - keyword: OTHERS
+      - keyword: THEN
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''Error'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - statement:
+    - oracle_begin_end_block:
+      - oracle_declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: v_value
+        - data_type:
+          - data_type_identifier: NUMBER
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+        - oracle_begin_end_block:
+          - keyword: BEGIN
+          - statement:
+            - assignment_segment_statement:
+              - object_reference:
+                - naked_identifier: v_value
+              - oracle_assignment_operator: :=
+              - expression:
+                - numeric_literal: '1'
+          - statement_terminator: ;
+          - keyword: EXCEPTION
+          - keyword: WHEN
+          - keyword: OTHERS
+          - keyword: THEN
+          - statement:
+            - function:
+              - oracle_function_name:
+                - naked_identifier: DBMS_OUTPUT
+                - dot: .
+                - function_name_identifier: PUT_LINE
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - quoted_literal: '''Inner exception'''
+                  - end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+      - keyword: EXCEPTION
+      - keyword: WHEN
+      - keyword: OTHERS
+      - keyword: THEN
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''Outer exception'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_null_statement:
+          - keyword: 'NULL'
+      - statement_terminator: ;
+      - keyword: EXCEPTION
+      - keyword: WHEN
+      - naked_identifier: zero_divide
+      - keyword: THEN
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''Division by zero'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: WHEN
+      - naked_identifier: invalid_number
+      - keyword: THEN
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''Invalid number'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: WHEN
+      - keyword: OTHERS
+      - keyword: THEN
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''Other error'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;

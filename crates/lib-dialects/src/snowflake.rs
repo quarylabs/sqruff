@@ -8496,6 +8496,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable(),
                 Ref::new("TagBracketedEqualsSegment").to_matchable(),
                 Sequence::new(vec![
+                    Ref::keyword("CHANGE_TRACKING").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
                     Ref::keyword("COPY").to_matchable(),
                     Ref::keyword("GRANTS").to_matchable(),
                 ])

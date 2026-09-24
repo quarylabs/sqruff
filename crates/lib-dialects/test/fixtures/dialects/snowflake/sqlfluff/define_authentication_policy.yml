@@ -1,0 +1,25 @@
+file:
+- statement:
+  - create_authentication_policy_segment:
+    - keyword: DEFINE
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - table_reference:
+      - naked_identifier: DCM_PROJECT_DEV
+      - dot: .
+      - naked_identifier: RAW
+      - dot: .
+      - naked_identifier: PAT_AUTH_POLICY
+    - keyword: CLIENT_TYPES
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''SNOWFLAKE_UI'''
+      - end_bracket: )
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''Auth policy that only allows access through the web interface'''
+- statement_terminator: ;

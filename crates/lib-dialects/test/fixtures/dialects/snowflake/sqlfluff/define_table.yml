@@ -1,0 +1,38 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: DEFINE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: DCM_PROJECT
+      - dot: .
+      - naked_identifier: RAW
+      - dot: .
+      - naked_identifier: INVENTORY
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: ITEM_ID
+        - data_type:
+          - data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+        - naked_identifier: REGION_ID
+        - data_type:
+          - data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+        - naked_identifier: IN_STOCK
+        - data_type:
+          - data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+        - naked_identifier: COUNTED_ON
+        - data_type:
+          - data_type_identifier: DATE
+      - end_bracket: )
+    - keyword: change_tracking
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;

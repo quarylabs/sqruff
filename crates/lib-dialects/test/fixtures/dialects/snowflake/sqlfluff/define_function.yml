@@ -1,0 +1,41 @@
+file:
+- statement:
+  - create_function_statement:
+    - keyword: DEFINE
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: DCM_PROJECT_DEV
+      - dot: .
+      - naked_identifier: ANALYTICS
+      - dot: .
+      - function_name_identifier: CALCULATE_PROFIT_MARGIN
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: REVENUE
+        - data_type:
+          - data_type_identifier: number
+        - comma: ','
+        - parameter: COST
+        - data_type:
+          - data_type_identifier: number
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: NUMBER
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '10'
+          - comma: ','
+          - numeric_literal: '2'
+          - end_bracket: )
+    - keyword: AS
+    - udf_body: |-
+        $$
+            CASE WHEN REVENUE = 0
+        THEN 0
+        ELSE ROUND(((REVENUE - COST) / REVENUE) * 100, 2)
+            END
+        $$
+- statement_terminator: ;

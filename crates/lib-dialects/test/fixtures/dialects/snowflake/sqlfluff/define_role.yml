@@ -1,0 +1,8 @@
+file:
+- statement:
+  - create_role_statement:
+    - keyword: DEFINE
+    - keyword: ROLE
+    - role_reference:
+      - naked_identifier: DCM_PROJECT_READ
+- statement_terminator: ;

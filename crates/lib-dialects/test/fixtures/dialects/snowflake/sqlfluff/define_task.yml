@@ -1,0 +1,39 @@
+file:
+- statement:
+  - create_task_statement:
+    - keyword: DEFINE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: DCM_PROJECT_DEV
+      - dot: .
+      - naked_identifier: ANALYTICS
+      - dot: .
+      - naked_identifier: TSK_INGEST_DAILY_ORDERS
+    - parameter: warehouse
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''DCM_PROJECT_WH'''
+    - keyword: schedule
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''USING CRON 0 4 * * * UTC'''
+    - keyword: AS
+    - statement:
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - naked_identifier: mytable
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: ts
+          - end_bracket: )
+        - values_clause:
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - numeric_literal: '1'
+            - end_bracket: )
+- statement_terminator: ;

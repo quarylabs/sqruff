@@ -69,6 +69,14 @@ pub fn raw_dialect() -> Dialect {
         "divide",
     );
     vertica.insert_lexer_matchers(
+        vec![Matcher::string(
+            "lambda_arrow",
+            "->",
+            SyntaxKind::LambdaArrow,
+        )],
+        "like_operator",
+    );
+    vertica.insert_lexer_matchers(
         vec![Matcher::legacy(
             "escaped_single_quote",
             |s| s.starts_with("E'") || s.starts_with("e'"),
@@ -262,6 +270,12 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
+            "LambdaArrowSegment".into(),
+            StringParser::new("->", SyntaxKind::LambdaArrow)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "NullEqualsSegment".into(),
             NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
                 Ref::new("NullEqualsOperatorSegment").to_matchable()
@@ -292,6 +306,15 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // Grammar replacements.
+    vertica.replace_grammar(
+        "FunctionContentsExpressionGrammar",
+        one_of(vec![
+            Ref::new("LambdaExpressionSegment").to_matchable(),
+            Ref::new("ExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     vertica.replace_grammar(
         "FunctionContentsGrammar",
         AnyNumberOf::new(vec![
@@ -2551,6 +2574,28 @@ pub fn raw_dialect() -> Dialect {
                 .config(|this| this.optional())
                 .to_matchable(),
                 Ref::new("CopyOptionsSegment").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    vertica.add([(
+        "LambdaExpressionSegment".into(),
+        NodeMatcher::new(SyntaxKind::LambdaFunction, |_| {
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ParameterNameSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("LambdaArrowSegment").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
             ])
             .to_matchable()
         })

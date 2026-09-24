@@ -10,3 +10,19 @@ For example, the following config will ignore `.hql` files and files in any dire
 # ignore ALL files in ANY directory named temp
 temp/
 ```
+
+## `pyproject.toml`
+
+If you use `pyproject.toml` for Sqruff configuration, you can also ignore files
+and directories using `ignore_paths` in `[tool.sqlfluff.core]`.
+
+```toml
+[tool.sqlfluff.core]
+ignore_paths = [
+    "target/",
+    "supabase/migrations/*",
+    "generated/*.sql",
+]
+```
+
+The patterns in `ignore_paths` use the same matching rules as `.sqruffignore`.

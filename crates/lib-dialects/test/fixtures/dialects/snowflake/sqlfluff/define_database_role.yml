@@ -1,0 +1,11 @@
+file:
+- statement:
+  - create_database_role_statement:
+    - keyword: DEFINE
+    - keyword: DATABASE
+    - keyword: ROLE
+    - database_role_reference:
+      - naked_identifier: FINANCE_DB
+      - dot: .
+      - naked_identifier: FINANCE_ADMIN
+- statement_terminator: ;

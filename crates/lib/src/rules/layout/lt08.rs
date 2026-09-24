@@ -122,6 +122,16 @@ SELECT a FROM plop
                 seg_idx += 1;
             }
 
+            // PostgreSQL CYCLE and SEARCH clauses are part of the CTE definition,
+            // so they must not be separated from it by a blank line.
+            let next_segment = &forward_slice[seg_idx];
+            if next_segment.is_type(SyntaxKind::Keyword)
+                && (next_segment.raw().eq_ignore_ascii_case("CYCLE")
+                    || next_segment.raw().eq_ignore_ascii_case("SEARCH"))
+            {
+                continue;
+            }
+
             let comma_style = if comma_line_idx.is_none() {
                 CteCommaStyle::Final
             } else if line_idx == 0 {

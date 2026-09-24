@@ -21,11 +21,7 @@ fn parse_errors() {
     // STDIN - do nothing
     let mut cmd = Command::new(sqruff_path.clone());
     cmd.env("HOME", &cargo_folder);
-    cmd.arg("fix")
-        .arg("-f")
-        .arg("human")
-        .arg("--parsing-errors")
-        .arg("-");
+    cmd.arg("fix").arg("-f").arg("human").arg("-");
     cmd.current_dir(&cargo_folder);
     cmd.write_stdin("SelEc");
 
@@ -56,7 +52,6 @@ fn parse_errors_with_fix_opt_in() {
     cmd.env("HOME", &cargo_folder);
     cmd.arg("--config")
         .arg(config.path())
-        .arg("--parsing-errors")
         .arg("fix")
         .arg("-f")
         .arg("none")
@@ -79,11 +74,7 @@ fn multiple_add_column_errors() {
 
     let mut cmd = Command::new(sqruff_path.clone());
     cmd.env("HOME", &cargo_folder);
-    cmd.arg("fix")
-        .arg("-f")
-        .arg("human")
-        .arg("--parsing-errors")
-        .arg("-");
+    cmd.arg("fix").arg("-f").arg("human").arg("-");
     cmd.current_dir(&cargo_folder);
     cmd.write_stdin(sql);
 

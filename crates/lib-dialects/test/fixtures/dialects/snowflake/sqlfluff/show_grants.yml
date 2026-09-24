@@ -1,0 +1,37 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: TO
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: OF
+    - keyword: ROLE
+    - object_reference:
+      - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: ON
+    - keyword: DATABASE
+    - object_reference:
+      - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: GRANTS
+    - keyword: ON
+    - keyword: WORKSPACE
+    - object_reference:
+      - naked_identifier: foo
+- statement_terminator: ;

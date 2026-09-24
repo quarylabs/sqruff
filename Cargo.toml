@@ -20,6 +20,8 @@ cloned_instead_of_copied = "warn"
 [profile.release]
 lto = true
 codegen-units = 1
+debug = false
+strip = true
 
 [workspace.dependencies]
 log = "0.4"

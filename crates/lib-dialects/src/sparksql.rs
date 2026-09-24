@@ -1326,6 +1326,13 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("CHAR").to_matchable(),
                             Ref::keyword("CHARACTER").to_matchable(),
                             Ref::keyword("VARCHAR").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("BracketedArguments").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
                             Ref::keyword("DECIMAL").to_matchable(),
                             Ref::keyword("DEC").to_matchable(),
                             Ref::keyword("NUMERIC").to_matchable(),

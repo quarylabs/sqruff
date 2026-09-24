@@ -1,0 +1,66 @@
+file:
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - parameter: max_wal_size
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''2GB'''
+- statement_terminator: ;
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - parameter: work_mem
+    - keyword: TO
+    - quoted_literal: '''64MB'''
+- statement_terminator: ;
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - parameter: shared_buffers
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - parameter: max_connections
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - numeric_literal: '200'
+- statement_terminator: ;
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - parameter: search_path
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - naked_identifier: public
+    - comma: ','
+    - naked_identifier: pg_catalog
+- statement_terminator: ;
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: RESET
+    - parameter: max_wal_size
+- statement_terminator: ;
+- statement:
+  - alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: RESET
+    - keyword: ALL
+- statement_terminator: ;

@@ -2,17 +2,21 @@ file:
 - oracle_batch:
   - statement:
     - access_statement:
-      - access_statement:
-        - keyword: grant
-        - keyword: select
-        - keyword: on
-        - object_reference:
-          - naked_identifier: my_table
-        - keyword: to
-        - role_reference:
-          - oracle_sqlplus_variable:
-            - ampersand: '&'
-            - naked_identifier: REGISTRY
+      - grant_statement:
+        - grant_statement:
+          - keyword: grant
+          - access_permissions:
+            - access_permission:
+              - keyword: select
+          - keyword: on
+          - object_reference:
+            - naked_identifier: my_table
+          - keyword: to
+          - access_target:
+            - role_reference:
+              - oracle_sqlplus_variable:
+                - ampersand: '&'
+                - naked_identifier: REGISTRY
   - statement_terminator: ;
   - statement:
     - select_statement:

@@ -26,10 +26,12 @@ file:
     - keyword: PRIVILEGES
     - keyword: FOR
     - keyword: ROLE
-    - object_reference:
+    - role_reference:
       - naked_identifier: mike
     - keyword: GRANT
-    - keyword: SELECT
+    - access_permissions:
+      - access_permission:
+        - keyword: SELECT
     - keyword: ON
     - keyword: TABLES
     - keyword: TO
@@ -45,7 +47,9 @@ file:
     - keyword: ALL
     - keyword: ROLES
     - keyword: GRANT
-    - keyword: SELECT
+    - access_permissions:
+      - access_permission:
+        - keyword: SELECT
     - keyword: ON
     - keyword: TABLES
     - keyword: TO

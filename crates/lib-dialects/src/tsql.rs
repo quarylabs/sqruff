@@ -591,22 +591,22 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // T-SQL permits adjacent SELECT statements without semicolons. Preserve
-    // the existing clauses while removing ANSI's greedy parsing and statement
-    // terminators, then add the T-SQL result-formatting clause.
-    for (name, grammar) in [
-        ("SelectClauseSegment", ansi::select_clause_segment()),
-        (
-            "UnorderedSelectStatementSegment",
-            ansi::get_unordered_select_statement_segment_grammar(),
-        ),
-    ] {
-        dialect.replace_grammar(
-            name,
-            Sequence::new(grammar.elements().to_vec()).to_matchable(),
-        );
-    }
-    let mut select_elements = ansi::select_statement().elements().to_vec();
+    // T-SQL permits adjacent SELECT statements without semicolons. Remove
+    // ANSI's greedy parsing and statement terminators. ORDER BY belongs in the
+    // unordered grammar because TOP permits it in derived tables and set
+    // operands.
+    dialect.replace_grammar(
+        "SelectClauseSegment",
+        Sequence::new(ansi::select_clause_segment().elements().to_vec()).to_matchable(),
+    );
+    let mut select_elements = ansi::get_unordered_select_statement_segment_grammar()
+        .elements()
+        .to_vec();
+    select_elements.push(Ref::new("OrderByClauseSegment").optional().to_matchable());
+    dialect.replace_grammar(
+        "UnorderedSelectStatementSegment",
+        Sequence::new(select_elements.clone()).to_matchable(),
+    );
     select_elements.push(Ref::new("OptionClauseSegment").optional().to_matchable());
     select_elements.push(Ref::new("ForClauseSegment").optional().to_matchable());
     dialect.replace_grammar(
@@ -1294,34 +1294,33 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::CursorDefinition, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CURSOR").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("LOCAL").to_matchable(),
-                        Ref::keyword("GLOBAL").to_matchable(),
+                    any_set_of(vec![
+                        one_of(vec![
+                            Ref::keyword("LOCAL").to_matchable(),
+                            Ref::keyword("GLOBAL").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("FORWARD_ONLY").to_matchable(),
+                            Ref::keyword("SCROLL").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("STATIC").to_matchable(),
+                            Ref::keyword("KEYSET").to_matchable(),
+                            Ref::keyword("DYNAMIC").to_matchable(),
+                            Ref::keyword("FAST_FORWARD").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("READ_ONLY").to_matchable(),
+                            Ref::keyword("SCROLL_LOCKS").to_matchable(),
+                            Ref::keyword("OPTIMISTIC").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("TYPE_WARNING").to_matchable(),
                     ])
-                    .config(|this| this.optional())
                     .to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("FORWARD_ONLY").to_matchable(),
-                        Ref::keyword("SCROLL").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("STATIC").to_matchable(),
-                        Ref::keyword("KEYSET").to_matchable(),
-                        Ref::keyword("DYNAMIC").to_matchable(),
-                        Ref::keyword("FAST_FORWARD").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("READ_ONLY").to_matchable(),
-                        Ref::keyword("SCROLL_LOCKS").to_matchable(),
-                        Ref::keyword("OPTIMISTIC").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                    Ref::keyword("TYPE_WARNING").optional().to_matchable(),
                     Ref::keyword("FOR").to_matchable(),
                     Ref::new("SelectStatementSegment").to_matchable(),
                     Sequence::new(vec![
@@ -1352,8 +1351,11 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec![
                         Ref::new("CursorDefinitionSegment").to_matchable(),
                         Sequence::new(vec![
-                            Ref::keyword("INSENSITIVE").optional().to_matchable(),
-                            Ref::keyword("SCROLL").optional().to_matchable(),
+                            any_set_of(vec![
+                                Ref::keyword("INSENSITIVE").to_matchable(),
+                                Ref::keyword("SCROLL").to_matchable(),
+                            ])
+                            .to_matchable(),
                             Ref::keyword("CURSOR").to_matchable(),
                             Ref::keyword("FOR").to_matchable(),
                             Ref::new("SelectStatementSegment").to_matchable(),
@@ -3742,7 +3744,7 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec![
                     Delimited::new(vec![
                         Sequence::new(vec![
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
                             Ref::new("DatatypeSegment").to_matchable(),
                             // column_path
                             Ref::new("QuotedLiteralSegment").optional().to_matchable(),
@@ -3770,11 +3772,14 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("OPENJSON").to_matchable(),
                 Bracketed::new(vec![
-                    Delimited::new(vec![
-                        Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
-                        Ref::new("ColumnReferenceSegment").to_matchable(),
-                        Ref::new("ParameterNameSegment").to_matchable(),
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("CommaSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])

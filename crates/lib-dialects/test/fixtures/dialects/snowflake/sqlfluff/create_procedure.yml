@@ -484,12 +484,10 @@ file:
     - keyword: COPY
     - keyword: GRANTS
     - keyword: RETURNS
-    - data_type:
-      - data_type_identifier: TABLE
-      - bracketed_arguments:
-        - bracketed:
-          - start_bracket: (
-          - end_bracket: )
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
     - keyword: LANGUAGE
     - keyword: PYTHON
     - keyword: RUNTIME_VERSION

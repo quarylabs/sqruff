@@ -6538,6 +6538,59 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     snowflake_dialect.replace_grammar(
+        "DatatypeIdentifierSegment",
+        MultiStringParser::new(
+            vec![
+                "NUMBER".into(),
+                "DECIMAL".into(),
+                "NUMERIC".into(),
+                "INT".into(),
+                "INTEGER".into(),
+                "BIGINT".into(),
+                "SMALLINT".into(),
+                "TINYINT".into(),
+                "BYTEINT".into(),
+                "FLOAT".into(),
+                "FLOAT4".into(),
+                "FLOAT8".into(),
+                "DOUBLE".into(),
+                "DOUBLE PRECISION".into(),
+                "REAL".into(),
+                "DECFLOAT".into(),
+                "VARCHAR".into(),
+                "CHAR".into(),
+                "CHARACTER".into(),
+                "STRING".into(),
+                "TEXT".into(),
+                "BINARY".into(),
+                "VARBINARY".into(),
+                "BOOLEAN".into(),
+                "DATE".into(),
+                "DATETIME".into(),
+                "TIME".into(),
+                "TIMESTAMP".into(),
+                "TIMESTAMP_LTZ".into(),
+                "TIMESTAMP_NTZ".into(),
+                "TIMESTAMP_TZ".into(),
+                "VARIANT".into(),
+                "OBJECT".into(),
+                "ARRAY".into(),
+                "MAP".into(),
+                "FILE".into(),
+                "GEOGRAPHY".into(),
+                "GEOMETRY".into(),
+                "UUID".into(),
+                "VECTOR".into(),
+                "RESULTSET".into(),
+                "CURSOR".into(),
+                "EXCEPTION".into(),
+            ],
+            SyntaxKind::DataTypeIdentifier,
+        )
+        .to_matchable(),
+    );
+
+    snowflake_dialect.replace_grammar(
         "ColumnConstraintSegment",
         any_set_of(vec![
             Ref::new("CollateGrammar").to_matchable(),
@@ -7002,6 +7055,33 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "OutOfLineIndexPropertiesSegment".into(),
+            NodeMatcher::new(SyntaxKind::IndexPropertiesSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("INDEX").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INCLUDE").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     snowflake_dialect.replace_grammar(
@@ -7025,6 +7105,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Sequence::new(vec![
                                 one_of(vec![
                                     Ref::new("OutOfLineConstraintPropertiesSegment").to_matchable(),
+                                    Ref::new("OutOfLineIndexPropertiesSegment").to_matchable(),
                                     Ref::new("ColumnDefinitionSegment").to_matchable(),
                                     Ref::new("SingleIdentifierGrammar").to_matchable(),
                                     Sequence::new(vec![

@@ -682,6 +682,7 @@ pub enum SyntaxKind {
     IndexHintClause,
     IndexOption,
     IndexParameters,
+    IndexPropertiesSegment,
     IndexReference,
     IndexType,
     IndexTypeReference,

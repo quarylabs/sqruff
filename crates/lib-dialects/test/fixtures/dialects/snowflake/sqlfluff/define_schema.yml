@@ -1,0 +1,17 @@
+file:
+- statement:
+  - create_schema_statement:
+    - keyword: DEFINE
+    - keyword: SCHEMA
+    - table_reference:
+      - object_reference:
+        - naked_identifier: DCM_PROJECT
+        - dot: .
+        - naked_identifier: RAW
+    - schema_object_properties:
+      - comment_equals_clause:
+        - keyword: COMMENT
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''Loading raw data into landing tables'''
+- statement_terminator: ;

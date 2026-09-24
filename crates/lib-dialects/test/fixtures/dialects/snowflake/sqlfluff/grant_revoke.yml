@@ -1,1788 +1,2408 @@
 file:
 - statement:
   - access_statement:
-    - keyword: GRANT
-    - keyword: OWNERSHIP
-    - keyword: ON
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: MY_DATABASE
-      - dot: .
-      - naked_identifier: MY_SCHEMA
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MY_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: MY_ROLE
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MY_OTHER_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: use_any_role
-    - keyword: on
-    - keyword: integration
-    - object_reference:
-      - naked_identifier: external_oauth_1
-    - keyword: to
-    - role_reference:
-      - naked_identifier: role1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: ownership
-    - keyword: on
-    - keyword: table
-    - object_reference:
-      - naked_identifier: myschema
-      - dot: .
-      - naked_identifier: mytable
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: ownership
-    - keyword: on
-    - keyword: all
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: public
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: ownership
-    - keyword: on
-    - keyword: all
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: public
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: ownership
-    - keyword: on
-    - keyword: all
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: public
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-    - keyword: copy
-    - keyword: current
-    - keyword: grants
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: ROLENAME
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - keyword: IDENTIFIER
-      - bracketed:
-        - start_bracket: (
-        - variable: $THIS_ROLE
-        - end_bracket: )
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: OWNERSHIP
-    - keyword: ON
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: TEST_ROLE
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: DIFFERENT_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: all
-    - keyword: materialized
-    - keyword: views
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: all
-    - keyword: file
-    - keyword: formats
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: create
-    - keyword: temporary
-    - keyword: table
-    - keyword: on
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: my_db
-      - dot: .
-      - naked_identifier: my_schema
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: future
-    - keyword: pipes
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: future
-    - keyword: file
-    - keyword: formats
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: future
-    - keyword: materialized
-    - keyword: views
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: future
-    - keyword: pipes
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: usage
-    - keyword: on
-    - keyword: all
-    - keyword: sequences
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: all
-    - keyword: materialized
-    - keyword: views
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: all
-    - keyword: sequences
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: all
-    - keyword: functions
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: all
-    - keyword: file
-    - keyword: formats
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: on
-    - keyword: all
-    - keyword: stages
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: select
-    - keyword: on
-    - keyword: all
-    - keyword: views
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: my_db
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: role
-    - object_reference:
-      - naked_identifier: analyst
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: sysadmin
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: select
-    - comma: ','
-    - keyword: insert
-    - keyword: on
-    - keyword: future
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: role1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: all
-    - keyword: privileges
-    - keyword: on
-    - keyword: function
-    - function_name:
-      - function_name_identifier: add5
-    - function_parameter_list:
-      - bracketed:
-        - start_bracket: (
-        - data_type:
-          - data_type_identifier: number
-        - end_bracket: )
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: grant
-    - keyword: option
-    - keyword: for
-    - keyword: operate
-    - keyword: on
-    - keyword: warehouse
-    - object_reference:
-      - naked_identifier: report_wh
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: select
-    - keyword: on
-    - keyword: all
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: operate
-    - keyword: on
-    - keyword: warehouse
-    - object_reference:
-      - naked_identifier: report_wh
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: reference_usage
-    - keyword: on
-    - keyword: database
-    - object_reference:
-      - naked_identifier: database2
-    - keyword: from
-    - keyword: share
-    - object_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: REVOKE
-    - keyword: OWNERSHIP
-    - keyword: ON
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: TEST_ROLE
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: DIFFERENT_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: imported
-    - keyword: privileges
-    - keyword: on
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-    - keyword: to
-    - keyword: application
-    - role_reference:
-      - naked_identifier: my_app
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: operate
-    - keyword: on
-    - keyword: warehouse
-    - object_reference:
-      - naked_identifier: report_wh
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: operate
-    - keyword: on
-    - keyword: warehouse
-    - object_reference:
-      - naked_identifier: report_wh
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-    - keyword: with
-    - keyword: grant
-    - keyword: option
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: operate
-    - keyword: on
-    - keyword: future
-    - keyword: dynamic
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: operate
-    - keyword: on
-    - keyword: all
-    - keyword: dynamic
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: select
-    - keyword: on
-    - keyword: all
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: privileges
-    - keyword: on
-    - keyword: function
-    - function_name:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-      - dot: .
-      - function_name_identifier: add5
-    - function_parameter_list:
-      - bracketed:
-        - start_bracket: (
-        - data_type:
-          - data_type_identifier: number
-        - end_bracket: )
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: all
-    - keyword: privileges
-    - keyword: on
-    - keyword: function
-    - function_name:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-      - dot: .
-      - function_name_identifier: add5
-    - function_parameter_list:
-      - bracketed:
-        - start_bracket: (
-        - data_type:
-          - data_type_identifier: string
-        - end_bracket: )
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: usage
-    - keyword: on
-    - keyword: procedure
-    - function_name:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-      - dot: .
-      - function_name_identifier: myprocedure
-    - function_parameter_list:
-      - bracketed:
-        - start_bracket: (
-        - data_type:
-          - data_type_identifier: number
-        - end_bracket: )
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: create
-    - keyword: materialized
-    - keyword: view
-    - keyword: on
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: myrole
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: select
-    - comma: ','
-    - keyword: insert
-    - keyword: on
-    - keyword: future
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: myschema
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: role1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: usage
-    - keyword: on
-    - keyword: future
-    - keyword: schemas
-    - keyword: in
-    - keyword: database
-    - object_reference:
-      - naked_identifier: mydb
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: role1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: usage
-    - keyword: on
-    - keyword: database
-    - object_reference:
-      - naked_identifier: database1
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: usage
-    - keyword: on
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: database1
-      - dot: .
-      - naked_identifier: schema1
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: reference_usage
-    - keyword: on
-    - keyword: database
-    - object_reference:
-      - naked_identifier: database2
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: select
-    - keyword: on
-    - keyword: view
-    - object_reference:
-      - naked_identifier: view2
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: usage
-    - keyword: on
-    - keyword: database
-    - object_reference:
-      - naked_identifier: mydb
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: usage
-    - keyword: on
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: public
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: usage
-    - keyword: on
-    - keyword: function
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: shared_schema
-      - dot: .
-      - naked_identifier: function1
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: select
-    - keyword: on
-    - keyword: all
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: public
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: usage
-    - keyword: on
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: shared_schema
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: select
-    - keyword: on
-    - keyword: view
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: shared_schema
-      - dot: .
-      - naked_identifier: view1
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: select
-    - keyword: on
-    - keyword: view
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: shared_schema
-      - dot: .
-      - naked_identifier: view3
-    - keyword: to
-    - keyword: share
-    - role_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: role
-    - object_reference:
-      - naked_identifier: analyst
-    - keyword: to
-    - keyword: user
-    - role_reference:
-      - naked_identifier: user1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: all
-    - keyword: privileges
-    - keyword: on
-    - keyword: procedure
-    - function_name:
-      - function_name_identifier: clean_schema
-    - function_parameter_list:
-      - bracketed:
-        - start_bracket: (
-        - data_type:
-          - data_type_identifier: string
-        - end_bracket: )
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: all
-    - keyword: privileges
-    - keyword: on
-    - keyword: function
-    - function_name:
-      - function_name_identifier: add5
-    - function_parameter_list:
-      - bracketed:
-        - start_bracket: (
-        - data_type:
-          - data_type_identifier: string
-        - end_bracket: )
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: analyst
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: select
-    - keyword: on
-    - keyword: view
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: shared_schema
-      - dot: .
-      - naked_identifier: view1
-    - keyword: from
-    - keyword: share
-    - object_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: usage
-    - keyword: on
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: shared_schema
-    - keyword: from
-    - keyword: share
-    - object_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: select
-    - keyword: on
-    - keyword: all
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: public
-    - keyword: from
-    - keyword: share
-    - object_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: usage
-    - keyword: on
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: mydb
-      - dot: .
-      - naked_identifier: public
-    - keyword: from
-    - keyword: share
-    - object_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: usage
-    - keyword: on
-    - keyword: database
-    - object_reference:
-      - naked_identifier: mydb
-    - keyword: from
-    - keyword: share
-    - object_reference:
-      - naked_identifier: share1
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: apply
-    - keyword: masking
-    - keyword: policy
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: apply
-    - keyword: row
-    - keyword: access
-    - keyword: policy
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: apply
-    - keyword: session
-    - keyword: policy
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: apply
-    - keyword: tag
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: attach
-    - keyword: policy
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: execute
-    - keyword: alert
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: execute
-    - keyword: task
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: EXECUTE
-    - keyword: MANAGED
-    - keyword: TASK
-    - keyword: ON
-    - keyword: ACCOUNT
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MY_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: import
-    - keyword: share
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: manage
-    - keyword: grants
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: monitor
-    - keyword: execution
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: monitor
-    - keyword: usage
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: monitor
-    - keyword: on
-    - keyword: user
-    - object_reference:
-      - naked_identifier: some_user
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: monitor
-    - keyword: on
-    - keyword: user
-    - object_reference:
-      - naked_identifier: some_user
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: override
-    - keyword: share
-    - keyword: restrictions
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: create
-    - keyword: account
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: create
-    - keyword: share
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: create
-    - keyword: network
-    - keyword: policy
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: create
-    - keyword: tag
-    - keyword: on
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: my_schema
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: create
-    - keyword: data
-    - keyword: exchange
-    - keyword: listing
-    - keyword: on
-    - keyword: account
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: CREATE
-    - keyword: CORTEX
-    - keyword: SEARCH
-    - keyword: SERVICE
-    - keyword: ON
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: MY_SCHEMA
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MY_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: ON
-    - keyword: CORTEX
-    - keyword: SEARCH
-    - keyword: SERVICE
-    - object_reference:
-      - naked_identifier: MY_SERVICE
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MY_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: MANAGE
-    - keyword: ACCOUNT
-    - keyword: SUPPORT
-    - keyword: CASES
-    - keyword: ON
-    - keyword: ACCOUNT
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: MANAGE
-    - keyword: ORGANIZATION
-    - keyword: SUPPORT
-    - keyword: CASES
-    - keyword: ON
-    - keyword: ACCOUNT
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: MANAGE
-    - keyword: USER
-    - keyword: SUPPORT
-    - keyword: CASES
-    - keyword: ON
-    - keyword: ACCOUNT
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: my_role
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: ADD
-    - keyword: SEARCH
-    - keyword: OPTIMIZATION
-    - keyword: ON
-    - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MY_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: REVOKE
-    - keyword: ADD
-    - keyword: SEARCH
-    - keyword: OPTIMIZATION
-    - keyword: ON
-    - keyword: SCHEMA
-    - table_reference:
-      - object_reference:
-        - naked_identifier: MY_SCHEMA
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: MY_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: database
-    - keyword: role
-    - database_role_reference:
-      - naked_identifier: dbname
-      - dot: .
-      - naked_identifier: rolename
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: public
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: database
-    - keyword: role
-    - database_role_reference:
-      - naked_identifier: dbrolename
-    - keyword: to
-    - keyword: role
-    - role_reference:
-      - naked_identifier: public
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: database
-    - keyword: role
-    - database_role_reference:
-      - naked_identifier: dbname
-      - dot: .
-      - naked_identifier: rolename
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: public
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: database
-    - keyword: role
-    - database_role_reference:
-      - naked_identifier: dbrolename
-    - keyword: from
-    - keyword: role
-    - object_reference:
-      - naked_identifier: public
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: select
-    - keyword: on
-    - keyword: table
-    - object_reference:
-      - naked_identifier: dbname
-      - dot: .
-      - naked_identifier: schemaname
-      - dot: .
-      - naked_identifier: tablename
-    - keyword: to
-    - keyword: database
-    - keyword: role
-    - database_role_reference:
-      - naked_identifier: dbname
-      - dot: .
-      - naked_identifier: rolename
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: grant
-    - keyword: select
-    - keyword: on
-    - keyword: table
-    - object_reference:
-      - naked_identifier: dbname
-      - dot: .
-      - naked_identifier: schemaname
-      - dot: .
-      - naked_identifier: tablename
-    - keyword: to
-    - keyword: database
-    - keyword: role
-    - role_reference:
-      - naked_identifier: dbrolename
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: select
-    - keyword: on
-    - keyword: table
-    - object_reference:
-      - naked_identifier: dbname
-      - dot: .
-      - naked_identifier: schemaname
-      - dot: .
-      - naked_identifier: tablename
-    - keyword: from
-    - keyword: database
-    - keyword: role
-    - object_reference:
-      - naked_identifier: dbname
-      - dot: .
-      - naked_identifier: rolename
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: revoke
-    - keyword: select
-    - keyword: on
-    - keyword: table
-    - object_reference:
-      - naked_identifier: dbname
-      - dot: .
-      - naked_identifier: schemaname
-      - dot: .
-      - naked_identifier: tablename
-    - keyword: from
-    - keyword: database
-    - keyword: role
-    - object_reference:
-      - naked_identifier: dbrolename
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: APPLICATION
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: dbrolename
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: public
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: CREATE
-    - keyword: NOTEBOOK
-    - keyword: ON
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: MY_DB
-      - dot: .
-      - naked_identifier: MYSCHEMA
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MYROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: OWNERSHIP
-    - keyword: ON
-    - keyword: NOTEBOOK
-    - object_reference:
-      - naked_identifier: MY_DB
-      - dot: .
-      - naked_identifier: MYSCHEMA
-      - dot: .
-      - naked_identifier: MYNOTEBOOK
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MYROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: ON
-    - keyword: NOTEBOOK
-    - object_reference:
-      - naked_identifier: MY_DB
-      - dot: .
-      - naked_identifier: MYSCHEMA
-      - dot: .
-      - naked_identifier: MYNOTEBOOK
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MYROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: REVOKE
-    - keyword: CREATE
-    - keyword: NOTEBOOK
-    - keyword: ON
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: MY_DB
-      - dot: .
-      - naked_identifier: MYSCHEMA
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: MYROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: REVOKE
-    - keyword: USAGE
-    - keyword: ON
-    - keyword: NOTEBOOK
-    - object_reference:
-      - naked_identifier: MY_DB
-      - dot: .
-      - naked_identifier: MYSCHEMA
-      - dot: .
-      - naked_identifier: MYNOTEBOOK
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: MYROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: CREATE
-    - keyword: MODEL
-    - keyword: ON
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: MY_DB
-      - dot: .
-      - naked_identifier: MYSCHEMA
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MYROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: OWNERSHIP
-    - keyword: ON
-    - keyword: MODEL
-    - object_reference:
-      - naked_identifier: MY_DB
-      - dot: .
-      - naked_identifier: MYSCHEMA
-      - dot: .
-      - naked_identifier: MYMODEL
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MYROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: ON
-    - keyword: MODEL
-    - object_reference:
-      - naked_identifier: MY_DB
-      - dot: .
-      - naked_identifier: MYSCHEMA
-      - dot: .
-      - naked_identifier: MYMODEL
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MYROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: REVOKE
-    - keyword: CREATE
-    - keyword: MODEL
-    - keyword: ON
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: MY_DB
-      - dot: .
-      - naked_identifier: MYSCHEMA
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: MYROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: REVOKE
-    - keyword: USAGE
-    - keyword: ON
-    - keyword: MODEL
-    - object_reference:
-      - naked_identifier: MY_DB
-      - dot: .
-      - naked_identifier: MYSCHEMA
-      - dot: .
-      - naked_identifier: MYMODEL
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: MYROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: USAGE
-    - keyword: ON
-    - keyword: EXTERNAL
-    - keyword: VOLUME
-    - object_reference:
-      - naked_identifier: ext_vol
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: MY_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: REVOKE
-    - keyword: USAGE
-    - keyword: ON
-    - keyword: EXTERNAL
-    - keyword: VOLUME
-    - object_reference:
-      - naked_identifier: ext_vol
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: MY_ROLE
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: CREATE
-    - keyword: DYNAMIC
-    - keyword: TABLE
-    - keyword: ON
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: foo
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: bar
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: REVOKE
-    - keyword: CREATE
-    - keyword: DYNAMIC
-    - keyword: TABLE
-    - keyword: ON
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: foo
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: bar
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: CREATE
-    - keyword: WORKSPACE
-    - keyword: ON
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: foo
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: bar
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: REVOKE
-    - keyword: CREATE
-    - keyword: WORKSPACE
-    - keyword: ON
-    - keyword: SCHEMA
-    - object_reference:
-      - naked_identifier: foo
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: bar
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: GRANT
-    - keyword: WRITE
-    - keyword: ON
-    - keyword: WORKSPACE
-    - object_reference:
-      - naked_identifier: my_workspace
-    - keyword: TO
-    - keyword: ROLE
-    - role_reference:
-      - naked_identifier: bar
-- statement_terminator: ;
-- statement:
-  - access_statement:
-    - keyword: REVOKE
-    - keyword: WRITE
-    - keyword: ON
-    - keyword: WORKSPACE
-    - object_reference:
-      - naked_identifier: my_workspace
-    - keyword: FROM
-    - keyword: ROLE
-    - object_reference:
-      - naked_identifier: bar
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: OWNERSHIP
+      - keyword: ON
+      - access_object:
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: MY_DATABASE
+          - dot: .
+          - naked_identifier: MY_SCHEMA
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - keyword: ROLE
+      - role_reference:
+        - naked_identifier: MY_ROLE
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MY_OTHER_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: use_any_role
+      - keyword: on
+      - access_object:
+        - keyword: integration
+        - object_reference:
+          - naked_identifier: external_oauth_1
+      - keyword: to
+      - access_target:
+        - user_reference:
+          - naked_identifier: role1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: ownership
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: table
+        - object_reference:
+          - naked_identifier: myschema
+          - dot: .
+          - naked_identifier: mytable
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: ownership
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: public
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: ownership
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: public
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: ownership
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: public
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+      - keyword: copy
+      - keyword: current
+      - keyword: grants
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - keyword: ROLE
+      - role_reference:
+        - naked_identifier: ROLENAME
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - keyword: IDENTIFIER
+          - bracketed:
+            - start_bracket: (
+            - variable: $THIS_ROLE
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: OWNERSHIP
+      - keyword: ON
+      - access_object:
+        - keyword: ROLE
+        - object_reference:
+          - naked_identifier: TEST_ROLE
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: DIFFERENT_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - keyword: materialized
+        - keyword: views
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - keyword: file
+        - keyword: formats
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: create
+          - access_schema_object:
+            - keyword: temporary
+            - keyword: table
+      - keyword: on
+      - access_object:
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: my_db
+          - dot: .
+          - naked_identifier: my_schema
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: future
+        - access_schema_plural_object:
+          - keyword: pipes
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: future
+        - keyword: file
+        - keyword: formats
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: future
+        - keyword: materialized
+        - keyword: views
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: future
+        - access_schema_plural_object:
+          - keyword: pipes
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: sequences
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - keyword: materialized
+        - keyword: views
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: sequences
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: functions
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - keyword: file
+        - keyword: formats
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: stages
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: views
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: my_db
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - keyword: role
+      - role_reference:
+        - naked_identifier: analyst
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: sysadmin
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+        - comma: ','
+        - access_permission:
+          - keyword: insert
+      - keyword: on
+      - access_object:
+        - keyword: future
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: role1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+          - keyword: privileges
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: function
+        - function_name:
+          - function_name_identifier: add5
+        - function_parameter_list:
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: number
+            - end_bracket: )
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - keyword: grant
+      - keyword: option
+      - keyword: for
+      - access_permissions:
+        - access_permission:
+          - keyword: operate
+      - keyword: on
+      - access_object:
+        - keyword: warehouse
+        - object_reference:
+          - naked_identifier: report_wh
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: operate
+      - keyword: on
+      - access_object:
+        - keyword: warehouse
+        - object_reference:
+          - naked_identifier: report_wh
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: reference_usage
+      - keyword: on
+      - access_object:
+        - keyword: database
+        - object_reference:
+          - naked_identifier: database2
+      - keyword: from
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: OWNERSHIP
+      - keyword: ON
+      - access_object:
+        - keyword: ROLE
+        - object_reference:
+          - naked_identifier: TEST_ROLE
+      - keyword: FROM
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: DIFFERENT_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: imported
+          - keyword: privileges
+      - keyword: on
+      - access_object:
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+      - keyword: to
+      - access_target:
+        - keyword: application
+        - object_reference:
+          - naked_identifier: my_app
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: operate
+      - keyword: on
+      - access_object:
+        - keyword: warehouse
+        - object_reference:
+          - naked_identifier: report_wh
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: operate
+      - keyword: on
+      - access_object:
+        - keyword: warehouse
+        - object_reference:
+          - naked_identifier: report_wh
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+      - keyword: with
+      - keyword: grant
+      - keyword: option
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: operate
+      - keyword: on
+      - access_object:
+        - keyword: future
+        - keyword: dynamic
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: operate
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - keyword: dynamic
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+          - keyword: privileges
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: function
+        - function_name:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+          - dot: .
+          - function_name_identifier: add5
+        - function_parameter_list:
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: number
+            - end_bracket: )
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+          - keyword: privileges
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: function
+        - function_name:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+          - dot: .
+          - function_name_identifier: add5
+        - function_parameter_list:
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: string
+            - end_bracket: )
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: procedure
+        - function_name:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+          - dot: .
+          - function_name_identifier: myprocedure
+        - function_parameter_list:
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: number
+            - end_bracket: )
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: create
+          - access_schema_object:
+            - keyword: materialized
+            - keyword: view
+      - keyword: on
+      - access_object:
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: myrole
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+        - comma: ','
+        - access_permission:
+          - keyword: insert
+      - keyword: on
+      - access_object:
+        - keyword: future
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: myschema
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: role1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: future
+        - keyword: schemas
+        - keyword: in
+        - keyword: database
+        - object_reference:
+          - naked_identifier: mydb
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: role1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: database
+        - object_reference:
+          - naked_identifier: database1
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: database1
+          - dot: .
+          - naked_identifier: schema1
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: reference_usage
+      - keyword: on
+      - access_object:
+        - keyword: database
+        - object_reference:
+          - naked_identifier: database2
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: view
+        - object_reference:
+          - naked_identifier: view2
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: database
+        - object_reference:
+          - naked_identifier: mydb
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: public
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: function
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: shared_schema
+          - dot: .
+          - naked_identifier: function1
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: public
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: shared_schema
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: view
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: shared_schema
+          - dot: .
+          - naked_identifier: view1
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: view
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: shared_schema
+          - dot: .
+          - naked_identifier: view3
+      - keyword: to
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - keyword: role
+      - role_reference:
+        - naked_identifier: analyst
+      - keyword: to
+      - access_target:
+        - keyword: user
+        - user_reference:
+          - naked_identifier: user1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+          - keyword: privileges
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: procedure
+        - function_name:
+          - function_name_identifier: clean_schema
+        - function_parameter_list:
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: string
+            - end_bracket: )
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: all
+          - keyword: privileges
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: function
+        - function_name:
+          - function_name_identifier: add5
+        - function_parameter_list:
+          - bracketed:
+            - start_bracket: (
+            - data_type:
+              - data_type_identifier: string
+            - end_bracket: )
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: analyst
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: view
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: shared_schema
+          - dot: .
+          - naked_identifier: view1
+      - keyword: from
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: shared_schema
+      - keyword: from
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: public
+      - keyword: from
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: mydb
+          - dot: .
+          - naked_identifier: public
+      - keyword: from
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: database
+        - object_reference:
+          - naked_identifier: mydb
+      - keyword: from
+      - access_target:
+        - keyword: share
+        - share_reference:
+          - object_reference:
+            - naked_identifier: share1
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: apply
+          - keyword: masking
+          - keyword: policy
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: apply
+          - keyword: row
+          - keyword: access
+          - keyword: policy
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: apply
+          - keyword: session
+          - keyword: policy
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: apply
+          - keyword: tag
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: attach
+          - keyword: policy
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: execute
+          - keyword: alert
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: execute
+          - keyword: task
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: EXECUTE
+          - keyword: MANAGED
+          - keyword: TASK
+      - keyword: ON
+      - access_object:
+        - keyword: ACCOUNT
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: import
+          - keyword: share
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: manage
+          - keyword: grants
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: monitor
+          - keyword: execution
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: monitor
+          - keyword: usage
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: monitor
+      - keyword: on
+      - access_object:
+        - keyword: user
+        - object_reference:
+          - naked_identifier: some_user
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: monitor
+      - keyword: on
+      - access_object:
+        - keyword: user
+        - object_reference:
+          - naked_identifier: some_user
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: override
+          - keyword: share
+          - keyword: restrictions
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: create
+          - keyword: account
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: create
+          - keyword: share
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: create
+          - keyword: network
+          - keyword: policy
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: create
+          - keyword: tag
+      - keyword: on
+      - access_object:
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: my_schema
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: create
+          - keyword: data
+          - keyword: exchange
+          - keyword: listing
+      - keyword: on
+      - access_object:
+        - keyword: account
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: CREATE
+          - access_schema_object:
+            - keyword: CORTEX
+            - keyword: SEARCH
+            - keyword: SERVICE
+      - keyword: ON
+      - access_object:
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: MY_SCHEMA
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: USAGE
+      - keyword: ON
+      - access_object:
+        - access_schema_object:
+          - keyword: CORTEX
+          - keyword: SEARCH
+          - keyword: SERVICE
+        - object_reference:
+          - naked_identifier: MY_SERVICE
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: MANAGE
+          - keyword: ACCOUNT
+          - keyword: SUPPORT
+          - keyword: CASES
+      - keyword: ON
+      - access_object:
+        - keyword: ACCOUNT
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: MANAGE
+          - keyword: ORGANIZATION
+          - keyword: SUPPORT
+          - keyword: CASES
+      - keyword: ON
+      - access_object:
+        - keyword: ACCOUNT
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: MANAGE
+          - keyword: USER
+          - keyword: SUPPORT
+          - keyword: CASES
+      - keyword: ON
+      - access_object:
+        - keyword: ACCOUNT
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - keyword: ADD
+      - keyword: SEARCH
+      - keyword: OPTIMIZATION
+      - keyword: ON
+      - keyword: SCHEMA
+      - table_reference:
+        - object_reference:
+          - naked_identifier: MY_SCHEMA
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - keyword: ADD
+      - keyword: SEARCH
+      - keyword: OPTIMIZATION
+      - keyword: ON
+      - keyword: SCHEMA
+      - table_reference:
+        - object_reference:
+          - naked_identifier: MY_SCHEMA
+      - keyword: FROM
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - keyword: database
+      - keyword: role
+      - database_role_reference:
+        - naked_identifier: dbname
+        - dot: .
+        - naked_identifier: rolename
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: public
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - keyword: database
+      - keyword: role
+      - database_role_reference:
+        - naked_identifier: dbrolename
+      - keyword: to
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: public
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - keyword: database
+      - keyword: role
+      - database_role_reference:
+        - naked_identifier: dbname
+        - dot: .
+        - naked_identifier: rolename
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: public
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - keyword: database
+      - keyword: role
+      - database_role_reference:
+        - naked_identifier: dbrolename
+      - keyword: from
+      - access_target:
+        - keyword: role
+        - role_reference:
+          - naked_identifier: public
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: table
+        - object_reference:
+          - naked_identifier: dbname
+          - dot: .
+          - naked_identifier: schemaname
+          - dot: .
+          - naked_identifier: tablename
+      - keyword: to
+      - access_target:
+        - keyword: database
+        - keyword: role
+        - database_role_reference:
+          - naked_identifier: dbname
+          - dot: .
+          - naked_identifier: rolename
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: table
+        - object_reference:
+          - naked_identifier: dbname
+          - dot: .
+          - naked_identifier: schemaname
+          - dot: .
+          - naked_identifier: tablename
+      - keyword: to
+      - access_target:
+        - keyword: database
+        - keyword: role
+        - database_role_reference:
+          - naked_identifier: dbrolename
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: table
+        - object_reference:
+          - naked_identifier: dbname
+          - dot: .
+          - naked_identifier: schemaname
+          - dot: .
+          - naked_identifier: tablename
+      - keyword: from
+      - access_target:
+        - keyword: database
+        - keyword: role
+        - database_role_reference:
+          - naked_identifier: dbname
+          - dot: .
+          - naked_identifier: rolename
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: table
+        - object_reference:
+          - naked_identifier: dbname
+          - dot: .
+          - naked_identifier: schemaname
+          - dot: .
+          - naked_identifier: tablename
+      - keyword: from
+      - access_target:
+        - keyword: database
+        - keyword: role
+        - database_role_reference:
+          - naked_identifier: dbrolename
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - keyword: APPLICATION
+      - keyword: ROLE
+      - role_reference:
+        - naked_identifier: dbrolename
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: public
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: CREATE
+          - access_schema_object:
+            - keyword: NOTEBOOK
+      - keyword: ON
+      - access_object:
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: MY_DB
+          - dot: .
+          - naked_identifier: MYSCHEMA
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: OWNERSHIP
+      - keyword: ON
+      - access_object:
+        - access_schema_object:
+          - keyword: NOTEBOOK
+        - object_reference:
+          - naked_identifier: MY_DB
+          - dot: .
+          - naked_identifier: MYSCHEMA
+          - dot: .
+          - naked_identifier: MYNOTEBOOK
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: USAGE
+      - keyword: ON
+      - access_object:
+        - access_schema_object:
+          - keyword: NOTEBOOK
+        - object_reference:
+          - naked_identifier: MY_DB
+          - dot: .
+          - naked_identifier: MYSCHEMA
+          - dot: .
+          - naked_identifier: MYNOTEBOOK
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: CREATE
+          - access_schema_object:
+            - keyword: NOTEBOOK
+      - keyword: ON
+      - access_object:
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: MY_DB
+          - dot: .
+          - naked_identifier: MYSCHEMA
+      - keyword: FROM
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: USAGE
+      - keyword: ON
+      - access_object:
+        - access_schema_object:
+          - keyword: NOTEBOOK
+        - object_reference:
+          - naked_identifier: MY_DB
+          - dot: .
+          - naked_identifier: MYSCHEMA
+          - dot: .
+          - naked_identifier: MYNOTEBOOK
+      - keyword: FROM
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: CREATE
+          - access_schema_object:
+            - keyword: MODEL
+      - keyword: ON
+      - access_object:
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: MY_DB
+          - dot: .
+          - naked_identifier: MYSCHEMA
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: OWNERSHIP
+      - keyword: ON
+      - access_object:
+        - access_schema_object:
+          - keyword: MODEL
+        - object_reference:
+          - naked_identifier: MY_DB
+          - dot: .
+          - naked_identifier: MYSCHEMA
+          - dot: .
+          - naked_identifier: MYMODEL
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: USAGE
+      - keyword: ON
+      - access_object:
+        - access_schema_object:
+          - keyword: MODEL
+        - object_reference:
+          - naked_identifier: MY_DB
+          - dot: .
+          - naked_identifier: MYSCHEMA
+          - dot: .
+          - naked_identifier: MYMODEL
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: CREATE
+          - access_schema_object:
+            - keyword: MODEL
+      - keyword: ON
+      - access_object:
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: MY_DB
+          - dot: .
+          - naked_identifier: MYSCHEMA
+      - keyword: FROM
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: USAGE
+      - keyword: ON
+      - access_object:
+        - access_schema_object:
+          - keyword: MODEL
+        - object_reference:
+          - naked_identifier: MY_DB
+          - dot: .
+          - naked_identifier: MYSCHEMA
+          - dot: .
+          - naked_identifier: MYMODEL
+      - keyword: FROM
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MYROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: USAGE
+      - keyword: ON
+      - access_object:
+        - keyword: EXTERNAL
+        - keyword: VOLUME
+        - object_reference:
+          - naked_identifier: ext_vol
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: USAGE
+      - keyword: ON
+      - access_object:
+        - keyword: EXTERNAL
+        - keyword: VOLUME
+        - object_reference:
+          - naked_identifier: ext_vol
+      - keyword: FROM
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: MY_ROLE
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: CREATE
+          - access_schema_object:
+            - keyword: DYNAMIC
+            - keyword: TABLE
+      - keyword: ON
+      - access_object:
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: foo
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: CREATE
+          - access_schema_object:
+            - keyword: DYNAMIC
+            - keyword: TABLE
+      - keyword: ON
+      - access_object:
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: foo
+      - keyword: FROM
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: CREATE
+          - access_schema_object:
+            - keyword: WORKSPACE
+      - keyword: ON
+      - access_object:
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: foo
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: CREATE
+          - access_schema_object:
+            - keyword: WORKSPACE
+      - keyword: ON
+      - access_object:
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: foo
+      - keyword: FROM
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: WRITE
+      - keyword: ON
+      - access_object:
+        - access_schema_object:
+          - keyword: WORKSPACE
+        - object_reference:
+          - naked_identifier: my_workspace
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: bar
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: WRITE
+      - keyword: ON
+      - access_object:
+        - access_schema_object:
+          - keyword: WORKSPACE
+        - object_reference:
+          - naked_identifier: my_workspace
+      - keyword: FROM
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: bar
 - statement_terminator: ;

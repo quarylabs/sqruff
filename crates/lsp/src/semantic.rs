@@ -256,7 +256,13 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateIndexStatement
         | DropIndexStatement
         | CreateTableStatement
+        | AccessObject
+        | AccessPermission
+        | AccessPermissions
+        | AccessSchemaObject
+        | AccessSchemaPluralObject
         | AccessStatement
+        | AccessTarget
         | InsertStatement
         | InvalidateMetadataStatement
         | TransactionStatement
@@ -1357,9 +1363,11 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | NullCastingOperator
         | NullEqualsOperator
         | SchemaPrivilegesSegment
+        | ShareReference
         | SegmentedbyClause
         | TimeseriesClauseStatement
         | TransactionalStatement
+        | UserReference
         | WhereCurrentOfCursorSegment
         | WithinGroupClauseStatement => return None,
     };

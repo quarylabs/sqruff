@@ -1,10 +1,12 @@
 file:
 - statement:
   - access_statement:
-    - keyword: REVOKE
-    - object_reference:
-      - naked_identifier: lc_anonymous
-    - keyword: FROM
-    - object_reference:
-      - naked_identifier: lc_api
+    - revoke_statement:
+      - keyword: REVOKE
+      - user_reference:
+        - naked_identifier: lc_anonymous
+      - keyword: FROM
+      - access_target:
+        - role_reference:
+          - naked_identifier: lc_api
 - statement_terminator: ;

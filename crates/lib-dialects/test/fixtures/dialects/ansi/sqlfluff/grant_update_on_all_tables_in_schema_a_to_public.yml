@@ -1,15 +1,21 @@
 file:
 - statement:
   - access_statement:
-    - keyword: grant
-    - keyword: update
-    - keyword: on
-    - keyword: all
-    - keyword: tables
-    - keyword: in
-    - keyword: schema
-    - object_reference:
-      - naked_identifier: a
-    - keyword: to
-    - role_reference:
-      - naked_identifier: public
+    - grant_statement:
+      - keyword: grant
+      - access_permissions:
+        - access_permission:
+          - keyword: update
+      - keyword: on
+      - access_object:
+        - keyword: all
+        - access_schema_plural_object:
+          - keyword: tables
+        - keyword: in
+        - keyword: schema
+        - object_reference:
+          - naked_identifier: a
+      - keyword: to
+      - access_target:
+        - role_reference:
+          - naked_identifier: public

@@ -21,7 +21,13 @@ use std::iter::FromIterator;
 #[strum(serialize_all = "snake_case")]
 pub enum SyntaxKind {
     // keep-sorted start sticky_prefixes=#[
+    AccessObject,
+    AccessPermission,
+    AccessPermissions,
+    AccessSchemaObject,
+    AccessSchemaPluralObject,
     AccessStatement,
+    AccessTarget,
     ActionParameter,
     AddFileStatement,
     AddJarStatement,
@@ -1086,6 +1092,7 @@ pub enum SyntaxKind {
     SetTransactionStatement,
     SetVariableStatement,
     SettingsClause,
+    ShareReference,
     ShowCreateStatement,
     ShowDatasharesStatement,
     ShowIndexesStatement,
@@ -1237,6 +1244,7 @@ pub enum SyntaxKind {
     UseCatalogStatement,
     UseDatabaseStatement,
     UseStatement,
+    UserReference,
     UsingClause,
     VacuumStatement,
     ValidationModeOption,

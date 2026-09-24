@@ -3492,9 +3492,23 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
-            "SystemPrivilegesSegment".into(),
-            NodeMatcher::new(SyntaxKind::SystemPrivilege, |_| {
+            "AccessPermissionSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessPermission, |_| {
                 one_of(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("SELECT").to_matchable(),
+                    Ref::keyword("INSERT").to_matchable(),
+                    Ref::keyword("UPDATE").to_matchable(),
+                    Ref::keyword("DELETE").to_matchable(),
+                    Ref::keyword("REFERENCES").to_matchable(),
+                    Ref::keyword("EXECUTE").to_matchable(),
+                    Ref::keyword("IMPORT").to_matchable(),
+                    Ref::keyword("EXPORT").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ALL").to_matchable(),
+                        Ref::keyword("PRIVILEGES").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("GRANT").to_matchable(),
                         Ref::keyword("ANY").to_matchable(),
@@ -3652,6 +3666,48 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                     Ref::keyword("IMPORT").to_matchable(),
                     Ref::keyword("EXPORT").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("IMPERSONATION").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::new("UserReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("CONNECTION").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ALL").to_matchable(),
+                        Ref::keyword("ROLES").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
+                        .config(|this| {
+                            this.terminators = vec![
+                                Ref::keyword("TO").to_matchable(),
+                                Ref::keyword("FROM").to_matchable(),
+                            ];
+                        })
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ACCESS").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("CONNECTION").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("FOR").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("SCRIPT").to_matchable(),
+                                Ref::keyword("SCHEMA").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -3659,23 +3715,121 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
-            "ObjectPrivilegesSegment".into(),
-            NodeMatcher::new(SyntaxKind::ObjectPrivilege, |_| {
+            "AccessObjectSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessObject, |_| {
                 one_of(vec![
-                    Ref::keyword("ALTER").to_matchable(),
-                    Ref::keyword("SELECT").to_matchable(),
-                    Ref::keyword("INSERT").to_matchable(),
-                    Ref::keyword("UPDATE").to_matchable(),
-                    Ref::keyword("DELETE").to_matchable(),
-                    Ref::keyword("REFERENCES").to_matchable(),
-                    Ref::keyword("EXECUTE").to_matchable(),
-                    Ref::keyword("IMPORT").to_matchable(),
-                    Ref::keyword("EXPORT").to_matchable(),
+                    Ref::keyword("FUNCTION").to_matchable(),
+                    Ref::keyword("SCHEMA").to_matchable(),
+                    Ref::keyword("SCRIPT").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::keyword("VIEW").to_matchable(),
                 ])
                 .to_matchable()
             })
             .to_matchable()
             .into(),
+        ),
+        (
+            "AccessTargetSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessTarget, |_| {
+                Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "GrantStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::GrantStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("GRANT").to_matchable(),
+                    Ref::new("AccessPermissionsSegment").to_matchable(),
+                    Ref::new("AccessObjectSegment").optional().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::new("AccessObjectSegment").optional().to_matchable(),
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("ALL").to_matchable(),
+                                Ref::keyword("OBJECTS").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    Ref::new("AccessTargetSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("ADMIN").to_matchable(),
+                        Ref::keyword("OPTION").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "RevokeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::RevokeStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("REVOKE").to_matchable(),
+                    Ref::new("AccessPermissionsSegment").to_matchable(),
+                    Ref::new("AccessObjectSegment").optional().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::new("AccessObjectSegment").optional().to_matchable(),
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("ALL").to_matchable(),
+                                Ref::keyword("OBJECTS").optional().to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::new("AccessTargetSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AccessStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessStatement, |_| {
+                one_of(vec![
+                    Ref::new("GrantStatementSegment").to_matchable(),
+                    Ref::new("RevokeStatementSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SystemPrivilegesSegment".into(),
+            Ref::new("AccessPermissionSegment").to_matchable().into(),
+        ),
+        (
+            "ObjectPrivilegesSegment".into(),
+            Ref::new("AccessPermissionSegment").to_matchable().into(),
         ),
         (
             "PreferringClauseSegment".into(),

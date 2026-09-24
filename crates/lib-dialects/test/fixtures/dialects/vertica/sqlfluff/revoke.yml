@@ -1,14 +1,19 @@
 file:
 - statement:
   - access_statement:
-    - keyword: REVOKE
-    - keyword: SELECT
-    - keyword: ON
-    - object_reference:
-      - naked_identifier: s1
-      - dot: .
-      - naked_identifier: t1
-    - keyword: FROM
-    - object_reference:
-      - naked_identifier: u3
+    - revoke_statement:
+      - keyword: REVOKE
+      - access_permissions:
+        - access_permission:
+          - keyword: SELECT
+      - keyword: ON
+      - access_object:
+        - object_reference:
+          - naked_identifier: s1
+          - dot: .
+          - naked_identifier: t1
+      - keyword: FROM
+      - access_target:
+        - role_reference:
+          - naked_identifier: u3
 - statement_terminator: ;

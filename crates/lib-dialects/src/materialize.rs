@@ -427,6 +427,18 @@ pub fn raw_dialect() -> Dialect {
             node(SyntaxKind::FetchStatement, fetch_statement()).into(),
         ),
         (
+            "AccessPermissionSegment".into(),
+            node(SyntaxKind::AccessPermission, privileges()).into(),
+        ),
+        (
+            "AccessObjectSegment".into(),
+            node(SyntaxKind::AccessObject, access_object()).into(),
+        ),
+        (
+            "AccessTargetSegment".into(),
+            node(SyntaxKind::AccessTarget, access_target()).into(),
+        ),
+        (
             "GrantStatementSegment".into(),
             node(SyntaxKind::GrantStatement, grant_statement()).into(),
         ),
@@ -471,7 +483,6 @@ pub fn raw_dialect() -> Dialect {
                         "CreateViewStatementSegment",
                         "DropStatementSegment",
                         "FetchStatementSegment",
-                        "GrantStatementSegment",
                         "MaterializeExplainStatementSegment",
                         "ShowStatementSegment",
                         "ShowCreateStatementSegment",
@@ -545,10 +556,8 @@ fn alter_default_privileges() -> Matchable {
         kw("PRIVILEGES"),
         kw("FOR"),
         one_of(vec![
-            seq(vec![
-                one_of(vec![kw("ROLE"), kw("USER")]).to_matchable(),
-                r("ObjectReferenceSegment"),
-            ]),
+            seq(vec![kw("ROLE"), r("RoleReferenceSegment")]),
+            seq(vec![kw("USER"), r("UserReferenceSegment")]),
             seq(vec![kw("ALL"), kw("ROLES")]),
         ])
         .to_matchable(),
@@ -558,7 +567,7 @@ fn alter_default_privileges() -> Matchable {
             r("ObjectReferenceSegment"),
         ]),
         kw("GRANT"),
-        r("Privileges"),
+        r("AccessPermissionsSegment"),
         kw("ON"),
         one_of(vec![
             kw("TABLES"),
@@ -808,68 +817,75 @@ fn create_source_webhook() -> Matchable {
 }
 
 fn grant_statement() -> Matchable {
-    let object_type = || {
-        one_of(vec![
-            kw("TABLE"),
-            kw("TYPE"),
-            kw("SECRET"),
-            kw("CONNECTION"),
-            kw("DATABASE"),
-            kw("SCHEMA"),
-            kw("CLUSTER"),
-        ])
-        .config(|this| this.optional())
-        .to_matchable()
-    };
-    let references = || Delimited::new(vec![r("ObjectReferenceSegment")]).to_matchable();
-
     seq(vec![
         kw("GRANT"),
-        r("Privileges"),
+        r("AccessPermissionsSegment"),
         kw("ON"),
-        one_of(vec![
-            seq(vec![object_type(), references()]),
-            kw("SYSTEM"),
-            seq(vec![
-                kw("ALL"),
-                one_of(vec![
-                    seq(vec![
-                        one_of(vec![
-                            kw("TABLES"),
-                            kw("TYPES"),
-                            kw("SECRETS"),
-                            kw("CONNECTIONS"),
-                        ])
-                        .to_matchable(),
-                        kw("IN"),
-                        kw("SCHEMA"),
-                        references(),
-                    ]),
-                    seq(vec![
-                        one_of(vec![
-                            kw("TABLES"),
-                            kw("TYPES"),
-                            kw("SECRETS"),
-                            kw("CONNECTIONS"),
-                            kw("SCHEMAS"),
-                        ])
-                        .to_matchable(),
-                        kw("IN"),
-                        kw("DATABASE"),
-                        references(),
-                    ]),
-                    kw("DATABASES"),
-                    kw("SCHEMAS"),
-                    kw("CLUSTERS"),
-                ])
-                .to_matchable(),
-            ]),
-        ])
-        .to_matchable(),
+        r("AccessObjectSegment"),
         kw("TO"),
-        Ref::keyword("GROUP").optional().to_matchable(),
-        references(),
+        r("AccessTargetSegment"),
     ])
+}
+
+fn access_target() -> Matchable {
+    Delimited::new(vec![r("ObjectReferenceSegment")]).to_matchable()
+}
+
+fn access_object() -> Matchable {
+    let references = || Delimited::new(vec![r("ObjectReferenceSegment")]).to_matchable();
+
+    one_of(vec![
+        seq(vec![
+            one_of(vec![
+                kw("TABLE"),
+                kw("TYPE"),
+                kw("SECRET"),
+                kw("CONNECTION"),
+                kw("DATABASE"),
+                kw("SCHEMA"),
+                kw("CLUSTER"),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            references(),
+        ]),
+        kw("SYSTEM"),
+        seq(vec![
+            kw("ALL"),
+            one_of(vec![
+                seq(vec![
+                    one_of(vec![
+                        kw("TABLES"),
+                        kw("TYPES"),
+                        kw("SECRETS"),
+                        kw("CONNECTIONS"),
+                    ])
+                    .to_matchable(),
+                    kw("IN"),
+                    kw("SCHEMA"),
+                    references(),
+                ]),
+                seq(vec![
+                    one_of(vec![
+                        kw("TABLES"),
+                        kw("TYPES"),
+                        kw("SECRETS"),
+                        kw("CONNECTIONS"),
+                        kw("SCHEMAS"),
+                    ])
+                    .to_matchable(),
+                    kw("IN"),
+                    kw("DATABASE"),
+                    references(),
+                ]),
+                kw("DATABASES"),
+                kw("SCHEMAS"),
+                kw("CLUSTERS"),
+            ])
+            .to_matchable(),
+        ]),
+    ])
+    .to_matchable()
 }
 fn create_type() -> Matchable {
     seq(vec![

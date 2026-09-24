@@ -1,13 +1,19 @@
 file:
 - statement:
   - access_statement:
-    - keyword: revoke
-    - keyword: select
-    - keyword: on
-    - keyword: table
-    - object_reference:
-      - naked_identifier: a
-    - keyword: from
-    - keyword: group
-    - object_reference:
-      - naked_identifier: b
+    - revoke_statement:
+      - keyword: revoke
+      - access_permissions:
+        - access_permission:
+          - keyword: select
+      - keyword: on
+      - access_object:
+        - access_schema_object:
+          - keyword: table
+        - object_reference:
+          - naked_identifier: a
+      - keyword: from
+      - access_target:
+        - keyword: group
+        - object_reference:
+          - naked_identifier: b

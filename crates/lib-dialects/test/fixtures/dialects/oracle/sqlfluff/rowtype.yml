@@ -675,3 +675,33 @@ file:
   - statement_terminator: ;
   - slash_buffer_executor:
     - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_procedure_statement:
+      - keyword: create
+      - keyword: or
+      - keyword: replace
+      - keyword: procedure
+      - oracle_function_name:
+        - function_name_identifier: MY_PROCEDURE
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - parameter: var1
+          - oracle_row_type_reference:
+            - oracle_table_reference:
+              - naked_identifier: table_name
+            - binary_operator: '%'
+            - keyword: rowtype
+          - end_bracket: )
+      - keyword: is
+      - oracle_begin_end_block:
+        - keyword: begin
+        - statement:
+          - oracle_null_statement:
+            - keyword: 'null'
+        - statement_terminator: ;
+        - keyword: end
+      - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

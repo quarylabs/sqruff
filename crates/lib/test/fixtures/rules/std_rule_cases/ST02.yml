@@ -120,6 +120,19 @@ test_pass_array_accessors:
   configs:
     core:
       dialect: snowflake
+test_pass_simple_case_ignored:
+  # This ensures the rule ignores "Simple CASE" statements
+  # instead of trying to force it into a COALESCE.
+  pass_str: |
+    SELECT
+        CASE status_code
+            WHEN 100 THEN true
+            ELSE false
+        END AS is_success
+    FROM a
+  configs:
+    core:
+      dialect: redshift
 test_fail_unnecessary_case_1:
   fail_str: |
     select

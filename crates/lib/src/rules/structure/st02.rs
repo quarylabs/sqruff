@@ -106,6 +106,17 @@ from fancy_table
             let else_clauses =
                 children.filter(|it: &ErasedSegment| it.is_type(SyntaxKind::ElseClause));
 
+            // Skip simple CASE statements (`CASE x WHEN y THEN ...`). Only searched CASE
+            // statements (`CASE WHEN x = y THEN ...`) can be simplified by this rule.
+            for child in children.iter() {
+                if child.is_type(SyntaxKind::WhenClause) {
+                    break;
+                }
+                if child.is_type(SyntaxKind::Expression) {
+                    return Vec::new();
+                }
+            }
+
             if when_clauses.len() > 1 {
                 return Vec::new();
             }

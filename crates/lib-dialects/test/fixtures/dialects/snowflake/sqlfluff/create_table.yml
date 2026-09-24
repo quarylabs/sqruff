@@ -1518,13 +1518,13 @@ file:
             - naked_identifier: col2
           - end_bracket: )
       - comma: ','
-      - column_definition:
-        - naked_identifier: INDEX
-        - data_type:
-          - data_type_identifier: index_col3
+      - index_properties_segment:
+        - keyword: INDEX
+        - naked_identifier: index_col3
         - bracketed:
           - start_bracket: (
-          - word: col3
+          - column_reference:
+            - naked_identifier: col3
           - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -1580,13 +1580,22 @@ file:
               - numeric_literal: '0'
               - end_bracket: )
       - comma: ','
-      - column_definition:
-        - naked_identifier: INDEX
-        - data_type:
-          - data_type_identifier: index_col3
+      - index_properties_segment:
+        - keyword: INDEX
+        - naked_identifier: index_col3
         - bracketed:
           - start_bracket: (
-          - word: col3
+          - column_reference:
+            - naked_identifier: col3
+          - end_bracket: )
+        - keyword: INCLUDE
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: col1
+          - comma: ','
+          - column_reference:
+            - naked_identifier: col2
           - end_bracket: )
       - end_bracket: )
     - keyword: AS

@@ -1079,6 +1079,13 @@ mod tests {
     }
 
     #[test]
+    fn default_sql_file_extensions_include_oracle_package_bodies() {
+        let config = FluffConfig::default();
+
+        assert!(config.sql_file_exts().iter().any(|ext| ext == ".pkb"));
+    }
+
+    #[test]
     fn test_config_locations_are_ordered_outer_to_inner() {
         let root = temp_config_dir("path-order");
         let nested = root.join("config").join("nested");

@@ -162,3 +162,25 @@ file:
             - table_reference:
               - naked_identifier: t
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - quoted_literal: '''key1'''
+          - keyword: IN
+          - map_literal:
+            - keyword: MAP
+            - start_curly_bracket: '{'
+            - map_literal_element:
+              - quoted_literal: '''key1'''
+              - colon: ':'
+              - numeric_literal: '50'
+            - comma: ','
+            - map_literal_element:
+              - quoted_literal: '''key2'''
+              - colon: ':'
+              - numeric_literal: '75'
+            - end_curly_bracket: '}'
+- statement_terminator: ;

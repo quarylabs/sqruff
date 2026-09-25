@@ -336,6 +336,80 @@ ignore_templated_areas = False
     }
 
     #[test]
+    fn test_jinja_lints_nested_render_variants() {
+        let source =
+            std::fs::read_to_string("test/fixtures/linter/jinja_variants/branching_cp01.sql")
+                .unwrap();
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = ansi
+templater = jinja
+rules = CP01
+ignore_templated_areas = False
+
+[sqruff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+"#,
+            None,
+        );
+
+        let linter = Linter::new(config, None, None, false).unwrap();
+        let linted = linter
+            .lint_string(&source, Some("branching_cp01.sql".to_string()), false)
+            .unwrap();
+        let positions = linted
+            .violations()
+            .iter()
+            .filter(|violation| violation.rule_code() == "CP01")
+            .map(|violation| (violation.line_no, violation.line_pos))
+            .collect::<Vec<_>>();
+
+        assert_eq!(
+            positions,
+            vec![
+                (3, 1),
+                (5, 11),
+                (7, 11),
+                (9, 1),
+                (11, 1),
+                (11, 15),
+                (11, 25),
+                (13, 1),
+                (13, 15),
+                (13, 25),
+                (15, 1),
+                (15, 15),
+                (15, 25),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_jinja_nested_render_variants_autofix() {
+        let config_source = std::fs::read_to_string(
+            "test/fixtures/linter/autofix/ansi/030_jinja_branching_cp01/.sqlfluff",
+        )
+        .unwrap();
+        let config = FluffConfig::from_source(&config_source, None);
+        let before = std::fs::read_to_string(
+            "test/fixtures/linter/autofix/ansi/030_jinja_branching_cp01/before.sql",
+        )
+        .unwrap();
+        let expected = std::fs::read_to_string(
+            "test/fixtures/linter/autofix/ansi/030_jinja_branching_cp01/after.sql",
+        )
+        .unwrap();
+
+        let linter = Linter::new(config, None, None, false).unwrap();
+        let linted = linter
+            .lint_string(&before, Some("before.sql".to_string()), true)
+            .unwrap();
+
+        assert_eq!(linted.fix_string(), expected);
+    }
+
+    #[test]
     fn test_jinja_templater_dynamic_variable_no_violations() {
         let source = r"
     [sqruff]

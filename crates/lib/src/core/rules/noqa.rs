@@ -2,9 +2,11 @@ use std::cell::Cell;
 
 use glob::Pattern;
 use hashbrown::{HashMap, HashSet};
+use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::errors::{ErrorStructRule, SQLBaseError};
-use sqruff_lib_core::parser::segments::ErasedSegment;
+use sqruff_lib_core::parser::lexer::Lexer;
+use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 
 use crate::core::rules::{ErasedRule, LintResult};
 
@@ -404,6 +406,40 @@ impl IgnoreMask {
         (IgnoreMask::new(ignore_list), violations)
     }
 
+    /// Parse `noqa` directives from raw source using a dialect's comment lexer.
+    pub fn from_source_with_dialect(
+        source: &str,
+        dialect: &Dialect,
+        reference_map: &HashMap<&'static str, HashSet<&'static str>>,
+    ) -> (IgnoreMask, Vec<SQLBaseError>) {
+        if !dialect
+            .lexer_matchers()
+            .iter()
+            .any(|matcher| matcher.name() == "inline_comment")
+        {
+            return (IgnoreMask::default(), Vec::new());
+        }
+
+        let lexer = Lexer::from(dialect);
+        let (tokens, _) = lexer.lex(&Tables::default(), source);
+        let mut ignore_list = Vec::new();
+        let mut violations = Vec::new();
+
+        for comment in tokens.into_iter().filter(|segment| {
+            segment.is_type(SyntaxKind::Comment)
+                || segment.is_type(SyntaxKind::InlineComment)
+                || segment.is_type(SyntaxKind::BlockComment)
+        }) {
+            match IgnoreMask::extract_ignore_from_comment(comment, reference_map) {
+                Ok(Some(ignore_entry)) => ignore_list.push(ignore_entry),
+                Ok(None) => {}
+                Err(error) => violations.push(error),
+            }
+        }
+
+        (IgnoreMask::new(ignore_list), violations)
+    }
+
     /// is_masked returns true if the IgnoreMask masks the violation.
     ///
     /// When `mark_used` is true, the directive(s) responsible for masking the
@@ -585,6 +621,28 @@ mod tests {
     use crate::core::rules::Erased;
     use crate::core::rules::noqa::NoQADirective;
     use itertools::Itertools;
+
+    #[test]
+    fn test_from_source_with_dialect_without_inline_comment_matcher() {
+        let dialect = Dialect::new();
+        let (mask, violations) = IgnoreMask::from_source_with_dialect(
+            "SELECT 1 -- noqa: PRS",
+            &dialect,
+            &HashMap::new(),
+        );
+        let parse_error = SQLBaseError {
+            line_no: 1,
+            line_pos: 1,
+            rule: Some(ErrorStructRule {
+                name: "parsing",
+                code: "PRS",
+            }),
+            ..Default::default()
+        };
+
+        assert!(violations.is_empty());
+        assert!(!mask.is_masked(&parse_error, None, false));
+    }
 
     #[test]
     fn test_is_masked_single_line() {

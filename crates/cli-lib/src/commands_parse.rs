@@ -1,6 +1,11 @@
 use std::io::{self, BufRead};
 
-use sqruff_lib::core::{config::FluffConfig, linter::core::Linter};
+use sqruff_lib::core::{
+    config::FluffConfig,
+    linter::{common::ParsedString, core::Linter},
+    rules::noqa::IgnoreMask,
+};
+use sqruff_lib_core::errors::{ErrorStructRule, SQLBaseError};
 use sqruff_lib_core::parser::segments::Tables;
 
 use crate::commands::{ParseArgs, ParseFormat};
@@ -79,6 +84,14 @@ fn parse_and_output_tree(
 
     match linter.parse_string(&tables, sql, Some(filename.to_string())) {
         Ok(parsed) => {
+            let violations = match get_filtered_parse_violations(&parsed) {
+                Ok(violations) => violations,
+                Err(error) => {
+                    eprintln!("Error filtering parse violations: {error}");
+                    return 1;
+                }
+            };
+
             if let Some(tree) = &parsed.tree {
                 match format {
                     ParseFormat::Json => {
@@ -111,20 +124,24 @@ fn parse_and_output_tree(
                 }
 
                 // Also print any parsing violations if they exist
-                if !parsed.violations.is_empty() {
+                if !violations.is_empty() {
                     eprintln!("\nParse violations:");
-                    for violation in &parsed.violations {
-                        eprintln!("  {}", violation);
+                    for violation in &violations {
+                        eprintln!("  {}: {}", violation.rule_code(), violation);
                     }
                 }
 
-                0
+                i32::from(!violations.is_empty())
             } else {
+                if violations.is_empty() {
+                    return 0;
+                }
+
                 eprintln!("Error: Failed to parse {}", filename);
-                if !parsed.violations.is_empty() {
+                if !violations.is_empty() {
                     eprintln!("Parse violations:");
-                    for violation in &parsed.violations {
-                        eprintln!("  {}", violation);
+                    for violation in &violations {
+                        eprintln!("  {}: {}", violation.rule_code(), violation);
                     }
                 }
                 1
@@ -135,4 +152,70 @@ fn parse_and_output_tree(
             1
         }
     }
+}
+
+fn get_filtered_parse_violations(parsed: &ParsedString) -> Result<Vec<SQLBaseError>, String> {
+    let mut violations = parsed.violations.clone();
+    let warnings = parsed
+        .config
+        .get("warnings", "core")
+        .as_array()
+        .unwrap_or_default();
+
+    for violation in &mut violations {
+        // Parser violations in sqruff predate explicit PRS metadata. Classify
+        // them for parse output and `noqa: PRS` matching without changing the
+        // established lint/fix representation.
+        if violation.rule.is_none() {
+            violation.rule = Some(ErrorStructRule {
+                name: "parsing",
+                code: "PRS",
+            });
+        }
+        violation.warning_if_in(warnings.iter().filter_map(|warning| warning.as_string()));
+    }
+
+    let disable_noqa = parsed
+        .config
+        .get("disable_noqa", "core")
+        .as_bool()
+        .unwrap_or(false);
+    let disable_noqa_except = parsed
+        .config
+        .get("disable_noqa_except", "core")
+        .as_string()
+        .filter(|value| !value.is_empty());
+    if disable_noqa && disable_noqa_except.is_none() {
+        violations.retain(|violation| !violation.warning);
+        return Ok(violations);
+    }
+
+    let filter_linter = Linter::new(parsed.config.clone(), None, None, true)?;
+    let rulepack = filter_linter
+        .get_rulepack()
+        .map_err(|error| error.to_string())?;
+    let reference_map = Linter::allowed_rule_ref_map(rulepack.reference_map(), disable_noqa_except);
+    let (ignore_mask, mut ignore_violations) = if let Some(tree) = &parsed.tree {
+        IgnoreMask::from_tree(tree, &reference_map)
+    } else {
+        IgnoreMask::from_source_with_dialect(
+            &parsed.source_str,
+            parsed.config.get_dialect(),
+            &reference_map,
+        )
+    };
+
+    for violation in &mut ignore_violations {
+        if violation.rule.is_none() {
+            violation.rule = Some(ErrorStructRule {
+                name: "parsing",
+                code: "PRS",
+            });
+        }
+        violation.warning_if_in(warnings.iter().filter_map(|warning| warning.as_string()));
+    }
+    violations.extend(ignore_violations);
+    violations
+        .retain(|violation| !violation.warning && !ignore_mask.is_masked(violation, None, true));
+    Ok(violations)
 }

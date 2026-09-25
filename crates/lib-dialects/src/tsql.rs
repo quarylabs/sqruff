@@ -5932,6 +5932,7 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec![
                         Ref::new("ComputedColumnDefinitionSegment").to_matchable(),
                         Ref::new("ColumnDefinitionSegment").to_matchable(),
+                        Ref::new("PeriodSegment").to_matchable(),
                     ])
                     .to_matchable(),
                 ])

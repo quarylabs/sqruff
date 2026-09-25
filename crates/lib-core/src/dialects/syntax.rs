@@ -1026,6 +1026,7 @@ pub enum SyntaxKind {
     ResignalSegment,
     ResourceConstraint,
     ResourceMonitorOptions,
+    RestoreDatabaseStatement,
     RestoreTableStatement,
     ResumeRoutineLoadStatement,
     ReturnSegment,

@@ -104,6 +104,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | FileLiteral
         | DollarLiteral
         | PasswordLiteral
+        | CatalogSyncNamespaceFlattenDelimeter
         | AtSignLiteral => Highlight::String,
 
         // Comments.
@@ -983,6 +984,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | MetaCommand
         | MetaCommandQueryBuffer
         | MetaCommandStatement
+        | MetricLevelEquals
         | PsqlCopyCommand
         | PsqlCopyMetaCommandStatement
         | PsqlSetCommand

@@ -129,6 +129,12 @@ where
         );
     }
 
+    if cli.disable_noqa
+        && let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut)
+    {
+        core.insert("disable_noqa".to_string(), Value::Bool(true));
+    }
+
     let disregard_ignores = match &cli.command {
         Commands::Lint(args) => args.disregard_sqruffignores,
         Commands::Fix(args) => args.disregard_sqruffignores,

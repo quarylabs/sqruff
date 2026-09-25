@@ -2253,7 +2253,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("TableReferenceSegment").to_matchable(),
                 Bracketed::new(vec![
                     Delimited::new(vec![
-                        Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                            Ref::new("TableConstraintSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -2324,21 +2328,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("WITH").to_matchable(),
-                        Ref::keyword("ROW").to_matchable(),
-                        Ref::keyword("FILTER").to_matchable(),
-                        Ref::new("FunctionNameSegment").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("ON").to_matchable(),
-                            Bracketed::new(vec![
-                                Delimited::new(vec![
-                                    Ref::new("ColumnReferenceSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
+                        Ref::new("RowFilterClauseGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])

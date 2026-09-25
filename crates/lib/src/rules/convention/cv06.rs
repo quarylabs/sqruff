@@ -445,6 +445,15 @@ impl RuleCV06 {
             .iter()
             .position(|segment| segment == &last_statement)?;
 
+        // Some dialects include the terminator inside the statement itself.
+        if last_statement
+            .get_raw_segments()
+            .last()
+            .is_some_and(Self::is_segment_semicolon)
+        {
+            return None;
+        }
+
         // A T-SQL terminator is a peer of its statement. Do not add a second one.
         for segment in &statement_container.segments()[last_statement_idx + 1..] {
             if Self::is_segment_semicolon(segment) {

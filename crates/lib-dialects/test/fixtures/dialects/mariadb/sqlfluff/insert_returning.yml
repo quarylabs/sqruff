@@ -235,28 +235,30 @@ file:
           - naked_identifier: a
         - comparison_operator:
           - raw_comparison_operator: =
-        - values_clause:
-          - keyword: VALUES
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: a
-            - end_bracket: )
+        - expression:
+          - values_clause:
+            - keyword: VALUES
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+              - end_bracket: )
       - comma: ','
       - set_clause:
         - column_reference:
           - naked_identifier: b
         - comparison_operator:
           - raw_comparison_operator: =
-        - values_clause:
-          - keyword: VALUES
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: b
-            - end_bracket: )
+        - expression:
+          - values_clause:
+            - keyword: VALUES
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: b
+              - end_bracket: )
     - returning_clause:
       - keyword: RETURNING
       - select_clause_element:
@@ -742,14 +744,15 @@ file:
           - naked_identifier: A
         - comparison_operator:
           - raw_comparison_operator: =
-        - values_clause:
-          - keyword: VALUES
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: A
-            - end_bracket: )
+        - expression:
+          - values_clause:
+            - keyword: VALUES
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: A
+              - end_bracket: )
     - returning_clause:
       - keyword: RETURNING
       - select_clause_element:

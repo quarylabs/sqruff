@@ -3929,6 +3929,12 @@ pub fn raw_dialect() -> Dialect {
                                 .to_matchable(),
                             ])
                             .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("SET").to_matchable(),
+                                Ref::keyword("COMPRESSION").to_matchable(),
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])

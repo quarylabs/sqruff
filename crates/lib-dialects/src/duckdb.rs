@@ -572,12 +572,22 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
-    duckdb_dialect.add([(
-        "UnpackingOperatorSegment".into(),
-        TypedParser::new(SyntaxKind::Star, SyntaxKind::UnpackingOperator)
+    duckdb_dialect.add([
+        (
+            "UnpackingOperatorSegment".into(),
+            TypedParser::new(SyntaxKind::Star, SyntaxKind::UnpackingOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "ColumnIndexSegment".into(),
+            NodeMatcher::new(SyntaxKind::ColumnIndex, |_| {
+                TypedParser::new(SyntaxKind::RawColumnIndex, SyntaxKind::ColumnIndex).to_matchable()
+            })
             .to_matchable()
             .into(),
-    )]);
+        ),
+    ]);
     duckdb_dialect.patch_lexer_matchers(vec![Matcher::regex(
         "equals",
         "==?",
@@ -585,11 +595,10 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     duckdb_dialect.insert_lexer_matchers(
-        vec![Matcher::string(
-            "double_divide",
-            "//",
-            SyntaxKind::DoubleDivide,
-        )],
+        vec![
+            Matcher::string("double_divide", "//", SyntaxKind::DoubleDivide),
+            Matcher::regex("column_index", r"#[0-9]+", SyntaxKind::RawColumnIndex),
+        ],
         "divide",
     );
 
@@ -732,7 +741,10 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.replace_grammar(
         "BaseExpressionElementGrammar",
         base_expression.copy(
-            Some(vec![Ref::new("ListComprehensionGrammar").to_matchable()]),
+            Some(vec![
+                Ref::new("ListComprehensionGrammar").to_matchable(),
+                Ref::new("ColumnIndexSegment").to_matchable(),
+            ]),
             Some(0),
             None,
             None,

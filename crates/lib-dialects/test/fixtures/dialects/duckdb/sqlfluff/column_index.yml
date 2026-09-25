@@ -1,0 +1,62 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_index:
+          - column_index: '#1'
+      - comma: ','
+      - select_clause_element:
+        - column_index:
+          - column_index: '#3'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_index:
+          - column_index: '#1'
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: first_col
+      - comma: ','
+      - select_clause_element:
+        - column_index:
+          - column_index: '#2'
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: second_col
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_index:
+          - column_index: '#1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: data
+- statement_terminator: ;

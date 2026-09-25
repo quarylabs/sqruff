@@ -223,6 +223,53 @@ fn copy_option_matchables() -> Vec<Matchable> {
     ]
 }
 
+fn database_assignment(keyword: &'static str, value: Matchable) -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword(keyword).to_matchable(),
+        Ref::new("EqualsSegment").to_matchable(),
+        value,
+    ])
+    .to_matchable()
+}
+
+fn database_numeric_assignment(keyword: &'static str) -> Matchable {
+    database_assignment(keyword, Ref::new("NumericLiteralSegment").to_matchable())
+}
+
+fn database_quoted_assignment(keyword: &'static str) -> Matchable {
+    database_assignment(keyword, Ref::new("QuotedLiteralSegment").to_matchable())
+}
+
+fn database_boolean_assignment(keyword: &'static str) -> Matchable {
+    database_assignment(keyword, Ref::new("BooleanLiteralGrammar").to_matchable())
+}
+
+fn database_object_assignment(keyword: &'static str) -> Matchable {
+    database_assignment(keyword, Ref::new("ObjectReferenceSegment").to_matchable())
+}
+
+fn storage_serialization_policy_assignment() -> Matchable {
+    database_assignment(
+        "STORAGE_SERIALIZATION_POLICY",
+        one_of(vec![
+            Ref::keyword("COMPATIBLE").to_matchable(),
+            Ref::keyword("OPTIMIZED").to_matchable(),
+        ])
+        .to_matchable(),
+    )
+}
+
+fn object_visibility_assignment() -> Matchable {
+    database_assignment(
+        "OBJECT_VISIBILITY",
+        one_of(vec![
+            Ref::keyword("PRIVILEGED").to_matchable(),
+            Ref::new("DollarQuotedUDFBody").to_matchable(),
+        ])
+        .to_matchable(),
+    )
+}
+
 fn external_volume_storage_location() -> Matchable {
     Bracketed::new(vec![
         Ref::keyword("NAME").to_matchable(),
@@ -1063,6 +1110,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             RegexParser::new(r"DYNAMIC|'.*'", SyntaxKind::DynamicTableLagIntervalSegment)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "CatalogSyncNamespaceFlattenDelimeter".into(),
+            RegexParser::new(
+                r"'[0-9A-Za-z_$-]+'",
+                SyntaxKind::CatalogSyncNamespaceFlattenDelimeter,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "DynamicTableTargetLagSegment".into(),
@@ -2424,7 +2480,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("GetStatementSegment").to_matchable(),
                 Ref::new("PutStatementSegment").to_matchable(),
                 Ref::new("RemoveStatementSegment").to_matchable(),
-                Ref::new("CreateDatabaseFromShareStatementSegment").to_matchable(),
+                Ref::new("CreateDatabaseStatementSegment").to_matchable(),
                 Ref::new("CreateDatabaseRoleStatementSegment").to_matchable(),
                 Ref::new("AlterRoleStatementSegment").to_matchable(),
                 Ref::new("AlterStorageIntegrationSegment").to_matchable(),
@@ -4409,6 +4465,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "MetricLevelEqualsSegment".into(),
+            NodeMatcher::new(SyntaxKind::MetricLevelEquals, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("METRIC_LEVEL").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ALL").to_matchable(),
+                        Ref::keyword("NONE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ExternalAccessIntegrationsEqualsSegment".into(),
             NodeMatcher::new(SyntaxKind::ExternalAccessIntegrationEquals, |_| {
                 Sequence::new(vec![
@@ -5139,18 +5212,135 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
-            "CreateDatabaseFromShareStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::CreateDatabaseFromShareStatement, |_| {
+            "CreateDatabaseStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateDatabaseStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("TRANSIENT").optional().to_matchable(),
                     Ref::keyword("DATABASE").to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("FROM").to_matchable(),
-                        Ref::keyword("SHARE").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("DatabaseReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("FROM").to_matchable(),
+                            Ref::keyword("SHARE").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("FROM").to_matchable(),
+                            Ref::keyword("LISTING").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("FROM").to_matchable(),
+                            Ref::keyword("BACKUP").to_matchable(),
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Ref::keyword("IDENTIFIER").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AS").to_matchable(),
+                            Ref::keyword("REPLICA").to_matchable(),
+                            Ref::keyword("OF").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Sequence::new(vec![database_numeric_assignment(
+                                "DATA_RETENTION_TIME_IN_DAYS",
+                            )])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("CLONE").to_matchable(),
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("FromAtExpressionSegment").to_matchable(),
+                                    Ref::new("FromBeforeExpressionSegment").to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("IGNORE").to_matchable(),
+                                    Ref::keyword("TABLES").to_matchable(),
+                                    Ref::keyword("WITH").to_matchable(),
+                                    Ref::keyword("INSUFFICIENT").to_matchable(),
+                                    Ref::keyword("DATA").to_matchable(),
+                                    Ref::keyword("RETENTION").to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("IGNORE").to_matchable(),
+                                    Ref::keyword("HYBRID").to_matchable(),
+                                    Ref::keyword("TABLES").to_matchable(),
+                                ])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            any_set_of(vec![
+                                database_numeric_assignment("DATA_RETENTION_TIME_IN_DAYS"),
+                                database_numeric_assignment("MAX_DATA_EXTENSION_TIME_IN_DAYS"),
+                                database_quoted_assignment("EXTERNAL_VOLUME"),
+                                database_quoted_assignment("CATALOG"),
+                                database_boolean_assignment("REPLACE_INVALID_CHARACTERS"),
+                                database_quoted_assignment("DEFAULT_DDL_COLLATION"),
+                                storage_serialization_policy_assignment(),
+                                Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                                database_quoted_assignment("CATALOG_SYNC"),
+                                database_assignment(
+                                    "CATALOG_SYNC_NAMESPACE_MODE",
+                                    one_of(vec![
+                                        Ref::keyword("NEST").to_matchable(),
+                                        Ref::keyword("FLATTEN").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ),
+                                database_assignment(
+                                    "CATALOG_SYNC_NAMESPACE_FLATTEN_DELIMITER",
+                                    Ref::new("CatalogSyncNamespaceFlattenDelimeter").to_matchable(),
+                                ),
+                                Ref::new("LogLevelEqualsSegment").to_matchable(),
+                                Ref::new("MetricLevelEqualsSegment").to_matchable(),
+                                Ref::new("TraceLevelEqualsSegment").to_matchable(),
+                                object_visibility_assignment(),
+                                database_boolean_assignment("ENABLE_DATA_COMPACTION"),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Ref::new("TagBracketedEqualsSegment")
+                                .optional()
+                                .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("WITH").to_matchable(),
+                                Ref::keyword("CONTACT").to_matchable(),
+                                Bracketed::new(vec![
+                                    Delimited::new(vec![
+                                        Sequence::new(vec![
+                                            Ref::new("PurposeGrammar").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
+                    .config(|this| this.optional())
                     .to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -12886,31 +13076,47 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("SET").to_matchable(),
-                            one_of(vec![
-                                Ref::new("TagEqualsSegment").to_matchable(),
-                                Delimited::new(vec![
-                                    Sequence::new(vec![
-                                        Ref::new("ParameterNameSegment").to_matchable(),
-                                        Ref::new("EqualsSegment").to_matchable(),
-                                        one_of(vec![
-                                            Ref::new("BooleanLiteralGrammar").to_matchable(),
-                                            Ref::new("QuotedLiteralSegment").to_matchable(),
-                                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            any_set_of(vec![
+                                database_numeric_assignment("DATA_RETENTION_TIME_IN_DAYS"),
+                                database_numeric_assignment("MAX_DATA_EXTENSION_TIME_IN_DAYS"),
+                                database_quoted_assignment("EXTERNAL_VOLUME"),
+                                database_quoted_assignment("CATALOG"),
+                                database_boolean_assignment("REPLACE_INVALID_CHARACTERS"),
+                                database_quoted_assignment("DEFAULT_DDL_COLLATION"),
+                                database_quoted_assignment("DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU"),
+                                database_quoted_assignment("DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU"),
+                                object_visibility_assignment(),
+                                Ref::new("LogLevelEqualsSegment").to_matchable(),
+                                Ref::new("MetricLevelEqualsSegment").to_matchable(),
+                                Ref::new("TraceLevelEqualsSegment").to_matchable(),
+                                storage_serialization_policy_assignment(),
+                                database_object_assignment("EVENT_TABLE"),
+                                Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                                database_quoted_assignment("CATALOG_SYNC"),
+                                database_quoted_assignment("REPLICABLE_WITH_FAILOVER_GROUPS"),
+                                database_quoted_assignment("BASE_LOCATION_PREFIX"),
+                                database_object_assignment("DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE"),
+                                database_quoted_assignment("CLASSIFICATION_PROFILE"),
+                                Sequence::new(vec![
+                                    Ref::keyword("CONTACT").to_matchable(),
+                                    Delimited::new(vec![
+                                        Sequence::new(vec![
+                                            Ref::new("PurposeGrammar").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("ObjectReferenceSegment").to_matchable(),
                                         ])
                                         .to_matchable(),
                                     ])
                                     .to_matchable(),
                                 ])
                                 .to_matchable(),
+                                database_boolean_assignment("ENABLE_DATA_COMPACTION"),
+                                database_assignment(
+                                    "DATA_QUALITY_MONITORING_SETTINGS",
+                                    Ref::new("DollarQuotedUDFBody").to_matchable(),
+                                ),
                             ])
                             .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("UNSET").to_matchable(),
-                            Ref::keyword("TAG").to_matchable(),
-                            Delimited::new(vec![Ref::new("TagReferenceSegment").to_matchable()])
-                                .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
@@ -12919,12 +13125,50 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 one_of(vec![
                                     Ref::keyword("DATA_RETENTION_TIME_IN_DAYS").to_matchable(),
                                     Ref::keyword("MAX_DATA_EXTENSION_TIME_IN_DAYS").to_matchable(),
+                                    Ref::keyword("EXTERNAL_VOLUME").to_matchable(),
+                                    Ref::keyword("CATALOG").to_matchable(),
                                     Ref::keyword("DEFAULT_DDL_COLLATION").to_matchable(),
+                                    Ref::keyword("DEFAULT_NOTEBOOK_COMPUTE_POOL_CPU")
+                                        .to_matchable(),
+                                    Ref::keyword("DEFAULT_NOTEBOOK_COMPUTE_POOL_GPU")
+                                        .to_matchable(),
+                                    Ref::keyword("OBJECT_VISIBILITY").to_matchable(),
+                                    Ref::keyword("STORAGE_SERIALIZATION_POLICY").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("EVENT_TABLE").to_matchable(),
+                                        Ref::new("EqualsSegment").to_matchable(),
+                                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                     Ref::keyword("COMMENT").to_matchable(),
+                                    Ref::keyword("CATALOG_SYNC").to_matchable(),
+                                    Ref::keyword("REPLICABLE_WITH_FAILOVER_GROUPS").to_matchable(),
+                                    Ref::keyword("BASE_LOCATION_PREFIX").to_matchable(),
+                                    Ref::keyword("DEFAULT_STREAMLIT_NOTEBOOK_WAREHOUSE")
+                                        .to_matchable(),
+                                    Ref::keyword("CLASSIFICATION_PROFILE").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("CONTACT").to_matchable(),
+                                        Ref::new("PurposeGrammar").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::keyword("ENABLE_DATA_COMPACTION").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
                             .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("TagEqualsSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("TAG").to_matchable(),
+                            Delimited::new(vec![Ref::new("TagReferenceSegment").to_matchable()])
+                                .to_matchable(),
                         ])
                         .to_matchable(),
                     ])

@@ -24,12 +24,12 @@ file:
           - end_bracket: )
 - statement_terminator: ;
 - statement:
-  - create_statement:
+  - create_database_statement:
     - keyword: create
     - keyword: or
     - keyword: replace
     - keyword: database
-    - object_reference:
+    - database_reference:
       - keyword: identifier
       - bracketed:
         - start_bracket: (

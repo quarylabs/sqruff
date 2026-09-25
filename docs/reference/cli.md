@@ -41,6 +41,9 @@ sqruff is a sql formatter and linter
 
   Default value: `false`
 * `--disable-noqa-except <DISABLE_NOQA_EXCEPT>` — Ignore all but the listed rules in inline `noqa` comments
+* `--disable-noqa` — Disable all inline `noqa` comments
+
+  Default value: `false`
 
 
 

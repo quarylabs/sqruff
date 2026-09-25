@@ -755,6 +755,7 @@ impl Linter {
                 templated_file: rendered.templated_file,
                 filename: rendered.filename,
                 source_str: rendered.source_str,
+                config: self.config.clone(),
                 alternate_variants: Vec::new(),
             };
         }
@@ -772,6 +773,7 @@ impl Linter {
             templated_file: primary.templated_file,
             filename: rendered.filename,
             source_str: rendered.source_str,
+            config: self.config.clone(),
             alternate_variants,
         }
     }
@@ -892,7 +894,7 @@ impl Linter {
         Ok(&self.rulepack()?.rules)
     }
 
-    fn allowed_rule_ref_map(
+    pub fn allowed_rule_ref_map(
         reference_map: &HashMap<&'static str, HashSet<&'static str>>,
         disable_noqa_except: Option<&str>,
     ) -> HashMap<&'static str, HashSet<&'static str>> {

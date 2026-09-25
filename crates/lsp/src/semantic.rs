@@ -717,6 +717,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateGroup
         | ListaggOverflowClauseSegment
         | UnorderedSelectStatementSegment
+        | MapLiteral
+        | MapLiteralElement
         | MapType
         | MapTypeSchema
         | PrepareStatement

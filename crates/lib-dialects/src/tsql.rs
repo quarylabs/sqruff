@@ -678,9 +678,22 @@ pub fn raw_dialect() -> Dialect {
         "SelectClauseSegment",
         Sequence::new(ansi::select_clause_segment().elements().to_vec()).to_matchable(),
     );
+    dialect.add([(
+        "IntoTableSegment".into(),
+        NodeMatcher::new(SyntaxKind::IntoTableClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("INTO").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
     let mut select_elements = ansi::get_unordered_select_statement_segment_grammar()
         .elements()
         .to_vec();
+    select_elements.insert(1, Ref::new("IntoTableSegment").optional().to_matchable());
     select_elements.push(Ref::new("OrderByClauseSegment").optional().to_matchable());
     dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
@@ -2569,6 +2582,12 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::new("LoginUserSegment").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::new("ExecuteOptionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
             ])
             .to_matchable();
             let _execute_pass_through_command = Sequence::new(vec![
@@ -5872,7 +5891,8 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("WITH").to_matchable(),
                 Delimited::new(vec![
-                    AnyNumberOf::new(vec![
+                    one_of(vec![
+                        Ref::keyword("NATIVE_COMPILATION").to_matchable(),
                         Ref::keyword("ENCRYPTION").to_matchable(),
                         Ref::keyword("SCHEMABINDING").to_matchable(),
                         Sequence::new(vec![
@@ -5902,7 +5922,6 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                     ])
-                    .config(|this| this.min_times(1))
                     .to_matchable(),
                 ])
                 .to_matchable(),
@@ -6224,6 +6243,26 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("WildcardExpressionSegment").to_matchable(),
             // SELECT @variable = expression (variable assignment)
             Ref::new("SelectVariableAssignmentSegment").to_matchable(),
+            // IDENTITY(type [, seed, increment]) is valid in SELECT INTO.
+            Sequence::new(vec![
+                Ref::keyword("IDENTITY").to_matchable(),
+                Bracketed::new(vec![
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::new("SignedSegmentGrammar").optional().to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::new("SignedSegmentGrammar").optional().to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("AliasExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
             // Everything else
             Sequence::new(vec![
                 Ref::new("BaseExpressionElementGrammar").to_matchable(),

@@ -3,6 +3,7 @@ import os
 import pickle
 import shutil
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
@@ -243,6 +244,53 @@ def test_process_passes_project_dir_without_changing_cwd(tmp_path, monkeypatch):
         "config": config,
         "dbt_dir": str(project_dir.resolve()),
     }
+
+
+def test_find_node_with_symlinked_local_package(tmp_path):
+    """Find a dbt node through both real and symlinked package paths."""
+    real_package = tmp_path / "packages" / "my_pkg"
+    real_model = real_package / "models" / "my_model.sql"
+    real_model.parent.mkdir(parents=True)
+    real_model.write_text("select 1\n")
+
+    installed_packages = tmp_path / "dbt_packages"
+    installed_packages.mkdir()
+    symlinked_package = installed_packages / "my_pkg"
+    symlinked_package.symlink_to(real_package, target_is_directory=True)
+    symlinked_model = symlinked_package / "models" / "my_model.sql"
+
+    node = mock.Mock(original_file_path="dbt_packages/my_pkg/models/my_model.sql")
+    manifest = mock.Mock()
+    manifest.nodes = {"model.my_pkg.my_model": node}
+    selector = mock.Mock()
+    selector.search.return_value = []
+
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_apply_dbt_builtins=True,
+        jinja_library_paths=None,
+        jinja_templater_paths=None,
+        jinja_exclude_macros_from_path=None,
+        jinja_loader_search_path=None,
+        jinja_ignore_templating=None,
+        dbt_target=None,
+        dbt_profile=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=str(tmp_path),
+        dbt_profiles_dir=None,
+    )
+    templater = DbtTemplater(sqlfluff_config=config)
+    templater.project_dir = str(tmp_path)
+    templater.__dict__["dbt_manifest"] = manifest
+    templater.__dict__["dbt_selector_method"] = selector
+
+    for model_path in (real_model, symlinked_model):
+        found_node, skip_reason = templater._find_node(
+            str(model_path), config, str(tmp_path)
+        )
+        assert found_node is node
+        assert skip_reason is None
 
 
 def test_templater_caching():

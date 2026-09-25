@@ -241,6 +241,7 @@ pub struct RegexParser {
     pub template: Regex,
     pub anti_template: Option<Regex>,
     pub casefold: Option<CaseFold>,
+    pub ignore_case: bool,
     kind: SyntaxKind,
     cache_key: MatchableCacheKey,
 }
@@ -254,6 +255,7 @@ impl PartialEq for RegexParser {
                 .zip(other.anti_template.as_ref())
                 .is_some_and(|(lhs, rhs)| lhs.as_str() == rhs.as_str())
             && self.casefold == other.casefold
+            && self.ignore_case == other.ignore_case
             && self.kind == other.kind
     }
 }
@@ -266,13 +268,53 @@ impl RegexParser {
             template: template_pattern,
             anti_template: None,
             casefold: None,
+            ignore_case: true,
             kind,
             cache_key: next_matchable_cache_key(),
         }
     }
 
     pub fn anti_template(mut self, anti_template: &str) -> Self {
-        self.anti_template = Regex::new(&format!("(?i){anti_template}")).unwrap().into();
+        let anti_template = if self.ignore_case {
+            format!("(?i){anti_template}")
+        } else {
+            anti_template.to_owned()
+        };
+        self.anti_template = Regex::new(&anti_template).unwrap().into();
+        self
+    }
+
+    pub fn ignore_case(mut self, ignore_case: bool) -> Self {
+        if self.ignore_case == ignore_case {
+            return self;
+        }
+
+        let template = self
+            .template
+            .as_str()
+            .strip_prefix("(?i)")
+            .unwrap_or(self.template.as_str());
+        let template = if ignore_case {
+            format!("(?i){template}")
+        } else {
+            template.to_owned()
+        };
+        self.template = Regex::new(&template).unwrap();
+
+        if let Some(anti_template) = &self.anti_template {
+            let anti_template = anti_template
+                .as_str()
+                .strip_prefix("(?i)")
+                .unwrap_or(anti_template.as_str());
+            let anti_template = if ignore_case {
+                format!("(?i){anti_template}")
+            } else {
+                anti_template.to_owned()
+            };
+            self.anti_template = Regex::new(&anti_template).unwrap().into();
+        }
+
+        self.ignore_case = ignore_case;
         self
     }
 
@@ -308,17 +350,16 @@ impl MatchableTrait for RegexParser {
         _parse_context: &mut ParseContext,
     ) -> Result<MatchResult, SQLParseError> {
         let segment = &segments[idx as usize];
-        let segment_raw_upper =
-            SmolStr::from_iter(segment.raw().chars().map(|ch| ch.to_ascii_uppercase()));
-        if let Some(result) = self
-            .template
-            .find(segment_raw_upper.as_str())
-            .ok()
-            .flatten()
-            && result.as_str() == segment_raw_upper.as_str()
+        let segment_raw = if self.ignore_case {
+            SmolStr::from_iter(segment.raw().chars().map(|ch| ch.to_ascii_uppercase()))
+        } else {
+            SmolStr::new(segment.raw())
+        };
+        if let Some(result) = self.template.find(segment_raw.as_str()).ok().flatten()
+            && result.as_str() == segment_raw.as_str()
             && !self.anti_template.as_ref().is_some_and(|anti_template| {
                 anti_template
-                    .is_match(segment_raw_upper.as_str())
+                    .is_match(segment_raw.as_str())
                     .unwrap_or_default()
             })
         {

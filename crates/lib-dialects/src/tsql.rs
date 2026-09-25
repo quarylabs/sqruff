@@ -1309,6 +1309,22 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
+            "DatatypeMethodNameIdentifierSegment".into(),
+            SegmentGenerator::new(|_| {
+                let methods = tsql_keywords::tsql_datatype_methods()
+                    .into_iter()
+                    .sorted()
+                    .join("|");
+                RegexParser::new(
+                    &format!(r"^({methods})$"),
+                    SyntaxKind::DatatypeMethodNameIdentifier,
+                )
+                .ignore_case(false)
+                .to_matchable()
+            })
+            .into(),
+        ),
+        (
             "NakedOrQuotedIdentifierGrammar".into(),
             one_of(vec![
                 Ref::new("NakedIdentifierSegment").to_matchable(),
@@ -1365,6 +1381,62 @@ pub fn raw_dialect() -> Dialect {
         .config(|this| this.terminators = vec![Ref::new("DotSegment").to_matchable()])
         .to_matchable(),
     );
+
+    // Datatype methods such as XML.value() are case-sensitive and must not be
+    // consumed as ordinary schema-qualified function names.
+    dialect.replace_grammar(
+        "FunctionNameSegment",
+        Sequence::new(vec![
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("DotSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.terminators = vec![Ref::new("BracketedSegment").to_matchable()])
+            .to_matchable(),
+            one_of(vec![
+                Ref::new("FunctionNameIdentifierSegment").to_matchable(),
+                Ref::new("QuotedIdentifierSegment").to_matchable(),
+            ])
+            .config(|this| {
+                this.exclude = Ref::new("DatatypeMethodNameIdentifierSegment")
+                    .to_matchable()
+                    .into()
+            })
+            .to_matchable(),
+        ])
+        .terminators(vec![Ref::new("BracketedSegment").to_matchable()])
+        .allow_gaps(false)
+        .to_matchable(),
+    );
+
+    // SQLFluff's column references inherit this behavior from object
+    // references. Sqruff models the two nodes separately, so install the same
+    // inner grammar on both without adding another node wrapper.
+    let datatype_reference = || {
+        Sequence::new(vec![
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            AnyNumberOf::new(vec![
+                one_of(vec![
+                    Ref::new("DatatypeMethodSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("DotSegment").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable()
+    };
+    dialect.replace_grammar("ObjectReferenceSegment", datatype_reference());
+    dialect.replace_grammar("ColumnReferenceSegment", datatype_reference());
 
     // Cursor definitions and cursor statement support.
     dialect.add([
@@ -3367,6 +3439,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateRoleStatementSegment").to_matchable(),
             Ref::new("AlterRoleStatementSegment").to_matchable(),
             Ref::new("CreateServerRoleStatementSegment").to_matchable(),
+            Ref::new("CreateXmlSchemaCollectionStatementSegment").to_matchable(),
+            Ref::new("AlterXmlSchemaCollectionStatementSegment").to_matchable(),
+            Ref::new("DropXmlSchemaCollectionStatementSegment").to_matchable(),
             Ref::new("CreateLoginStatementSegment").to_matchable(),
             Ref::new("DropRoleStatementSegment").to_matchable(),
             Ref::new("AlterTableSwitchStatementSegment").to_matchable(),
@@ -5310,7 +5385,21 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("TIMESTAMP").to_matchable(),
                     Ref::keyword("ROWVERSION").to_matchable(),
                     Ref::keyword("UNIQUEIDENTIFIER").to_matchable(),
-                    Ref::keyword("XML").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("XML").to_matchable(),
+                        Bracketed::new(vec![
+                            one_of(vec![
+                                Ref::keyword("DOCUMENT").to_matchable(),
+                                Ref::keyword("CONTENT").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::keyword("JSON").to_matchable(),
                     Ref::keyword("GEOGRAPHY").to_matchable(),
                     Ref::keyword("GEOMETRY").to_matchable(),
@@ -8014,6 +8103,58 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    dialect.add([
+        (
+            "CreateXmlSchemaCollectionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateXmlSchemaCollectionStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("XML").to_matchable(),
+                    Ref::keyword("SCHEMA").to_matchable(),
+                    Ref::keyword("COLLECTION").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterXmlSchemaCollectionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterXmlSchemaCollectionStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("XML").to_matchable(),
+                    Ref::keyword("SCHEMA").to_matchable(),
+                    Ref::keyword("COLLECTION").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropXmlSchemaCollectionStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropXmlSchemaCollectionStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("XML").to_matchable(),
+                    Ref::keyword("SCHEMA").to_matchable(),
+                    Ref::keyword("COLLECTION").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // T-SQL CREATE LOGIN statement.
     // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-login-transact-sql
     dialect.add([(
@@ -8797,6 +8938,19 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "DatatypeMethodSegment".into(),
+            NodeMatcher::new(SyntaxKind::DatatypeMethod, |_| {
+                Sequence::new(vec![
+                    Ref::new("DotSegment").to_matchable(),
+                    Ref::new("DatatypeMethodNameIdentifierSegment").to_matchable(),
+                    Ref::new("FunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "NextValueSequenceSegment".into(),
             NodeMatcher::new(SyntaxKind::SequenceNextValue, |_| {
                 Sequence::new(vec![
@@ -8821,7 +8975,12 @@ pub fn raw_dialect() -> Dialect {
             "ExpressionSegment".into(),
             NodeMatcher::new(SyntaxKind::Expression, |_| {
                 one_of(vec![
-                    Ref::new("Expression_A_Grammar").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("Expression_A_Grammar").to_matchable(),
+                        AnyNumberOf::new(vec![Ref::new("DatatypeMethodSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::new("NextValueSequenceSegment").to_matchable(),
                 ])
                 .to_matchable()

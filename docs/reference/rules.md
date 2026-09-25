@@ -57,6 +57,7 @@ The following rules are available in this create. This list is generated from th
 | LT13 | [layout.start_of_file](#layoutstart_of_file) | Files must not begin with newlines or whitespace. |  |
 | LT14 | [layout.keyword_newline](#layoutkeyword_newline) | Keyword clause newline enforcement. |  |
 | LT15 | [layout.newlines](#layoutnewlines) | Too many consecutive blank lines. |  |
+| OR01 | [oracle.empty_batch](#oracleempty_batch) | Remove empty batches. |  |
 | RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | ✓ |
 | RF02 | [references.qualification](#referencesqualification) | References should be qualified if select has more than one referenced table/view. |  |
 | RF03 | [references.consistent](#referencesconsistent) | Column references should be qualified consistently in single table statements. |  |
@@ -2089,6 +2090,39 @@ ORDER BY y
 LIMIT 5
 ;
 ```
+
+### oracle.empty_batch
+
+Remove empty batches.
+
+**Code:** `OR01`
+
+**Groups:** `all`, `oracle`
+
+**Fixable:** Yes
+
+**Anti-pattern**
+
+Empty batches (containing only `/` statements) should be removed.
+
+```sql
+SELECT 1 FROM DUAL;
+
+/
+
+/
+```
+
+**Best practice**
+
+Remove empty batches.
+
+```sql
+SELECT 1 FROM DUAL;
+
+/
+```
+
 
 ### references.from
 

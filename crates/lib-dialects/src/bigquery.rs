@@ -440,6 +440,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "AccessorGrammar".into(),
             AnyNumberOf::new(vec![
                 Ref::new("ArrayAccessorSegment").to_matchable(),
+                Ref::new("ChainedFunctionCallSegment").to_matchable(),
                 Ref::new("SemiStructuredAccessorSegment").to_matchable(),
             ])
             .to_matchable()
@@ -1983,6 +1984,25 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    dialect.add([(
+        "ChainedFunctionCallSegment".into(),
+        NodeMatcher::new(SyntaxKind::ChainedFunctionCall, |_| {
+            Sequence::new(vec![
+                Ref::new("DotSegment").to_matchable(),
+                Ref::new("FunctionNameIdentifierSegment").to_matchable(),
+                Bracketed::new(vec![
+                    Ref::new("FunctionContentsGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     dialect.add([(
         "SemiStructuredAccessorSegment".into(),

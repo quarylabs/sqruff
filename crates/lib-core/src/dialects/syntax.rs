@@ -203,6 +203,7 @@ pub enum SyntaxKind {
     CatalogReference,
     CatalogSyncNamespaceFlattenDelimeter,
     CdcSpecificationSegment,
+    ChainedFunctionCall,
     ChangesClause,
     CharacteristicStatement,
     CheckConstraintGrammar,

@@ -181,6 +181,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | Expression
         | WildcardIdentifier
         | Function
+        | ChainedFunctionCall
         | FunctionContents
         | HavingClause
         | PathSegment

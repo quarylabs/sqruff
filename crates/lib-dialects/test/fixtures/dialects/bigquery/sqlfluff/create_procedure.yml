@@ -1,5 +1,5 @@
 file:
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -31,7 +31,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
@@ -67,7 +67,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
@@ -104,7 +104,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
@@ -278,7 +278,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -358,7 +358,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -452,7 +452,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -544,7 +544,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -585,7 +585,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -635,7 +635,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -701,7 +701,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR
@@ -792,7 +792,7 @@ file:
       - statement_terminator: ;
       - keyword: END
 - statement_terminator: ;
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR

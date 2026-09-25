@@ -2,6 +2,8 @@ use sqruff_lib_core::errors::{SQLBaseError, SQLTemplaterError};
 use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::templaters::TemplatedFile;
 
+use crate::core::config::FluffConfig;
+
 /// An object to store the result of a templated file/string.
 ///
 /// This is notable as it's the intermediate state between what happens
@@ -36,5 +38,6 @@ pub struct ParsedString {
     pub templated_file: TemplatedFile,
     pub filename: String,
     pub source_str: String,
+    pub config: FluffConfig,
     pub alternate_variants: Vec<ParsedVariant>,
 }

@@ -38,6 +38,9 @@ pub struct Cli {
     /// Ignore all but the listed rules in inline `noqa` comments.
     #[arg(long, global = true)]
     pub disable_noqa_except: Option<String>,
+    /// Disable all inline `noqa` comments.
+    #[arg(long, global = true, default_value = "false")]
+    pub disable_noqa: bool,
 }
 
 #[derive(Debug, Subcommand)]

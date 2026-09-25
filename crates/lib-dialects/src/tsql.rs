@@ -7722,8 +7722,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("ON").to_matchable(),
                     Ref::new("SecurableSegment").to_matchable(),
                     Ref::keyword("TO").to_matchable(),
-                    Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
-                        .to_matchable(),
+                    Delimited::new(vec![
+                        Ref::new("RoleReferenceSegment").to_matchable(),
+                        Ref::keyword("PUBLIC").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("WITH").to_matchable(),
                         Ref::keyword("GRANT").to_matchable(),
@@ -7760,8 +7763,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("ON").to_matchable(),
                     Ref::new("SecurableSegment").to_matchable(),
                     Ref::keyword("TO").to_matchable(),
-                    Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
-                        .to_matchable(),
+                    Delimited::new(vec![
+                        Ref::new("RoleReferenceSegment").to_matchable(),
+                        Ref::keyword("PUBLIC").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("CASCADE").optional().to_matchable(),
                         Ref::new("ObjectReferenceSegment").optional().to_matchable(),
@@ -7808,8 +7814,11 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("FROM").to_matchable(),
                     ])
                     .to_matchable(),
-                    Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
-                        .to_matchable(),
+                    Delimited::new(vec![
+                        Ref::new("RoleReferenceSegment").to_matchable(),
+                        Ref::keyword("PUBLIC").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("CASCADE").optional().to_matchable(),
                         Ref::new("ObjectReferenceSegment").optional().to_matchable(),

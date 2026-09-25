@@ -1396,16 +1396,21 @@ fn convert_newlines_to_spaces(
     results
 }
 
+pub struct IndentationExclusions<'a> {
+    pub indentation: &'a SyntaxSet,
+    pub implicit_indents: &'a SyntaxSet,
+}
+
 pub fn lint_indent_points(
     tables: &Tables,
     elements: ReflowSequenceType,
     single_indent: &str,
-    skip_indentation_in: &SyntaxSet,
+    exclusions: IndentationExclusions<'_>,
     implicit_indents: ImplicitIndents,
     ignore_comment_lines: bool,
     indentation_align_following: &HashMap<SyntaxKind, usize>,
 ) -> (ReflowSequenceType, Vec<LintResult>) {
-    let (mut lines, imbalanced_indent_locs, implicit_indent_locs) =
+    let (mut lines, imbalanced_indent_locs, mut implicit_indent_locs) =
         map_line_buffers(&elements, implicit_indents);
 
     let mut results = Vec::new();
@@ -1422,7 +1427,7 @@ pub fn lint_indent_points(
                 .depth_info()
                 .stack_class_types
                 .iter()
-                .any(|class_types| skip_indentation_in.intersects(class_types))
+                .any(|class_types| exclusions.indentation.intersects(class_types))
         })
     });
 
@@ -1451,6 +1456,18 @@ pub fn lint_indent_points(
     }
 
     if implicit_indents == ImplicitIndents::Require && !implicit_indent_locs.is_empty() {
+        implicit_indent_locs.retain(|idx| {
+            let Some(block) = elem_buffer.get(idx + 1).and_then(ReflowElement::as_block) else {
+                return true;
+            };
+
+            !block
+                .depth_info()
+                .stack_class_types
+                .iter()
+                .any(|class_types| exclusions.implicit_indents.intersects(class_types))
+        });
+
         let mut implicit_results =
             convert_newlines_to_spaces(tables, &elem_buffer, &implicit_indent_locs);
         implicit_results.extend(results);

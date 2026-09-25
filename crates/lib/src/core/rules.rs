@@ -41,6 +41,7 @@ pub enum RuleGroups {
     Convention,
     Jinja,
     Layout,
+    Oracle,
     References,
     Structure,
     Tsql,

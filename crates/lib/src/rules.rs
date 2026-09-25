@@ -9,6 +9,7 @@ pub mod capitalisation;
 pub mod convention;
 pub mod jinja;
 pub mod layout;
+pub mod oracle;
 pub mod references;
 pub mod structure;
 pub mod tsql;
@@ -21,6 +22,7 @@ pub fn rules() -> Vec<ErasedRule> {
         convention::rules(),
         jinja::rules(),
         layout::rules(),
+        oracle::rules(),
         references::rules(),
         structure::rules(),
         tsql::rules()

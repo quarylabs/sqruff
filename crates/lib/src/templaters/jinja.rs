@@ -410,6 +410,35 @@ capitalisation_policy = upper
     }
 
     #[test]
+    fn test_jinja_placeholder_adjacent_to_quotes_autofix() {
+        let source = "SELECT\n  '{{ foo.bar }}'\nFROM baz\n";
+        let expected = "SELECT\n    '{{ foo.bar }}'\nFROM baz\n";
+
+        for value in ["", "bar"] {
+            let config = FluffConfig::from_source(
+                &format!(
+                    r#"
+[sqruff]
+dialect = ansi
+templater = jinja
+rules = LT02
+
+[sqruff:templater:jinja:context]
+foo.bar = {value}
+"#
+                ),
+                None,
+            );
+            let linter = Linter::new(config, None, None, false).unwrap();
+            let linted = linter
+                .lint_string(source, Some("test.sql".to_string()), true)
+                .unwrap();
+
+            assert_eq!(linted.fix_string(), expected, "context value: {value:?}");
+        }
+    }
+
+    #[test]
     fn test_jinja_templater_dynamic_variable_no_violations() {
         let source = r"
     [sqruff]

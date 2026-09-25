@@ -28,6 +28,7 @@ use crate::parser::matchable::MatchableTrait;
 use crate::parser::segments::fix::{FixPatch, SourceFix};
 use crate::parser::segments::object_reference::{ObjectReferenceKind, ObjectReferenceSegment};
 use crate::segments::AnchorEditInfo;
+use crate::slice_helpers::is_zero_slice;
 use crate::templaters::TemplatedFile;
 
 pub struct SegmentBuilder {
@@ -242,6 +243,15 @@ impl ErasedSegment {
 
     pub fn block_type(&self) -> Option<BlockType> {
         self.value.template_info.as_ref().map(|i| i.block_type)
+    }
+
+    fn is_empty_templated_placeholder(&self) -> bool {
+        self.is_type(SyntaxKind::Placeholder)
+            && self.raw().is_empty()
+            && self.get_position_marker().is_some_and(|marker| {
+                is_zero_slice(&marker.templated_slice) && !is_zero_slice(&marker.source_slice)
+            })
+            && self.block_type() == Some(BlockType::Templated)
     }
 
     /// Source text for a placeholder, else the segment raw.
@@ -519,6 +529,15 @@ impl ErasedSegment {
                 if !segment.raw().is_empty() && pos_marker.is_point() {
                     insert_buff.push_str(segment.raw().as_ref());
                     first_segment_pos = first_segment_pos.or(Some(pos_marker));
+                    continue;
+                }
+
+                // An empty-rendering template placeholder occupies source space but
+                // no templated space. The lexer may place it before an adjacent
+                // literal whose templated position is earlier. It therefore cannot
+                // contribute a gap patch or advance either running index.
+                if segment.is_empty_templated_placeholder() {
+                    acc.extend(segment.iter_source_fix_patches(templated_file));
                     continue;
                 }
 
@@ -1241,6 +1260,12 @@ pub fn position_segments(
                 let mut end_point = None;
                 for fwd_seg in &segments[idx + 1..] {
                     if fwd_seg.get_position_marker().is_some() {
+                        // Empty-rendering placeholders may precede a sibling whose
+                        // templated position is earlier. Using one as the endpoint
+                        // would give an inserted segment an over-wide source slice.
+                        if fwd_seg.is_empty_templated_placeholder() {
+                            continue;
+                        }
                         end_point = Some(
                             fwd_seg.get_raw_segments()[0]
                                 .get_position_marker()

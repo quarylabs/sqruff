@@ -1,0 +1,210 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - oracle_function_name:
+        - function_name_identifier: proc1
+      - keyword: AS
+      - oracle_begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - function:
+            - oracle_function_name:
+              - naked_identifier: DBMS_OUTPUT
+              - dot: .
+              - function_name_identifier: PUT_LINE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''Procedure 1'''
+                - end_bracket: )
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: FUNCTION
+      - oracle_function_name:
+        - function_name_identifier: func1
+      - keyword: RETURN
+      - data_type:
+        - data_type_identifier: VARCHAR2
+      - keyword: AS
+      - oracle_begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - oracle_return_statement:
+            - keyword: RETURN
+            - expression:
+              - quoted_literal: '''Function 1'''
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''Anonymous block'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - oracle_function_name:
+        - function_name_identifier: proc2
+      - keyword: AS
+      - oracle_begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - function:
+            - oracle_function_name:
+              - naked_identifier: DBMS_OUTPUT
+              - dot: .
+              - function_name_identifier: PUT_LINE
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - quoted_literal: '''Procedure 2'''
+                - end_bracket: )
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: FUNCTION
+      - oracle_function_name:
+        - function_name_identifier: func3
+      - keyword: RETURN
+      - data_type:
+        - data_type_identifier: VARCHAR2
+      - keyword: AS
+      - oracle_begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - oracle_return_statement:
+            - keyword: RETURN
+            - expression:
+              - quoted_literal: '''Function with comments'''
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - oracle_function_name:
+        - function_name_identifier: proc4
+      - keyword: AS
+      - oracle_begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - oracle_null_statement:
+            - keyword: 'NULL'
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - oracle_function_name:
+        - function_name_identifier: proc5
+      - keyword: AS
+      - oracle_begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - oracle_null_statement:
+            - keyword: 'NULL'
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - oracle_function_name:
+        - function_name_identifier: proc6
+      - keyword: AS
+      - oracle_begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - oracle_null_statement:
+            - keyword: 'NULL'
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - oracle_function_name:
+        - function_name_identifier: proc7
+      - keyword: AS
+      - oracle_begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - oracle_null_statement:
+            - keyword: 'NULL'
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

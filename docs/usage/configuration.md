@@ -16,6 +16,7 @@ You can also refer to the [rules documentation](../reference/rules.md) for more 
 dialect = sqlite
 exclude_rules = AM01,AM02
 rules = all
+sql_file_exts = .sql,.sql.j2,.dml,.ddl,.pkb
 
 [sqruff:indentation]
 indent_unit = space
@@ -30,6 +31,7 @@ The same configuration can be written in TOML:
 dialect = "sqlite"
 exclude_rules = ["AM01", "AM02"]
 rules = "all"
+sql_file_exts = ".sql,.sql.j2,.dml,.ddl,.pkb"
 
 [tool.sqlfluff.indentation]
 indent_unit = "space"

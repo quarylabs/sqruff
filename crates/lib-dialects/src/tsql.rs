@@ -3479,6 +3479,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CopyIntoTableStatementSegment").to_matchable(),
             Ref::new("CreateFullTextIndexStatementSegment").to_matchable(),
             Ref::new("CreateFullTextCatalogStatementSegment").to_matchable(),
+            Ref::new("CreateFullTextStoplistStatementSegment").to_matchable(),
             Ref::new("CreateColumnstoreIndexStatementSegment").to_matchable(),
             Ref::new("ReconfigureStatementSegment").to_matchable(),
             Ref::new("CreatePartitionFunctionSegment").to_matchable(),
@@ -6951,6 +6952,40 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateFullTextStoplistStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateFulltextStoplistStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::keyword("FULLTEXT").to_matchable(),
+                    Ref::keyword("STOPLIST").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("SYSTEM").to_matchable(),
+                                Ref::keyword("STOPLIST").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AUTHORIZATION").to_matchable(),
+                        Ref::new("RoleReferenceSegment").to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),

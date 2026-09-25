@@ -321,6 +321,7 @@ pub enum SyntaxKind {
     CreateForeignTableStatement,
     CreateFulltextCatalogStatement,
     CreateFulltextIndexStatement,
+    CreateFulltextStoplistStatement,
     CreateFunctionStatement,
     CreateGroup,
     CreateIndexStatement,

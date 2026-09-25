@@ -530,3 +530,53 @@ file:
         - keyword: OFF
         - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+        - quoted_identifier: '[database_name]'
+      - keyword: SET
+      - naked_identifier: SINGLE_USER
+      - keyword: WITH
+      - keyword: ROLLBACK
+      - keyword: IMMEDIATE
+  - statement_terminator: ;
+  - statement:
+    - alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+        - quoted_identifier: '[database_name]'
+      - keyword: SET
+      - naked_identifier: MULTI_USER
+      - keyword: WITH
+      - keyword: NO_WAIT
+  - statement_terminator: ;
+  - statement:
+    - alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+        - quoted_identifier: '[database_name]'
+      - keyword: SET
+      - naked_identifier: RESTRICTED_USER
+      - keyword: WITH
+      - keyword: ROLLBACK
+      - keyword: AFTER
+      - numeric_literal: '60'
+      - keyword: SECONDS
+  - statement_terminator: ;
+  - statement:
+    - alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+        - quoted_identifier: '[database_name]'
+      - keyword: SET
+      - naked_identifier: RESTRICTED_USER
+      - keyword: WITH
+      - keyword: ROLLBACK
+      - keyword: AFTER
+      - numeric_literal: '60'
+  - statement_terminator: ;

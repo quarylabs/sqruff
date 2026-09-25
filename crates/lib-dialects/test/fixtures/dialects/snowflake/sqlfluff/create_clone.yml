@@ -1,9 +1,9 @@
 file:
 - statement:
-  - create_clone_statement:
+  - create_database_statement:
     - keyword: CREATE
     - keyword: DATABASE
-    - object_reference:
+    - database_reference:
       - naked_identifier: mytestdb_clone
     - keyword: CLONE
     - object_reference:

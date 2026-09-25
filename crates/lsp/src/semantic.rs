@@ -147,9 +147,10 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | Dash => Highlight::Operator,
 
         // Function / procedure names.
-        FunctionNameIdentifier | ProcedureNameIdentifier | SystemFunctionName => {
-            Highlight::Function
-        }
+        DatatypeMethodNameIdentifier
+        | FunctionNameIdentifier
+        | ProcedureNameIdentifier
+        | SystemFunctionName => Highlight::Function,
 
         // Type names.
         DataTypeIdentifier | PrimitiveType => Highlight::Type,
@@ -175,6 +176,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         Unparsable
         | File
         | ColumnReference
+        | DatatypeMethod
         | ObjectReference
         | Expression
         | WildcardIdentifier
@@ -827,6 +829,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateSearchIndexStatement
         | CreateSecurityPolicyStatement
         | CreateServerRoleStatement
+        | CreateXmlSchemaCollectionStatement
         | CreateSnapshotTableStatement
         | CreateSqlFunctionStatement
         | CreateStatisticsStatement
@@ -1380,7 +1383,9 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | TransactionalStatement
         | UserReference
         | WhereCurrentOfCursorSegment
-        | WithinGroupClauseStatement => return None,
+        | WithinGroupClauseStatement
+        | AlterXmlSchemaCollectionStatement
+        | DropXmlSchemaCollectionStatement => return None,
     };
 
     Some(highlight)

@@ -1,0 +1,160 @@
+file:
+- batch:
+  - statement:
+    - create_xml_schema_collection_statement:
+      - keyword: CREATE
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeXmlSchemaCollection
+      - keyword: AS
+      - expression:
+        - naked_identifier: N
+        - quoted_literal: |-
+            '<?xml version="1.0" encoding="UTF-16"?>
+            <xsd:schema targetNamespace="https://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions"
+               xmlns          ="https://schemas.microsoft.com/sqlserver/2004/07/adventure-works/ProductModelManuInstructions"
+               elementFormDefault="qualified"
+               attributeFormDefault="unqualified"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema" >
+
+                <xsd:complexType name="StepType" mixed="true" >
+                    <xsd:choice  minOccurs="0" maxOccurs="unbounded" >
+                        <xsd:element name="tool" type="xsd:string" />
+                        <xsd:element name="material" type="xsd:string" />
+                        <xsd:element name="blueprint" type="xsd:string" />
+                        <xsd:element name="specs" type="xsd:string" />
+                        <xsd:element name="diag" type="xsd:string" />
+                    </xsd:choice>
+                </xsd:complexType>
+
+                <xsd:element  name="root">
+                    <xsd:complexType mixed="true">
+                        <xsd:sequence>
+                            <xsd:element name="Location" minOccurs="1" maxOccurs="unbounded">
+                                <xsd:complexType mixed="true">
+                                    <xsd:sequence>
+                                        <xsd:element name="step" type="StepType" minOccurs="1" maxOccurs="unbounded" />
+                                    </xsd:sequence>
+                                    <xsd:attribute name="LocationID" type="xsd:integer" use="required"/>
+                                    <xsd:attribute name="SetupHours" type="xsd:decimal" use="optional"/>
+                                    <xsd:attribute name="MachineHours" type="xsd:decimal" use="optional"/>
+                                    <xsd:attribute name="LaborHours" type="xsd:decimal" use="optional"/>
+                                    <xsd:attribute name="LotSize" type="xsd:decimal" use="optional"/>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:schema>'
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@MySchemaCollection'
+    - keyword: AS
+    - data_type:
+      - keyword: NVARCHAR
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - keyword: MAX
+          - end_bracket: )
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: ''''''
+  - statement_terminator: ;
+  - statement:
+    - create_xml_schema_collection_statement:
+      - keyword: CREATE
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+        - naked_identifier: AnotherXmlSchemaCollection
+      - keyword: AS
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@MySchemaCollection'
+  - statement_terminator: ;
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - alter_xml_schema_collection_statement:
+      - keyword: ALTER
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+        - naked_identifier: MyColl
+      - keyword: ADD
+      - expression:
+        - quoted_literal: |-
+            '
+              <schema xmlns="http://www.w3.org/2001/XMLSchema"
+                     targetNamespace="https://MySchema/test_xml_schema">
+                 <element name="anotherElement" type="byte"/>
+             </schema>'
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@NewItem'
+    - keyword: AS
+    - data_type:
+      - keyword: NVARCHAR
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - keyword: MAX
+          - end_bracket: )
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - quoted_literal: |-
+          '
+            <schema xmlns="http://www.w3.org/2001/XMLSchema"
+                   targetNamespace="https://MySchema/test_xml_schema">
+               <element name="yetAnotherElement" type="byte"/>
+           </schema>'
+  - statement_terminator: ;
+  - statement:
+    - alter_xml_schema_collection_statement:
+      - keyword: ALTER
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: MyColl
+      - keyword: ADD
+      - expression:
+        - parameterized_expression:
+          - tsql_variable: '@NewItem'
+  - statement_terminator: ;
+  - statement:
+    - drop_xml_schema_collection_statement:
+      - keyword: DROP
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SomeXmlSchemaCollection
+  - statement_terminator: ;
+  - statement:
+    - drop_xml_schema_collection_statement:
+      - keyword: DROP
+      - keyword: XML
+      - keyword: SCHEMA
+      - keyword: COLLECTION
+      - object_reference:
+        - naked_identifier: AnotherXmlSchemaCollection
+  - statement_terminator: ;
+  - go_statement:
+    - keyword: GO

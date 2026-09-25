@@ -1,0 +1,86 @@
+file:
+- batch:
+  - statement:
+    - create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+        - naked_identifier: myStoplist
+  - statement_terminator: ;
+  - statement:
+    - create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+        - naked_identifier: myStoplist
+      - keyword: FROM
+      - keyword: SYSTEM
+      - keyword: STOPLIST
+  - statement_terminator: ;
+  - statement:
+    - create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+        - naked_identifier: myStoplist
+      - keyword: FROM
+      - object_reference:
+        - naked_identifier: otherStoplist
+  - statement_terminator: ;
+  - statement:
+    - create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+        - naked_identifier: myStoplist
+      - keyword: FROM
+      - object_reference:
+        - naked_identifier: otherDb
+        - dot: .
+        - naked_identifier: otherStoplist
+  - statement_terminator: ;
+  - statement:
+    - create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+        - naked_identifier: myStoplist
+      - keyword: AUTHORIZATION
+      - role_reference:
+        - quoted_identifier: '[dbo]'
+  - statement_terminator: ;
+  - statement:
+    - create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+        - naked_identifier: myStoplist
+      - keyword: FROM
+      - keyword: SYSTEM
+      - keyword: STOPLIST
+      - keyword: AUTHORIZATION
+      - role_reference:
+        - quoted_identifier: '[dbo]'
+  - statement_terminator: ;
+  - statement:
+    - create_fulltext_stoplist_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: STOPLIST
+      - object_reference:
+        - naked_identifier: myStoplist
+      - keyword: FROM
+      - object_reference:
+        - naked_identifier: otherDb
+        - dot: .
+        - naked_identifier: otherStoplist
+      - keyword: AUTHORIZATION
+      - role_reference:
+        - quoted_identifier: '[dbo]'
+  - statement_terminator: ;

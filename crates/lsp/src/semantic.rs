@@ -345,6 +345,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | PartitionBySegment
         | ClusterBySegment
         | OptionsSegment
+        | CreateExternalTableAsSelectStatement
         | CreateExternalTableStatement
         | AlterViewStatement
         | CreateMaterializedViewStatement

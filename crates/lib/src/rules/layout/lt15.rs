@@ -104,7 +104,15 @@ LIMIT 5
             .any(|seg| seg.is_type(SyntaxKind::Batch));
 
         let maximum_empty_lines = if inside_statement {
-            self.maximum_empty_lines_inside_statements
+            if context
+                .parent_stack
+                .last()
+                .is_some_and(|seg| seg.is_type(SyntaxKind::WithCompoundStatement))
+            {
+                self.maximum_empty_lines_between_statements
+            } else {
+                self.maximum_empty_lines_inside_statements
+            }
         } else if inside_batch {
             self.maximum_empty_lines_between_statements
         } else if context.dialect.name == DialectKind::Tsql {

@@ -682,6 +682,51 @@ fn config_reference(config_path: Option<&Path>) -> String {
         .unwrap_or_else(|| "config source".to_owned())
 }
 
+fn format_toml_parse_error(
+    content: &str,
+    config_path: Option<&Path>,
+    err: &toml::de::Error,
+) -> SQLFluffUserError {
+    let location = err.span().map(|span| {
+        let mut offset = span.start.min(content.len());
+        while !content.is_char_boundary(offset) {
+            offset -= 1;
+        }
+        let prefix = &content[..offset];
+        let line = prefix.bytes().filter(|byte| *byte == b'\n').count() + 1;
+        let column = prefix
+            .rsplit('\n')
+            .next()
+            .unwrap_or_default()
+            .chars()
+            .count()
+            + 1;
+        format!(" at line {line}, column {column}")
+    });
+    let hint = content
+        .starts_with('\u{feff}')
+        .then(|| toml_bom_hint(config_path));
+
+    SQLFluffUserError::new(format!(
+        "Failed to parse TOML config file {}: {}{}.{}",
+        config_reference(config_path),
+        err.message(),
+        location.unwrap_or_default(),
+        hint.unwrap_or_default(),
+    ))
+}
+
+fn toml_bom_hint(config_path: Option<&Path>) -> &'static str {
+    if config_path.is_some_and(|path| {
+        path.file_name()
+            .is_some_and(|name| name == "pyproject.toml")
+    }) {
+        " pyproject.toml contains a UTF-8 BOM; save it as UTF-8 without BOM."
+    } else {
+        " TOML config contains a UTF-8 BOM; save it as UTF-8 without BOM."
+    }
+}
+
 const ALLOWABLE_IMPLICIT_INDENTS_VALUES: [&str; 3] = ["forbid", "allow", "require"];
 
 fn validate_implicit_indents_value(
@@ -841,9 +886,20 @@ fn parse_toml_config_elems(
     content: &str,
     config_path: Option<&Path>,
 ) -> Result<Vec<(Vec<String>, Value)>, SQLFluffUserError> {
+    // Python's tomllib rejects a UTF-8 BOM, while the Rust toml parser accepts
+    // it. Reject it explicitly so sqruff matches SQLFluff and can provide the
+    // same targeted remediation hint.
+    if content.starts_with('\u{feff}') {
+        return Err(SQLFluffUserError::new(format!(
+            "Failed to parse TOML config file {}: unexpected UTF-8 BOM at line 1, column 1.{}",
+            config_reference(config_path),
+            toml_bom_hint(config_path),
+        )));
+    }
+
     let root = content
         .parse::<toml::Table>()
-        .map_err(|err| config_error(config_path, err))?;
+        .map_err(|err| format_toml_parse_error(content, config_path, &err))?;
 
     let mut buff = Vec::new();
 
@@ -1851,15 +1907,31 @@ max_line_length = 44
     #[test]
     fn test_try_from_source_invalid_toml_returns_error() {
         let err = FluffConfig::try_from_source(
-            "[sqlfluff]\ndialect = \"ansi",
+            "[sqlfluff]\ndialect = \"ansi\"\nrules = [1,,2]\n",
             Some(Path::new("sqruff.toml")),
         )
         .unwrap_err();
 
-        assert!(
-            err.to_string()
-                .contains("Error loading config from sqruff.toml")
-        );
+        let message = err.to_string();
+        assert!(message.contains("Failed to parse TOML config file sqruff.toml"));
+        assert!(message.contains("line 3"));
+        assert!(message.contains("column 12"));
+        assert!(!message.contains("UTF-8 BOM"));
+    }
+
+    #[test]
+    fn test_try_from_source_invalid_toml_with_utf8_bom_includes_hint() {
+        let err = FluffConfig::try_from_source(
+            "\u{feff}[tool.sqlfluff.core]\ndialect = \"ansi\"\n",
+            Some(Path::new("pyproject.toml")),
+        )
+        .unwrap_err();
+
+        let message = err.to_string();
+        assert!(message.contains("Failed to parse TOML config file pyproject.toml"));
+        assert!(message.contains("line 1, column 1"));
+        assert!(message.contains("UTF-8 BOM"));
+        assert!(message.contains("UTF-8 without BOM"));
     }
 
     #[test]

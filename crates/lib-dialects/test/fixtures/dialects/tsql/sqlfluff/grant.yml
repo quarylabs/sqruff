@@ -518,3 +518,99 @@ file:
   - statement_terminator: ;
   - go_statement:
     - keyword: GO
+- batch:
+  - statement:
+    - grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: SELECT
+      - keyword: ON
+      - securable_segment:
+        - object_reference:
+          - naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+    - grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: SELECT
+      - keyword: ON
+      - securable_segment:
+        - keyword: OBJECT
+        - casting_operator: '::'
+        - object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+    - deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+        - keyword: SELECT
+      - keyword: ON
+      - securable_segment:
+        - object_reference:
+          - naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+        - keyword: SELECT
+      - keyword: ON
+      - securable_segment:
+        - object_reference:
+          - naked_identifier: public_data
+      - keyword: FROM
+      - keyword: PUBLIC
+  - statement_terminator: ;
+  - statement:
+    - grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: SELECT
+      - keyword: ON
+      - securable_segment:
+        - object_reference:
+          - naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+      - comma: ','
+      - role_reference:
+        - naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+    - deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+        - keyword: SELECT
+      - keyword: ON
+      - securable_segment:
+        - object_reference:
+          - naked_identifier: public_data
+      - keyword: TO
+      - keyword: PUBLIC
+      - keyword: CASCADE
+  - statement_terminator: ;
+  - statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - keyword: GRANT
+      - keyword: OPTION
+      - keyword: FOR
+      - permissions_segment:
+        - keyword: SELECT
+      - keyword: ON
+      - securable_segment:
+        - object_reference:
+          - naked_identifier: public_data
+      - keyword: FROM
+      - keyword: PUBLIC
+  - statement_terminator: ;

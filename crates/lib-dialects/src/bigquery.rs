@@ -1579,16 +1579,19 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Ref::new("ArrayAggFunctionNameSegment").to_matchable(),
                     Ref::new("ArrayAggFunctionContentsSegment").to_matchable(),
+                    Ref::new("PostFunctionGrammar").optional().to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
                     Ref::new("ArrayConcatAggFunctionNameSegment").to_matchable(),
                     Ref::new("ArrayConcatAggFunctionContentsSegment").to_matchable(),
+                    Ref::new("PostFunctionGrammar").optional().to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
                     Ref::new("StringAggFunctionNameSegment").to_matchable(),
                     Ref::new("StringAggFunctionContentsSegment").to_matchable(),
+                    Ref::new("PostFunctionGrammar").optional().to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![

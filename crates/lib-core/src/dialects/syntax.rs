@@ -313,6 +313,7 @@ pub enum SyntaxKind {
     CreateExternalFileFormat,
     CreateExternalFunctionStatement,
     CreateExternalSchemaStatement,
+    CreateExternalTableAsSelectStatement,
     CreateExternalTableStatement,
     CreateExternalVolumeStatement,
     CreateFileFormatSegment,

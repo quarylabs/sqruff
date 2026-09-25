@@ -92,3 +92,63 @@ file:
         - statement_terminator: ;
   - go_statement:
     - keyword: GO
+- batch:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: PenniesToDollars
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - tsql_variable: '@Pennies'
+          - data_type:
+            - keyword: bigint
+          - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - keyword: money
+      - function_option_segment:
+        - keyword: WITH
+        - keyword: NATIVE_COMPILATION
+        - comma: ','
+        - keyword: SCHEMABINDING
+      - keyword: AS
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - keyword: ATOMIC
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: TRANSACTION
+            - keyword: ISOLATION
+            - keyword: LEVEL
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - naked_identifier: SNAPSHOT
+            - comma: ','
+            - keyword: LANGUAGE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - naked_identifier: N
+            - quoted_literal: '''us_english'''
+            - end_bracket: )
+          - statement:
+            - return_segment:
+              - keyword: RETURN
+              - expression:
+                - parameterized_expression:
+                  - tsql_variable: '@Pennies'
+                - binary_operator: '*'
+                - numeric_literal: $0.01
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+  - go_statement:
+    - keyword: go

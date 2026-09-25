@@ -10095,6 +10095,27 @@ fn add_database_grammars(dialect: &mut Dialect) {
                     recovery_options,
                 ])
                 .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ROLLBACK").to_matchable(),
+                            Ref::keyword("AFTER").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::keyword("SECONDS").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ROLLBACK").to_matchable(),
+                            Ref::keyword("IMMEDIATE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("NO_WAIT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
             ])
             .to_matchable();
             let secondary = Sequence::new(vec![

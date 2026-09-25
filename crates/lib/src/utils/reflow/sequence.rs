@@ -441,7 +441,7 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
             tables,
             self.elements,
             &single_indent,
-            <_>::default(),
+            &self.reflow_config.skip_indentation_in,
             self.reflow_config.implicit_indents,
             self.reflow_config.ignore_comment_lines,
             &indentation_align_following,

@@ -816,6 +816,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateForeignTableStatement
         | CreateFulltextCatalogStatement
         | CreateFulltextIndexStatement
+        | CreateFulltextStoplistStatement
         | CreateLoginStatement
         | CreateMasterKeyStatement
         | CreateMaterializedViewAsReplicaOfStatement

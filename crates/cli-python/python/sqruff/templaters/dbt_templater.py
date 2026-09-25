@@ -568,6 +568,14 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
+            for node in self.dbt_manifest.nodes.values():
+                if (
+                    Path(dbt_dir) / node.original_file_path
+                ).resolve() == absolute_fname:
+                    results = [node]
+                    break
+
+        if not results:
             skip_reason = self._find_skip_reason(absolute_fname)
             if skip_reason:
                 return None, skip_reason
@@ -664,6 +672,7 @@ class DbtTemplater(JinjaTemplater):
         node, skip_reason = self._find_node(fname, config, dbt_dir)
         if node is None:
             return None, skip_reason
+        original_file_path = node.original_file_path
 
         templater_logger.debug(
             "_find_node for path %r returned object of type %s.", fname, type(node)

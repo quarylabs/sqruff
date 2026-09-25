@@ -1,0 +1,98 @@
+file:
+- batch:
+  - statement:
+    - create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - object_reference:
+        - naked_identifier: person
+      - keyword: AS
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: name
+          - data_type:
+            - keyword: nvarchar
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - integer_literal: '10'
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+          - naked_identifier: height
+          - data_type:
+            - keyword: int
+        - comma: ','
+        - column_definition:
+          - naked_identifier: favorite_color
+          - data_type:
+            - keyword: int
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - object_reference:
+        - naked_identifier: weird_int
+      - keyword: FROM
+      - data_type:
+        - keyword: int
+  - statement_terminator: ;
+  - statement:
+    - create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[ExampleType]'
+      - keyword: FROM
+      - data_type:
+        - keyword: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '50'
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[DecimalType]'
+      - keyword: FROM
+      - data_type:
+        - keyword: DECIMAL
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '38'
+            - comma: ','
+            - integer_literal: '10'
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - create_type_statement:
+      - keyword: CREATE
+      - keyword: TYPE
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[NonNullType]'
+      - keyword: FROM
+      - data_type:
+        - keyword: VARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '100'
+            - end_bracket: )
+      - keyword: NOT
+      - keyword: 'NULL'
+  - statement_terminator: ;

@@ -280,7 +280,10 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("MAP").to_matchable(),
                     Bracketed::new(vec![
                         Delimited::new(vec![Ref::new("MapLiteralElementSegment").to_matchable()])
-                            .config(|this| this.optional())
+                            .config(|this| {
+                                this.optional();
+                                this.allow_trailing();
+                            })
                             .to_matchable(),
                     ])
                     .config(|this| this.bracket_type("curly"))

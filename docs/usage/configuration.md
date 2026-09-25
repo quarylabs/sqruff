@@ -43,6 +43,13 @@ The `warnings` setting makes selected violations visible without causing lint
 to fail. It accepts either rule codes or rule names, for example
 `warnings = LT01,layout.end_of_file`.
 
+## Implicit indents
+
+Set `implicit_indents` in the `indentation` section to `allow` to accept implicit
+indents, or to `require` to collapse them. When using `require`, the
+`skip_implicit_indents_in` option excludes specific element types from
+collapsing and defaults to `case_expression`.
+
 ## Aligning after leading punctuation
 
 The `leading:align-following` line-position modifier aligns the element after a

@@ -260,6 +260,37 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "MapLiteralElementSegment".into(),
+            NodeMatcher::new(SyntaxKind::MapLiteralElement, |_| {
+                Sequence::new(vec![
+                    Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                    Ref::new("ColonSegment").to_matchable(),
+                    Ref::new("BaseExpressionElementGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "MapLiteralSegment".into(),
+            NodeMatcher::new(SyntaxKind::MapLiteral, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("MAP").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("MapLiteralElementSegment").to_matchable()])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.bracket_type("curly"))
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     duckdb_dialect.replace_grammar(
@@ -730,6 +761,7 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec![
             Ref::new("LambdaExpressionSegment").to_matchable(),
             Ref::new("NamedArgumentSegment").to_matchable(),
+            Ref::new("MapLiteralSegment").to_matchable(),
             Ref::new("ExpressionSegment").to_matchable(),
         ])
         .to_matchable(),
@@ -779,6 +811,7 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable(),
                 Ref::new("FunctionSegment").to_matchable(),
                 Ref::new("ArrayLiteralSegment").to_matchable(),
+                Ref::new("MapLiteralSegment").to_matchable(),
                 Ref::new("QuotedLiteralSegment").to_matchable(),
                 Ref::new("ColumnReferenceSegment").to_matchable(),
             ])
@@ -811,6 +844,7 @@ pub fn raw_dialect() -> Dialect {
         "BaseExpressionElementGrammar",
         base_expression.copy(
             Some(vec![
+                Ref::new("MapLiteralSegment").to_matchable(),
                 Ref::new("ListComprehensionGrammar").to_matchable(),
                 Ref::new("ColumnIndexSegment").to_matchable(),
             ]),

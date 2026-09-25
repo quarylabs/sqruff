@@ -585,6 +585,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | DescribeDetailStatement
         | GenerateManifestFileStatement
         | ConvertToDeltaStatement
+        | RestoreDatabaseStatement
         | RestoreTableStatement
         | ConstraintStatement
         | ApplyChangesIntoStatement

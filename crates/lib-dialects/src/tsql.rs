@@ -3436,6 +3436,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("RevokeStatementSegment").to_matchable(),
             Ref::new("CreateTableGraphStatementSegment").to_matchable(),
             Ref::new("CreateTableStatementSegment").to_matchable(),
+            Ref::new("CreateTypeStatementSegment").to_matchable(),
             Ref::new("CreateRoleStatementSegment").to_matchable(),
             Ref::new("AlterRoleStatementSegment").to_matchable(),
             Ref::new("CreateServerRoleStatementSegment").to_matchable(),
@@ -7157,6 +7158,58 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
+    // T-SQL CREATE TYPE supports both alias data types and table types.
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-type-transact-sql
+    dialect.add([(
+        "CreateTypeStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::CreateTypeStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::keyword("TYPE").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("NULL").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("NOT").to_matchable(),
+                                Ref::keyword("NULL").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AS").to_matchable(),
+                        Ref::keyword("TABLE").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                one_of(vec![
+                                    Ref::new("TableConstraintSegment").to_matchable(),
+                                    Ref::new("ColumnDefinitionSegment").to_matchable(),
+                                    Ref::new("TableIndexSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.allow_trailing())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // T-SQL CREATE TABLE with Azure Synapse Analytics support
     dialect.replace_grammar(

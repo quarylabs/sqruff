@@ -107,3 +107,126 @@ file:
                 - quoted_literal: '''lax $.unstructured.abcd[*].field?(@ > 0.5)'''
               - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: json_array
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - comma: ','
+              - expression:
+                - numeric_literal: '3'
+              - keyword: 'null'
+              - keyword: on
+              - keyword: 'null'
+              - keyword: returning
+              - data_type:
+                - primitive_type:
+                  - keyword: varbinary
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: json_array
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - comma: ','
+              - expression:
+                - numeric_literal: '3'
+              - keyword: absent
+              - keyword: on
+              - keyword: 'null'
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: json_array
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - comma: ','
+              - expression:
+                - numeric_literal: '3'
+              - keyword: returning
+              - data_type:
+                - primitive_type:
+                  - keyword: json
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: json_array
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - comma: ','
+              - expression:
+                - numeric_literal: '3'
+              - keyword: 'null'
+              - keyword: on
+              - keyword: 'null'
+              - keyword: returning
+              - data_type:
+                - primitive_type:
+                  - keyword: json
+              - keyword: format
+              - keyword: json
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: json_array
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - numeric_literal: '1'
+              - comma: ','
+              - expression:
+                - numeric_literal: '2'
+              - comma: ','
+              - expression:
+                - numeric_literal: '3'
+              - keyword: 'null'
+              - keyword: on
+              - keyword: 'null'
+              - keyword: returning
+              - data_type:
+                - primitive_type:
+                  - keyword: varchar
+              - keyword: format
+              - keyword: json
+              - keyword: encoding
+              - keyword: utf8
+              - end_bracket: )
+- statement_terminator: ;

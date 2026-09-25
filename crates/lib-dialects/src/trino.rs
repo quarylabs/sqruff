@@ -386,6 +386,26 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
+                // For JSON_ARRAY / JSON_OBJECT functions: { NULL | ABSENT } ON NULL.
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("NULL").to_matchable(),
+                        Ref::keyword("ABSENT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("NULL").to_matchable(),
+                ])
+                .to_matchable(),
+                // For JSON functions: RETURNING type [FORMAT JSON [ENCODING ...]].
+                Sequence::new(vec![
+                    Ref::keyword("RETURNING").to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Ref::new("FormatJsonEncodingGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::new("IgnoreRespectNullsGrammar").to_matchable(),
                 Ref::new("IndexColumnDefinitionSegment").to_matchable(),
                 Ref::new("EmptyStructLiteralSegment").to_matchable(),

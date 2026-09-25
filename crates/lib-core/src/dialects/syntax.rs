@@ -410,6 +410,7 @@ pub enum SyntaxKind {
     DatePartWeek,
     DatetimeLiteral,
     DatetimeTypeIdentifier,
+    DbccStatement,
     DeallocateCursorStatement,
     DeallocateSegment,
     DeallocateStatement,

@@ -11,7 +11,9 @@ use super::config::{ReflowConfig, Spacing};
 use super::depth_map::DepthMap;
 use super::elements::{ReflowBlock, ReflowElement, ReflowPoint, ReflowSequenceType};
 use super::rebreak::{LinePosition, rebreak_keywords_sequence, rebreak_sequence};
-use super::reindent::{construct_single_indent, lint_indent_points, lint_line_length};
+use super::reindent::{
+    IndentationExclusions, construct_single_indent, lint_indent_points, lint_line_length,
+};
 use crate::core::config::FluffConfig;
 use crate::core::rules::LintResult;
 
@@ -441,7 +443,10 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
             tables,
             self.elements,
             &single_indent,
-            &self.reflow_config.skip_indentation_in,
+            IndentationExclusions {
+                indentation: &self.reflow_config.skip_indentation_in,
+                implicit_indents: &self.reflow_config.skip_implicit_indents_in,
+            },
             self.reflow_config.implicit_indents,
             self.reflow_config.ignore_comment_lines,
             &indentation_align_following,

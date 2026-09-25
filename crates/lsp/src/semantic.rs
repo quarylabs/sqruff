@@ -91,9 +91,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         }
 
         // Numeric literals.
-        NumericLiteral | IntegerLiteral | DollarNumericLiteral | BitStringLiteral => {
-            Highlight::Number
-        }
+        NumericLiteral | IntegerLiteral | DollarNumericLiteral | BitStringLiteral | ColumnIndex
+        | RawColumnIndex => Highlight::Number,
 
         // String / quoted literals.
         QuotedLiteral

@@ -776,6 +776,8 @@ pub enum SyntaxKind {
     MagicSingleLine,
     MagicStart,
     ManageRlsPolicyStatement,
+    MapLiteral,
+    MapLiteralElement,
     MapType,
     MapTypeSchema,
     MaskStatement,

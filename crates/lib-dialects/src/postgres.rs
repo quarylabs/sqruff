@@ -517,13 +517,25 @@ pub fn raw_dialect() -> Dialect {
             Matcher::legacy(
                 "meta_command",
                 |s| s.starts_with("\\"),
-                r"\\(?!gset|gexec)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
+                r"\\(?!gset|gexec|copy\b|set\b)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
                 SyntaxKind::Comment,
             ),
             Matcher::regex(
                 "dollar_numeric_literal",
                 r"\$\d+",
                 SyntaxKind::DollarNumericLiteral,
+            ),
+            Matcher::legacy(
+                "psql_copy_command",
+                |s| s.starts_with("\\copy"),
+                r"\\copy\b(\s*\((?:[^()]*|\((?:[^()]*|\([^()]*\))*\))*\)[^\r\n]*|[^\r\n]+)",
+                SyntaxKind::PsqlCopyCommand,
+            ),
+            Matcher::legacy(
+                "psql_set_command",
+                |s| s.starts_with("\\set"),
+                r"\\set\b[^\r\n]*",
+                SyntaxKind::PsqlSetCommand,
             ),
             Matcher::legacy(
                 "meta_command_query_buffer",
@@ -697,6 +709,18 @@ pub fn raw_dialect() -> Dialect {
         (
             "MetaCommandQueryBufferSegment".into(),
             TypedParser::new(SyntaxKind::MetaCommandQueryBuffer, SyntaxKind::MetaCommand)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "PsqlCopyMetaCommandSegment".into(),
+            TypedParser::new(SyntaxKind::PsqlCopyCommand, SyntaxKind::PsqlCopyCommand)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "PsqlSetMetaCommandSegment".into(),
+            TypedParser::new(SyntaxKind::PsqlSetCommand, SyntaxKind::PsqlSetCommand)
                 .to_matchable()
                 .into(),
         ),
@@ -7088,6 +7112,25 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    postgres.add([
+        (
+            "PsqlCopyMetaCommandStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::PsqlCopyMetaCommandStatement, |_| {
+                Ref::new("PsqlCopyMetaCommandSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PsqlSetMetaCommandStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::PsqlSetMetaCommandStatement, |_| {
+                Ref::new("PsqlSetMetaCommandSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     postgres.add([(
         "DropForeignTableStatement".into(),
         NodeMatcher::new(SyntaxKind::DropForeignTableStatement, |_| {
@@ -10240,6 +10283,24 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable()
         })
+        .to_matchable(),
+    );
+
+    postgres.replace_grammar(
+        "FileSegment",
+        AnyNumberOf::new(vec![
+            Ref::new("PsqlCopyMetaCommandStatementSegment").to_matchable(),
+            Ref::new("PsqlSetMetaCommandStatementSegment").to_matchable(),
+            Delimited::new(vec![Ref::new("StatementSegment").to_matchable()])
+                .config(|this| {
+                    this.allow_trailing();
+                    this.delimiter(
+                        AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                            .config(|config| config.min_times(1)),
+                    );
+                })
+                .to_matchable(),
+        ])
         .to_matchable(),
     );
 

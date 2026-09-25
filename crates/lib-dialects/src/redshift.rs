@@ -3934,6 +3934,113 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "RedshiftGrantTargetSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessTarget, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("USER").to_matchable(),
+                        Ref::new("UserReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ROLE").to_matchable(),
+                        Ref::new("RoleReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("RoleReferenceSegment").to_matchable(),
+                    Ref::keyword("PUBLIC").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "RedshiftGroupGrantTargetSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessTarget, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("GROUP").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "GrantStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::GrantStatement, |_| {
+                let group_targets = Delimited::new(vec![
+                    Ref::new("RedshiftGroupGrantTargetSegment").to_matchable(),
+                ])
+                .to_matchable();
+                let non_group_targets = Sequence::new(vec![
+                    Ref::keyword("TO").to_matchable(),
+                    Ref::new("RedshiftGrantTargetSegment").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("CommaSegment").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("RedshiftGrantTargetSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+
+                Sequence::new(vec![
+                    Ref::keyword("GRANT").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("AccessPermissionsSegment").to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::new("AccessObjectSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ROLE").to_matchable(),
+                            Ref::new("RoleReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("OWNERSHIP").to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::keyword("USER").to_matchable(),
+                            Ref::new("UserReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![Ref::keyword("TO").to_matchable(), group_targets])
+                            .to_matchable(),
+                        non_group_targets,
+                    ])
+                    .to_matchable(),
+                    Ref::new("AccessStatementSegmentGrantRoleWithOptionGrammar")
+                        .optional()
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("GRANTED").to_matchable(),
+                        Ref::keyword("BY").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("CURRENT_USER").to_matchable(),
+                            Ref::keyword("SESSION_USER").to_matchable(),
+                            Ref::new("UserReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
     redshift_dialect
 }

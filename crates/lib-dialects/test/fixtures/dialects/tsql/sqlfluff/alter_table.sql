@@ -27,6 +27,10 @@ GO
 
 ALTER TABLE [TestTable] DROP PERIOD FOR SYSTEM_TIME;
 ALTER TABLE [TestTable] ADD PERIOD FOR SYSTEM_TIME (StartDate, EndDate);
+ALTER TABLE [TestTable] ADD
+StartDate DATETIME2,
+EndDate DATETIME2,
+PERIOD FOR SYSTEM_TIME (StartDate, EndDate);
 
 ALTER TABLE Production.TransactionHistoryArchive
 DROP CONSTRAINT PK_TransactionHistoryArchive_TransactionID;

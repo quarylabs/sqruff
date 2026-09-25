@@ -1,0 +1,23 @@
+file:
+- psql_copy_meta_command_statement:
+  - psql_copy_command: \copy mytable FROM '/path/to/file.csv' WITH (FORMAT csv, HEADER true);
+- psql_copy_meta_command_statement:
+  - psql_copy_command: \copy mytable TO STDOUT;
+- psql_copy_meta_command_statement:
+  - psql_copy_command: \copy (SELECT id, name FROM mytable WHERE active = true) TO '/path/to/out.csv' CSV HEADER;
+- psql_copy_meta_command_statement:
+  - psql_copy_command: |-
+      \copy (
+          SELECT id, name
+          FROM mytable
+          WHERE active = true
+      ) TO '/path/to/out.csv' CSV HEADER;
+- psql_copy_meta_command_statement:
+  - psql_copy_command: \copy table_name(col1, col2) FROM STDIN CSV;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+- statement_terminator: ;

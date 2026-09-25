@@ -1,0 +1,20 @@
+file:
+- psql_set_meta_command_statement:
+  - psql_set_command: \set
+- psql_set_meta_command_statement:
+  - psql_set_command: \set ON_ERROR_STOP on
+- psql_set_meta_command_statement:
+  - psql_set_command: \set myvar 42
+- psql_set_meta_command_statement:
+  - psql_set_command: \set myvar 'hello world'
+- psql_set_meta_command_statement:
+  - psql_set_command: \set myvar :other_var
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - psql_variable:
+          - colon: ':'
+          - parameter: myvar
+- statement_terminator: ;

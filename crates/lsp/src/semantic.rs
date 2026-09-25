@@ -983,6 +983,10 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | MetaCommand
         | MetaCommandQueryBuffer
         | MetaCommandStatement
+        | PsqlCopyCommand
+        | PsqlCopyMetaCommandStatement
+        | PsqlSetCommand
+        | PsqlSetMetaCommandStatement
         | MlTableExpression
         | MsckTableStatement
         | NotOperator

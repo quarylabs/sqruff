@@ -1400,7 +1400,7 @@ pub fn lint_indent_points(
     tables: &Tables,
     elements: ReflowSequenceType,
     single_indent: &str,
-    _skip_indentation_in: HashSet<String>,
+    skip_indentation_in: &SyntaxSet,
     implicit_indents: ImplicitIndents,
     ignore_comment_lines: bool,
     indentation_align_following: &HashMap<SyntaxKind, usize>,
@@ -1415,6 +1415,16 @@ pub fn lint_indent_points(
     revise_skipped_source_lines(&mut lines, &elements);
     revise_templated_lines(&mut lines, &elements);
     revise_comment_lines(&mut lines, &elements, ignore_comment_lines);
+
+    lines.retain(|line| {
+        !line.blocks(&elements).any(|block| {
+            block
+                .depth_info()
+                .stack_class_types
+                .iter()
+                .any(|class_types| skip_indentation_in.intersects(class_types))
+        })
+    });
 
     for line in lines {
         if line.is_source_only_template_line(&elements) {
@@ -2341,6 +2351,43 @@ mod tests {
                 v.desc()
             );
         }
+    }
+
+    #[test]
+    fn test_skip_indentation_in_with_comma_whitespace() {
+        use crate::core::config::FluffConfig;
+        use crate::core::linter::core::Linter;
+
+        let sql = "SELECT\n1\n";
+        let mut default_linter = Linter::new(
+            FluffConfig::from_source("[sqruff]\nrules = LT02\n", None),
+            None,
+            None,
+            true,
+        )
+        .unwrap();
+        assert!(
+            !default_linter
+                .lint_string_wrapped(sql, false)
+                .unwrap()
+                .violations()
+                .is_empty()
+        );
+
+        let config = FluffConfig::from_source(
+            "[sqruff]\nrules = LT02\n\
+             [sqruff:indentation]\nskip_indentation_in = script_content, statement\n",
+            None,
+        );
+        let mut configured_linter = Linter::new(config, None, None, true).unwrap();
+
+        assert!(
+            configured_linter
+                .lint_string_wrapped(sql, false)
+                .unwrap()
+                .violations()
+                .is_empty()
+        );
     }
 
     #[test]

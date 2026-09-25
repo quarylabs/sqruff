@@ -178,6 +178,7 @@ pub struct ReflowConfig {
     pub(crate) tab_space_size: usize,
     pub(crate) max_line_length: usize,
     pub(crate) hanging_indents: bool,
+    pub(crate) skip_indentation_in: SyntaxSet,
     pub(crate) implicit_indents: ImplicitIndents,
     pub(crate) trailing_comments: TrailingComments,
     pub(crate) ignore_comment_lines: bool,
@@ -192,6 +193,7 @@ impl Default for ReflowConfig {
             tab_space_size: 4,
             max_line_length: 0,
             hanging_indents: false,
+            skip_indentation_in: SyntaxSet::EMPTY,
             implicit_indents: Default::default(),
             trailing_comments: Default::default(),
             ignore_comment_lines: false,
@@ -365,6 +367,10 @@ impl ReflowConfig {
             .as_string()
             .unwrap();
         let indent_unit = IndentUnit::from_type_and_size(indent_unit, tab_space_size);
+        let skip_indentation_in = config.raw["indentation"]["skip_indentation_in"]
+            .as_string()
+            .map(parse_configured_syntax_set)
+            .unwrap_or(SyntaxSet::EMPTY);
 
         ReflowConfig {
             configs: convert_to_config_dict(configs),
@@ -375,6 +381,7 @@ impl ReflowConfig {
             hanging_indents: config.raw["indentation"]["hanging_indents"]
                 .as_bool()
                 .unwrap_or_default(),
+            skip_indentation_in,
             implicit_indents,
             trailing_comments,
             ignore_comment_lines: config.raw["indentation"]["ignore_comment_lines"]
@@ -524,6 +531,19 @@ mod tests {
                 scope: Some(SyntaxKind::Bracketed),
                 coordinate_space: Some(AlignmentCoordinateSpace::Templated),
             })
+        );
+    }
+
+    #[test]
+    fn trims_skip_indentation_in_entries() {
+        let config = FluffConfig::from_source(
+            "[sqruff:indentation]\nskip_indentation_in = script_content, statement\n",
+            None,
+        );
+
+        assert_eq!(
+            config.reflow().skip_indentation_in,
+            SyntaxSet::new(&[SyntaxKind::ScriptContent, SyntaxKind::Statement])
         );
     }
 }

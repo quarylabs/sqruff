@@ -1,7 +1,7 @@
 file:
 - batch:
   - statement:
-    - set_segment:
+    - set_local_variable_segment:
       - keyword: SET
       - tsql_variable: '@param1'
       - assignment_operator:

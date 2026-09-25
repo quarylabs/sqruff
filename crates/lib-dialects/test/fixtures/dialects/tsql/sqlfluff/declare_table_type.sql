@@ -5,3 +5,29 @@ DECLARE @MyTableVar TABLE(
     ModifiedDate DATETIME,
     PRIMARY KEY (EmpID)
 );
+
+DECLARE
+    @myTable TABLE
+    (
+        ID INT,
+        MyCol1 BIT,
+        MyCol2 BIT,
+        MyComputedCol AS (
+            CASE
+                WHEN MyCol1 & MyCol2 = 0
+                    THEN 1
+                WHEN MyCol2 = 0 THEN 2
+                ELSE 3
+            END
+        )
+    );
+
+DECLARE @TableVar Table (
+    ID int NOT NULL primary key,
+    name varchar(128) NULL index _name (name)
+);
+
+declare @var table (
+  id int not null,
+  index idx (id)
+)

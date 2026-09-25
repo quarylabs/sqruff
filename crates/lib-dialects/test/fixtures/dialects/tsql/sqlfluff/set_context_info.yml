@@ -10,7 +10,7 @@ file:
     - keyword: DECLARE
     - tsql_variable: '@BinVar'
     - data_type:
-      - data_type_identifier: varbinary
+      - keyword: varbinary
       - bracketed_arguments:
         - bracketed:
           - start_bracket: (
@@ -18,7 +18,7 @@ file:
           - end_bracket: )
   - statement_terminator: ;
   - statement:
-    - set_segment:
+    - set_local_variable_segment:
       - keyword: SET
       - tsql_variable: '@BinVar'
       - assignment_operator:
@@ -45,7 +45,7 @@ file:
                       - end_bracket: )
               - keyword: AS
               - data_type:
-                - data_type_identifier: varbinary
+                - keyword: varbinary
                 - bracketed_arguments:
                   - bracketed:
                     - start_bracket: (

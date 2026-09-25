@@ -158,6 +158,52 @@ pub fn raw_dialect() -> Dialect {
         mysql::create_user_grammar(true),
     );
 
+    // MariaDB permits OR REPLACE before PROCEDURE and FUNCTION.
+    // https://mariadb.com/docs/server/server-usage/stored-routines/stored-procedures/create-procedure
+    // https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-function
+    mariadb.replace_grammar(
+        "CreateProcedureStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::new("DefinerSegment").optional().to_matchable(),
+            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            Ref::keyword("PROCEDURE").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("FunctionNameSegment").to_matchable(),
+            Ref::new("ProcedureParameterListGrammar")
+                .optional()
+                .to_matchable(),
+            Ref::new("CommentClauseSegment").optional().to_matchable(),
+            Ref::new("CharacteristicStatement")
+                .optional()
+                .to_matchable(),
+            Ref::new("FunctionDefinitionGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    mariadb.replace_grammar(
+        "CreateFunctionStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::new("DefinerSegment").optional().to_matchable(),
+            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            Ref::keyword("FUNCTION").to_matchable(),
+            Ref::new("FunctionNameSegment").to_matchable(),
+            Ref::new("FunctionParameterListGrammar")
+                .optional()
+                .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("RETURNS").to_matchable(),
+                Ref::new("DatatypeSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("CommentClauseSegment").optional().to_matchable(),
+            Ref::new("CharacteristicStatement").to_matchable(),
+            Ref::new("FunctionDefinitionGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // MariaDB CREATE INDEX supports OR REPLACE, IF NOT EXISTS, RTREE,
     // MariaDB-specific index options, WAIT/NOWAIT, ALGORITHM, and LOCK.
     // https://mariadb.com/kb/en/create-index/

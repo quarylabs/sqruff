@@ -11,11 +11,11 @@ file:
           - start_bracket: (
           - tsql_variable: '@my_parameter'
           - data_type:
-            - data_type_identifier: int
+            - keyword: int
           - end_bracket: )
       - keyword: returns
       - data_type:
-        - data_type_identifier: int
+        - keyword: int
       - function_option_segment:
         - keyword: with
         - keyword: schemabinding
@@ -25,13 +25,130 @@ file:
         - keyword: on
         - keyword: 'null'
         - keyword: input
-      - statement:
-        - keyword: begin
-        - return_segment:
-          - keyword: return
-          - expression:
-            - parameterized_expression:
-              - tsql_variable: '@my_parameter'
-        - keyword: end
+      - procedure_statement:
+        - statement:
+          - keyword: begin
+          - statement:
+            - return_segment:
+              - keyword: return
+              - expression:
+                - parameterized_expression:
+                  - tsql_variable: '@my_parameter'
+          - keyword: end
+  - go_statement:
+    - keyword: go
+- batch:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: f
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+      - keyword: RETURNS
+      - tsql_variable: '@t'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - naked_identifier: i
+          - data_type:
+            - keyword: int
+          - table_index_segment:
+            - keyword: index
+            - object_reference:
+              - naked_identifier: _i
+            - bracketed_index_column_list_grammar:
+              - bracketed:
+                - start_bracket: (
+                - index_column_definition:
+                  - naked_identifier: i
+                - end_bracket: )
+        - end_bracket: )
+      - keyword: AS
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - insert_statement:
+              - keyword: INSERT
+              - keyword: INTO
+              - table_reference:
+                - tsql_variable: '@t'
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - integer_literal: '1'
+          - statement_terminator: ;
+          - statement:
+            - return_segment:
+              - keyword: RETURN
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - create_function_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: PenniesToDollars
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - tsql_variable: '@Pennies'
+          - data_type:
+            - keyword: bigint
+          - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+        - keyword: money
+      - function_option_segment:
+        - keyword: WITH
+        - keyword: NATIVE_COMPILATION
+        - comma: ','
+        - keyword: SCHEMABINDING
+      - keyword: AS
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - keyword: ATOMIC
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: TRANSACTION
+            - keyword: ISOLATION
+            - keyword: LEVEL
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - naked_identifier: SNAPSHOT
+            - comma: ','
+            - keyword: LANGUAGE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - naked_identifier: N
+            - quoted_literal: '''us_english'''
+            - end_bracket: )
+          - statement:
+            - return_segment:
+              - keyword: RETURN
+              - expression:
+                - parameterized_expression:
+                  - tsql_variable: '@Pennies'
+                - binary_operator: '*'
+                - numeric_literal: $0.01
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
   - go_statement:
     - keyword: go

@@ -1,12 +1,12 @@
 # Rules
 
-The following rules are available in this create. This list is generated from the `rules` module in the source code and can be turned on or off and configured in the config file. 
+The following rules are available in this create. This list is generated from the `rules` module in the source code and can be turned on or off and configured in the config file.
 
 ## Rule Index
 
-| Rule Code | Rule Name | Description |
-|-----------|-----------|-------------|{% for rule in rules %}
-| {{ rule.code }} | [{{ rule.name }}](#{{ rule.name_no_periods }}) | {{ rule.description }} | {% endfor %}
+| Rule Code | Rule Name | Description | Core Rule |
+|-----------|-----------|-------------|-----------|{% for rule in rules %}
+| {{ rule.code }} | [{{ rule.name }}](#{{ rule.name_no_periods }}) | {{ rule.description }} | {% if "core" in rule.groups %}✓{% endif %} |{% endfor %}
 
 ## Rule Details
 {% for rule in rules %}

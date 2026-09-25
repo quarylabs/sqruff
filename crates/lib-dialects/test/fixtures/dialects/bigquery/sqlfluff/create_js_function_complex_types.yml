@@ -15,7 +15,7 @@ file:
         - comma: ','
         - parameter: foo2
         - data_type:
-          - array_type:
+          - data_type:
             - keyword: ARRAY
             - start_angle_bracket: <
             - data_type:
@@ -24,7 +24,7 @@ file:
         - comma: ','
         - parameter: foo3
         - data_type:
-          - struct_type:
+          - data_type:
             - keyword: STRUCT
             - struct_type_schema:
               - start_angle_bracket: <
@@ -35,7 +35,7 @@ file:
         - comma: ','
         - parameter: foo4
         - data_type:
-          - struct_type:
+          - data_type:
             - keyword: STRUCT
             - struct_type_schema:
               - start_angle_bracket: <
@@ -50,22 +50,22 @@ file:
         - comma: ','
         - parameter: foo5
         - data_type:
-          - struct_type:
+          - data_type:
             - keyword: STRUCT
             - struct_type_schema:
               - start_angle_bracket: <
               - parameter: a
               - data_type:
-                - array_type:
+                - data_type:
                   - keyword: ARRAY
                   - start_angle_bracket: <
                   - data_type:
-                    - data_type_identifier: FLOAT
+                    - data_type_identifier: FLOAT64
                   - end_angle_bracket: '>'
               - comma: ','
               - parameter: b
               - data_type:
-                - struct_type:
+                - data_type:
                   - keyword: STRUCT
                   - struct_type_schema:
                     - start_angle_bracket: <
@@ -81,13 +81,13 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-      - struct_type:
+      - data_type:
         - keyword: STRUCT
         - struct_type_schema:
           - start_angle_bracket: <
           - parameter: product_id
           - data_type:
-            - array_type:
+            - data_type:
               - keyword: ARRAY
               - start_angle_bracket: <
               - data_type:

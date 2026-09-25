@@ -2,7 +2,7 @@ file:
 - statement:
   - keyword: DROP
   - keyword: CATALOG
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: vaccine
   - keyword: CASCADE
 - statement_terminator: ;
@@ -11,7 +11,7 @@ file:
   - keyword: CATALOG
   - keyword: IF
   - keyword: EXISTS
-  - object_reference:
+  - catalog_reference:
     - naked_identifier: vaccine
   - keyword: RESTRICT
 - statement_terminator: ;

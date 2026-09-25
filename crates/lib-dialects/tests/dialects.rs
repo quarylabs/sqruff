@@ -108,18 +108,19 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
         DialectKind::Bigquery => &[
             "ACTION",
             "BEFORE",
+            "CATALOG",
             "CONSTRUCTOR",
             "DEFERRABLE",
             "DEFERRED",
             "EACH",
+            "FORMATS",
             "FUNCTIONS",
             "INITIALLY",
             "INSTANCE",
             "INSTEAD",
             "METHOD",
-            "NEXT",
             "OLD",
-            "ONLY",
+            "POLICIES",
             "PROCEDURES",
             "REFERENCING",
             "ROUTINES",
@@ -134,10 +135,8 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "VIEWS",
         ],
         DialectKind::Duckdb | DialectKind::Greenplum | DialectKind::Postgres => &["EXECUTION"],
-        DialectKind::Materialize => &["EXECUTION"],
         DialectKind::Oracle => &[
             "AUTHENTICATION",
-            "CREDENTIAL",
             "EXCEPTIONS",
             "HASH",
             "METADATA",
@@ -150,6 +149,7 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "ALLOW_CONNECTIONS",
             "COMMUTATOR",
             "DEPENDENCIES",
+            "FORMATS",
             "HASHES",
             "ICU",
             "IS_TEMPLATE",
@@ -163,6 +163,7 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "NDISTINCT",
             "NEGATOR",
             "PERMISSIVE",
+            "POLICIES",
             "PROVIDER",
             "RESTRICTIVE",
             "RIGHTARG",
@@ -317,7 +318,7 @@ fn dialects() {
                     );
                 }
 
-                let tree = tree.to_serialised(true, true);
+                let tree = tree.to_serialised(true, true, false, false);
 
                 serde_yaml::to_string(&tree).unwrap()
             };
@@ -325,6 +326,23 @@ fn dialects() {
             expect_file![yaml].assert_eq(&actual);
         });
     }
+}
+
+#[test]
+fn bigquery_cast_as_float_is_unparsable() {
+    let dialect = kind_to_dialect(&DialectKind::Bigquery, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+    let (tokens, lex_errors) = lexer.lex(&tables, "SELECT CAST('4.0' AS FLOAT)");
+
+    assert!(lex_errors.is_empty());
+
+    let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+    assert!(
+        !check_no_unparsable_segments(&tree).is_empty(),
+        "BigQuery only supports FLOAT64, so FLOAT must not parse as a data type",
+    );
 }
 
 #[test]

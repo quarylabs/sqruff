@@ -503,14 +503,23 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // FromClauseTerminatorGrammar - add index hints, partition, FOR, check options, INTO.
+    // Index hints and partition selection belong to each table expression so
+    // they also parse correctly before joins.
+    mysql.replace_grammar(
+        "PostTableExpressionGrammar",
+        one_of(vec![
+            Ref::new("IndexHintClauseSegment").to_matchable(),
+            Ref::new("SelectPartitionClauseSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // FromClauseTerminatorGrammar - add FOR, check options, and INTO.
     let from_clause_terminator = mysql.grammar("FromClauseTerminatorGrammar");
     mysql.replace_grammar(
         "FromClauseTerminatorGrammar",
         from_clause_terminator.copy(
             Some(vec![
-                Ref::new("IndexHintClauseSegment").to_matchable(),
-                Ref::new("SelectPartitionClauseSegment").to_matchable(),
                 Ref::new("ForClauseSegment").to_matchable(),
                 Ref::new("SetOperatorSegment").to_matchable(),
                 Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
@@ -1550,6 +1559,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("CREATE").to_matchable(),
                 Ref::new("DefinerSegment").optional().to_matchable(),
                 Ref::keyword("PROCEDURE").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("FunctionNameSegment").to_matchable(),
                 Ref::new("ProcedureParameterListGrammar")
                     .optional()
@@ -3665,6 +3675,130 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
         ])
+        .to_matchable(),
+    );
+
+    mysql.replace_grammar(
+        "AccessPermissionSegment",
+        NodeMatcher::new(SyntaxKind::AccessPermission, |_| {
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Ref::keyword("PRIVILEGES").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("SELECT").to_matchable(),
+                        Ref::keyword("INSERT").to_matchable(),
+                        Ref::keyword("UPDATE").to_matchable(),
+                        Ref::keyword("DELETE").to_matchable(),
+                        Ref::keyword("CREATE").to_matchable(),
+                        Ref::keyword("DROP").to_matchable(),
+                        Ref::keyword("ALTER").to_matchable(),
+                        Ref::keyword("INDEX").to_matchable(),
+                        Ref::keyword("EXECUTE").to_matchable(),
+                        Ref::keyword("REFERENCES").to_matchable(),
+                        Ref::keyword("RELOAD").to_matchable(),
+                        Ref::keyword("PROCESS").to_matchable(),
+                        Ref::keyword("SUPER").to_matchable(),
+                        Ref::keyword("USAGE").to_matchable(),
+                        Ref::keyword("TRIGGER").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CREATE").to_matchable(),
+                            Ref::keyword("VIEW").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SHOW").to_matchable(),
+                            Ref::keyword("VIEW").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+    mysql.replace_grammar(
+        "AccessObjectSegment",
+        NodeMatcher::new(SyntaxKind::AccessObject, |_| {
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::keyword("FUNCTION").to_matchable(),
+                    Ref::keyword("PROCEDURE").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+    mysql.replace_grammar(
+        "AccessTargetSegment",
+        NodeMatcher::new(SyntaxKind::AccessTarget, |_| {
+            Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()]).to_matchable()
+        })
+        .to_matchable(),
+    );
+    mysql.replace_grammar(
+        "GrantStatementSegment",
+        NodeMatcher::new(SyntaxKind::GrantStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("GRANT").to_matchable(),
+                Ref::new("AccessPermissionsSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::new("AccessObjectSegment").to_matchable(),
+                Ref::keyword("TO").to_matchable(),
+                Ref::new("AccessTargetSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("GRANT").to_matchable(),
+                    Ref::keyword("OPTION").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+    mysql.replace_grammar(
+        "RevokeStatementSegment",
+        NodeMatcher::new(SyntaxKind::RevokeStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("REVOKE").to_matchable(),
+                Ref::new("AccessPermissionsSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::new("AccessObjectSegment").to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+                Ref::new("AccessTargetSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+    mysql.replace_grammar(
+        "AccessStatementSegment",
+        NodeMatcher::new(SyntaxKind::AccessStatement, |_| {
+            one_of(vec![
+                Ref::new("GrantStatementSegment").to_matchable(),
+                Ref::new("RevokeStatementSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
         .to_matchable(),
     );
 

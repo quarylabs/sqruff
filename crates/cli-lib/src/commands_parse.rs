@@ -7,13 +7,13 @@ use crate::commands::{ParseArgs, ParseFormat};
 
 pub(crate) fn run_parse(args: ParseArgs, config: FluffConfig) -> i32 {
     if args.paths.is_empty() || (args.paths.len() == 1 && args.paths[0].to_str() == Some("-")) {
-        run_parse_stdin(config, args.format)
+        run_parse_stdin(config, args.format, args.include_meta)
     } else {
         run_parse_files(args, config)
     }
 }
 
-fn run_parse_stdin(config: FluffConfig, format: ParseFormat) -> i32 {
+fn run_parse_stdin(config: FluffConfig, format: ParseFormat, include_meta: bool) -> i32 {
     let stdin = io::stdin();
     let mut sql = String::new();
 
@@ -30,7 +30,7 @@ fn run_parse_stdin(config: FluffConfig, format: ParseFormat) -> i32 {
         }
     }
 
-    parse_and_output_tree(&sql, "<stdin>", &config, format)
+    parse_and_output_tree(&sql, "<stdin>", &config, format, include_meta)
 }
 
 fn run_parse_files(args: ParseArgs, config: FluffConfig) -> i32 {
@@ -44,6 +44,7 @@ fn run_parse_files(args: ParseArgs, config: FluffConfig) -> i32 {
                     path.to_string_lossy().as_ref(),
                     &config,
                     args.format,
+                    args.include_meta,
                 );
                 if result != 0 {
                     exit_code = result;
@@ -64,6 +65,7 @@ fn parse_and_output_tree(
     filename: &str,
     config: &FluffConfig,
     format: ParseFormat,
+    include_meta: bool,
 ) -> i32 {
     // Create a linter and parse the SQL
     let linter = match Linter::new(config.clone(), None, None, true) {
@@ -80,11 +82,23 @@ fn parse_and_output_tree(
             if let Some(tree) = &parsed.tree {
                 match format {
                     ParseFormat::Json => {
-                        let serialized = tree.to_serialised(false, true);
+                        let serialized =
+                            tree.to_serialised(false, true, include_meta, include_meta);
                         match serde_json::to_string_pretty(&serialized) {
                             Ok(json) => println!("{}", json),
                             Err(e) => {
                                 eprintln!("Error serializing to JSON: {}", e);
+                                return 1;
+                            }
+                        }
+                    }
+                    ParseFormat::Yaml => {
+                        let serialized =
+                            tree.to_serialised(false, true, include_meta, include_meta);
+                        match serde_yaml::to_string(&serialized) {
+                            Ok(yaml) => print!("{}", yaml),
+                            Err(e) => {
+                                eprintln!("Error serializing to YAML: {}", e);
                                 return 1;
                             }
                         }

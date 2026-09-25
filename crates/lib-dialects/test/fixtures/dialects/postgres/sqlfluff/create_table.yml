@@ -455,8 +455,8 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: employee_type
+    - data_type:
+      - data_type_identifier: employee_type
     - keyword: AS
     - bracketed:
       - start_bracket: (

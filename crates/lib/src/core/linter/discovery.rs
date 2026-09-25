@@ -36,10 +36,10 @@ fn absolute_path(path: &Path) -> PathBuf {
 }
 
 fn config_search_directories(target_path: &Path, working_path: &Path) -> Vec<PathBuf> {
-    let target_dir = if target_path.is_file() {
-        target_path.parent().unwrap_or(target_path)
-    } else {
+    let target_dir = if target_path.is_dir() {
         target_path
+    } else {
+        target_path.parent().unwrap_or(target_path)
     };
 
     let Some(common_path) = target_dir
@@ -237,6 +237,16 @@ fn matches_file_extension(path: &Path, valid_extensions: &[String]) -> bool {
         .any(|extension| lowercase_path.ends_with(extension))
 }
 
+struct PathDiscoveryOptions<'a> {
+    ignore_file_name: Option<String>,
+    ignore_non_existent_files: Option<bool>,
+    ignore_files: Option<bool>,
+    working_path: Option<String>,
+    target_file_exts: &'a [String],
+    ignorer: Option<&'a (dyn Fn(&Path) -> bool + Send + Sync)>,
+    check_non_existent_file: bool,
+}
+
 /// Return SQL file paths from a potentially ambiguous path.
 pub fn paths_from_path(
     path: PathBuf,
@@ -247,6 +257,54 @@ pub fn paths_from_path(
     target_file_exts: &[String],
     ignorer: Option<&(dyn Fn(&Path) -> bool + Send + Sync)>,
 ) -> Vec<String> {
+    paths_from_path_with_options(
+        path,
+        PathDiscoveryOptions {
+            ignore_file_name,
+            ignore_non_existent_files,
+            ignore_files,
+            working_path,
+            target_file_exts,
+            ignorer,
+            check_non_existent_file: false,
+        },
+    )
+}
+
+/// Check a possibly nonexistent exact file path against ignore patterns.
+pub fn paths_from_path_check_non_existent(
+    path: PathBuf,
+    ignore_file_name: Option<String>,
+    ignore_non_existent_files: Option<bool>,
+    ignore_files: Option<bool>,
+    working_path: Option<String>,
+    target_file_exts: &[String],
+    ignorer: Option<&(dyn Fn(&Path) -> bool + Send + Sync)>,
+) -> Vec<String> {
+    paths_from_path_with_options(
+        path,
+        PathDiscoveryOptions {
+            ignore_file_name,
+            ignore_non_existent_files,
+            ignore_files,
+            working_path,
+            target_file_exts,
+            ignorer,
+            check_non_existent_file: true,
+        },
+    )
+}
+
+fn paths_from_path_with_options(path: PathBuf, options: PathDiscoveryOptions<'_>) -> Vec<String> {
+    let PathDiscoveryOptions {
+        ignore_file_name,
+        ignore_non_existent_files,
+        ignore_files,
+        working_path,
+        target_file_exts,
+        ignorer,
+        check_non_existent_file,
+    } = options;
     let ignore_file_name = ignore_file_name.unwrap_or_else(|| String::from(".sqlfluffignore"));
     let ignore_non_existent_files = ignore_non_existent_files.unwrap_or(false);
     let ignore_files = ignore_files.unwrap_or(true);
@@ -258,12 +316,11 @@ pub fn paths_from_path(
         .map(|extension| extension.to_lowercase())
         .collect::<Vec<_>>();
 
-    let Ok(metadata) = std::fs::metadata(&path) else {
-        if ignore_non_existent_files {
-            return Vec::new();
-        } else {
-            panic!("Specified path does not exist. Check it/they exist(s): {path:?}");
-        }
+    let metadata = match std::fs::metadata(&path) {
+        Ok(metadata) => Some(metadata),
+        Err(_) if check_non_existent_file => None,
+        Err(_) if ignore_non_existent_files => return Vec::new(),
+        Err(_) => panic!("Specified path does not exist. Check it/they exist(s): {path:?}"),
     };
 
     let ignore_specs = if ignore_files {
@@ -272,7 +329,7 @@ pub fn paths_from_path(
         Vec::new()
     };
 
-    if metadata.is_file() {
+    if metadata.is_some_and(|metadata| metadata.is_file()) || check_non_existent_file {
         if !matches_file_extension(&path, &lower_file_exts) {
             return Vec::new();
         }
@@ -341,7 +398,7 @@ pub fn paths_from_path(
 
 #[cfg(test)]
 mod tests {
-    use super::paths_from_path;
+    use super::{paths_from_path, paths_from_path_check_non_existent};
 
     fn normalise_paths(paths: Vec<String>) -> Vec<String> {
         paths
@@ -486,6 +543,35 @@ mod tests {
                 "test.fixtures.linter.sqlfluffignore.path_c.query_e.sql",
             ]
         );
+    }
+
+    #[test]
+    fn test_linter_path_from_paths_checks_non_existent_file() {
+        let working_path = "test/fixtures/linter/sqlfluffignore";
+        let ignored_path = format!("{working_path}/path_a/non_existent.sql");
+        let included_path = format!("{working_path}/path_b/non_existent.sql");
+
+        let ignored = paths_from_path_check_non_existent(
+            ignored_path.into(),
+            None,
+            None,
+            None,
+            Some(working_path.into()),
+            &[String::new()],
+            None,
+        );
+        let included = paths_from_path_check_non_existent(
+            included_path.clone().into(),
+            None,
+            None,
+            None,
+            Some(working_path.into()),
+            &[String::new()],
+            None,
+        );
+
+        assert!(ignored.is_empty());
+        assert_eq!(included, [included_path]);
     }
 
     // test__linter__path_from_paths__not_exist

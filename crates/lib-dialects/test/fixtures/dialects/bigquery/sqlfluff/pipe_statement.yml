@@ -720,7 +720,7 @@ file:
                           - start_bracket: (
                           - expression:
                             - typed_array_literal:
-                              - array_type:
+                              - data_type:
                                 - keyword: ARRAY
                                 - start_angle_bracket: <
                                 - data_type:
@@ -765,7 +765,7 @@ file:
                           - start_bracket: (
                           - expression:
                             - typed_array_literal:
-                              - array_type:
+                              - data_type:
                                 - keyword: ARRAY
                                 - start_angle_bracket: <
                                 - data_type:
@@ -858,7 +858,7 @@ file:
                           - start_bracket: (
                           - expression:
                             - typed_array_literal:
-                              - array_type:
+                              - data_type:
                                 - keyword: ARRAY
                                 - start_angle_bracket: <
                                 - data_type:
@@ -899,7 +899,7 @@ file:
                           - start_bracket: (
                           - expression:
                             - typed_array_literal:
-                              - array_type:
+                              - data_type:
                                 - keyword: ARRAY
                                 - start_angle_bracket: <
                                 - data_type:
@@ -1201,7 +1201,7 @@ file:
                     - start_bracket: (
                     - expression:
                       - typed_array_literal:
-                        - array_type:
+                        - data_type:
                           - keyword: ARRAY
                           - start_angle_bracket: <
                           - data_type:
@@ -1711,4 +1711,36 @@ file:
           - alias_operator:
             - keyword: AS
           - naked_identifier: is_orange
+- statement_terminator: ;
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - naked_identifier: bar
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - pipe_statement:
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - naked_identifier: foo
+        - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: bar
 - statement_terminator: ;

@@ -22,7 +22,7 @@ file:
         - column_definition:
           - quoted_identifier: '[name]'
           - data_type:
-            - data_type_identifier: VARCHAR
+            - keyword: VARCHAR
             - bracketed_arguments:
               - bracketed:
                 - start_bracket: (
@@ -31,7 +31,7 @@ file:
         - end_bracket: )
       - keyword: AS
       - keyword: NODE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - create_table_graph_statement:
       - keyword: CREATE
@@ -52,11 +52,11 @@ file:
         - column_definition:
           - naked_identifier: start_date
           - data_type:
-            - data_type_identifier: DATE
+            - keyword: DATE
         - end_bracket: )
       - keyword: AS
       - keyword: EDGE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - create_table_graph_statement:
       - keyword: CREATE
@@ -66,7 +66,7 @@ file:
           - naked_identifier: likes
       - keyword: AS
       - keyword: EDGE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - create_table_graph_statement:
       - keyword: CREATE
@@ -101,7 +101,7 @@ file:
         - end_bracket: )
       - keyword: AS
       - keyword: EDGE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
     - create_table_graph_statement:
       - keyword: CREATE
@@ -139,4 +139,4 @@ file:
         - end_bracket: )
       - keyword: AS
       - keyword: EDGE
-      - statement_terminator: ;
+  - statement_terminator: ;

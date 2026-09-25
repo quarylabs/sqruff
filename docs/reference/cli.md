@@ -65,6 +65,7 @@ Lint SQL files via passing a list of files or using stdin
   - `human`
   - `github-annotation-native`
   - `json`
+  - `sarif`
   - `none`:
     Produce no output. Used mostly for testing
 
@@ -92,6 +93,7 @@ Fix SQL files via passing a list of files or using stdin
   - `human`
   - `github-annotation-native`
   - `json`
+  - `sarif`
   - `none`:
     Produce no output. Used mostly for testing
 

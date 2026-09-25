@@ -15,6 +15,7 @@ use crate::commands::{Cli, Commands};
 use crate::docs::codegen_docs;
 use crate::formatters::github_annotation_native_formatter::GithubAnnotationNativeFormatter;
 use crate::formatters::json::JsonFormatter;
+use crate::formatters::sarif::SarifFormatter;
 use crate::formatters::{NullFormatter, OutputStreamFormatter};
 
 pub mod commands;
@@ -49,7 +50,10 @@ where
 {
     let _ = logger::init();
     let cli = Cli::parse_from(args);
-    let collect_parse_errors = cli.parsing_errors;
+    // `fix` must retain parser and templater errors so that it can explain why
+    // fixes were not applied to an unparsable file. Keep the explicit flag for
+    // commands such as `lint`, where collecting parse errors remains opt-in.
+    let collect_parse_errors = cli.parsing_errors || matches!(&cli.command, Commands::Fix(_));
 
     let stdin_input = match &cli.command {
         Commands::Lint(args) => is_std_in_flag_input(&args.paths).unwrap_or(false),
@@ -141,6 +145,7 @@ where
         let ignore_file = Arc::clone(&ignore_file);
         move |path: &Path| ignore_file.is_ignored(path)
     };
+    let stdin_filename = cli.stdin_filename.clone();
 
     match cli.command {
         Commands::Lint(args) => match is_std_in_flag_input(&args.paths) {
@@ -149,7 +154,14 @@ where
                 1
             }
             Ok(false) => commands_lint::run_lint(args, config, ignorer, collect_parse_errors),
-            Ok(true) => commands_lint::run_lint_stdin(config, args.format, collect_parse_errors),
+            Ok(true) => commands_lint::run_lint_stdin(
+                config,
+                args.format,
+                stdin_filename.as_deref(),
+                &ignorer,
+                args.disregard_sqruffignores,
+                collect_parse_errors,
+            ),
         },
         Commands::Fix(args) => match is_std_in_flag_input(&args.paths) {
             Err(e) => {
@@ -157,7 +169,14 @@ where
                 1
             }
             Ok(false) => commands_fix::run_fix(args, config, ignorer, collect_parse_errors),
-            Ok(true) => commands_fix::run_fix_stdin(config, args.format, collect_parse_errors),
+            Ok(true) => commands_fix::run_fix_stdin(
+                config,
+                args.format,
+                stdin_filename.as_deref(),
+                &ignorer,
+                args.disregard_sqruffignores,
+                collect_parse_errors,
+            ),
         },
         Commands::Lsp => {
             sqruff_lsp::run();
@@ -206,6 +225,10 @@ pub(crate) fn linter(
         }
         Format::Json => {
             let formatter = JsonFormatter::default();
+            Arc::new(formatter)
+        }
+        Format::Sarif => {
+            let formatter = SarifFormatter::default();
             Arc::new(formatter)
         }
         Format::None => {

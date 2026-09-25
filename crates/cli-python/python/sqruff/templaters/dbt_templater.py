@@ -341,51 +341,14 @@ class DbtTemplater(JinjaTemplater):
             )
 
         from dbt.graph.selector_methods import (
+            MethodManager,
             MethodName as DbtMethodName,
         )
 
-        if self.dbt_version_tuple >= (1, 5):
-            from dbt.graph.selector_methods import MethodManager
-        else:  # pragma: no cover
-            from dbt.graph.selector_methods import (
-                SelectorMethodManager as MethodManager,
-            )
-
         selector_methods_manager = MethodManager(self.dbt_manifest, previous_state=None)
-
-        if self.dbt_version_tuple >= (1, 5):
-            _dbt_selector_method = selector_methods_manager.get_method(
-                DbtMethodName.Path, method_arguments=[]
-            )
-        else:  # pragma: no cover
-            from dbt.graph.selector_methods import SelectorMethod
-
-            class ProjectPathSelectorMethod(SelectorMethod):
-                def search(self, included_nodes, selector):
-                    """Yield nodes from included that match the given path."""
-                    project_root = Path(self.project_dir)
-                    paths = set(project_root.glob(selector))
-
-                    for unique_id, node in self.all_nodes(included_nodes):
-                        original_file_path = project_root / node.original_file_path
-                        if original_file_path in paths:
-                            yield unique_id
-                        if node.patch_path:
-                            patch_file_path = (
-                                project_root / node.patch_path.split("://")[1]
-                            )
-                            if patch_file_path in paths:
-                                yield unique_id
-                        if any(
-                            parent in paths for parent in original_file_path.parents
-                        ):
-                            yield unique_id
-
-            _dbt_selector_method = ProjectPathSelectorMethod(
-                selector_methods_manager.manifest,
-                None,
-                [],
-            )
+        _dbt_selector_method = selector_methods_manager.get_method(
+            DbtMethodName.Path, method_arguments=[]
+        )
 
         if self.formatter:  # pragma: no cover TODO?
             self.formatter.dispatch_compilation_header(
@@ -646,12 +609,8 @@ class DbtTemplater(JinjaTemplater):
         # overwritten.
         render_func: Optional[Callable[[str], str]] = None
 
-        if self.dbt_version_tuple >= (1, 3):
-            compiled_sql_attribute = "compiled_code"
-            raw_sql_attribute = "raw_code"
-        else:  # pragma: no cover
-            compiled_sql_attribute = "compiled_sql"
-            raw_sql_attribute = "raw_sql"
+        compiled_sql_attribute = "compiled_code"
+        raw_sql_attribute = "raw_code"
 
         def from_string(*args, **kwargs):
             """Replaces (via monkeypatch) the jinja2.Environment function."""

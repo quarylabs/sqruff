@@ -183,7 +183,7 @@ impl FluffConfig {
 
     // TODO This is not a translation that is particularly accurate.
     pub fn new(
-        configs: HashMap<String, Value>,
+        mut configs: HashMap<String, Value>,
         extra_config_path: Option<String>,
         indentation: Option<FluffConfigIndentation>,
     ) -> Self {
@@ -204,6 +204,9 @@ impl FluffConfig {
             }
             a
         }
+
+        normalize_implicit_indents_map(&mut configs, "configuration")
+            .expect("invalid implicit_indents configuration");
 
         let values = ConfigLoader::get_config_elems_from_file(
             None,
@@ -378,7 +381,9 @@ impl FluffConfig {
             SQLFluffUserError::new(format!("Invalid inline configuration value: {raw_value}"))
         })?;
         let mut raw = self.raw.clone();
-        ConfigLoader::incorporate_vals(&mut raw, vec![(parts, value)]);
+        let mut elems = vec![(parts, value)];
+        normalize_implicit_indents_elems(&mut elems, "inline configuration")?;
+        ConfigLoader::incorporate_vals(&mut raw, elems);
         *self = Self::new(
             raw,
             self.extra_config_path.clone(),
@@ -628,11 +633,14 @@ impl ConfigLoader {
             })?,
         };
 
-        if is_toml_config(config_path) {
-            return parse_toml_config_elems(&content, config_path);
-        }
+        let mut elems = if is_toml_config(config_path) {
+            parse_toml_config_elems(&content, config_path)?
+        } else {
+            parse_ini_config_elems(&content, config_path)?
+        };
 
-        parse_ini_config_elems(&content, config_path)
+        normalize_implicit_indents_elems(&mut elems, &config_reference(config_path))?;
+        Ok(elems)
     }
 
     fn incorporate_vals(ctx: &mut HashMap<String, Value>, values: Vec<(Vec<String>, Value)>) {
@@ -664,10 +672,121 @@ fn is_toml_config(config_path: Option<&Path>) -> bool {
 }
 
 fn config_error(config_path: Option<&Path>, message: impl std::fmt::Display) -> SQLFluffUserError {
-    let location = config_path
-        .map(|path| path.display().to_string())
-        .unwrap_or_else(|| "config source".to_owned());
+    let location = config_reference(config_path);
     SQLFluffUserError::new(format!("Error loading config from {location}: {}", message))
+}
+
+fn config_reference(config_path: Option<&Path>) -> String {
+    config_path
+        .map(|path| path.display().to_string())
+        .unwrap_or_else(|| "config source".to_owned())
+}
+
+const ALLOWABLE_IMPLICIT_INDENTS_VALUES: [&str; 3] = ["forbid", "allow", "require"];
+
+fn validate_implicit_indents_value(
+    value: &Value,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    if value
+        .as_string()
+        .is_some_and(|value| ALLOWABLE_IMPLICIT_INDENTS_VALUES.contains(&value))
+    {
+        return Ok(());
+    }
+
+    Err(SQLFluffUserError::new(format!(
+        "Config file {logging_reference:?} set an invalid value for `implicit_indents`: {value:?}. \
+         Valid options are: {}.",
+        ALLOWABLE_IMPLICIT_INDENTS_VALUES.join(", ")
+    )))
+}
+
+fn translate_allow_implicit_indents(
+    value: &Value,
+    logging_reference: &str,
+) -> Result<Value, SQLFluffUserError> {
+    let Some(value) = value.as_bool() else {
+        return Err(SQLFluffUserError::new(format!(
+            "Config file {logging_reference:?} set an invalid value for the deprecated \
+             `allow_implicit_indents` option: {value:?}. Expected true or false."
+        )));
+    };
+
+    Ok(Value::String(if value { "allow" } else { "forbid" }.into()))
+}
+
+fn warn_implicit_indents_migration(logging_reference: &str, duplicate: bool) {
+    if duplicate {
+        log::warn!(
+            "Config file {logging_reference} sets both deprecated `allow_implicit_indents` and \
+             `implicit_indents`; the new value takes precedence."
+        );
+    } else {
+        log::warn!(
+            "Config file {logging_reference} uses deprecated `allow_implicit_indents`; use \
+             `implicit_indents = forbid`, `allow`, or `require` instead."
+        );
+    }
+}
+
+fn normalize_implicit_indents_elems(
+    elems: &mut Vec<(Vec<String>, Value)>,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    let is_old = |path: &[String]| {
+        path.len() == 2 && path[0] == "indentation" && path[1] == "allow_implicit_indents"
+    };
+    let is_new = |path: &[String]| {
+        path.len() == 2 && path[0] == "indentation" && path[1] == "implicit_indents"
+    };
+
+    if let Some(old_idx) = elems.iter().position(|(path, _)| is_old(path)) {
+        let new_exists = elems.iter().any(|(path, _)| is_new(path));
+        warn_implicit_indents_migration(logging_reference, new_exists);
+        if new_exists {
+            elems.remove(old_idx);
+        } else {
+            let translated =
+                translate_allow_implicit_indents(&elems[old_idx].1, logging_reference)?;
+            elems[old_idx] = (
+                vec!["indentation".into(), "implicit_indents".into()],
+                translated,
+            );
+        }
+    }
+
+    if let Some((_, value)) = elems.iter().find(|(path, _)| is_new(path)) {
+        validate_implicit_indents_value(value, logging_reference)?;
+    }
+
+    Ok(())
+}
+
+fn normalize_implicit_indents_map(
+    configs: &mut HashMap<String, Value>,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    let Some(indentation) = configs.get_mut("indentation").and_then(Value::as_map_mut) else {
+        return Ok(());
+    };
+
+    if let Some(old_value) = indentation.remove("allow_implicit_indents") {
+        let new_exists = indentation.contains_key("implicit_indents");
+        warn_implicit_indents_migration(logging_reference, new_exists);
+        if !new_exists {
+            indentation.insert(
+                "implicit_indents".into(),
+                translate_allow_implicit_indents(&old_value, logging_reference)?,
+            );
+        }
+    }
+
+    if let Some(value) = indentation.get("implicit_indents") {
+        validate_implicit_indents_value(value, logging_reference)?;
+    }
+
+    Ok(())
 }
 
 fn parse_ini_config_elems(
@@ -709,7 +828,7 @@ fn parse_ini_config_elems(
                 }
 
                 let mut key = key.clone();
-                key.push(name.clone());
+                key.extend(name.split('.').map(ToOwned::to_owned));
                 buff.push((key, value));
             }
         }
@@ -852,17 +971,39 @@ fn resolve_relative_config_path(mut value: Value, config_path: Option<&Path>) ->
     value
 }
 
+fn resolve_config_path_pattern(value: Value, config_path: Option<&Path>) -> Vec<Value> {
+    let resolved = resolve_relative_config_path(value, config_path);
+    let Some(pattern) = resolved.as_string() else {
+        return Vec::new();
+    };
+    let Ok(matches) = glob::glob(pattern) else {
+        return Vec::new();
+    };
+
+    matches
+        .filter_map(Result::ok)
+        .map(|path| Value::String(path.to_string_lossy().into_owned().into()))
+        .collect()
+}
+
 fn resolve_comma_separated_config_paths(value: Value, config_path: Option<&Path>) -> Value {
     let Some(Value::Array(paths)) = split_string_or_array(&value) else {
         return value;
     };
 
-    Value::Array(
+    let resolved_paths = paths
+        .iter()
+        .cloned()
+        .flat_map(|path| resolve_config_path_pattern(path, config_path))
+        .collect::<Vec<_>>();
+
+    // Preserve the original patterns if none of them match. This mirrors
+    // SQLFluff's fallback while keeping sqruff's array-valued config invariant.
+    Value::Array(if resolved_paths.is_empty() {
         paths
-            .into_iter()
-            .map(|path| resolve_relative_config_path(path, config_path))
-            .collect(),
-    )
+    } else {
+        resolved_paths
+    })
 }
 
 fn nested_combine(config_stack: Vec<HashMap<String, Value>>) -> HashMap<String, Value> {
@@ -1150,10 +1291,141 @@ library_path = none
     }
 
     #[test]
+    fn test_config_path_patterns_expand_globs_and_exact_files() {
+        let root = temp_config_dir("path-globs");
+        let macros = root.join("macros");
+        let nested = macros.join("nested");
+        fs::create_dir_all(&nested).unwrap();
+        for path in [
+            macros.join("macro1.sql"),
+            macros.join("macro2.sql"),
+            macros.join("other.txt"),
+            nested.join("macro3.sql"),
+        ] {
+            fs::write(path, "").unwrap();
+        }
+        let config_path = root.join(".sqruff");
+
+        let mut sql_matches =
+            resolve_config_path_pattern(Value::String("macros/*.sql".into()), Some(&config_path));
+        sql_matches.sort_by(|left, right| left.as_string().cmp(&right.as_string()));
+        assert_eq!(
+            sql_matches,
+            vec![
+                Value::String(
+                    macros
+                        .join("macro1.sql")
+                        .to_string_lossy()
+                        .into_owned()
+                        .into()
+                ),
+                Value::String(
+                    macros
+                        .join("macro2.sql")
+                        .to_string_lossy()
+                        .into_owned()
+                        .into()
+                ),
+            ]
+        );
+
+        assert_eq!(
+            resolve_config_path_pattern(
+                Value::String("macros/nested/macro3.sql".into()),
+                Some(&config_path),
+            ),
+            vec![Value::String(
+                nested
+                    .join("macro3.sql")
+                    .to_string_lossy()
+                    .into_owned()
+                    .into()
+            )]
+        );
+        assert!(
+            resolve_config_path_pattern(Value::String("missing/*.sql".into()), Some(&config_path),)
+                .is_empty()
+        );
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_comma_separated_config_paths_expand_globs() {
+        let root = temp_config_dir("comma-path-globs");
+        let macros = root.join("macros");
+        let nested = macros.join("nested");
+        fs::create_dir_all(&nested).unwrap();
+        for path in [
+            macros.join("macro1.sql"),
+            macros.join("macro2.sql"),
+            nested.join("macro3.sql"),
+        ] {
+            fs::write(path, "").unwrap();
+        }
+        let config_path = root.join(".sqruff");
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff:templater:jinja]
+load_macros_from_path = macros/*.sql, macros/nested/*.sql
+"#,
+            Some(&config_path),
+        );
+
+        let paths = config.raw["templater"]["jinja"]["load_macros_from_path"]
+            .as_array()
+            .unwrap();
+        assert_eq!(paths.len(), 3);
+        assert!(
+            paths
+                .iter()
+                .any(|path| path.as_string().unwrap().ends_with("macro1.sql"))
+        );
+        assert!(
+            paths
+                .iter()
+                .any(|path| path.as_string().unwrap().ends_with("macro2.sql"))
+        );
+        assert!(
+            paths
+                .iter()
+                .any(|path| path.as_string().unwrap().ends_with("macro3.sql"))
+        );
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_comma_separated_config_paths_preserve_unmatched_patterns() {
+        let root = temp_config_dir("unmatched-path-globs");
+        let config_path = root.join(".sqruff");
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff:templater:jinja]
+load_macros_from_path = empty/*.sql, missing/*.sql
+"#,
+            Some(&config_path),
+        );
+
+        assert_eq!(
+            config.raw["templater"]["jinja"]["load_macros_from_path"]
+                .as_array()
+                .unwrap(),
+            &[
+                Value::String("empty/*.sql".into()),
+                Value::String("missing/*.sql".into()),
+            ]
+        );
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
     fn test_jinja_loader_search_path_resolves_each_ini_path() {
-        let config_path = std::env::temp_dir()
-            .join("sqruff-loader-search-path")
-            .join(".sqruff");
+        let root = temp_config_dir("loader-search-path-ini");
+        fs::create_dir_all(root.join("search_a")).unwrap();
+        fs::create_dir_all(root.join("search_b/subdir")).unwrap();
+        let config_path = root.join(".sqruff");
         let config = FluffConfig::from_source(
             r#"
 [sqruff:templater:jinja]
@@ -1196,13 +1468,17 @@ loader_search_path = search_a, search_b/subdir
                     .to_string(),
             ]
         );
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
     fn test_jinja_macro_paths_resolve_each_ini_path() {
-        let config_path = std::env::temp_dir()
-            .join("sqruff-macro-paths")
-            .join(".sqruff");
+        let root = temp_config_dir("macro-paths-ini");
+        fs::create_dir_all(root.join("macros/excluded")).unwrap();
+        fs::create_dir_all(root.join("shared")).unwrap();
+        fs::write(root.join("shared/macros.sql"), "").unwrap();
+        fs::write(root.join("shared/ignored.sql"), "").unwrap();
+        let config_path = root.join(".sqruff");
         let config = FluffConfig::from_source(
             r#"
 [sqruff:templater:jinja]
@@ -1249,13 +1525,17 @@ exclude_macros_from_path = macros/excluded, shared/ignored.sql
                 .collect::<Vec<_>>();
             assert_eq!(paths, expected);
         }
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
     fn test_jinja_macro_paths_resolve_toml_arrays() {
-        let config_path = std::env::temp_dir()
-            .join("sqruff-macro-paths")
-            .join("pyproject.toml");
+        let root = temp_config_dir("macro-paths-toml");
+        fs::create_dir_all(root.join("macros/excluded")).unwrap();
+        fs::create_dir_all(root.join("shared")).unwrap();
+        fs::write(root.join("shared/macros.sql"), "").unwrap();
+        fs::write(root.join("shared/ignored.sql"), "").unwrap();
+        let config_path = root.join("pyproject.toml");
         let config = FluffConfig::from_source(
             r#"
 [tool.sqruff.templater.jinja]
@@ -1285,13 +1565,15 @@ exclude_macros_from_path = ["macros/excluded", "shared/ignored.sql"]
                 Path::new(value.as_string().unwrap()).starts_with(config_path.parent().unwrap())
             }));
         }
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
     fn test_jinja_loader_search_path_resolves_toml_array() {
-        let config_path = std::env::temp_dir()
-            .join("sqruff-loader-search-path")
-            .join("pyproject.toml");
+        let root = temp_config_dir("loader-search-path-toml");
+        fs::create_dir_all(root.join("search_a")).unwrap();
+        fs::create_dir_all(root.join("search_b/subdir")).unwrap();
+        let config_path = root.join("pyproject.toml");
         let config = FluffConfig::from_source(
             r#"
 [tool.sqruff.templater.jinja]
@@ -1337,6 +1619,7 @@ loader_search_path = ["search_a", "search_b/subdir"]
                     .as_ref()
             )
         );
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]
@@ -1389,6 +1672,53 @@ line_position = "trailing"
         assert_eq!(
             config.raw["layout"]["type"]["comma"]["line_position"].as_string(),
             Some("trailing")
+        );
+    }
+
+    #[test]
+    fn test_ini_dotted_keys_create_nested_structures_with_coerced_values() {
+        let configs = ConfigLoader::from_source(
+            r#"
+[sqruff:templater:jinja:context]
+namespace.projectname = test
+namespace.count = 42
+namespace.ratio = 3.14
+namespace.enabled = true
+namespace.disabled = false
+namespace.nullable = none
+other.nested.key = value
+simple_key = simple_value
+"#,
+            None,
+        );
+
+        let context = &configs["templater"]["jinja"]["context"];
+        assert_eq!(
+            context["namespace"]["projectname"].as_string(),
+            Some("test")
+        );
+        assert_eq!(context["namespace"]["count"].as_int(), Some(42));
+        assert_eq!(context["namespace"]["ratio"], Value::Float(3.14));
+        assert_eq!(context["namespace"]["enabled"].as_bool(), Some(true));
+        assert_eq!(context["namespace"]["disabled"].as_bool(), Some(false));
+        assert!(context["namespace"]["nullable"].is_none());
+        assert_eq!(context["other"]["nested"]["key"].as_string(), Some("value"));
+        assert_eq!(context["simple_key"].as_string(), Some("simple_value"));
+    }
+
+    #[test]
+    fn test_ini_dotted_keys_apply_to_all_sections() {
+        let configs = ConfigLoader::from_source(
+            r#"
+[sqruff:rules]
+some.nested.config = value
+"#,
+            None,
+        );
+
+        assert_eq!(
+            configs["rules"]["some"]["nested"]["config"].as_string(),
+            Some("value")
         );
     }
 
@@ -1522,6 +1852,51 @@ max_line_length = 44
         assert!(
             err.to_string()
                 .contains("Error loading config from sqruff.toml")
+        );
+    }
+
+    #[test]
+    fn test_implicit_indents_values_are_validated() {
+        for value in ["invalid", "true", "REQUIRE", "", "123"] {
+            let source = format!("[sqruff:indentation]\nimplicit_indents = {value}\n");
+            let err = FluffConfig::try_from_source(&source, None).unwrap_err();
+            assert!(
+                err.to_string()
+                    .contains("set an invalid value for `implicit_indents`")
+            );
+            assert!(
+                err.to_string()
+                    .contains("Valid options are: forbid, allow, require")
+            );
+        }
+
+        for value in ALLOWABLE_IMPLICIT_INDENTS_VALUES {
+            let source = format!("[sqruff:indentation]\nimplicit_indents = {value}\n");
+            let config = FluffConfig::try_from_source(&source, None).unwrap();
+            assert_eq!(
+                config.raw["indentation"]["implicit_indents"].as_string(),
+                Some(value)
+            );
+        }
+    }
+
+    #[test]
+    fn test_allow_implicit_indents_is_migrated() {
+        for (old_value, expected) in [("true", "allow"), ("false", "forbid")] {
+            let source = format!("[sqruff:indentation]\nallow_implicit_indents = {old_value}\n");
+            let config = FluffConfig::try_from_source(&source, None).unwrap();
+            let indentation = config.raw["indentation"].as_map().unwrap();
+            assert_eq!(indentation["implicit_indents"].as_string(), Some(expected));
+            assert!(!indentation.contains_key("allow_implicit_indents"));
+        }
+
+        let mut config = FluffConfig::default();
+        config
+            .process_inline_config("-- sqlfluff:indentation:allow_implicit_indents:true")
+            .unwrap();
+        assert_eq!(
+            config.raw["indentation"]["implicit_indents"].as_string(),
+            Some("allow")
         );
     }
 

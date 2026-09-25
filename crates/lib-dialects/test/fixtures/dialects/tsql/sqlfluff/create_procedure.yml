@@ -7,16 +7,18 @@ file:
       - object_reference:
         - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
+          - keyword: END
         - statement_terminator: ;
-        - keyword: END
-  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -29,16 +31,18 @@ file:
         - dot: .
         - quoted_identifier: '[TEST]'
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
+          - keyword: END
         - statement_terminator: ;
-        - keyword: END
-  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -49,16 +53,18 @@ file:
       - object_reference:
         - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
+          - keyword: END
         - statement_terminator: ;
-        - keyword: END
-  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -69,16 +75,18 @@ file:
       - object_reference:
         - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
+          - keyword: END
         - statement_terminator: ;
-        - keyword: END
-  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -91,16 +99,18 @@ file:
       - object_reference:
         - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
+          - keyword: END
         - statement_terminator: ;
-        - keyword: END
-  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -113,16 +123,18 @@ file:
       - object_reference:
         - quoted_identifier: '[PROCEDURE_NAME]'
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
+          - keyword: END
         - statement_terminator: ;
-        - keyword: END
-  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -138,17 +150,17 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - keyword: UNIQUEIDENTIFIER
         - end_bracket: )
       - keyword: AS
-      - statement:
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
-  - statement_terminator: ;
+      - procedure_statement:
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - integer_literal: '1'
+        - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -164,8 +176,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - keyword: UNIQUEIDENTIFIER
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -173,13 +184,12 @@ file:
         - comma: ','
         - tsql_variable: '@fooReadonly'
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - integer_literal: '42'
-                - end_bracket: )
+          - keyword: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - integer_literal: '42'
+              - end_bracket: )
         - comparison_operator:
           - raw_comparison_operator: =
         - naked_identifier: N
@@ -188,8 +198,7 @@ file:
         - comma: ','
         - tsql_variable: '@bar'
         - data_type:
-          - data_type:
-            - data_type_identifier: BIT
+          - keyword: BIT
         - keyword: VARYING
         - keyword: 'NULL'
         - comparison_operator:
@@ -199,63 +208,66 @@ file:
         - comma: ','
         - tsql_variable: '@output'
         - data_type:
-          - data_type:
-            - data_type_identifier: TINYINT
+          - keyword: TINYINT
         - keyword: OUT
         - end_bracket: )
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - set_segment:
-          - keyword: SET
-          - tsql_variable: '@output'
-          - assignment_operator:
-            - raw_comparison_operator: =
-          - expression:
-            - bracketed:
-              - start_bracket: (
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - set_local_variable_segment:
+              - keyword: SET
+              - tsql_variable: '@output'
+              - assignment_operator:
+                - raw_comparison_operator: =
               - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - select_statement:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - column_reference:
+                            - naked_identifier: tinyint_value
+                      - from_clause:
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression_element:
+                            - table_expression:
+                              - table_reference:
+                                - object_reference:
+                                  - naked_identifier: dbo
+                                  - dot: .
+                                  - naked_identifier: TEST
+                  - end_bracket: )
+          - statement_terminator: ;
+          - statement:
+            - keyword: IF
+            - expression:
+              - parameterized_expression:
+                - tsql_variable: '@id'
+              - keyword: IS
+              - null_literal: 'NULL'
+            - statement:
+              - keyword: BEGIN
+              - statement:
                 - select_statement:
                   - select_clause:
                     - keyword: SELECT
                     - select_clause_element:
-                      - column_reference:
-                        - naked_identifier: tinyint_value
-                  - from_clause:
-                    - keyword: FROM
-                    - from_expression:
-                      - from_expression_element:
-                        - table_expression:
-                          - table_reference:
-                            - object_reference:
-                              - naked_identifier: dbo
-                              - dot: .
-                              - naked_identifier: TEST
-              - end_bracket: )
-        - statement_terminator: ;
-        - keyword: IF
-        - expression:
-          - parameterized_expression:
-            - tsql_variable: '@id'
-          - keyword: IS
-          - null_literal: 'NULL'
-        - statement:
-          - keyword: BEGIN
-          - select_statement:
-            - select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@bar'
-              - comma: ','
-              - select_clause_element:
-                - parameterized_expression:
-                  - tsql_variable: '@fooReadonly'
+                      - parameterized_expression:
+                        - tsql_variable: '@bar'
+                    - comma: ','
+                    - select_clause_element:
+                      - parameterized_expression:
+                        - tsql_variable: '@fooReadonly'
+              - statement_terminator: ;
+              - keyword: END
           - statement_terminator: ;
           - keyword: END
         - statement_terminator: ;
-        - keyword: END
-  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -271,8 +283,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - keyword: UNIQUEIDENTIFIER
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -280,13 +291,12 @@ file:
         - comma: ','
         - tsql_variable: '@bar'
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - integer_literal: '32'
-                - end_bracket: )
+          - keyword: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - integer_literal: '32'
+              - end_bracket: )
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -301,16 +311,18 @@ file:
       - keyword: AS
       - quoted_literal: '''sa'''
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
+          - keyword: END
         - statement_terminator: ;
-        - keyword: END
-  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -326,8 +338,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - keyword: UNIQUEIDENTIFIER
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -335,13 +346,12 @@ file:
         - comma: ','
         - tsql_variable: '@bar'
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - integer_literal: '32'
-                - end_bracket: )
+          - keyword: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - integer_literal: '32'
+              - end_bracket: )
         - keyword: 'NULL'
         - comparison_operator:
           - raw_comparison_operator: =
@@ -358,21 +368,23 @@ file:
       - keyword: FOR
       - keyword: REPLICATION
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - parameterized_expression:
-                - tsql_variable: '@id'
-            - comma: ','
-            - select_clause_element:
-              - parameterized_expression:
-                - tsql_variable: '@bar'
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - parameterized_expression:
+                    - tsql_variable: '@id'
+                - comma: ','
+                - select_clause_element:
+                  - parameterized_expression:
+                    - tsql_variable: '@bar'
+          - statement_terminator: ;
+          - keyword: END
         - statement_terminator: ;
-        - keyword: END
-  - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -390,8 +402,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
+          - keyword: INT
         - keyword: NOT
         - keyword: 'NULL'
         - end_bracket: )
@@ -404,48 +415,50 @@ file:
       - keyword: AS
       - keyword: OWNER
       - keyword: AS
-      - keyword: BEGIN
-      - keyword: ATOMIC
-      - keyword: WITH
-      - bracketed:
-        - start_bracket: (
-        - keyword: LANGUAGE
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: N
-        - quoted_literal: '''us_english'''
-        - comma: ','
-        - keyword: TRANSACTION
-        - keyword: ISOLATION
-        - keyword: LEVEL
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: SERIALIZABLE
-        - comma: ','
-        - keyword: DATEFIRST
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - numeric_literal: '10'
-        - comma: ','
-        - keyword: DATEFORMAT
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: dym
-        - comma: ','
-        - keyword: DELAYED_DURABILITY
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - keyword: ON
-        - end_bracket: )
-      - statement:
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
-      - statement_terminator: ;
-      - keyword: END
-  - statement_terminator: ;
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - keyword: ATOMIC
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: LANGUAGE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - naked_identifier: N
+            - quoted_literal: '''us_english'''
+            - comma: ','
+            - keyword: TRANSACTION
+            - keyword: ISOLATION
+            - keyword: LEVEL
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - naked_identifier: SERIALIZABLE
+            - comma: ','
+            - keyword: DATEFIRST
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '10'
+            - comma: ','
+            - keyword: DATEFORMAT
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - naked_identifier: dym
+            - comma: ','
+            - keyword: DELAYED_DURABILITY
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - keyword: ON
+            - end_bracket: )
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -463,8 +476,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
+          - keyword: INT
         - keyword: NOT
         - keyword: 'NULL'
         - end_bracket: )
@@ -477,32 +489,34 @@ file:
       - keyword: AS
       - keyword: OWNER
       - keyword: AS
-      - keyword: BEGIN
-      - keyword: ATOMIC
-      - keyword: WITH
-      - bracketed:
-        - start_bracket: (
-        - keyword: TRANSACTION
-        - keyword: ISOLATION
-        - keyword: LEVEL
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: SNAPSHOT
-        - comma: ','
-        - keyword: LANGUAGE
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - quoted_literal: '''us_english'''
-        - end_bracket: )
-      - statement:
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
-      - statement_terminator: ;
-      - keyword: END
-  - statement_terminator: ;
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - keyword: ATOMIC
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: TRANSACTION
+            - keyword: ISOLATION
+            - keyword: LEVEL
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - naked_identifier: SNAPSHOT
+            - comma: ','
+            - keyword: LANGUAGE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - quoted_literal: '''us_english'''
+            - end_bracket: )
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -520,8 +534,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: INT
+          - keyword: INT
         - keyword: NOT
         - keyword: 'NULL'
         - end_bracket: )
@@ -534,44 +547,46 @@ file:
       - keyword: AS
       - keyword: OWNER
       - keyword: AS
-      - keyword: BEGIN
-      - keyword: ATOMIC
-      - keyword: WITH
-      - bracketed:
-        - start_bracket: (
-        - keyword: TRANSACTION
-        - keyword: ISOLATION
-        - keyword: LEVEL
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - keyword: REPEATABLE
-        - keyword: READ
-        - comma: ','
-        - keyword: LANGUAGE
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: N
-        - quoted_literal: '''us_english'''
-        - comma: ','
-        - keyword: DELAYED_DURABILITY
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - keyword: OFF
-        - comma: ','
-        - keyword: DATEFORMAT
-        - comparison_operator:
-          - raw_comparison_operator: =
-        - naked_identifier: myd
-        - end_bracket: )
-      - statement:
-        - select_statement:
-          - select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-              - integer_literal: '1'
-      - statement_terminator: ;
-      - keyword: END
-  - statement_terminator: ;
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - keyword: ATOMIC
+          - keyword: WITH
+          - bracketed:
+            - start_bracket: (
+            - keyword: TRANSACTION
+            - keyword: ISOLATION
+            - keyword: LEVEL
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - keyword: REPEATABLE
+            - keyword: READ
+            - comma: ','
+            - keyword: LANGUAGE
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - naked_identifier: N
+            - quoted_literal: '''us_english'''
+            - comma: ','
+            - keyword: DELAYED_DURABILITY
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - keyword: OFF
+            - comma: ','
+            - keyword: DATEFORMAT
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - naked_identifier: myd
+            - end_bracket: )
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - integer_literal: '1'
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
   - go_statement:
     - keyword: GO
 - batch:
@@ -584,14 +599,15 @@ file:
         - dot: .
         - quoted_identifier: '[TEST]'
       - keyword: AS
-      - keyword: EXTERNAL
-      - keyword: NAME
-      - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[class_name]'
-        - dot: .
-        - quoted_identifier: '[static_method]'
+      - procedure_statement:
+        - keyword: EXTERNAL
+        - keyword: NAME
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[class_name]'
+          - dot: .
+          - quoted_identifier: '[static_method]'
   - statement_terminator: ;
   - go_statement:
     - keyword: GO
@@ -607,14 +623,15 @@ file:
       - statement_terminator: ;
       - numeric_literal: '1064'
       - keyword: AS
-      - keyword: EXTERNAL
-      - keyword: NAME
-      - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[class_name]'
-        - dot: .
-        - quoted_identifier: '[static_method]'
+      - procedure_statement:
+        - keyword: EXTERNAL
+        - keyword: NAME
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[class_name]'
+          - dot: .
+          - quoted_identifier: '[static_method]'
   - statement_terminator: ;
   - go_statement:
     - keyword: GO
@@ -633,8 +650,7 @@ file:
         - start_bracket: (
         - tsql_variable: '@id'
         - data_type:
-          - data_type:
-            - data_type_identifier: UNIQUEIDENTIFIER
+          - keyword: UNIQUEIDENTIFIER
         - comparison_operator:
           - raw_comparison_operator: =
         - function:
@@ -647,19 +663,17 @@ file:
         - comma: ','
         - tsql_variable: '@output'
         - data_type:
-          - data_type:
-            - data_type_identifier: NVARCHAR
-            - bracketed_arguments:
-              - bracketed:
-                - start_bracket: (
-                - integer_literal: '32'
-                - end_bracket: )
+          - keyword: NVARCHAR
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - integer_literal: '32'
+              - end_bracket: )
         - keyword: OUTPUT
         - comma: ','
         - tsql_variable: '@activated'
         - data_type:
-          - data_type:
-            - data_type_identifier: BIT
+          - keyword: BIT
         - keyword: OUT
         - keyword: READONLY
         - end_bracket: )
@@ -668,14 +682,15 @@ file:
       - keyword: AS
       - quoted_literal: '''sa'''
       - keyword: AS
-      - keyword: EXTERNAL
-      - keyword: NAME
-      - object_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[class_name]'
-        - dot: .
-        - quoted_identifier: '[static_method]'
+      - procedure_statement:
+        - keyword: EXTERNAL
+        - keyword: NAME
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[class_name]'
+          - dot: .
+          - quoted_identifier: '[static_method]'
   - statement_terminator: ;
   - go_statement:
     - keyword: GO
@@ -691,19 +706,22 @@ file:
         - dot: .
         - naked_identifier: DoSomething
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - set_segment:
-          - keyword: SET
-          - keyword: NOCOUNT
-          - keyword: ON
-        - statement_terminator: ;
-        - set_segment:
-          - keyword: SET
-          - keyword: XACT_ABORT
-          - keyword: ON
-        - statement_terminator: ;
-        - keyword: END
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - keyword: NOCOUNT
+              - keyword: ON
+          - statement_terminator: ;
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - keyword: XACT_ABORT
+              - keyword: ON
+          - statement_terminator: ;
+          - keyword: END
   - go_statement:
     - keyword: GO
 - batch:
@@ -718,15 +736,17 @@ file:
         - dot: .
         - naked_identifier: DoSomething
       - keyword: AS
-      - statement:
-        - keyword: BEGIN
-        - set_segment:
-          - keyword: SET
-          - keyword: NOCOUNT
-          - comma: ','
-          - keyword: XACT_ABORT
-          - keyword: ON
-        - statement_terminator: ;
-        - keyword: END
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - set_segment:
+              - keyword: SET
+              - keyword: NOCOUNT
+              - comma: ','
+              - keyword: XACT_ABORT
+              - keyword: ON
+          - statement_terminator: ;
+          - keyword: END
   - go_statement:
     - keyword: GO

@@ -1,0 +1,95 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_create_trigger_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: example_trigger
+      - keyword: BEFORE
+      - dml_event_clause:
+        - keyword: INSERT
+        - keyword: OR
+        - keyword: UPDATE
+        - keyword: ON
+        - oracle_table_reference:
+          - naked_identifier: example_table
+      - keyword: FOR
+      - keyword: EACH
+      - keyword: ROW
+      - statement:
+        - oracle_begin_end_block:
+          - keyword: BEGIN
+          - statement:
+            - assignment_segment_statement:
+              - oracle_bind_variable:
+                - colon_delimiter: ':'
+                - trigger_correlation_name:
+                  - keyword: NEW
+                - dot: .
+                - naked_identifier: column_name
+              - oracle_assignment_operator: :=
+              - expression:
+                - oracle_bind_variable:
+                  - colon_delimiter: ':'
+                  - trigger_correlation_name:
+                    - keyword: OLD
+                  - dot: .
+                  - naked_identifier: column_name
+          - statement_terminator: ;
+          - statement:
+            - oracle_if_then_statement:
+              - oracle_if_clause:
+                - keyword: IF
+                - expression:
+                  - oracle_bind_variable:
+                    - colon_delimiter: ':'
+                    - trigger_correlation_name:
+                      - keyword: NEW
+                    - dot: .
+                    - naked_identifier: val
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                  - oracle_bind_variable:
+                    - colon_delimiter: ':'
+                    - trigger_correlation_name:
+                      - keyword: OLD
+                    - dot: .
+                    - naked_identifier: val
+                - keyword: THEN
+              - statement:
+                - assignment_segment_statement:
+                  - oracle_bind_variable:
+                    - colon_delimiter: ':'
+                    - trigger_correlation_name:
+                      - keyword: NEW
+                    - dot: .
+                    - naked_identifier: status
+                  - oracle_assignment_operator: :=
+                  - expression:
+                    - quoted_literal: '''changed'''
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - statement:
+            - assignment_segment_statement:
+              - oracle_bind_variable:
+                - colon_delimiter: ':'
+                - trigger_correlation_name:
+                  - keyword: NEW
+                - dot: .
+                - naked_identifier: parent_val
+              - oracle_assignment_operator: :=
+              - expression:
+                - oracle_bind_variable:
+                  - colon_delimiter: ':'
+                  - trigger_correlation_name:
+                    - keyword: PARENT
+                  - dot: .
+                  - naked_identifier: val
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;

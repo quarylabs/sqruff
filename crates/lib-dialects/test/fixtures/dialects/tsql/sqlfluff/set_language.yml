@@ -1,0 +1,26 @@
+file:
+- batch:
+  - statement:
+    - set_language_statement:
+      - keyword: SET
+      - keyword: LANGUAGE
+      - naked_identifier: us_english
+  - statement_terminator: ;
+  - statement:
+    - set_language_statement:
+      - keyword: SET
+      - keyword: LANGUAGE
+      - quoted_literal: '''us_english'''
+  - statement_terminator: ;
+  - statement:
+    - set_language_statement:
+      - keyword: SET
+      - keyword: LANGUAGE
+      - quoted_identifier: '[us_english]'
+  - statement_terminator: ;
+  - statement:
+    - set_language_statement:
+      - keyword: SET
+      - keyword: LANGUAGE
+      - naked_identifier: British
+  - statement_terminator: ;

@@ -1,137 +1,189 @@
 file:
 - statement:
   - access_statement:
-    - keyword: GRANT
-    - keyword: INSERT
-    - keyword: ON
-    - object_reference:
-      - naked_identifier: my_table
-    - comma: ','
-    - object_reference:
-      - naked_identifier: my_table2
-    - keyword: TO
-    - role_reference:
-      - naked_identifier: public
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: INSERT
+      - keyword: ON
+      - access_object:
+        - object_reference:
+          - naked_identifier: my_table
+        - comma: ','
+        - object_reference:
+          - naked_identifier: my_table2
+      - keyword: TO
+      - access_target:
+        - role_reference:
+          - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - access_statement:
-    - keyword: GRANT
-    - keyword: INSERT
-    - keyword: ON
-    - object_reference:
-      - naked_identifier: my_table
-    - comma: ','
-    - object_reference:
-      - naked_identifier: my_table2
-    - keyword: TO
-    - role_reference:
-      - quoted_identifier: '"public"'
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: INSERT
+      - keyword: ON
+      - access_object:
+        - object_reference:
+          - naked_identifier: my_table
+        - comma: ','
+        - object_reference:
+          - naked_identifier: my_table2
+      - keyword: TO
+      - access_target:
+        - role_reference:
+          - quoted_identifier: '"public"'
 - statement_terminator: ;
 - statement:
   - access_statement:
-    - keyword: GRANT
-    - keyword: INSERT
-    - comma: ','
-    - keyword: UPDATE
-    - keyword: ON
-    - object_reference:
-      - naked_identifier: my_table
-    - comma: ','
-    - object_reference:
-      - naked_identifier: my_table2
-    - keyword: TO
-    - role_reference:
-      - naked_identifier: public
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: INSERT
+        - comma: ','
+        - access_permission:
+          - keyword: UPDATE
+      - keyword: ON
+      - access_object:
+        - object_reference:
+          - naked_identifier: my_table
+        - comma: ','
+        - object_reference:
+          - naked_identifier: my_table2
+      - keyword: TO
+      - access_target:
+        - role_reference:
+          - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - access_statement:
-    - keyword: GRANT
-    - keyword: INSERT
-    - comma: ','
-    - keyword: UPDATE
-    - keyword: ON
-    - object_reference:
-      - naked_identifier: my_table
-    - comma: ','
-    - object_reference:
-      - naked_identifier: my_table2
-    - keyword: TO
-    - role_reference:
-      - quoted_identifier: '"public"'
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: INSERT
+        - comma: ','
+        - access_permission:
+          - keyword: UPDATE
+      - keyword: ON
+      - access_object:
+        - object_reference:
+          - naked_identifier: my_table
+        - comma: ','
+        - object_reference:
+          - naked_identifier: my_table2
+      - keyword: TO
+      - access_target:
+        - role_reference:
+          - quoted_identifier: '"public"'
 - statement_terminator: ;
 - statement:
   - access_statement:
-    - keyword: GRANT
-    - keyword: INSERT
-    - comma: ','
-    - keyword: UPDATE
-    - comma: ','
-    - keyword: DELETE
-    - keyword: ON
-    - object_reference:
-      - naked_identifier: my_table
-    - comma: ','
-    - object_reference:
-      - naked_identifier: my_table2
-    - keyword: TO
-    - role_reference:
-      - naked_identifier: public
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: INSERT
+        - comma: ','
+        - access_permission:
+          - keyword: UPDATE
+        - comma: ','
+        - access_permission:
+          - keyword: DELETE
+      - keyword: ON
+      - access_object:
+        - object_reference:
+          - naked_identifier: my_table
+        - comma: ','
+        - object_reference:
+          - naked_identifier: my_table2
+      - keyword: TO
+      - access_target:
+        - role_reference:
+          - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - access_statement:
-    - keyword: GRANT
-    - keyword: INSERT
-    - comma: ','
-    - keyword: UPDATE
-    - comma: ','
-    - keyword: DELETE
-    - keyword: ON
-    - object_reference:
-      - naked_identifier: my_table
-    - comma: ','
-    - object_reference:
-      - naked_identifier: my_table2
-    - keyword: TO
-    - role_reference:
-      - quoted_identifier: '"public"'
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: INSERT
+        - comma: ','
+        - access_permission:
+          - keyword: UPDATE
+        - comma: ','
+        - access_permission:
+          - keyword: DELETE
+      - keyword: ON
+      - access_object:
+        - object_reference:
+          - naked_identifier: my_table
+        - comma: ','
+        - object_reference:
+          - naked_identifier: my_table2
+      - keyword: TO
+      - access_target:
+        - role_reference:
+          - quoted_identifier: '"public"'
 - statement_terminator: ;
 - statement:
   - access_statement:
-    - keyword: GRANT
-    - keyword: INSERT
-    - comma: ','
-    - keyword: UPDATE
-    - comma: ','
-    - keyword: DELETE
-    - comma: ','
-    - keyword: SELECT
-    - keyword: ON
-    - object_reference:
-      - naked_identifier: my_table
-    - comma: ','
-    - object_reference:
-      - naked_identifier: my_table2
-    - keyword: TO
-    - role_reference:
-      - naked_identifier: public
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: INSERT
+        - comma: ','
+        - access_permission:
+          - keyword: UPDATE
+        - comma: ','
+        - access_permission:
+          - keyword: DELETE
+        - comma: ','
+        - access_permission:
+          - keyword: SELECT
+      - keyword: ON
+      - access_object:
+        - object_reference:
+          - naked_identifier: my_table
+        - comma: ','
+        - object_reference:
+          - naked_identifier: my_table2
+      - keyword: TO
+      - access_target:
+        - role_reference:
+          - naked_identifier: public
 - statement_terminator: ;
 - statement:
   - access_statement:
-    - keyword: GRANT
-    - keyword: INSERT
-    - comma: ','
-    - keyword: UPDATE
-    - comma: ','
-    - keyword: DELETE
-    - comma: ','
-    - keyword: SELECT
-    - keyword: ON
-    - object_reference:
-      - naked_identifier: my_table
-    - comma: ','
-    - object_reference:
-      - naked_identifier: my_table2
-    - keyword: TO
-    - role_reference:
-      - quoted_identifier: '"public"'
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: INSERT
+        - comma: ','
+        - access_permission:
+          - keyword: UPDATE
+        - comma: ','
+        - access_permission:
+          - keyword: DELETE
+        - comma: ','
+        - access_permission:
+          - keyword: SELECT
+      - keyword: ON
+      - access_object:
+        - object_reference:
+          - naked_identifier: my_table
+        - comma: ','
+        - object_reference:
+          - naked_identifier: my_table2
+      - keyword: TO
+      - access_target:
+        - role_reference:
+          - quoted_identifier: '"public"'
 - statement_terminator: ;

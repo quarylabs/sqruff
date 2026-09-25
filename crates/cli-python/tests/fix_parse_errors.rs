@@ -16,11 +16,7 @@ fn parse_errors() {
     // STDIN - do nothing
     let mut cmd = Command::new(sqruff_path.clone());
     cmd.env("HOME", PathBuf::from(common::manifest_dir()));
-    cmd.arg("fix")
-        .arg("-f")
-        .arg("human")
-        .arg("--parsing-errors")
-        .arg("-");
+    cmd.arg("fix").arg("-f").arg("human").arg("-");
     cmd.current_dir(cargo_folder);
     cmd.write_stdin("SelEc");
 

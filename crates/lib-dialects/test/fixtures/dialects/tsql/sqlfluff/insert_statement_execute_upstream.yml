@@ -16,9 +16,10 @@ file:
         - end_bracket: )
       - output_clause:
         - keyword: OUTPUT
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
+        - keyword: INSERTED
+        - dot: .
+        - wildcard_identifier:
+          - star: '*'
         - keyword: INTO
         - table_reference:
           - object_reference:

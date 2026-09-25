@@ -703,8 +703,8 @@ file:
   - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: bar
+    - data_type:
+      - data_type_identifier: bar
     - keyword: AS
     - keyword: ENUM
     - bracketed:
@@ -732,10 +732,10 @@ file:
   - create_type_statement:
     - keyword: create
     - keyword: type
-    - object_reference:
+    - data_type:
       - naked_identifier: public
       - dot: .
-      - naked_identifier: c
+      - data_type_identifier: c
     - keyword: AS
     - keyword: ENUM
     - bracketed:

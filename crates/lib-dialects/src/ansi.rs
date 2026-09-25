@@ -1394,15 +1394,22 @@ pub fn raw_dialect() -> Dialect {
         (
             "FileSegment".into(),
             NodeMatcher::new(SyntaxKind::File, |_| {
-                Delimited::new(vec![Ref::new("StatementSegment").to_matchable()])
-                    .config(|this| {
-                        this.allow_trailing();
-                        this.delimiter(
-                            AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
-                                .config(|config| config.min_times(1)),
-                        );
-                    })
-                    .to_matchable()
+                Sequence::new(vec![
+                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                        .to_matchable(),
+                    Delimited::new(vec![Ref::new("StatementSegment").to_matchable()])
+                        .config(|this| {
+                            this.allow_trailing();
+                            this.delimiter(
+                                AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                                    .config(|config| config.min_times(1)),
+                            );
+                        })
+                        .to_matchable(),
+                    AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
             })
             .to_matchable()
             .into(),
@@ -1876,6 +1883,14 @@ pub fn raw_dialect() -> Dialect {
         (
             "RoleReferenceSegment".into(),
             NodeMatcher::new(SyntaxKind::RoleReference, |_| {
+                Ref::new("SingleIdentifierGrammar").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UserReferenceSegment".into(),
+            NodeMatcher::new(SyntaxKind::UserReference, |_| {
                 Ref::new("SingleIdentifierGrammar").to_matchable()
             })
             .to_matchable()
@@ -3386,119 +3401,70 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "AccessSchemaObjectSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessSchemaObject, |_| {
+                access_schema_object_segment()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AccessSchemaPluralObjectSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessSchemaPluralObject, |_| {
+                access_schema_plural_object_segment()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AccessObjectSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessObject, |_| access_object_segment())
+                .to_matchable()
+                .into(),
+        ),
+        (
             "AccessPermissionSegment".into(),
-            access_permission_segment().into(),
+            NodeMatcher::new(SyntaxKind::AccessPermission, |_| {
+                access_permission_segment()
+            })
+            .to_matchable()
+            .into(),
         ),
-        ("AccessObjectSegment".into(), access_object_segment().into()),
         (
-            "AccessGranteeSegment".into(),
-            access_grantee_segment().into(),
+            "AccessPermissionsSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessPermissions, |_| {
+                Delimited::new(vec![Ref::new("AccessPermissionSegment").to_matchable()])
+                    .config(|this| this.terminators = vec![Ref::keyword("ON").to_matchable()])
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
-            "AccessRevokeeSegment".into(),
-            access_revokee_segment().into(),
+            "AccessTargetSegment".into(),
+            NodeMatcher::new(SyntaxKind::AccessTarget, |_| access_target_segment())
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "GrantStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::GrantStatement, |_| grant_statement_segment())
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "RevokeStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::RevokeStatement, |_| revoke_statement_segment())
+                .to_matchable()
+                .into(),
         ),
         (
             "AccessStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::AccessStatement, |_| {
-                {
-                    let permissions = Ref::new("AccessPermissionSegment");
-                    let objects = Ref::new("AccessObjectSegment");
-                    let grantees = Ref::new("AccessGranteeSegment");
-                    let revokees = Ref::new("AccessRevokeeSegment");
-
-                    one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("GRANT").to_matchable(),
-                            one_of(vec![
-                                Sequence::new(vec![
-                                    Delimited::new(vec![permissions.clone().to_matchable()])
-                                        .config(|this| {
-                                            this.terminators =
-                                                vec![Ref::keyword("ON").to_matchable()]
-                                        })
-                                        .to_matchable(),
-                                    Ref::keyword("ON").to_matchable(),
-                                    objects.clone().to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("ROLE").to_matchable(),
-                                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("OWNERSHIP").to_matchable(),
-                                    Ref::keyword("ON").to_matchable(),
-                                    Ref::keyword("USER").to_matchable(),
-                                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::new("ObjectReferenceSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("TO").to_matchable(),
-                            grantees.clone().to_matchable(),
-                            Ref::new("AccessStatementSegmentGrantRoleWithOptionGrammar")
-                                .optional()
-                                .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("GRANTED").to_matchable(),
-                                Ref::keyword("BY").to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("CURRENT_USER").to_matchable(),
-                                    Ref::keyword("SESSION_USER").to_matchable(),
-                                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("REVOKE").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("GRANT").to_matchable(),
-                                Ref::keyword("OPTION").to_matchable(),
-                                Ref::keyword("FOR").to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
-                            one_of(vec![
-                                Sequence::new(vec![
-                                    Delimited::new(vec![permissions.to_matchable()])
-                                        .config(|this| {
-                                            this.terminators =
-                                                vec![Ref::keyword("ON").to_matchable()]
-                                        })
-                                        .to_matchable(),
-                                    Ref::keyword("ON").to_matchable(),
-                                    objects.to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("ROLE").to_matchable(),
-                                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("OWNERSHIP").to_matchable(),
-                                    Ref::keyword("ON").to_matchable(),
-                                    Ref::keyword("USER").to_matchable(),
-                                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::new("ObjectReferenceSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("FROM").to_matchable(),
-                            revokees.to_matchable(),
-                            Ref::new("DropBehaviorGrammar").optional().to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                }
+                one_of(vec![
+                    Ref::new("GrantStatementSegment").to_matchable(),
+                    Ref::new("RevokeStatementSegment").to_matchable(),
+                ])
                 .to_matchable()
             })
             .to_matchable()
@@ -4920,6 +4886,23 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "QuantifiedComparisonOperatorGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("ComparisonOperatorGrammar").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Ref::keyword("ANY").to_matchable(),
+                    Ref::keyword("SOME").to_matchable(),
+                ])
+                .to_matchable(),
+                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+                    .config(|this| this.parse_mode(ParseMode::Greedy))
+                    .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             // Expression_A_Grammar
             // https://www.cockroachlabs.com/docs/v20.2/sql-grammar.html#a_expr
             // The upstream grammar is defined recursively, which if implemented naively
@@ -4969,6 +4952,10 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec![
                         // Like grammar with NOT and optional ESCAPE
                         Ref::new("LikeExpressionGrammar").to_matchable(),
+                        // Quantified comparison operators (ANY, ALL, SOME). This must
+                        // precede the binary-operator alternative because sqruff keeps
+                        // the first alternative when both consume the same span.
+                        Ref::new("QuantifiedComparisonOperatorGrammar").to_matchable(),
                         // Binary operator grammar
                         Sequence::new(vec![
                             Ref::new("BinaryOperatorGrammar").to_matchable(),
@@ -5537,42 +5524,36 @@ pub fn statement_segment() -> Matchable {
     .to_matchable()
 }
 
-fn access_grantee_segment() -> Matchable {
-    Sequence::new(vec![
-        access_principal_kind_prefix(),
-        Delimited::new(vec![
-            one_of(vec![
-                Ref::new("RoleReferenceSegment").to_matchable(),
-                Ref::new("FunctionSegment").to_matchable(),
-                Ref::keyword("PUBLIC").to_matchable(),
-            ])
-            .to_matchable(),
+fn access_target_segment() -> Matchable {
+    one_of(vec![
+        Sequence::new(vec![
+            Ref::keyword("GROUP").to_matchable(),
+            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()]).to_matchable(),
         ])
         .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("USER").to_matchable(),
+            Delimited::new(vec![Ref::new("UserReferenceSegment").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("ROLE").to_matchable(),
+            Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("SHARE").to_matchable(),
+            Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable(),
+        Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()]).to_matchable(),
+        Delimited::new(vec![Ref::new("FunctionSegment").to_matchable()]).to_matchable(),
+        Ref::keyword("PUBLIC").to_matchable(),
     ])
     .to_matchable()
 }
 
-fn access_revokee_segment() -> Matchable {
-    Sequence::new(vec![
-        access_principal_kind_prefix(),
-        Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()]).to_matchable(),
-    ])
-    .to_matchable()
-}
-
-fn access_principal_kind_prefix() -> Matchable {
-    one_of(vec![
-        Ref::keyword("GROUP").to_matchable(),
-        Ref::keyword("USER").to_matchable(),
-        Ref::keyword("ROLE").to_matchable(),
-        Ref::keyword("SHARE").to_matchable(),
-    ])
-    .config(|this| this.optional())
-    .to_matchable()
-}
-
-fn schema_object_types() -> Matchable {
+fn access_schema_object_segment() -> Matchable {
     one_of(vec![
         Ref::keyword("TABLE").to_matchable(),
         Ref::keyword("VIEW").to_matchable(),
@@ -5583,6 +5564,63 @@ fn schema_object_types() -> Matchable {
         Ref::keyword("SEQUENCE").to_matchable(),
         Ref::keyword("STREAM").to_matchable(),
         Ref::keyword("TASK").to_matchable(),
+        Ref::keyword("SCHEMA").to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("MASKING").to_matchable(),
+            Ref::keyword("POLICY").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("MATERIALIZED").to_matchable(),
+            Ref::keyword("VIEW").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("EXTERNAL").to_matchable(),
+            Ref::keyword("TABLE").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("FILE").to_matchable(),
+            Ref::keyword("FORMAT").to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable()
+}
+
+fn access_schema_plural_object_segment() -> Matchable {
+    one_of(vec![
+        Ref::keyword("TABLES").to_matchable(),
+        Ref::keyword("VIEWS").to_matchable(),
+        Ref::keyword("STAGES").to_matchable(),
+        Ref::keyword("FUNCTIONS").to_matchable(),
+        Ref::keyword("PROCEDURES").to_matchable(),
+        Ref::keyword("ROUTINES").to_matchable(),
+        Ref::keyword("SEQUENCES").to_matchable(),
+        Ref::keyword("STREAMS").to_matchable(),
+        Ref::keyword("TASKS").to_matchable(),
+        Ref::keyword("SCHEMAS").to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("MASKING").to_matchable(),
+            Ref::keyword("POLICIES").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("MATERIALIZED").to_matchable(),
+            Ref::keyword("VIEWS").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("EXTERNAL").to_matchable(),
+            Ref::keyword("TABLES").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("FILE").to_matchable(),
+            Ref::keyword("FORMATS").to_matchable(),
+        ])
+        .to_matchable(),
     ])
     .to_matchable()
 }
@@ -5638,7 +5676,16 @@ fn access_permission_segment() -> Matchable {
                         ])
                         .to_matchable(),
                         Ref::keyword("PIPE").to_matchable(),
-                        schema_object_types(),
+                        Ref::new("AccessSchemaObjectSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("USE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("SCHEMA").to_matchable(),
+                        Ref::keyword("CATALOG").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -5702,6 +5749,7 @@ fn access_object_segment() -> Matchable {
                 Ref::keyword("INTEGRATION").to_matchable(),
                 Ref::keyword("LANGUAGE").to_matchable(),
                 Ref::keyword("SCHEMA").to_matchable(),
+                Ref::keyword("CATALOG").to_matchable(),
                 Ref::keyword("ROLE").to_matchable(),
                 Ref::keyword("TABLESPACE").to_matchable(),
                 Ref::keyword("TYPE").to_matchable(),
@@ -5732,27 +5780,17 @@ fn access_object_segment() -> Matchable {
                     Ref::keyword("DATABASE").to_matchable(),
                 ])
                 .to_matchable(),
-                schema_object_types(),
+                Ref::new("AccessSchemaObjectSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("ALL").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("TABLES").to_matchable(),
-                        Ref::keyword("VIEWS").to_matchable(),
-                        Ref::keyword("STAGES").to_matchable(),
-                        Ref::keyword("FUNCTIONS").to_matchable(),
-                        Ref::keyword("PROCEDURES").to_matchable(),
-                        Ref::keyword("ROUTINES").to_matchable(),
-                        Ref::keyword("SEQUENCES").to_matchable(),
-                        Ref::keyword("STREAMS").to_matchable(),
-                        Ref::keyword("TASKS").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("AccessSchemaPluralObjectSegment").to_matchable(),
                     Ref::keyword("IN").to_matchable(),
                     Ref::keyword("SCHEMA").to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("FUTURE").to_matchable(),
+                    Ref::new("AccessSchemaPluralObjectSegment").to_matchable(),
                     Ref::keyword("IN").to_matchable(),
                     one_of(vec![
                         Ref::keyword("DATABASE").to_matchable(),
@@ -5793,11 +5831,96 @@ fn access_object_segment() -> Matchable {
     .to_matchable()
 }
 
+fn grant_statement_segment() -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword("GRANT").to_matchable(),
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::new("AccessPermissionsSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::new("AccessObjectSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ROLE").to_matchable(),
+                Ref::new("RoleReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("OWNERSHIP").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("USER").to_matchable(),
+                Ref::new("UserReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("ObjectReferenceSegment").to_matchable(),
+        ])
+        .to_matchable(),
+        Ref::keyword("TO").to_matchable(),
+        Ref::new("AccessTargetSegment").to_matchable(),
+        Ref::new("AccessStatementSegmentGrantRoleWithOptionGrammar")
+            .optional()
+            .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("GRANTED").to_matchable(),
+            Ref::keyword("BY").to_matchable(),
+            one_of(vec![
+                Ref::keyword("CURRENT_USER").to_matchable(),
+                Ref::keyword("SESSION_USER").to_matchable(),
+                Ref::new("UserReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+    ])
+    .to_matchable()
+}
+
+fn revoke_statement_segment() -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword("REVOKE").to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("GRANT").to_matchable(),
+            Ref::keyword("OPTION").to_matchable(),
+            Ref::keyword("FOR").to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::new("AccessPermissionsSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::new("AccessObjectSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ROLE").to_matchable(),
+                Ref::new("RoleReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("OWNERSHIP").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::keyword("USER").to_matchable(),
+                Ref::new("UserReferenceSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("UserReferenceSegment").to_matchable(),
+        ])
+        .to_matchable(),
+        Ref::keyword("FROM").to_matchable(),
+        Ref::new("AccessTargetSegment").to_matchable(),
+        Ref::new("DropBehaviorGrammar").optional().to_matchable(),
+    ])
+    .to_matchable()
+}
+
 pub fn wildcard_expression_segment() -> Matchable {
     Sequence::new(vec![Ref::new("WildcardIdentifierSegment").to_matchable()]).to_matchable()
 }
 
-fn numeric_literal(cursor: &mut Cursor) -> bool {
+pub(super) fn numeric_literal(cursor: &mut Cursor) -> bool {
     let first_char = cursor.shift();
     match first_char {
         '0'..='9' | '.' => {

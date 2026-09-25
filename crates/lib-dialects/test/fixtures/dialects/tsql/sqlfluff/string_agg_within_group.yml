@@ -260,7 +260,7 @@ file:
                             - naked_identifier: ProductID
                         - keyword: AS
                         - data_type:
-                          - data_type_identifier: VARCHAR
+                          - keyword: VARCHAR
                           - bracketed_arguments:
                             - bracketed:
                               - start_bracket: (

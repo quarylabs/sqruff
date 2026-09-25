@@ -65,6 +65,11 @@ FROM foo
             return Vec::new();
         }
 
+        // T-SQL SELECT variable assignments do not produce unnamed output columns.
+        if children.any_match(|it| it.get_type() == SyntaxKind::SelectVariableAssignment) {
+            return Vec::new();
+        }
+
         // Ignore if it's a function with EMITS clause as EMITS is equivalent to AS
         let functions = children.filter(|sp: &ErasedSegment| sp.is_type(SyntaxKind::Function));
         if !functions

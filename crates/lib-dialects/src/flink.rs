@@ -470,6 +470,24 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
     flink.add([(
+        "SetStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SetStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    flink.add([(
         "UseStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::UseStatement, |_| {
             one_of(vec![
@@ -629,6 +647,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("CreateDatabaseStatementSegment").to_matchable(),
                     Ref::new("DescribeStatementSegment").to_matchable(),
                     Ref::new("ShowStatementsSegment").to_matchable(),
+                    Ref::new("SetStatementSegment").to_matchable(),
                 ]),
                 None,
                 None,

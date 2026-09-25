@@ -787,6 +787,133 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    dialect.replace_grammar(
+        "AlterTableStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("ALTER").to_matchable(),
+            Ref::keyword("TABLE").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            one_of(vec![
+                // Inherit ANSI options.
+                Delimited::new(vec![Ref::new("AlterTableOptionsGrammar").to_matchable()])
+                    .to_matchable(),
+                // ADD COLUMNS.
+                Sequence::new(vec![
+                    Ref::new("PartitionSpecGrammar").optional().to_matchable(),
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("COLUMNS").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnDefinitionSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                // ADD PARTITION.
+                Sequence::new(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("PartitionSpecGrammar").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("LOCATION").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .config(|config| config.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| config.min_times = 1)
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                // CHANGE COLUMN.
+                Sequence::new(vec![
+                    Ref::keyword("CHANGE").to_matchable(),
+                    Ref::keyword("COLUMN").optional().to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COMMENT").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("FIRST").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AFTER").to_matchable(),
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                // DROP PARTITION.
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Delimited::new(vec![Ref::new("PartitionSpecGrammar").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                // RENAME PARTITION.
+                Sequence::new(vec![
+                    Ref::new("PartitionSpecGrammar").to_matchable(),
+                    Ref::keyword("RENAME").to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    Ref::new("PartitionSpecGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                // REPLACE COLUMNS.
+                Sequence::new(vec![
+                    Ref::new("PartitionSpecGrammar").optional().to_matchable(),
+                    Ref::keyword("REPLACE").to_matchable(),
+                    Ref::keyword("COLUMNS").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnDefinitionSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                // SET LOCATION.
+                Sequence::new(vec![
+                    Ref::new("PartitionSpecGrammar").optional().to_matchable(),
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::keyword("LOCATION").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                // SET TBLPROPERTIES.
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::keyword("TBLPROPERTIES").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     dialect.add([
         (
             "CreateTableStatementSegment".into(),

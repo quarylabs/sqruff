@@ -121,6 +121,7 @@ fn build_comparison_operator_grammar() -> Matchable {
         Ref::new("PostgisOperatorSegment").to_matchable(),
         Ref::new("PgvectorOperatorSegment").to_matchable(),
         Ref::new("PgTrgmOperatorSegment").to_matchable(),
+        Ref::new("QualifiedOperatorSegment").to_matchable(),
     ];
 
     one_of(operators).to_matchable()
@@ -543,7 +544,17 @@ pub fn raw_dialect() -> Dialect {
             SyntaxKind::SingleQuote,
         ),
         Matcher::regex("double_quote", r#"(?s)".+?""#, SyntaxKind::DoubleQuote),
-        Matcher::regex("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", SyntaxKind::Word),
+        Matcher::regex("word", r"[\p{L}_][\p{L}\p{N}_$]*", SyntaxKind::Word),
+        Matcher::legacy(
+            "numeric_literal",
+            |s| {
+                s.as_bytes()
+                    .first()
+                    .is_some_and(|byte| byte.is_ascii_digit() || *byte == b'.')
+            },
+            r"(?>\d+(_\d+)*\.\d+(_\d+)*|\d+(_\d+)*\.(?![\.\w])|\.\d+(_\d+)*|\d+(_\d+)*)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
+            SyntaxKind::NumericLiteral,
+        ),
     ]);
 
     let keywords = postgres_keywords();
@@ -651,6 +662,31 @@ pub fn raw_dialect() -> Dialect {
             TypedParser::new(SyntaxKind::PostgisOperator, SyntaxKind::BinaryOperator)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "QualifiedOperatorSegment".into(),
+            NodeMatcher::new(SyntaxKind::QualifiedOperator, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("OPERATOR").to_matchable(),
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("DotSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                RegexParser::new(r"^[!<>=~@#%^&|`?+\-*/]+$", SyntaxKind::Operator)
+                                    .to_matchable(),
+                            ])
+                            .config(|this| this.min_times(1))
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
         ),
         (
             "WalrusOperatorSegment".into(),
@@ -979,7 +1015,7 @@ pub fn raw_dialect() -> Dialect {
                 let pattern = reserved_keywords.iter().join("|");
                 let anti_template = format!("^({pattern})$");
 
-                RegexParser::new(r"[A-Z_][A-Z0-9_$]*", SyntaxKind::NakedIdentifier)
+                RegexParser::new(r"[\p{L}_][\p{L}\p{N}_$]*", SyntaxKind::NakedIdentifier)
                     .anti_template(&anti_template)
                     .casefold(CaseFold::Lower)
                     .to_matchable()
@@ -2728,7 +2764,36 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "CompositeValueExpansionSegment".into(),
+            NodeMatcher::new(SyntaxKind::CompositeValueExpansion, |_| {
+                Sequence::new(vec![
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                    Ref::new("DotSegment").to_matchable(),
+                    Ref::new("StarSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
+
+    let base_expression = postgres.grammar("BaseExpressionElementGrammar");
+    postgres.replace_grammar(
+        "BaseExpressionElementGrammar",
+        base_expression.copy(
+            Some(vec![
+                Ref::new("CompositeValueExpansionSegment").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
 
     postgres.replace_grammar(
         "CreateRoleStatementSegment",
@@ -7732,6 +7797,51 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "AlterSystemStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterSystemStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("SYSTEM").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("TO").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("DEFAULT").to_matchable(),
+                                Delimited::new(vec![
+                                    Ref::new("LiteralGrammar").to_matchable(),
+                                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                                    Ref::new("QuotedIdentifierSegment").to_matchable(),
+                                    Ref::new("OnKeywordAsIdentifierSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RESET").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("ALL").to_matchable(),
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "CreatePolicyStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreatePolicyStatement, |_| {
                 Sequence::new(vec![
@@ -8865,7 +8975,7 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
                     Ref::keyword("TYPE").to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("AS").to_matchable(),
                         one_of(vec![
@@ -8912,7 +9022,7 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("ALTER").to_matchable(),
                     Ref::keyword("TYPE").to_matchable(),
-                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
                     one_of(vec![
                         Sequence::new(vec![
                             Ref::keyword("OWNER").to_matchable(),
@@ -9094,6 +9204,21 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "DropCollationStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropCollationStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("COLLATION").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::new("DropBehaviorGrammar").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     postgres.replace_grammar(
@@ -9204,6 +9329,11 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("ExpressionSegment").to_matchable(),
                     ])
                     .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("RETURNING").to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
                 ])
                 .to_matchable(),
             ]),
@@ -10135,6 +10265,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("DropAggregateStatementSegment").to_matchable(),
             Ref::new("CreateAggregateStatementSegment").to_matchable(),
             Ref::new("SetStatementSegment").to_matchable(),
+            Ref::new("AlterSystemStatementSegment").to_matchable(),
             Ref::new("AlterPolicyStatementSegment").to_matchable(),
             Ref::new("CreatePolicyStatementSegment").to_matchable(),
             Ref::new("DropPolicyStatementSegment").to_matchable(),
@@ -10188,6 +10319,7 @@ pub fn statement_segment() -> Matchable {
             Ref::new("LockTableStatementSegment").to_matchable(),
             Ref::new("ClusterStatementSegment").to_matchable(),
             Ref::new("CreateCollationStatementSegment").to_matchable(),
+            Ref::new("DropCollationStatementSegment").to_matchable(),
             Ref::new("CallStoredProcedureSegment").to_matchable(),
             Ref::new("CreateServerStatementSegment").to_matchable(),
             Ref::new("CreateUserMappingStatementSegment").to_matchable(),

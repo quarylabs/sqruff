@@ -823,6 +823,15 @@ test_fail_prefer_quoted_keywords_athena:
     core:
       dialect: athena
 
+test_fail_prefer_quoted_future_keyword_tsql:
+  fail_str: SELECT 1 AS Class
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+    core:
+      dialect: tsql
+
 test_pass_tsql_execute_as:
   ignored: "not parsing correctly yet"
   # 'login_test' should remain quoted.
@@ -869,3 +878,13 @@ test_fail_alter_quoted_consumer_group_exasol:
   configs:
     core:
       dialect: exasol
+
+test_snowflake_default_keyword:
+  pass_str: |
+    SELECT
+      foo,
+      "DEFAULT"
+    FROM my_table;
+  configs:
+    core:
+      dialect: snowflake

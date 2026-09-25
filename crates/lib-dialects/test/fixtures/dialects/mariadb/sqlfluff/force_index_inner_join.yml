@@ -1,0 +1,52 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: onetable
+          - dot: .
+          - naked_identifier: f1
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: twotable
+          - dot: .
+          - naked_identifier: f1
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: onetable
+          - index_hint_clause:
+            - keyword: FORCE
+            - keyword: INDEX
+            - bracketed:
+              - start_bracket: (
+              - object_reference:
+                - naked_identifier: idx_index
+              - end_bracket: )
+        - join_clause:
+          - keyword: inner
+          - keyword: join
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: twotable
+          - join_on_condition:
+            - keyword: on
+            - expression:
+              - column_reference:
+                - naked_identifier: onetable
+                - dot: .
+                - naked_identifier: f1
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - column_reference:
+                - naked_identifier: twotable
+                - dot: .
+                - naked_identifier: f1
+- statement_terminator: ;

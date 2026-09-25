@@ -43,6 +43,7 @@ pub enum RuleGroups {
     Layout,
     References,
     Structure,
+    Tsql,
 }
 
 impl LintResult {

@@ -15,7 +15,7 @@ file:
                   - binary_literal: '0x0'
                 - keyword: as
                 - data_type:
-                  - data_type_identifier: uniqueidentifier
+                  - keyword: uniqueidentifier
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -33,7 +33,7 @@ file:
                   - binary_literal: '0xAE'
                 - keyword: as
                 - data_type:
-                  - data_type_identifier: binary
+                  - keyword: binary
                   - bracketed_arguments:
                     - bracketed:
                       - start_bracket: (
@@ -56,7 +56,7 @@ file:
                   - binary_literal: '0x12Ef'
                 - keyword: as
                 - data_type:
-                  - data_type_identifier: varbinary
+                  - keyword: varbinary
                   - bracketed_arguments:
                     - bracketed:
                       - start_bracket: (
@@ -79,7 +79,7 @@ file:
                   - binary_literal: 0X0
                 - keyword: as
                 - data_type:
-                  - data_type_identifier: uniqueidentifier
+                  - keyword: uniqueidentifier
                 - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -89,20 +89,17 @@ file:
         - select_clause_element:
           - function:
             - function_name:
-              - function_name_identifier: CONVERT
+              - keyword: CONVERT
             - function_contents:
               - bracketed:
                 - start_bracket: (
-                - expression:
-                  - function:
-                    - function_name:
-                      - function_name_identifier: binary
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - integer_literal: '4'
-                        - end_bracket: )
+                - data_type:
+                  - keyword: binary
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - integer_literal: '4'
+                      - end_bracket: )
                 - comma: ','
                 - expression:
                   - binary_literal: '0x69048AEF'
@@ -123,7 +120,7 @@ file:
                   - binary_literal: 0x
                 - keyword: as
                 - data_type:
-                  - data_type_identifier: binary
+                  - keyword: binary
                   - bracketed_arguments:
                     - bracketed:
                       - start_bracket: (

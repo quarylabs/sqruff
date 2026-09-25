@@ -91,9 +91,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         }
 
         // Numeric literals.
-        NumericLiteral | IntegerLiteral | DollarNumericLiteral | BitStringLiteral => {
-            Highlight::Number
-        }
+        NumericLiteral | IntegerLiteral | DollarNumericLiteral | BitStringLiteral | ColumnIndex
+        | RawColumnIndex => Highlight::Number,
 
         // String / quoted literals.
         QuotedLiteral
@@ -153,7 +152,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         DataTypeIdentifier | PrimitiveType => Highlight::Type,
 
         // Parameters.
-        Parameter => Highlight::Parameter,
+        Parameter | PipelineParameter => Highlight::Parameter,
 
         // Variables / placeholders.
         Variable | TsqlVariable | Placeholder => Highlight::Macro,
@@ -256,8 +255,15 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateIndexStatement
         | DropIndexStatement
         | CreateTableStatement
+        | AccessObject
+        | AccessPermission
+        | AccessPermissions
+        | AccessSchemaObject
+        | AccessSchemaPluralObject
         | AccessStatement
+        | AccessTarget
         | InsertStatement
+        | InvalidateMetadataStatement
         | TransactionStatement
         | DropTableStatement
         | DropViewStatement
@@ -496,11 +502,13 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateExternalFunctionStatement
         | WarehouseObjectProperties
         | ConstraintPropertiesSegment
+        | IndexPropertiesSegment
         | CopyOptions
         | SchemaObjectProperties
         | CreateTaskStatement
         | SnowflakeTaskExpressionSegment
         | CreateStatement
+        | DefineStatement
         | CreateFileFormatSegment
         | AlterFileFormatSegment
         | CsvFileFormatTypeParameters
@@ -520,6 +528,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | GcsExternalStageParameters
         | AzureBlobStorageExternalStageParameters
         | CreateStageStatement
+        | DefineStageStatement
         | AlterStageStatement
         | CreateStreamStatement
         | AlterStreamStatement
@@ -579,6 +588,9 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | RestoreTableStatement
         | ConstraintStatement
         | ApplyChangesIntoStatement
+        | CdcSpecificationSegment
+        | CreateFlowStatement
+        | FlowReference
         | UsingClause
         | DataSourceFormat
         | IcebergTransformation
@@ -1319,7 +1331,12 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateSourceLoadGeneratorStatement
         | CreateSourcePostgresStatement
         | CreateSourceWebhookStatement
+        | AlterAuthorizationStatement
+        | DenyStatement
         | GrantStatement
+        | PermissionsSegment
+        | RevokeStatement
+        | SecurableSegment
         | ShowCreateStatement
         | ShowIndexesStatement
         | ShowMaterializedViewsStatement
@@ -1328,6 +1345,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CollectStatUsingOptionClause
         | CollectStatisticsStatement
         | CreateTableOptionsStatement
+        | DbccStatement
         | DatabaseStatement
         | FromInUpdateClause
         | SetQueryBandStatement
@@ -1347,9 +1365,12 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | NullCastingOperator
         | NullEqualsOperator
         | SchemaPrivilegesSegment
+        | ShareReference
         | SegmentedbyClause
         | TimeseriesClauseStatement
         | TransactionalStatement
+        | UserReference
+        | WhereCurrentOfCursorSegment
         | WithinGroupClauseStatement => return None,
     };
 

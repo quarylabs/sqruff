@@ -7,7 +7,7 @@ use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_br
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
-use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::lexer::{Cursor, Matcher};
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{
@@ -64,6 +64,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             r#"([rR]?[bB]?|[bB]?[rR]?)?(\"\"\"((?<!\\)(\\{2})*\\\"|\"{,2}(?!\")|[^\"])*(?<!\\)(\\{2})*\"\"\"|"((?<!\\)(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*")"#,
             SyntaxKind::DoubleQuote
         ),
+        Matcher::native(
+            "numeric_literal",
+            bigquery_numeric_literal,
+            SyntaxKind::NumericLiteral,
+        ),
     ]);
 
     // BigQuery supports CTEs with DML statements (INSERT, UPDATE, DELETE, MERGE)
@@ -83,6 +88,29 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    let function_contents_grammar = dialect.grammar("FunctionContentsGrammar").copy(
+        Some(vec![
+            Sequence::new(vec![
+                Ref::new("ExpressionSegment").to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::new("DatatypeSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("FORMAT").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("TimeZoneGrammar").optional().to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ]),
+        None,
+        None,
+        None,
+        vec![],
+        false,
+    );
 
     dialect.add([
         (
@@ -160,6 +188,42 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             TypedParser::new(
                 SyntaxKind::DoubleAtSignLiteral,
                 SyntaxKind::DoubleAtSignLiteral,
+            )
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DatatypeIdentifierSegment".into(),
+            MultiStringParser::new(
+                vec![
+                    "INT64".into(),
+                    "INT".into(),
+                    "SMALLINT".into(),
+                    "INTEGER".into(),
+                    "BIGINT".into(),
+                    "TINYINT".into(),
+                    "BYTEINT".into(),
+                    "FLOAT64".into(),
+                    "NUMERIC".into(),
+                    "DECIMAL".into(),
+                    "BIGNUMERIC".into(),
+                    "BIGDECIMAL".into(),
+                    "BOOL".into(),
+                    "BOOLEAN".into(),
+                    "STRING".into(),
+                    "BYTES".into(),
+                    "DATE".into(),
+                    "DATETIME".into(),
+                    "TIME".into(),
+                    "TIMESTAMP".into(),
+                    "GEOGRAPHY".into(),
+                    "INTERVAL".into(),
+                    "JSON".into(),
+                    "RANGE".into(),
+                    "ARRAY".into(),
+                    "STRUCT".into(),
+                ],
+                SyntaxKind::DataTypeIdentifier,
             )
             .to_matchable()
             .into(),
@@ -312,6 +376,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             ])
             .to_matchable()
             .into(),
+        ),
+        (
+            "FunctionContentsGrammar".into(),
+            function_contents_grammar.into(),
         ),
         (
             "TrimParametersGrammar".into(),
@@ -608,20 +676,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
-    dialect.replace_grammar(
-        "ArrayTypeSegment",
-        Sequence::new(vec![
-            Ref::keyword("ARRAY").to_matchable(),
-            Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
-                .config(|this| {
-                    this.bracket_type = "angle";
-                    this.bracket_pairs_set = "angle_bracket_pairs";
-                    this.optional();
-                })
-                .to_matchable(),
-        ])
-        .to_matchable(),
-    );
+    dialect.add([(
+        "ArrayTypeSegment".into(),
+        NodeMatcher::new(SyntaxKind::DataType, |_| {
+            Sequence::new(vec![
+                Ref::keyword("ARRAY").to_matchable(),
+                Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                    .config(|this| {
+                        this.bracket_type = "angle";
+                        this.bracket_pairs_set = "angle_bracket_pairs";
+                        this.optional();
+                    })
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     dialect.add([
         (
@@ -745,30 +817,41 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         Bracketed::new(vec![Ref::new("SetExpressionSegment").to_matchable()]).to_matchable(),
     );
 
-    dialect.replace_grammar("SelectStatementSegment", {
-        ansi::select_statement().copy(
-            Some(vec![
-                Ref::new("QualifyClauseSegment").optional().to_matchable(),
-            ]),
-            None,
-            Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
-            None,
-            vec![Ref::new("PipeOperatorSegment").to_matchable()],
-            false,
-        )
-    });
+    let unordered_select_statement = ansi::get_unordered_select_statement_segment_grammar().copy(
+        Some(vec![
+            Ref::new("QualifyClauseSegment").optional().to_matchable(),
+        ]),
+        None,
+        Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
+        None,
+        vec![Ref::new("PipeOperatorSegment").to_matchable()],
+        false,
+    );
 
     dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
-        ansi::get_unordered_select_statement_segment_grammar().copy(
+        unordered_select_statement.clone(),
+    );
+
+    dialect.replace_grammar(
+        "SelectStatementSegment",
+        unordered_select_statement.copy(
             Some(vec![
-                Ref::new("QualifyClauseSegment").optional().to_matchable(),
+                Ref::new("NamedWindowSegment").optional().to_matchable(),
+                Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                Ref::new("LimitClauseSegment").optional().to_matchable(),
+                Ref::new("OffsetClauseSegment").optional().to_matchable(),
             ]),
             None,
-            Some(Ref::new("OverlapsClauseSegment").optional().to_matchable()),
             None,
-            vec![Ref::new("PipeOperatorSegment").to_matchable()],
-            false,
+            None,
+            vec![
+                Ref::new("PipeOperatorSegment").to_matchable(),
+                Ref::new("SetOperatorSegment").to_matchable(),
+                Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
+                Ref::new("WithDataClauseSegment").to_matchable(),
+            ],
+            true,
         ),
     );
 
@@ -806,6 +889,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     dialect.replace_grammar(
         "FileSegment",
         Sequence::new(vec![
+            AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()]).to_matchable(),
             Sequence::new(vec![
                 one_of(vec![
                     Ref::new("MultiStatementSegment").to_matchable(),
@@ -823,7 +907,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable(),
             ])
             .to_matchable(),
-            Ref::new("DelimiterGrammar").optional().to_matchable(),
+            AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()]).to_matchable(),
         ])
         .to_matchable(),
     );
@@ -1309,6 +1393,101 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "ArrayAggFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("ARRAY_AGG", SyntaxKind::FunctionNameIdentifier).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ArrayAggFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Sequence::new(vec![
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("DISTINCT").optional().to_matchable(),
+                            Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
+                            Ref::new("AggregateOrderByClause").optional().to_matchable(),
+                            Ref::new("LimitClauseSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ArrayAccessorSegment").optional().to_matchable(),
+                ])
+                .config(|this| this.allow_gaps = false)
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ArrayConcatAggFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("ARRAY_CONCAT_AGG", SyntaxKind::FunctionNameIdentifier)
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ArrayConcatAggFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Sequence::new(vec![
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Delimited::new(vec![
+                                Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("AggregateOrderByClause").optional().to_matchable(),
+                            Ref::new("LimitClauseSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ArrayAccessorSegment").optional().to_matchable(),
+                ])
+                .config(|this| this.allow_gaps = false)
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "StringAggFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("STRING_AGG", SyntaxKind::FunctionNameIdentifier).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "StringAggFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Sequence::new(vec![
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("DISTINCT").optional().to_matchable(),
+                            Delimited::new(vec![
+                                Ref::new("FunctionContentsExpressionGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("AggregateOrderByClause").optional().to_matchable(),
+                            Ref::new("LimitClauseSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.allow_gaps = false)
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ExtractFunctionNameSegment".into(),
             NodeMatcher::new(SyntaxKind::FunctionName, |_| {
                 StringParser::new("EXTRACT", SyntaxKind::FunctionNameIdentifier).to_matchable()
@@ -1398,6 +1577,21 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         Sequence::new(vec![
             one_of(vec![
                 Sequence::new(vec![
+                    Ref::new("ArrayAggFunctionNameSegment").to_matchable(),
+                    Ref::new("ArrayAggFunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ArrayConcatAggFunctionNameSegment").to_matchable(),
+                    Ref::new("ArrayConcatAggFunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("StringAggFunctionNameSegment").to_matchable(),
+                    Ref::new("StringAggFunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
                     // BigQuery EXTRACT allows optional TimeZone
                     Ref::new("ExtractFunctionNameSegment").to_matchable(),
                     Ref::new("ExtractFunctionContentsSegment").to_matchable(),
@@ -1412,7 +1606,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     // Treat functions which take date parts separately
                     Ref::new("DatePartFunctionNameSegment")
-                        .exclude(Ref::new("ExtractFunctionNameSegment"))
+                        .exclude(one_of(vec![
+                            Ref::new("ExtractFunctionNameSegment").to_matchable(),
+                            Ref::new("ArrayAggFunctionNameSegment").to_matchable(),
+                            Ref::new("ArrayConcatAggFunctionNameSegment").to_matchable(),
+                            Ref::new("StringAggFunctionNameSegment").to_matchable(),
+                        ]))
                         .to_matchable(),
                     Ref::new("DateTimeFunctionContentsSegment").to_matchable(),
                 ])
@@ -1424,6 +1623,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::new("DatePartFunctionNameSegment").to_matchable(),
                                 Ref::new("NormalizeFunctionNameSegment").to_matchable(),
                                 Ref::new("ValuesClauseSegment").to_matchable(),
+                                Ref::new("ArrayAggFunctionNameSegment").to_matchable(),
+                                Ref::new("ArrayConcatAggFunctionNameSegment").to_matchable(),
+                                Ref::new("StringAggFunctionNameSegment").to_matchable(),
                             ]))
                             .to_matchable(),
                         Ref::new("FunctionContentsSegment").to_matchable(),
@@ -1683,16 +1885,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable()
     });
 
-    dialect.replace_grammar(
-        "StructTypeSegment",
-        Sequence::new(vec![
-            Ref::keyword("STRUCT").to_matchable(),
-            Ref::new("StructTypeSchemaSegment")
-                .optional()
-                .to_matchable(),
-        ])
-        .to_matchable(),
-    );
+    dialect.add([(
+        "StructTypeSegment".into(),
+        NodeMatcher::new(SyntaxKind::DataType, |_| {
+            Sequence::new(vec![
+                Ref::keyword("STRUCT").to_matchable(),
+                Ref::new("StructTypeSchemaSegment")
+                    .optional()
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     dialect.add([(
         "StructTypeSchemaSegment".into(),
@@ -4092,6 +4298,43 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    // BigQuery allows pipe statements, including bare FROM clauses, in CTEs.
+    dialect.replace_grammar(
+        "CTEDefinitionSegment",
+        Sequence::new(vec![
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("CTEColumnList").optional().to_matchable(),
+            Ref::keyword("AS").optional().to_matchable(),
+            Bracketed::new(vec![
+                one_of(vec![
+                    Ref::new("SelectableGrammar").to_matchable(),
+                    Ref::new("PipeStatementSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.parse_mode(ParseMode::Greedy))
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     dialect.expand();
     dialect
+}
+
+fn bigquery_numeric_literal(cursor: &mut Cursor) -> bool {
+    if cursor.peek() != '0' || !matches!(cursor.peek_next(), 'x' | 'X') {
+        return ansi::numeric_literal(cursor);
+    }
+
+    cursor.shift();
+    cursor.shift();
+    if !cursor.peek().is_ascii_hexdigit() {
+        return false;
+    }
+    cursor.shift_while(|c| c.is_ascii_hexdigit());
+
+    let next_char = cursor.peek();
+    !(next_char.is_ascii_alphanumeric() || next_char == '_')
 }

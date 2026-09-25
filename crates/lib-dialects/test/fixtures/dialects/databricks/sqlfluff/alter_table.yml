@@ -77,6 +77,170 @@ file:
     - table_reference:
       - object_reference:
         - naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - column_reference:
+        - naked_identifier: col_name
+      - data_type:
+        - primitive_type:
+          - keyword: string
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - column_reference:
+        - naked_identifier: col_name2
+      - data_type:
+        - primitive_type:
+          - keyword: string
+    - keyword: AFTER
+    - column_reference:
+      - naked_identifier: col_name
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - column_reference:
+        - naked_identifier: col_name3
+      - data_type:
+        - primitive_type:
+          - keyword: string
+      - column_properties_segment:
+        - keyword: COMMENT
+        - quoted_literal: '''This is a comment'''
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - column_reference:
+        - naked_identifier: col_name4
+      - data_type:
+        - primitive_type:
+          - keyword: string
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - column_reference:
+        - naked_identifier: col_name5
+      - data_type:
+        - primitive_type:
+          - keyword: string
+      - column_properties_segment:
+        - keyword: COMMENT
+        - quoted_literal: '''This is a comment'''
+    - keyword: AFTER
+    - column_reference:
+      - naked_identifier: existing_col
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: COLUMNS
+    - column_definition:
+      - column_reference:
+        - naked_identifier: col1
+      - data_type:
+        - primitive_type:
+          - keyword: string
+    - comma: ','
+    - column_definition:
+      - column_reference:
+        - naked_identifier: col2
+      - data_type:
+        - primitive_type:
+          - keyword: int
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - column_reference:
+        - naked_identifier: address
+        - dot: .
+        - naked_identifier: street
+      - data_type:
+        - primitive_type:
+          - keyword: string
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: StudentInfo
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - column_reference:
+        - naked_identifier: complex_col
+      - data_type:
+        - struct_type:
+          - keyword: STRUCT
+          - struct_type_schema:
+            - start_angle_bracket: <
+            - naked_identifier: name
+            - colon: ':'
+            - data_type:
+              - primitive_type:
+                - keyword: STRING
+            - comma: ','
+            - naked_identifier: age
+            - colon: ':'
+            - data_type:
+              - primitive_type:
+                - keyword: INT
+            - end_angle_bracket: '>'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: StudentInfo
     - keyword: DROP
     - keyword: COLUMN
     - bracketed:

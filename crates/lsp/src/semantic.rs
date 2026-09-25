@@ -205,6 +205,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CommentClause
         | TableEndClause
         | MergeMatch
+        | MergeWhenNotMatchedBySourceClause
         | MergeWhenNotMatchedClause
         | MergeInsertClause
         | MergeUpdateClause

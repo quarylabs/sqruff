@@ -795,6 +795,7 @@ pub enum SyntaxKind {
     MergeTreeOrderByClause,
     MergeUpdateClause,
     MergeWhenMatchedClause,
+    MergeWhenNotMatchedBySourceClause,
     MergeWhenNotMatchedClause,
     Meta,
     MetaCommand,

@@ -1595,6 +1595,97 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     databricks.replace_grammar(
+        "MergeMatchSegment",
+        AnyNumberOf::new(vec![
+            Ref::new("MergeMatchedClauseSegment").to_matchable(),
+            Ref::new("MergeNotMatchedClauseSegment").to_matchable(),
+            Ref::new("MergeNotMatchedBySourceClauseSegment").to_matchable(),
+        ])
+        .config(|this| this.min_times(1))
+        .to_matchable(),
+    );
+
+    databricks.replace_grammar(
+        "MergeNotMatchedClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("WHEN").to_matchable(),
+            Ref::keyword("NOT").to_matchable(),
+            Ref::keyword("MATCHED").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("BY").to_matchable(),
+                Ref::keyword("TARGET").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("AND").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::keyword("THEN").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            Ref::new("MergeInsertClauseSegment").to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    databricks.add([(
+        "MergeNotMatchedBySourceClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::MergeWhenNotMatchedBySourceClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("WHEN").to_matchable(),
+                Ref::keyword("NOT").to_matchable(),
+                Ref::keyword("MATCHED").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+                Ref::keyword("SOURCE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("AND").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("THEN").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                one_of(vec![
+                    Ref::new("MergeUpdateClauseSegment").to_matchable(),
+                    Ref::new("MergeDeleteClauseSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    databricks.replace_grammar(
+        "MergeInsertClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("INSERT").to_matchable(),
+            one_of(vec![
+                Ref::new("WildcardIdentifierSegment").to_matchable(),
+                Sequence::new(vec![
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Ref::keyword("VALUES").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    databricks.replace_grammar(
         "DelimiterGrammar",
         one_of(vec![
             Ref::new("SemicolonSegment").to_matchable(),

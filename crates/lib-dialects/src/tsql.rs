@@ -4623,10 +4623,70 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // T-SQL PREDICT table expression for machine learning predictions.
+    // https://learn.microsoft.com/en-us/sql/t-sql/queries/predict-transact-sql
+    dialect.add([(
+        "MLTableExpressionSegment".into(),
+        NodeMatcher::new(SyntaxKind::MlTableExpression, |_| {
+            Sequence::new(vec![
+                Ref::keyword("PREDICT").to_matchable(),
+                Bracketed::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("MODEL").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DATA").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("AS").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("WITH").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Ref::new("CollateGrammar").optional().to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("NOT").optional().to_matchable(),
+                                Ref::keyword("NULL").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // T-SQL table expressions; PIVOT/UNPIVOT are handled as join-like clauses.
     dialect.replace_grammar(
         "TableExpressionSegment",
         one_of(vec![
+            Ref::new("MLTableExpressionSegment").to_matchable(),
             Ref::new("ValuesClauseSegment").to_matchable(),
             Sequence::new(vec![
                 Ref::new("TableReferenceSegment").to_matchable(),

@@ -73,6 +73,56 @@ FROM foo;
 
 The same modifier can be configured for `binary_operator`.
 
+## Segment and keyword line positions
+
+The `line_position` setting applies to a configured segment type as a whole,
+such as where a `where_clause` should break relative to the surrounding SQL.
+The `keyword_line_position` setting applies to the clause's leading keyword
+tokens, such as `WHERE` or `ORDER BY`, inside that segment.
+
+For clause-like types, the settings are often used together. For example:
+
+```ini
+[sqruff:layout:type:where_clause]
+line_position = alone
+keyword_line_position = leading
+```
+
+This treats the `WHERE` clause as its own line-oriented block and requires the
+`WHERE` keyword to start a line. In the following SQL, `line_position` controls
+where the whole clause sits relative to `FROM`, while `keyword_line_position`
+controls where `WHERE` sits relative to its expression:
+
+```sql
+SELECT
+    a
+FROM t
+WHERE b = 1
+    AND c = 2
+```
+
+Setting `keyword_line_position = alone` instead puts the expression on the
+following line:
+
+```sql
+SELECT
+    a
+FROM t
+WHERE
+    b = 1
+    AND c = 2
+```
+
+Keyword positioning also supports trailing placement. For example:
+
+```ini
+[sqruff:layout:type:join_on_condition]
+keyword_line_position = trailing
+```
+
+This places the `ON` keyword at the end of the line, with the condition
+expression on the following line.
+
 ## Keyword line position exclusions
 
 LT14 supports `keyword_line_position_exclusions`, a comma-separated list of

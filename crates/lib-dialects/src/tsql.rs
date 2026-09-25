@@ -11,7 +11,7 @@ use sqruff_lib_core::parser::grammar::anyof::{
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
-use sqruff_lib_core::parser::grammar::{Nothing, Ref};
+use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::{Cursor, Matcher};
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
@@ -3220,6 +3220,100 @@ pub fn raw_dialect() -> Dialect {
     )]);
     add_database_grammars(&mut dialect);
 
+    dialect.add([(
+        "DbccStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DbccStatement, |_| {
+            let statements = one_of(vec![
+                // Informational.
+                Ref::keyword("INPUTBUFFER").to_matchable(),
+                Ref::keyword("SHOWCONTIG").to_matchable(),
+                Ref::keyword("OPENTRAN").to_matchable(),
+                Ref::keyword("OUTPUTBUFFER").to_matchable(),
+                Ref::keyword("PROCCACHE").to_matchable(),
+                Ref::keyword("SHOW_STATISTICS").to_matchable(),
+                Ref::keyword("SQLPERF").to_matchable(),
+                Ref::keyword("TRACESTATUS").to_matchable(),
+                Ref::keyword("USEROPTIONS").to_matchable(),
+                // Validation.
+                Ref::keyword("CHECKALLOC").to_matchable(),
+                Ref::keyword("CHECKCATALOG").to_matchable(),
+                Ref::keyword("CHECKCONSTRAINTS").to_matchable(),
+                Ref::keyword("CHECKDB").to_matchable(),
+                Ref::keyword("CHECKFILEGROUP").to_matchable(),
+                Ref::keyword("CHECKIDENT").to_matchable(),
+                Ref::keyword("CHECKTABLE").to_matchable(),
+                // Maintenance.
+                Ref::keyword("CLEANTABLE").to_matchable(),
+                Ref::keyword("DBREINDEX").to_matchable(),
+                Ref::keyword("DROPCLEANBUFFERS").to_matchable(),
+                Ref::keyword("FREEPROCCACHE").to_matchable(),
+                Ref::keyword("INDEXDEFRAG").to_matchable(),
+                Ref::keyword("SHRINKDATABASE").to_matchable(),
+                Ref::keyword("SHRINKFILE").to_matchable(),
+                Ref::keyword("UPDATEUSAGE").to_matchable(),
+                // Miscellaneous.
+                Ref::keyword("HELP").to_matchable(),
+                Ref::keyword("FLUSHAUTHCACHE").to_matchable(),
+                Ref::keyword("TRACEOFF").to_matchable(),
+                Ref::keyword("FREESESSIONCACHE").to_matchable(),
+                Ref::keyword("TRACEON").to_matchable(),
+                Ref::keyword("FREESYSTEMCACHE").to_matchable(),
+                Ref::keyword("CLONEDATABASE").to_matchable(),
+            ]);
+
+            let with_options = Delimited::new(vec![
+                Ref::keyword("FAST").to_matchable(),
+                Ref::keyword("NO_INFOMSGS").to_matchable(),
+                Ref::keyword("ALL_INDEXES").to_matchable(),
+                Ref::keyword("TABLERESULTS").to_matchable(),
+                Ref::keyword("ALL_LEVELS").to_matchable(),
+                Ref::keyword("STAT_HEADER").to_matchable(),
+                Ref::keyword("DENSITY_VECTOR").to_matchable(),
+                Ref::keyword("HISTOGRAM").to_matchable(),
+                Ref::keyword("ALL_ERRORMSGS").to_matchable(),
+                Ref::keyword("TABLOCK").to_matchable(),
+                Ref::keyword("ESTIMATEONLY").to_matchable(),
+                Ref::keyword("ALL_CONSTRAINTS").to_matchable(),
+                Ref::keyword("EXTENDED_LOGICAL_CHECKS").to_matchable(),
+                Ref::keyword("PHYSICAL_ONLY").to_matchable(),
+                Ref::keyword("DATA_PURITY").to_matchable(),
+                Ref::keyword("COUNT_ROWS").to_matchable(),
+                Ref::keyword("MARK_IN_USE_FOR_REMOVAL").to_matchable(),
+                Ref::keyword("NO_STATISTICS").to_matchable(),
+                Ref::keyword("NO_QUERYSTORE").to_matchable(),
+                Ref::keyword("VERIFY_CLONEDB").to_matchable(),
+                Ref::keyword("BACKUP_CLONEDB").to_matchable(),
+                Ref::keyword("SERVICEBROKER").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("MAXDOP").to_matchable(),
+                    Ref::new("RawEqualsSegment").to_matchable(),
+                    Ref::new("IntegerLiteralSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
+
+            Sequence::new(vec![
+                Ref::keyword("DBCC").to_matchable(),
+                statements.to_matchable(),
+                Bracketed::new(vec![Anything::new().to_matchable()])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Sequence::new(vec![with_options])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // Add T-SQL specific statement types to the statement segment
     dialect.replace_grammar(
         "StatementSegment",
@@ -3234,6 +3328,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CloseCursorStatementSegment").to_matchable(),
             Ref::new("DeallocateCursorStatementSegment").to_matchable(),
             Ref::new("DeclareStatementGrammar").to_matchable(),
+            Ref::new("DbccStatementSegment").to_matchable(),
             Ref::new("SetContextInfoSegment").to_matchable(),
             Ref::new("SetLanguageStatementSegment").to_matchable(),
             Ref::new("CreateSecurityPolicySegment").to_matchable(),

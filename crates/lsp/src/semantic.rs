@@ -1345,6 +1345,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CollectStatUsingOptionClause
         | CollectStatisticsStatement
         | CreateTableOptionsStatement
+        | DbccStatement
         | DatabaseStatement
         | FromInUpdateClause
         | SetQueryBandStatement

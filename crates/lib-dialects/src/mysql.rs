@@ -571,7 +571,11 @@ pub fn raw_dialect() -> Dialect {
     mysql.replace_grammar(
         "Expression_D_Potential_Select_Statement_Without_Brackets",
         potential_select.copy(
-            Some(vec![Ref::new("SessionVariableNameSegment").to_matchable()]),
+            Some(vec![
+                Ref::new("SessionVariableNameSegment").to_matchable(),
+                // Allow VALUES() in expressions such as ON DUPLICATE KEY UPDATE.
+                Ref::new("ValuesClauseSegment").to_matchable(),
+            ]),
             Some(0),
             None,
             None,

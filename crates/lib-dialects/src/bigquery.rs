@@ -864,7 +864,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("WhileStatementSegment").to_matchable(),
                 Ref::new("LoopStatementSegment").to_matchable(),
                 Ref::new("IfStatementSegment").to_matchable(),
-                Ref::new("CreateProcedureStatementSegment").to_matchable(),
                 Ref::new("BeginStatementSegment").to_matchable(),
             ])
             .to_matchable()
@@ -936,6 +935,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateMaterializedViewAsReplicaOfStatementSegment").to_matchable(),
                 Ref::new("AlterMaterializedViewStatementSegment").to_matchable(),
                 Ref::new("DropMaterializedViewStatementSegment").to_matchable(),
+                Ref::new("CreateProcedureStatementSegment").to_matchable(),
                 Ref::new("DropProcedureStatementSegment").to_matchable(),
                 Ref::new("UndropSchemaStatementSegment").to_matchable(),
                 Ref::new("AlterOrganizationStatementSegment").to_matchable(),

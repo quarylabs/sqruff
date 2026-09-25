@@ -1,5 +1,5 @@
 file:
-- multi_statement_segment:
+- statement:
   - create_procedure_statement:
     - keyword: CREATE
     - keyword: OR

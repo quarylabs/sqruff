@@ -111,6 +111,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
 
         // Operators.
         BinaryOperator
+        | FactorialOperator
         | Commutator
         | ComparisonOperator
         | RawComparisonOperator
@@ -122,6 +123,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | WalrusOperator
         | JsonOperator
         | ParameterAssigner
+        | PowerOperator
         | FunctionAssigner
         | SignIndicator
         | Plus

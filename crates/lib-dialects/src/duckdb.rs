@@ -34,6 +34,11 @@ pub fn raw_dialect() -> Dialect {
     let ansi_dialect = ansi::raw_dialect();
     let postgres_dialect = postgres::raw_dialect();
     let postgres_non_set_selectable = postgres_dialect.grammar("NonSetSelectableGrammar");
+    let postgres_arithmetic_binary_operator =
+        postgres_dialect.grammar("ArithmeticBinaryOperatorGrammar");
+    let postgres_expression_a_unary_operator =
+        postgres_dialect.grammar("Expression_A_Unary_Operator_Grammar");
+    let postgres_expression_c = postgres_dialect.grammar("Expression_C_Grammar");
     let mut duckdb_dialect = postgres_dialect;
     duckdb_dialect.name = DialectKind::Duckdb;
 
@@ -80,6 +85,24 @@ pub fn raw_dialect() -> Dialect {
         (
             "EqualsSegment_a".into(),
             StringParser::new("==", SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "PowerOperatorSegment".into(),
+            TypedParser::new(SyntaxKind::PowerOperator, SyntaxKind::BinaryOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "AbsoluteValueOperatorSegment".into(),
+            TypedParser::new(SyntaxKind::At, SyntaxKind::SignIndicator)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "FactorialOperatorSegment".into(),
+            StringParser::new("!", SyntaxKind::FactorialOperator)
                 .to_matchable()
                 .into(),
         ),
@@ -533,6 +556,40 @@ pub fn raw_dialect() -> Dialect {
     );
 
     duckdb_dialect.replace_grammar(
+        "ArithmeticBinaryOperatorGrammar",
+        postgres_arithmetic_binary_operator.copy(
+            Some(vec![Ref::new("PowerOperatorSegment").to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+    duckdb_dialect.replace_grammar(
+        "Expression_A_Unary_Operator_Grammar",
+        postgres_expression_a_unary_operator.copy(
+            Some(vec![
+                Ref::new("AbsoluteValueOperatorSegment").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+    duckdb_dialect.replace_grammar(
+        "Expression_C_Grammar",
+        Sequence::new(vec![
+            postgres_expression_c,
+            Ref::new("FactorialOperatorSegment")
+                .optional()
+                .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    duckdb_dialect.replace_grammar(
         "ComparisonOperatorGrammar",
         ansi_dialect.grammar("ComparisonOperatorGrammar").copy(
             Some(vec![
@@ -588,11 +645,23 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
-    duckdb_dialect.patch_lexer_matchers(vec![Matcher::regex(
-        "equals",
-        "==?",
-        SyntaxKind::RawComparisonOperator,
-    )]);
+    duckdb_dialect.patch_lexer_matchers(vec![
+        Matcher::regex("equals", "==?", SyntaxKind::RawComparisonOperator),
+        Matcher::regex(
+            "postgis_operator",
+            r#"&&&|&<\||<<\||\|&>|\|>>|~=|<->|\|=\||<#>|<<->>|<<#>>"#,
+            SyntaxKind::PostgisOperator,
+        ),
+    ]);
+
+    duckdb_dialect.insert_lexer_matchers(
+        vec![Matcher::string(
+            "power_operator",
+            "**",
+            SyntaxKind::PowerOperator,
+        )],
+        "star",
+    );
 
     duckdb_dialect.insert_lexer_matchers(
         vec![

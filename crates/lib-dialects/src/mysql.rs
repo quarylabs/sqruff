@@ -812,6 +812,15 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Sequence::new(vec![
                 one_of(vec![
+                    Ref::keyword("SIGNED").to_matchable(),
+                    Ref::keyword("UNSIGNED").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("INTEGER").optional().to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
                     Sequence::new(vec![
                         one_of(vec![
                             Ref::keyword("CHARACTER").to_matchable(),

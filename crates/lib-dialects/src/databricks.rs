@@ -813,6 +813,20 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Ref::new("ObjectReferenceSegment").to_matchable().into(),
         ),
         (
+            "WithinGroupClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::WithingroupClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("WITHIN").to_matchable(),
+                    Ref::keyword("GROUP").to_matchable(),
+                    Bracketed::new(vec![Ref::new("OrderByClauseSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "IdentifierClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::IdentifierClauseSegment, |_| {
                 Sequence::new(vec![
@@ -1552,6 +1566,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    databricks.replace_grammar(
+        "PostFunctionGrammar",
+        raw_sparksql.grammar("PostFunctionGrammar").copy(
+            Some(vec![Ref::new("WithinGroupClauseSegment").to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
 
     databricks.replace_grammar(
         "SingleIdentifierGrammar",

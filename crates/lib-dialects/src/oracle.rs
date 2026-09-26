@@ -1329,6 +1329,125 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // JsonTableColumnDefinitionSegment
+        (
+            "JsonTableColumnDefinitionSegment".into(),
+            NodeMatcher::new(SyntaxKind::JsonTableColumnDefinition, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::keyword("FOR").to_matchable(),
+                        Ref::keyword("ORDINALITY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NESTED").to_matchable(),
+                        Ref::keyword("PATH").optional().to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("JsonTableColumnsClauseSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("FORMAT").to_matchable(),
+                            Ref::keyword("JSON").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("PATH").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::keyword("NULL").to_matchable(),
+                                    Ref::keyword("ERROR").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("DEFAULT").to_matchable(),
+                                        Ref::new("ExpressionSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("ON").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("EMPTY").to_matchable(),
+                                    Ref::keyword("ERROR").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // JsonTableColumnsClauseSegment
+        (
+            "JsonTableColumnsClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::JsonTableColumnsClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("COLUMNS").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Ref::new("JsonTableColumnDefinitionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // JsonTableFunctionContentsSegment
+        (
+            "JsonTableFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::JsonTableFunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("NULL").to_matchable(),
+                                Ref::keyword("ERROR").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
+                            Ref::keyword("ERROR").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("JsonTableColumnsClauseSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // JsonTableFunctionNameSegment
+        (
+            "JsonTableFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("JSON_TABLE", SyntaxKind::FunctionNameIdentifier).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // SlashBufferExecutorSegment
         (
             "SlashBufferExecutorSegment".into(),
@@ -6593,6 +6712,40 @@ pub fn raw_dialect() -> Dialect {
             ),
         );
     }
+
+    // ---- FunctionSegment: prioritize Oracle JSON_TABLE syntax ----
+    oracle.replace_grammar(
+        "FunctionSegment",
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::new("JsonTableFunctionNameSegment").to_matchable(),
+                Ref::new("JsonTableFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("ColumnsExpressionGrammar").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("DatePartFunctionNameSegment").to_matchable(),
+                Ref::new("DateTimeFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Sequence::new(vec![
+                    Ref::new("FunctionNameSegment")
+                        .exclude(one_of(vec![
+                            Ref::new("DatePartFunctionNameSegment").to_matchable(),
+                            Ref::new("ColumnsExpressionFunctionNameSegment").to_matchable(),
+                            Ref::new("ValuesClauseSegment").to_matchable(),
+                        ]))
+                        .to_matchable(),
+                    Ref::new("FunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("PostFunctionGrammar").optional().to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     // ---- TableExpressionSegment: add SqlplusSubstitutionVariable ----
     // SQLFluff: ansi.TableExpressionSegment.match_grammar.copy(insert=[Ref("SqlplusSubstitutionVariableSegment")])

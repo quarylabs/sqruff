@@ -1206,6 +1206,7 @@ pub fn raw_dialect() -> Dialect {
                             ])
                             .to_matchable(),
                         ])
+                        .config(|this| this.allow_trailing())
                         .to_matchable(),
                         Ref::keyword("FOR").to_matchable(),
                         AnyNumberOf::new(vec![
@@ -1214,6 +1215,7 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::keyword("IN").to_matchable(),
                                 Bracketed::new(vec![
                                     Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                                        .config(|this| this.allow_trailing())
                                         .to_matchable(),
                                 ])
                                 .to_matchable(),
@@ -1254,6 +1256,7 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::keyword("IN").to_matchable(),
                                 Bracketed::new(vec![
                                     Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                                        .config(|this| this.allow_trailing())
                                         .to_matchable(),
                                 ])
                                 .to_matchable(),
@@ -1261,6 +1264,7 @@ pub fn raw_dialect() -> Dialect {
                             .config(|this| this.optional())
                             .to_matchable(),
                         ])
+                        .config(|this| this.allow_trailing())
                         .to_matchable(),
                     ])
                     .config(|this| this.optional())
@@ -1274,6 +1278,7 @@ pub fn raw_dialect() -> Dialect {
                             ])
                             .to_matchable(),
                         ])
+                        .config(|this| this.allow_trailing())
                         .to_matchable(),
                     ])
                     .config(|this| this.optional())
@@ -1305,6 +1310,7 @@ pub fn raw_dialect() -> Dialect {
                                 Delimited::new(vec![
                                     Ref::new("SingleIdentifierGrammar").to_matchable(),
                                 ])
+                                .config(|this| this.allow_trailing())
                                 .to_matchable(),
                             ])
                             .to_matchable(),
@@ -1323,6 +1329,7 @@ pub fn raw_dialect() -> Dialect {
                                                     Ref::new("SingleIdentifierGrammar")
                                                         .to_matchable(),
                                                 ])
+                                                .config(|this| this.allow_trailing())
                                                 .to_matchable(),
                                             ])
                                             .to_matchable(),
@@ -1333,6 +1340,7 @@ pub fn raw_dialect() -> Dialect {
                                         .to_matchable(),
                                         Ref::new("ColumnsExpressionGrammar").to_matchable(),
                                     ])
+                                    .config(|this| this.allow_trailing())
                                     .to_matchable(),
                                 ])
                                 .to_matchable(),
@@ -1367,6 +1375,7 @@ pub fn raw_dialect() -> Dialect {
                                     Delimited::new(vec![
                                         Ref::new("ExpressionSegment").to_matchable(),
                                     ])
+                                    .config(|this| this.allow_trailing())
                                     .to_matchable(),
                                 ])
                                 .to_matchable(),
@@ -1377,6 +1386,7 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                     ])
+                    .config(|this| this.allow_trailing())
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("INTO").to_matchable(),
@@ -1384,6 +1394,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
                         Ref::keyword("VALUE").to_matchable(),
                         Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                            .config(|this| this.allow_trailing())
                             .to_matchable(),
                     ])
                     .config(|this| this.optional())

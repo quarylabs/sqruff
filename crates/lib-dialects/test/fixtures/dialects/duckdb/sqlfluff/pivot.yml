@@ -670,3 +670,102 @@ file:
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+      - table_reference:
+        - naked_identifier: Cities
+    - keyword: ON
+    - expression:
+      - column_reference:
+        - naked_identifier: Year
+      - keyword: IN
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '2000'
+        - comma: ','
+        - numeric_literal: '2010'
+        - comma: ','
+        - end_bracket: )
+    - keyword: USING
+    - function:
+      - function_name:
+        - function_name_identifier: sum
+      - function_contents:
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: Population
+          - end_bracket: )
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: Country
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: Cities
+        - from_pivot_expression:
+          - keyword: PIVOT
+          - bracketed:
+            - start_bracket: (
+            - function:
+              - function_name:
+                - function_name_identifier: sum
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Population
+                  - end_bracket: )
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - naked_identifier: total
+            - comma: ','
+            - function:
+              - function_name:
+                - function_name_identifier: count
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                      - naked_identifier: Population
+                  - end_bracket: )
+            - alias_expression:
+              - alias_operator:
+                - keyword: AS
+              - naked_identifier: count
+            - comma: ','
+            - keyword: FOR
+            - naked_identifier: Year
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '2000'
+              - comma: ','
+              - numeric_literal: '2010'
+              - comma: ','
+              - end_bracket: )
+            - naked_identifier: Country
+            - keyword: in
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: '''NL'''
+              - comma: ','
+              - quoted_literal: '''US'''
+              - comma: ','
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;

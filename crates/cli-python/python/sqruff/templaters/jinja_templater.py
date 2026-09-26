@@ -8,7 +8,6 @@ import pkgutil
 import sys
 from functools import reduce
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -35,7 +34,7 @@ from jinja2 import (
 from jinja2.exceptions import TemplateNotFound, UndefinedError
 from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
-from sqruff.templaters.jinja_templater_builtins_dbt import DBT_BUILTINS
+from sqruff.templaters.jinja_templater_builtins_dbt import DBT_BUILTINS, DbtMacroWrapper
 from sqruff.templaters.jinja_templater_tracers import JinjaAnalyzer, JinjaTrace
 from sqruff.templaters.python_templater import (
     FluffConfig,
@@ -47,9 +46,6 @@ from sqruff.templaters.python_templater import (
     fluff_config_from_json,
     slice_length,
 )
-
-if TYPE_CHECKING:  # pragma: no cover
-    from jinja2.runtime import Macro
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -113,7 +109,7 @@ class JinjaTemplater(PythonTemplater):
     @staticmethod
     def _extract_macros_from_template(
         template: str, env: Environment, ctx: Dict[str, Any]
-    ) -> Dict[str, "Macro"]:
+    ) -> Dict[str, DbtMacroWrapper]:
         """Take a template string and extract any macros from it.
 
         Lovingly inspired by http://codyaray.com/2015/05/auto-load-jinja2-macros
@@ -127,7 +123,7 @@ class JinjaTemplater(PythonTemplater):
         from jinja2.runtime import Macro
 
         # Iterate through keys exported from the loaded template string
-        context: Dict[str, Macro] = {}
+        context: Dict[str, DbtMacroWrapper] = {}
         # NOTE: `env.from_string()` will raise TemplateSyntaxError if `template`
         # is invalid.
         macro_template = env.from_string(template, globals=ctx)
@@ -138,7 +134,7 @@ class JinjaTemplater(PythonTemplater):
                 attr = getattr(macro_template.module, k)
                 # Is it a macro? If so install it at the name of the macro
                 if isinstance(attr, Macro):
-                    context[k] = attr
+                    context[k] = DbtMacroWrapper(attr)
         except UndefinedError:
             # This occurs if any file in the macro path references an
             # undefined Jinja variable. It's safe to ignore this. Any
@@ -154,7 +150,7 @@ class JinjaTemplater(PythonTemplater):
         env: Environment,
         ctx: Dict[str, Any],
         exclude_paths: Optional[List[str]] = None,
-    ) -> Dict[str, "Macro"]:
+    ) -> Dict[str, DbtMacroWrapper]:
         """Take a path and extract macros from it.
 
         Args:
@@ -171,7 +167,7 @@ class JinjaTemplater(PythonTemplater):
             SQLTemplaterError: If there is an error in the Jinja macro file.
 
         """
-        macro_ctx: Dict[str, Macro] = {}
+        macro_ctx: Dict[str, DbtMacroWrapper] = {}
         for path_entry in path:
             # Does it exist? It should as this check was done on config load.
             if not os.path.exists(path_entry):

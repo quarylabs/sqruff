@@ -217,6 +217,7 @@ pub fn raw_dialect() -> Dialect {
         "CREDENTIAL",
         "CRITICAL",
         "CROSSEDITION",
+        "CURRVAL",
         "CURSOR",
         "DBA_RECYCLEBIN",
         "DBTIMEZONE",
@@ -528,17 +529,41 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable()
                 .into(),
         ),
-        // SequenceNextValGrammar
+        // SequencePseudocolumnGrammar
         (
-            "SequenceNextValGrammar".into(),
-            Sequence::new(vec![
-                Ref::new("NakedIdentifierSegment").to_matchable(),
-                Ref::new("DotSegment").to_matchable(),
-                Ref::keyword("NEXTVAL").to_matchable(),
+            "SequencePseudocolumnGrammar".into(),
+            one_of(vec![
+                // schema.sequence.{NEXTVAL|CURRVAL}
+                Sequence::new(vec![
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("DotSegment").to_matchable(),
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("DotSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("NEXTVAL").to_matchable(),
+                        Ref::keyword("CURRVAL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.allow_gaps = false;
+                })
+                .to_matchable(),
+                // sequence.{NEXTVAL|CURRVAL}
+                Sequence::new(vec![
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("DotSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("NEXTVAL").to_matchable(),
+                        Ref::keyword("CURRVAL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.allow_gaps = false;
+                })
+                .to_matchable(),
             ])
-            .config(|config| {
-                config.allow_gaps = false;
-            })
             .to_matchable()
             .into(),
         ),
@@ -4689,7 +4714,7 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // ---- ColumnConstraintDefaultGrammar ----
-    // SQLFluff: OneOf(ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"), Ref("SequenceNextValGrammar"))
+    // SQLFluff: OneOf(ansi_dialect.get_grammar("ColumnConstraintDefaultGrammar"), Ref("SequencePseudocolumnGrammar"))
     oracle.replace_grammar(
         "ColumnConstraintDefaultGrammar",
         one_of(vec![
@@ -4697,7 +4722,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("LiteralGrammar").to_matchable(),
             Ref::new("FunctionSegment").to_matchable(),
             Ref::new("BareFunctionSegment").to_matchable(),
-            Ref::new("SequenceNextValGrammar").to_matchable(),
+            Ref::new("SequencePseudocolumnGrammar").to_matchable(),
             Ref::new("ExpressionSegment").to_matchable(),
         ])
         .to_matchable(),

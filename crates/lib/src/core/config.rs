@@ -367,9 +367,11 @@ impl FluffConfig {
             .map(|part| part.trim().to_owned())
             .collect();
         if parts.len() < 2 {
-            return Err(SQLFluffUserError::new(
-                "Inline configuration requires a key and value".into(),
-            ));
+            log::warn!(
+                "Malformed inline config: {directive:?}. Inline config uses colon syntax (for \
+                 example, `-- sqlfluff:dialect:ansi`), not `=`."
+            );
+            return Ok(());
         }
         let raw_value = parts.pop().unwrap();
         if parts.len() == 1 {
@@ -2048,6 +2050,18 @@ max_line_length = 44
             .process_inline_config("-- sqlfluff:max_parse_depth:0")
             .unwrap();
         assert_eq!(config.raw["core"]["max_parse_depth"].as_int(), Some(0));
+    }
+
+    #[test]
+    fn malformed_inline_equals_syntax_is_ignored() {
+        let mut config = FluffConfig::default();
+        let before = config.clone();
+
+        config
+            .process_inline_config("-- sqlfluff:disable=AM04")
+            .unwrap();
+
+        assert_eq!(config, before);
     }
 
     #[test]

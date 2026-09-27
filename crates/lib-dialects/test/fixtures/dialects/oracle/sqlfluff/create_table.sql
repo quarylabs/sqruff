@@ -23,7 +23,13 @@ CREATE TABLE t4 (
         (MAXVALUE 100 LIMIT VALUE)
 );
 
+CREATE TABLE t4 (id NUMBER DEFAULT some_seq.CURRVAL);
+
 CREATE TABLE t3 (id NUMBER DEFAULT some_seq.NEXTVAL);
+
+CREATE TABLE t5 (id NUMBER DEFAULT myschema.some_seq.CURRVAL);
+
+CREATE TABLE t6 (id NUMBER DEFAULT myschema.some_seq.NEXTVAL);
 
 -- Physical attributes: TABLESPACE + full STORAGE clause + LOGGING/NOLOGGING
 CREATE TABLE s1.t_storage (

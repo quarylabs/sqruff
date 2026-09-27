@@ -166,6 +166,11 @@ fn check_references(
 
     for reference in references.clone() {
         let mut this_ref_type = reference.qualification();
+        // Placeholder parameters render as bare identifiers, but are not real
+        // column references and must not affect consistency checks.
+        if this_ref_type == "unqualified" && reference.0.is_templated() {
+            continue;
+        }
         if this_ref_type == "qualified"
             && is_struct_dialect
             && &reference

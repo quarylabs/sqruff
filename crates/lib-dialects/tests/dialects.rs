@@ -346,6 +346,44 @@ fn bigquery_cast_as_float_is_unparsable() {
 }
 
 #[test]
+fn oracle_rejects_duplicate_physical_attributes() {
+    let dialect = kind_to_dialect(&DialectKind::Oracle, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "CREATE TABLE t (c NUMBER) PCTFREE 10 PCTFREE 20;",
+        "CREATE TABLE t (c NUMBER) PCTUSED 40 PCTUSED 60;",
+        "CREATE TABLE t (c NUMBER) INITRANS 2 INITRANS 4;",
+        "CREATE TABLE t (c NUMBER) MAXTRANS 255 MAXTRANS 100;",
+        "CREATE TABLE t (c NUMBER) LOGGING NOLOGGING;",
+        "CREATE TABLE t (c NUMBER) MONITORING NOMONITORING;",
+        "CREATE TABLE t (c NUMBER) ROWDEPENDENCIES NOROWDEPENDENCIES;",
+        "CREATE TABLE t (c NUMBER) CACHE NOCACHE;",
+        "CREATE TABLE t (c NUMBER) STORAGE (INITIAL 256K INITIAL 512K);",
+        "CREATE TABLE t (c NUMBER) STORAGE (NEXT 64K NEXT 128K);",
+        "CREATE TABLE t (c NUMBER) STORAGE (MAXEXTENTS 100 MAXEXTENTS 200);",
+        "CREATE TABLE t (c NUMBER) STORAGE (PCTINCREASE 0 PCTINCREASE 10);",
+        "CREATE TABLE t (c NUMBER) STORAGE (BUFFER_POOL DEFAULT BUFFER_POOL KEEP);",
+        "CREATE TABLE t (c NUMBER) INMEMORY PRIORITY LOW PRIORITY HIGH;",
+        "CREATE INDEX i ON t (c) PCTFREE 10 PCTFREE 20;",
+        "CREATE INDEX i ON t (c) LOGGING NOLOGGING;",
+        "CREATE INDEX i ON t (c) NOSORT REVERSE;",
+        "CREATE INDEX i ON t (c) VISIBLE INVISIBLE;",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(
+            !check_no_unparsable_segments(&tree).is_empty(),
+            "expected duplicate or mutually exclusive Oracle attributes to be rejected: {sql}",
+        );
+    }
+}
+
+#[test]
 fn bracketed_matching_modes() {
     use sqruff_lib_core::helpers::ToMatchable;
     use sqruff_lib_core::parser::context::ParseContext;

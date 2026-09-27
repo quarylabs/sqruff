@@ -2759,45 +2759,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("BEGIN").to_matchable(),
                     MetaSegment::indent().to_matchable(),
                     Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("EXCEPTION").to_matchable(),
-                        MetaSegment::indent().to_matchable(),
-                        AnyNumberOf::new(vec![
-                            Sequence::new(vec![
-                                Ref::keyword("WHEN").to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("OTHERS").to_matchable(),
-                                    Sequence::new(vec![
-                                        Ref::new("SingleIdentifierGrammar").to_matchable(),
-                                        AnyNumberOf::new(vec![
-                                            Sequence::new(vec![
-                                                Ref::keyword("OR").to_matchable(),
-                                                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                                            ])
-                                            .to_matchable(),
-                                        ])
-                                        .to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::keyword("THEN").to_matchable(),
-                                MetaSegment::indent().to_matchable(),
-                                Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
-                                MetaSegment::dedent().to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .config(|config| {
-                            config.min_times = 1;
-                        })
-                        .to_matchable(),
-                        MetaSegment::dedent().to_matchable(),
-                    ])
-                    .config(|config| {
-                        config.optional();
-                    })
-                    .to_matchable(),
+                    Ref::new("ExceptionBlockGrammar").optional().to_matchable(),
                     MetaSegment::dedent().to_matchable(),
                     Ref::keyword("END").to_matchable(),
                     Ref::new("ObjectReferenceSegment").optional().to_matchable(),
@@ -4372,6 +4334,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("AlterFunctionStatementSegment").to_matchable(),
                 Ref::new("CreateTypeStatementSegment").to_matchable(),
                 Ref::new("CreateTypeBodyStatementSegment").to_matchable(),
+                Ref::new("CreatePackageBodyStatementSegment").to_matchable(),
                 Ref::new("CreatePackageStatementSegment").to_matchable(),
                 Ref::new("AlterSessionStatementSegment").to_matchable(),
                 Ref::new("DropPackageStatementSegment").to_matchable(),
@@ -5638,6 +5601,47 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "ExceptionWhenHandlerGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("WHEN").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("OTHERS").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("OR").to_matchable(),
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("THEN").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExceptionBlockGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("EXCEPTION").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                Ref::new("ExceptionWhenHandlerGrammar").to_matchable(),
+                AnyNumberOf::new(vec![Ref::new("ExceptionWhenHandlerGrammar").to_matchable()])
+                    .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "JSONReturningClause".into(),
             Sequence::new(vec![
                 Ref::keyword("RETURNING").to_matchable(),
@@ -6857,6 +6861,59 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // ---- CreatePackageBodyStatementSegment ----
+    oracle.add([(
+        "CreatePackageBodyStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::OracleCreatePackageBodyStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("OR").to_matchable(),
+                    Ref::keyword("REPLACE").to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("EDITIONABLE").to_matchable(),
+                    Ref::keyword("NONEDITIONABLE").to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+                Ref::keyword("PACKAGE").to_matchable(),
+                Ref::keyword("BODY").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Ref::new("SharingClauseGrammar").optional().to_matchable(),
+                AnyNumberOf::new(vec![
+                    Ref::new("DefaultCollationClauseGrammar").to_matchable(),
+                    Ref::new("InvokerRightsClauseGrammar").to_matchable(),
+                    Ref::new("AccessibleByClauseGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("IS").to_matchable(),
+                    Ref::keyword("AS").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("DeclareSegment").optional().to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("BEGIN").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("OneOrMoreStatementsGrammar").to_matchable(),
+                    Ref::new("ExceptionBlockGrammar").optional().to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+                Ref::keyword("END").to_matchable(),
+                Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // ---- CreatePackageStatementSegment: add IF NOT EXISTS ----
     oracle.add([(
         "CreatePackageStatementSegment".into(),
@@ -6880,7 +6937,6 @@ pub fn raw_dialect() -> Dialect {
                 })
                 .to_matchable(),
                 Ref::keyword("PACKAGE").to_matchable(),
-                Ref::keyword("BODY").optional().to_matchable(),
                 Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("ObjectReferenceSegment").to_matchable(),
                 Ref::new("SharingClauseGrammar").optional().to_matchable(),

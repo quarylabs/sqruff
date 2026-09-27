@@ -29,9 +29,13 @@ from typing import Optional
 import pytest
 from jinja2 import Environment, UndefinedError
 
-from sqruff.templaters.jinja_templater import DummyUndefined, JinjaTemplater
+from sqruff.templaters.jinja_templater import (
+    DummyUndefined,
+    JinjaTemplater,
+    UndefinedRecorder,
+)
 from sqruff.templaters.jinja_templater_tracers import JinjaAnalyzer
-from sqruff.templaters.python_templater import FluffConfig
+from sqruff.templaters.python_templater import FluffConfig, SQLTemplaterError
 # from .jinja_templater_tracers import JinjaAnalyzer, JinjaTagConfiguration
 
 
@@ -1906,6 +1910,46 @@ def test_undefined_magic_methods():
     assert ud > ud
 
     assert ud + ud is ud
+
+
+def test_undefined_recorder_iter_records_name():
+    """UndefinedRecorder iteration yields one element and records its name."""
+    undefined_set: set[str] = set()
+    recorder = UndefinedRecorder("my_var", undefined_set)
+
+    assert len(list(recorder)) == 1
+    assert "my_var" in undefined_set
+
+
+def test_jinja_undefined_multivar_for_loop_user_friendly_error():
+    """Undefined multi-variable loops raise a user-facing templater error."""
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_templater_paths=[],
+        jinja_exclude_macros_from_path=[],
+        jinja_loader_search_path=[],
+        jinja_apply_dbt_builtins=False,
+        jinja_ignore_templating=False,
+        jinja_library_paths=[],
+        dbt_profile=None,
+        dbt_profiles_dir=None,
+        dbt_target=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+    )
+
+    with pytest.raises(SQLTemplaterError, match="Unrecoverable failure"):
+        JinjaTemplater().process(
+            in_str=(
+                "SELECT 1\n"
+                "{% for field, conditions in undefined_dict.items() %}\n"
+                "AND {{ field }} = '{{ conditions }}'\n"
+                "{% endfor %}\n"
+            ),
+            fname="test.sql",
+            config=config,
+        )
 
 
 # #

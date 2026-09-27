@@ -319,6 +319,9 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | TruncateStatement
         | FromExpression
         | FromExpressionElement
+        | FromInsertClause
+        | FromInsertSourceClause
+        | FromInsertStatement
         | SelectClauseModifier
         | NamedWindowExpression
         | SelectClauseElement

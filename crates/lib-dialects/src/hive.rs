@@ -1010,6 +1010,9 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("TABLE").optional().to_matchable(),
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("PartitionSpecGrammar").optional().to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar")
+                        .optional()
+                        .to_matchable(),
                     one_of(vec![
                         Ref::new("SelectableGrammar").to_matchable(),
                         Ref::new("ValuesClauseSegment").to_matchable(),
@@ -1022,6 +1025,181 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
+    hive_dialect.add([
+        (
+            "FromInsertFromExpressionElementSegment".into(),
+            NodeMatcher::new(SyntaxKind::FromExpressionElement, |_| {
+                Sequence::new(vec![
+                    Ref::new("PreTableFunctionKeywordsGrammar")
+                        .optional()
+                        .to_matchable(),
+                    optionally_bracketed(vec![Ref::new("TableExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                    Ref::new("AliasExpressionSegment")
+                        .exclude(one_of(vec![
+                            Ref::keyword("INSERT").to_matchable(),
+                            Ref::new("FromClauseTerminatorGrammar").to_matchable(),
+                            Ref::new("SamplingExpressionSegment").to_matchable(),
+                            Ref::new("JoinLikeClauseGrammar").to_matchable(),
+                        ]))
+                        .optional()
+                        .to_matchable(),
+                    Ref::new("SamplingExpressionSegment")
+                        .optional()
+                        .to_matchable(),
+                    AnyNumberOf::new(vec![Ref::new("LateralViewClauseSegment").to_matchable()])
+                        .to_matchable(),
+                    Ref::new("PostTableExpressionGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FromInsertFromExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::FromExpression, |_| {
+                optionally_bracketed(vec![
+                    Sequence::new(vec![
+                        MetaSegment::indent().to_matchable(),
+                        one_of(vec![
+                            Ref::new("FromInsertFromExpressionElementSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Ref::new("FromInsertFromExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|config| {
+                            config.terminators = vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("ORDER").to_matchable(),
+                                    Ref::keyword("BY").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("GROUP").to_matchable(),
+                                    Ref::keyword("BY").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("INSERT").to_matchable(),
+                            ];
+                        })
+                        .to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                one_of(vec![
+                                    Ref::new("JoinClauseSegment").to_matchable(),
+                                    Ref::new("JoinLikeClauseGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|config| {
+                            config.terminators = vec![Ref::keyword("INSERT").to_matchable()];
+                        })
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FromInsertSourceClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::FromInsertSourceClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FROM").to_matchable(),
+                    Delimited::new(vec![
+                        Ref::new("FromInsertFromExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FromInsertClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::FromInsertClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("INSERT").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("OVERWRITE").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("TABLE").to_matchable(),
+                                    Ref::new("TableReferenceSegment").to_matchable(),
+                                    Ref::new("PartitionSpecGrammar").optional().to_matchable(),
+                                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                                    Ref::new("SelectableGrammar")
+                                        .terminators(vec![Ref::keyword("INSERT").to_matchable()])
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("LOCAL").optional().to_matchable(),
+                                    Ref::keyword("DIRECTORY").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    Ref::new("RowFormatClauseSegment").optional().to_matchable(),
+                                    Ref::new("StoredAsGrammar").optional().to_matchable(),
+                                    Ref::new("SelectableGrammar")
+                                        .terminators(vec![Ref::keyword("INSERT").to_matchable()])
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("INTO").to_matchable(),
+                            Ref::keyword("TABLE").optional().to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                            Ref::new("PartitionSpecGrammar").optional().to_matchable(),
+                            Ref::new("BracketedColumnReferenceListGrammar")
+                                .optional()
+                                .to_matchable(),
+                            one_of(vec![
+                                Ref::new("SelectableGrammar")
+                                    .terminators(vec![Ref::keyword("INSERT").to_matchable()])
+                                    .to_matchable(),
+                                Ref::new("ValuesClauseSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FromInsertStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::FromInsertStatement, |_| {
+                Sequence::new(vec![
+                    Ref::new("FromInsertSourceClauseSegment").to_matchable(),
+                    AnyNumberOf::new(vec![Ref::new("FromInsertClauseSegment").to_matchable()])
+                        .config(|config| config.min_times = 1)
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     hive_dialect.add([
         (
@@ -1499,6 +1677,7 @@ pub fn raw_dialect() -> Dialect {
         "StatementSegment",
         super::ansi::statement_segment().copy(
             Some(vec![
+                Ref::new("FromInsertStatementSegment").to_matchable(),
                 Ref::new("AlterDatabaseStatementSegment").to_matchable(),
                 Ref::new("MsckRepairTableStatementSegment").to_matchable(),
                 Ref::new("MsckTableStatementSegment").to_matchable(),

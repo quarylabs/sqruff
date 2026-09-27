@@ -2,6 +2,7 @@ pub mod anyof;
 pub mod conditional;
 pub mod delimited;
 pub mod noncode;
+pub mod preceded_by;
 pub mod sequence;
 
 use hashbrown::HashSet;

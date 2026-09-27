@@ -1817,7 +1817,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "SelectClauseTerminatorGrammar".into(),
             one_of(vec![
                 Ref::keyword("INTO").to_matchable(),
-                Ref::keyword("FROM").to_matchable(),
+                Ref::keyword("FROM")
+                    .exclude(ansi::is_distinct_from_lookbehind())
+                    .to_matchable(),
                 Ref::keyword("WHERE").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("ORDER").to_matchable(),

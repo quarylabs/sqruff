@@ -10,6 +10,7 @@ use super::grammar::anyof::AnyNumberOf;
 use super::grammar::conditional::Conditional;
 use super::grammar::delimited::Delimited;
 use super::grammar::noncode::NonCodeMatcher;
+use super::grammar::preceded_by::PrecededBy;
 use super::grammar::sequence::{Bracketed, Sequence};
 use super::grammar::{Anything, Nothing, Ref};
 use super::lookahead::LookaheadExclude;
@@ -105,6 +106,7 @@ pub enum MatchableTraitImpl {
     Bracketed(Bracketed),
     NodeMatcher(NodeMatcher),
     NonCodeMatcher(NonCodeMatcher),
+    PrecededBy(PrecededBy),
     Nothing(Nothing),
     Ref(Ref),
     Sequence(Sequence),

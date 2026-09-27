@@ -55,6 +55,92 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: a_column
+          - keyword: IS
+          - keyword: DISTINCT
+          - keyword: FROM
+          - column_reference:
+            - naked_identifier: b_column
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t_table
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: b_column
+          - keyword: IS
+          - keyword: NOT
+          - keyword: DISTINCT
+          - keyword: FROM
+          - column_reference:
+            - naked_identifier: c_column
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t_table
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: a_column
+          - keyword: IS
+          - keyword: DISTINCT
+          - keyword: FROM
+          - column_reference:
+            - naked_identifier: b_column
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t_table
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: b_column
+          - keyword: IS
+          - keyword: NOT
+          - keyword: DISTINCT
+          - keyword: FROM
+          - column_reference:
+            - naked_identifier: c_column
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t_table
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
         - column_reference:
           - naked_identifier: a_column
     - from_clause:

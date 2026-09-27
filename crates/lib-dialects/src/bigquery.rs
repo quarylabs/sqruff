@@ -1885,6 +1885,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable(),
             Ref::new("ArrayTypeSegment").to_matchable(),
             Ref::new("StructTypeSegment").to_matchable(),
+            Ref::new("TableTypeSegment").to_matchable(),
         ])
         .to_matchable()
     });
@@ -1936,6 +1937,48 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable()
         .into(),
     )]);
+
+    dialect.add([
+        (
+            "TableTypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::DataType, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("TableTypeSchemaSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TableTypeSchemaSegment".into(),
+            NodeMatcher::new(SyntaxKind::TableTypeSchema, |_| {
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Ref::new("ColumnConstraintSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("OptionsSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| {
+                    this.bracket_type = "angle";
+                    this.bracket_pairs_set = "angle_bracket_pairs";
+                })
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
 
     dialect.add([(
         "ArrayFunctionContentsSegment".into(),

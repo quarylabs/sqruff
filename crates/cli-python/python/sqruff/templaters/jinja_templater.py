@@ -751,7 +751,9 @@ class JinjaTemplater(PythonTemplater):
                     in_str, syntax_tree, undefined_variables
                 ),
             )
-        except (TemplateError, TypeError) as err:
+        except (TemplateError, TypeError, ValueError) as err:
+            # Multi-variable loops over an undefined value can fail while
+            # unpacking the single element yielded by UndefinedRecorder.
             templater_logger.info("Unrecoverable Jinja Error: %s", err, exc_info=True)
             raise SQLTemplaterError(
                 (

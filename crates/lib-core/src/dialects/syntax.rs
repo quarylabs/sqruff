@@ -1207,6 +1207,7 @@ pub enum SyntaxKind {
     TableReference,
     TableSpecificationSegment,
     TableTtlSegment,
+    TableTypeSchema,
     TablespaceReference,
     TagBracketedEquals,
     TagEquals,

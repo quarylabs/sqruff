@@ -339,6 +339,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SelectApplyClause
         | SelectReplaceClause
         | StructTypeSchema
+        | TableTypeSchema
         | Tuple
         | NamedArgument
         | DeclareSegment

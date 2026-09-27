@@ -472,6 +472,49 @@ def test_is_dbt_exception():
     assert not is_dbt_exception(None)
 
 
+def test_templater_dbt_threads_default():
+    """An unset thread count lets dbt use the value from profiles.yml."""
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_apply_dbt_builtins=True,
+        jinja_library_paths=None,
+        jinja_templater_paths=None,
+        jinja_exclude_macros_from_path=None,
+        jinja_loader_search_path=None,
+        jinja_ignore_templating=None,
+        dbt_target=None,
+        dbt_profile=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+        dbt_profiles_dir=None,
+    )
+
+    assert DbtTemplater(sqlfluff_config=config)._get_threads() is None
+
+
+def test_templater_dbt_threads_explicit():
+    """An explicit thread count overrides the profiles.yml value."""
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_apply_dbt_builtins=True,
+        jinja_library_paths=None,
+        jinja_templater_paths=None,
+        jinja_exclude_macros_from_path=None,
+        jinja_loader_search_path=None,
+        jinja_ignore_templating=None,
+        dbt_target=None,
+        dbt_profile=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+        dbt_profiles_dir=None,
+        dbt_threads=4,
+    )
+
+    assert DbtTemplater(sqlfluff_config=config)._get_threads() == 4
+
+
 @pytest.mark.parametrize("error_class", [Exception, SQLTemplaterError])
 def test_handle_dbt_errors_returns_pickleable_native_exception(error_class):
     """Replace dbt exceptions with context-free, pickleable native exceptions."""

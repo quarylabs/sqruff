@@ -69,7 +69,7 @@ class DbtConfigArgs:
     profile: Optional[str] = None
     target: Optional[str] = None
     target_path: Optional[str] = None
-    threads: int = 1
+    threads: Optional[int] = None
     single_threaded: bool = False
     # dict in 1.5.x onwards, json string before.
     # NOTE: We always set this value when instantiating this
@@ -278,6 +278,7 @@ class DbtTemplater(JinjaTemplater):
 
         user_config = None
         cli_vars = self._get_cli_vars()
+        threads = self._get_threads()
 
         flags.set_from_args(
             DbtConfigArgs(
@@ -286,7 +287,7 @@ class DbtTemplater(JinjaTemplater):
                 profile=self._get_profile(),
                 target_path=self._get_target_path(),
                 vars=cli_vars,
-                threads=1,
+                threads=threads,
             ),
             user_config,
         )
@@ -298,7 +299,7 @@ class DbtTemplater(JinjaTemplater):
                 target=self._get_target(),
                 target_path=self._get_target_path(),
                 vars=cli_vars,
-                threads=1,
+                threads=threads,
             )
         )
 
@@ -429,6 +430,10 @@ class DbtTemplater(JinjaTemplater):
     def _get_target_path(self):
         """Get a dbt target path from the configuration."""
         return self.config.dbt_target_path
+
+    def _get_threads(self) -> Optional[int]:
+        """Get configured threads, or let dbt use the profiles.yml value."""
+        return self.config.dbt_threads
 
     def _get_cli_vars(self) -> dict:
         cli_vars = self.context

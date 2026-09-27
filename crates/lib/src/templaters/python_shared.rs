@@ -26,6 +26,7 @@ pub struct PythonFluffConfig {
     dbt_target_path: Option<String>,
     dbt_context: Option<String>,
     dbt_project_dir: Option<String>,
+    dbt_threads: Option<i32>,
     dbt_skip_compilation_error: bool,
 }
 
@@ -133,6 +134,9 @@ impl From<&FluffConfig> for PythonFluffConfig {
                 .templater_value(TemplaterKind::Dbt, "project_dir")
                 .and_then(|value| value.as_string())
                 .map(ToString::to_string),
+            dbt_threads: value
+                .templater_value(TemplaterKind::Dbt, "threads")
+                .and_then(|value| value.as_int()),
             dbt_skip_compilation_error: value
                 .templater_value(TemplaterKind::Dbt, "dbt_skip_compilation_error")
                 .and_then(|value| value.as_bool())
@@ -232,6 +236,7 @@ mod tests {
         assert!(python_fluff_config.jinja_loader_search_path.is_empty());
         assert!(python_fluff_config.jinja_apply_dbt_builtins);
         assert_eq!(python_fluff_config.jinja_ignore_templating, None);
+        assert_eq!(python_fluff_config.dbt_threads, None);
         assert!(python_fluff_config.dbt_skip_compilation_error);
     }
 
@@ -389,6 +394,20 @@ dbt_skip_compilation_error = false
         let python_fluff_config = PythonFluffConfig::from(config);
 
         assert!(!python_fluff_config.dbt_skip_compilation_error);
+    }
+
+    #[test]
+    fn test_dbt_threads_is_serialized() {
+        let source = r"
+[sqruff]
+templater = dbt
+[sqruff:templater:dbt]
+threads = 4
+";
+        let config = FluffConfig::from_source(source, None);
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert_eq!(python_fluff_config.dbt_threads, Some(4));
     }
 
     #[test]

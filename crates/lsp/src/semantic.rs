@@ -322,6 +322,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | FromInsertClause
         | FromInsertSourceClause
         | FromInsertStatement
+        | OracleIndexPhysicalAttributes
+        | OraclePhysicalAttributes
         | SelectClauseModifier
         | NamedWindowExpression
         | SelectClauseElement
@@ -342,11 +344,13 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SelectApplyClause
         | SelectReplaceClause
         | StructTypeSchema
+        | StorageClause
         | TableTypeSchema
         | Tuple
         | NamedArgument
         | DeclareSegment
         | SetSegment
+        | UsingIndexClause
         | PartitionBySegment
         | ClusterBySegment
         | OptionsSegment

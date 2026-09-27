@@ -334,7 +334,7 @@ param_style = colon",
     #[test]
     fn test_all_the_known_styles() {
         // in, param_style, expected_out, values
-        let cases: [PlaceholderCase<'_>; 22] = [
+        let cases: [PlaceholderCase<'_>; 23] = [
             (
                 "SELECT * FROM f, o, o WHERE a < 10\n\n",
                 "colon",
@@ -374,6 +374,22 @@ WHERE userid = 42 AND date > '2020-01-01'"#,
                     ("start_date", "'2020-01-01'"),
                     ("city_ids", "(1, 2, 3)"),
                 ],
+            ),
+            (
+                // Colon parameters followed by PostgreSQL's `::` cast operator
+                // should consume the full parameter name.
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE userid = :user_id AND city = :city_name::text
+"#,
+                "colon",
+                r#"
+SELECT user_mail, city_id
+FROM users_data
+WHERE userid = 42 AND city = 'London'::text
+"#,
+                vec![("user_id", "42"), ("city_name", "'London'")],
             ),
             (
                 r#"

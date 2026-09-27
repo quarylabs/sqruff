@@ -271,6 +271,10 @@ impl RuleRF01 {
         reference: &ObjectReferenceSegment,
         selectable: &Selectable,
     ) -> bool {
+        if Self::is_oracle_sequence_pseudocolumn(reference, selectable) {
+            return true;
+        }
+
         let ref_path = selectable.selectable.path_to(&reference.0);
 
         if !ref_path.is_empty() {
@@ -280,6 +284,36 @@ impl RuleRF01 {
         } else {
             false
         }
+    }
+
+    /// Whether the reference is an Oracle sequence pseudocolumn access.
+    ///
+    /// Oracle treats `sequence.NEXTVAL` and `sequence.CURRVAL` as sequence
+    /// pseudocolumn access rather than table/column access.
+    fn is_oracle_sequence_pseudocolumn(
+        reference: &ObjectReferenceSegment,
+        selectable: &Selectable,
+    ) -> bool {
+        if selectable.dialect.name != DialectKind::Oracle {
+            return false;
+        }
+
+        let reference_parts = reference.iter_raw_references();
+        if reference_parts.len() < 2 {
+            return false;
+        }
+
+        let last_part = reference_parts.last().unwrap();
+
+        // Quoted identifiers should still be treated as ordinary references.
+        last_part
+            .segments
+            .first()
+            .is_some_and(|segment| segment.is_type(SyntaxKind::NakedIdentifier))
+            && matches!(
+                last_part.part.to_uppercase().as_str(),
+                "NEXTVAL" | "CURRVAL"
+            )
     }
 }
 

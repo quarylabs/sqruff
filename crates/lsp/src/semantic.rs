@@ -1174,6 +1174,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | OracleCreateTypeStatement
         | OracleTypeReference
         | OracleCreateTypeBodyStatement
+        | OracleCreatePackageBodyStatement
         | OracleCreatePackageStatement
         | OraclePackageReference
         | OracleAlterPackageStatement

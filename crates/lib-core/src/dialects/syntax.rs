@@ -873,6 +873,7 @@ pub enum SyntaxKind {
     OracleCommentStatement,
     OracleCreateDatabaseLinkStatement,
     OracleCreateFunctionStatement,
+    OracleCreatePackageBodyStatement,
     OracleCreatePackageStatement,
     OracleCreateProcedureStatement,
     OracleCreateSynonymStatement,

@@ -5704,30 +5704,44 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("DISABLE").to_matchable(),
                         ])
                         .to_matchable(),
+                        Ref::keyword("COMMIT").to_matchable(),
+                        Ref::keyword("IN").to_matchable(),
+                        Ref::keyword("PROCEDURE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
                         one_of(vec![
-                            Ref::keyword("GUARD").to_matchable(),
-                            Ref::keyword("RESUMABLE").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("COMMIT").to_matchable(),
-                                Ref::keyword("IN").to_matchable(),
-                                Ref::keyword("PROCEDURE").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("PARALLEL").to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("DML").to_matchable(),
-                                    Ref::keyword("DDL").to_matchable(),
-                                    Ref::keyword("QUERY").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("SHARD").to_matchable(),
-                                Ref::keyword("DDL").to_matchable(),
-                            ])
-                            .to_matchable(),
+                            Ref::keyword("ENABLE").to_matchable(),
+                            Ref::keyword("DISABLE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("GUARD").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ENABLE").to_matchable(),
+                        Ref::keyword("PARALLEL").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("DML").to_matchable(),
+                            Ref::keyword("DDL").to_matchable(),
+                            Ref::keyword("QUERY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("PARALLEL").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DISABLE").to_matchable(),
+                        Ref::keyword("PARALLEL").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("DML").to_matchable(),
+                            Ref::keyword("DDL").to_matchable(),
+                            Ref::keyword("QUERY").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -5741,6 +5755,44 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("QUERY").to_matchable(),
                         ])
                         .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("PARALLEL").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ENABLE").to_matchable(),
+                        Ref::keyword("RESUMABLE").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("TIMEOUT").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NAME").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DISABLE").to_matchable(),
+                        Ref::keyword("RESUMABLE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("ENABLE").to_matchable(),
+                            Ref::keyword("DISABLE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("SHARD").to_matchable(),
+                        Ref::keyword("DDL").to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
@@ -5805,11 +5857,17 @@ pub fn raw_dialect() -> Dialect {
                                 .to_matchable(),
                             ])
                             .to_matchable(),
-                            // CONTAINER = object
                             Sequence::new(vec![
                                 Ref::keyword("CONTAINER").to_matchable(),
                                 Ref::new("EqualsSegment").to_matchable(),
                                 Ref::new("ObjectReferenceSegment").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SERVICE").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                ])
+                                .config(|config| config.optional())
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                             // Generic: param = value

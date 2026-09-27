@@ -302,6 +302,7 @@ pub fn raw_dialect() -> Dialect {
         "OID",
         "OLTP",
         "OPTIMAL",
+        "ORA_ROWSCN",
         "OUTLINE",
         "PACKAGE",
         "PAIRS",
@@ -344,6 +345,7 @@ pub fn raw_dialect() -> Dialect {
         "SEGMENT",
         "SERIALIZABLE",
         "SERVICE",
+        "SESSION_USER",
         "SHARD",
         "SHARD_ENABLE",
         "SYNC",
@@ -377,9 +379,13 @@ pub fn raw_dialect() -> Dialect {
         "CURRENT_TIMESTAMP",
         "DBTIMEZONE",
         "LOCALTIMESTAMP",
+        "ORA_ROWSCN",
+        "SESSION_USER",
         "SESSIONTIMESTAMP",
         "SYSDATE",
         "SYSTIMESTAMP",
+        "UID",
+        "USER",
     ]);
 
     // ---- Lexer ----

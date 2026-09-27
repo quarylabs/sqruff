@@ -2346,6 +2346,11 @@ When `prefer_quoted_identifiers = True`, the quotes are always necessary, no mat
 Automatic fixes are available when the dialect has a single context-independent
 identifier quote style. Other dialects report the violation without a fix.
 
+When `prefer_quoted_keywords = True`, SQLite keyword identifiers can also be
+fixed automatically. Set `prefer_quoted_keyword_style` to `double_quotes` (the
+default) or `backticks` to choose the inserted and normalized quote style. Other
+dialects continue to report quoted-keyword violations without a fix.
+
 **Anti-pattern**
 
 In this example, a valid unquoted identifier, that is also not a reserved keyword, is required to be quoted.

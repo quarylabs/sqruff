@@ -823,7 +823,10 @@ impl Linter {
 
         let parsed = match parser.parse(tables, tokens) {
             Ok(parsed) => parsed,
-            Err(error) => {
+            Err(mut error) => {
+                if error.segment.is_none() {
+                    error.segment = tokens.iter().find(|segment| segment.is_code()).cloned();
+                }
                 violations.push(error);
                 None
             }
@@ -1028,6 +1031,33 @@ rules = all
         let parsed = linter.parse_string(&tables, "", None).unwrap();
 
         assert!(parsed.violations.is_empty());
+    }
+
+    #[test]
+    fn max_parse_depth_rejects_deeply_nested_sql_with_an_anchor() {
+        let config =
+            FluffConfig::from_source("[sqruff]\ndialect = ansi\nmax_parse_depth = 100\n", None);
+        let linter = Linter::new(config, None, None, true).unwrap();
+        let sql = format!("SELECT {}1{}", "(".repeat(120), ")".repeat(120));
+        let parsed = linter.parse_string(&Tables::default(), &sql, None).unwrap();
+
+        let error = parsed
+            .violations
+            .iter()
+            .find(|error| error.description.contains("Maximum parse depth exceeded"))
+            .expect("expected a maximum parse depth violation");
+        assert!(error.description.contains("limit 100"));
+        assert!(error.line_no > 0);
+        assert!(error.line_pos > 0);
+    }
+
+    #[test]
+    fn zero_max_parse_depth_disables_the_limit() {
+        let config =
+            FluffConfig::from_source("[sqruff]\ndialect = ansi\nmax_parse_depth = 0\n", None);
+        let parser: Parser = (&config).into();
+
+        assert_eq!(parser.max_parse_depth(), 0);
     }
 
     #[test]

@@ -207,6 +207,8 @@ impl FluffConfig {
 
         normalize_implicit_indents_map(&mut configs, "configuration")
             .expect("invalid implicit_indents configuration");
+        normalize_max_parse_depth_map(&mut configs, "configuration")
+            .expect("invalid max_parse_depth configuration");
 
         let values = ConfigLoader::get_config_elems_from_file(
             None,
@@ -383,6 +385,7 @@ impl FluffConfig {
         let mut raw = self.raw.clone();
         let mut elems = vec![(parts, value)];
         normalize_implicit_indents_elems(&mut elems, "inline configuration")?;
+        normalize_max_parse_depth_elems(&mut elems, "inline configuration")?;
         ConfigLoader::incorporate_vals(&mut raw, elems);
         *self = Self::new(
             raw,
@@ -640,6 +643,7 @@ impl ConfigLoader {
         };
 
         normalize_implicit_indents_elems(&mut elems, &config_reference(config_path))?;
+        normalize_max_parse_depth_elems(&mut elems, &config_reference(config_path))?;
         Ok(elems)
     }
 
@@ -832,6 +836,56 @@ fn normalize_implicit_indents_map(
     }
 
     Ok(())
+}
+
+fn normalize_max_parse_depth_value(
+    value: &mut Value,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    if value.is_none() || value.as_string() == Some("") {
+        *value = Value::Int(0);
+        return Ok(());
+    }
+
+    match value.as_int() {
+        Some(depth) if depth >= 0 => Ok(()),
+        Some(depth) => Err(SQLFluffUserError::new(format!(
+            "Config file {logging_reference:?} set an invalid value for `max_parse_depth`: \
+             {depth}. This value must be 0 or a positive integer. Use 0 to disable the limit."
+        ))),
+        None => Err(SQLFluffUserError::new(format!(
+            "Config file {logging_reference:?} set an invalid value for `max_parse_depth`: \
+             {value:?}. This value must be an integer. Use 0 or an empty value to disable the \
+             limit."
+        ))),
+    }
+}
+
+fn normalize_max_parse_depth_elems(
+    elems: &mut [(Vec<String>, Value)],
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    if let Some((_, value)) = elems
+        .iter_mut()
+        .find(|(path, _)| path.len() == 2 && path[0] == "core" && path[1] == "max_parse_depth")
+    {
+        normalize_max_parse_depth_value(value, logging_reference)?;
+    }
+    Ok(())
+}
+
+fn normalize_max_parse_depth_map(
+    configs: &mut HashMap<String, Value>,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    let Some(value) = configs
+        .get_mut("core")
+        .and_then(Value::as_map_mut)
+        .and_then(|core| core.get_mut("max_parse_depth"))
+    else {
+        return Ok(());
+    };
+    normalize_max_parse_depth_value(value, logging_reference)
 }
 
 fn parse_ini_config_elems(
@@ -1088,7 +1142,10 @@ impl<'a> From<&'a FluffConfig> for Parser<'a> {
         let indentation_section = &config.raw["indentation"];
         let indentation_config =
             IndentationConfig::from_bool_lookup(|key| indentation_section[key].to_bool());
-        Self::new(dialect, indentation_config)
+        let max_parse_depth = config.raw["core"]["max_parse_depth"]
+            .as_int()
+            .expect("max_parse_depth must be validated") as usize;
+        Self::new_with_max_parse_depth(dialect, indentation_config, max_parse_depth)
     }
 }
 
@@ -1139,6 +1196,13 @@ mod tests {
         let config = FluffConfig::default();
 
         assert!(config.sql_file_exts().iter().any(|ext| ext == ".pkb"));
+    }
+
+    #[test]
+    fn max_parse_depth_defaults_to_255() {
+        let config = FluffConfig::default();
+
+        assert_eq!(config.raw["core"]["max_parse_depth"].as_int(), Some(255));
     }
 
     #[test]
@@ -1957,6 +2021,33 @@ max_line_length = 44
                 Some(value)
             );
         }
+    }
+
+    #[test]
+    fn test_max_parse_depth_values_are_validated_and_normalized() {
+        for (value, expected) in [("", 0), ("None", 0), ("0", 0), ("25", 25)] {
+            let source = format!("[sqruff]\nmax_parse_depth = {value}\n");
+            let config = FluffConfig::try_from_source(&source, None).unwrap();
+            assert_eq!(
+                config.raw["core"]["max_parse_depth"].as_int(),
+                Some(expected)
+            );
+        }
+
+        for value in ["invalid", "true", "-1"] {
+            let source = format!("[sqruff]\nmax_parse_depth = {value}\n");
+            let err = FluffConfig::try_from_source(&source, None).unwrap_err();
+            assert!(
+                err.to_string()
+                    .contains("set an invalid value for `max_parse_depth`")
+            );
+        }
+
+        let mut config = FluffConfig::default();
+        config
+            .process_inline_config("-- sqlfluff:max_parse_depth:0")
+            .unwrap();
+        assert_eq!(config.raw["core"]["max_parse_depth"].as_int(), Some(0));
     }
 
     #[test]

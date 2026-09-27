@@ -318,16 +318,18 @@ pub fn resolve_bracket(
             });
         }
 
-        let inner_match = resolve_bracket(
-            segments,
-            match_result,
-            matcher,
-            start_brackets,
-            end_brackets,
-            bracket_persists,
-            parse_context,
-            false,
-        )?;
+        let inner_match = parse_context.deeper_match(false, &[], |ctx| {
+            resolve_bracket(
+                segments,
+                match_result,
+                matcher,
+                start_brackets,
+                end_brackets,
+                bracket_persists,
+                ctx,
+                false,
+            )
+        })?;
 
         matched_idx = inner_match.span.end;
         if nested_match {

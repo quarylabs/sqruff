@@ -305,6 +305,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("RETURN").to_matchable(),
                             one_of(vec![
+                                Ref::new("SetExpressionSegment").to_matchable(),
                                 Ref::new("WithCompoundStatementSegment").to_matchable(),
                                 Ref::new("SelectStatementSegment").to_matchable(),
                                 Ref::new("ExpressionSegment").to_matchable(),

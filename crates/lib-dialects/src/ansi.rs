@@ -5,6 +5,7 @@ use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
+use sqruff_lib_core::parser::grammar::preceded_by::PrecededBy;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::{Cursor, Matcher, Pattern};
@@ -5998,7 +5999,9 @@ fn block_comment(cursor: &mut Cursor) -> bool {
 
 pub(crate) fn select_clause_terminators() -> Vec<Matchable> {
     vec![
-        Ref::keyword("FROM").to_matchable(),
+        Ref::keyword("FROM")
+            .exclude(is_distinct_from_lookbehind())
+            .to_matchable(),
         Ref::keyword("WHERE").to_matchable(),
         Sequence::new(vec![
             Ref::keyword("ORDER").to_matchable(),
@@ -6010,4 +6013,8 @@ pub(crate) fn select_clause_terminators() -> Vec<Matchable> {
         Ref::new("SetOperatorSegment").to_matchable(),
         Ref::keyword("FETCH").to_matchable(),
     ]
+}
+
+pub(crate) fn is_distinct_from_lookbehind() -> PrecededBy {
+    PrecededBy::new(vec![vec!["IS", "DISTINCT"], vec!["IS", "NOT", "DISTINCT"]])
 }

@@ -11,9 +11,9 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers;
-use sqruff_lib_core::parser::Parser;
 use sqruff_lib_core::parser::lexer::Lexer;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
+use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use sqruff_lib_core::value::Value;
 use sqruff_lib_dialects::kind_to_dialect;
 use strum::IntoEnumIterator;
@@ -301,7 +301,11 @@ fn dialects() {
                 let tables = Tables::default();
                 let dialect = dialects_by_fixture_dir.get(file.parent().unwrap()).unwrap();
                 let lexer = Lexer::from(dialect);
-                let parser = Parser::from(dialect);
+                let parser = if file.ends_with("ansi/sqlfluff/expression_recursion.sql") {
+                    Parser::new_with_max_parse_depth(dialect, IndentationConfig::default(), 2000)
+                } else {
+                    Parser::from(dialect)
+                };
                 let tokens = lexer.lex(&tables, sql);
                 assert!(tokens.1.is_empty());
 

@@ -17,6 +17,8 @@ use crate::parser::segments::file::FileSegment;
 use context::ParseContext;
 use segments::{ErasedSegment, Tables};
 
+pub const DEFAULT_MAX_PARSE_DEPTH: usize = 255;
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct IndentationConfig {
     flags: u16,
@@ -78,6 +80,7 @@ impl IndentationConfig {
 pub struct Parser<'a> {
     dialect: &'a Dialect,
     pub(crate) indentation_config: IndentationConfig,
+    max_parse_depth: usize,
 }
 
 impl<'a> From<&'a Dialect> for Parser<'a> {
@@ -85,15 +88,25 @@ impl<'a> From<&'a Dialect> for Parser<'a> {
         Self {
             dialect: value,
             indentation_config: IndentationConfig::default(),
+            max_parse_depth: DEFAULT_MAX_PARSE_DEPTH,
         }
     }
 }
 
 impl<'a> Parser<'a> {
     pub fn new(dialect: &'a Dialect, indentation_config: IndentationConfig) -> Self {
+        Self::new_with_max_parse_depth(dialect, indentation_config, DEFAULT_MAX_PARSE_DEPTH)
+    }
+
+    pub fn new_with_max_parse_depth(
+        dialect: &'a Dialect,
+        indentation_config: IndentationConfig,
+        max_parse_depth: usize,
+    ) -> Self {
         Self {
             dialect,
             indentation_config,
+            max_parse_depth,
         }
     }
 
@@ -103,6 +116,10 @@ impl<'a> Parser<'a> {
 
     pub fn indentation_config(&self) -> IndentationConfig {
         self.indentation_config
+    }
+
+    pub fn max_parse_depth(&self) -> usize {
+        self.max_parse_depth
     }
 
     pub fn parse(

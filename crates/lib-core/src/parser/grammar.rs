@@ -161,11 +161,11 @@ impl MatchableTrait for Ref {
                         .inspect_err(|e| log::error!("Parser error: {e:?}"))
                         .is_ok_and(|match_result| match_result.has_match())
                     {
-                        return Some(MatchResult::empty_at(idx));
+                        return Ok(Some(MatchResult::empty_at(idx)));
                     }
 
-                    None
-                });
+                    Ok(None)
+                })?;
 
             if let Some(ctx) = ctx {
                 return Ok(ctx);

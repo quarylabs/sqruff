@@ -5,6 +5,7 @@ use super::match_result::MatchResult;
 use super::matchable::{Matchable, MatchableCacheKey};
 use crate::dialects::Dialect;
 use crate::dialects::syntax::SyntaxKind;
+use crate::errors::SQLParseError;
 use crate::helpers::IndexSet;
 use crate::parser::IndentationConfig;
 use crate::parser::Parser;
@@ -31,24 +32,36 @@ pub struct ParseContext<'a> {
     loc_keys: IndexSet<LocKeyData>,
     parse_cache: HashMap<CacheKey, MatchResult>,
     pub(crate) indentation_config: IndentationConfig,
+    max_parse_depth: usize,
+    match_depth: usize,
 }
 
 impl<'a> From<&'a Parser<'a>> for ParseContext<'a> {
     fn from(parser: &'a Parser) -> Self {
         let dialect = parser.dialect();
         let indentation_config = parser.indentation_config;
-        Self::new(dialect, indentation_config)
+        Self::new_with_max_parse_depth(dialect, indentation_config, parser.max_parse_depth())
     }
 }
 
 impl<'a> ParseContext<'a> {
     pub fn new(dialect: &'a Dialect, indentation_config: IndentationConfig) -> Self {
+        Self::new_with_max_parse_depth(dialect, indentation_config, 0)
+    }
+
+    pub fn new_with_max_parse_depth(
+        dialect: &'a Dialect,
+        indentation_config: IndentationConfig,
+        max_parse_depth: usize,
+    ) -> Self {
         Self {
             dialect,
             terminators: Vec::new(),
             loc_keys: IndexSet::default(),
             parse_cache: HashMap::default(),
             indentation_config,
+            max_parse_depth,
+            match_depth: 0,
         }
     }
 
@@ -56,16 +69,33 @@ impl<'a> ParseContext<'a> {
         self.dialect
     }
 
+    pub fn max_parse_depth(&self) -> usize {
+        self.max_parse_depth
+    }
+
     pub(crate) fn deeper_match<T>(
         &mut self,
         clear_terminators: bool,
         push_terminators: &[Matchable],
-        f: impl FnOnce(&mut Self) -> T,
-    ) -> T {
+        f: impl FnOnce(&mut Self) -> Result<T, SQLParseError>,
+    ) -> Result<T, SQLParseError> {
+        self.match_depth += 1;
+        if self.max_parse_depth > 0 && self.match_depth > self.max_parse_depth {
+            self.match_depth -= 1;
+            return Err(SQLParseError {
+                description: format!(
+                    "Maximum parse depth exceeded (limit {}). This may indicate deeply nested SQL or a malicious input.",
+                    self.max_parse_depth
+                ),
+                segment: None,
+            });
+        }
+
         let (appended, terms) = self.set_terminators(clear_terminators, push_terminators);
 
         let ret = f(self);
         self.reset_terminators(appended, terms, clear_terminators);
+        self.match_depth -= 1;
 
         ret
     }

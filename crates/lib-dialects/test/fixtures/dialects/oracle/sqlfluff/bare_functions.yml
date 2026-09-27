@@ -186,3 +186,169 @@ file:
               - naked_identifier: NEXTVAL
           - end_bracket: )
   - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - bare_function: USER
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+    - oracle_insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - oracle_table_reference:
+        - naked_identifier: audit_log
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: log_id
+        - comma: ','
+        - column_reference:
+          - naked_identifier: created_by
+        - end_bracket: )
+      - oracle_values_clause:
+        - keyword: VALUES
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: audit_seq
+              - dot: .
+              - naked_identifier: NEXTVAL
+          - comma: ','
+          - expression:
+            - bare_function: USER
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - bare_function: UID
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+    - oracle_insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - oracle_table_reference:
+        - naked_identifier: audit_log
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: log_id
+        - comma: ','
+        - column_reference:
+          - naked_identifier: user_id_num
+        - end_bracket: )
+      - oracle_values_clause:
+        - keyword: VALUES
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: audit_seq
+              - dot: .
+              - naked_identifier: NEXTVAL
+          - comma: ','
+          - expression:
+            - bare_function: UID
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - bare_function: SESSION_USER
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: dual
+  - statement_terminator: ;
+  - statement:
+    - oracle_insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - oracle_table_reference:
+        - naked_identifier: audit_log
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: log_id
+        - comma: ','
+        - column_reference:
+          - naked_identifier: session_user_col
+        - end_bracket: )
+      - oracle_values_clause:
+        - keyword: VALUES
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: audit_seq
+              - dot: .
+              - naked_identifier: NEXTVAL
+          - comma: ','
+          - expression:
+            - bare_function: SESSION_USER
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - bare_function: ORA_ROWSCN
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: employee_id
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: employee_id
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - bare_function: ORA_ROWSCN
+          - comparison_operator:
+            - raw_comparison_operator: '>'
+          - numeric_literal: '12345678'
+  - statement_terminator: ;

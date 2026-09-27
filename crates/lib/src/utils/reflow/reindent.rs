@@ -1916,6 +1916,24 @@ fn fix_long_line_with_integer_targets(
     line_results
 }
 
+fn is_templated_safe_break(elements: &[ReflowElement], e_idx: usize) -> bool {
+    let before_literal = e_idx == 0
+        || elements[e_idx - 1]
+            .segments()
+            .last()
+            .and_then(|segment| segment.get_position_marker())
+            .is_none_or(|position_marker| position_marker.is_literal());
+
+    let after_literal = e_idx + 1 >= elements.len()
+        || elements[e_idx + 1]
+            .segments()
+            .first()
+            .and_then(|segment| segment.get_position_marker())
+            .is_none_or(|position_marker| position_marker.is_literal());
+
+    before_literal || after_literal
+}
+
 pub fn lint_line_length(
     tables: &Tables,
     elements: &ReflowSequenceType,
@@ -2023,7 +2041,12 @@ pub fn lint_line_length(
                     target_breaks.remove(pos);
                 }
 
-                let line_results = if target_balance % 1.0 == 0.0 {
+                target_breaks.retain(|&e_idx| is_templated_safe_break(&elem_buffer, e_idx));
+
+                let line_results = if target_breaks.is_empty() {
+                    log::debug!("No safe templated break points found. Leaving line unmodified.");
+                    Vec::new()
+                } else if target_balance % 1.0 == 0.0 {
                     fix_long_line_with_integer_targets(
                         tables,
                         &mut elem_buffer,

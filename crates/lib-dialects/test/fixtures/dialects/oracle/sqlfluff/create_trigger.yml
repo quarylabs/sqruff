@@ -49,16 +49,11 @@ file:
                 - statement_terminator: ;
               - when_clause:
                 - keyword: WHEN
-                - expression:
-                  - function:
-                    - oracle_function_name:
-                      - function_name_identifier: UPDATING
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - quoted_literal: '''salary'''
-                        - end_bracket: )
+                - keyword: UPDATING
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_literal: '''salary'''
+                  - end_bracket: )
                 - keyword: THEN
                 - statement:
                   - function:
@@ -75,16 +70,11 @@ file:
                 - statement_terminator: ;
               - when_clause:
                 - keyword: WHEN
-                - expression:
-                  - function:
-                    - oracle_function_name:
-                      - function_name_identifier: UPDATING
-                    - function_contents:
-                      - bracketed:
-                        - start_bracket: (
-                        - expression:
-                          - quoted_literal: '''department_id'''
-                        - end_bracket: )
+                - keyword: UPDATING
+                - bracketed:
+                  - start_bracket: (
+                  - quoted_literal: '''department_id'''
+                  - end_bracket: )
                 - keyword: THEN
                 - statement:
                   - function:

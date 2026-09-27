@@ -731,3 +731,255 @@ file:
   - statement_terminator: ;
   - slash_buffer_executor:
     - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - oracle_declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: obj_ref
+        - data_type:
+          - naked_identifier: SYS
+          - dot: .
+          - data_type_identifier: ANYDATA
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+        - oracle_if_then_statement:
+          - oracle_if_clause:
+            - keyword: IF
+            - expression:
+              - column_reference:
+                - naked_identifier: obj_ref
+              - keyword: IS
+              - keyword: OF
+              - bracketed:
+                - start_bracket: (
+                - object_reference:
+                  - naked_identifier: emp_t
+                - end_bracket: )
+            - keyword: THEN
+          - statement:
+            - oracle_null_statement:
+              - keyword: 'NULL'
+          - statement_terminator: ;
+          - keyword: ELSIF
+          - expression:
+            - column_reference:
+              - naked_identifier: obj_ref
+            - keyword: IS
+            - keyword: NOT
+            - keyword: OF
+            - bracketed:
+              - start_bracket: (
+              - object_reference:
+                - naked_identifier: mgr_t
+              - comma: ','
+              - object_reference:
+                - naked_identifier: emp_t
+              - end_bracket: )
+          - keyword: THEN
+          - statement:
+            - oracle_null_statement:
+              - keyword: 'NULL'
+          - statement_terminator: ;
+          - keyword: ELSIF
+          - expression:
+            - column_reference:
+              - naked_identifier: obj_ref
+            - keyword: IS
+            - keyword: OF
+            - keyword: TYPE
+            - bracketed:
+              - start_bracket: (
+              - object_reference:
+                - naked_identifier: worker_t
+              - end_bracket: )
+          - keyword: THEN
+          - statement:
+            - oracle_null_statement:
+              - keyword: 'NULL'
+          - statement_terminator: ;
+          - keyword: ELSIF
+          - expression:
+            - column_reference:
+              - naked_identifier: obj_ref
+            - keyword: IS
+            - keyword: NOT
+            - keyword: OF
+            - keyword: TYPE
+            - bracketed:
+              - start_bracket: (
+              - object_reference:
+                - naked_identifier: mgr_t
+              - end_bracket: )
+          - keyword: THEN
+          - statement:
+            - oracle_null_statement:
+              - keyword: 'NULL'
+          - statement_terminator: ;
+          - keyword: ELSIF
+          - expression:
+            - column_reference:
+              - naked_identifier: obj_ref
+            - keyword: IS
+            - keyword: OF
+            - bracketed:
+              - start_bracket: (
+              - keyword: ONLY
+              - object_reference:
+                - naked_identifier: emp_t
+              - end_bracket: )
+          - keyword: THEN
+          - statement:
+            - oracle_null_statement:
+              - keyword: 'NULL'
+          - statement_terminator: ;
+          - keyword: ELSIF
+          - expression:
+            - column_reference:
+              - naked_identifier: obj_ref
+            - keyword: IS
+            - keyword: NOT
+            - keyword: OF
+            - bracketed:
+              - start_bracket: (
+              - keyword: ONLY
+              - object_reference:
+                - naked_identifier: mgr_t
+              - comma: ','
+              - keyword: ONLY
+              - object_reference:
+                - naked_identifier: emp_t
+              - end_bracket: )
+          - keyword: THEN
+          - statement:
+            - oracle_null_statement:
+              - keyword: 'NULL'
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - oracle_declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: AUDITINFO
+        - data_type:
+          - data_type_identifier: VARCHAR2
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '2000'
+              - end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: EVENT
+        - data_type:
+          - data_type_identifier: VARCHAR2
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '10'
+              - end_bracket: )
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+        - oracle_if_then_statement:
+          - oracle_if_clause:
+            - keyword: IF
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+          - statement:
+            - assignment_segment_statement:
+              - object_reference:
+                - naked_identifier: AUDITINFO
+              - oracle_assignment_operator: :=
+              - expression:
+                - quoted_literal: '''Insert row into '''
+          - statement_terminator: ;
+          - statement:
+            - assignment_segment_statement:
+              - object_reference:
+                - naked_identifier: EVENT
+              - oracle_assignment_operator: :=
+              - expression:
+                - quoted_literal: '''INSERT'''
+          - statement_terminator: ;
+          - keyword: ELSIF
+          - expression:
+            - numeric_literal: '1'
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '2'
+          - keyword: THEN
+          - statement:
+            - assignment_segment_statement:
+              - object_reference:
+                - naked_identifier: AUDITINFO
+              - oracle_assignment_operator: :=
+              - expression:
+                - quoted_literal: '''Delete row from '''
+          - statement_terminator: ;
+          - statement:
+            - assignment_segment_statement:
+              - object_reference:
+                - naked_identifier: EVENT
+              - oracle_assignment_operator: :=
+              - expression:
+                - quoted_literal: '''DELETE'''
+          - statement_terminator: ;
+          - keyword: ELSIF
+          - expression:
+            - numeric_literal: '1'
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '3'
+          - keyword: THEN
+          - statement:
+            - assignment_segment_statement:
+              - object_reference:
+                - naked_identifier: AUDITINFO
+              - oracle_assignment_operator: :=
+              - expression:
+                - quoted_literal: '''Update row from '''
+          - statement_terminator: ;
+          - statement:
+            - assignment_segment_statement:
+              - object_reference:
+                - naked_identifier: EVENT
+              - oracle_assignment_operator: :=
+              - expression:
+                - quoted_literal: '''UPDATE'''
+          - statement_terminator: ;
+          - keyword: ELSE
+          - statement:
+            - assignment_segment_statement:
+              - object_reference:
+                - naked_identifier: AUDITINFO
+              - oracle_assignment_operator: :=
+              - expression:
+                - quoted_literal: '''Unknow operation '''
+          - statement_terminator: ;
+          - statement:
+            - assignment_segment_statement:
+              - object_reference:
+                - naked_identifier: EVENT
+              - oracle_assignment_operator: :=
+              - expression:
+                - quoted_literal: '''UNKNOW'''
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

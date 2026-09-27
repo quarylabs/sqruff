@@ -1103,6 +1103,41 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // AND binds more tightly than OR, matching SQL precedence rules.
+        (
+            "TriggerPredicatesConjunctionGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("NOT").optional().to_matchable(),
+                Ref::new("TriggerPredicatesGrammar").to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("AND").to_matchable(),
+                        Ref::keyword("NOT").optional().to_matchable(),
+                        Ref::new("TriggerPredicatesGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TriggerPredicatesExpressionGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("TriggerPredicatesConjunctionGrammar").to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("OR").to_matchable(),
+                        Ref::new("TriggerPredicatesConjunctionGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         // ForUpdateGrammar
         (
             "ForUpdateGrammar".into(),
@@ -3154,8 +3189,8 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("ELSIF").to_matchable(),
                             one_of(vec![
+                                Ref::new("TriggerPredicatesExpressionGrammar").to_matchable(),
                                 Ref::new("ExpressionSegment").to_matchable(),
-                                Ref::new("TriggerPredicatesGrammar").to_matchable(),
                             ])
                             .to_matchable(),
                             Ref::keyword("THEN").to_matchable(),
@@ -3191,8 +3226,8 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("IF").to_matchable(),
                     one_of(vec![
+                        Ref::new("TriggerPredicatesExpressionGrammar").to_matchable(),
                         Ref::new("ExpressionSegment").to_matchable(),
-                        Ref::new("TriggerPredicatesGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::keyword("THEN").to_matchable(),
@@ -3265,8 +3300,8 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("CASE").to_matchable(),
                         one_of(vec![
+                            Ref::new("TriggerPredicatesExpressionGrammar").to_matchable(),
                             Ref::new("ExpressionSegment").to_matchable(),
-                            Ref::new("TriggerPredicatesGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                         MetaSegment::implicit_indent().to_matchable(),
@@ -3319,8 +3354,8 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec![
                         MetaSegment::implicit_indent().to_matchable(),
                         one_of(vec![
+                            Ref::new("TriggerPredicatesExpressionGrammar").to_matchable(),
                             Ref::new("ExpressionSegment").to_matchable(),
-                            Ref::new("TriggerPredicatesGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                         MetaSegment::dedent().to_matchable(),
@@ -4062,6 +4097,31 @@ pub fn raw_dialect() -> Dialect {
         .config(|config| {
             config.optional();
         })
+        .to_matchable(),
+    );
+
+    let ansi_is_clause = oracle.grammar("IsClauseGrammar");
+    oracle.replace_grammar(
+        "IsClauseGrammar",
+        one_of(vec![
+            ansi_is_clause,
+            Sequence::new(vec![
+                Ref::keyword("OF").to_matchable(),
+                Ref::keyword("TYPE").optional().to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ONLY").optional().to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
         .to_matchable(),
     );
 

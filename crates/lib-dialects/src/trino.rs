@@ -166,6 +166,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             one_of(vec![
                 Ref::keyword("WHERE").to_matchable(),
                 Ref::keyword("LIMIT").to_matchable(),
+                Ref::keyword("OFFSET").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("GROUP").to_matchable(),
                     Ref::keyword("BY").to_matchable(),
@@ -190,6 +191,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "OrderByClauseTerminators".into(),
             one_of(vec![
                 Ref::keyword("LIMIT").to_matchable(),
+                Ref::keyword("OFFSET").to_matchable(),
                 Ref::keyword("HAVING").to_matchable(),
                 Ref::keyword("WINDOW").to_matchable(),
                 Ref::new("FrameClauseUnitGrammar").to_matchable(),
@@ -221,6 +223,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "WhereClauseTerminatorGrammar".into(),
             one_of(vec![
                 Ref::keyword("LIMIT").to_matchable(),
+                Ref::keyword("OFFSET").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("GROUP").to_matchable(),
                     Ref::keyword("BY").to_matchable(),
@@ -247,6 +250,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::keyword("LIMIT").to_matchable(),
+                Ref::keyword("OFFSET").to_matchable(),
                 Ref::keyword("WINDOW").to_matchable(),
                 Ref::keyword("FETCH").to_matchable(),
             ])
@@ -262,6 +266,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::keyword("LIMIT").to_matchable(),
+                Ref::keyword("OFFSET").to_matchable(),
                 Ref::keyword("HAVING").to_matchable(),
                 Ref::keyword("WINDOW").to_matchable(),
                 Ref::keyword("FETCH").to_matchable(),
@@ -428,6 +433,56 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Ref::new("NamedWindowSegment").optional().to_matchable(),
         ])
         .to_matchable(),
+    );
+
+    trino_dialect.replace_grammar(
+        "OffsetClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("OFFSET").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            one_of(vec![
+                Ref::new("NumericLiteralSegment").to_matchable(),
+                Ref::new("ExpressionSegment")
+                    .exclude(Ref::keyword("ROW"))
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("ROW").to_matchable(),
+                Ref::keyword("ROWS").to_matchable(),
+            ])
+            .config(|config| {
+                config.optional();
+            })
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    trino_dialect.replace_grammar(
+        "SelectStatementSegment",
+        trino_dialect
+            .grammar("UnorderedSelectStatementSegment")
+            .match_grammar(&trino_dialect)
+            .unwrap()
+            .copy(
+                Some(vec![
+                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                    Ref::new("OffsetClauseSegment").optional().to_matchable(),
+                    Ref::new("LimitClauseSegment").optional().to_matchable(),
+                    Ref::new("FetchClauseSegment").optional().to_matchable(),
+                ]),
+                None,
+                None,
+                None,
+                vec![
+                    Ref::new("SetOperatorSegment").to_matchable(),
+                    Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
+                    Ref::new("WithDataClauseSegment").to_matchable(),
+                ],
+                true,
+            ),
     );
 
     trino_dialect.replace_grammar(

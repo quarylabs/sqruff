@@ -250,17 +250,28 @@ fn validate_one_reference(
         return None;
     }
 
-    if ref_.is_qualified()
-        && ref_
+    if ref_.is_qualified() {
+        if ref_
             .extract_possible_references(ObjectReferenceLevel::Table, dialect_name)
             .into_iter()
             .any(|part| {
-                part.segments
-                    .first()
-                    .is_some_and(|segment| standalone_aliases.contains(segment.raw()))
+                standalone_aliases
+                    .iter()
+                    .any(|alias| alias.as_str() == part.part)
             })
-    {
-        return None;
+        {
+            return None;
+        }
+
+        // For multi-part references such as `item.taskId.oid`, the lambda
+        // parameter is the leading (schema-level) part rather than the table-level part.
+        if ref_.iter_raw_references().first().is_some_and(|part| {
+            standalone_aliases
+                .iter()
+                .any(|alias| alias.as_str() == part.part)
+        }) {
+            return None;
+        }
     }
 
     if table_ref_str.is_empty() {

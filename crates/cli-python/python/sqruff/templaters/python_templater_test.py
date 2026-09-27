@@ -1,6 +1,7 @@
 """Tests for templaters."""
 
 import logging
+from types import SimpleNamespace
 
 import pytest
 from sqruff.templaters.python_templater import (
@@ -463,3 +464,47 @@ def test__templater_python_dot_notation_fail(context, error_string) -> None:
             context=context.copy(),
         )
     assert error_string in excinfo.value.message
+
+
+@pytest.mark.parametrize(
+    "in_str,ignore,context,expected_templated_str,raises_error",
+    [
+        ("SELECT * FROM {start_date}", False, {}, None, True),
+        ("SELECT * FROM {start_date}", True, {}, "SELECT * FROM start_date", False),
+        ("SELECT * FROM {foo.bar}", True, {}, "SELECT * FROM foo_bar", False),
+        (
+            "SELECT * FROM {foo.bar}",
+            True,
+            {"sqlfluff": {"existing.key": "val"}},
+            "SELECT * FROM foo_bar",
+            False,
+        ),
+    ],
+)
+def test__templater_python_ignore_templating(
+    in_str, ignore, context, expected_templated_str, raises_error
+) -> None:
+    """Ignoring templating errors should preserve lintable output."""
+    templater = PythonTemplater()
+    config = SimpleNamespace(
+        ignore_templating=ignore,
+        templater_unwrap_wrapped_queries=True,
+    )
+
+    if raises_error:
+        with pytest.raises(SQLTemplaterError):
+            templater.process(
+                in_str=in_str,
+                fname="test",
+                context=context.copy(),
+                config=config,
+            )
+    else:
+        output, violations = templater.process(
+            in_str=in_str,
+            fname="test",
+            context=context.copy(),
+            config=config,
+        )
+        assert output.templated_str == expected_templated_str
+        assert violations == []

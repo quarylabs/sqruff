@@ -11,6 +11,7 @@ use sqruff_lib_core::errors::SQLFluffUserError;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PythonFluffConfig {
     templater_unwrap_wrapped_queries: bool,
+    ignore_templating: bool,
 
     jinja_templater_paths: Vec<String>,
     jinja_exclude_macros_from_path: Vec<String>,
@@ -41,6 +42,12 @@ impl From<&FluffConfig> for PythonFluffConfig {
                 .templater_root_value("unwrap_wrapped_queries")
                 .and_then(|value| value.as_bool())
                 .unwrap_or(false),
+            ignore_templating: value
+                .get("ignore", "core")
+                .as_array()
+                .unwrap_or_default()
+                .iter()
+                .any(|value| value.as_string() == Some("templating")),
             jinja_templater_paths: value
                 .templater_value(TemplaterKind::Jinja, "load_macros_from_path")
                 .map(|value| {
@@ -212,6 +219,7 @@ mod tests {
         let python_fluff_config = PythonFluffConfig::from(config);
 
         assert!(python_fluff_config.templater_unwrap_wrapped_queries);
+        assert!(!python_fluff_config.ignore_templating);
         assert_eq!(
             python_fluff_config.jinja_templater_paths,
             Vec::<String>::new()
@@ -225,6 +233,21 @@ mod tests {
         assert!(python_fluff_config.jinja_apply_dbt_builtins);
         assert_eq!(python_fluff_config.jinja_ignore_templating, None);
         assert!(python_fluff_config.dbt_skip_compilation_error);
+    }
+
+    #[test]
+    fn test_ignore_templating_from_core_config() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+ignore = parsing, templating
+"#,
+            None,
+        );
+
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert!(python_fluff_config.ignore_templating);
     }
 
     #[test]

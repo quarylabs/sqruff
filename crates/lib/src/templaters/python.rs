@@ -424,4 +424,24 @@ noblah = foo
 
         assert!(templated_file.is_err())
     }
+
+    #[test]
+    fn templater_python_ignore_templating() {
+        let source = r#"
+[sqruff]
+templater = python
+ignore = templating
+"#;
+        let config = FluffConfig::from_source(source, None);
+        let templater = PythonTemplater;
+
+        let results = templater.process(
+            &[("SELECT * FROM {start_date}", "test.sql")],
+            &config,
+            &None,
+        );
+        let templated_file = results.into_iter().next().unwrap().unwrap();
+
+        assert_eq!(templated_file.templated(), "SELECT * FROM start_date");
+    }
 }

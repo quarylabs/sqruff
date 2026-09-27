@@ -116,12 +116,6 @@ join c using(x)
         }
 
         let query: Query<'_> = Query::from_segment(&context.segment, context.dialect, None);
-        let mut ctes = CTEBuilder::default();
-
-        for cte in query.inner.borrow().ctes.values() {
-            ctes.insert_cte(cte.inner.borrow().cte_definition_segment.clone().unwrap());
-        }
-
         let is_with =
             segment.all_match(|it: &ErasedSegment| it.is_type(SyntaxKind::WithCompoundStatement));
         let is_recursive = is_with
@@ -141,6 +135,21 @@ join c using(x)
                 .find(|it| it.is_type(SyntaxKind::InsertStatement))
         {
             segment = Segments::new(insert_parent.clone(), None);
+        }
+
+        // Collect every top-level CTE in document order. Query analysis only
+        // records selectable CTEs, so using it here would drop expression CTEs
+        // such as ClickHouse's `array(...) AS alias` when composing the fix.
+        let mut ctes = CTEBuilder::default();
+        if is_with {
+            for cte in context.segment.recursive_crawl(
+                const { &SyntaxSet::single(SyntaxKind::CommonTableExpression) },
+                false,
+                const { &SyntaxSet::single(SyntaxKind::WithCompoundStatement) },
+                false,
+            ) {
+                ctes.insert_cte(cte);
+            }
         }
 
         // Issue 3617: In T-SQL (and possibly other dialects) the automated fix

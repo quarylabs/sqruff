@@ -163,6 +163,7 @@ pub fn get_aliases_from_select(
     let mut standalone_aliases = Vec::new();
     standalone_aliases.extend(get_pivot_table_aliases(segment, dialect));
     standalone_aliases.extend(get_lambda_argument_columns(segment, dialect));
+    standalone_aliases.extend(get_unpivot_table_aliases(segment, dialect));
 
     let mut table_aliases = Vec::new();
     for (table_expr, alias_info) in aliases {
@@ -228,6 +229,88 @@ fn get_pivot_table_aliases(segment: &ErasedSegment, dialect: Option<&Dialect>) -
                 if !aliases.contains(&name) {
                     aliases.push(name);
                 }
+            }
+        }
+    }
+
+    aliases
+}
+
+fn push_standalone_alias(aliases: &mut Vec<SmolStr>, alias: &ErasedSegment) {
+    // Standalone aliases are strings here, so preserve both spellings before
+    // discarding the segment used to normalize quoted identifiers.
+    for name in [alias.raw().clone(), alias.raw_normalized()] {
+        if !aliases.contains(&name) {
+            aliases.push(name);
+        }
+    }
+}
+
+fn get_unpivot_table_aliases(segment: &ErasedSegment, dialect: Option<&Dialect>) -> Vec<SmolStr> {
+    let Some(_dialect) = dialect else {
+        return Vec::new();
+    };
+
+    let mut aliases = Vec::new();
+
+    // Redshift SUPER object unpivoting and array unnesting introduce output
+    // aliases immediately after their AS and AT keywords.
+    for unpivot in segment.recursive_crawl(
+        const { &SyntaxSet::new(&[SyntaxKind::ObjectUnpivoting, SyntaxKind::ArrayUnnesting]) },
+        true,
+        &SyntaxSet::EMPTY,
+        true,
+    ) {
+        let mut seen_keyword = false;
+        for child in unpivot.segments() {
+            if child.is_keyword("AS") || child.is_keyword("AT") {
+                seen_keyword = true;
+            } else if seen_keyword
+                && !matches!(
+                    child.get_type(),
+                    SyntaxKind::Whitespace
+                        | SyntaxKind::Newline
+                        | SyntaxKind::Indent
+                        | SyntaxKind::Dedent
+                )
+            {
+                push_standalone_alias(&mut aliases, child);
+                seen_keyword = false;
+            }
+        }
+    }
+
+    // Standard UNPIVOT expressions introduce value and key columns before the
+    // IN clause: UNPIVOT (value_column FOR key_column IN (...)).
+    for unpivot in segment.recursive_crawl(
+        const { &SyntaxSet::single(SyntaxKind::FromUnpivotExpression) },
+        true,
+        &SyntaxSet::EMPTY,
+        true,
+    ) {
+        let Some(bracketed) = unpivot.child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
+        else {
+            continue;
+        };
+
+        for child in bracketed.segments() {
+            if child.is_keyword("IN") {
+                break;
+            }
+
+            if !matches!(
+                child.get_type(),
+                SyntaxKind::Whitespace
+                    | SyntaxKind::Newline
+                    | SyntaxKind::Indent
+                    | SyntaxKind::Dedent
+                    | SyntaxKind::StartBracket
+                    | SyntaxKind::EndBracket
+                    | SyntaxKind::Bracketed
+                    | SyntaxKind::Keyword
+                    | SyntaxKind::Comma
+            ) {
+                push_standalone_alias(&mut aliases, child);
             }
         }
     }

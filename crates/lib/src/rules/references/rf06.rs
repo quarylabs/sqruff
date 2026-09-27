@@ -10,10 +10,27 @@ use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
 
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
+enum QuotedKeywordStyle {
+    #[default]
+    DoubleQuotes,
+    Backticks,
+}
+
+impl QuotedKeywordStyle {
+    fn quote_char(self) -> &'static str {
+        match self {
+            Self::DoubleQuotes => "\"",
+            Self::Backticks => "`",
+        }
+    }
+}
+
 #[derive(Default, Debug, Clone)]
 pub struct RuleRF06 {
     prefer_quoted_identifiers: bool,
     prefer_quoted_keywords: bool,
+    prefer_quoted_keyword_style: QuotedKeywordStyle,
     ignore_words: Vec<String>,
     ignore_words_regex: Vec<Regex>,
     case_sensitive: bool,
@@ -24,9 +41,22 @@ impl Rule for RuleRF06 {
         &self,
         config: &hashbrown::HashMap<String, Value>,
     ) -> Result<ErasedRule, String> {
+        let prefer_quoted_keyword_style = match config["prefer_quoted_keyword_style"].as_string() {
+            Some("double_quotes") => QuotedKeywordStyle::DoubleQuotes,
+            Some("backticks") => QuotedKeywordStyle::Backticks,
+            Some(value) => {
+                return Err(format!(
+                    "Invalid value for prefer_quoted_keyword_style: {value}. Must be one of \
+                     [double_quotes, backticks]"
+                ));
+            }
+            None => return Err("Missing value for prefer_quoted_keyword_style".into()),
+        };
+
         Ok(Self {
             prefer_quoted_identifiers: config["prefer_quoted_identifiers"].as_bool().unwrap(),
             prefer_quoted_keywords: config["prefer_quoted_keywords"].as_bool().unwrap(),
+            prefer_quoted_keyword_style,
             ignore_words: config["ignore_words"]
                 .map(|it| {
                     it.as_array()
@@ -99,6 +129,11 @@ When `prefer_quoted_identifiers = True`, the quotes are always necessary, no mat
 Automatic fixes are available when the dialect has a single context-independent
 identifier quote style. Other dialects report the violation without a fix.
 
+When `prefer_quoted_keywords = True`, SQLite keyword identifiers can also be
+fixed automatically. Set `prefer_quoted_keyword_style` to `double_quotes` (the
+default) or `backticks` to choose the inserted and normalized quote style. Other
+dialects continue to report quoted-keyword violations without a fix.
+
 **Anti-pattern**
 
 In this example, a valid unquoted identifier, that is also not a reserved keyword, is required to be quoted.
@@ -134,8 +169,7 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
             return Vec::new();
         }
 
-        let identifier_is_quoted =
-            !lazy_regex::regex_is_match!(r#"^[^"\'\[].+[^"\'\]]$"#, context.segment.raw().as_ref());
+        let identifier_is_quoted = context.segment.is_type(SyntaxKind::QuotedIdentifier);
 
         let identifier_contents = context.segment.raw();
         let identifier_contents = if identifier_is_quoted {
@@ -182,18 +216,68 @@ SELECT 123 as `foo` -- For BigQuery, MySql, ...
         }
 
         if self.prefer_quoted_keywords && identifier_is_keyword {
-            return if !identifier_is_quoted {
-                vec![LintResult::new(
+            let quote_char = self.prefer_quoted_keyword_style.quote_char();
+            let escaped_quote = quote_char.repeat(2);
+            let preferred_raw = format!(
+                "{quote_char}{}{quote_char}",
+                identifier_contents.replace(quote_char, &escaped_quote)
+            );
+
+            if !identifier_is_quoted {
+                let fixes = (context.dialect.name == DialectKind::Sqlite)
+                    .then(|| {
+                        LintFix::replace(
+                            context.segment.clone(),
+                            vec![
+                                SegmentBuilder::token(
+                                    context.tables.next_id(),
+                                    &preferred_raw,
+                                    SyntaxKind::QuotedIdentifier,
+                                )
+                                .finish(),
+                            ],
+                            None,
+                        )
+                    })
+                    .into_iter()
+                    .collect();
+
+                return vec![LintResult::new(
                     context.segment.clone().into(),
-                    Vec::new(),
+                    fixes,
                     Some(format!(
                         "Missing quoted keyword identifier {identifier_contents}."
                     )),
                     None,
-                )]
-            } else {
-                Vec::new()
-            };
+                )];
+            }
+
+            if context.dialect.name == DialectKind::Sqlite
+                && context.segment.raw().as_str() != preferred_raw
+            {
+                return vec![LintResult::new(
+                    context.segment.clone().into(),
+                    vec![LintFix::replace(
+                        context.segment.clone(),
+                        vec![
+                            SegmentBuilder::token(
+                                context.tables.next_id(),
+                                &preferred_raw,
+                                SyntaxKind::QuotedIdentifier,
+                            )
+                            .finish(),
+                        ],
+                        None,
+                    )],
+                    Some(format!(
+                        "Wrong quoted keyword identifier style {}.",
+                        context.segment.raw()
+                    )),
+                    None,
+                )];
+            }
+
+            return Vec::new();
         }
 
         if !context.segment.is_type(context_policy)
@@ -342,6 +426,44 @@ fn identifier_quote_chars(dialect: DialectKind) -> Option<(&'static str, &'stati
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn rf06_config(prefer_quoted_keyword_style: &str) -> hashbrown::HashMap<String, Value> {
+        hashbrown::HashMap::from_iter([
+            ("prefer_quoted_identifiers".into(), Value::Bool(false)),
+            ("prefer_quoted_keywords".into(), Value::Bool(false)),
+            (
+                "prefer_quoted_keyword_style".into(),
+                Value::String(prefer_quoted_keyword_style.into()),
+            ),
+            ("ignore_words".into(), Value::None),
+            ("ignore_words_regex".into(), Value::None),
+            ("case_sensitive".into(), Value::Bool(true)),
+        ])
+    }
+
+    #[test]
+    fn rf06_rejects_invalid_preferred_quoted_keyword_style() {
+        let error = RuleRF06::default()
+            .load_from_config(&rf06_config("square_brackets"))
+            .unwrap_err();
+
+        assert_eq!(
+            error,
+            "Invalid value for prefer_quoted_keyword_style: square_brackets. Must be one of \
+             [double_quotes, backticks]"
+        );
+    }
+
+    #[test]
+    fn rf06_accepts_valid_preferred_quoted_keyword_styles() {
+        for style in ["double_quotes", "backticks"] {
+            assert!(
+                RuleRF06::default()
+                    .load_from_config(&rf06_config(style))
+                    .is_ok()
+            );
+        }
+    }
 
     #[test]
     fn identifier_quote_chars_are_defined_for_every_dialect() {

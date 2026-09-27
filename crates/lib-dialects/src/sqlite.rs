@@ -120,6 +120,16 @@ pub fn raw_dialect() -> Dialect {
         .sets_mut("unreserved_keywords")
         .extend(UNRESERVED_KEYWORDS);
 
+    // SQLite accepts both double-quoted and backtick-quoted identifiers.
+    sqlite_dialect.replace_grammar(
+        "QuotedIdentifierSegment",
+        one_of(vec![
+            TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::QuotedIdentifier).to_matchable(),
+            TypedParser::new(SyntaxKind::BackQuote, SyntaxKind::QuotedIdentifier).to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // SQLite supports CTEs with DML statements (INSERT, UPDATE, DELETE)
     // since version 3.8.3. We add these to NonWithSelectableGrammar so
     // WithCompoundStatementSegment can use them.

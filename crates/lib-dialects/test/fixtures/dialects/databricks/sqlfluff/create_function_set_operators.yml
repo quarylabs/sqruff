@@ -1,0 +1,38 @@
+file:
+- statement:
+  - create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: example_function
+    - function_parameter_list_with_comments:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - function_definition:
+      - keyword: RETURN
+      - set_expression:
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '1'
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: col
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - numeric_literal: '2'
+              - alias_expression:
+                - alias_operator:
+                  - keyword: AS
+                - naked_identifier: col
+- statement_terminator: ;

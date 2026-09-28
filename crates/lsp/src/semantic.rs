@@ -276,6 +276,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | DropViewStatement
         | CreateUserStatement
         | DropUserStatement
+        | DropProfileStatement
+        | DropClusterStatement
         | ArrayExpression
         | LocalAlias
         | MergeStatement

@@ -1080,6 +1080,14 @@ fn calculate_desired_starting_indent(
         return desired_starting_indent;
     }
 
+    // At indent level zero (for example, leading commas between top-level
+    // CTEs), there is no indentation to compensate. This is expected and
+    // should be a silent no-op rather than a warning.
+    if desired_indent_units == 0 {
+        log::debug!("No indentation at indent level zero. Skipping indentation compensation.");
+        return desired_starting_indent;
+    }
+
     if desired_starting_indent.len() < starting_indent_compensation_spaces {
         log::warn!(
             "Not enough space to compensate indentation. Ignoring indentation compensation."
@@ -2198,6 +2206,7 @@ mod tests {
         assert_eq!(calculate_desired_starting_indent(1, "    ", 2), "  ");
         assert_eq!(calculate_desired_starting_indent(1, "  ", 4), "  ");
         assert_eq!(calculate_desired_starting_indent(1, "    ", 0), "    ");
+        assert_eq!(calculate_desired_starting_indent(0, "    ", 2), "");
     }
 
     #[test]

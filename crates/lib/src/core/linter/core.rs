@@ -180,10 +180,13 @@ impl Linter {
             })
             .collect_vec();
 
+        let mut files_skipped = 0;
         let mut selected_paths = Vec::with_capacity(paths.len());
         for path in paths {
             if !self.skip_large_file(&path)? {
                 selected_paths.push(path);
+            } else {
+                files_skipped += 1;
             }
         }
         let paths = selected_paths;
@@ -213,6 +216,7 @@ impl Linter {
                             files.push(self.lint_rendered(rendered, fix)?);
                         }
                         BatchRenderedResult::Skipped { filename, reason } => {
+                            files_skipped += 1;
                             if let Some(formatter) = &self.formatter {
                                 formatter.dispatch_file_skip(&filename, &reason);
                             }
@@ -228,17 +232,63 @@ impl Linter {
             }
         }
 
-        Ok(LintingResult::new(files))
+        Ok(LintingResult::new_with_files_skipped(files, files_skipped))
     }
 
     fn skip_large_file(&self, path: &str) -> Result<bool, SQLFluffUserError> {
-        let value = &self.config.raw["core"]["large_file_skip_byte_limit"];
+        let byte_limit = self.large_file_limit("large_file_skip_byte_limit")?;
+        if let Some(limit) = byte_limit {
+            let size = std::fs::metadata(path)
+                .map_err(|error| {
+                    SQLFluffUserError::new(format!("Cannot read file size for {path}: {error}"))
+                })?
+                .len();
+            if i128::from(size) > limit {
+                let reason = format!(
+                    "File is {size} bytes, exceeding large_file_skip_byte_limit of {limit} bytes."
+                );
+                log::warn!("Skipping {path}: {reason}");
+                if let Some(formatter) = &self.formatter {
+                    formatter.dispatch_file_skip(path, &reason);
+                }
+                return Ok(true);
+            }
+        }
+
+        let char_limit = self.large_file_limit("large_file_skip_char_limit")?;
+        if let Some(limit) = char_limit {
+            log::warn!(
+                "The config value large_file_skip_char_limit is deprecated; use the more \
+                 efficient large_file_skip_byte_limit instead."
+            );
+            let contents = std::fs::read_to_string(path).map_err(|error| {
+                SQLFluffUserError::new(format!("Cannot read file contents for {path}: {error}"))
+            })?;
+            let size = contents.chars().count();
+            if size as i128 > limit {
+                let reason = format!(
+                    "File is {size} characters, exceeding large_file_skip_char_limit of {limit} \
+                     characters."
+                );
+                log::warn!("Skipping {path}: {reason}");
+                if let Some(formatter) = &self.formatter {
+                    formatter.dispatch_file_skip(path, &reason);
+                }
+                return Ok(true);
+            }
+        }
+
+        Ok(false)
+    }
+
+    fn large_file_limit(&self, key: &str) -> Result<Option<i128>, SQLFluffUserError> {
+        let value = &self.config.raw["core"][key];
         if !value.to_bool() {
-            return Ok(false);
+            return Ok(None);
         }
         let invalid = || {
             SQLFluffUserError::new(format!(
-                "large_file_skip_byte_limit cannot be converted to an integer: {value:?}"
+                "{key} cannot be converted to an integer: {value:?}"
             ))
         };
         let limit = match value {
@@ -248,21 +298,7 @@ impl Linter {
             Value::Float(value) if value.is_finite() => value.trunc() as i128,
             _ => return Err(invalid()),
         };
-        let size = std::fs::metadata(path)
-            .map_err(|error| {
-                SQLFluffUserError::new(format!("Cannot read file size for {path}: {error}"))
-            })?
-            .len();
-        if i128::from(size) <= limit {
-            return Ok(false);
-        }
-        let reason =
-            format!("File is {size} bytes, exceeding large_file_skip_byte_limit of {limit} bytes.");
-        log::warn!("Skipping {path}: {reason}");
-        if let Some(formatter) = &self.formatter {
-            formatter.dispatch_file_skip(path, &reason);
-        }
-        Ok(true)
+        Ok(Some(limit))
     }
 
     pub fn get_rulepack(&self) -> Result<RulePack, SQLFluffUserError> {
@@ -1001,10 +1037,35 @@ rules = all
             let mut linter = Linter::new(config, None, None, false).unwrap();
             let result = linter.lint_paths(vec![path.clone()], false, &|_| false);
             match expected {
-                Some(skip) => assert_eq!(result.unwrap().len(), usize::from(!skip), "{value:?}"),
+                Some(skip) => {
+                    let result = result.unwrap();
+                    assert_eq!(result.len(), usize::from(!skip), "{value:?}");
+                    assert_eq!(result.files_skipped(), usize::from(skip), "{value:?}");
+                }
                 None => assert!(result.is_err(), "{value:?}"),
             }
         }
+        std::fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn large_file_character_limit_tracks_skipped_files() {
+        let path = std::env::temp_dir().join(format!(
+            "sqruff-large-file-character-limit-{}.sql",
+            std::process::id()
+        ));
+        std::fs::write(&path, "SELECT 1\n").unwrap();
+        let config = FluffConfig::from_source(
+            "[sqruff]\ndialect = ansi\nlarge_file_skip_byte_limit = 0\nlarge_file_skip_char_limit = 5\n",
+            None,
+        );
+        let mut linter = Linter::new(config, None, None, false).unwrap();
+        let result = linter
+            .lint_paths(vec![path.clone()], false, &|_| false)
+            .unwrap();
+
+        assert_eq!(result.len(), 0);
+        assert_eq!(result.files_skipped(), 1);
         std::fs::remove_file(path).unwrap();
     }
 

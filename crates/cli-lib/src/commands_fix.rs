@@ -20,6 +20,10 @@ pub(crate) fn run_fix(
         .get("fix_even_unparsable", "core")
         .as_bool()
         .unwrap_or(false);
+    let large_file_skip_fail = config
+        .get("large_file_skip_fail", "core")
+        .as_bool()
+        .unwrap_or(false);
     let mut linter = match linter(config, format, collect_parse_errors) {
         Ok(l) => l,
         Err(e) => {
@@ -40,11 +44,12 @@ pub(crate) fn run_fix(
         }
     };
 
+    let skipped_files_should_fail = large_file_skip_fail && result.files_skipped() > 0;
     if !result.has_violations() && !result.has_fixable_violations() {
         if !matches!(format, Format::None) {
             println!("{} files processed, nothing to fix.", result.len());
         }
-        0
+        skipped_files_should_fail as i32
     } else {
         let any_unfixable_errors = result.has_unfixable_violations();
         let files = result.len();
@@ -61,7 +66,7 @@ pub(crate) fn run_fix(
 
         linter.formatter_mut().unwrap().completion_message(files);
 
-        any_unfixable_errors as i32
+        (any_unfixable_errors || skipped_files_should_fail) as i32
     }
 }
 

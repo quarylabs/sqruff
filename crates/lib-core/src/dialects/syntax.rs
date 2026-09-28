@@ -1119,6 +1119,7 @@ pub enum SyntaxKind {
     SetClauseList,
     SetConstraintStatement,
     SetContextInfoStatement,
+    SetDefaultRoleStatement,
     SetExpression,
     SetLanguageStatement,
     SetLocalVariableSegment,

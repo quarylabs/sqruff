@@ -3769,15 +3769,33 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::GrantStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("GRANT").to_matchable(),
-                Ref::new("AccessPermissionsSegment").to_matchable(),
-                Ref::keyword("ON").to_matchable(),
-                Ref::new("AccessObjectSegment").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("AccessPermissionsSegment").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::new("AccessObjectSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::keyword("TO").to_matchable(),
-                Ref::new("AccessTargetSegment").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("WITH").to_matchable(),
-                    Ref::keyword("GRANT").to_matchable(),
-                    Ref::keyword("OPTION").to_matchable(),
+                Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
+                    .to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("GRANT").to_matchable(),
+                        Ref::keyword("OPTION").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("ADMIN").to_matchable(),
+                        Ref::keyword("OPTION").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
@@ -3812,6 +3830,30 @@ pub fn raw_dialect() -> Dialect {
         })
         .to_matchable(),
     );
+
+    mysql.add([(
+        "SetDefaultRoleStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::SetDefaultRoleStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("SET").to_matchable(),
+                Ref::keyword("DEFAULT").to_matchable(),
+                Ref::keyword("ROLE").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Ref::keyword("NONE").to_matchable(),
+                    Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("TO").to_matchable(),
+                Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
+                    .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     // ValuesStatementSegment - MySQL VALUES statement.
     mysql.add([(
@@ -4181,6 +4223,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("DeclareStatement").to_matchable(),
                 Ref::new("SetTransactionStatementSegment").to_matchable(),
                 Ref::new("SetAssignmentStatementSegment").to_matchable(),
+                Ref::new("SetDefaultRoleStatementSegment").to_matchable(),
                 Ref::new("IfExpressionStatement").to_matchable(),
                 Ref::new("WhileStatementSegment").to_matchable(),
                 Ref::new("IterateStatementSegment").to_matchable(),

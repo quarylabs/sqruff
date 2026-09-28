@@ -226,7 +226,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             AnyNumberOf::new(vec![
                                 Sequence::new(vec![
                                     Ref::keyword("DEFAULT").to_matchable(),
-                                    Ref::new("LiteralGrammar").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("LiteralGrammar").to_matchable(),
+                                        Ref::new("FunctionSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Ref::new("CommentClauseSegment").to_matchable(),

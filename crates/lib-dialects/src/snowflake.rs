@@ -5688,6 +5688,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     AnyNumberOf::new(vec![
                         Sequence::new(vec![
                             Ref::new("DelimiterGrammar").to_matchable(),
+                            Ref::new("StatementSegment")
+                                .exclude(Ref::new("ExceptionBlockStatementSegment"))
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("DelimiterGrammar").to_matchable(),
                             one_of(vec![
                                 Sequence::new(vec![
                                     Ref::keyword("WHEN").to_matchable(),
@@ -5712,6 +5722,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             ])
                             .to_matchable(),
                             Ref::new("StatementSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("DelimiterGrammar").to_matchable(),
+                                    Ref::new("StatementSegment")
+                                        .exclude(Ref::new("ExceptionBlockStatementSegment"))
+                                        .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])

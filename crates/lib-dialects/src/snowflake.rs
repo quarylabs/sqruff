@@ -12877,7 +12877,57 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "ObjectTypeSegment".into(),
+            NodeMatcher::new(SyntaxKind::ObjectType, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("OBJECT").to_matchable(),
+                    Ref::new("ObjectTypeSchemaSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ObjectTypeSchemaSegment".into(),
+            NodeMatcher::new(SyntaxKind::ObjectTypeSchema, |_| {
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("NOT").to_matchable(),
+                                Ref::keyword("NULL").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
+
+    let datatype_grammar = snowflake_dialect
+        .grammar("DatatypeSegment")
+        .as_node_matcher_ref()
+        .unwrap()
+        .match_grammar(&snowflake_dialect);
+    snowflake_dialect.replace_grammar(
+        "DatatypeSegment",
+        one_of(vec![
+            Ref::new("ObjectTypeSegment").to_matchable(),
+            datatype_grammar,
+        ])
+        .to_matchable(),
+    );
 
     snowflake_dialect.add([(
         "ShorthandCastSegment".into(),

@@ -157,6 +157,13 @@ file:
   - statement_terminator: ;
   - statement:
     - keyword: DECLARE
+    - tsql_variable: '@double_precision_var'
+    - data_type:
+      - keyword: DOUBLE
+      - keyword: PRECISION
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
     - tsql_variable: '@date_var'
     - data_type:
       - keyword: DATE
@@ -758,6 +765,12 @@ file:
             - naked_identifier: col_real
             - data_type:
               - keyword: REAL
+          - comma: ','
+          - column_definition:
+            - naked_identifier: col_double_precision
+            - data_type:
+              - keyword: DOUBLE
+              - keyword: PRECISION
           - comma: ','
           - column_definition:
             - naked_identifier: col_date

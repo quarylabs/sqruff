@@ -319,6 +319,45 @@ test_pass_create_view_with_explicit_columns:
       f.state
     FROM FRANCONNECT_REPORTING.franchisee f
 
+test_pass_shorthand_casted_aggregate_postgres:
+  pass_str: SELECT a, MIN(c)::DATE AS d FROM foo
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_shorthand_casted_aggregate_postgres:
+  fail_str: SELECT MIN(c)::DATE AS d, a FROM foo
+  fix_str: SELECT a, MIN(c)::DATE AS d FROM foo
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_shorthand_casted_aggregate_redshift:
+  pass_str: SELECT a, MIN(c)::DATE AS d FROM foo
+  configs:
+    core:
+      dialect: redshift
+
+test_fail_shorthand_casted_aggregate_redshift:
+  fail_str: SELECT MIN(c)::DATE AS d, a FROM foo
+  fix_str: SELECT a, MIN(c)::DATE AS d FROM foo
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_shorthand_casted_aggregate_snowflake:
+  pass_str: SELECT a, MIN(c)::DATE AS d FROM foo
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_shorthand_casted_aggregate_snowflake:
+  fail_str: SELECT MIN(c)::DATE AS d, a FROM foo
+  fix_str: SELECT a, MIN(c)::DATE AS d FROM foo
+  configs:
+    core:
+      dialect: snowflake
+
 test_fail_create_view_without_explicit_columns:
   fail_str: |
     CREATE OR REPLACE VIEW FRANCONNECT_REPORTING.GYM_ATTRIBUTES AS

@@ -1193,6 +1193,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | OracleWhenClause
         | OracleElseClause
         | OracleNullStatement
+        | OracleProcedureCallStatement
         | ForLoopStatement
         | WhileLoopStatement
         | OracleLoopStatement

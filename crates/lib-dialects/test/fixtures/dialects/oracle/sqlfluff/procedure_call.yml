@@ -1,0 +1,495 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: schema
+          - dot: .
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: my_collection
+          - dot: .
+          - naked_identifier: EXTEND
+      - statement_terminator: ;
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: my_collection
+          - dot: .
+          - naked_identifier: TRIM
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''test'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: first_proc
+      - statement_terminator: ;
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: second_proc
+      - statement_terminator: ;
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: schema
+          - dot: .
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: third_proc
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_if_then_statement:
+          - oracle_if_clause:
+            - keyword: IF
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+          - statement:
+            - oracle_procedure_call_statement:
+              - naked_identifier: my_procedure
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - for_loop_statement:
+          - keyword: FOR
+          - naked_identifier: i
+          - keyword: IN
+          - numeric_literal: '1'
+          - dot: .
+          - dot: .
+          - numeric_literal: '10'
+          - oracle_loop_statement:
+            - keyword: LOOP
+            - statement:
+              - oracle_procedure_call_statement:
+                - naked_identifier: my_procedure
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - while_loop_statement:
+          - keyword: WHILE
+          - expression:
+            - boolean_literal: 'TRUE'
+          - oracle_loop_statement:
+            - keyword: LOOP
+            - statement:
+              - oracle_procedure_call_statement:
+                - naked_identifier: pkg
+                - dot: .
+                - naked_identifier: my_procedure
+            - statement_terminator: ;
+            - statement:
+              - oracle_exit_statement:
+                - keyword: EXIT
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - oracle_declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: v_count
+        - data_type:
+          - data_type_identifier: NUMBER
+        - oracle_assignment_operator: :=
+        - expression:
+          - numeric_literal: '0'
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: schema
+          - dot: .
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''test'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: schema
+          - dot: .
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''done'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: schema
+          - dot: .
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - statement:
+        - function:
+          - oracle_function_name:
+            - naked_identifier: DBMS_OUTPUT
+            - dot: .
+            - function_name_identifier: PUT_LINE
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''test'''
+              - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - oracle_declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: v
+        - data_type:
+          - data_type_identifier: NUMBER
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - statement:
+        - assignment_segment_statement:
+          - object_reference:
+            - naked_identifier: v
+          - oracle_assignment_operator: :=
+          - expression:
+            - numeric_literal: '1'
+      - statement_terminator: ;
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_if_then_statement:
+          - oracle_if_clause:
+            - keyword: IF
+            - expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - numeric_literal: '1'
+            - keyword: THEN
+          - statement:
+            - oracle_procedure_call_statement:
+              - naked_identifier: my_procedure
+          - statement_terminator: ;
+          - keyword: ELSIF
+          - expression:
+            - numeric_literal: '2'
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '2'
+          - keyword: THEN
+          - statement:
+            - oracle_procedure_call_statement:
+              - naked_identifier: pkg
+              - dot: .
+              - naked_identifier: my_procedure
+          - statement_terminator: ;
+          - keyword: ELSE
+          - statement:
+            - oracle_procedure_call_statement:
+              - naked_identifier: schema
+              - dot: .
+              - naked_identifier: pkg
+              - dot: .
+              - naked_identifier: my_procedure
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_begin_end_block:
+          - keyword: BEGIN
+          - statement:
+            - oracle_procedure_call_statement:
+              - naked_identifier: my_procedure
+          - statement_terminator: ;
+          - statement:
+            - oracle_procedure_call_statement:
+              - naked_identifier: pkg
+              - dot: .
+              - naked_identifier: my_procedure
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: schema
+          - dot: .
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: EXCEPTION
+      - keyword: WHEN
+      - keyword: OTHERS
+      - keyword: THEN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_procedure_call_statement:
+          - naked_identifier: schema
+          - dot: .
+          - naked_identifier: pkg
+          - dot: .
+          - naked_identifier: my_procedure
+      - statement_terminator: ;
+      - keyword: EXCEPTION
+      - keyword: WHEN
+      - keyword: OTHERS
+      - keyword: THEN
+      - statement:
+        - oracle_null_statement:
+          - keyword: 'NULL'
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

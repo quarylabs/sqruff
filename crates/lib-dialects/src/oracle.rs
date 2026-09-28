@@ -711,7 +711,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "StatementAndDelimiterGrammar".into(),
             Sequence::new(vec![
-                Ref::new("StatementSegment").to_matchable(),
+                Ref::new("PlsqlStatementSegment").to_matchable(),
                 Ref::new("DelimiterGrammar").optional().to_matchable(),
             ])
             .to_matchable()
@@ -3169,6 +3169,56 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // ProcedureCallStatementSegment
+        // Bare no-argument procedure calls are valid only within PL/SQL block
+        // bodies. Keep block-closing keywords available to their containers.
+        (
+            "ProcedureCallStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::OracleProcedureCallStatement, |_| {
+                let block_closing_keywords = one_of(vec![
+                    Ref::keyword("END").to_matchable(),
+                    Ref::keyword("EXCEPTION").to_matchable(),
+                    Ref::keyword("ELSIF").to_matchable(),
+                    Ref::keyword("WHEN").to_matchable(),
+                ]);
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar")
+                        .exclude(block_closing_keywords.clone())
+                        .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("DotSegment").to_matchable(),
+                            Ref::new("SingleIdentifierGrammar")
+                                .exclude(block_closing_keywords)
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| config.max_times = Some(2))
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // PlsqlStatementSegment extends the normal Oracle statement matcher
+        // with block-only bare procedure calls.
+        (
+            "PlsqlStatementSegment".into(),
+            one_of(vec![
+                Ref::new("StatementSegment").to_matchable(),
+                Sequence::new(vec![
+                    NodeMatcher::new(SyntaxKind::Statement, |_| {
+                        Ref::new("ProcedureCallStatementSegment").to_matchable()
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         // IfExpressionStatement
         (
             "IfExpressionStatement".into(),
@@ -3504,6 +3554,10 @@ pub fn raw_dialect() -> Dialect {
             "LoopStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::OracleLoopStatement, |_| {
                 Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar")
+                        .exclude(Ref::keyword("END"))
+                        .optional()
+                        .to_matchable(),
                     Ref::keyword("LOOP").to_matchable(),
                     MetaSegment::indent().to_matchable(),
                     Ref::new("OneOrMoreStatementsGrammar").to_matchable(),

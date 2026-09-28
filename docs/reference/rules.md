@@ -1812,11 +1812,17 @@ Select targets should be on a new line unless there is only one select target.
 
 Multiple select targets on the same line.
 
+By default (`single_target_policy = same_line`), a single select target is
+allowed to remain on the same line as the `SELECT` keyword. Set
+`single_target_policy = new_line` to require all select targets, including
+single ones, to be placed on a new line.
+
 ```sql
 select a, b
 from foo;
 
--- Single select target on its own line.
+-- Single select target on its own line
+-- (with default `single_target_policy = same_line`).
 
 SELECT
     a
@@ -1833,10 +1839,17 @@ select
     b
 from foo;
 
--- Single select target on the same line as the ``SELECT``
--- keyword.
+-- Single select target on the same line as the `SELECT`
+-- keyword (with default `single_target_policy = same_line`).
 
 SELECT a
+FROM foo;
+
+-- With `single_target_policy = new_line`, single select
+-- targets must also be on a new line for consistency.
+
+SELECT
+    a
 FROM foo;
 
 -- When select targets span multiple lines, however they

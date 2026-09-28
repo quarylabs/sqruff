@@ -294,6 +294,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | EmptyStructLiteral
         | ObjectLiteral
         | ObjectLiteralElement
+        | ObjectType
+        | ObjectTypeSchema
         | TimeZoneGrammar
         | BracketedArguments
         | DataType

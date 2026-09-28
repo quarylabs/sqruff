@@ -1591,6 +1591,42 @@ pub fn raw_dialect() -> Dialect {
     );
 
     hive_dialect.replace_grammar(
+        "GroupByClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("GROUP").to_matchable(),
+            Ref::keyword("BY").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            one_of(vec![
+                Ref::keyword("ALL").to_matchable(),
+                Ref::new("GroupingSetsClauseSegment").to_matchable(),
+                Ref::new("CubeRollupClauseSegment").to_matchable(),
+                Sequence::new(vec![
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.terminators =
+                            vec![Ref::new("GroupByClauseTerminatorGrammar").to_matchable()];
+                    })
+                    .to_matchable(),
+                    Ref::new("GroupingSetsClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    hive_dialect.replace_grammar(
         "HavingClauseTerminatorGrammar",
         one_of(vec![
             Sequence::new(vec![

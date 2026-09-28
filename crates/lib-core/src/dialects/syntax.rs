@@ -47,6 +47,7 @@ pub enum SyntaxKind {
     AlterConnection,
     AlterConnectionRotateKeys,
     AlterConsumerGroupStatement,
+    AlterDatabaseScopedConfigurationStatement,
     AlterDatabaseStatement,
     AlterDefaultPrivilegesGrant,
     AlterDefaultPrivilegesObjectPrivilege,

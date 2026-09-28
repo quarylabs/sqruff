@@ -3452,6 +3452,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropSchemaStatementSegment").to_matchable(),
             Ref::new("DropTypeStatementSegment").to_matchable(),
             Ref::new("CreateDatabaseStatementSegment").to_matchable(),
+            Ref::new("AlterDatabaseScopedConfigurationSegment").to_matchable(),
             Ref::new("AlterDatabaseStatementSegment").to_matchable(),
             Ref::new("RestoreDatabaseStatementSegment").to_matchable(),
             Ref::new("DropDatabaseStatementSegment").to_matchable(),
@@ -10133,6 +10134,73 @@ fn add_database_grammars(dialect: &mut Dialect) {
             ])
             .to_matchable()
         })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "AlterDatabaseScopedConfigurationSegment".into(),
+        NodeMatcher::new(
+            SyntaxKind::AlterDatabaseScopedConfigurationStatement,
+            |_| {
+                let elevate_option = Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("ELEVATE_ONLINE").to_matchable(),
+                        Ref::keyword("ELEVATE_RESUMABLE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("OFF").to_matchable(),
+                        Ref::keyword("WHEN_SUPPORTED").to_matchable(),
+                        Ref::keyword("FAIL_UNSUPPORTED").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+                let set_option = Sequence::new(vec![
+                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("EqualsSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("OFF").to_matchable(),
+                        Ref::keyword("PRIMARY").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("DATABASE").to_matchable(),
+                    Ref::keyword("SCOPED").to_matchable(),
+                    Ref::keyword("CONFIGURATION").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("CLEAR").to_matchable(),
+                            Ref::keyword("PROCEDURE_CACHE").to_matchable(),
+                            Ref::new("NumericLiteralSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("FOR").to_matchable(),
+                                Ref::keyword("SECONDARY").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Ref::keyword("SET").to_matchable(),
+                            one_of(vec![elevate_option, set_option]).to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            },
+        )
         .to_matchable()
         .into(),
     )]);

@@ -5368,6 +5368,11 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("BracketedArguments").optional().to_matchable(),
                 ])
                 .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DOUBLE").to_matchable(),
+                    Ref::keyword("PRECISION").to_matchable(),
+                ])
+                .to_matchable(),
                 Ref::keyword("REAL").to_matchable(),
                 // Date and time types.
                 one_of(vec![

@@ -832,6 +832,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateFulltextCatalogStatement
         | CreateFulltextIndexStatement
         | CreateFulltextStoplistStatement
+        | AlterFulltextIndexStatement
+        | DropFulltextIndexStatement
         | CreateLoginStatement
         | CreateMasterKeyStatement
         | CreateMaterializedViewAsReplicaOfStatement

@@ -15,6 +15,7 @@ The following rules are available in this create. This list is generated from th
 | AL07 | [aliasing.forbid](#aliasingforbid) | Avoid table aliases in from clauses and join conditions. |  |
 | AL08 | [aliasing.unique.column](#aliasinguniquecolumn) | Column aliases should be unique within each clause. | ✓ |
 | AL09 | [aliasing.self_alias.column](#aliasingself_aliascolumn) | Find self-aliased columns and fix them | ✓ |
+| AL10 | [aliasing.required](#aliasingrequired) | Derived tables must have an alias. | ✓ |
 | AM01 | [ambiguous.distinct](#ambiguousdistinct) | Ambiguous use of 'DISTINCT' in a 'SELECT' statement with 'GROUP BY'. | ✓ |
 | AM02 | [ambiguous.union](#ambiguousunion) | Look for UNION keyword not immediately followed by DISTINCT or ALL | ✓ |
 | AM03 | [ambiguous.order_by](#ambiguousorder_by) | Ambiguous ordering directions for columns in order by clause. |  |
@@ -446,6 +447,42 @@ SELECT
     col AS "Col",
     "col" AS "COL"
 FROM table;
+```
+
+
+### aliasing.required
+
+Derived tables must have an alias.
+
+**Code:** `AL10`
+
+**Groups:** `all`, `core`, `aliasing`
+
+**Fixable:** No
+
+A derived table (subquery in a `FROM` clause) without an alias will cause a
+syntax error in most SQL dialects including MySQL, PostgreSQL, and T-SQL.
+
+**Anti-pattern**
+
+A subquery in a `FROM` clause without an alias.
+
+```sql
+SELECT *
+FROM (
+    SELECT 1 AS a
+)
+```
+
+**Best practice**
+
+Add an alias to the derived table.
+
+```sql
+SELECT *
+FROM (
+    SELECT 1 AS a
+) AS derived
 ```
 
 

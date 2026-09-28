@@ -374,6 +374,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | MergeWhenMatchedClause
         | ProcedureName
         | ExportStatement
+        | ExportTableMetadataStatement
         | ProcedureParameterList
         | ProcedureStatements
         | CallStatement

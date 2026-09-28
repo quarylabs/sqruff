@@ -496,3 +496,14 @@ file:
               - table_reference:
                 - naked_identifier: thetable
 - statement_terminator: ;
+- statement:
+  - export_table_metadata_statement:
+    - keyword: EXPORT
+    - keyword: TABLE
+    - keyword: METADATA
+    - keyword: FROM
+    - table_reference:
+      - naked_identifier: my_dataset
+      - dot: .
+      - naked_identifier: my_table
+- statement_terminator: ;

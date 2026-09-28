@@ -6102,7 +6102,11 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::keyword("CONSTRAINT").to_matchable(),
-                Ref::new("ObjectReferenceSegment").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable(),
             Sequence::new(vec![

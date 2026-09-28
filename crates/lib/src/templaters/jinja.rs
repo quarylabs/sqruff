@@ -439,6 +439,39 @@ foo.bar = {value}
     }
 
     #[test]
+    fn test_jinja_dbt_var_subscript_allows_layout_fix() {
+        let sql = "select {{ var('123')['123'] }} ,1/2 as d from d\n";
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = snowflake
+rules = LT01
+templater = jinja
+
+[sqruff:templater:jinja]
+apply_dbt_builtins = True
+"#,
+            None,
+        );
+        let linter = Linter::new(config, None, None, false).unwrap();
+
+        let linted = linter
+            .lint_string(sql, Some("test.sql".to_string()), true)
+            .unwrap();
+
+        assert!(
+            !linted
+                .violations()
+                .iter()
+                .any(|violation| violation.rule_code() == "PRS")
+        );
+        assert_eq!(
+            linted.fix_string(),
+            "select {{ var('123')['123'] }}, 1 / 2 as d from d\n"
+        );
+    }
+
+    #[test]
     fn test_jinja_templater_dynamic_variable_no_violations() {
         let source = r"
     [sqruff]

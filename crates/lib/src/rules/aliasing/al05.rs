@@ -302,6 +302,24 @@ impl RuleAL05 {
             .iter_segments(const { &SyntaxSet::new(&[SyntaxKind::Bracketed]) }, false)
         {
             if segment.is_type(SyntaxKind::TableExpression) {
+                if dialect_name == DialectKind::Tsql
+                    && segment
+                        .child(const { &SyntaxSet::single(SyntaxKind::OpenrowsetSegment) })
+                        .is_some_and(|openrowset| {
+                            openrowset
+                                .recursive_crawl(
+                                    const { &SyntaxSet::single(SyntaxKind::Keyword) },
+                                    false,
+                                    &SyntaxSet::EMPTY,
+                                    true,
+                                )
+                                .iter()
+                                .any(|seg| seg.is_keyword("BULK"))
+                        })
+                {
+                    return true;
+                }
+
                 return if segment
                     .child(const { &SyntaxSet::new(&[SyntaxKind::ValuesClause]) })
                     .is_some()

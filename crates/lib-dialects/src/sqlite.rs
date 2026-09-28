@@ -1572,6 +1572,17 @@ pub fn raw_dialect() -> Dialect {
                 Bracketed::new(vec![
                     Delimited::new(vec![
                         one_of(vec![
+                            Sequence::new(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
                             Ref::new("QuotedLiteralSegment").to_matchable(),
                             Ref::new("NumericLiteralSegment").to_matchable(),
                             Ref::new("SingleIdentifierGrammar").to_matchable(),

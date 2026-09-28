@@ -111,3 +111,48 @@ file:
       - quoted_identifier: '"complex-field@!#"'
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_virtual_table_statement:
+    - keyword: CREATE
+    - keyword: VIRTUAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: ft
+    - keyword: USING
+    - naked_identifier: fts5
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: a
+      - comma: ','
+      - naked_identifier: b
+      - comma: ','
+      - naked_identifier: c
+      - comma: ','
+      - naked_identifier: content
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: ''''''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_virtual_table_statement:
+    - keyword: CREATE
+    - keyword: VIRTUAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: ft2
+    - keyword: USING
+    - naked_identifier: fts5
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: a
+      - comma: ','
+      - naked_identifier: content
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - object_reference:
+        - naked_identifier: main
+        - dot: .
+        - naked_identifier: emails
+      - end_bracket: )
+- statement_terminator: ;

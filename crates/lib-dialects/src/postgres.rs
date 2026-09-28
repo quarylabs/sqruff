@@ -2483,6 +2483,7 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("BEGIN").to_matchable(),
                     Ref::keyword("ATOMIC").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     AnyNumberOf::new(vec![
                         Sequence::new(vec![
                             Ref::new("InsertStatementSegment").to_matchable(),
@@ -2511,6 +2512,7 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                     Ref::keyword("END").to_matchable(),
                 ])
                 .to_matchable(),

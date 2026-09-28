@@ -5385,12 +5385,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::CreateProcedureStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("OR").to_matchable(),
-                        Ref::keyword("REPLACE").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
                     Sequence::new(vec![Ref::keyword("SECURE").to_matchable()])
                         .config(|this| this.optional())
                         .to_matchable(),
@@ -6066,12 +6061,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     one_of(vec![
                         Sequence::new(vec![
                             Ref::keyword("CREATE").to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("OR").to_matchable(),
-                                Ref::keyword("REPLACE").to_matchable(),
-                            ])
-                            .config(|this| this.optional())
-                            .to_matchable(),
+                            Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
                             one_of(vec![
                                 Ref::keyword("TEMP").to_matchable(),
                                 Ref::keyword("TEMPORARY").to_matchable(),
@@ -6403,12 +6393,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::CreateExternalFunctionStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("OR").to_matchable(),
-                        Ref::keyword("REPLACE").to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
+                    Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
                     Sequence::new(vec![Ref::keyword("SECURE").to_matchable()])
                         .config(|this| this.optional())
                         .to_matchable(),
@@ -7698,7 +7683,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 ])
                                 .to_matchable(),
                                 Ref::keyword("SHARE").to_matchable(),
-                                Ref::keyword("TAG").to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("API").to_matchable(),
                                     Ref::keyword("INTEGRATION").to_matchable(),
@@ -7735,11 +7719,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 ])
                                 .to_matchable(),
                                 Ref::keyword("PIPE").to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("EXTERNAL").to_matchable(),
-                                    Ref::keyword("FUNCTION").to_matchable(),
-                                ])
-                                .to_matchable(),
                                 Ref::keyword("SEQUENCE").to_matchable(),
                             ])
                             .to_matchable(),
@@ -7750,6 +7729,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             one_of(vec![
                                 Ref::keyword("WAREHOUSE").to_matchable(),
                                 Ref::keyword("DATABASE").to_matchable(),
+                                Ref::keyword("TAG").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("EXTERNAL").to_matchable(),
+                                    Ref::keyword("FUNCTION").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -8941,7 +8926,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::CreateFileFormatSegment, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
-                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("FILE").to_matchable(),
                         Ref::keyword("FORMAT").to_matchable(),
@@ -13854,7 +13839,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     one_of(vec![
                         Sequence::new(vec![
                             Ref::keyword("CREATE").to_matchable(),
-                            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                            Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
                             Ref::keyword("AUTHENTICATION").to_matchable(),
                             Ref::keyword("POLICY").to_matchable(),
                             Ref::new("IfNotExistsGrammar").optional().to_matchable(),

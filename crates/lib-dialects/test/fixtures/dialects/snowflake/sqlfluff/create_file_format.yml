@@ -824,3 +824,23 @@ file:
         - raw_comparison_operator: =
       - quoted_literal: '''FOOBAR'''
 - statement_terminator: ;
+- statement:
+  - create_file_format_segment:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+      - naked_identifier: my_or_alter_format
+    - json_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - file_type: JSON
+      - comma: ','
+      - keyword: COMPRESSION
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - compression_type: GZIP
+- statement_terminator: ;

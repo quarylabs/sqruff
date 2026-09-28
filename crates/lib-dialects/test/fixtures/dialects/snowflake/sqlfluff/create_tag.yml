@@ -41,3 +41,12 @@ file:
     - comma: ','
     - quoted_literal: '''PII'''
 - statement_terminator: ;
+- statement:
+  - create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+      - naked_identifier: my_or_alter_tag
+- statement_terminator: ;

@@ -187,7 +187,7 @@ fn has_value_table_function(table_expr: ErasedSegment, dialect: Option<&Dialect>
     for function_name in table_expr.recursive_crawl(
         const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) },
         true,
-        &SyntaxSet::EMPTY,
+        const { &SyntaxSet::new(&[SyntaxKind::SelectStatement]) },
         true,
     ) {
         if dialect

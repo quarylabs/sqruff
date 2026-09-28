@@ -286,38 +286,45 @@ impl RuleRF01 {
         }
     }
 
-    /// Whether the reference is a sequence pseudocolumn access.
+    /// Whether the reference is a dialect-specific pseudocolumn access.
     ///
     /// Oracle and Snowflake treat `sequence.NEXTVAL` and `sequence.CURRVAL`
     /// (or `db.schema.sequence.NEXTVAL`) as sequence pseudocolumn access rather
-    /// than table/column access.
+    /// than table/column access. Databricks and SparkSQL treat `_metadata` as a
+    /// virtual column for file-based data sources.
     fn is_sequence_pseudocolumn(
         reference: &ObjectReferenceSegment,
         selectable: &Selectable,
     ) -> bool {
-        if !matches!(
-            selectable.dialect.name,
-            DialectKind::Oracle | DialectKind::Snowflake
-        ) {
-            return false;
-        }
-
         let reference_parts = reference.iter_raw_references();
         if reference_parts.len() < 2 {
             return false;
         }
 
-        let last_part = reference_parts.last().unwrap();
+        match selectable.dialect.name {
+            DialectKind::Oracle | DialectKind::Snowflake => {
+                let last_part = reference_parts.last().unwrap();
 
-        // Quoted identifiers should still be treated as ordinary references.
-        last_part
-            .segments
-            .first()
-            .is_some_and(|segment| segment.is_type(SyntaxKind::NakedIdentifier))
-            && matches!(
-                last_part.part.to_uppercase().as_str(),
-                "NEXTVAL" | "CURRVAL"
-            )
+                // Quoted identifiers should still be treated as ordinary references.
+                last_part
+                    .segments
+                    .first()
+                    .is_some_and(|segment| segment.is_type(SyntaxKind::NakedIdentifier))
+                    && matches!(
+                        last_part.part.to_uppercase().as_str(),
+                        "NEXTVAL" | "CURRVAL"
+                    )
+            }
+            DialectKind::Databricks | DialectKind::Sparksql => {
+                let first_part = &reference_parts[0];
+                first_part
+                    .segments
+                    .first()
+                    .is_some_and(|segment| segment.is_type(SyntaxKind::NakedIdentifier))
+                    && first_part.part.eq_ignore_ascii_case("_metadata")
+            }
+            _ => false,
+        }
     }
 }
 

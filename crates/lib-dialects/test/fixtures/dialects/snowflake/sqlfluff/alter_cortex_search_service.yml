@@ -1,6 +1,6 @@
 file:
 - statement:
-  - alter_streamlit_statement:
+  - alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -15,7 +15,7 @@ file:
       - naked_identifier: my_new_wh
 - statement_terminator: ;
 - statement:
-  - alter_streamlit_statement:
+  - alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -30,7 +30,7 @@ file:
       - quoted_literal: '''new_comment'''
 - statement_terminator: ;
 - statement:
-  - alter_streamlit_statement:
+  - alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -44,7 +44,7 @@ file:
     - dynamic_table_lag_interval_segment: '''1 hour'''
 - statement_terminator: ;
 - statement:
-  - alter_streamlit_statement:
+  - alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -55,7 +55,7 @@ file:
     - keyword: SERVING
 - statement_terminator: ;
 - statement:
-  - alter_streamlit_statement:
+  - alter_cortex_search_service_statement:
     - keyword: alter
     - keyword: cortex
     - keyword: search
@@ -66,7 +66,7 @@ file:
     - keyword: indexing
 - statement_terminator: ;
 - statement:
-  - alter_streamlit_statement:
+  - alter_cortex_search_service_statement:
     - keyword: alter
     - keyword: cortex
     - keyword: search
@@ -79,7 +79,7 @@ file:
     - keyword: indexing
 - statement_terminator: ;
 - statement:
-  - alter_streamlit_statement:
+  - alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -94,7 +94,7 @@ file:
       - naked_identifier: my_new_wh
 - statement_terminator: ;
 - statement:
-  - alter_streamlit_statement:
+  - alter_cortex_search_service_statement:
     - keyword: ALTER
     - keyword: CORTEX
     - keyword: SEARCH
@@ -111,4 +111,43 @@ file:
     - comparison_operator:
       - raw_comparison_operator: =
     - dynamic_table_lag_interval_segment: '''1 hour'''
+- statement_terminator: ;
+- statement:
+  - alter_cortex_search_service_statement:
+    - keyword: ALTER
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+      - naked_identifier: mysvc
+    - keyword: ADD
+    - keyword: SCORING
+    - keyword: PROFILE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: myprofile
+    - quoted_literal: |-
+        '{
+            "functions": {
+              "myprofile_boosts": [
+                { "column": "EXAMPLE_COLUMN", "weight": 10 }
+              ]
+            }
+          }'
+- statement_terminator: ;
+- statement:
+  - alter_cortex_search_service_statement:
+    - keyword: ALTER
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+      - naked_identifier: mysvc
+    - keyword: DROP
+    - keyword: SCORING
+    - keyword: PROFILE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: myprofile
 - statement_terminator: ;

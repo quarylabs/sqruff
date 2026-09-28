@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use itertools::Itertools;
 use smol_str::{SmolStr, ToSmolStr};
 
@@ -23,7 +25,87 @@ pub struct SelectStatementColumnsAndTables {
     pub table_reference_buffer: Vec<ObjectReferenceSegment>,
 }
 
-pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegment> {
+fn get_struct_alias_refs(segment: &ErasedSegment) -> HashSet<u32> {
+    let mut struct_alias_ids = HashSet::new();
+
+    for function in segment.recursive_crawl(
+        const { &SyntaxSet::single(SyntaxKind::Function) },
+        true,
+        const { &SyntaxSet::new(&[SyntaxKind::SelectStatement, SyntaxKind::MergeStatement]) },
+        true,
+    ) {
+        let Some(function_name) =
+            function.child(const { &SyntaxSet::single(SyntaxKind::FunctionName) })
+        else {
+            continue;
+        };
+        if !function_name.raw().eq_ignore_ascii_case("STRUCT") {
+            continue;
+        }
+
+        let Some(function_contents) =
+            function.child(const { &SyntaxSet::single(SyntaxKind::FunctionContents) })
+        else {
+            continue;
+        };
+        let Some(bracketed) =
+            function_contents.child(const { &SyntaxSet::single(SyntaxKind::Bracketed) })
+        else {
+            continue;
+        };
+
+        let mut previous_was_alias_marker = false;
+        for segment in bracketed.segments() {
+            if segment.is_type(SyntaxKind::IndexColumnDefinition) {
+                previous_was_alias_marker = true;
+            } else if segment.is_type(SyntaxKind::Expression)
+                && segment.raw().eq_ignore_ascii_case("AS")
+            {
+                // sqruff currently parses the STRUCT alias marker itself as an
+                // expression/object reference. Exclude it along with the alias
+                // expression that follows it.
+                for reference in segment.recursive_crawl(
+                    const {
+                        &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference])
+                    },
+                    true,
+                    const { &SyntaxSet::EMPTY },
+                    true,
+                ) {
+                    struct_alias_ids.insert(reference.id());
+                }
+                previous_was_alias_marker = true;
+            } else if previous_was_alias_marker
+                && !matches!(
+                    segment.get_type(),
+                    SyntaxKind::Whitespace
+                        | SyntaxKind::Newline
+                        | SyntaxKind::Indent
+                        | SyntaxKind::Dedent
+                )
+            {
+                for reference in segment.recursive_crawl(
+                    const {
+                        &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference])
+                    },
+                    true,
+                    const { &SyntaxSet::EMPTY },
+                    true,
+                ) {
+                    struct_alias_ids.insert(reference.id());
+                }
+                previous_was_alias_marker = false;
+            }
+        }
+    }
+
+    struct_alias_ids
+}
+
+fn get_object_references_excluding(
+    segment: &ErasedSegment,
+    exclude_ids: Option<&HashSet<u32>>,
+) -> Vec<ObjectReferenceSegment> {
     segment
         .recursive_crawl(
             const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
@@ -32,8 +114,13 @@ pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegm
             true,
         )
         .into_iter()
+        .filter(|segment| exclude_ids.is_none_or(|ids| !ids.contains(&segment.id())))
         .map(|seg| seg.reference())
         .collect()
+}
+
+pub fn get_object_references(segment: &ErasedSegment) -> Vec<ObjectReferenceSegment> {
+    get_object_references_excluding(segment, None)
 }
 
 pub fn get_select_statement_info(
@@ -48,7 +135,8 @@ pub fn get_select_statement_info(
     }
 
     let sc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) })?;
-    let mut reference_buffer = get_object_references(&sc);
+    let struct_alias_ids = get_struct_alias_refs(&sc);
+    let mut reference_buffer = get_object_references_excluding(&sc, Some(&struct_alias_ids));
     let mut table_reference_buffer = Vec::new();
     for potential_clause in [
         SyntaxKind::WhereClause,

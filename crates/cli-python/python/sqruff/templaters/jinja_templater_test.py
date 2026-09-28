@@ -34,8 +34,10 @@ from sqruff.templaters.jinja_templater import (
     JinjaTemplater,
     UndefinedRecorder,
 )
+from sqruff.templaters.jinja_templater_builtins_dbt import DBT_BUILTINS
 from sqruff.templaters.jinja_templater_tracers import JinjaAnalyzer
 from sqruff.templaters.python_templater import FluffConfig, SQLTemplaterError
+
 # from .jinja_templater_tracers import JinjaAnalyzer, JinjaTagConfiguration
 
 
@@ -76,6 +78,56 @@ def test_jinja_analyzer_receives_config():
     templater.slice_file("SELECT 1", lambda value: value, config=config)
 
     assert templater.analyzer_config is config
+
+
+def test_dbt_builtin_function_relation():
+    """The dbt function builtin emulates qualified and unqualified functions."""
+    function = DBT_BUILTINS["function"]("my_udf")
+    assert str(function) == "my_udf"
+    assert function.something is function
+    assert str(function.database) == "this_database"
+    assert str(function.schema) == "this_schema"
+    assert str(function.name) == "my_udf"
+    assert str(function.identifier) == "my_udf"
+    assert function.is_table is True
+    assert str(function.something().something) == "my_udf"
+
+    qualified_function = DBT_BUILTINS["function"]("my_schema", "my_udf")
+    assert str(qualified_function) == "my_udf"
+    assert str(qualified_function.name) == "my_udf"
+    assert str(qualified_function.identifier) == "my_udf"
+
+
+def test_jinja_dbt_builtin_function():
+    """The Jinja templater renders dbt's function() builtin when enabled."""
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_templater_paths=[],
+        jinja_exclude_macros_from_path=[],
+        jinja_loader_search_path=[],
+        jinja_apply_dbt_builtins=True,
+        jinja_ignore_templating=False,
+        jinja_library_paths=[],
+        dbt_profile=None,
+        dbt_profiles_dir=None,
+        dbt_target=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+    )
+    templated_file, violations = JinjaTemplater().process(
+        in_str=(
+            "SELECT {{ function('my_dataset_my_udf') }}(some_column, other_column) "
+            "AS result\nFROM {{ ref('my_model') }}\n"
+        ),
+        fname="test.sql",
+        config=config,
+    )
+
+    assert templated_file.templated_str == (
+        "SELECT my_dataset_my_udf(some_column, other_column) AS result\nFROM my_model\n"
+    )
+    assert violations == []
 
 
 def test_jinja_loader_search_path_does_not_load_macros_globally(tmp_path):

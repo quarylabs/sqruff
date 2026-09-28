@@ -1246,6 +1246,9 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | RollupSegment
         | DistributionSegment
         | IndexDefinition
+        | LoadDataDesc
+        | LoadLabelProperty
+        | LoadLabelStatement
         | CreateRoutineLoadStatement
         | RoutineLoadProperties
         | RoutineLoadDataSourceProperties

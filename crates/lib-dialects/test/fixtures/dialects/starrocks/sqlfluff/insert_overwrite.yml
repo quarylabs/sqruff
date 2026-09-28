@@ -12,6 +12,9 @@ file:
         - column_reference:
           - naked_identifier: p20240101
       - end_bracket: )
+    - keyword: WITH
+    - keyword: LABEL
+    - naked_identifier: target_table_123
     - select_statement:
       - select_clause:
         - keyword: SELECT

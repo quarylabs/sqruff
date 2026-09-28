@@ -442,6 +442,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ConflictAction
         | ConflictTarget
         | SetStatement
+        | SetDefaultRoleStatement
         | CreatePolicyStatement
         | CreateDomainStatement
         | AlterDomainStatement

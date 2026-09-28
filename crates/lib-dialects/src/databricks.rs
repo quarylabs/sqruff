@@ -1493,6 +1493,48 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // https://docs.databricks.com/aws/en/sql/language-manual/delta-clone
+        (
+            "CreateTableCloneStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateTableCloneStatement, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("CREATE").to_matchable(),
+                                Ref::keyword("OR").to_matchable(),
+                            ])
+                            .config(|config| config.optional())
+                            .to_matchable(),
+                            Ref::keyword("REPLACE").to_matchable(),
+                            Ref::keyword("TABLE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CREATE").to_matchable(),
+                            Ref::keyword("TABLE").to_matchable(),
+                            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("SHALLOW").to_matchable(),
+                        Ref::keyword("DEEP").to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                    Ref::keyword("CLONE").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("TablePropertiesGrammar").optional().to_matchable(),
+                    Ref::new("LocationGrammar").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "TableSpecificationSegment".into(),
             NodeMatcher::new(SyntaxKind::TableSpecificationSegment, |_| {
@@ -2780,6 +2822,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .copy(
                 Some(vec![
                     Ref::new("CreateDatabricksFunctionStatementSegment").to_matchable(),
+                    Ref::new("CreateTableCloneStatementSegment").to_matchable(),
                     Ref::new("AlterCatalogStatementSegment").to_matchable(),
                     Ref::new("CreateCatalogStatementSegment").to_matchable(),
                     Ref::new("DropCatalogStatementSegment").to_matchable(),

@@ -3480,6 +3480,8 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropExternalTableStatementSegment").to_matchable(),
             Ref::new("CopyIntoTableStatementSegment").to_matchable(),
             Ref::new("CreateFullTextIndexStatementSegment").to_matchable(),
+            Ref::new("AlterFullTextIndexStatementSegment").to_matchable(),
+            Ref::new("DropFullTextIndexStatementSegment").to_matchable(),
             Ref::new("CreateFullTextCatalogStatementSegment").to_matchable(),
             Ref::new("CreateFullTextStoplistStatementSegment").to_matchable(),
             Ref::new("CreateColumnstoreIndexStatementSegment").to_matchable(),
@@ -4451,6 +4453,110 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    dialect.add([
+        (
+            "FullTextColumnWithOptionsGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("ColumnReferenceSegment").to_matchable(),
+                any_set_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("TYPE").to_matchable(),
+                        Ref::keyword("COLUMN").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("LANGUAGE").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("HexadecimalLiteralSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("STATISTICAL_SEMANTICS").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FullTextCatalogFilegroupElementsGrammar".into(),
+            any_set_of(vec![
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("FILEGROUP").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FullTextWithOptionElementGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("CHANGE_TRACKING").to_matchable(),
+                    Ref::new("EqualsSegment").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("MANUAL").to_matchable(),
+                        Ref::keyword("AUTO").to_matchable(),
+                        Ref::keyword("OFF").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("STOPLIST").to_matchable(),
+                    Ref::new("EqualsSegment").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("OFF").to_matchable(),
+                        Ref::keyword("SYSTEM").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("SEARCH").to_matchable(),
+                    Ref::keyword("PROPERTY").to_matchable(),
+                    Ref::keyword("LIST").to_matchable(),
+                    Ref::new("EqualsSegment").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NO").to_matchable(),
+                    Ref::keyword("POPULATION").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FullTextWithOptionListGrammar".into(),
+            Delimited::new(vec![
+                Ref::new("FullTextWithOptionElementGrammar").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FullTextWithNoPopulationGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("NO").to_matchable(),
+                Ref::keyword("POPULATION").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // CREATE FULLTEXT INDEX (#5274)
     // https://learn.microsoft.com/en-us/sql/t-sql/statements/create-fulltext-index-transact-sql
     dialect.add([(
@@ -4464,31 +4570,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("TableReferenceSegment").to_matchable(),
                 Bracketed::new(vec![
                     Delimited::new(vec![
-                        Sequence::new(vec![
-                            Ref::new("ColumnReferenceSegment").to_matchable(),
-                            AnyNumberOf::new(vec![
-                                Sequence::new(vec![
-                                    Ref::keyword("TYPE").to_matchable(),
-                                    Ref::keyword("COLUMN").to_matchable(),
-                                    Ref::new("DatatypeSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("LANGUAGE").to_matchable(),
-                                    one_of(vec![
-                                        Ref::new("NumericLiteralSegment").to_matchable(),
-                                        Ref::new("QuotedLiteralSegment").to_matchable(),
-                                    ])
-                                    .config(|this| this.optional())
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                                Ref::keyword("STATISTICAL_SEMANTICS").to_matchable(),
-                            ])
-                            .config(|this| this.max_times_per_element = Some(1))
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("FullTextColumnWithOptionsGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -4500,19 +4582,22 @@ pub fn raw_dialect() -> Dialect {
                     // catalog / filegroup option
                     Sequence::new(vec![
                         Ref::keyword("ON").to_matchable(),
-                        Delimited::new(vec![
-                            AnyNumberOf::new(vec![
-                                Ref::new("ObjectReferenceSegment").to_matchable(),
-                                Sequence::new(vec![
-                                    Ref::keyword("FILEGROUP").to_matchable(),
-                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("FullTextCatalogFilegroupElementsGrammar")
+                                        .to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])
-                            .config(|this| this.max_times_per_element = Some(1))
+                            .to_matchable(),
+                            Delimited::new(vec![
+                                Ref::new("FullTextCatalogFilegroupElementsGrammar").to_matchable(),
+                            ])
+                            .config(|this| this.allow_trailing())
                             .to_matchable(),
                         ])
-                        .config(|this| this.allow_trailing())
                         .to_matchable(),
                     ])
                     .config(|this| this.optional())
@@ -4520,56 +4605,169 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 // WITH option
-                Sequence::new(vec![
-                    Ref::keyword("WITH").to_matchable(),
-                    Bracketed::new(vec![
-                        one_of(vec![
-                            Sequence::new(vec![
-                                Ref::keyword("CHANGE_TRACKING").to_matchable(),
-                                Ref::new("EqualsSegment").optional().to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("MANUAL").to_matchable(),
-                                    Ref::keyword("AUTO").to_matchable(),
-                                    Delimited::new(vec![
-                                        Ref::keyword("OFF").to_matchable(),
-                                        Sequence::new(vec![
-                                            Ref::keyword("NO").to_matchable(),
-                                            Ref::keyword("POPULATION").to_matchable(),
-                                        ])
-                                        .config(|this| this.optional())
-                                        .to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("STOPLIST").to_matchable(),
-                                Ref::new("EqualsSegment").optional().to_matchable(),
-                                one_of(vec![
-                                    Ref::keyword("OFF").to_matchable(),
-                                    Ref::keyword("SYSTEM").to_matchable(),
-                                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Sequence::new(vec![
-                                Ref::keyword("SEARCH").to_matchable(),
-                                Ref::keyword("PROPERTY").to_matchable(),
-                                Ref::keyword("LIST").to_matchable(),
-                                Ref::new("EqualsSegment").optional().to_matchable(),
-                                Ref::new("ObjectReferenceSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Bracketed::new(vec![
+                            Ref::new("FullTextWithOptionListGrammar").to_matchable(),
                         ])
                         .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::new("FullTextWithOptionListGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // ALTER FULLTEXT INDEX (#7712)
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-fulltext-index-transact-sql
+    dialect.add([(
+        "AlterFullTextIndexStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterFulltextIndexStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("ALTER").to_matchable(),
+                Ref::keyword("FULLTEXT").to_matchable(),
+                Ref::keyword("INDEX").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ENABLE").to_matchable(),
+                    Ref::keyword("DISABLE").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SET").to_matchable(),
+                        Ref::keyword("CHANGE_TRACKING").to_matchable(),
+                        Ref::new("EqualsSegment").optional().to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("MANUAL").to_matchable(),
+                            Ref::keyword("AUTO").to_matchable(),
+                            Ref::keyword("OFF").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ADD").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Ref::new("FullTextColumnWithOptionsGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("FullTextWithNoPopulationGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ALTER").to_matchable(),
+                        Ref::keyword("COLUMN").to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("ADD").to_matchable(),
+                            Ref::keyword("DROP").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("STATISTICAL_SEMANTICS").to_matchable(),
+                        Ref::new("FullTextWithNoPopulationGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DROP").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("FullTextWithNoPopulationGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("START").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("FULL").to_matchable(),
+                            Ref::keyword("INCREMENTAL").to_matchable(),
+                            Ref::keyword("UPDATE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("POPULATION").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("STOP").to_matchable(),
+                            Ref::keyword("PAUSE").to_matchable(),
+                            Ref::keyword("RESUME").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("POPULATION").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SET").to_matchable(),
+                        Ref::keyword("STOPLIST").to_matchable(),
+                        Ref::new("EqualsSegment").optional().to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("OFF").to_matchable(),
+                            Ref::keyword("SYSTEM").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("FullTextWithNoPopulationGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SET").to_matchable(),
+                        Ref::keyword("SEARCH").to_matchable(),
+                        Ref::keyword("PROPERTY").to_matchable(),
+                        Ref::keyword("LIST").to_matchable(),
+                        Ref::new("EqualsSegment").optional().to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("OFF").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("FullTextWithNoPopulationGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // DROP FULLTEXT INDEX (#7712)
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-fulltext-index-transact-sql
+    dialect.add([(
+        "DropFullTextIndexStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropFulltextIndexStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("FULLTEXT").to_matchable(),
+                Ref::keyword("INDEX").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
             ])
             .to_matchable()
         })

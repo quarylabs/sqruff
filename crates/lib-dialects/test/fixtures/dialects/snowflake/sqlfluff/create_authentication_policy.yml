@@ -137,3 +137,22 @@ file:
       - quoted_literal: '''INTEGRATION3'''
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_authentication_policy_segment:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: AUTHENTICATION
+    - keyword: POLICY
+    - table_reference:
+      - naked_identifier: my_or_alter_policy
+    - keyword: AUTHENTICATION_METHODS
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '''PASSWORD'''
+      - comma: ','
+      - quoted_literal: '''SAML'''
+      - end_bracket: )
+- statement_terminator: ;

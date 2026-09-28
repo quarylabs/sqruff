@@ -35,7 +35,6 @@ file:
             - column_reference:
               - naked_identifier: col1
         - end_bracket: )
-    - comma: ','
     - select_statement:
       - select_clause:
         - keyword: SELECT

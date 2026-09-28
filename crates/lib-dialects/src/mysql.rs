@@ -2457,6 +2457,13 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    mysql.add([(
+        "TableOptionsSegment".into(),
+        NodeMatcher::new(SyntaxKind::TableOptions, |_| mysql_table_options_grammar())
+            .to_matchable()
+            .into(),
+    )]);
+
     // AlterTableStatementSegment.
     mysql.replace_grammar(
         "AlterTableStatementSegment",
@@ -2467,16 +2474,7 @@ pub fn raw_dialect() -> Dialect {
             Delimited::new(vec![
                 one_of(vec![
                     // Table options
-                    Sequence::new(vec![
-                        Ref::new("ParameterNameSegment").to_matchable(),
-                        Ref::new("EqualsSegment").optional().to_matchable(),
-                        one_of(vec![
-                            Ref::new("LiteralGrammar").to_matchable(),
-                            Ref::new("NakedIdentifierSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("TableOptionsSegment").to_matchable(),
                     // ADD column
                     Sequence::new(vec![
                         Ref::keyword("ADD").to_matchable(),
@@ -4314,6 +4312,160 @@ fn partition_scheme(bracket_key: bool) -> Matchable {
                 key_cols,
             ])
             .to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable()
+}
+
+fn mysql_table_options_grammar() -> Matchable {
+    optionally_delimited_table_options(vec![
+        numeric_alter_table_option("AUTOEXTEND_SIZE"),
+        numeric_alter_table_option("AUTO_INCREMENT"),
+        numeric_alter_table_option("AVG_ROW_LENGTH"),
+        charset_alter_table_option(),
+        numeric_alter_table_option("CHECKSUM"),
+        collate_alter_table_option(),
+        quoted_alter_table_option("COMMENT"),
+        quoted_alter_table_option("COMPRESSION"),
+        quoted_alter_table_option("CONNECTION"),
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::keyword("DATA").to_matchable(),
+                Ref::keyword("INDEX").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("DIRECTORY").to_matchable(),
+            Ref::new("EqualsSegment").optional().to_matchable(),
+            Ref::new("QuotedLiteralSegment").to_matchable(),
+        ])
+        .to_matchable(),
+        numeric_alter_table_option("DELAY_KEY_WRITE"),
+        quoted_alter_table_option("ENCRYPTION"),
+        equals_alter_table_option("ENGINE", quoted_or_identifier()),
+        quoted_alter_table_option("ENGINE_ATTRIBUTE"),
+        keyword_alter_table_option("INSERT_METHOD", &["NO", "FIRST", "LAST"]),
+        numeric_alter_table_option("KEY_BLOCK_SIZE"),
+        numeric_alter_table_option("MAX_ROWS"),
+        numeric_alter_table_option("MIN_ROWS"),
+        number_or_default_alter_table_option("PACK_KEYS"),
+        quoted_alter_table_option("PASSWORD"),
+        keyword_alter_table_option(
+            "ROW_FORMAT",
+            &[
+                "DEFAULT",
+                "DYNAMIC",
+                "FIXED",
+                "COMPRESSED",
+                "REDUNDANT",
+                "COMPACT",
+            ],
+        ),
+        quoted_alter_table_option("SECONDARY_ENGINE_ATTRIBUTE"),
+        number_or_default_alter_table_option("STATS_AUTO_RECALC"),
+        number_or_default_alter_table_option("STATS_PERSISTENT"),
+        numeric_alter_table_option("STATS_SAMPLE_PAGES"),
+        Sequence::new(vec![
+            Ref::keyword("TABLESPACE").to_matchable(),
+            Ref::new("NakedIdentifierSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("STORAGE").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("DISK").to_matchable(),
+                    Ref::keyword("MEMORY").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+        union_alter_table_option(),
+    ])
+}
+
+fn optionally_delimited_table_options(options: Vec<Matchable>) -> Matchable {
+    Delimited::new(vec![one_of(options).to_matchable()])
+        .config(|this| this.optional_delimiter())
+        .to_matchable()
+}
+
+fn equals_alter_table_option(keyword: &'static str, value: Matchable) -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword(keyword).to_matchable(),
+        Ref::new("EqualsSegment").optional().to_matchable(),
+        value,
+    ])
+    .to_matchable()
+}
+
+fn numeric_alter_table_option(keyword: &'static str) -> Matchable {
+    equals_alter_table_option(keyword, Ref::new("NumericLiteralSegment").to_matchable())
+}
+
+fn quoted_alter_table_option(keyword: &'static str) -> Matchable {
+    equals_alter_table_option(keyword, Ref::new("QuotedLiteralSegment").to_matchable())
+}
+
+fn keyword_alter_table_option(keyword: &'static str, values: &[&'static str]) -> Matchable {
+    equals_alter_table_option(
+        keyword,
+        one_of(
+            values
+                .iter()
+                .map(|value| Ref::keyword(*value).to_matchable())
+                .collect(),
+        )
+        .to_matchable(),
+    )
+}
+
+fn number_or_default_alter_table_option(keyword: &'static str) -> Matchable {
+    equals_alter_table_option(
+        keyword,
+        one_of(vec![
+            Ref::keyword("DEFAULT").to_matchable(),
+            Ref::new("NumericLiteralSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    )
+}
+
+fn quoted_or_identifier() -> Matchable {
+    one_of(vec![
+        Ref::new("QuotedLiteralSegment").to_matchable(),
+        Ref::new("NakedIdentifierSegment").to_matchable(),
+    ])
+    .to_matchable()
+}
+
+fn charset_alter_table_option() -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword("DEFAULT").optional().to_matchable(),
+        Ref::keyword("CHARACTER").to_matchable(),
+        Ref::keyword("SET").to_matchable(),
+        Ref::new("EqualsSegment").optional().to_matchable(),
+        quoted_or_identifier(),
+    ])
+    .to_matchable()
+}
+
+fn collate_alter_table_option() -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword("DEFAULT").optional().to_matchable(),
+        Ref::keyword("COLLATE").to_matchable(),
+        Ref::new("EqualsSegment").optional().to_matchable(),
+        quoted_or_identifier(),
+    ])
+    .to_matchable()
+}
+
+fn union_alter_table_option() -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword("UNION").to_matchable(),
+        Ref::new("EqualsSegment").optional().to_matchable(),
+        Bracketed::new(vec![
+            Delimited::new(vec![Ref::new("TableReferenceSegment").to_matchable()]).to_matchable(),
         ])
         .to_matchable(),
     ])

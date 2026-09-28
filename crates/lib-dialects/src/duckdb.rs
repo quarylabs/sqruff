@@ -1592,6 +1592,7 @@ pub fn raw_dialect() -> Dialect {
         Sequence::new(vec![
             one_of(vec![
                 Ref::new("NakedIdentifierSegment").to_matchable(),
+                Ref::new("QuotedIdentifierSegment").to_matchable(),
                 Ref::new("QuotedLiteralSegment").to_matchable(),
             ])
             .to_matchable(),

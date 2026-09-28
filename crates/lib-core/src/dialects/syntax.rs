@@ -913,6 +913,7 @@ pub enum SyntaxKind {
     OraclePackageReference,
     OraclePhysicalAttributes,
     OraclePowerOperator,
+    OracleProcedureCallStatement,
     OracleReferencingClause,
     OracleReturnStatement,
     OracleReturningClause,

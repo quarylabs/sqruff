@@ -159,7 +159,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         Parameter | PipelineParameter => Highlight::Parameter,
 
         // Variables / placeholders.
-        Variable | TsqlVariable | Placeholder => Highlight::Macro,
+        Variable | TsqlVariable | HiveVariable | Placeholder => Highlight::Macro,
 
         // Property-style identifiers.
         PropertyNameIdentifier | PropertiesNakedIdentifier | WidgetNameIdentifier => {

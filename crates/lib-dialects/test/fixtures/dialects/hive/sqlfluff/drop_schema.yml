@@ -5,8 +5,7 @@ file:
     - keyword: SCHEMA
     - keyword: IF
     - keyword: EXISTS
-    - table_reference:
-      - object_reference:
-        - naked_identifier: foo
+    - schema_reference:
+      - naked_identifier: foo
     - keyword: CASCADE
 - statement_terminator: ;

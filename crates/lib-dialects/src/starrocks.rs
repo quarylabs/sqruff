@@ -55,7 +55,29 @@ pub fn raw_dialect() -> Dialect {
         "JDBC",
     ]);
 
+    starrocks.update_bracket_sets(
+        "angle_bracket_pairs",
+        vec![(
+            "angle",
+            "StartAngleBracketSegment",
+            "EndAngleBracketSegment",
+            false,
+        )],
+    );
+
     starrocks.add([
+        (
+            "StartAngleBracketSegment".into(),
+            StringParser::new("<", SyntaxKind::StartAngleBracket)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "EndAngleBracketSegment".into(),
+            StringParser::new(">", SyntaxKind::EndAngleBracket)
+                .to_matchable()
+                .into(),
+        ),
         (
             "EngineTypeSegment".into(),
             one_of(vec![
@@ -311,6 +333,71 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    starrocks.replace_grammar(
+        "ArrayTypeSegment",
+        Sequence::new(vec![
+            Ref::keyword("ARRAY").to_matchable(),
+            Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                .config(|this| {
+                    this.bracket_type = "angle";
+                    this.bracket_pairs_set = "angle_bracket_pairs";
+                })
+                .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    let datatype_grammar = starrocks
+        .grammar("DatatypeSegment")
+        .as_node_matcher_ref()
+        .unwrap()
+        .match_grammar(&starrocks);
+    starrocks.replace_grammar(
+        "DatatypeSegment",
+        datatype_grammar.copy(
+            Some(vec![
+                Ref::new("ArrayTypeSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("MAP").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.bracket_type = "angle";
+                        this.bracket_pairs_set = "angle_bracket_pairs";
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("STRUCT").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Ref::new("DatatypeSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.bracket_type = "angle";
+                        this.bracket_pairs_set = "angle_bracket_pairs";
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ]),
+            Some(0),
+            None,
+            None,
+            vec![],
+            false,
+        ),
+    );
 
     starrocks.replace_grammar(
         "ColumnConstraintSegment",

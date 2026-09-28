@@ -839,6 +839,8 @@ pub enum SyntaxKind {
     ObjectLiteralElement,
     ObjectPrivilege,
     ObjectReference,
+    ObjectType,
+    ObjectTypeSchema,
     ObjectUnpivoting,
     OffsetClause,
     OnClusterClause,

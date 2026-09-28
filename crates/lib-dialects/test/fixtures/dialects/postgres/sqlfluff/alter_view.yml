@@ -581,6 +581,23 @@ file:
   - alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
+    - table_reference:
+      - naked_identifier: myview
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - parameter: timescaledb
+      - dot: .
+      - parameter: materialized_only
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - boolean_literal: 'false'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
@@ -653,6 +670,20 @@ file:
       - parameter: view_option_name
       - comma: ','
       - parameter: view_option_name2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: myview
+    - keyword: RESET
+    - bracketed:
+      - start_bracket: (
+      - parameter: timescaledb
+      - dot: .
+      - parameter: materialized_only
       - end_bracket: )
 - statement_terminator: ;
 - statement:

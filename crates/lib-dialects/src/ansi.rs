@@ -2247,7 +2247,6 @@ pub fn raw_dialect() -> Dialect {
                     Delimited::new(vec![Ref::new("CTEDefinitionSegment").to_matchable()])
                         .config(|this| {
                             this.terminators = vec![Ref::keyword("SELECT").to_matchable()];
-                            this.allow_trailing();
                         })
                         .to_matchable(),
                     Conditional::new(MetaSegment::dedent())
@@ -2272,7 +2271,6 @@ pub fn raw_dialect() -> Dialect {
                     Delimited::new(vec![Ref::new("CTEDefinitionSegment").to_matchable()])
                         .config(|this| {
                             this.terminators = vec![Ref::keyword("SELECT").to_matchable()];
-                            this.allow_trailing();
                         })
                         .to_matchable(),
                     Conditional::new(MetaSegment::dedent())

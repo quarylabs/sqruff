@@ -350,6 +350,27 @@ fn bigquery_cast_as_float_is_unparsable() {
 }
 
 #[test]
+fn ansi_and_hive_reject_trailing_comma_after_final_cte() {
+    for dialect_kind in [DialectKind::Ansi, DialectKind::Hive] {
+        let dialect = kind_to_dialect(&dialect_kind, None).unwrap();
+        let tables = Tables::default();
+        let lexer = Lexer::from(&dialect);
+        let parser = Parser::from(&dialect);
+        let (tokens, lex_errors) =
+            lexer.lex(&tables, "WITH cte AS (SELECT 1 AS x),\nSELECT x FROM cte;");
+
+        assert!(lex_errors.is_empty());
+
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(
+            !check_no_unparsable_segments(&tree).is_empty(),
+            "{} must reject a trailing comma after the final CTE",
+            dialect_kind.as_ref(),
+        );
+    }
+}
+
+#[test]
 fn mysql_family_rejects_schema_qualified_dual() {
     for dialect_kind in [DialectKind::Mysql, DialectKind::Mariadb] {
         let dialect = kind_to_dialect(&dialect_kind, None).unwrap();

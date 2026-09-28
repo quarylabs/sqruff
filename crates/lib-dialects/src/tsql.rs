@@ -5744,10 +5744,8 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("WITHIN").to_matchable(),
                 Ref::keyword("GROUP").to_matchable(),
-                Bracketed::new(vec![
-                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
-                ])
-                .to_matchable(),
+                Bracketed::new(vec![Ref::new("AggregateOrderByClause").to_matchable()])
+                    .to_matchable(),
             ])
             .to_matchable()
         })

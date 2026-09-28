@@ -52,7 +52,7 @@ pub fn raw_dialect() -> Dialect {
     let mut greenplum = super::postgres::raw_dialect();
     greenplum.name = DialectKind::Greenplum;
 
-    // Greenplum-specific keywords from the Greenplum 6 keyword table.
+    // Greenplum-specific keywords from the Greenplum keyword table.
     greenplum
         .sets_mut("reserved_keywords")
         .extend(["DECODE", "DISTRIBUTED", "LOG", "SCATTER"]);
@@ -60,6 +60,7 @@ pub fn raw_dialect() -> Dialect {
         "ACTIVE",
         "CONCURRENCY",
         "CONTAINS",
+        "COORDINATOR",
         "CPU_RATE_LIMIT",
         "CPUSET",
         "CREATEEXTTABLE",
@@ -96,6 +97,7 @@ pub fn raw_dialect() -> Dialect {
         "OVERCOMMIT",
         "PARTITIONS",
         "PERCENT",
+        "PERSISTENTLY",
         "PROTOCOL",
         "QUEUE",
         "RANDOMLY",
@@ -163,8 +165,186 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    greenplum.add([
+        (
+            "CreateExternalTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateExternalTableStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("READABLE").to_matchable(),
+                        Ref::keyword("WRITABLE").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("EXTERNAL").to_matchable(),
+                    Ref::keyword("WEB").optional().to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    Ref::new("DatatypeSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("LIKE").to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("LOCATION").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("EXECUTE").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("ON").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("ALL").to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("HOST").to_matchable(),
+                                        Ref::new("QuotedLiteralSegment").optional().to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Sequence::new(vec![
+                                        Ref::keyword("SEGMENT").to_matchable(),
+                                        Ref::new("NumericLiteralSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::keyword("COORDINATOR").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("FORMAT").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                        Ref::new("QuotedIdentifierSegment").to_matchable(),
+                                    ])
+                                    .config(|this| this.optional())
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    Ref::keyword("AS").optional().to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("OPTIONS").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ENCODING").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("LOG").to_matchable(),
+                            Ref::keyword("ERRORS").to_matchable(),
+                            Ref::keyword("PERSISTENTLY").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SEGMENT").to_matchable(),
+                            Ref::keyword("REJECT").to_matchable(),
+                            Ref::keyword("LIMIT").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("ROWS").to_matchable(),
+                                Ref::keyword("PERCENT").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("DistributedBySegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "DropExternalTableStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropExternalTableStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("EXTERNAL").to_matchable(),
+                    Ref::keyword("WEB").optional().to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("DropBehaviorGrammar").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // Override `CREATE TABLE` to add the Greenplum `DISTRIBUTED` clause.
-    // https://docs.vmware.com/en/VMware-Tanzu-Greenplum/6/greenplum-database/GUID-ref_guide-sql_commands-CREATE_TABLE.html
+    // https://docs.vmware.com/en/VMware-Greenplum/7/greenplum-database/ref_guide-sql_commands-CREATE_TABLE.html
     greenplum.replace_grammar(
         "CreateTableStatementSegment",
         NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
@@ -765,6 +945,8 @@ pub fn raw_dialect() -> Dialect {
         .copy(
             Some(
                 [
+                    "CreateExternalTableStatementSegment",
+                    "DropExternalTableStatementSegment",
                     "FetchStatementSegment",
                     "DeclareStatementSegment",
                     "CloseStatementSegment",

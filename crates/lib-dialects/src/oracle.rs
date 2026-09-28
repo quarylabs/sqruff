@@ -514,6 +514,15 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable()
                 .into(),
         ),
+        // Colon prefix for bind variables and trigger pseudorecords. This is
+        // distinct from ColonSegment so its global spacing rule does not
+        // remove the required space before a bind variable.
+        (
+            "BindColonSegment".into(),
+            StringParser::new(":", SyntaxKind::BindColon)
+                .to_matchable()
+                .into(),
+        ),
         // AssignmentOperatorSegment
         (
             "AssignmentOperatorSegment".into(),
@@ -1381,9 +1390,9 @@ pub fn raw_dialect() -> Dialect {
         // TriggerCorrelationReferenceSegment
         (
             "TriggerCorrelationReferenceSegment".into(),
-            NodeMatcher::new(SyntaxKind::OracleBindVariable, |_| {
+            NodeMatcher::new(SyntaxKind::BindVariable, |_| {
                 Sequence::new(vec![
-                    Ref::new("ColonDelimiterSegment").to_matchable(),
+                    Ref::new("BindColonSegment").to_matchable(),
                     Ref::new("TriggerCorrelationNameSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::new("DotSegment").to_matchable(),
@@ -1402,12 +1411,12 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        // SqlplusVariableGrammar
+        // BindVariableSegment
         (
-            "SqlplusVariableGrammar".into(),
-            NodeMatcher::new(SyntaxKind::OracleSqlplusVariable, |_| {
+            "BindVariableSegment".into(),
+            NodeMatcher::new(SyntaxKind::BindVariable, |_| {
                 optionally_bracketed(vec![
-                    Ref::new("ColonSegment").to_matchable(),
+                    Ref::new("BindColonSegment").to_matchable(),
                     Ref::new("ParameterNameSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::new("DotSegment").to_matchable(),
@@ -1423,10 +1432,10 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        // SqlplusSubstitutionVariableSegment
+        // SubstitutionVariableSegment
         (
-            "SqlplusSubstitutionVariableSegment".into(),
-            NodeMatcher::new(SyntaxKind::OracleSqlplusVariable, |_| {
+            "SubstitutionVariableSegment".into(),
+            NodeMatcher::new(SyntaxKind::SubstitutionVariable, |_| {
                 Sequence::new(vec![
                     Ref::new("AmpersandSegment").to_matchable(),
                     Ref::new("AmpersandSegment").optional().to_matchable(),
@@ -3123,7 +3132,7 @@ pub fn raw_dialect() -> Dialect {
         ),
         // AssignmentStatementSegment
         // SQLFluff: AnyNumberOf(ObjectRef, Bracketed(subscript)?, DotSegment?,
-        //           OneOf(TriggerCorrelation, SqlplusVariable)?, optional)
+        //           OneOf(TriggerCorrelation, BindVariable)?, optional)
         //           := / DEFAULT  ExpressionSegment
         (
             "AssignmentStatementSegment".into(),
@@ -3146,7 +3155,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("DotSegment").optional().to_matchable(),
                         one_of(vec![
                             Ref::new("TriggerCorrelationReferenceSegment").to_matchable(),
-                            Ref::new("SqlplusVariableGrammar").to_matchable(),
+                            Ref::new("BindVariableSegment").to_matchable(),
                         ])
                         .config(|config| {
                             config.optional();
@@ -3633,7 +3642,11 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::CloseStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CLOSE").to_matchable(),
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("BindVariableSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -3649,7 +3662,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("OPEN").to_matchable(),
                     one_of(vec![
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
-                        Ref::new("SqlplusVariableGrammar").to_matchable(),
+                        Ref::new("BindVariableSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::keyword("FOR").to_matchable(),
@@ -3705,7 +3718,11 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::OracleFetchStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("FETCH").to_matchable(),
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    one_of(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("BindVariableSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     one_of(vec![
                         Ref::new("IntoClauseSegment").to_matchable(),
                         Sequence::new(vec![
@@ -3741,7 +3758,7 @@ pub fn raw_dialect() -> Dialect {
                     Delimited::new(vec![
                         one_of(vec![
                             Ref::new("SingleIdentifierGrammar").to_matchable(),
-                            Ref::new("SqlplusVariableGrammar").to_matchable(),
+                            Ref::new("BindVariableSegment").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -3761,8 +3778,14 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("COLLECT").to_matchable(),
                     Ref::keyword("INTO").to_matchable(),
                     MetaSegment::implicit_indent().to_matchable(),
-                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("BindVariableSegment").to_matchable(),
+                        ])
                         .to_matchable(),
+                    ])
+                    .to_matchable(),
                     MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
@@ -4649,7 +4672,7 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
-                Ref::new("SqlplusSubstitutionVariableSegment").to_matchable(),
+                Ref::new("SubstitutionVariableSegment").to_matchable(),
                 Ref::new("ImplicitCursorAttributesGrammar").to_matchable(),
                 // ObjectReference with optional subscript and trailing dot (PL/SQL array access)
                 Sequence::new(vec![
@@ -4769,7 +4792,7 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // ---- LiteralGrammar ----
-    // SQLFluff inserts TriggerCorrelationReferenceSegment, SqlplusVariableGrammar,
+    // SQLFluff inserts TriggerCorrelationReferenceSegment, BindVariableSegment,
     // LEVEL, ROWNUM, ANY before ArrayLiteralSegment.
     oracle.replace_grammar(
         "LiteralGrammar",
@@ -4782,7 +4805,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DateTimeLiteralGrammar").to_matchable(),
             // Oracle-specific additions
             Ref::new("TriggerCorrelationReferenceSegment").to_matchable(),
-            Ref::new("SqlplusVariableGrammar").to_matchable(),
+            Ref::new("BindVariableSegment").to_matchable(),
             Ref::keyword("LEVEL").to_matchable(),
             Ref::keyword("ROWNUM").to_matchable(),
             Ref::keyword("ANY").to_matchable(),
@@ -7079,16 +7102,14 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // ---- SingleIdentifierGrammar: add SqlplusSubstitutionVariable ----
-    // SQLFluff: ansi SingleIdentifierGrammar.copy(insert=[Ref("SqlplusSubstitutionVariableSegment")])
+    // ---- SingleIdentifierGrammar: add SubstitutionVariable ----
+    // SQLFluff: ansi SingleIdentifierGrammar.copy(insert=[Ref("SubstitutionVariableSegment")])
     {
         let existing = oracle.grammar("SingleIdentifierGrammar");
         oracle.replace_grammar(
             "SingleIdentifierGrammar",
             existing.copy(
-                Some(vec![
-                    Ref::new("SqlplusSubstitutionVariableSegment").to_matchable(),
-                ]),
+                Some(vec![Ref::new("SubstitutionVariableSegment").to_matchable()]),
                 None,
                 None,
                 None,
@@ -7098,8 +7119,8 @@ pub fn raw_dialect() -> Dialect {
         );
     }
 
-    // ---- BaseExpressionElementGrammar: add ConnectByRoot + SqlplusSubstitutionVariable ----
-    // SQLFluff: ansi BaseExpressionElementGrammar.copy(insert=[ConnectByRootGrammar, SqlplusSubstitutionVariableSegment])
+    // ---- BaseExpressionElementGrammar: add ConnectByRoot + SubstitutionVariable ----
+    // SQLFluff: ansi BaseExpressionElementGrammar.copy(insert=[ConnectByRootGrammar, SubstitutionVariableSegment])
     {
         let existing = oracle.grammar("BaseExpressionElementGrammar");
         oracle.replace_grammar(
@@ -7107,7 +7128,7 @@ pub fn raw_dialect() -> Dialect {
             existing.copy(
                 Some(vec![
                     Ref::new("ConnectByRootGrammar").to_matchable(),
-                    Ref::new("SqlplusSubstitutionVariableSegment").to_matchable(),
+                    Ref::new("SubstitutionVariableSegment").to_matchable(),
                     Ref::new("TriggerPredicatesGrammar").to_matchable(),
                 ]),
                 None,
@@ -7153,8 +7174,8 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
-    // ---- TableExpressionSegment: add SqlplusSubstitutionVariable ----
-    // SQLFluff: ansi.TableExpressionSegment.match_grammar.copy(insert=[Ref("SqlplusSubstitutionVariableSegment")])
+    // ---- TableExpressionSegment: add SubstitutionVariable ----
+    // SQLFluff: ansi.TableExpressionSegment.match_grammar.copy(insert=[Ref("SubstitutionVariableSegment")])
     oracle.replace_grammar(
         "TableExpressionSegment",
         one_of(vec![
@@ -7164,7 +7185,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("TableReferenceSegment").to_matchable(),
             Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
             Bracketed::new(vec![Ref::new("MergeStatementSegment").to_matchable()]).to_matchable(),
-            Ref::new("SqlplusSubstitutionVariableSegment").to_matchable(),
+            Ref::new("SubstitutionVariableSegment").to_matchable(),
         ])
         .to_matchable(),
     );

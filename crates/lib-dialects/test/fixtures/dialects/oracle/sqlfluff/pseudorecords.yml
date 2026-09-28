@@ -24,16 +24,16 @@ file:
           - keyword: BEGIN
           - statement:
             - assignment_segment_statement:
-              - oracle_bind_variable:
-                - colon_delimiter: ':'
+              - bind_variable:
+                - bind_colon: ':'
                 - trigger_correlation_name:
                   - keyword: NEW
                 - dot: .
                 - naked_identifier: column_name
               - oracle_assignment_operator: :=
               - expression:
-                - oracle_bind_variable:
-                  - colon_delimiter: ':'
+                - bind_variable:
+                  - bind_colon: ':'
                   - trigger_correlation_name:
                     - keyword: OLD
                   - dot: .
@@ -44,16 +44,16 @@ file:
               - oracle_if_clause:
                 - keyword: IF
                 - expression:
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: NEW
                     - dot: .
                     - naked_identifier: val
                   - comparison_operator:
                     - raw_comparison_operator: '>'
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: OLD
                     - dot: .
@@ -61,8 +61,8 @@ file:
                 - keyword: THEN
               - statement:
                 - assignment_segment_statement:
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: NEW
                     - dot: .
@@ -76,16 +76,16 @@ file:
           - statement_terminator: ;
           - statement:
             - assignment_segment_statement:
-              - oracle_bind_variable:
-                - colon_delimiter: ':'
+              - bind_variable:
+                - bind_colon: ':'
                 - trigger_correlation_name:
                   - keyword: NEW
                 - dot: .
                 - naked_identifier: parent_val
               - oracle_assignment_operator: :=
               - expression:
-                - oracle_bind_variable:
-                  - colon_delimiter: ':'
+                - bind_variable:
+                  - bind_colon: ':'
                   - trigger_correlation_name:
                     - keyword: PARENT
                   - dot: .

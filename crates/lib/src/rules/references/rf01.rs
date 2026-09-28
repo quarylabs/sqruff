@@ -271,7 +271,7 @@ impl RuleRF01 {
         reference: &ObjectReferenceSegment,
         selectable: &Selectable,
     ) -> bool {
-        if Self::is_oracle_sequence_pseudocolumn(reference, selectable) {
+        if Self::is_sequence_pseudocolumn(reference, selectable) {
             return true;
         }
 
@@ -286,15 +286,19 @@ impl RuleRF01 {
         }
     }
 
-    /// Whether the reference is an Oracle sequence pseudocolumn access.
+    /// Whether the reference is a sequence pseudocolumn access.
     ///
-    /// Oracle treats `sequence.NEXTVAL` and `sequence.CURRVAL` as sequence
-    /// pseudocolumn access rather than table/column access.
-    fn is_oracle_sequence_pseudocolumn(
+    /// Oracle and Snowflake treat `sequence.NEXTVAL` and `sequence.CURRVAL`
+    /// (or `db.schema.sequence.NEXTVAL`) as sequence pseudocolumn access rather
+    /// than table/column access.
+    fn is_sequence_pseudocolumn(
         reference: &ObjectReferenceSegment,
         selectable: &Selectable,
     ) -> bool {
-        if selectable.dialect.name != DialectKind::Oracle {
+        if !matches!(
+            selectable.dialect.name,
+            DialectKind::Oracle | DialectKind::Snowflake
+        ) {
             return false;
         }
 

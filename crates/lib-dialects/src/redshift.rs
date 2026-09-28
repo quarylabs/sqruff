@@ -141,6 +141,16 @@ pub fn raw_dialect() -> Dialect {
         "TIMEZONE_HOUR",
         "TIMEZONE_MINUTE",
     ]);
+
+    redshift_dialect.replace_grammar(
+        "LateralColumnAliasExpressionGrammar",
+        Sequence::new(vec![
+            Ref::new("ExpressionSegment").to_matchable(),
+            Ref::new("AliasExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     redshift_dialect.add([
         (
             "WellKnownTextGeometrySegment".into(),

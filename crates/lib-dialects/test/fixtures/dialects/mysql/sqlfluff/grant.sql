@@ -6,3 +6,8 @@ GRANT INSERT, UPDATE, DELETE, SELECT, REFERENCES ON prj_table TO 'prj_svc'@'%';
 GRANT INSERT, UPDATE, DELETE, SELECT, REFERENCES ON prj_table TO "prj_svc"@"%";
 GRANT INSERT, UPDATE, DELETE, SELECT, REFERENCES ON prj_table TO `prj_svc`@`%`;
 GRANT INSERT, UPDATE, DELETE, SELECT, REFERENCES ON prj_table TO `prj_svc` @`%`;
+GRANT 'role-name'@'%' TO 'user_name'@'%';
+GRANT 'role-one'@'%', 'role-two'@'%' TO 'user_name'@'%';
+SET DEFAULT ROLE ALL TO 'user_name'@'%';
+SET DEFAULT ROLE NONE TO 'user_name'@'%';
+SET DEFAULT ROLE 'role-name'@'%' TO 'user_name'@'%';

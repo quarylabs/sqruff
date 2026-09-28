@@ -31,10 +31,8 @@ file:
               - object_reference:
                 - naked_identifier: prj_table
           - keyword: TO
-          - access_target:
-            - access_target:
-              - role_reference:
-                - naked_identifier: prj_svc
+          - role_reference:
+            - naked_identifier: prj_svc
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -68,10 +66,8 @@ file:
               - object_reference:
                 - naked_identifier: prj_table
           - keyword: TO
-          - access_target:
-            - access_target:
-              - role_reference:
-                - quoted_identifier: '''prj_svc'''
+          - role_reference:
+            - quoted_identifier: '''prj_svc'''
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -105,10 +101,8 @@ file:
               - object_reference:
                 - naked_identifier: prj_table
           - keyword: TO
-          - access_target:
-            - access_target:
-              - role_reference:
-                - quoted_literal: '"prj_svc"'
+          - role_reference:
+            - quoted_literal: '"prj_svc"'
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -142,10 +136,8 @@ file:
               - object_reference:
                 - naked_identifier: prj_table
           - keyword: TO
-          - access_target:
-            - access_target:
-              - role_reference:
-                - quoted_identifier: '`prj_svc`'
+          - role_reference:
+            - quoted_identifier: '`prj_svc`'
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -179,12 +171,10 @@ file:
               - object_reference:
                 - naked_identifier: prj_table
           - keyword: TO
-          - access_target:
-            - access_target:
-              - role_reference:
-                - quoted_identifier: '''prj_svc'''
-                - at_sign_literal: '@'
-                - quoted_identifier: '''%'''
+          - role_reference:
+            - quoted_identifier: '''prj_svc'''
+            - at_sign_literal: '@'
+            - quoted_identifier: '''%'''
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -218,12 +208,10 @@ file:
               - object_reference:
                 - naked_identifier: prj_table
           - keyword: TO
-          - access_target:
-            - access_target:
-              - role_reference:
-                - quoted_literal: '"prj_svc"'
-                - at_sign_literal: '@'
-                - quoted_literal: '"%"'
+          - role_reference:
+            - quoted_literal: '"prj_svc"'
+            - at_sign_literal: '@'
+            - quoted_literal: '"%"'
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -257,12 +245,10 @@ file:
               - object_reference:
                 - naked_identifier: prj_table
           - keyword: TO
-          - access_target:
-            - access_target:
-              - role_reference:
-                - quoted_identifier: '`prj_svc`'
-                - at_sign_literal: '@'
-                - quoted_identifier: '`%`'
+          - role_reference:
+            - quoted_identifier: '`prj_svc`'
+            - at_sign_literal: '@'
+            - quoted_identifier: '`%`'
 - statement_terminator: ;
 - statement:
   - access_statement:
@@ -296,10 +282,84 @@ file:
               - object_reference:
                 - naked_identifier: prj_table
           - keyword: TO
-          - access_target:
-            - access_target:
-              - role_reference:
-                - quoted_identifier: '`prj_svc`'
-                - at_sign_literal: '@'
-                - quoted_identifier: '`%`'
+          - role_reference:
+            - quoted_identifier: '`prj_svc`'
+            - at_sign_literal: '@'
+            - quoted_identifier: '`%`'
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - access_statement:
+      - grant_statement:
+        - grant_statement:
+          - keyword: GRANT
+          - role_reference:
+            - quoted_identifier: '''role-name'''
+            - at_sign_literal: '@'
+            - quoted_identifier: '''%'''
+          - keyword: TO
+          - role_reference:
+            - quoted_identifier: '''user_name'''
+            - at_sign_literal: '@'
+            - quoted_identifier: '''%'''
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - access_statement:
+      - grant_statement:
+        - grant_statement:
+          - keyword: GRANT
+          - role_reference:
+            - quoted_identifier: '''role-one'''
+            - at_sign_literal: '@'
+            - quoted_identifier: '''%'''
+          - comma: ','
+          - role_reference:
+            - quoted_identifier: '''role-two'''
+            - at_sign_literal: '@'
+            - quoted_identifier: '''%'''
+          - keyword: TO
+          - role_reference:
+            - quoted_identifier: '''user_name'''
+            - at_sign_literal: '@'
+            - quoted_identifier: '''%'''
+- statement_terminator: ;
+- statement:
+  - set_default_role_statement:
+    - keyword: SET
+    - keyword: DEFAULT
+    - keyword: ROLE
+    - keyword: ALL
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: '''user_name'''
+      - at_sign_literal: '@'
+      - quoted_identifier: '''%'''
+- statement_terminator: ;
+- statement:
+  - set_default_role_statement:
+    - keyword: SET
+    - keyword: DEFAULT
+    - keyword: ROLE
+    - keyword: NONE
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: '''user_name'''
+      - at_sign_literal: '@'
+      - quoted_identifier: '''%'''
+- statement_terminator: ;
+- statement:
+  - set_default_role_statement:
+    - keyword: SET
+    - keyword: DEFAULT
+    - keyword: ROLE
+    - role_reference:
+      - quoted_identifier: '''role-name'''
+      - at_sign_literal: '@'
+      - quoted_identifier: '''%'''
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: '''user_name'''
+      - at_sign_literal: '@'
+      - quoted_identifier: '''%'''
 - statement_terminator: ;

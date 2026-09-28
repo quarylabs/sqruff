@@ -630,6 +630,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | EmitsSegment
         | Literal
         | Meta
+        | BindColon
         | Colon
         | TernaryColon
         | StatementTerminator
@@ -1104,6 +1105,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | StatisticsReference
         | StoringSegment
         | SubscriptionReference
+        | SubstitutionVariable
         | SynonymReference
         | SystemVariable
         | TableClausesSegment

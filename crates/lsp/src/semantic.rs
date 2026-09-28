@@ -860,6 +860,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateSubscription
         | CreateSynonymStatement
         | CreateTableAsSelectStatement
+        | CreateTableCloneStatement
         | CreateTableFunctionStatement
         | CreateTableGraphStatement
         | CreateTableUsingStatement

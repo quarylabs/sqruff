@@ -1,0 +1,176 @@
+file:
+- statement:
+  - create_table_clone_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_catalog
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: target_table
+    - keyword: CLONE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_catalog
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+  - create_table_clone_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target_table
+    - keyword: DEEP
+    - keyword: CLONE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+  - create_table_clone_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target_table
+    - keyword: SHALLOW
+    - keyword: CLONE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+  - create_table_clone_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target_table
+    - keyword: CLONE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+  - create_table_clone_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target_table
+    - keyword: DEEP
+    - keyword: CLONE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: source_table
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''delta.logRetentionDuration'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''interval 30 days'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_clone_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target_table
+    - keyword: SHALLOW
+    - keyword: CLONE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: source_table
+    - keyword: LOCATION
+    - quoted_literal: '''/mnt/data/target'''
+- statement_terminator: ;
+- statement:
+  - create_table_clone_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target_table
+    - keyword: DEEP
+    - keyword: CLONE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: source_table
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''somekey'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''somevalue'''
+      - end_bracket: )
+    - keyword: LOCATION
+    - quoted_literal: '''/mnt/data/target'''
+- statement_terminator: ;
+- statement:
+  - create_table_clone_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target_table
+    - keyword: CLONE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+  - create_table_clone_statement:
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target_table
+    - keyword: SHALLOW
+    - keyword: CLONE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+  - create_table_clone_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: target_table
+    - keyword: DEEP
+    - keyword: CLONE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: source_table
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - quoted_identifier: '''somekey'''
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''somevalue'''
+      - end_bracket: )
+    - keyword: LOCATION
+    - quoted_literal: '''/mnt/data/target'''
+- statement_terminator: ;

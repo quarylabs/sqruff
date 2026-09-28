@@ -350,6 +350,26 @@ fn bigquery_cast_as_float_is_unparsable() {
 }
 
 #[test]
+fn mysql_family_rejects_schema_qualified_dual() {
+    for dialect_kind in [DialectKind::Mysql, DialectKind::Mariadb] {
+        let dialect = kind_to_dialect(&dialect_kind, None).unwrap();
+        let tables = Tables::default();
+        let lexer = Lexer::from(&dialect);
+        let parser = Parser::from(&dialect);
+        let (tokens, lex_errors) = lexer.lex(&tables, "SELECT 1 FROM schema.DUAL");
+
+        assert!(lex_errors.is_empty());
+
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(
+            !check_no_unparsable_segments(&tree).is_empty(),
+            "{} must not accept schema-qualified DUAL",
+            dialect_kind.as_ref(),
+        );
+    }
+}
+
+#[test]
 fn oracle_rejects_duplicate_physical_attributes() {
     let dialect = kind_to_dialect(&DialectKind::Oracle, None).unwrap();
     let tables = Tables::default();

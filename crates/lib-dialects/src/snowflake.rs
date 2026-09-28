@@ -11842,7 +11842,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "MergeUpdateClauseSegment",
         Sequence::new(vec![
             Ref::keyword("UPDATE").to_matchable(),
-            Ref::new("SetClauseListSegment").to_matchable(),
+            one_of(vec![
+                Ref::new("SetClauseListSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    Ref::keyword("NAME").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
             Ref::new("WhereClauseSegment").optional().to_matchable(),
         ])
         .to_matchable(),
@@ -11861,12 +11870,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "MergeInsertClauseSegment",
         Sequence::new(vec![
             Ref::keyword("INSERT").to_matchable(),
-            MetaSegment::indent().to_matchable(),
-            Ref::new("BracketedColumnReferenceListGrammar")
-                .optional()
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    Ref::keyword("NAME").to_matchable(),
+                ])
                 .to_matchable(),
-            MetaSegment::dedent().to_matchable(),
-            Ref::new("ValuesClauseSegment").optional().to_matchable(),
+                Sequence::new(vec![
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar")
+                        .optional()
+                        .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Ref::new("ValuesClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
             Ref::new("WhereClauseSegment").optional().to_matchable(),
         ])
         .to_matchable(),

@@ -60,6 +60,8 @@ pub mod mysql;
 mod mysql_keywords;
 #[cfg(feature = "oracle")]
 pub mod oracle;
+#[cfg(feature = "oracle")]
+mod oracle_keywords;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 #[cfg(feature = "postgres")]

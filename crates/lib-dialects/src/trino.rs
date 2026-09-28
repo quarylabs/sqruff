@@ -393,6 +393,40 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
+                // For JSON_OBJECT function: key : value [, ...].
+                // https://trino.io/docs/current/functions/json.html#json-object
+                Sequence::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ExpressionSegment").to_matchable(),
+                            Ref::new("ColonDelimiterSegment").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("NULL").to_matchable(),
+                            Ref::keyword("ABSENT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("RETURNING").to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
+                        Ref::new("FormatJsonEncodingGrammar")
+                            .optional()
+                            .to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
                 // For JSON_ARRAY / JSON_OBJECT functions: { NULL | ABSENT } ON NULL.
                 Sequence::new(vec![
                     one_of(vec![

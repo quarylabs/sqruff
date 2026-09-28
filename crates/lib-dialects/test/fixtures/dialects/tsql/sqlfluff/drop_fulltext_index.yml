@@ -1,0 +1,26 @@
+file:
+- batch:
+  - statement:
+    - drop_fulltext_index_statement:
+      - keyword: DROP
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[TEST_FULLTEXT_INDEX]'
+  - statement_terminator: ;
+  - statement:
+    - drop_fulltext_index_statement:
+      - keyword: DROP
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: ON
+      - table_reference:
+        - object_reference:
+          - naked_identifier: HumanResources
+          - dot: .
+          - naked_identifier: JobCandidate
+  - statement_terminator: ;

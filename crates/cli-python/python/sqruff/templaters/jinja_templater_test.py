@@ -204,6 +204,37 @@ def test_jinja_exclude_macros_from_path(tmp_path):
     assert render("{{ foo1() }}/{{ foo2() }}") == "101/102"
 
 
+def test_jinja_macros_can_call_macros_from_other_files(tmp_path):
+    """Macros loaded globally can call macros defined in separate files."""
+    macros = tmp_path / "macros"
+    macros.mkdir()
+    for level in range(1, 6):
+        body = "1" if level == 1 else f"{{{{ level_{level - 1}() }}}}, {level}"
+        (macros / f"level_{level}.sql").write_text(
+            f"{{%- macro level_{level}() -%}}{body}{{%- endmacro -%}}"
+        )
+
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_templater_paths=[str(macros)],
+        jinja_exclude_macros_from_path=[],
+        jinja_loader_search_path=[],
+        jinja_apply_dbt_builtins=False,
+        jinja_ignore_templating=False,
+        jinja_library_paths=[],
+        dbt_profile=None,
+        dbt_profiles_dir=None,
+        dbt_target=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+    )
+
+    _, _, render = JinjaTemplater().construct_render_func(config=config)
+
+    assert render("{{ level_5() }}") == "1, 2, 3, 4, 5"
+
+
 # JINJA_STRING = (
 #     "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, "
 #     "{% endif %}{% endfor %} WHERE {{condition}}\n\n"

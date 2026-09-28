@@ -209,6 +209,26 @@ class JinjaTemplater(PythonTemplater):
                             )
         return macro_ctx
 
+    def _extract_macros(
+        self, config: FluffConfig, env: Environment, ctx: Dict[str, Any]
+    ) -> Dict[str, DbtMacroWrapper]:
+        """Load macros from ``load_macros_from_path``."""
+        macro_ctx: Dict[str, DbtMacroWrapper] = {}
+
+        macros_path = self._get_macros_path(config, "load_macros_from_path")
+        exclude_macros_path = self._get_macros_path(config, "exclude_macros_from_path")
+        if macros_path:
+            macro_ctx.update(
+                self._extract_macros_from_path(
+                    macros_path,
+                    env=env,
+                    ctx=ctx,
+                    exclude_paths=exclude_macros_path,
+                )
+            )
+
+        return macro_ctx
+
     # TODO Potentially reimplement
     # def _extract_macros_from_config(
     #     self, config: FluffConfig, env: Environment, ctx: Dict[str, Any]
@@ -547,19 +567,28 @@ class JinjaTemplater(PythonTemplater):
 
         # Load macros from path (if applicable)
         if config:
-            macros_path = self._get_macros_path(config, "load_macros_from_path")
-            exclude_macros_path = self._get_macros_path(
-                config, "exclude_macros_from_path"
-            )
-            if macros_path:
-                live_context.update(
-                    self._extract_macros_from_path(
-                        macros_path,
-                        env=env,
-                        ctx=live_context,
-                        exclude_paths=exclude_macros_path,
+            # References to variables are fixed when macros are compiled. Load
+            # macro names first so macros in separate files can call one another.
+            macro_names = self._extract_macros(
+                config=config, env=env, ctx=live_context
+            ).keys()
+            late_binding_macros: Dict[str, Callable[..., Any]] = {}
+            for key in macro_names:
+
+                def late_binding_macro(macro_name: str) -> Callable[..., Any]:
+                    return lambda *args, **kwargs: live_context[macro_name](
+                        *args, **kwargs
                     )
+
+                late_binding_macros[key] = late_binding_macro(key)
+
+            live_context.update(
+                self._extract_macros(
+                    config=config,
+                    env=env,
+                    ctx=live_context | late_binding_macros,
                 )
+            )
 
             # FIXME Potentially implement
             # Load config macros, these will take precedence over macros from the path

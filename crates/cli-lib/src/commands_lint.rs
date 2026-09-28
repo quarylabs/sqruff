@@ -14,6 +14,10 @@ pub(crate) fn run_lint(
         format,
         disregard_sqruffignores,
     } = args;
+    let large_file_skip_fail = config
+        .get("large_file_skip_fail", "core")
+        .as_bool()
+        .unwrap_or(false);
     let mut linter = match linter(config, format, collect_parse_errors) {
         Ok(l) => l,
         Err(e) => {
@@ -33,7 +37,7 @@ pub(crate) fn run_lint(
 
     linter.formatter().unwrap().completion_message(result.len());
 
-    result.has_violations() as i32
+    (result.has_violations() || (large_file_skip_fail && result.files_skipped() > 0)) as i32
 }
 
 pub(crate) fn run_lint_stdin(

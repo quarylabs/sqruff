@@ -166,6 +166,15 @@ pub fn raw_dialect() -> Dialect {
     );
 
     sparksql_dialect.replace_grammar(
+        "LateralColumnAliasExpressionGrammar",
+        Sequence::new(vec![
+            Ref::new("ExpressionSegment").to_matchable(),
+            Ref::new("AliasExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    sparksql_dialect.replace_grammar(
         "DateTimeLiteralGrammar",
         Sequence::new(vec![
             one_of(vec![

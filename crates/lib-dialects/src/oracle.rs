@@ -6096,6 +6096,7 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::keyword("COMMENT").to_matchable(),
+                Ref::keyword("CONNECT").to_matchable(),
                 Ref::keyword("CREATE").to_matchable(),
                 Ref::keyword("DEBUG").to_matchable(),
                 Ref::keyword("DELETE").to_matchable(),
@@ -6139,6 +6140,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("READ").to_matchable(),
                 Ref::keyword("REDEFINE").to_matchable(),
                 Ref::keyword("REFERENCES").to_matchable(),
+                Ref::keyword("RESOURCE").to_matchable(),
                 Ref::keyword("RESTRICTED").to_matchable(),
                 Ref::keyword("RESUMABLE").to_matchable(),
                 Ref::keyword("SELECT").to_matchable(),
@@ -6150,6 +6152,7 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::keyword("TRANSLATE").to_matchable(),
+                Ref::keyword("TRIGGER").to_matchable(),
                 Ref::keyword("UNDER").to_matchable(),
                 Ref::keyword("UNLIMITED").to_matchable(),
                 Ref::keyword("UPDATE").to_matchable(),
@@ -7673,6 +7676,7 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::keyword("COMMENT").to_matchable(),
+                Ref::keyword("CONNECT").to_matchable(),
                 Ref::keyword("CREATE").to_matchable(),
                 Ref::keyword("DEBUG").to_matchable(),
                 Ref::keyword("DELETE").to_matchable(),
@@ -7707,6 +7711,7 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("READ").to_matchable(),
                 Ref::keyword("REDEFINE").to_matchable(),
                 Ref::keyword("REFERENCES").to_matchable(),
+                Ref::keyword("RESOURCE").to_matchable(),
                 Ref::keyword("RESTRICTED").to_matchable(),
                 Ref::keyword("RESUMABLE").to_matchable(),
                 Ref::keyword("SELECT").to_matchable(),
@@ -7718,6 +7723,7 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .to_matchable(),
                 Ref::keyword("TRANSLATE").to_matchable(),
+                Ref::keyword("TRIGGER").to_matchable(),
                 Ref::keyword("UNDER").to_matchable(),
                 Ref::keyword("UNLIMITED").to_matchable(),
                 Ref::keyword("UPDATE").to_matchable(),

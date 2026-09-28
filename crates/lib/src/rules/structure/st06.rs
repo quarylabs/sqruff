@@ -71,7 +71,7 @@ from x
                 ),
                 Validate::Types(const { SyntaxSet::new(&[SyntaxKind::Literal]) }),
                 Validate::Types(const { SyntaxSet::new(&[SyntaxKind::CastExpression]) }),
-                Validate::Function { name: "cast" },
+                Validate::Function,
                 Validate::Expression {
                     child_typ: SyntaxKind::CastExpression,
                 },
@@ -178,7 +178,10 @@ from x
                 for e in *band {
                     match e {
                         Validate::Types(types) => {
-                            if segment.child(types).is_some() {
+                            if let Some(child) = segment.child(types)
+                                && (!child.is_type(SyntaxKind::CastExpression)
+                                    || is_simple_cast_expression(&child))
+                            {
                                 validate(
                                     i,
                                     segment.clone(),
@@ -188,14 +191,11 @@ from x
                                 );
                             }
                         }
-                        Validate::Function { name } => {
+                        Validate::Function => {
                             (|| {
                                 let function = segment
                                     .child(const { &SyntaxSet::new(&[SyntaxKind::Function]) })?;
-                                let function_name = function.child(
-                                    const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) },
-                                )?;
-                                if function_name.raw() == *name {
+                                if is_simple_function(&function) {
                                     validate(
                                         i,
                                         segment.clone(),
@@ -212,17 +212,7 @@ from x
                             (|| {
                                 let expression = segment
                                     .child(const { &SyntaxSet::new(&[SyntaxKind::Expression]) })?;
-                                if expression.child(&SyntaxSet::new(&[*child_typ])).is_some()
-                                    && matches!(
-                                        expression.segments()[0].get_type(),
-                                        SyntaxKind::ColumnReference
-                                            | SyntaxKind::ObjectReference
-                                            | SyntaxKind::Literal
-                                            | SyntaxKind::CastExpression
-                                    )
-                                    && (expression.segments().len() == 2
-                                        || expression.segments().len() == 1)
-                                {
+                                if is_simple_expression(&expression, *child_typ) {
                                     validate(
                                         i,
                                         segment.clone(),
@@ -297,6 +287,45 @@ from x
     }
 }
 
+fn is_simple_function(segment: &ErasedSegment) -> bool {
+    segment
+        .child(const { &SyntaxSet::new(&[SyntaxKind::FunctionName]) })
+        .is_some_and(|function_name| function_name.raw().eq_ignore_ascii_case("CAST"))
+}
+
+fn is_simple_cast_expression(segment: &ErasedSegment) -> bool {
+    segment.is_type(SyntaxKind::CastExpression)
+        && segment
+            .segments()
+            .first()
+            .is_some_and(is_simple_expression_segment)
+}
+
+fn is_simple_expression_segment(segment: &ErasedSegment) -> bool {
+    match segment.get_type() {
+        SyntaxKind::ColumnReference
+        | SyntaxKind::ObjectReference
+        | SyntaxKind::Literal
+        | SyntaxKind::NumericLiteral
+        | SyntaxKind::QuotedLiteral
+        | SyntaxKind::BooleanLiteral
+        | SyntaxKind::NullLiteral => true,
+        SyntaxKind::Function => is_simple_function(segment),
+        SyntaxKind::CastExpression => is_simple_cast_expression(segment),
+        _ => false,
+    }
+}
+
+fn is_simple_expression(segment: &ErasedSegment, child_type: SyntaxKind) -> bool {
+    segment.is_type(SyntaxKind::Expression)
+        && segment.child(&SyntaxSet::new(&[child_type])).is_some()
+        && matches!(segment.segments().len(), 1 | 2)
+        && segment
+            .segments()
+            .first()
+            .is_some_and(is_simple_expression_segment)
+}
+
 fn is_view_with_explicit_columns(context: &RuleContext) -> bool {
     for parent in &context.parent_stack {
         if !parent.is_type(SyntaxKind::CreateViewStatement) {
@@ -319,7 +348,7 @@ fn is_view_with_explicit_columns(context: &RuleContext) -> bool {
 
 enum Validate {
     Types(SyntaxSet),
-    Function { name: &'static str },
+    Function,
     Expression { child_typ: SyntaxKind },
 }
 
@@ -362,4 +391,65 @@ fn implicit_column_references(segment: &ErasedSegment) -> bool {
     }
 
     false
+}
+
+#[cfg(test)]
+mod tests {
+    use sqruff_lib_core::parser::segments::Tables;
+
+    use super::*;
+    use crate::core::config::FluffConfig;
+    use crate::core::linter::core::Linter;
+
+    #[test]
+    fn simple_expression_helpers_reject_non_simple_segments() {
+        let config = FluffConfig::from_source("[sqruff]\ndialect = ansi\n", None);
+        let linter = Linter::new(config, None, None, false).unwrap();
+        let tables = Tables::default();
+        let parsed = linter
+            .parse_string(&tables, "SELECT a + 1 AS sum FROM foo", None)
+            .unwrap();
+        assert!(parsed.violations.is_empty());
+        let expression = parsed
+            .tree
+            .unwrap()
+            .recursive_crawl(
+                &SyntaxSet::single(SyntaxKind::Expression),
+                true,
+                &SyntaxSet::EMPTY,
+                true,
+            )
+            .into_iter()
+            .next()
+            .unwrap();
+
+        assert!(!is_simple_cast_expression(&expression));
+        assert!(!is_simple_expression_segment(&expression));
+    }
+
+    #[test]
+    fn shorthand_casts_only_remain_simple_for_simple_operands() {
+        let config = FluffConfig::from_source("[sqruff]\ndialect = postgres\n", None);
+        let linter = Linter::new(config, None, None, false).unwrap();
+        let tables = Tables::default();
+        let parsed = linter
+            .parse_string(
+                &tables,
+                "SELECT 2::INT, a::DATE, MIN(c)::DATE FROM foo",
+                None,
+            )
+            .unwrap();
+        assert!(parsed.violations.is_empty());
+        let cast_expressions = parsed.tree.unwrap().recursive_crawl(
+            &SyntaxSet::single(SyntaxKind::CastExpression),
+            true,
+            &SyntaxSet::EMPTY,
+            true,
+        );
+
+        assert_eq!(cast_expressions.len(), 3);
+        assert!(is_simple_cast_expression(&cast_expressions[0]));
+        assert!(is_simple_cast_expression(&cast_expressions[1]));
+        assert!(!is_simple_cast_expression(&cast_expressions[2]));
+    }
 }

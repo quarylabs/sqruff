@@ -236,6 +236,14 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
+    // DUAL is a special one-row table and must not be schema-qualified.
+    mysql.add([(
+        "DualIdentifierSegment".into(),
+        StringParser::new("DUAL", SyntaxKind::NakedIdentifier)
+            .to_matchable()
+            .into(),
+    )]);
+
     // AtSignLiteralSegment.
     mysql.add([(
         "AtSignLiteralSegment".into(),
@@ -473,6 +481,22 @@ pub fn raw_dialect() -> Dialect {
     mysql.replace_grammar(
         "QuotedIdentifierSegment",
         TypedParser::new(SyntaxKind::BackQuote, SyntaxKind::QuotedIdentifier).to_matchable(),
+    );
+
+    mysql.replace_grammar(
+        "TableReferenceSegment",
+        one_of(vec![
+            Ref::new("DualIdentifierSegment").to_matchable(),
+            Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                .config(|this| {
+                    this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                    this.terminators =
+                        vec![Ref::new("ObjectReferenceTerminatorGrammar").to_matchable()];
+                    this.allow_gaps = false;
+                })
+                .to_matchable(),
+        ])
+        .to_matchable(),
     );
 
     // LiteralGrammar - add double-quoted literals and system variables.

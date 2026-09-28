@@ -1,0 +1,79 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - quoted_literal: '''Dummy'''
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: dual
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - keyword: NOT
+        - keyword: EXISTS
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - numeric_literal: '1'
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: a_table
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: a_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: col1
+      - end_bracket: )
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - quoted_literal: '''Dummy'''
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: dual
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - keyword: NOT
+          - keyword: EXISTS
+          - bracketed:
+            - start_bracket: (
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - numeric_literal: '1'
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - table_reference:
+                        - naked_identifier: a_table
+            - end_bracket: )
+- statement_terminator: ;

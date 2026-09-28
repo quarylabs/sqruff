@@ -24,6 +24,10 @@ impl LintingResult {
     pub fn has_violations(&self) -> bool {
         self.files.iter().any(|file| file.has_violations())
     }
+
+    pub fn has_fixable_violations(&self) -> bool {
+        self.files.iter().any(|file| file.has_fixable_violations())
+    }
 }
 
 impl IntoIterator for LintingResult {

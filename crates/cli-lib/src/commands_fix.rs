@@ -40,7 +40,7 @@ pub(crate) fn run_fix(
         }
     };
 
-    if !result.has_violations() {
+    if !result.has_violations() && !result.has_fixable_violations() {
         if !matches!(format, Format::None) {
             println!("{} files processed, nothing to fix.", result.len());
         }
@@ -102,7 +102,7 @@ pub(crate) fn run_fix_stdin(
 
     let has_unfixable_errors = result.has_unfixable_violations();
 
-    let has_fixes = result.has_violations()
+    let has_fixes = result.has_fixable_violations()
         && result.has_fixes()
         && (fix_even_unparsable || !result.has_parse_or_templating_errors());
     let output = if has_fixes {
@@ -125,7 +125,6 @@ mod tests {
     use std::path::Path;
     use std::thread::sleep;
     use std::time::Duration;
-    use tempfile::NamedTempFile;
 
     fn ignore_none(_: &Path) -> bool {
         false
@@ -133,7 +132,7 @@ mod tests {
 
     #[test]
     fn run_fix_does_not_update_mtime_when_no_changes() {
-        let mut tmp = NamedTempFile::new().unwrap();
+        let mut tmp = tempfile::Builder::new().suffix(".sql").tempfile().unwrap();
         writeln!(tmp, "SELECT 1 FROM").unwrap();
         tmp.flush().unwrap();
         let tmp = tmp.into_temp_path();
@@ -148,9 +147,52 @@ mod tests {
             disregard_sqruffignores: false,
         };
         let config = FluffConfig::default();
-        run_fix(args, config, ignore_none, true);
+        assert_eq!(run_fix(args, config, ignore_none, true), 1);
 
         let after = std::fs::metadata(&path).unwrap().modified().unwrap();
         assert_eq!(before, after);
+    }
+
+    #[test]
+    fn run_fix_applies_warning_only_fixes() {
+        let mut tmp = tempfile::Builder::new().suffix(".sql").tempfile().unwrap();
+        write!(tmp, "     SELECT 1").unwrap();
+        tmp.flush().unwrap();
+
+        let args = FixArgs {
+            paths: vec![tmp.path().to_path_buf()],
+            format: Format::None,
+            disregard_sqruffignores: false,
+        };
+        let config = FluffConfig::from_source(
+            "[sqruff]\ndialect = ansi\nrules = LT02\nwarnings = LT02\n",
+            None,
+        );
+
+        assert_eq!(run_fix(args, config, ignore_none, true), 0);
+        assert_eq!(std::fs::read_to_string(tmp.path()).unwrap(), "SELECT 1");
+    }
+
+    #[test]
+    fn run_fix_applies_warning_and_error_fixes() {
+        let mut tmp = tempfile::Builder::new().suffix(".sql").tempfile().unwrap();
+        write!(tmp, "     SELECT a from foo").unwrap();
+        tmp.flush().unwrap();
+
+        let args = FixArgs {
+            paths: vec![tmp.path().to_path_buf()],
+            format: Format::None,
+            disregard_sqruffignores: false,
+        };
+        let config = FluffConfig::from_source(
+            "[sqruff]\ndialect = ansi\nrules = LT02,CP01\nwarnings = LT02\n",
+            None,
+        );
+
+        assert_eq!(run_fix(args, config, ignore_none, true), 0);
+        assert_eq!(
+            std::fs::read_to_string(tmp.path()).unwrap(),
+            "SELECT a FROM foo"
+        );
     }
 }

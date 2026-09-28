@@ -54,6 +54,10 @@ impl LintedFile {
         self.violations.iter().any(|violation| !violation.warning)
     }
 
+    pub fn has_fixable_violations(&self) -> bool {
+        self.violations.iter().any(|violation| violation.fixable)
+    }
+
     pub fn has_unfixable_violations(&self) -> bool {
         self.violations()
             .iter()

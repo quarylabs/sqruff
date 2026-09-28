@@ -7,6 +7,7 @@ use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{CaseFold, RegexParser, StringParser, TypedParser};
@@ -104,6 +105,16 @@ pub fn raw_dialect() -> Dialect {
         "NANO", "NANOS", "SECONDS", "MINUTES", "HOURS", "DAYS", "WEEKS", "MONTHS", "YEARS",
     ]);
 
+    hive_dialect.insert_lexer_matchers(
+        vec![Matcher::legacy(
+            "hive_variable",
+            |s| s.starts_with("${"),
+            r"\$\{[A-Za-z_][A-Za-z0-9_:]*\}",
+            SyntaxKind::HiveVariable,
+        )],
+        "dollar_quote",
+    );
+
     hive_dialect.update_bracket_sets(
         "angle_bracket_pairs",
         vec![(
@@ -168,6 +179,38 @@ pub fn raw_dialect() -> Dialect {
             TypedParser::new(SyntaxKind::BackQuote, SyntaxKind::QuotedIdentifier)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "HiveVariableSegment".into(),
+            TypedParser::new(SyntaxKind::HiveVariable, SyntaxKind::HiveVariable)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "HiveReferenceIdentifierGrammar".into(),
+            one_of(vec![
+                Ref::new("NakedIdentifierSegment").to_matchable(),
+                Ref::new("QuotedIdentifierSegment").to_matchable(),
+                Ref::new("BackQuotedIdentifierSegment").to_matchable(),
+                Ref::new("HiveVariableSegment").to_matchable(),
+            ])
+            .config(|this| this.terminators = vec![Ref::new("DotSegment").to_matchable()])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "HiveSetValueGrammar".into(),
+            one_of(vec![
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .config(|this| this.parse_mode(ParseMode::Greedy))
+                .to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "SingleIdentifierGrammar".into(),
@@ -609,17 +652,33 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
-                            Delimited::new(vec![Ref::new("ParameterNameSegment").to_matchable()])
-                                .config(|config| {
-                                    config.delimiter(one_of(vec![
-                                        Ref::new("DotSegment").to_matchable(),
-                                        Ref::new("ColonDelimiterSegment").to_matchable(),
-                                    ]));
-                                    config.disallow_gaps();
-                                })
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    AnyNumberOf::new(vec![
+                                        Sequence::new(vec![
+                                            Ref::new("MinusSegment").to_matchable(),
+                                            Ref::new("ParameterNameSegment").to_matchable(),
+                                        ])
+                                        .allow_gaps(false)
+                                        .to_matchable(),
+                                    ])
+                                    .config(|config| config.disallow_gaps())
+                                    .to_matchable(),
+                                ])
+                                .allow_gaps(false)
                                 .to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("LiteralGrammar").to_matchable(),
+                            ])
+                            .config(|config| {
+                                config.delimiter(one_of(vec![
+                                    Ref::new("DotSegment").to_matchable(),
+                                    Ref::new("ColonDelimiterSegment").to_matchable(),
+                                ]));
+                                config.disallow_gaps();
+                            })
+                            .to_matchable(),
+                            Ref::new("RawEqualsSegment").to_matchable(),
+                            Ref::new("HiveSetValueGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -632,6 +691,81 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+
+    hive_dialect.add([(
+        "HiveObjectReferenceSegment".into(),
+        NodeMatcher::new(SyntaxKind::ObjectReference, |_| {
+            Delimited::new(vec![
+                Ref::new("HiveReferenceIdentifierGrammar").to_matchable(),
+            ])
+            .config(|this| {
+                this.delimiter(Ref::new("ObjectReferenceDelimiterGrammar"));
+                this.disallow_gaps();
+                this.terminators =
+                    vec![Ref::new("ObjectReferenceTerminatorGrammar").to_matchable()];
+            })
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    for (name, kind) in [
+        ("TableReferenceSegment", SyntaxKind::TableReference),
+        ("SchemaReferenceSegment", SyntaxKind::SchemaReference),
+        ("DatabaseReferenceSegment", SyntaxKind::DatabaseReference),
+        ("ColumnReferenceSegment", SyntaxKind::ColumnReference),
+    ] {
+        hive_dialect.add([(
+            name.into(),
+            NodeMatcher::new(kind, |dialect| {
+                dialect
+                    .grammar("HiveObjectReferenceSegment")
+                    .match_grammar(dialect)
+                    .unwrap()
+                    .clone()
+            })
+            .to_matchable()
+            .into(),
+        )]);
+    }
+
+    let literal_grammar = hive_dialect.grammar("LiteralGrammar");
+    hive_dialect.replace_grammar(
+        "LiteralGrammar",
+        literal_grammar.copy(
+            Some(vec![Ref::new("HiveVariableSegment").to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
+    hive_dialect.replace_grammar(
+        "InOperatorGrammar",
+        Sequence::new(vec![
+            Ref::keyword("NOT").optional().to_matchable(),
+            Ref::keyword("IN").to_matchable(),
+            one_of(vec![
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Delimited::new(vec![Ref::new("Expression_A_Grammar").to_matchable()])
+                            .to_matchable(),
+                        Ref::new("SelectableGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.parse_mode(ParseMode::Greedy))
+                .to_matchable(),
+                Ref::new("FunctionSegment").to_matchable(),
+                Ref::new("HiveVariableSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     hive_dialect.replace_grammar(
         "DatatypeSegment",

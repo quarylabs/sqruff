@@ -3663,6 +3663,11 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("AliasExpressionSegment").optional().to_matchable(),
                         ])
                         .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("FunctionSegment").to_matchable(),
+                            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     MetaSegment::dedent().to_matchable(),

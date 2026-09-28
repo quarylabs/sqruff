@@ -376,6 +376,7 @@ pub enum SyntaxKind {
     CreateSynonymStatement,
     CreateTableAsSelectStatement,
     CreateTableAsStatement,
+    CreateTableCloneStatement,
     CreateTableFunctionStatement,
     CreateTableGraphStatement,
     CreateTableLikeStatement,

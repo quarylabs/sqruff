@@ -27,12 +27,17 @@ struct SelectTargetsInfo {
 #[derive(Debug, Clone)]
 pub struct RuleLT09 {
     wildcard_policy: String,
+    single_target_policy: String,
 }
 
 impl Rule for RuleLT09 {
     fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT09 {
             wildcard_policy: _config["wildcard_policy"].as_string().unwrap().to_owned(),
+            single_target_policy: _config["single_target_policy"]
+                .as_string()
+                .unwrap()
+                .to_owned(),
         }
         .erased())
     }
@@ -50,11 +55,17 @@ impl Rule for RuleLT09 {
 
 Multiple select targets on the same line.
 
+By default (`single_target_policy = same_line`), a single select target is
+allowed to remain on the same line as the `SELECT` keyword. Set
+`single_target_policy = new_line` to require all select targets, including
+single ones, to be placed on a new line.
+
 ```sql
 select a, b
 from foo;
 
--- Single select target on its own line.
+-- Single select target on its own line
+-- (with default `single_target_policy = same_line`).
 
 SELECT
     a
@@ -71,10 +82,17 @@ select
     b
 from foo;
 
--- Single select target on the same line as the ``SELECT``
--- keyword.
+-- Single select target on the same line as the `SELECT`
+-- keyword (with default `single_target_policy = same_line`).
 
 SELECT a
+FROM foo;
+
+-- With `single_target_policy = new_line`, single select
+-- targets must also be on a new line for consistency.
+
+SELECT
+    a
 FROM foo;
 
 -- When select targets span multiple lines, however they
@@ -323,6 +341,14 @@ impl RuleLT09 {
         select_targets_info: SelectTargetsInfo,
         context: &RuleContext,
     ) -> Vec<LintResult> {
+        if self.single_target_policy == "new_line" {
+            return self.eval_multiple_select_target_elements(
+                context.tables,
+                select_targets_info,
+                context.segment.clone(),
+            );
+        }
+
         let select_clause = FunctionalContext::new(context).segment();
         let parent_stack = &context.parent_stack;
         let (Some(target_idx), Some(first_new_line_idx), Some(select_idx)) = (
@@ -488,6 +514,7 @@ impl Default for RuleLT09 {
     fn default() -> Self {
         Self {
             wildcard_policy: "single".into(),
+            single_target_policy: "same_line".into(),
         }
     }
 }

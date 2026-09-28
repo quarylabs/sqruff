@@ -508,6 +508,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .grammar("FunctionContentsGrammar")
                 .copy(
                     Some(vec![
+                        Sequence::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("ExpressionSegment").to_matchable(),
+                                    Ref::new("ColonDelimiterSegment").to_matchable(),
+                                    Ref::new("ExpressionSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                         Ref::new("ListaggOverflowClauseSegment").to_matchable(),
                     ]),
                     None,

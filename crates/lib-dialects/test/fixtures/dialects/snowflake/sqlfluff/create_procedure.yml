@@ -623,3 +623,23 @@ file:
     - keyword: AS
     - keyword: CALLER
 - statement_terminator: ;
+- statement:
+  - create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: PROCEDURE
+    - function_name:
+      - function_name_identifier: my_or_alter_proc
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: $$ SELECT 1 $$
+- statement_terminator: ;

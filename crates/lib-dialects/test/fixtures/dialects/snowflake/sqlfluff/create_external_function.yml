@@ -105,6 +105,32 @@ file:
   - create_external_function_statement:
     - keyword: CREATE
     - keyword: OR
+    - keyword: ALTER
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+      - function_name_identifier: my_or_alter_ext_fn
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - parameter: s
+        - data_type:
+          - data_type_identifier: STRING
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+      - data_type_identifier: VARIANT
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - naked_identifier: my_int
+    - keyword: AS
+    - quoted_identifier: '''https://example.com'''
+- statement_terminator: ;
+- statement:
+  - create_external_function_statement:
+    - keyword: CREATE
+    - keyword: OR
     - keyword: REPLACE
     - keyword: EXTERNAL
     - keyword: FUNCTION

@@ -15,6 +15,7 @@ use sqruff_lib_core::parser::grammar::anyof::{
 };
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::matchable::Matchable;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -31,6 +32,167 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .unwrap_or_default();
 
     raw_dialect().config(|dialect| dialect.expand())
+}
+
+fn mariadb_table_options_grammar() -> Matchable {
+    optionally_delimited_table_options(vec![
+        Sequence::new(vec![
+            Ref::keyword("STORAGE").optional().to_matchable(),
+            Ref::keyword("ENGINE").to_matchable(),
+            Ref::new("EqualsSegment").optional().to_matchable(),
+            quoted_or_identifier(),
+        ])
+        .to_matchable(),
+        numeric_table_option("AUTO_INCREMENT"),
+        numeric_table_option("AVG_ROW_LENGTH"),
+        charset_table_option(),
+        numeric_table_option("CHECKSUM"),
+        collate_table_option(),
+        quoted_table_option("COMMENT"),
+        quoted_table_option("CONNECTION"),
+        directory_table_option("DATA"),
+        numeric_table_option("DELAY_KEY_WRITE"),
+        keyword_table_option("ENCRYPTED", &["YES", "NO"]),
+        numeric_table_option("ENCRYPTION_KEY_ID"),
+        keyword_table_option("IETF_QUOTES", &["YES", "NO"]),
+        directory_table_option("INDEX"),
+        keyword_table_option("INSERT_METHOD", &["NO", "FIRST", "LAST"]),
+        numeric_table_option("KEY_BLOCK_SIZE"),
+        numeric_table_option("MAX_ROWS"),
+        numeric_table_option("MIN_ROWS"),
+        number_or_default_table_option("PACK_KEYS"),
+        numeric_table_option("PAGE_CHECKSUM"),
+        numeric_table_option("PAGE_COMPRESSED"),
+        numeric_table_option("PAGE_COMPRESSION_LEVEL"),
+        quoted_table_option("PASSWORD"),
+        keyword_table_option(
+            "ROW_FORMAT",
+            &[
+                "DEFAULT",
+                "DYNAMIC",
+                "FIXED",
+                "COMPRESSED",
+                "REDUNDANT",
+                "COMPACT",
+                "PAGE",
+            ],
+        ),
+        numeric_table_option("SEQUENCE"),
+        number_or_default_table_option("STATS_AUTO_RECALC"),
+        number_or_default_table_option("STATS_PERSISTENT"),
+        number_or_default_table_option("STATS_SAMPLE_PAGES"),
+        Sequence::new(vec![
+            Ref::keyword("TABLESPACE").to_matchable(),
+            Ref::new("NakedIdentifierSegment").to_matchable(),
+        ])
+        .to_matchable(),
+        numeric_table_option("TRANSACTIONAL"),
+        union_table_option(),
+        Sequence::new(vec![
+            Ref::keyword("WITH").to_matchable(),
+            Ref::keyword("SYSTEM").to_matchable(),
+            Ref::keyword("VERSIONING").to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+}
+
+fn optionally_delimited_table_options(options: Vec<Matchable>) -> Matchable {
+    Delimited::new(vec![one_of(options).to_matchable()])
+        .config(|this| this.optional_delimiter())
+        .to_matchable()
+}
+
+fn equals_table_option(keyword: &'static str, value: Matchable) -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword(keyword).to_matchable(),
+        Ref::new("EqualsSegment").optional().to_matchable(),
+        value,
+    ])
+    .to_matchable()
+}
+
+fn numeric_table_option(keyword: &'static str) -> Matchable {
+    equals_table_option(keyword, Ref::new("NumericLiteralSegment").to_matchable())
+}
+
+fn quoted_table_option(keyword: &'static str) -> Matchable {
+    equals_table_option(keyword, Ref::new("QuotedLiteralSegment").to_matchable())
+}
+
+fn keyword_table_option(keyword: &'static str, values: &[&'static str]) -> Matchable {
+    equals_table_option(
+        keyword,
+        one_of(
+            values
+                .iter()
+                .map(|value| Ref::keyword(*value).to_matchable())
+                .collect(),
+        )
+        .to_matchable(),
+    )
+}
+
+fn number_or_default_table_option(keyword: &'static str) -> Matchable {
+    equals_table_option(
+        keyword,
+        one_of(vec![
+            Ref::keyword("DEFAULT").to_matchable(),
+            Ref::new("NumericLiteralSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    )
+}
+
+fn quoted_or_identifier() -> Matchable {
+    one_of(vec![
+        Ref::new("QuotedLiteralSegment").to_matchable(),
+        Ref::new("NakedIdentifierSegment").to_matchable(),
+    ])
+    .to_matchable()
+}
+
+fn charset_table_option() -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword("DEFAULT").optional().to_matchable(),
+        Ref::keyword("CHARACTER").to_matchable(),
+        Ref::keyword("SET").to_matchable(),
+        Ref::new("EqualsSegment").optional().to_matchable(),
+        quoted_or_identifier(),
+    ])
+    .to_matchable()
+}
+
+fn collate_table_option() -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword("DEFAULT").optional().to_matchable(),
+        Ref::keyword("COLLATE").to_matchable(),
+        Ref::new("EqualsSegment").optional().to_matchable(),
+        quoted_or_identifier(),
+    ])
+    .to_matchable()
+}
+
+fn directory_table_option(kind: &'static str) -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword(kind).to_matchable(),
+        Ref::keyword("DIRECTORY").to_matchable(),
+        Ref::new("EqualsSegment").optional().to_matchable(),
+        Ref::new("QuotedLiteralSegment").to_matchable(),
+    ])
+    .to_matchable()
+}
+
+fn union_table_option() -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword("UNION").to_matchable(),
+        Ref::new("EqualsSegment").optional().to_matchable(),
+        Bracketed::new(vec![
+            Delimited::new(vec![Ref::new("TableReferenceSegment").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable()
 }
 
 pub fn raw_dialect() -> Dialect {
@@ -51,6 +213,8 @@ pub fn raw_dialect() -> Dialect {
             mariadb.sets_mut("reserved_keywords").insert(kw);
         }
     }
+
+    mariadb.replace_grammar("TableOptionsSegment", mariadb_table_options_grammar());
 
     // MariaDB additionally supports PERSISTENT generated columns.
     // https://mariadb.com/kb/en/generated-columns/

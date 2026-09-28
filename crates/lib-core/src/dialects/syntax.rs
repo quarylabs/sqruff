@@ -1211,6 +1211,7 @@ pub enum SyntaxKind {
     TableLikeClause,
     TableLocationClause,
     TableOptionStatement,
+    TableOptions,
     TableReference,
     TableSpecificationSegment,
     TableTtlSegment,

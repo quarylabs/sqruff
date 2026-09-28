@@ -1113,6 +1113,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | TableIndexSegment
         | TableLocationClause
         | TableOptionStatement
+        | TableOptions
         | TableSpecificationSegment
         | TagStatement
         | TemporalQuery

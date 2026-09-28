@@ -842,3 +842,34 @@ file:
       - keyword: BY
       - keyword: NONE
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: collated_student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+          - naked_identifier: id
+        - data_type:
+          - primitive_type:
+            - keyword: STRING
+        - column_properties_segment:
+          - keyword: COLLATE
+          - collation_reference:
+            - naked_identifier: UTF8_BINARY
+        - column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_properties_segment:
+          - keyword: COMMENT
+          - quoted_literal: '''Required ID field'''
+      - end_bracket: )
+    - using_clause:
+      - keyword: USING
+      - data_source_format:
+        - keyword: DELTA
+- statement_terminator: ;

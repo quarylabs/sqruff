@@ -4577,7 +4577,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::FromExpression, |_| {
                 optionally_bracketed(vec![
                     Sequence::new(vec![
-                        MetaSegment::indent().to_matchable(),
+                        MetaSegment::implicit_indent().to_matchable(),
                         one_of(vec![
                             Ref::new("FromExpressionElementSegment").to_matchable(),
                             Bracketed::new(vec![Ref::new("FromExpressionSegment").to_matchable()])

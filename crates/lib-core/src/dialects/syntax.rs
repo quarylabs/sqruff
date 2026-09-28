@@ -572,6 +572,7 @@ pub enum SyntaxKind {
     ExportIntoClause,
     ExportOption,
     ExportStatement,
+    ExportTableMetadataStatement,
     Expression,
     ExtendClause,
     ExtensionReference,

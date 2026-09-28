@@ -918,6 +918,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Some(vec![
                 Ref::new("DeclareStatementSegment").to_matchable(),
                 Ref::new("SetStatementSegment").to_matchable(),
+                Ref::new("ExportTableMetadataStatementSegment").to_matchable(),
                 Ref::new("ExportStatementSegment").to_matchable(),
                 Ref::new("LoadDataStatementSegment").to_matchable(),
                 Ref::new("CreateExternalTableStatementSegment").to_matchable(),
@@ -2624,6 +2625,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Ref::new("DefaultCollateSegment").optional().to_matchable(),
             Ref::new("PartitionBySegment").optional().to_matchable(),
             Ref::new("ClusterBySegment").optional().to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("CONNECTION").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
             Ref::new("OptionsSegment").optional().to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("AS").to_matchable(),
@@ -3774,6 +3782,21 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("TableReferenceSegment").to_matchable(),
                     Ref::new("AliasExpressionSegment").optional().to_matchable(),
                     Ref::new("WhereClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExportTableMetadataStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExportTableMetadataStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXPORT").to_matchable(),
+                    Ref::keyword("TABLE").to_matchable(),
+                    Ref::keyword("METADATA").to_matchable(),
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::new("TableReferenceSegment").to_matchable(),
                 ])
                 .to_matchable()
             })

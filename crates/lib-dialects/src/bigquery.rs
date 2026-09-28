@@ -1544,6 +1544,67 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
+    // Extend ANSI to support `NOT AGGREGATE` on aggregate function parameters.
+    // https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions#aggregate-udf-parameters
+    dialect.replace_grammar(
+        "FunctionParameterGrammar",
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::new("ParameterNameSegment").optional().to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("ANY").to_matchable(),
+                        Ref::keyword("TYPE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NOT").to_matchable(),
+                    Ref::keyword("AGGREGATE").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("ANY").to_matchable(),
+                    Ref::keyword("TYPE").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("DatatypeSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    dialect.replace_grammar(
+        "CreateFunctionStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::new("OrReplaceGrammar").optional().to_matchable(),
+            Ref::new("TemporaryGrammar").optional().to_matchable(),
+            Sequence::new(vec![Ref::keyword("AGGREGATE").to_matchable()])
+                .config(|this| this.optional())
+                .to_matchable(),
+            Ref::keyword("FUNCTION").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("FunctionNameSegment").to_matchable(),
+            Ref::new("FunctionParameterListGrammar").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("RETURNS").to_matchable(),
+                Ref::new("DatatypeSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::new("FunctionDefinitionGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     dialect.replace_grammar(
         "FunctionNameSegment",
         Sequence::new(vec![

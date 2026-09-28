@@ -262,6 +262,25 @@ file:
     - table_reference:
       - naked_identifier: bar
     - alter_materialized_view_action_segment:
+      - keyword: SET
+      - bracketed:
+        - start_bracket: (
+        - parameter: timescaledb
+        - dot: .
+        - parameter: materialized_only
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - boolean_literal: 'false'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: bar
+    - alter_materialized_view_action_segment:
       - keyword: RESET
       - bracketed:
         - start_bracket: (
@@ -282,6 +301,22 @@ file:
         - parameter: storage_parameter
         - comma: ','
         - parameter: storage_parameter
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: RESET
+      - bracketed:
+        - start_bracket: (
+        - parameter: timescaledb
+        - dot: .
+        - parameter: materialized_only
         - end_bracket: )
 - statement_terminator: ;
 - statement:

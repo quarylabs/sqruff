@@ -1053,6 +1053,24 @@ pub fn raw_dialect() -> Dialect {
                 .into(),
         ),
         (
+            "QualifiedParameterNameGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("ParameterNameSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("DotSegment").to_matchable(),
+                    Ref::new("ParameterNameSegment").to_matchable(),
+                ])
+                .config(|this| {
+                    this.allow_gaps = false;
+                    this.optional();
+                })
+                .to_matchable(),
+            ])
+            .allow_gaps(false)
+            .to_matchable()
+            .into(),
+        ),
+        (
             "FunctionNameIdentifierSegment".into(),
             RegexParser::new(r"[A-Z_][A-Z0-9_$]*", SyntaxKind::FunctionNameIdentifier)
                 .to_matchable()
@@ -4937,7 +4955,8 @@ pub fn raw_dialect() -> Dialect {
                                 Bracketed::new(vec![
                                     Delimited::new(vec![
                                         Sequence::new(vec![
-                                            Ref::new("ParameterNameSegment").to_matchable(),
+                                            Ref::new("QualifiedParameterNameGrammar")
+                                                .to_matchable(),
                                             Ref::new("EqualsSegment").to_matchable(),
                                             Ref::new("LiteralGrammar").to_matchable(),
                                         ])
@@ -4952,7 +4971,7 @@ pub fn raw_dialect() -> Dialect {
                                 Ref::keyword("RESET").to_matchable(),
                                 Bracketed::new(vec![
                                     Delimited::new(vec![
-                                        Ref::new("ParameterNameSegment").to_matchable(),
+                                        Ref::new("QualifiedParameterNameGrammar").to_matchable(),
                                     ])
                                     .to_matchable(),
                                 ])
@@ -4998,7 +5017,7 @@ pub fn raw_dialect() -> Dialect {
                         Bracketed::new(vec![
                             Delimited::new(vec![
                                 Sequence::new(vec![
-                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    Ref::new("QualifiedParameterNameGrammar").to_matchable(),
                                     Sequence::new(vec![
                                         Ref::new("EqualsSegment").to_matchable(),
                                         Ref::new("LiteralGrammar").to_matchable(),
@@ -5016,8 +5035,10 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("RESET").to_matchable(),
                         Bracketed::new(vec![
-                            Delimited::new(vec![Ref::new("ParameterNameSegment").to_matchable()])
-                                .to_matchable(),
+                            Delimited::new(vec![
+                                Ref::new("QualifiedParameterNameGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -5257,7 +5278,7 @@ pub fn raw_dialect() -> Dialect {
                             Bracketed::new(vec![
                                 Delimited::new(vec![
                                     Sequence::new(vec![
-                                        Ref::new("ParameterNameSegment").to_matchable(),
+                                        Ref::new("QualifiedParameterNameGrammar").to_matchable(),
                                         Sequence::new(vec![
                                             Ref::new("EqualsSegment").to_matchable(),
                                             Ref::new("LiteralGrammar").to_matchable(),
@@ -5276,7 +5297,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("RESET").to_matchable(),
                             Bracketed::new(vec![
                                 Delimited::new(vec![
-                                    Ref::new("ParameterNameSegment").to_matchable(),
+                                    Ref::new("QualifiedParameterNameGrammar").to_matchable(),
                                 ])
                                 .to_matchable(),
                             ])

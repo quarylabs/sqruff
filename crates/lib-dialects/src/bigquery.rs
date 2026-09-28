@@ -2549,6 +2549,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
+                    Ref::new("OptionsSegment").optional().to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("AS").to_matchable(),
                         optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])

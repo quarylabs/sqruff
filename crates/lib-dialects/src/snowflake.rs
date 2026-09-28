@@ -10994,7 +10994,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "AlterCortexSearchServiceStatementSegment".into(),
-            NodeMatcher::new(SyntaxKind::AlterStreamlitStatement, |_| {
+            NodeMatcher::new(SyntaxKind::AlterCortexSearchServiceStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("ALTER").to_matchable(),
                     Sequence::new(vec![
@@ -11051,6 +11051,23 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("RENAME").to_matchable(),
                             Ref::keyword("TO").to_matchable(),
                             Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ADD").to_matchable(),
+                            Ref::keyword("SCORING").to_matchable(),
+                            Ref::keyword("PROFILE").to_matchable(),
+                            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DROP").to_matchable(),
+                            Ref::keyword("SCORING").to_matchable(),
+                            Ref::keyword("PROFILE").to_matchable(),
+                            Ref::new("IfExistsGrammar").optional().to_matchable(),
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
                         ])
                         .to_matchable(),
                     ])

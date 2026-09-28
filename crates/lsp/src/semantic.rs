@@ -1269,6 +1269,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | InsertOverwriteStatement
         | AlterConnection
         | AlterConsumerGroupStatement
+        | AlterCortexSearchServiceStatement
         | AlterSystemStatement
         | AlterTableAddColumn
         | AlterTableAlterColumn

@@ -96,30 +96,13 @@ the end of the line.
         for clause_type in reference_clause_types {
             let clause = segment.child(&SyntaxSet::new(&[*clause_type]));
             if let Some(clause) = clause {
-                // Extract all column references from this clause.
-                for col_ref in clause.recursive_crawl(
-                    const { &SyntaxSet::new(&[SyntaxKind::ColumnReference]) },
-                    true,
-                    &SyntaxSet::EMPTY,
-                    true,
-                ) {
-                    let obj_ref = ObjectReferenceSegment(col_ref, ObjectReferenceKind::Object);
-                    let parts = obj_ref.iter_raw_references();
-                    if parts.len() < 2 {
-                        // Unqualified reference found - abort for this SELECT
-                        // because we can't resolve which table it belongs to.
-                        return Vec::new();
-                    }
-                    // The table qualifier is the second-to-last part.
-                    let table_part = &parts[parts.len() - 2].part;
-                    table_references.insert(
-                        table_part
-                            .to_uppercase()
-                            .trim_matches(|c| {
-                                c == '"' || c == '\'' || c == '`' || c == '[' || c == ']'
-                            })
-                            .to_string(),
-                    );
+                let Some(references) = self.extract_referenced_tables(&clause, false) else {
+                    // Unqualified reference found - abort for this SELECT because
+                    // we can't resolve which table it belongs to.
+                    return Vec::new();
+                };
+                for reference in references {
+                    table_references.insert(reference);
                 }
             }
         }
@@ -204,13 +187,23 @@ impl RuleST11 {
                     return None;
                 }
             }
-            let table_part = &parts[parts.len() - 2].part;
-            tables.push(
-                table_part
-                    .to_uppercase()
-                    .trim_matches(|c| c == '"' || c == '\'' || c == '`' || c == '[' || c == ']')
-                    .to_string(),
-            );
+            // Include both the penultimate and first parts to handle unaliased
+            // qualified references (`schema.table.column`) and aliased nested
+            // field references (`alias.struct.field`). For a two-part reference,
+            // these identify the same part, so only include it once.
+            let penultimate = parts.len() - 2;
+            for index in [penultimate, 0]
+                .into_iter()
+                .take(if penultimate == 0 { 1 } else { 2 })
+            {
+                tables.push(
+                    parts[index]
+                        .part
+                        .to_uppercase()
+                        .trim_matches(|c| c == '"' || c == '\'' || c == '`' || c == '[' || c == ']')
+                        .to_string(),
+                );
+            }
         }
         Some(tables)
     }

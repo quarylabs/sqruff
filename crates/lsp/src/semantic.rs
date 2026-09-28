@@ -416,6 +416,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | RefreshMaterializedViewStatement
         | WithCheckOption
         | AlterPolicyStatement
+        | AlterDatabaseScopedConfigurationStatement
         | AlterDatabaseStatement
         | VacuumStatement
         | LikeOptionSegment

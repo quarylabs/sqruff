@@ -81,3 +81,82 @@ file:
   - statement_terminator: ;
   - slash_buffer_executor:
     - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - while_loop_statement:
+          - keyword: WHILE
+          - expression:
+            - boolean_literal: 'TRUE'
+          - oracle_loop_statement:
+            - keyword: LOOP
+            - statement:
+              - while_loop_statement:
+                - keyword: WHILE
+                - expression:
+                  - boolean_literal: 'TRUE'
+                - oracle_loop_statement:
+                  - keyword: LOOP
+                  - statement:
+                    - oracle_null_statement:
+                      - keyword: 'NULL'
+                  - statement_terminator: ;
+                  - keyword: END
+                  - keyword: LOOP
+                  - naked_identifier: inner_loop
+            - statement_terminator: ;
+            - statement:
+              - oracle_exit_statement:
+                - keyword: EXIT
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - for_loop_statement:
+          - keyword: FOR
+          - naked_identifier: i
+          - keyword: IN
+          - numeric_literal: '1'
+          - dot: .
+          - dot: .
+          - numeric_literal: '3'
+          - oracle_loop_statement:
+            - keyword: LOOP
+            - statement:
+              - for_loop_statement:
+                - keyword: FOR
+                - naked_identifier: j
+                - keyword: IN
+                - numeric_literal: '1'
+                - dot: .
+                - dot: .
+                - numeric_literal: '3'
+                - oracle_loop_statement:
+                  - keyword: LOOP
+                  - statement:
+                    - oracle_null_statement:
+                      - keyword: 'NULL'
+                  - statement_terminator: ;
+                  - keyword: END
+                  - keyword: LOOP
+                  - naked_identifier: inner_loop
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+            - naked_identifier: outer_loop
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

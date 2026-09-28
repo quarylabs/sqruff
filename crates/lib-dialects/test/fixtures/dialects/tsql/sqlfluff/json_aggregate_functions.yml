@@ -177,11 +177,12 @@ file:
               - keyword: GROUP
               - bracketed:
                 - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: hire_date
+                - aggregate_order_by_clause:
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: hire_date
                 - end_bracket: )
       - from_clause:
         - keyword: FROM
@@ -215,12 +216,13 @@ file:
               - keyword: GROUP
               - bracketed:
                 - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: salary
-                  - keyword: DESC
+                - aggregate_order_by_clause:
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: salary
+                    - keyword: DESC
                 - end_bracket: )
       - from_clause:
         - keyword: FROM
@@ -255,11 +257,12 @@ file:
               - keyword: GROUP
               - bracketed:
                 - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: employee_id
+                - aggregate_order_by_clause:
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: employee_id
                 - end_bracket: )
             - over_clause:
               - keyword: OVER
@@ -339,14 +342,15 @@ file:
               - keyword: GROUP
               - bracketed:
                 - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: last_name
-                  - comma: ','
-                  - column_reference:
-                    - naked_identifier: first_name
+                - aggregate_order_by_clause:
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: last_name
+                    - comma: ','
+                    - column_reference:
+                      - naked_identifier: first_name
                 - end_bracket: )
       - from_clause:
         - keyword: FROM
@@ -529,12 +533,13 @@ file:
               - keyword: GROUP
               - bracketed:
                 - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: score
-                  - keyword: DESC
+                - aggregate_order_by_clause:
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: score
+                    - keyword: DESC
                 - end_bracket: )
       - from_clause:
         - keyword: FROM
@@ -572,11 +577,12 @@ file:
               - keyword: GROUP
               - bracketed:
                 - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: attr_name
+                - aggregate_order_by_clause:
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: attr_name
                 - end_bracket: )
       - from_clause:
         - keyword: FROM
@@ -615,11 +621,12 @@ file:
               - keyword: GROUP
               - bracketed:
                 - start_bracket: (
-                - orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                    - naked_identifier: item_name
+                - aggregate_order_by_clause:
+                  - orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                      - naked_identifier: item_name
                 - end_bracket: )
             - over_clause:
               - keyword: OVER
@@ -970,12 +977,13 @@ file:
                 - keyword: GROUP
                 - bracketed:
                   - start_bracket: (
-                  - orderby_clause:
-                    - keyword: ORDER
-                    - keyword: BY
-                    - column_reference:
-                      - naked_identifier: salary
-                    - keyword: DESC
+                  - aggregate_order_by_clause:
+                    - orderby_clause:
+                      - keyword: ORDER
+                      - keyword: BY
+                      - column_reference:
+                        - naked_identifier: salary
+                      - keyword: DESC
                   - end_bracket: )
             - alias_expression:
               - alias_operator:

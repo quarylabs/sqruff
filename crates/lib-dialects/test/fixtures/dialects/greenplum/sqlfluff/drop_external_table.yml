@@ -1,0 +1,48 @@
+file:
+- statement:
+  - drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: ext_expenses
+- statement_terminator: ;
+- statement:
+  - drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: ext_expenses
+- statement_terminator: ;
+- statement:
+  - drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: ext_expenses
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+  - drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: WEB
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: log_output
+- statement_terminator: ;
+- statement:
+  - drop_external_table_statement:
+    - keyword: DROP
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: ext_expenses
+    - keyword: RESTRICT
+- statement_terminator: ;

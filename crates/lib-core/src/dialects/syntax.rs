@@ -683,6 +683,7 @@ pub enum SyntaxKind {
     HexadecimalLiteral,
     HierarchicalQueryClause,
     HintFunction,
+    HiveVariable,
     IamRoleClause,
     IcebergTableOptions,
     IcebergTransformation,

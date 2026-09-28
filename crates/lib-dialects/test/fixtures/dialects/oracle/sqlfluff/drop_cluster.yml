@@ -1,0 +1,62 @@
+file:
+- oracle_batch:
+  - statement:
+    - drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - object_reference:
+        - naked_identifier: language
+  - statement_terminator: ;
+  - statement:
+    - drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - object_reference:
+        - naked_identifier: personnel
+      - keyword: INCLUDING
+      - keyword: TABLES
+  - statement_terminator: ;
+  - statement:
+    - drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - object_reference:
+        - naked_identifier: personnel
+      - keyword: INCLUDING
+      - keyword: TABLES
+      - keyword: CASCADE
+      - keyword: CONSTRAINTS
+  - statement_terminator: ;
+  - statement:
+    - drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+        - naked_identifier: language
+  - statement_terminator: ;
+  - statement:
+    - drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+        - naked_identifier: personnel
+      - keyword: INCLUDING
+      - keyword: TABLES
+  - statement_terminator: ;
+  - statement:
+    - drop_cluster_statement:
+      - keyword: DROP
+      - keyword: CLUSTER
+      - object_reference:
+        - naked_identifier: myschema
+        - dot: .
+        - naked_identifier: personnel
+      - keyword: INCLUDING
+      - keyword: TABLES
+      - keyword: CASCADE
+      - keyword: CONSTRAINTS
+  - statement_terminator: ;

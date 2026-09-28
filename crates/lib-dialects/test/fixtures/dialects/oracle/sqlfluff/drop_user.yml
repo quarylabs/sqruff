@@ -1,0 +1,44 @@
+file:
+- oracle_batch:
+  - statement:
+    - drop_user_statement:
+      - keyword: DROP
+      - keyword: USER
+      - role_reference:
+        - naked_identifier: usr
+  - statement_terminator: ;
+  - statement:
+    - drop_user_statement:
+      - keyword: DROP
+      - keyword: USER
+      - role_reference:
+        - naked_identifier: usr
+      - keyword: CASCADE
+  - statement_terminator: ;
+  - statement:
+    - drop_user_statement:
+      - keyword: DROP
+      - keyword: USER
+      - keyword: IF
+      - keyword: EXISTS
+      - role_reference:
+        - naked_identifier: usr
+  - statement_terminator: ;
+  - statement:
+    - drop_user_statement:
+      - keyword: DROP
+      - keyword: USER
+      - keyword: IF
+      - keyword: EXISTS
+      - role_reference:
+        - naked_identifier: usr
+      - keyword: CASCADE
+  - statement_terminator: ;
+  - statement:
+    - drop_user_statement:
+      - keyword: DROP
+      - keyword: USER
+      - role_reference:
+        - naked_identifier: myschema
+      - keyword: CASCADE
+  - statement_terminator: ;

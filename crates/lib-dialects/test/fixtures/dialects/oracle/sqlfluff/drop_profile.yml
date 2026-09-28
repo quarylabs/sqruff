@@ -1,0 +1,32 @@
+file:
+- oracle_batch:
+  - statement:
+    - drop_profile_statement:
+      - keyword: DROP
+      - keyword: PROFILE
+      - naked_identifier: app_user
+  - statement_terminator: ;
+  - statement:
+    - drop_profile_statement:
+      - keyword: DROP
+      - keyword: PROFILE
+      - naked_identifier: app_user
+      - keyword: CASCADE
+  - statement_terminator: ;
+  - statement:
+    - drop_profile_statement:
+      - keyword: DROP
+      - keyword: PROFILE
+      - keyword: IF
+      - keyword: EXISTS
+      - naked_identifier: app_user
+  - statement_terminator: ;
+  - statement:
+    - drop_profile_statement:
+      - keyword: DROP
+      - keyword: PROFILE
+      - keyword: IF
+      - keyword: EXISTS
+      - naked_identifier: app_user
+      - keyword: CASCADE
+  - statement_terminator: ;

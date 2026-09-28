@@ -4109,6 +4109,49 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // DropProfileStatementSegment
+        (
+            "DropProfileStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropProfileStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("PROFILE").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::keyword("CASCADE").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        // DropClusterStatementSegment
+        (
+            "DropClusterStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropClusterStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("CLUSTER").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("INCLUDING").to_matchable(),
+                        Ref::keyword("TABLES").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CASCADE").to_matchable(),
+                            Ref::keyword("CONSTRAINTS").to_matchable(),
+                        ])
+                        .config(|config| config.optional())
+                        .to_matchable(),
+                    ])
+                    .config(|config| config.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // ---- Grammar replacements ----
@@ -4125,6 +4168,19 @@ pub fn raw_dialect() -> Dialect {
         .config(|config| {
             config.optional();
         })
+        .to_matchable(),
+    );
+
+    // Oracle DROP USER supports an optional CASCADE clause.
+    oracle.replace_grammar(
+        "DropUserStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("DROP").to_matchable(),
+            Ref::keyword("USER").to_matchable(),
+            Ref::new("IfExistsGrammar").optional().to_matchable(),
+            Ref::new("RoleReferenceSegment").to_matchable(),
+            Ref::keyword("CASCADE").optional().to_matchable(),
+        ])
         .to_matchable(),
     );
 
@@ -4422,6 +4478,8 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("CreateSynonymStatementSegment").to_matchable(),
                 Ref::new("DropSynonymStatementSegment").to_matchable(),
                 Ref::new("AlterSynonymStatementSegment").to_matchable(),
+                Ref::new("DropProfileStatementSegment").to_matchable(),
+                Ref::new("DropClusterStatementSegment").to_matchable(),
             ]),
             None,
             None,

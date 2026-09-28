@@ -14,7 +14,7 @@ file:
           - keyword: to
           - access_target:
             - role_reference:
-              - oracle_sqlplus_variable:
+              - substitution_variable:
                 - ampersand: '&'
                 - naked_identifier: REGISTRY
   - statement_terminator: ;
@@ -24,7 +24,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - expression:
-            - oracle_sqlplus_variable:
+            - substitution_variable:
               - ampersand: '&'
               - naked_identifier: SORTCOL
         - comma: ','
@@ -36,7 +36,7 @@ file:
         - from_expression:
           - from_expression_element:
             - table_expression:
-              - oracle_sqlplus_variable:
+              - substitution_variable:
                 - ampersand: '&'
                 - naked_identifier: MYTABLE
       - where_clause:
@@ -93,7 +93,7 @@ file:
             - naked_identifier: employee_id
           - comparison_operator:
             - raw_comparison_operator: =
-          - oracle_sqlplus_variable:
+          - substitution_variable:
             - ampersand: '&'
             - naked_identifier: myv
   - statement_terminator: ;
@@ -126,7 +126,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - expression:
-            - oracle_sqlplus_variable:
+            - substitution_variable:
               - ampersand: '&'
               - naked_identifier: GROUP_COL
         - comma: ','
@@ -138,7 +138,7 @@ file:
               - bracketed:
                 - start_bracket: (
                 - expression:
-                  - oracle_sqlplus_variable:
+                  - substitution_variable:
                     - ampersand: '&'
                     - naked_identifier: NUMBER_COL
                 - end_bracket: )
@@ -149,14 +149,14 @@ file:
         - from_expression:
           - from_expression_element:
             - table_expression:
-              - oracle_sqlplus_variable:
+              - substitution_variable:
                 - ampersand: '&'
                 - naked_identifier: MY_TABLE
       - groupby_clause:
         - keyword: GROUP
         - keyword: BY
         - expression:
-          - oracle_sqlplus_variable:
+          - substitution_variable:
             - ampersand: '&'
             - naked_identifier: GROUP_COL
   - statement_terminator: ;
@@ -182,7 +182,7 @@ file:
             - naked_identifier: employee_id
           - comparison_operator:
             - raw_comparison_operator: =
-          - oracle_sqlplus_variable:
+          - substitution_variable:
             - ampersand: '&'
             - ampersand: '&'
             - naked_identifier: myv
@@ -198,7 +198,7 @@ file:
         - bracketed:
           - start_bracket: (
           - expression:
-            - oracle_sqlplus_variable:
+            - substitution_variable:
               - ampersand: '&'
               - naked_identifier: myv
           - end_bracket: )

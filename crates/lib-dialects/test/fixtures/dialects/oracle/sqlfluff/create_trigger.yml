@@ -176,22 +176,22 @@ file:
                 - keyword: VALUES
                 - bracketed:
                   - start_bracket: (
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: new
                     - dot: .
                     - naked_identifier: customer_id
                   - comma: ','
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: new
                     - dot: .
                     - naked_identifier: cust_last_name
                   - comma: ','
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: new
                     - dot: .
@@ -219,22 +219,22 @@ file:
                 - keyword: VALUES
                 - bracketed:
                   - start_bracket: (
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: new
                     - dot: .
                     - naked_identifier: order_id
                   - comma: ','
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: new
                     - dot: .
                     - naked_identifier: order_date
                   - comma: ','
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: new
                     - dot: .
@@ -343,21 +343,21 @@ file:
                 - keyword: VALUES
                 - bracketed:
                   - start_bracket: (
-                  - oracle_sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: emp_id
                   - comma: ','
-                  - oracle_sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: lastname
                   - comma: ','
                   - expression:
-                    - oracle_sqlplus_variable:
-                      - colon: ':'
+                    - bind_variable:
+                      - bind_colon: ':'
                       - parameter: Employee
                       - dot: .
                       - parameter: lastname
@@ -369,20 +369,20 @@ file:
                   - expression:
                     - bare_function: SYSDATE
                   - comma: ','
-                  - oracle_sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: job
                   - comma: ','
-                  - oracle_sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Employee
                     - dot: .
                     - parameter: sal
                   - comma: ','
-                  - oracle_sqlplus_variable:
-                    - colon: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - parameter: Department
                     - dot: .
                     - parameter: department_id
@@ -577,8 +577,8 @@ file:
                 - naked_identifier: employee_id
               - oracle_assignment_operator: :=
               - expression:
-                - oracle_bind_variable:
-                  - colon_delimiter: ':'
+                - bind_variable:
+                  - bind_colon: ':'
                   - trigger_correlation_name:
                     - keyword: NEW
                   - dot: .
@@ -614,8 +614,8 @@ file:
                 - naked_identifier: salary
               - oracle_assignment_operator: :=
               - expression:
-                - oracle_bind_variable:
-                  - colon_delimiter: ':'
+                - bind_variable:
+                  - bind_colon: ':'
                   - trigger_correlation_name:
                     - keyword: NEW
                   - dot: .
@@ -706,8 +706,8 @@ file:
                 - keyword: THEN
               - statement:
                 - assignment_segment_statement:
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: new
                     - dot: .
@@ -721,8 +721,8 @@ file:
               - keyword: THEN
               - statement:
                 - assignment_segment_statement:
-                  - oracle_bind_variable:
-                    - colon_delimiter: ':'
+                  - bind_variable:
+                    - bind_colon: ':'
                     - trigger_correlation_name:
                       - keyword: new
                     - dot: .

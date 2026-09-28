@@ -362,12 +362,12 @@ file:
         - naked_identifier: job_id
         - oracle_into_clause:
           - keyword: INTO
-          - oracle_sqlplus_variable:
-            - colon: ':'
+          - bind_variable:
+            - bind_colon: ':'
             - parameter: bnd1
           - comma: ','
-          - oracle_sqlplus_variable:
-            - colon: ':'
+          - bind_variable:
+            - bind_colon: ':'
             - parameter: bnd2
   - statement_terminator: ;
   - statement:

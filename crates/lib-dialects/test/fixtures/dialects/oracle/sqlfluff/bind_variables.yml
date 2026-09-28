@@ -5,8 +5,8 @@ file:
       - select_clause:
         - keyword: select
         - select_clause_element:
-          - oracle_sqlplus_variable:
-            - colon: ':'
+          - bind_variable:
+            - bind_colon: ':'
             - parameter: abc
       - from_clause:
         - keyword: from
@@ -26,12 +26,12 @@ file:
         - keyword: values
         - bracketed:
           - start_bracket: (
-          - oracle_sqlplus_variable:
-            - colon: ':'
+          - bind_variable:
+            - bind_colon: ':'
             - parameter: abc
           - comma: ','
-          - oracle_sqlplus_variable:
-            - colon: ':'
+          - bind_variable:
+            - bind_colon: ':'
             - parameter: xyz
           - end_bracket: )
   - statement_terminator: ;
@@ -56,7 +56,7 @@ file:
             - naked_identifier: column_name
           - comparison_operator:
             - raw_comparison_operator: =
-          - oracle_sqlplus_variable:
-            - colon: ':'
+          - bind_variable:
+            - bind_colon: ':'
             - parameter: column_name_filter
   - statement_terminator: ;

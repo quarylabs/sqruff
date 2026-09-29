@@ -99,6 +99,21 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    db2_dialect.replace_grammar(
+        "SelectClauseTerminatorGrammar",
+        ansi_dialect.grammar("SelectClauseTerminatorGrammar").copy(
+            Some(vec![
+                Ref::new("ReadOnlyClauseSegment").to_matchable(),
+                Ref::new("IsolationClauseSegment").to_matchable(),
+            ]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
     for terminator_grammar in [
         "FromClauseTerminatorGrammar",
         "WhereClauseTerminatorGrammar",
@@ -109,7 +124,11 @@ pub fn raw_dialect() -> Dialect {
         db2_dialect.replace_grammar(
             terminator_grammar,
             ansi_dialect.grammar(terminator_grammar).copy(
-                Some(vec![Ref::keyword("OFFSET").to_matchable()]),
+                Some(vec![
+                    Ref::keyword("OFFSET").to_matchable(),
+                    Ref::new("ReadOnlyClauseSegment").to_matchable(),
+                    Ref::new("IsolationClauseSegment").to_matchable(),
+                ]),
                 None,
                 None,
                 None,
@@ -525,6 +544,84 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "ReadOnlyClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::ReadOnlyClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FOR").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("READ").to_matchable(),
+                            Ref::keyword("ONLY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("FETCH").to_matchable(),
+                            Ref::keyword("ONLY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "LockClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::LockClause, |_| {
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("USE").to_matchable(),
+                        Ref::keyword("AND").to_matchable(),
+                        Ref::keyword("KEEP").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("EXCLUSIVE").to_matchable(),
+                            Ref::keyword("UPDATE").to_matchable(),
+                            Ref::keyword("SHARE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("LOCKS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("KEEP").to_matchable(),
+                        Ref::keyword("UPDATE").to_matchable(),
+                        Ref::keyword("LOCKS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "IsolationClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::IsolationClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("RR").to_matchable(),
+                                Ref::keyword("RS").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("LockClauseSegment").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("CS").to_matchable(),
+                        Ref::keyword("UR").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // DB2 allows # in naked identifiers.
         (
             "NakedIdentifierSegment".into(),
@@ -671,6 +768,46 @@ pub fn raw_dialect() -> Dialect {
         ])
         .to_matchable(),
     );
+
+    db2_dialect.replace_grammar(
+        "UnorderedSelectStatementSegment",
+        ansi_dialect
+            .grammar("UnorderedSelectStatementSegment")
+            .match_grammar(&ansi_dialect)
+            .unwrap()
+            .copy(
+                None,
+                None,
+                None,
+                None,
+                vec![
+                    Ref::new("ReadOnlyClauseSegment").to_matchable(),
+                    Ref::new("IsolationClauseSegment").to_matchable(),
+                ],
+                false,
+            ),
+    );
+
+    for select_grammar in ["SetExpressionSegment", "SelectStatementSegment"] {
+        db2_dialect.replace_grammar(
+            select_grammar,
+            ansi_dialect
+                .grammar(select_grammar)
+                .match_grammar(&ansi_dialect)
+                .unwrap()
+                .copy(
+                    Some(vec![
+                        Ref::new("ReadOnlyClauseSegment").optional().to_matchable(),
+                        Ref::new("IsolationClauseSegment").optional().to_matchable(),
+                    ]),
+                    None,
+                    None,
+                    None,
+                    Vec::new(),
+                    false,
+                ),
+        );
+    }
 
     db2_dialect.add([
         (

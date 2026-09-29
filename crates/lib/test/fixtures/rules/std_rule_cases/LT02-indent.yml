@@ -2227,6 +2227,30 @@ test_fail_issue_4680:
         col1 > 0
       {% endif %}
 
+test_pass_issue_7543_indentation:
+  # Issue 7543: VALUES clause indentation inside FROM
+  pass_str: |
+    WITH cte_example (col1, col2) AS (
+      SELECT
+        $1,
+        $2
+      FROM (
+        VALUES ('value1', 'value2')
+      )
+    )
+    SELECT * FROM cte_example;
+  configs:
+    core:
+      dialect: snowflake
+    indentation:
+      tab_space_size: 2
+      indent_unit: space
+      indented_joins: false
+      indented_ctes: false
+      indented_using_on: true
+      template_blocks_indent: true
+      implicit_indents: require
+
 # Issue 6675: FROM VALUES on the same line should be acceptable
 # when implicit_indents is set to "allow".
 test_pass_from_values_same_line_implicit_allow:

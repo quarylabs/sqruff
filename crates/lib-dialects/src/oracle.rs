@@ -7,6 +7,7 @@ use sqruff_lib_core::parser::grammar::anyof::{
 };
 use sqruff_lib_core::parser::grammar::conditional::Conditional;
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
+use sqruff_lib_core::parser::grammar::preceded_by::PrecededBy;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -3907,6 +3908,7 @@ pub fn raw_dialect() -> Dialect {
         "IsClauseGrammar",
         one_of(vec![
             ansi_is_clause,
+            Ref::keyword("EMPTY").to_matchable(),
             Sequence::new(vec![
                 Ref::keyword("OF").to_matchable(),
                 Ref::keyword("TYPE").optional().to_matchable(),
@@ -4295,6 +4297,39 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    oracle.add([(
+        "MultisetOperatorSegment".into(),
+        NodeMatcher::new(SyntaxKind::BinaryOperator, |_| {
+            Sequence::new(vec![
+                Ref::keyword("MULTISET").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("EXCEPT").to_matchable(),
+                    Ref::keyword("INTERSECT").to_matchable(),
+                    Ref::keyword("UNION").to_matchable(),
+                ])
+                .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Ref::keyword("DISTINCT").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    let ansi_binary_operator = oracle.grammar("BinaryOperatorGrammar");
+    oracle.replace_grammar(
+        "BinaryOperatorGrammar",
+        one_of(vec![
+            ansi_binary_operator,
+            Ref::new("MultisetOperatorSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // ---- Expression_D_Grammar ----
     // SQLFluff: Completely rewritten for Oracle with PlusJoinGrammar, subscript access,
     // trigger correlation references, implicit cursor attributes, etc.
@@ -4526,7 +4561,9 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Ref::keyword("LIMIT").to_matchable(),
             Ref::keyword("OVERLAPS").to_matchable(),
-            Ref::new("SetOperatorSegment").to_matchable(),
+            Ref::new("SetOperatorSegment")
+                .exclude(PrecededBy::new(vec![vec!["MULTISET"]]))
+                .to_matchable(),
             Ref::keyword("FETCH").to_matchable(),
         ])
         .to_matchable(),

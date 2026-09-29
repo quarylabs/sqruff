@@ -5157,6 +5157,16 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("SingleIdentifierGrammar").to_matchable(),
             ])
             .to_matchable(),
+            Sequence::new(vec![
+                Ref::new("TsqlVariableSegment").to_matchable(),
+                AnyNumberOf::new(vec![Ref::new("DatatypeMethodSegment").to_matchable()])
+                    .config(|this| {
+                        this.min_times(1);
+                        this.max_times(4);
+                    })
+                    .to_matchable(),
+            ])
+            .to_matchable(),
             Ref::new("TsqlVariableSegment").to_matchable(),
         ])
         .to_matchable(),
@@ -5364,6 +5374,11 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec![
                         Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
                             .to_matchable(),
+                        Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("TableExpressionSegment").to_matchable(),
                         Ref::new("AliasExpressionSegment").optional().to_matchable(),
                     ])
                     .to_matchable(),

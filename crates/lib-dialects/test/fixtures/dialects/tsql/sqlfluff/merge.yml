@@ -1530,3 +1530,61 @@ file:
                     - dot: .
                     - naked_identifier: i
   - statement_terminator: ;
+  - statement:
+    - merge_statement:
+      - keyword: MERGE
+      - keyword: INTO
+      - table_reference:
+        - object_reference:
+          - naked_identifier: SomeTable
+      - alias_expression:
+        - naked_identifier: t
+      - keyword: USING
+      - table_expression:
+        - table_reference:
+          - object_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: SomeFunction
+        - bracketed:
+          - start_bracket: (
+          - end_bracket: )
+      - alias_expression:
+        - naked_identifier: s
+      - join_on_condition:
+        - keyword: ON
+        - expression:
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: Id
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: t
+            - dot: .
+            - naked_identifier: Id
+      - merge_match:
+        - merge_when_matched_clause:
+          - keyword: WHEN
+          - keyword: MATCHED
+          - keyword: THEN
+          - merge_update_clause:
+            - keyword: UPDATE
+            - set_clause_list:
+              - keyword: SET
+              - set_clause:
+                - column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: data
+                - assignment_operator:
+                  - raw_comparison_operator: =
+                - expression:
+                  - column_reference:
+                    - naked_identifier: s
+                    - dot: .
+                    - naked_identifier: data
+  - statement_terminator: ;
+  - go_statement:
+    - keyword: GO

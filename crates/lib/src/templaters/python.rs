@@ -195,6 +195,7 @@ struct PythonRawFileSlice {
     slice_tpe: String,
     source_idx: usize,
     block_idx: usize,
+    tag: Option<String>,
 }
 
 #[cfg(feature = "python")]
@@ -206,12 +207,14 @@ impl<'a, 'py> FromPyObject<'a, 'py> for PythonRawFileSlice {
         let slice_tpe = ob.getattr("slice_type")?.extract::<String>()?;
         let source_idx = ob.getattr("source_idx")?.extract::<usize>()?;
         let block_idx = ob.getattr("block_idx")?.extract::<usize>()?;
+        let tag = ob.getattr("tag")?.extract::<Option<String>>()?;
 
         Ok(PythonRawFileSlice {
             raw,
             slice_tpe,
             source_idx,
             block_idx,
+            tag,
         })
     }
 }
@@ -285,13 +288,17 @@ impl PythonTemplatedFile {
                         .map(|s| {
                             let slice_type = TemplateSliceKind::from_slice_type(&s.slice_tpe)
                                 .map_err(pyo3::exceptions::PyValueError::new_err)?;
-                            Ok(RawFileSlice::new(
+                            let raw_slice = RawFileSlice::new(
                                 s.raw.to_string(),
                                 slice_type,
                                 char_idx_to_byte_idx(&source_char_to_byte, s.source_idx),
                                 None,
                                 Some(s.block_idx),
-                            ))
+                            );
+                            Ok(match &s.tag {
+                                Some(tag) => raw_slice.with_tag(tag.clone()),
+                                None => raw_slice,
+                            })
                         })
                         .collect()
                 })
@@ -352,6 +359,7 @@ blah = foo
                 slice_tpe: TemplateSliceKind::Literal.as_str().to_string(),
                 source_idx: 0,
                 block_idx: 0,
+                tag: None,
             }]),
         };
 
@@ -389,12 +397,14 @@ blah = foo
                     slice_tpe: TemplateSliceKind::Literal.as_str().to_string(),
                     source_idx: 0, // Python char index 0
                     block_idx: 0,
+                    tag: None,
                 },
                 PythonRawFileSlice {
                     raw: "b".to_string(),
                     slice_tpe: TemplateSliceKind::Literal.as_str().to_string(),
                     source_idx: 2, // Python char index 2 (should become byte index 4)
                     block_idx: 0,
+                    tag: None,
                 },
             ]),
         };

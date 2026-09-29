@@ -657,7 +657,8 @@ impl Linter {
                             // matching SQLFluff's `remove_templated_errors`.
                             let suppress_templated_violation = ignore_templated_areas
                                 && !rule.targets_templated()
-                                && result.anchor_in_templated_section();
+                                && result.anchor_in_templated_section()
+                                && !result.anchor_in_semantically_literal_templated_section();
 
                             if ignore_mask.as_ref().is_none_or(|ignore_mask| {
                                 !ignore_mask.is_masked(&result, rule.into(), is_first_linter_pass)

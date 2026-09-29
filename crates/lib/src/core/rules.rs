@@ -16,7 +16,7 @@ use sqruff_lib_core::errors::{ErrorStructRule, SQLFluffUserError, SQLLintError};
 use sqruff_lib_core::helpers::{Config, IndexMap};
 use sqruff_lib_core::lint_fix::LintFix;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
-use sqruff_lib_core::templaters::TemplatedFile;
+use sqruff_lib_core::templaters::{TemplateSliceKind, TemplatedFile};
 use strum_macros::AsRefStr;
 
 use crate::core::config::{FluffConfig, Value};
@@ -71,6 +71,36 @@ impl LintResult {
                 .get_position_marker()
                 .is_some_and(|marker| !marker.is_literal())
         })
+    }
+
+    /// Whether every non-literal raw slice overlapping the anchor is tagged as
+    /// semantically literal by its templater.
+    pub fn anchor_in_semantically_literal_templated_section(&self) -> bool {
+        let Some(marker) = self
+            .anchor
+            .as_ref()
+            .and_then(|anchor| anchor.get_position_marker())
+        else {
+            return false;
+        };
+
+        let mut has_non_literal_slice = false;
+        for raw_slice in marker.templated_file.raw_sliced() {
+            if raw_slice.end_source_idx() <= marker.source_slice.start {
+                continue;
+            }
+            if raw_slice.source_idx >= marker.source_slice.end {
+                break;
+            }
+            if raw_slice.slice_kind() != TemplateSliceKind::Literal {
+                has_non_literal_slice = true;
+                if raw_slice.tag() != Some("literal") {
+                    return false;
+                }
+            }
+        }
+
+        has_non_literal_slice
     }
 
     pub fn to_linting_error(self, rule: &ErasedRule) -> Option<SQLLintError> {

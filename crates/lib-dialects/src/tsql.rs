@@ -372,6 +372,10 @@ pub fn raw_dialect() -> Dialect {
         "NS",
     ]);
 
+    dialect
+        .sets_mut("date_format")
+        .extend(["MDY", "DMY", "YMD", "YDM", "MYD", "DYM"]);
+
     // Add T-SQL specific date functions
     dialect.sets_mut("date_part_function_name").extend([
         "DATEADD",
@@ -418,6 +422,22 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // Add T-SQL specific grammar
+
+    dialect.add([(
+        "DateFormatSegment".into(),
+        SegmentGenerator::new(|dialect| {
+            MultiStringParser::new(
+                dialect
+                    .sets("date_format")
+                    .into_iter()
+                    .map_into()
+                    .collect_vec(),
+                SyntaxKind::DateFormat,
+            )
+            .to_matchable()
+        })
+        .into(),
+    )]);
 
     // TOP clause support (e.g., SELECT TOP 10, TOP (10) PERCENT, TOP 5 WITH TIES)
     // T-SQL allows DISTINCT/ALL followed by TOP
@@ -1781,10 +1801,20 @@ pub fn raw_dialect() -> Dialect {
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
+                            Ref::keyword("DATEFORMAT").to_matchable(),
+                            Ref::new("EqualsSegment").optional().to_matchable(),
+                            one_of(vec![
+                                Ref::new("DateFormatSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
                             Delimited::new(vec![
                                 one_of(vec![
                                     Ref::keyword("DATEFIRST").to_matchable(),
-                                    Ref::keyword("DATEFORMAT").to_matchable(),
                                     Ref::keyword("DEADLOCK_PRIORITY").to_matchable(),
                                     Ref::keyword("LOCK_TIMEOUT").to_matchable(),
                                     Ref::keyword("CONCAT_NULL_YIELDS_NULL").to_matchable(),

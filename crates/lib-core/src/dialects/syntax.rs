@@ -274,6 +274,7 @@ pub enum SyntaxKind {
     ConstraintPropertiesSegment,
     ConstraintStatement,
     ConsumerGroupParameter,
+    ContainstableSegment,
     ContinueStatement,
     ConvertToDeltaStatement,
     CopyColumnOptions,

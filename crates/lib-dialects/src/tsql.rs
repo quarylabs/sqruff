@@ -4010,6 +4010,55 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // CONTAINSTABLE() table-valued function (#7814)
+    // https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/containstable-transact-sql
+    dialect.add([(
+        "ContainstableSegment".into(),
+        NodeMatcher::new(SyntaxKind::ContainstableSegment, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CONTAINSTABLE").to_matchable(),
+                Bracketed::new(vec![
+                    Ref::new("TableReferenceSegment").to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("StarSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::keyword("LANGUAGE").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("HexadecimalLiteralSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // OPENJSON() table-valued function (#4652)
     // https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql
     dialect.add([(
@@ -5154,6 +5203,7 @@ pub fn raw_dialect() -> Dialect {
             ])
             .to_matchable(),
             Ref::new("BareFunctionSegment").to_matchable(),
+            Ref::new("ContainstableSegment").to_matchable(),
             Ref::new("OpenRowSetSegment").to_matchable(),
             Ref::new("OpenJsonSegment").to_matchable(),
             Ref::new("OpenXmlSegment").to_matchable(),

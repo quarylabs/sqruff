@@ -1,0 +1,115 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: b
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: =
+        - numeric_literal: '0'
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: b
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: =
+        - quoted_literal: '''foo'''
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: col1
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: =
+        - column_reference:
+          - naked_identifier: col2
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: a
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '>'
+        - column_reference:
+          - naked_identifier: b
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - numeric_literal: '5'
+        - factorial_operator: '!'
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - numeric_literal: '120'
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - numeric_literal: '5'
+        - factorial_operator: '!'
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: =
+        - numeric_literal: '119'
+- statement_terminator: ;

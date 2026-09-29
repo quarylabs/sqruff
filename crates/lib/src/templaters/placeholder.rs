@@ -142,7 +142,8 @@ impl PlaceholderTemplater {
                 span.start,
                 None,
                 None,
-            );
+            )
+            .with_tag("literal");
             raw_slices.push(raw_file_slice);
 
             out_str.push_str(&replacement);

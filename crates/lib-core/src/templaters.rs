@@ -653,6 +653,12 @@ pub struct RawFileSlice {
     slice_subtype: Option<RawFileSliceType>,
     /// Block index, incremented on start or end block tags, e.g. "if", "for"
     block_idx: usize,
+    /// Optional semantic tag supplied by the templater.
+    #[cfg_attr(
+        feature = "stringify",
+        serde(default, skip_serializing_if = "Option::is_none")
+    )]
+    tag: Option<String>,
 }
 
 impl RawFileSlice {
@@ -669,6 +675,7 @@ impl RawFileSlice {
             source_idx,
             slice_subtype,
             block_idx: block_idx.unwrap_or(0),
+            tag: None,
         }
     }
 
@@ -681,11 +688,16 @@ impl RawFileSlice {
     ) -> Self {
         Self::new(raw, slice_type, source_idx, slice_subtype, block_idx)
     }
+
+    pub fn with_tag(mut self, tag: impl Into<String>) -> Self {
+        self.tag = Some(tag.into());
+        self
+    }
 }
 
 impl RawFileSlice {
     /// Return the closing index of this slice.
-    fn end_source_idx(&self) -> usize {
+    pub fn end_source_idx(&self) -> usize {
         self.source_idx + self.raw.len()
     }
 
@@ -701,6 +713,10 @@ impl RawFileSlice {
 
     pub const fn block_idx(&self) -> usize {
         self.block_idx
+    }
+
+    pub fn tag(&self) -> Option<&str> {
+        self.tag.as_deref()
     }
 
     /// Return the slice type (e.g., literal, templated, comment).

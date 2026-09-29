@@ -1029,6 +1029,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | OnPartitionsClause
         | OpenCursorStatement
         | OpenSymmetricKeyStatement
+        | ContainstableSegment
         | OpenjsonSegment
         | OpenjsonWithClause
         | OpenquerySegment

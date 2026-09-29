@@ -618,6 +618,7 @@ pub fn raw_dialect() -> Dialect {
         Sequence::new(vec![
             postgres_expression_c,
             Ref::new("FactorialOperatorSegment")
+                .exclude(Ref::new("NotEqualToSegment"))
                 .optional()
                 .to_matchable(),
         ])

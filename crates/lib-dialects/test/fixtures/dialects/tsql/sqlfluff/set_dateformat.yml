@@ -1,0 +1,65 @@
+file:
+- batch:
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: mdy
+  - statement_terminator: ;
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: dmy
+  - statement_terminator: ;
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: ymd
+  - statement_terminator: ;
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: ydm
+  - statement_terminator: ;
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: myd
+  - statement_terminator: ;
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - date_format: dym
+  - statement_terminator: ;
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - quoted_literal: '''dmy'''
+  - statement_terminator: ;
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - naked_identifier: N
+      - quoted_literal: '''dmy'''
+  - statement_terminator: ;
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - tsql_variable: '@fmt'
+  - statement_terminator: ;
+  - statement:
+    - set_segment:
+      - keyword: SET
+      - keyword: DATEFORMAT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - date_format: dmy
+  - statement_terminator: ;

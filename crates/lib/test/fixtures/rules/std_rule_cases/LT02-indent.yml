@@ -1533,7 +1533,7 @@ test_pass_templated_newlines:
       templater: jinja
 
 test_fail_fix_beside_templated:
-  ignored: "jinja is not supported"
+  ignored: "jinja is not supported by the rule fixture harness"
   # Check that templated code checks aren't too aggressive.
   # https://github.com/sqlfluff/sqlfluff/issues/4215
   fail_str: |
@@ -1546,7 +1546,7 @@ test_fail_fix_beside_templated:
     {% endif %}
   fix_str: |
     {% if False %}
-    SELECT 1
+        SELECT 1
     {% else %}
         SELECT c
         FROM t
@@ -2205,9 +2205,7 @@ test_bigquery_merge_statement_values_clause:
       dialect: bigquery
 
 test_fail_issue_4680:
-  ignored: "jinja is not supported"
-  # NOTE: It doesn't reindent the second clause, but the important
-  # thing is that we don't get an exception.
+  ignored: "jinja is not supported by the rule fixture harness"
   fail_str: |
     SELECT col1
     FROM table
@@ -2224,8 +2222,8 @@ test_fail_issue_4680:
         {% if true %}
             col1 > 1
         {% else %}
-        col1 > 0
-      {% endif %}
+            col1 > 0
+        {% endif %}
 
 test_pass_issue_7543_indentation:
   # Issue 7543: VALUES clause indentation inside FROM

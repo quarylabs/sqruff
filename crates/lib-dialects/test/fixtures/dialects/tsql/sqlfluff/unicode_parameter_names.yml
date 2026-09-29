@@ -1,0 +1,122 @@
+file:
+- batch:
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@Дата'
+    - data_type:
+      - keyword: DATETIME2
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - function:
+        - function_name:
+          - function_name_identifier: GETDATE
+        - function_contents:
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@正常'
+    - data_type:
+      - keyword: INT
+    - assignment_operator:
+      - raw_comparison_operator: =
+    - expression:
+      - integer_literal: '0'
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@Größe'
+    - data_type:
+      - keyword: NVARCHAR
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - integer_literal: '50'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@Παράμετρος'
+    - data_type:
+      - keyword: INT
+  - statement_terminator: ;
+  - statement:
+    - keyword: DECLARE
+    - tsql_variable: '@user_Имя'
+    - data_type:
+      - keyword: NVARCHAR
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - integer_literal: '100'
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - parameterized_expression:
+            - tsql_variable: '@Дата'
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - quoted_identifier: '[report_date]'
+        - comma: ','
+        - select_clause_element:
+          - parameterized_expression:
+            - tsql_variable: '@正常'
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - quoted_identifier: '[status]'
+        - comma: ','
+        - select_clause_element:
+          - parameterized_expression:
+            - tsql_variable: '@Größe'
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - quoted_identifier: '[size]'
+  - statement_terminator: ;
+  - statement:
+    - create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: GetByCriteria
+      - tsql_variable: '@Дата'
+      - data_type:
+        - keyword: DATETIME2
+      - comma: ','
+      - tsql_variable: '@user'
+      - data_type:
+        - keyword: NVARCHAR
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - integer_literal: '50'
+            - end_bracket: )
+      - keyword: AS
+      - procedure_statement:
+        - statement:
+          - keyword: BEGIN
+          - statement:
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - parameterized_expression:
+                    - tsql_variable: '@Дата'
+                - comma: ','
+                - select_clause_element:
+                  - parameterized_expression:
+                    - tsql_variable: '@user'
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;

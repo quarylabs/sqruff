@@ -273,10 +273,10 @@ pub fn raw_dialect() -> Dialect {
                 SyntaxKind::HashIdentifier,
             ),
             // Variables: @MyVar (local) or @@ROWCOUNT (global/system). Characters
-            // after the prefix may include @, $, and #.
+            // after the prefix may include Unicode letters, @, $, and #.
             Matcher::regex(
                 "tsql_variable",
-                r"@@?[a-zA-Z0-9_@$#]+",
+                r"@@?[a-zA-Z0-9_@$#\p{L}]+",
                 SyntaxKind::TsqlVariable,
             ),
             // OUTPUT clauses in MERGE statements expose the special $ACTION value.

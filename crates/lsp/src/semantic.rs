@@ -193,6 +193,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | FetchClause
         | FunctionDefinition
         | AlgorithmOption
+        | LockClause
         | LockOption
         | WaitOption
         | AlterSequenceOptionsSegment
@@ -985,6 +986,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | InlinePathOperator
         | InsertRowAlias
         | IntoOutfileClause
+        | IsolationClause
         | IsolationLevelClause
         | IterateStatement
         | JsonPath
@@ -1337,6 +1339,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | PreferringClause
         | PreloadStatement
         | RangeOperator
+        | ReadOnlyClause
         | RecompressReorganizeStatement
         | RejectClause
         | ScriptContent

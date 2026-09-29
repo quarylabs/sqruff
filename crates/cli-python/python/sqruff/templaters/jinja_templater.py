@@ -1038,6 +1038,27 @@ class JinjaTemplater(PythonTemplater):
                 trace.templated_str,
             )
 
+    @staticmethod
+    def _is_trim_tag(raw_slice: RawFileSlice) -> bool:
+        return raw_slice.slice_type.startswith("block") and (
+            raw_slice.raw.startswith("{%-") or raw_slice.raw.endswith("-%}")
+        )
+
+    @classmethod
+    def _is_unreached_whitespace_adjacent_to_trim_tag(
+        cls, raw_sliced: List[RawFileSlice], idx: int
+    ) -> bool:
+        raw_slice = raw_sliced[idx]
+        if raw_slice.slice_type != "literal" or not raw_slice.raw.isspace():
+            return False
+
+        previous_slice = raw_sliced[idx - 1] if idx > 0 else None
+        next_slice = raw_sliced[idx + 1] if idx + 1 < len(raw_sliced) else None
+        return bool(
+            (previous_slice and cls._is_trim_tag(previous_slice))
+            or (next_slice and cls._is_trim_tag(next_slice))
+        )
+
     def process_with_variants(
         self,
         *,
@@ -1091,6 +1112,9 @@ class JinjaTemplater(PythonTemplater):
             for idx, raw_slice in enumerate(templated_file.raw_sliced)
             if raw_slice.slice_type == "literal"
             and raw_slice.source_idx not in covered_literal_positions
+            and not self._is_unreached_whitespace_adjacent_to_trim_tag(
+                templated_file.raw_sliced, idx
+            )
         }
         templater_logger.debug(
             "Uncovered literals correspond to slices %s", uncovered_literal_idxs

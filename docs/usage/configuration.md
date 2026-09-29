@@ -45,6 +45,24 @@ The `warnings` setting makes selected violations visible without causing lint
 to fail. It accepts either rule codes or rule names, for example
 `warnings = LT01,layout.end_of_file`.
 
+## Jinja branch variants
+
+With `templater = jinja`, sqruff renders up to five branches of a template by
+default. Lint findings from those branches are combined, and compatible fixes
+from multiple branches can be applied to the source file. If a branch cannot
+be parsed, its parse error does not invalidate a different branch that can be
+parsed.
+
+Set `render_variant_limit` under `[sqruff]` to change the maximum number of
+renderings. A value of `1` checks only the first rendering; higher values can
+increase templating and linting time.
+
+```ini
+[sqruff]
+templater = jinja
+render_variant_limit = 5
+```
+
 ## Implicit indents
 
 Set `implicit_indents` in the `indentation` section to `allow` to accept implicit

@@ -394,6 +394,13 @@ impl Linter {
             .zip(files.iter())
             .map(|(result, (source_str, fname))| match result {
                 Ok(mut templated_files) if !templated_files.is_empty() => {
+                    let variant_limit = self
+                        .config
+                        .get("render_variant_limit", "core")
+                        .as_int()
+                        .unwrap_or(5)
+                        .max(1) as usize;
+                    templated_files.truncate(variant_limit);
                     BatchRenderedResult::Rendered(RenderedFile {
                         templated_file: templated_files.remove(0),
                         alternate_templated_files: templated_files,
@@ -472,37 +479,69 @@ impl Linter {
             tree.is_type(SyntaxKind::Unparsable)
                 || tree.descendant_type_set().contains(SyntaxKind::Unparsable)
         };
-        let has_parse_or_templating_errors = !parsed_string.violations.is_empty()
-            || parsed_string.tree.as_ref().is_some_and(tree_is_unparsable)
-            || parsed_string.alternate_variants.iter().any(|variant| {
-                !variant.violations.is_empty()
-                    || variant.tree.as_ref().is_some_and(tree_is_unparsable)
-            });
-        let mut violations = parsed_string.violations;
+        let ParsedString {
+            tree,
+            violations: primary_violations,
+            templated_file,
+            filename,
+            alternate_variants,
+            ..
+        } = parsed_string;
+        let mut variants = vec![ParsedVariant {
+            tree,
+            violations: primary_violations,
+            templated_file,
+        }];
+        variants.extend(alternate_variants);
 
-        let (patches, ignore_mask, initial_linting_errors) = match parsed_string.tree {
-            Some(erased_segment) => {
-                let (tree, ignore_mask, initial_linting_errors) = self.lint_fix_parsed(
-                    tables,
-                    erased_segment,
-                    &parsed_string.templated_file,
-                    fix,
-                )?;
-                let patches = tree.iter_patches(&parsed_string.templated_file);
-                (patches, ignore_mask, initial_linting_errors)
+        // The first variant with a parse tree is the root. Parse errors from
+        // other branches must not invalidate it.
+        let root_index = variants.iter().position(|variant| variant.tree.is_some());
+        let has_parse_or_templating_errors = root_index.is_none_or(|index| {
+            !variants[index].violations.is_empty()
+                || variants[index]
+                    .tree
+                    .as_ref()
+                    .is_some_and(tree_is_unparsable)
+        });
+        let mut source_patch_buffers = Vec::new();
+        let (templated_file, mut violations, ignore_mask) = if let Some(root_index) = root_index {
+            let root = variants.remove(root_index);
+            let tree = root.tree.expect("Root variant must have a parse tree");
+            let (fixed_tree, ignore_mask, linting_errors) =
+                self.lint_fix_parsed(tables, tree, &root.templated_file, fix)?;
+            let mut violations = root.violations;
+            violations.extend(linting_errors.into_iter().map_into());
+            if fix {
+                source_patch_buffers.push(LintedFile::generate_source_patches(
+                    fixed_tree.iter_patches(&root.templated_file),
+                    &root.templated_file,
+                ));
             }
-            None => (Vec::new(), None, Vec::new()),
+
+            for alternate in variants {
+                if let Some(tree) = alternate.tree {
+                    let (fixed_tree, _, linting_errors) =
+                        self.lint_fix_parsed(tables, tree, &alternate.templated_file, fix)?;
+                    violations.extend(linting_errors.into_iter().map_into());
+                    if fix {
+                        source_patch_buffers.push(LintedFile::generate_source_patches(
+                            fixed_tree.iter_patches(&alternate.templated_file),
+                            &alternate.templated_file,
+                        ));
+                    }
+                }
+            }
+            (root.templated_file, violations, ignore_mask)
+        } else {
+            let primary = variants.remove(0);
+            let mut violations = primary.violations;
+            for alternate in variants {
+                violations.extend(alternate.violations);
+            }
+            (primary.templated_file, violations, None)
         };
-        violations.extend(initial_linting_errors.into_iter().map_into());
-
-        for alternate_variant in parsed_string.alternate_variants {
-            violations.extend(alternate_variant.violations);
-            if let Some(tree) = alternate_variant.tree {
-                let (_, _, alternate_linting_errors) =
-                    self.lint_fix_parsed(tables, tree, &alternate_variant.templated_file, fix)?;
-                violations.extend(alternate_linting_errors.into_iter().map_into());
-            }
-        }
+        let patches = LintedFile::merge_source_patches(source_patch_buffers);
 
         // Filter violations with ignore mask
         if let Some(ignore_mask) = &ignore_mask {
@@ -530,9 +569,9 @@ impl Linter {
         }
 
         let linted_file = LintedFile::new(
-            parsed_string.filename,
+            filename,
             patches,
-            parsed_string.templated_file,
+            templated_file,
             violations,
             has_parse_or_templating_errors,
             ignore_mask,
@@ -755,13 +794,21 @@ impl Linter {
         );
 
         match results.pop() {
-            Some(Ok(mut templated_files)) if !templated_files.is_empty() => Ok(RenderedFile {
-                templated_file: templated_files.remove(0),
-                alternate_templated_files: templated_files,
-                templater_violations,
-                filename,
-                source_str: sql.to_string(),
-            }),
+            Some(Ok(mut templated_files)) if !templated_files.is_empty() => {
+                let variant_limit = config
+                    .get("render_variant_limit", "core")
+                    .as_int()
+                    .unwrap_or(5)
+                    .max(1) as usize;
+                templated_files.truncate(variant_limit);
+                Ok(RenderedFile {
+                    templated_file: templated_files.remove(0),
+                    alternate_templated_files: templated_files,
+                    templater_violations,
+                    filename,
+                    source_str: sql.to_string(),
+                })
+            }
             Some(Err(err)) => Err(SQLFluffUserError::new(format!(
                 "Failed to template file {filename} with error {err:?}"
             ))),

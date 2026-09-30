@@ -14,7 +14,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Anything, Nothing, Ref};
 use sqruff_lib_core::parser::lexer::{Cursor, Matcher};
 use sqruff_lib_core::parser::lookahead::LookaheadExclude;
-use sqruff_lib_core::parser::matchable::MatchableTrait;
+use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{
     CaseFold, MultiStringParser, RegexParser, StringParser, TypedParser,
@@ -28,6 +28,29 @@ use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(TSQLDialectConfig {});
+
+fn cursor_select_elements() -> Vec<Matchable> {
+    vec![
+        Ref::new("SelectClauseSegment").to_matchable(),
+        Ref::new("FromClauseSegment").optional().to_matchable(),
+        Ref::new("WhereClauseSegment").optional().to_matchable(),
+        Ref::new("GroupByClauseSegment").optional().to_matchable(),
+        Ref::new("HavingClauseSegment").optional().to_matchable(),
+        Ref::new("NamedWindowSegment").optional().to_matchable(),
+        Ref::new("OrderByClauseSegment").optional().to_matchable(),
+    ]
+}
+
+fn cursor_unordered_select_statement() -> Matchable {
+    Sequence::new(cursor_select_elements()).to_matchable()
+}
+
+fn cursor_select_statement() -> Matchable {
+    let mut elements = cursor_select_elements();
+    elements.push(Ref::new("OptionClauseSegment").optional().to_matchable());
+    elements.push(Ref::new("CursorForClauseSegment").optional().to_matchable());
+    Sequence::new(elements).to_matchable()
+}
 
 fn is_tsql_currency_symbol(ch: char) -> bool {
     matches!(
@@ -725,6 +748,156 @@ pub fn raw_dialect() -> Dialect {
         "SelectStatementSegment",
         Sequence::new(select_elements).to_matchable(),
     );
+
+    // Cursor queries share SELECT syntax, but exclude INTO and FOR BROWSE.
+    // Keep these grammar hooks separate from general T-SQL SELECT/CTE grammar,
+    // which also admits DML after WITH.
+    dialect.add([
+        (
+            "CursorSelectableGrammar".into(),
+            one_of(vec![
+                optionally_bracketed(vec![
+                    Ref::new("CursorWithCompoundStatementSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("CursorNonWithSelectableGrammar").to_matchable(),
+                Bracketed::new(vec![Ref::new("CursorSelectableGrammar").to_matchable()])
+                    .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CursorNonWithSelectableGrammar".into(),
+            one_of(vec![
+                Ref::new("CursorSetExpressionSegment").to_matchable(),
+                optionally_bracketed(vec![
+                    Ref::new("CursorSelectStatementSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("CursorNonSetSelectableGrammar").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CursorNonSetSelectableGrammar".into(),
+            one_of(vec![
+                Ref::new("ValuesClauseSegment").to_matchable(),
+                Ref::new("CursorUnorderedSelectStatementSegment").to_matchable(),
+                Bracketed::new(vec![
+                    Ref::new("CursorSelectStatementSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Bracketed::new(vec![
+                    Ref::new("CursorWithCompoundStatementSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Bracketed::new(vec![
+                    Ref::new("CursorNonSetSelectableGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("CursorBracketedSetExpressionGrammar").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CursorUnorderedSetExpressionGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("CursorNonSetSelectableGrammar").to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("SetOperatorSegment").to_matchable(),
+                        Ref::new("CursorNonSetSelectableGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.min_times(1))
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CursorBracketedSetExpressionGrammar".into(),
+            Bracketed::new(vec![
+                Ref::new("CursorUnorderedSetExpressionGrammar").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CursorWithCompoundStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::WithCompoundStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("RECURSIVE").optional().to_matchable(),
+                    Conditional::new(MetaSegment::indent())
+                        .indented_ctes()
+                        .to_matchable(),
+                    Delimited::new(vec![Ref::new("CTEDefinitionSegment").to_matchable()])
+                        .config(|this| {
+                            this.terminators = vec![Ref::keyword("SELECT").to_matchable()];
+                        })
+                        .to_matchable(),
+                    Conditional::new(MetaSegment::dedent())
+                        .indented_ctes()
+                        .to_matchable(),
+                    Ref::new("CursorNonWithSelectableGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CursorUnorderedSelectStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectStatement, |_| {
+                cursor_unordered_select_statement()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CursorSelectStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectStatement, |_| cursor_select_statement())
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "CursorSetExpressionSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetExpression, |_| {
+                Sequence::new(vec![
+                    Ref::new("CursorNonSetSelectableGrammar").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SetOperatorSegment").to_matchable(),
+                            Ref::new("CursorNonSetSelectableGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.min_times(1))
+                    .to_matchable(),
+                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                    Ref::new("OptionClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CursorForClauseSegment".into(),
+            Ref::new("ForClauseSegment")
+                .exclude(Sequence::new(vec![
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::keyword("BROWSE").to_matchable(),
+                ]))
+                .to_matchable()
+                .into(),
+        ),
+    ]);
 
     dialect.add([
         (
@@ -1506,7 +1679,7 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Ref::keyword("FOR").to_matchable(),
-                    Ref::new("SelectStatementSegment").to_matchable(),
+                    Ref::new("CursorSelectableGrammar").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("FOR").to_matchable(),
                         Ref::keyword("UPDATE").to_matchable(),
@@ -1542,7 +1715,7 @@ pub fn raw_dialect() -> Dialect {
                             .to_matchable(),
                             Ref::keyword("CURSOR").to_matchable(),
                             Ref::keyword("FOR").to_matchable(),
-                            Ref::new("SelectStatementSegment").to_matchable(),
+                            Ref::new("CursorSelectableGrammar").to_matchable(),
                             Sequence::new(vec![
                                 Ref::keyword("FOR").to_matchable(),
                                 one_of(vec![

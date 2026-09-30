@@ -391,6 +391,48 @@ fn mysql_family_rejects_schema_qualified_dual() {
 }
 
 #[test]
+fn tsql_cursor_rejects_disallowed_select_clauses() {
+    let dialect = kind_to_dialect(&DialectKind::Tsql, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "DECLARE cur_into CURSOR FOR SELECT 1 INTO dbo.t;",
+        "DECLARE cur_browse CURSOR FOR SELECT 1 FOR BROWSE;",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(
+            !check_no_unparsable_segments(&tree).is_empty(),
+            "cursor must reject disallowed SELECT clause: {sql}",
+        );
+    }
+}
+
+#[test]
+fn tsql_cursor_accepts_json_and_xml_for_clauses() {
+    let dialect = kind_to_dialect(&DialectKind::Tsql, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "DECLARE cur_json CURSOR FOR SELECT 1 FOR JSON AUTO;",
+        "DECLARE cur_xml CURSOR FOR SELECT 1 FOR XML AUTO;",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(
+            check_no_unparsable_segments(&tree).is_empty(),
+            "cursor should accept a SELECT with FOR JSON/XML: {sql}",
+        );
+    }
+}
+
+#[test]
 fn oracle_rejects_duplicate_physical_attributes() {
     let dialect = kind_to_dialect(&DialectKind::Oracle, None).unwrap();
     let tables = Tables::default();

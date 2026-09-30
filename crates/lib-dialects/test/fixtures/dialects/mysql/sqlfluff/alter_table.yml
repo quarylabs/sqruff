@@ -414,6 +414,36 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
+      - naked_identifier: my_table
+    - keyword: ADD
+    - column_definition:
+      - naked_identifier: INDEX
+      - data_type:
+        - data_type_identifier: idx_timestamp
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - quoted_identifier: '`timestamp`'
+        - end_bracket: )
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: ALGORITHM
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: INPLACE
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: LOCK
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: NONE
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
       - quoted_identifier: '`foo`'
       - dot: .
       - quoted_identifier: '`bar`'
@@ -421,6 +451,29 @@ file:
     - keyword: INDEX
     - database_reference:
       - quoted_identifier: '`index_name`'
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - keyword: DROP
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: idx_timestamp
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: ALGORITHM
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: INPLACE
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: LOCK
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: NONE
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -523,6 +576,30 @@ file:
       - column_constraint_segment:
         - keyword: DEFAULT
         - quoted_literal: '''0'''
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - naked_identifier: created_at
+      - keyword: TIMESTAMP
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: ALGORITHM
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: INPLACE
+    - comma: ','
+    - alter_table_online_ddl_option:
+      - keyword: LOCK
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - keyword: NONE
 - statement_terminator: ;
 - statement:
   - alter_table_statement:

@@ -1573,7 +1573,14 @@ line_position = leading
 
 [sqlfluff:layout:type:comparison_operator]
 line_position = leading
+
+[sqlfluff:layout:type:assignment_operator]
+line_position = leading
 ```
+
+Use `leading:attached` or `trailing:attached` to require an operator to share
+a line with the following or preceding token, respectively. Without
+`:attached`, an operator on its own line is allowed.
 
 **Anti-pattern**
 

@@ -4657,7 +4657,15 @@ pub(crate) fn create_table_options() -> Matchable {
                                     Sequence::new(vec![
                                         Ref::keyword("IN").to_matchable(),
                                         Bracketed::new(vec![
-                                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                                            Delimited::new(vec![
+                                                one_of(vec![
+                                                    Ref::new("LiteralGrammar").to_matchable(),
+                                                    Ref::new("ObjectReferenceSegment")
+                                                        .to_matchable(),
+                                                ])
+                                                .to_matchable(),
+                                            ])
+                                            .to_matchable(),
                                         ])
                                         .to_matchable(),
                                     ])

@@ -513,15 +513,17 @@ file:
     - bracketed:
       - start_bracket: (
       - expression:
-        - naked_identifier: OLD
-        - dot: .
-        - star: '*'
+        - wildcard_identifier:
+          - naked_identifier: OLD
+          - dot: .
+          - star: '*'
         - keyword: IS
         - keyword: DISTINCT
         - keyword: FROM
-        - naked_identifier: NEW
-        - dot: .
-        - star: '*'
+        - wildcard_identifier:
+          - naked_identifier: NEW
+          - dot: .
+          - star: '*'
       - end_bracket: )
     - keyword: EXECUTE
     - keyword: FUNCTION

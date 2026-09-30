@@ -108,7 +108,13 @@ fn get_object_references_excluding(
 ) -> Vec<ObjectReferenceSegment> {
     segment
         .recursive_crawl(
-            const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+            const {
+                &SyntaxSet::new(&[
+                    SyntaxKind::ObjectReference,
+                    SyntaxKind::ColumnReference,
+                    SyntaxKind::WildcardIdentifier,
+                ])
+            },
             true,
             const { &SyntaxSet::new(&[SyntaxKind::SelectStatement, SyntaxKind::MergeStatement]) },
             true,

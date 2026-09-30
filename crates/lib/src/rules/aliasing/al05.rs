@@ -648,6 +648,15 @@ dialect = postgres
     }
 
     #[test]
+    fn test_al05_postgres_wildcard_row_uses_table_alias() {
+        let sql = "SELECT to_jsonb(mot.*) FROM my_table JOIN my_other_table AS mot ON (TRUE)";
+        let mut linter = postgres_al05_linter();
+        let linted = linter.lint_string_wrapped(sql, false).unwrap();
+
+        assert_eq!(linted.violations(), &[]);
+    }
+
+    #[test]
     fn test_al05_mariadb_values_derived_table_alias_is_required() {
         let sql = r#"INSERT INTO test
 (col1, col2)

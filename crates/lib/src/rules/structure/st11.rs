@@ -163,7 +163,7 @@ impl RuleST11 {
             .to_string()
     }
 
-    /// Extract tables from column references within a segment, yielding
+    /// Extract tables from column references and qualified wildcards, yielding
     /// the uppercase table qualifier. If allow_unqualified is false and an
     /// unqualified reference is found, returns None.
     fn extract_referenced_tables(
@@ -173,14 +173,27 @@ impl RuleST11 {
     ) -> Option<Vec<String>> {
         let mut tables = Vec::new();
         for col_ref in segment.recursive_crawl(
-            const { &SyntaxSet::new(&[SyntaxKind::ColumnReference]) },
+            const {
+                &SyntaxSet::new(&[SyntaxKind::ColumnReference, SyntaxKind::WildcardIdentifier])
+            },
             true,
             &SyntaxSet::EMPTY,
             true,
         ) {
-            let obj_ref = ObjectReferenceSegment(col_ref, ObjectReferenceKind::Object);
+            let is_wildcard = col_ref.is_type(SyntaxKind::WildcardIdentifier);
+            let obj_ref = ObjectReferenceSegment(
+                col_ref,
+                if is_wildcard {
+                    ObjectReferenceKind::WildcardIdentifier
+                } else {
+                    ObjectReferenceKind::Object
+                },
+            );
             let parts = obj_ref.iter_raw_references();
             if parts.len() < 2 {
+                if is_wildcard {
+                    continue;
+                }
                 if allow_unqualified {
                     continue;
                 } else {
@@ -310,5 +323,49 @@ impl RuleST11 {
             .collect();
 
         Some(result)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::core::config::FluffConfig;
+    use crate::core::linter::core::Linter;
+
+    fn lint_postgres(sql: &str) -> usize {
+        let config = FluffConfig::from_source("[sqruff]\nrules = ST11\ndialect = postgres\n", None);
+        let mut linter = Linter::new(config, None, None, true).unwrap();
+        linter
+            .lint_string_wrapped(sql, false)
+            .unwrap()
+            .violations()
+            .len()
+    }
+
+    #[test]
+    fn test_bare_select_wildcard_is_not_unqualified_reference() {
+        assert_eq!(
+            lint_postgres("SELECT * FROM a LEFT JOIN b ON a.id = b.id"),
+            0
+        );
+    }
+
+    #[test]
+    fn test_wildcard_row_uses_joined_table() {
+        assert_eq!(
+            lint_postgres(
+                "SELECT to_jsonb(other_table.*) FROM my_table LEFT JOIN other_table ON other_table.my_table_id = my_table.id"
+            ),
+            0
+        );
+    }
+
+    #[test]
+    fn test_unrelated_wildcard_row_leaves_join_unused() {
+        assert_eq!(
+            lint_postgres(
+                "SELECT to_jsonb(my_table.*) FROM my_table LEFT JOIN other_table ON other_table.my_table_id = my_table.id"
+            ),
+            1
+        );
     }
 }

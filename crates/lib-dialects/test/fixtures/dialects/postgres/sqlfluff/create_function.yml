@@ -860,6 +860,51 @@ file:
     - keyword: replace
     - keyword: function
     - function_name:
+      - function_name_identifier: union_things
+    - function_parameter_list:
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
+    - keyword: returns
+    - keyword: table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: num
+      - data_type:
+        - keyword: integer
+      - end_bracket: )
+    - function_definition:
+      - language_clause:
+        - keyword: language
+        - naked_identifier: sql
+      - keyword: stable
+      - keyword: begin
+      - keyword: atomic
+      - set_expression:
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - numeric_literal: '1'
+        - set_operator:
+          - keyword: union
+          - keyword: all
+        - select_statement:
+          - select_clause:
+            - keyword: select
+            - select_clause_element:
+              - numeric_literal: '2'
+      - statement_terminator: ;
+      - keyword: end
+- statement_terminator: ;
+- statement:
+  - create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
       - function_name_identifier: tz_date
     - function_parameter_list:
       - bracketed:

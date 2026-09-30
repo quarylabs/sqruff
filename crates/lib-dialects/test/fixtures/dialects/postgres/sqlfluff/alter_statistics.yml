@@ -3,26 +3,46 @@ file:
   - keyword: ALTER
   - keyword: STATISTICS
   - object_reference:
-    - naked_identifier: foo
-  - keyword: OWNER
-  - keyword: TO
-  - parameter: CURRENT_USER
+    - naked_identifier: s1
+  - keyword: SET
+  - keyword: STATISTICS
+  - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: STATISTICS
+  - keyword: IF
+  - keyword: EXISTS
+  - object_reference:
+    - naked_identifier: s1
+  - keyword: SET
+  - keyword: STATISTICS
+  - numeric_literal: '100'
 - statement_terminator: ;
 - statement:
   - keyword: ALTER
   - keyword: STATISTICS
   - object_reference:
-    - naked_identifier: foo
+    - naked_identifier: s1
+  - keyword: OWNER
+  - keyword: TO
+  - parameter: current_user
+- statement_terminator: ;
+- statement:
+  - keyword: ALTER
+  - keyword: STATISTICS
+  - object_reference:
+    - naked_identifier: s1
   - keyword: RENAME
   - keyword: TO
   - object_reference:
-    - naked_identifier: bar
+    - naked_identifier: s2
 - statement_terminator: ;
 - statement:
   - keyword: ALTER
   - keyword: STATISTICS
   - object_reference:
-    - naked_identifier: foo
+    - naked_identifier: s1
   - keyword: SET
   - keyword: SCHEMA
   - table_reference:
@@ -30,11 +50,49 @@ file:
       - naked_identifier: my_schema
 - statement_terminator: ;
 - statement:
-  - keyword: ALTER
+  - keyword: CREATE
   - keyword: STATISTICS
   - object_reference:
-    - naked_identifier: foo
-  - keyword: SET
+    - naked_identifier: s1
+  - bracketed:
+    - start_bracket: (
+    - keyword: correlation
+    - end_bracket: )
+  - keyword: ON
+  - column_reference:
+    - naked_identifier: a
+  - comma: ','
+  - column_reference:
+    - naked_identifier: b
+  - keyword: FROM
+  - table_reference:
+    - naked_identifier: t
+- statement_terminator: ;
+- statement:
+  - keyword: CREATE
   - keyword: STATISTICS
-  - numeric_literal: '4'
+  - keyword: IF
+  - keyword: NOT
+  - keyword: EXISTS
+  - object_reference:
+    - naked_identifier: s1
+  - bracketed:
+    - start_bracket: (
+    - keyword: ndistinct
+    - comma: ','
+    - keyword: dependencies
+    - comma: ','
+    - keyword: mcv
+    - comma: ','
+    - keyword: correlation
+    - end_bracket: )
+  - keyword: ON
+  - column_reference:
+    - naked_identifier: a
+  - comma: ','
+  - column_reference:
+    - naked_identifier: b
+  - keyword: FROM
+  - table_reference:
+    - naked_identifier: t
 - statement_terminator: ;

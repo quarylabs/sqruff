@@ -6206,6 +6206,21 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
             Sequence::new(vec![
                 one_of(vec![
+                    Ref::keyword("ENABLE").to_matchable(),
+                    Ref::keyword("DISABLE").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("TRIGGER").to_matchable(),
+                one_of(vec![
+                    Ref::keyword("ALL").to_matchable(),
+                    Delimited::new(vec![Ref::new("TriggerReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                one_of(vec![
                     Ref::keyword("ADD").to_matchable(),
                     Ref::keyword("DROP").to_matchable(),
                 ])

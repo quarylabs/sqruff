@@ -3091,7 +3091,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "WildcardExpressionSegment",
         ansi::wildcard_expression_segment().copy(
             Some(vec![
-                Ref::new("ExcludeClauseSegment").optional().to_matchable(),
+                one_of(vec![
+                    Ref::new("IlikeClauseSegment").to_matchable(),
+                    Ref::new("ExcludeClauseSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
                 Ref::new("ReplaceClauseSegment").optional().to_matchable(),
                 Ref::new("RenameClauseSegment").optional().to_matchable(),
             ]),
@@ -3104,6 +3109,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     snowflake_dialect.add([
+        (
+            "IlikeClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SelectIlikeClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ILIKE").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "ExcludeClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::SelectExcludeClause, |_| {

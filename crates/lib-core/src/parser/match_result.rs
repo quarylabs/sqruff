@@ -66,6 +66,18 @@ impl MatchResult {
         self.len() > other.len()
     }
 
+    /// Number of nodes that applying this match will materialize, excluding
+    /// the lexer tokens already present in the input.
+    pub fn node_count(&self) -> usize {
+        usize::from(self.matched.is_some())
+            + self.insert_segments.len()
+            + self
+                .child_matches
+                .iter()
+                .map(MatchResult::node_count)
+                .sum::<usize>()
+    }
+
     pub(crate) fn append<'a>(self, other: impl Into<Cow<'a, MatchResult>>) -> Self {
         let other = other.into();
         let mut insert_segments = Vec::new();

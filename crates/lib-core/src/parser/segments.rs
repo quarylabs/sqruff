@@ -1025,10 +1025,11 @@ impl ErasedSegment {
         // File parsing has explicit recovery behavior for unmatched input, so
         // validate it through the root parser instead of its match grammar.
         if self.is_type(SyntaxKind::File) {
-            let parser = Parser::new_with_max_parse_depth(
+            let parser = Parser::new_with_limits(
                 parse_context.dialect(),
                 parse_context.indentation_config,
                 parse_context.max_parse_depth(),
+                parse_context.max_parse_nodes(),
             );
             let Ok(Some(reparsed)) = parser.parse(&Tables::default(), &raw_segments) else {
                 return false;
@@ -1059,6 +1060,13 @@ impl ErasedSegment {
                 return false;
             };
             if rematch.span.start != 0 || rematch.span.end != trimmed.len() as u32 {
+                return false;
+            }
+
+            if parse_context
+                .check_parse_node_limit(&rematch, trimmed.len())
+                .is_err()
+            {
                 return false;
             }
 

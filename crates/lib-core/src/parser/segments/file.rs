@@ -37,6 +37,10 @@ impl FileSegment {
             .map_or(start_idx, |idx| idx as u32 + 1);
 
         if start_idx == end_idx {
+            parse_context.check_parse_node_limit(
+                &crate::parser::match_result::MatchResult::default(),
+                segments.len().saturating_add(1),
+            )?;
             return Ok(FileSegment::of(tables, dialect, segments.to_vec()));
         }
 
@@ -52,6 +56,13 @@ impl FileSegment {
 
         let match_span = match_result.span;
         let has_match = match_result.has_match();
+        // Include the lexer tokens and the enclosing File node. Recovery may
+        // add one more Unparsable node below; count that before materializing.
+        let recovery_node_count = usize::from(!has_match || match_span.end < end_idx);
+        parse_context.check_parse_node_limit(
+            &match_result,
+            segments.len().saturating_add(1 + recovery_node_count),
+        )?;
         let mut matched = match_result.apply(tables, dialect, segments);
         let unmatched = &segments[match_span.end as usize..end_idx as usize];
 

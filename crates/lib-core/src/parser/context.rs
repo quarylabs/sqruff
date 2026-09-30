@@ -33,6 +33,7 @@ pub struct ParseContext<'a> {
     parse_cache: HashMap<CacheKey, MatchResult>,
     pub(crate) indentation_config: IndentationConfig,
     max_parse_depth: usize,
+    max_parse_nodes: usize,
     match_depth: usize,
 }
 
@@ -40,7 +41,12 @@ impl<'a> From<&'a Parser<'a>> for ParseContext<'a> {
     fn from(parser: &'a Parser) -> Self {
         let dialect = parser.dialect();
         let indentation_config = parser.indentation_config;
-        Self::new_with_max_parse_depth(dialect, indentation_config, parser.max_parse_depth())
+        Self::new_with_limits(
+            dialect,
+            indentation_config,
+            parser.max_parse_depth(),
+            parser.max_parse_nodes(),
+        )
     }
 }
 
@@ -54,6 +60,15 @@ impl<'a> ParseContext<'a> {
         indentation_config: IndentationConfig,
         max_parse_depth: usize,
     ) -> Self {
+        Self::new_with_limits(dialect, indentation_config, max_parse_depth, 0)
+    }
+
+    pub fn new_with_limits(
+        dialect: &'a Dialect,
+        indentation_config: IndentationConfig,
+        max_parse_depth: usize,
+        max_parse_nodes: usize,
+    ) -> Self {
         Self {
             dialect,
             terminators: Vec::new(),
@@ -61,6 +76,7 @@ impl<'a> ParseContext<'a> {
             parse_cache: HashMap::default(),
             indentation_config,
             max_parse_depth,
+            max_parse_nodes,
             match_depth: 0,
         }
     }
@@ -71,6 +87,29 @@ impl<'a> ParseContext<'a> {
 
     pub fn max_parse_depth(&self) -> usize {
         self.max_parse_depth
+    }
+
+    pub fn max_parse_nodes(&self) -> usize {
+        self.max_parse_nodes
+    }
+
+    pub fn check_parse_node_limit(
+        &self,
+        match_result: &MatchResult,
+        base_node_count: usize,
+    ) -> Result<(), SQLParseError> {
+        if self.max_parse_nodes > 0
+            && base_node_count.saturating_add(match_result.node_count()) > self.max_parse_nodes
+        {
+            return Err(SQLParseError {
+                description: format!(
+                    "Maximum parse node count exceeded (limit {}). This may indicate unusually large SQL or a malicious input.",
+                    self.max_parse_nodes
+                ),
+                segment: None,
+            });
+        }
+        Ok(())
     }
 
     pub(crate) fn deeper_match<T>(

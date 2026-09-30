@@ -1167,6 +1167,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | TriggerCorrelationName
         | OracleBindVariable
         | AlterTableProperties
+        | AlterTableOnlineDDLOption
         | AlterTableColumnClauses
         | AlterTableConstraintClauses
         | IndexTypeReference

@@ -123,6 +123,7 @@ pub enum SyntaxKind {
     AlterTableDistributePartitionStatement,
     AlterTableDropColumn,
     AlterTableModifyColumn,
+    AlterTableOnlineDDLOption,
     AlterTableProperties,
     AlterTableRenameColumn,
     AlterTableStatement,

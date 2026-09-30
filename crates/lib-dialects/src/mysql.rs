@@ -2488,6 +2488,42 @@ pub fn raw_dialect() -> Dialect {
             .into(),
     )]);
 
+    // MySQL online DDL options within ALTER TABLE statements.
+    mysql.add([(
+        "AlterTableOnlineDDLOptionSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterTableOnlineDDLOption, |_| {
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("ALGORITHM").to_matchable(),
+                    Ref::new("EqualsSegment").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::keyword("INPLACE").to_matchable(),
+                        Ref::keyword("COPY").to_matchable(),
+                        Ref::keyword("INSTANT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LOCK").to_matchable(),
+                    Ref::new("EqualsSegment").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::keyword("NONE").to_matchable(),
+                        Ref::keyword("SHARED").to_matchable(),
+                        Ref::keyword("EXCLUSIVE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // AlterTableStatementSegment.
     mysql.replace_grammar(
         "AlterTableStatementSegment",
@@ -2499,6 +2535,8 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec![
                     // Table options
                     Ref::new("TableOptionsSegment").to_matchable(),
+                    // Online DDL options
+                    Ref::new("AlterTableOnlineDDLOptionSegment").to_matchable(),
                     // ADD column
                     Sequence::new(vec![
                         Ref::keyword("ADD").to_matchable(),

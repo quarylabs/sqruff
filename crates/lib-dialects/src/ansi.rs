@@ -1454,6 +1454,19 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "SingleIdentifierWildcardSegment".into(),
+            NodeMatcher::new(SyntaxKind::WildcardIdentifier, |_| {
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),
+                    Ref::new("StarSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "NamedWindowExpressionSegment".into(),
             NodeMatcher::new(SyntaxKind::NamedWindowExpression, |_| {
                 Sequence::new(vec![
@@ -5133,12 +5146,7 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                     Ref::new("Expression_D_Potential_Select_Statement_Without_Brackets")
                         .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::new("SingleIdentifierGrammar").to_matchable(),
-                        Ref::new("ObjectReferenceDelimiterGrammar").to_matchable(),
-                        Ref::new("StarSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("SingleIdentifierWildcardSegment").to_matchable(),
                     Sequence::new(vec![
                         one_of(vec![
                             Ref::new("StructTypeSegment").to_matchable(),

@@ -6,15 +6,17 @@ file:
     - data_type:
       - data_type_identifier: mood
     - keyword: AS
-    - keyword: ENUM
-    - bracketed:
-      - start_bracket: (
-      - quoted_literal: '''happy'''
-      - comma: ','
-      - quoted_literal: '''sad'''
-      - comma: ','
-      - quoted_literal: '''curious'''
-      - end_bracket: )
+    - data_type:
+      - data_type_identifier: ENUM
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: '''happy'''
+          - comma: ','
+          - quoted_literal: '''sad'''
+          - comma: ','
+          - quoted_literal: '''curious'''
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
   - create_type_statement:

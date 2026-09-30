@@ -97,9 +97,10 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: row_with_price_decrease
-                      - dot: .
-                      - star: '*'
+                      - wildcard_identifier:
+                        - naked_identifier: row_with_price_decrease
+                        - dot: .
+                        - star: '*'
                     - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -114,9 +115,10 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: row_with_price_increase
-                      - dot: .
-                      - star: '*'
+                      - wildcard_identifier:
+                        - naked_identifier: row_with_price_increase
+                        - dot: .
+                        - star: '*'
                     - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -767,9 +769,10 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: row_with_price_decrease
-                      - dot: .
-                      - star: '*'
+                      - wildcard_identifier:
+                        - naked_identifier: row_with_price_decrease
+                        - dot: .
+                        - star: '*'
                     - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -784,9 +787,10 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: row_with_price_increase
-                      - dot: .
-                      - star: '*'
+                      - wildcard_identifier:
+                        - naked_identifier: row_with_price_increase
+                        - dot: .
+                        - star: '*'
                     - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -982,9 +986,10 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: row_with_price_decrease
-                      - dot: .
-                      - star: '*'
+                      - wildcard_identifier:
+                        - naked_identifier: row_with_price_decrease
+                        - dot: .
+                        - star: '*'
                     - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -999,9 +1004,10 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: row_with_price_increase
-                      - dot: .
-                      - star: '*'
+                      - wildcard_identifier:
+                        - naked_identifier: row_with_price_increase
+                        - dot: .
+                        - star: '*'
                     - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -1193,9 +1199,10 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: row_with_price_decrease
-                      - dot: .
-                      - star: '*'
+                      - wildcard_identifier:
+                        - naked_identifier: row_with_price_decrease
+                        - dot: .
+                        - star: '*'
                     - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -1210,9 +1217,10 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: row_with_price_increase
-                      - dot: .
-                      - star: '*'
+                      - wildcard_identifier:
+                        - naked_identifier: row_with_price_increase
+                        - dot: .
+                        - star: '*'
                     - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -1390,9 +1398,10 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: row_with_price_decrease
-                      - dot: .
-                      - star: '*'
+                      - wildcard_identifier:
+                        - naked_identifier: row_with_price_decrease
+                        - dot: .
+                        - star: '*'
                     - end_bracket: )
             - alias_expression:
               - alias_operator:
@@ -1407,9 +1416,10 @@ file:
                   - bracketed:
                     - start_bracket: (
                     - expression:
-                      - naked_identifier: row_with_price_increase
-                      - dot: .
-                      - star: '*'
+                      - wildcard_identifier:
+                        - naked_identifier: row_with_price_increase
+                        - dot: .
+                        - star: '*'
                     - end_bracket: )
             - alias_expression:
               - alias_operator:

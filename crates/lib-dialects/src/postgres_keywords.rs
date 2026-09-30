@@ -166,6 +166,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("CONDITION_NUMBER", "not-keyword"),
     ("CONFIGURATION", "non-reserved"),
     ("CONFLICT", "non-reserved"),
+    ("CORRELATION", "non-reserved"),
     ("CONNECT", "not-keyword"),
     ("CONNECTION", "non-reserved"),
     ("CONNECTION_NAME", "not-keyword"),

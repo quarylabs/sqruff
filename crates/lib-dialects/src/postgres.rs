@@ -9775,6 +9775,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("DEPENDENCIES").to_matchable(),
                         Ref::keyword("MCV").to_matchable(),
                         Ref::keyword("NDISTINCT").to_matchable(),
+                        Ref::keyword("CORRELATION").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -9799,6 +9800,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::keyword("ALTER").to_matchable(),
                 Ref::keyword("STATISTICS").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
                 Ref::new("StatisticsReferenceSegment").to_matchable(),
                 one_of(vec![
                     Sequence::new(vec![

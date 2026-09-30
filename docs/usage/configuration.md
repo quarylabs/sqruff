@@ -45,6 +45,15 @@ The `warnings` setting makes selected violations visible without causing lint
 to fail. It accepts either rule codes or rule names, for example
 `warnings = LT01,layout.end_of_file`.
 
+## Parser resource limits
+
+Untrusted SQL can exhaust parser resources with deeply nested or unusually
+large query structures. Keep `max_parse_depth` and `max_parse_nodes` enabled
+when linting SQL from untrusted sources. Their defaults are `255` and `100000`,
+respectively, and they limit parser nesting and parse-tree size. Projects with
+legitimately complex queries can raise either limit; setting a limit to `0`
+disables it.
+
 ## Jinja branch variants
 
 With `templater = jinja`, sqruff renders up to five branches of a template by

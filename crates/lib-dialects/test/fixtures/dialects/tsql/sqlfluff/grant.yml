@@ -614,3 +614,66 @@ file:
       - keyword: FROM
       - keyword: PUBLIC
   - statement_terminator: ;
+  - statement:
+    - grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: USER
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: USER
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+    - deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+        - keyword: ALTER
+        - keyword: ANY
+        - keyword: USER
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+    - grant_statement:
+      - keyword: GRANT
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: VIEW
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+    - revoke_statement:
+      - keyword: REVOKE
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: VIEW
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+    - deny_statement:
+      - keyword: DENY
+      - permissions_segment:
+        - keyword: CREATE
+        - keyword: VIEW
+      - keyword: TO
+      - role_reference:
+        - naked_identifier: SomeRole
+  - statement_terminator: ;

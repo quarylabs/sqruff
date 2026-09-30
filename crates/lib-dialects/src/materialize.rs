@@ -76,6 +76,18 @@ pub fn raw_dialect() -> Dialect {
         "4xlarge", "5xlarge", "6xlarge",
     ]);
 
+    let postgres_datatype = materialize
+        .grammar("DatatypeSegment")
+        .match_grammar(&materialize)
+        .unwrap();
+    materialize.replace_grammar(
+        "DatatypeSegment",
+        seq(vec![
+            postgres_datatype,
+            Ref::keyword("LIST").optional().to_matchable(),
+        ]),
+    );
+
     materialize.add([
         (
             "InstanceSizes".into(),

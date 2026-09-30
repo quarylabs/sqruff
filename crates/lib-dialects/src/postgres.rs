@@ -517,7 +517,7 @@ pub fn raw_dialect() -> Dialect {
             Matcher::legacy(
                 "meta_command",
                 |s| s.starts_with("\\"),
-                r"\\(?!gset|gexec|copy\b|set\b)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
+                r"\\(?!gset|gexec|crosstabview\b|copy\b|set\b)([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
                 SyntaxKind::Comment,
             ),
             Matcher::regex(

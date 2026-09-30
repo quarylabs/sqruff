@@ -1,0 +1,73 @@
+file:
+- batch:
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Contact]'
+      - keyword: DISABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - quoted_identifier: '[TRContactID]'
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Contact]'
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - quoted_identifier: '[TRContactID]'
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Contact]'
+      - keyword: DISABLE
+      - keyword: TRIGGER
+      - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Contact]'
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+    - alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - object_reference:
+          - quoted_identifier: '[dbo]'
+          - dot: .
+          - quoted_identifier: '[Contact]'
+      - keyword: ENABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - quoted_identifier: '[t1]'
+      - comma: ','
+      - trigger_reference:
+        - quoted_identifier: '[t2]'
+  - statement_terminator: ;

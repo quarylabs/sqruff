@@ -1170,6 +1170,61 @@ rules = all
     }
 
     #[test]
+    fn max_parse_nodes_rejects_wide_sql_with_an_anchor() {
+        let config =
+            FluffConfig::from_source("[sqruff]\ndialect = ansi\nmax_parse_nodes = 300\n", None);
+        let linter = Linter::new(config, None, None, true).unwrap();
+        let expr = "x=x=x=x=x=x=x";
+        let sql = format!("SELECT {}", vec![expr; 80].join(","));
+        let parsed = linter.parse_string(&Tables::default(), &sql, None).unwrap();
+
+        let error = parsed
+            .violations
+            .iter()
+            .find(|error| {
+                error
+                    .description
+                    .contains("Maximum parse node count exceeded")
+            })
+            .expect("expected a maximum parse node violation");
+        assert!(error.description.contains("limit 300"));
+        assert!(error.line_no > 0);
+        assert!(error.line_pos > 0);
+    }
+
+    #[test]
+    fn max_parse_nodes_counts_tree_nodes_beyond_tokens() {
+        let config =
+            FluffConfig::from_source("[sqruff]\ndialect = ansi\nmax_parse_nodes = 6\n", None);
+        let linter = Linter::new(config, None, None, true).unwrap();
+        let parsed = linter
+            .parse_string(&Tables::default(), "SELECT 1", None)
+            .unwrap();
+        assert!(parsed.violations.iter().any(|error| {
+            error
+                .description
+                .contains("Maximum parse node count exceeded")
+        }));
+    }
+
+    #[test]
+    fn zero_max_parse_nodes_disables_the_limit() {
+        let config =
+            FluffConfig::from_source("[sqruff]\ndialect = ansi\nmax_parse_nodes = 0\n", None);
+        let parser: Parser = (&config).into();
+        assert_eq!(parser.max_parse_nodes(), 0);
+        let linter = Linter::new(config, None, None, true).unwrap();
+        let parsed = linter
+            .parse_string(&Tables::default(), "SELECT 1", None)
+            .unwrap();
+        assert!(!parsed.violations.iter().any(|error| {
+            error
+                .description
+                .contains("Maximum parse node count exceeded")
+        }));
+    }
+
+    #[test]
     fn test_structural_fix_that_breaks_parsing_is_invalid() {
         let config = FluffConfig::new(<_>::default(), None, None);
         let linter = Linter::new(config, None, None, false).unwrap();

@@ -8366,8 +8366,12 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::keyword("ON").to_matchable(),
-                    Ref::new("SecurableSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::new("SecurableSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     Ref::keyword("TO").to_matchable(),
                     Delimited::new(vec![
                         Ref::new("RoleReferenceSegment").to_matchable(),
@@ -8407,8 +8411,12 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::keyword("ON").to_matchable(),
-                    Ref::new("SecurableSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::new("SecurableSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     Ref::keyword("TO").to_matchable(),
                     Delimited::new(vec![
                         Ref::new("RoleReferenceSegment").to_matchable(),
@@ -8454,8 +8462,12 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::keyword("ON").to_matchable(),
-                    Ref::new("SecurableSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::new("SecurableSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     one_of(vec![
                         Ref::keyword("TO").to_matchable(),
                         Ref::keyword("FROM").to_matchable(),

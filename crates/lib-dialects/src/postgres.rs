@@ -2502,6 +2502,7 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             one_of(vec![
                                 Ref::new("WithCompoundStatementSegment").to_matchable(),
+                                Ref::new("SetExpressionSegment").to_matchable(),
                                 Ref::new("SelectStatementSegment").to_matchable(),
                             ])
                             .to_matchable(),

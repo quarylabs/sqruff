@@ -15,7 +15,7 @@ pub struct Cli {
     /// Output without ANSI color codes.
     #[arg(short = 'n', long, global = true, overrides_with = "color")]
     pub nocolor: bool,
-    /// Enable color on terminals, overriding NO_COLOR.
+    /// Force color output, even when redirected or NO_COLOR is set.
     #[arg(long, global = true, overrides_with = "nocolor")]
     pub color: bool,
     /// Path to a configuration file.

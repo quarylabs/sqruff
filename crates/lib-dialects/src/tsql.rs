@@ -4234,7 +4234,11 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .to_matchable(),
                     Ref::new("CommaSegment").to_matchable(),
-                    Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                    one_of(vec![
+                        Ref::new("QuotedLiteralSegmentOptWithN").to_matchable(),
+                        Ref::new("ParameterNameSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         Ref::new("CommaSegment").to_matchable(),
                         Ref::keyword("LANGUAGE").to_matchable(),
@@ -4249,7 +4253,11 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                     Sequence::new(vec![
                         Ref::new("CommaSegment").to_matchable(),
-                        Ref::new("NumericLiteralSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::new("ParameterNameSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),

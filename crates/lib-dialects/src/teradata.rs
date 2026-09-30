@@ -647,18 +647,7 @@ fn comment_segment() -> DialectElementType {
 fn column_constraint_segment() -> DialectElementType {
     NodeMatcher::new(SyntaxKind::TdColumnAttributeConstraint, |_| {
         one_of(vec![
-            Sequence::new(vec![
-                kw("CHARACTER"),
-                kw("SET"),
-                Ref::new("SingleIdentifierGrammar").to_matchable(),
-            ])
-            .to_matchable(),
-            Sequence::new(vec![
-                kw("NOT").optional(),
-                one_of(vec![kw("CASESPECIFIC"), kw("CS")]).to_matchable(),
-            ])
-            .to_matchable(),
-            one_of(vec![kw("UPPERCASE"), kw("UC")]).to_matchable(),
+            Ref::new("CharCharacterSetGrammar").to_matchable(),
             Sequence::new(vec![
                 kw("COMPRESS"),
                 one_of(vec![
@@ -858,6 +847,24 @@ fn query_band_segment() -> DialectElementType {
 }
 
 fn replace_core_grammars(dialect: &mut Dialect) {
+    dialect.replace_grammar(
+        "CharCharacterSetGrammar",
+        one_of(vec![
+            Sequence::new(vec![
+                kw("CHARACTER"),
+                kw("SET"),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                kw("NOT").optional(),
+                one_of(vec![kw("CASESPECIFIC"), kw("CS")]).to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![kw("UPPERCASE"), kw("UC")]).to_matchable(),
+        ])
+        .to_matchable(),
+    );
     let from_clause_terminator = dialect.grammar("FromClauseTerminatorGrammar");
     dialect.replace_grammar(
         "FromClauseTerminatorGrammar",
@@ -890,6 +897,9 @@ fn replace_core_grammars(dialect: &mut Dialect) {
                     kw("FORMAT"),
                     Ref::new("QuotedLiteralSegment").to_matchable(),
                 ]),
+                Ref::new("CharCharacterSetGrammar")
+                    .optional()
+                    .to_matchable(),
             ])
             .to_matchable()
         })

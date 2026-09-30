@@ -93,6 +93,39 @@ file:
           - alias_operator:
             - keyword: AS
           - naked_identifier: CAST_STATEMENT_EXAMPLE
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: CAST
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - expression:
+                  - null_literal: 'NULL'
+              - keyword: AS
+              - data_type:
+                - data_type:
+                  - data_type_identifier: VARCHAR
+                  - bracketed_arguments:
+                    - bracketed:
+                      - start_bracket: (
+                      - numeric_literal: '50'
+                      - end_bracket: )
+                  - keyword: CHARACTER
+                  - keyword: SET
+                  - naked_identifier: LATIN
+              - expression:
+                - expression:
+                  - keyword: NOT
+                  - column_reference:
+                    - naked_identifier: CASESPECIFIC
+              - end_bracket: )
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: CAST_CHARACTER_SET_EXAMPLE
     - from_clause:
       - keyword: FROM
       - from_expression:

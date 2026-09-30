@@ -11,7 +11,11 @@ pub(crate) fn should_produce_plain_output(nocolor: Option<bool>) -> bool {
 }
 
 fn plain_output_policy(nocolor: Option<bool>, is_terminal: bool, env_nocolor: bool) -> bool {
-    nocolor == Some(true) || !is_terminal || (env_nocolor && nocolor != Some(false))
+    match nocolor {
+        Some(true) => true,
+        Some(false) => false,
+        None => !is_terminal || env_nocolor,
+    }
 }
 
 pub(crate) fn colorize_helper(nocolor: bool, s: &str, style: Style) -> Cow<'_, str> {
@@ -57,27 +61,27 @@ mod tests {
 
     #[test]
     fn no_color_environment_and_explicit_options() {
-        // The upstream cases plus explicit nocolor and redirected output.
-        for (nocolor, env, has_color) in [
-            (None, None, true),
-            (Some(true), None, false),
-            (Some(false), None, true),
-            (None, Some("1"), false),
-            (None, Some("true"), false),
-            (None, Some("True"), false),
-            (None, Some("False"), false),
-            (None, Some("anything"), false),
-            (None, Some(""), true),
-            (Some(false), Some("1"), true),
-            (Some(true), Some(""), false),
+        for (nocolor, is_terminal, env, has_color) in [
+            (None, true, None, true),
+            (None, false, None, false),
+            (Some(true), true, None, false),
+            (Some(true), false, None, false),
+            (Some(false), true, None, true),
+            (Some(false), false, None, true),
+            (Some(false), false, Some("1"), true),
+            (None, true, Some("1"), false),
+            (None, true, Some("true"), false),
+            (None, true, Some("True"), false),
+            (None, true, Some("False"), false),
+            (None, true, Some("anything"), false),
+            (None, true, Some(""), true),
         ] {
             let env_nocolor = env.is_some_and(|value| !value.is_empty());
             assert_eq!(
-                !plain_output_policy(nocolor, true, env_nocolor),
+                !plain_output_policy(nocolor, is_terminal, env_nocolor),
                 has_color,
-                "nocolor={nocolor:?}, NO_COLOR={env:?}"
+                "nocolor={nocolor:?}, is_terminal={is_terminal}, NO_COLOR={env:?}"
             );
-            assert!(plain_output_policy(nocolor, false, env_nocolor));
         }
     }
 }

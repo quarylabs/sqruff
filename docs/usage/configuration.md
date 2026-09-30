@@ -100,6 +100,23 @@ FROM foo;
 
 The same modifier can be configured for `binary_operator`.
 
+## Attaching operators to adjacent lines
+
+The `leading:attached` and `trailing:attached` modifiers allow an operator in
+the middle of a line, but do not allow it on a line by itself. With
+`trailing:attached`, an operator before a line break stays with the preceding
+token; with `leading:attached`, it stays with the following token. For example:
+
+```ini
+[sqruff:layout:type:assignment_operator]
+line_position = trailing:attached
+```
+
+For `my_var := some_value`, this permits either a single line or `my_var :=`
+followed by `some_value` on the next line, but not a standalone `:=`, nor one
+at the start of the next line. Use `leading:attached` to require the opposite
+side of a line break instead.
+
 ## Segment and keyword line positions
 
 The `line_position` setting applies to a configured segment type as a whole,

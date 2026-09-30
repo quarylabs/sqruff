@@ -79,8 +79,7 @@ FROM foo
             .config
             .reflow()
             .line_position_for(SyntaxKind::Comma)
-            .unwrap()
-            .position();
+            .unwrap();
 
         if self.check_trail_lead_shortcut(
             &context.segment,

@@ -25,6 +25,7 @@ pub struct LinePositionConfig {
     position: LinePosition,
     strict: bool,
     align_following: bool,
+    attached: bool,
 }
 
 impl LinePositionConfig {
@@ -33,6 +34,7 @@ impl LinePositionConfig {
             position,
             strict,
             align_following: false,
+            attached: false,
         }
     }
 
@@ -46,6 +48,10 @@ impl LinePositionConfig {
 
     pub const fn aligns_following(self) -> bool {
         self.align_following
+    }
+
+    pub const fn is_attached(self) -> bool {
+        self.attached
     }
 }
 
@@ -61,10 +67,12 @@ impl FromStr for LinePositionConfig {
             .map_err(|_| format!("Unexpected line_position value: {s}"))?;
         let mut strict = false;
         let mut align_following = false;
+        let mut attached = false;
         for modifier in parts {
             match modifier {
                 "strict" => strict = true,
                 "align-following" => align_following = true,
+                "attached" => attached = true,
                 other => {
                     return Err(format!(
                         "Unexpected line_position modifier '{other}' in '{s}'"
@@ -77,6 +85,7 @@ impl FromStr for LinePositionConfig {
             position,
             strict,
             align_following,
+            attached,
         })
     }
 }
@@ -282,7 +291,13 @@ impl ReflowConfig {
         block_class_types: &SyntaxSet,
         depth_info: Option<&DepthInfo>,
     ) -> BlockConfig {
-        let configured_types = block_class_types.clone().intersection(&self.config_types);
+        let mut block_class_types = block_class_types.clone();
+        // Oracle uses a dedicated syntax kind for :=, but shares layout policy
+        // with other dialects' assignment operators.
+        if block_class_types.contains(SyntaxKind::OracleAssignmentOperator) {
+            block_class_types.insert(SyntaxKind::AssignmentOperator);
+        }
+        let configured_types = block_class_types.intersection(&self.config_types);
 
         let mut block_config = BlockConfig::new();
 
@@ -496,12 +511,19 @@ mod tests {
         assert_eq!(config.position(), LinePosition::Alone);
         assert!(config.is_strict());
         assert!(!config.aligns_following());
+        assert!(!config.is_attached());
 
         let config: LinePositionConfig = "leading:align-following".parse().unwrap();
 
         assert_eq!(config.position(), LinePosition::Leading);
         assert!(!config.is_strict());
         assert!(config.aligns_following());
+        assert!(!config.is_attached());
+
+        let config: LinePositionConfig = "trailing:attached".parse().unwrap();
+        assert_eq!(config.position(), LinePosition::Trailing);
+        assert!(!config.is_strict());
+        assert!(config.is_attached());
     }
 
     #[test]

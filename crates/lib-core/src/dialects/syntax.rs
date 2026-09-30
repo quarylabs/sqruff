@@ -1111,6 +1111,7 @@ pub enum SyntaxKind {
     SelectExceptClause,
     SelectExcludeClause,
     SelectHint,
+    SelectIlikeClause,
     SelectRenameClause,
     SelectReplaceClause,
     SelectStatement,

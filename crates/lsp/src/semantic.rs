@@ -506,6 +506,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SnowflakeKeywordExpression
         | SemiStructuredExpression
         | SelectExcludeClause
+        | SelectIlikeClause
         | SelectRenameClause
         | AlterTableTableColumnAction
         | AlterTableClusteringAction

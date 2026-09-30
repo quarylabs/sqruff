@@ -21,6 +21,7 @@ pub struct RebreakSpan {
     pub(crate) end_idx: usize,
     pub(crate) line_position: LinePosition,
     pub(crate) strict: bool,
+    pub(crate) attached: bool,
 }
 
 #[derive(Debug)]
@@ -113,6 +114,7 @@ pub struct RebreakLocation {
     next: RebreakIndices,
     line_position: LinePosition,
     strict: bool,
+    attached: bool,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, AsRefStr, EnumString)]
@@ -144,6 +146,7 @@ impl RebreakLocation {
             next: RebreakIndices::from_elements(elements, span.end_idx, 1)?,
             line_position: span.line_position,
             strict: span.strict,
+            attached: span.attached,
         }
         .into()
     }
@@ -155,7 +158,7 @@ impl RebreakLocation {
         let newlines_on_neither_side = n_prev_newlines + n_next_newlines == 0;
         let newlines_on_both_sides = n_prev_newlines > 0 && n_next_newlines > 0;
 
-        (newlines_on_neither_side && !strict) || newlines_on_both_sides
+        (newlines_on_neither_side && !strict) || (newlines_on_both_sides && !self.attached)
     }
 
     fn pretty_target_name(&self) -> String {
@@ -197,6 +200,7 @@ pub fn identify_rebreak_spans(
                 end_idx: idx,
                 line_position: original_line_position.position(),
                 strict: original_line_position.is_strict(),
+                attached: original_line_position.is_attached(),
             });
         }
 
@@ -247,6 +251,7 @@ pub fn identify_rebreak_spans(
                     end_idx: final_idx,
                     line_position: line_position_config.position(),
                     strict: line_position_config.is_strict(),
+                    attached: line_position_config.is_attached(),
                 });
             }
         }
@@ -334,6 +339,9 @@ pub fn identify_keyword_rebreak_spans(element_buffer: &ReflowSequenceType) -> Ve
                         end_idx: final_idx,
                         line_position,
                         strict: line_position_config.ends_with("strict"),
+                        attached: line_position_config
+                            .split(':')
+                            .any(|part| part == "attached"),
                     });
                     break;
                 }
@@ -397,22 +405,33 @@ pub fn rebreak_sequence(
             .clone();
 
         // So we know we have a preference, is it ok?
+        let mut attached_description = None;
         let new_results = if loc.line_position == LinePosition::Leading {
-            if elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() != 0 {
+            let has_newline_before =
+                elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() != 0;
+            let has_newline_after = elem_buff[loc.next.newline_pt_idx as usize].num_newlines() != 0;
+            if has_newline_before && (!loc.attached || !has_newline_after) {
                 // We're good. It's already leading.
                 continue;
             }
 
             // Generate the text for any issues.
             let pretty_name = loc.pretty_target_name();
-            let _desc = if loc.strict {
+            let desc = if loc.strict {
                 format!(
                     "{} should always start a new line.",
                     capitalize(&pretty_name)
                 )
+            } else if loc.attached && has_newline_before {
+                format!(
+                    "Found standalone {pretty_name}. Expected leading and attached to the following token."
+                )
             } else {
                 format!("Found trailing {pretty_name}. Expected only leading near line breaks.")
             };
+            if loc.attached {
+                attached_description = Some(desc);
+            }
 
             if loc.next.adj_pt_idx == loc.next.pre_code_pt_idx
                 && elem_buff[loc.next.newline_pt_idx as usize].num_newlines() == 1
@@ -488,19 +507,29 @@ pub fn rebreak_sequence(
                 new_results
             }
         } else if loc.line_position == LinePosition::Trailing {
-            if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() != 0 {
+            let has_newline_before =
+                elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() != 0;
+            let has_newline_after = elem_buff[loc.next.newline_pt_idx as usize].num_newlines() != 0;
+            if has_newline_after && (!loc.attached || !has_newline_before) {
                 continue;
             }
 
             let pretty_name = loc.pretty_target_name();
-            let _desc = if loc.strict {
+            let desc = if loc.strict {
                 format!(
                     "{} should always be at the end of a line.",
                     capitalize(&pretty_name)
                 )
+            } else if loc.attached && has_newline_after {
+                format!(
+                    "Found standalone {pretty_name}. Expected trailing and attached to the preceding token."
+                )
             } else {
                 format!("Found leading {pretty_name}. Expected only trailing near line breaks.")
             };
+            if loc.attached {
+                attached_description = Some(desc);
+            }
 
             if loc.prev.adj_pt_idx == loc.prev.pre_code_pt_idx
                 && elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() == 1
@@ -647,7 +676,7 @@ pub fn rebreak_sequence(
         lint_results.push(LintResult::new(
             loc.target.clone().into(),
             fixes,
-            None,
+            attached_description,
             None,
         ));
     }
@@ -684,7 +713,10 @@ pub fn rebreak_keywords_sequence(
             .clone();
 
         let (desc, new_results) = if loc.line_position == LinePosition::Leading {
-            if elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() != 0 {
+            if elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() != 0
+                && (!loc.attached
+                    || elem_buff[loc.next.newline_pt_idx as usize].num_newlines() == 0)
+            {
                 continue;
             }
 
@@ -719,7 +751,10 @@ pub fn rebreak_keywords_sequence(
 
             (desc, new_results)
         } else if loc.line_position == LinePosition::Trailing {
-            if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() != 0 {
+            if elem_buff[loc.next.newline_pt_idx as usize].num_newlines() != 0
+                && (!loc.attached
+                    || elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() == 0)
+            {
                 continue;
             }
 

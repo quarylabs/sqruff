@@ -6,6 +6,7 @@ use crate::core::config::Value;
 use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
+use crate::utils::reflow::config::LinePositionConfig;
 use crate::utils::reflow::rebreak::LinePosition;
 use crate::utils::reflow::sequence::{RebreakType, ReflowSequence, TargetSide};
 
@@ -34,7 +35,14 @@ line_position = leading
 
 [sqlfluff:layout:type:comparison_operator]
 line_position = leading
+
+[sqlfluff:layout:type:assignment_operator]
+line_position = leading
 ```
+
+Use `leading:attached` or `trailing:attached` to require an operator to share
+a line with the following or preceding token, respectively. Without
+`:attached`, an operator on its own line is allowed.
 
 **Anti-pattern**
 
@@ -78,8 +86,7 @@ FROM foo
                 .config
                 .reflow()
                 .line_position_for(SyntaxKind::ComparisonOperator)
-                .unwrap()
-                .position();
+                .unwrap();
 
             if self.check_trail_lead_shortcut(
                 &context.segment,
@@ -93,13 +100,30 @@ FROM foo
                 .config
                 .reflow()
                 .line_position_for(SyntaxKind::BinaryOperator)
-                .unwrap()
-                .position();
+                .unwrap();
 
             if self.check_trail_lead_shortcut(
                 &context.segment,
                 context.parent_stack.last().unwrap(),
                 binary_positioning,
+            ) {
+                return vec![LintResult::new(None, Vec::new(), None, None)];
+            }
+        } else if context.segment.is_type(SyntaxKind::AssignmentOperator)
+            || context
+                .segment
+                .is_type(SyntaxKind::OracleAssignmentOperator)
+        {
+            let assignment_positioning = context
+                .config
+                .reflow()
+                .line_position_for(SyntaxKind::AssignmentOperator)
+                .unwrap();
+
+            if self.check_trail_lead_shortcut(
+                &context.segment,
+                context.parent_stack.last().unwrap(),
+                assignment_positioning,
             ) {
                 return vec![LintResult::new(None, Vec::new(), None, None)];
             }
@@ -121,7 +145,14 @@ FROM foo
 
     fn crawl_behaviour(&self) -> Crawler {
         SegmentSeekerCrawler::new(
-            const { SyntaxSet::new(&[SyntaxKind::BinaryOperator, SyntaxKind::ComparisonOperator]) },
+            const {
+                SyntaxSet::new(&[
+                    SyntaxKind::BinaryOperator,
+                    SyntaxKind::ComparisonOperator,
+                    SyntaxKind::AssignmentOperator,
+                    SyntaxKind::OracleAssignmentOperator,
+                ])
+            },
         )
         .into()
     }
@@ -132,7 +163,7 @@ impl RuleLT03 {
         &self,
         segment: &ErasedSegment,
         parent: &ErasedSegment,
-        line_position: LinePosition,
+        line_position: LinePositionConfig,
     ) -> bool {
         let idx = parent
             .segments()
@@ -140,30 +171,16 @@ impl RuleLT03 {
             .position(|it| it == segment)
             .unwrap();
 
-        // Shortcut #1: Leading.
-        if line_position == LinePosition::Leading {
-            if self.seek_newline(parent.segments(), idx, Direction::Backward) {
-                return true;
-            }
-            // If we didn't find a newline before, if there's _also_ not a newline
-            // after, then we can also shortcut. i.e., it's a comma "mid line".
-            if !self.seek_newline(parent.segments(), idx, Direction::Forward) {
-                return true;
-            }
-        }
-        // Shortcut #2: Trailing.
-        else if line_position == LinePosition::Trailing {
-            if self.seek_newline(parent.segments(), idx, Direction::Forward) {
-                return true;
-            }
-            // If we didn't find a newline after, if there's _also_ not a newline
-            // before, then we can also shortcut. i.e., it's a comma "mid line".
-            if !self.seek_newline(parent.segments(), idx, Direction::Backward) {
-                return true;
-            }
-        }
+        let has_newline_before = self.seek_newline(parent.segments(), idx, Direction::Backward);
+        let has_newline_after = self.seek_newline(parent.segments(), idx, Direction::Forward);
 
-        false
+        match line_position.position() {
+            LinePosition::Leading if line_position.is_attached() => !has_newline_after,
+            LinePosition::Leading => has_newline_before || !has_newline_after,
+            LinePosition::Trailing if line_position.is_attached() => !has_newline_before,
+            LinePosition::Trailing => has_newline_after || !has_newline_before,
+            _ => false,
+        }
     }
 
     fn seek_newline(&self, segments: &[ErasedSegment], idx: usize, direction: Direction) -> bool {

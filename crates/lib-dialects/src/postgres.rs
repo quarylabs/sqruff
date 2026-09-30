@@ -313,7 +313,11 @@ fn build_datatype_segment_grammar(pgvector: bool) -> Matchable {
             Ref::new("StructTypeSegment").to_matchable(),
             Ref::new("MapTypeSegment").to_matchable(),
             Sequence::new(vec![one_of(known_types).to_matchable()]).to_matchable(),
-            Ref::new("DatatypeIdentifierSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::new("DatatypeIdentifierSegment").to_matchable(),
+                Ref::new("BracketedArguments").optional().to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
         one_of(vec![

@@ -148,6 +148,7 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
         DialectKind::Redshift => &[
             "ALLOW_CONNECTIONS",
             "COMMUTATOR",
+            "CORRELATION",
             "DEPENDENCIES",
             "FORMATS",
             "HASHES",

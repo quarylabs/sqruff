@@ -93,16 +93,16 @@ file:
         - naked_identifier: created_at
         - keyword: DATETIME
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: updated_at
         - keyword: DATETIME
         - keyword: DEFAULT
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
         - keyword: ON
         - keyword: UPDATE
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
       - end_bracket: )
     - keyword: AGGREGATE
     - keyword: KEY

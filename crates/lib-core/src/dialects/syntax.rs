@@ -920,6 +920,7 @@ pub enum SyntaxKind {
     OracleIndexPhysicalAttributes,
     OracleInsertStatement,
     OracleIntoClause,
+    OracleKeepClause,
     OracleListaggOverflowClause,
     OracleLoopStatement,
     OracleMergeUpdateClause,

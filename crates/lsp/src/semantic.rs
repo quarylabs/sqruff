@@ -1235,6 +1235,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | OracleDropSynonymStatement
         | OracleAlterSynonymStatement
         | OracleWithinGroupClause
+        | OracleKeepClause
         | OracleListaggOverflowClause
         | OracleNamedArgument
         | OracleCreateTableStatement

@@ -3685,6 +3685,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("CreateTriggerStatementSegment").to_matchable(),
             Ref::new("DropTriggerStatementSegment").to_matchable(),
             Ref::new("CreateDatabaseScopedCredentialStatementSegment").to_matchable(),
+            Ref::new("DropCredentialStatementSegment").to_matchable(),
             Ref::new("CreateExternalDataSourceStatementSegment").to_matchable(),
             Ref::new("SqlcmdCommandSegment").to_matchable(),
             Ref::new("CreateExternalFileFormat").to_matchable(),
@@ -3860,6 +3861,21 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("ObjectReferenceSegment").to_matchable(),
                 Ref::keyword("WITH").to_matchable(),
                 Ref::new("CredentialGrammar").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-credential-transact-sql
+    dialect.add([(
+        "DropCredentialStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::DropCredentialStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("CREDENTIAL").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
             ])
             .to_matchable()
         })

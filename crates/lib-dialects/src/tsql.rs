@@ -6770,6 +6770,21 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "DropSequenceStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::DropSequenceStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("DROP").to_matchable(),
+                    Ref::keyword("SEQUENCE").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Delimited::new(vec![Ref::new("SequenceReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "ProcedureParameterListGrammar".into(),
             one_of(vec![
                 // Bracketed parameter list: (param1, param2, param3)

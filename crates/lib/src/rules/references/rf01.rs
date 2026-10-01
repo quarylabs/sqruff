@@ -278,9 +278,10 @@ impl RuleRF01 {
         let ref_path = selectable.selectable.path_to(&reference.0);
 
         if !ref_path.is_empty() {
-            ref_path
-                .iter()
-                .any(|ps| ps.segment.is_type(SyntaxKind::IntoTableClause))
+            ref_path.iter().any(|ps| {
+                ps.segment.is_type(SyntaxKind::IntoTableClause)
+                    || ps.segment.is_type(SyntaxKind::ContainstableSegment)
+            })
         } else {
             false
         }

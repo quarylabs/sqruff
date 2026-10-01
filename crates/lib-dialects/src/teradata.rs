@@ -344,7 +344,16 @@ fn add_segments(dialect: &mut Dialect) {
         (
             "TeradataCastSegment".into(),
             NodeMatcher::new(SyntaxKind::CastExpression, |_| {
-                Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()]).to_matchable()
+                Bracketed::new(vec![
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("CommaSegment").to_matchable(),
+                        Ref::new("CharCharacterSetGrammar").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable()
             })
             .to_matchable()
             .into(),

@@ -112,7 +112,13 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
                     | SyntaxKind::Indent
                     | SyntaxKind::Implicit
                     | SyntaxKind::Dedent
-            ) {
+            ) || (seg.is_type(SyntaxKind::Placeholder)
+                && seg.block_type() == Some(sqruff_lib_core::parser::segments::BlockType::Literal)
+                && {
+                    let source = seg.source_str();
+                    !source.is_empty() && source.chars().all(char::is_whitespace)
+                })
+            {
                 // Add to the buffer and move on.
                 seg_buff.push(seg);
                 continue;

@@ -90,7 +90,10 @@ impl SegmentBuilder {
                 code_idx: OnceCell::new(),
                 class_types: class_types(syntax_kind),
                 position_marker: None,
-                kind: NodeOrTokenKind::Token(TokenData { raw: raw.into() }),
+                kind: NodeOrTokenKind::Token(TokenData {
+                    raw: raw.into(),
+                    source_fixes: Vec::new(),
+                }),
                 hash: OnceCell::new(),
                 template_info: None,
             },
@@ -120,8 +123,9 @@ impl SegmentBuilder {
     }
 
     pub fn with_source_fixes(mut self, source_fixes: Vec<SourceFix>) -> Self {
-        if let NodeOrTokenKind::Node(ref mut node) = self.node_or_token.kind {
-            node.source_fixes = source_fixes;
+        match &mut self.node_or_token.kind {
+            NodeOrTokenKind::Node(node) => node.source_fixes = source_fixes,
+            NodeOrTokenKind::Token(token) => token.source_fixes = source_fixes,
         }
         self
     }
@@ -673,7 +677,7 @@ impl ErasedSegment {
     pub fn get_source_fixes(&self) -> Vec<SourceFix> {
         match &self.value.kind {
             NodeOrTokenKind::Node(node) => node.source_fixes.clone(),
-            NodeOrTokenKind::Token(_) => Vec::new(),
+            NodeOrTokenKind::Token(token) => token.source_fixes.clone(),
         }
     }
 
@@ -1411,6 +1415,7 @@ pub struct NodeData {
 #[derive(Debug, Clone, PartialEq)]
 pub struct TokenData {
     raw: SmolStr,
+    source_fixes: Vec<SourceFix>,
 }
 
 #[track_caller]

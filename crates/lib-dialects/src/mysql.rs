@@ -2558,6 +2558,10 @@ pub fn raw_dialect() -> Dialect {
         "AddDropSystemVersioningGrammar".into(),
         Nothing::new().to_matchable().into(),
     )]);
+    mysql.add([(
+        "TriggerOrReplaceGrammar".into(),
+        Nothing::new().to_matchable().into(),
+    )]);
 
     // AlterTableStatementSegment.
     mysql.replace_grammar(
@@ -3472,6 +3476,9 @@ pub fn raw_dialect() -> Dialect {
         "CreateTriggerStatementSegment",
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),
+            Ref::new("TriggerOrReplaceGrammar")
+                .optional()
+                .to_matchable(),
             Ref::new("DefinerSegment").optional().to_matchable(),
             Ref::keyword("TRIGGER").to_matchable(),
             Ref::new("IfNotExistsGrammar").optional().to_matchable(),

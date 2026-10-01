@@ -64,3 +64,33 @@ file:
                   - quoted_literal: '''.table_name'''
                 - end_bracket: )
 - statement_terminator: ;
+- statement:
+  - create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - object_reference:
+        - naked_identifier: my_view
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - expression:
+            - column_reference:
+              - naked_identifier: id
+            - keyword: COLLATE
+            - collation_reference:
+              - naked_identifier: UTF8_LCASE
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - object_reference:
+                  - naked_identifier: my_source
+- statement_terminator: ;

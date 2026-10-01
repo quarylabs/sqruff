@@ -1584,11 +1584,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("ColumnConstraintDefaultGrammar").to_matchable(),
                     ])
                     .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("COLLATE").to_matchable(),
-                        Ref::new("CollationReferenceSegment").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("CollateGrammar").to_matchable(),
                     Ref::new("CommentGrammar").to_matchable(),
                     Ref::new("ColumnConstraintSegment").to_matchable(),
                     Ref::new("MaskStatementSegment").to_matchable(),
@@ -1634,6 +1630,15 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    databricks.replace_grammar(
+        "CollateGrammar",
+        Sequence::new(vec![
+            Ref::keyword("COLLATE").to_matchable(),
+            Ref::new("CollationReferenceSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     databricks.replace_grammar(
         "ShorthandCastSegment",

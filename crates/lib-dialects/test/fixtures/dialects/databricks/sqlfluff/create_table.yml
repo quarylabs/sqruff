@@ -873,3 +873,125 @@ file:
       - data_source_format:
         - keyword: DELTA
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: catalog
+        - dot: .
+        - naked_identifier: silver
+        - dot: .
+        - naked_identifier: child
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+          - naked_identifier: parent_key
+        - data_type:
+          - primitive_type:
+            - keyword: BIGINT
+        - column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: fk_child_parent
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: parent_key
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - object_reference:
+            - naked_identifier: catalog
+            - dot: .
+            - naked_identifier: silver
+            - dot: .
+            - naked_identifier: parent
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: parent_key
+          - end_bracket: )
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: NO
+        - keyword: ACTION
+        - keyword: ON
+        - keyword: UPDATE
+        - keyword: NO
+        - keyword: ACTION
+      - end_bracket: )
+    - using_clause:
+      - keyword: USING
+      - data_source_format:
+        - keyword: DELTA
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - object_reference:
+        - naked_identifier: catalog
+        - dot: .
+        - naked_identifier: silver
+        - dot: .
+        - naked_identifier: child2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+          - naked_identifier: parent_key
+        - data_type:
+          - primitive_type:
+            - keyword: BIGINT
+        - column_properties_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: fk_child_parent
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: parent_key
+          - end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+          - object_reference:
+            - naked_identifier: catalog
+            - dot: .
+            - naked_identifier: silver
+            - dot: .
+            - naked_identifier: parent
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+            - naked_identifier: parent_key
+          - end_bracket: )
+        - keyword: ON
+        - keyword: UPDATE
+        - keyword: NO
+        - keyword: ACTION
+        - keyword: ON
+        - keyword: DELETE
+        - keyword: NO
+        - keyword: ACTION
+      - end_bracket: )
+    - using_clause:
+      - keyword: USING
+      - data_source_format:
+        - keyword: DELTA
+- statement_terminator: ;

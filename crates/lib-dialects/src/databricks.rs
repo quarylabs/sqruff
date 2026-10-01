@@ -2381,7 +2381,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         Sequence::new(vec![
             Ref::keyword("CREATE").to_matchable(),
             Ref::new("OrReplaceGrammar").optional().to_matchable(),
-            Ref::keyword("TEMPORARY").optional().to_matchable(),
+            Ref::new("TemporaryGrammar").optional().to_matchable(),
             Ref::keyword("VIEW").to_matchable(),
             Ref::new("IfNotExistsGrammar").optional().to_matchable(),
             Ref::new("TableReferenceSegment").to_matchable(),

@@ -88,6 +88,25 @@ file:
 - statement:
   - create_view_statement:
     - keyword: CREATE
+    - keyword: TEMP
+    - keyword: VIEW
+    - table_reference:
+      - object_reference:
+        - naked_identifier: short_temp_view
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: x
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
     - keyword: VIEW
     - keyword: IF
     - keyword: NOT

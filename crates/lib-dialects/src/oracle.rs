@@ -2508,12 +2508,20 @@ pub fn raw_dialect() -> Dialect {
                         config.optional();
                     })
                     .to_matchable(),
-                    AnyNumberOf::new(vec![Ref::new("DeclareSegment").to_matchable()])
-                        .config(|config| {
-                            config.optional();
-                        })
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("LANGUAGE").to_matchable(),
+                            Ref::keyword("JAVA").to_matchable(),
+                            Ref::keyword("NAME").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
                         .to_matchable(),
-                    Ref::new("BeginEndSegment").optional().to_matchable(),
+                        Ref::new("BeginEndSegment").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.optional();
+                    })
+                    .to_matchable(),
                     Ref::new("DelimiterGrammar").optional().to_matchable(),
                 ])
                 .to_matchable()

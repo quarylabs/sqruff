@@ -227,12 +227,12 @@ file:
           - data_type:
             - data_type_identifier: sum_multiples
           - keyword: IS
-          - oracle_declare_segment:
-            - naked_identifier: s
-            - data_type:
-              - data_type_identifier: sum_multiples
-            - statement_terminator: ;
           - oracle_begin_end_block:
+            - oracle_declare_segment:
+              - naked_identifier: s
+              - data_type:
+                - data_type_identifier: sum_multiples
+              - statement_terminator: ;
             - keyword: BEGIN
             - statement:
               - for_loop_statement:

@@ -16,12 +16,12 @@ file:
         - naked_identifier: updated_at1
         - keyword: timestamp
         - keyword: default
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
         - keyword: not
         - keyword: 'null'
         - keyword: on
         - keyword: update
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: updated_at2
@@ -29,19 +29,19 @@ file:
         - keyword: not
         - keyword: 'null'
         - keyword: default
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
         - keyword: on
         - keyword: update
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
       - comma: ','
       - column_definition:
         - naked_identifier: updated_at3
         - keyword: timestamp
         - keyword: default
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
         - keyword: on
         - keyword: update
-        - keyword: CURRENT_TIMESTAMP
+        - bare_function: CURRENT_TIMESTAMP
         - keyword: not
         - keyword: 'null'
       - comma: ','

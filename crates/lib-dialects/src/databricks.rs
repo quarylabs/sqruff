@@ -3,7 +3,9 @@ use crate::sparksql;
 use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::Config;
-use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
+use sqruff_lib_core::parser::grammar::anyof::{
+    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
+};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -514,21 +516,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .config(|config| config.optional())
                 .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("ON").to_matchable(),
-                    Ref::keyword("UPDATE").to_matchable(),
-                    Ref::keyword("NO").to_matchable(),
-                    Ref::keyword("ACTION").to_matchable(),
+                any_set_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("UPDATE").to_matchable(),
+                        Ref::keyword("NO").to_matchable(),
+                        Ref::keyword("ACTION").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("DELETE").to_matchable(),
+                        Ref::keyword("NO").to_matchable(),
+                        Ref::keyword("ACTION").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
-                .config(|config| config.optional())
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("ON").to_matchable(),
-                    Ref::keyword("DELETE").to_matchable(),
-                    Ref::keyword("NO").to_matchable(),
-                    Ref::keyword("ACTION").to_matchable(),
-                ])
-                .config(|config| config.optional())
                 .to_matchable(),
             ])
             .to_matchable()

@@ -223,8 +223,9 @@ impl RuleST11 {
 
     /// Extract the list of (uppercase_table_ref, segment) for tables brought in
     /// via FROM/JOIN that are candidates for being unused. Only explicit OUTER
-    /// joins (LEFT, RIGHT, FULL) are flagged. Returns None if there are fewer
-    /// than 2 tables overall (single table queries are not checked).
+    /// joins (LEFT, RIGHT, FULL) are flagged, except SEMI and ANTI joins, which
+    /// filter rows without projecting columns from the joined table. Returns
+    /// None if there are fewer than 2 tables overall.
     fn extract_references_from_select(
         &self,
         segment: &ErasedSegment,
@@ -271,6 +272,8 @@ impl RuleST11 {
                 let is_outer = join_keywords.contains("LEFT")
                     || join_keywords.contains("RIGHT")
                     || join_keywords.contains("FULL");
+                let is_semi_or_anti =
+                    join_keywords.contains("SEMI") || join_keywords.contains("ANTI");
 
                 let mut this_clause_refs = Vec::new();
 
@@ -280,7 +283,7 @@ impl RuleST11 {
                     let ref_str = self.extract_reference_from_expression(from_elem);
                     total_table_count += 1;
 
-                    if !ref_str.is_empty() && is_outer {
+                    if !ref_str.is_empty() && is_outer && !is_semi_or_anti {
                         joined_tables.push((ref_str.clone(), from_elem.clone()));
                         this_clause_refs.push(ref_str);
                     }

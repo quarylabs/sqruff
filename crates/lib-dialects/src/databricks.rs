@@ -53,6 +53,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "equals",
     );
 
+    // Lex ?:: as one operator before the question-mark matcher.
+    databricks.insert_lexer_matchers(
+        vec![Matcher::string(
+            "try_casting_operator",
+            "?::",
+            SyntaxKind::TryCastingOperator,
+        )],
+        "question",
+    );
+
     // Databricks Pipeline Parameters:
     // https://docs.databricks.com/en/delta-live-tables/parameters.html
     // Must come before dollar_quote since both start with `$`.
@@ -200,6 +210,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "RightArrowSegment".into(),
             StringParser::new("=>", SyntaxKind::RightArrow)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "TryCastOperatorSegment".into(),
+            StringParser::new("?::", SyntaxKind::TryCastingOperator)
                 .to_matchable()
                 .into(),
         ),
@@ -1618,6 +1634,32 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
     ]);
+
+    databricks.replace_grammar(
+        "ShorthandCastSegment",
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::new("Expression_D_Grammar").to_matchable(),
+                Ref::new("CaseExpressionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::new("CastOperatorSegment").to_matchable(),
+                        Ref::new("TryCastOperatorSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("DatatypeSegment").to_matchable(),
+                    Ref::new("TimeZoneGrammar").optional().to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.min_times(1))
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     databricks.replace_grammar(
         "PostFunctionGrammar",

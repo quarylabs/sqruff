@@ -158,6 +158,15 @@ FROM foo;
                 TypeCastingStyle::None
             }
         } else if context.segment.is_type(SyntaxKind::CastExpression) {
+            // Dialect-specific casts such as Databricks ?:: and Vertica ::!
+            // cannot be rewritten as ordinary CAST or CONVERT expressions.
+            if context
+                .segment
+                .child(const { &SyntaxSet::new(&[SyntaxKind::CastingOperator]) })
+                .is_none()
+            {
+                return Vec::new();
+            }
             TypeCastingStyle::Shorthand
         } else {
             TypeCastingStyle::None

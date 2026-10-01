@@ -1,0 +1,102 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - numeric_literal: '1'
+            - try_casting_operator: '?::'
+            - data_type:
+              - primitive_type:
+                - keyword: INT
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''20'''
+            - try_casting_operator: '?::'
+            - data_type:
+              - primitive_type:
+                - keyword: INTEGER
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: a
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - quoted_literal: '''twenty'''
+            - try_casting_operator: '?::'
+            - data_type:
+              - primitive_type:
+                - keyword: INT
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: maybe_null
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: my_col
+            - try_casting_operator: '?::'
+            - data_type:
+              - primitive_type:
+                - keyword: STRING
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: my_col
+            - casting_operator: '::'
+            - data_type:
+              - primitive_type:
+                - keyword: INT
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - cast_expression:
+            - column_reference:
+              - naked_identifier: my_col
+            - try_casting_operator: '?::'
+            - data_type:
+              - primitive_type:
+                - keyword: INT
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: my_table
+- statement_terminator: ;

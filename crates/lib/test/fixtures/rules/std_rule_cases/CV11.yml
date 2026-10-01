@@ -1,5 +1,39 @@
 rule: CV11
 
+test_pass_databricks_try_cast_shorthand_preferred_cast:
+  pass_str: SELECT CAST('20' AS INTEGER), '20'?::INTEGER
+  configs:
+    core:
+      dialect: databricks
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_pass_databricks_try_cast_shorthand_consistent:
+  pass_str: SELECT CAST('20' AS INTEGER), '20'?::INTEGER
+  configs:
+    core:
+      dialect: databricks
+
+test_pass_vertica_null_cast_shorthand_preferred_cast:
+  pass_str: SELECT CAST('20' AS INTEGER), '20'::!INTEGER
+  configs:
+    core:
+      dialect: vertica
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
+test_fail_databricks_plain_shorthand_preferred_cast:
+  fail_str: SELECT '20'::INTEGER
+  fix_str: SELECT cast('20' as INTEGER)
+  configs:
+    core:
+      dialect: databricks
+    rules:
+      convention.casting_style:
+        preferred_type_casting_style: cast
+
 test_pass_cast:
   pass_str: |
     select cast(1 as varchar) as bar

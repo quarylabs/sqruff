@@ -60,6 +60,18 @@ def _dummy_get_mp_context():
 dbt.mp_context.get_mp_context = _dummy_get_mp_context
 
 
+def _get_dbt_config_value(
+    configured: Optional[str], env_var_suffix: str, default: Optional[str] = None
+) -> Optional[str]:
+    """Prefer explicit sqruff config, then dbt's engine and legacy env vars."""
+    return (
+        configured
+        or os.getenv(f"DBT_ENGINE_{env_var_suffix}")
+        or os.getenv(f"DBT_{env_var_suffix}")
+        or default
+    )
+
+
 @dataclass
 class DbtConfigArgs:
     """Arguments to load dbt runtime config."""
@@ -363,9 +375,7 @@ class DbtTemplater(JinjaTemplater):
 
         The default is `~/.dbt` but we use the
         default_profiles_dir from the dbt library to
-        support a change of default in the future, as well
-        as to support the same overwriting mechanism as
-        dbt (currently an environment variable).
+        support a change of default in the future.
         """
         # Where default_profiles_dir is available, use it. For dbt 1.2 and
         # earlier, it is not, so fall back to the flags option which should
@@ -382,8 +392,9 @@ class DbtTemplater(JinjaTemplater):
 
         dbt_profiles_dir = os.path.abspath(
             os.path.expanduser(
-                self.config.dbt_profiles_dir
-                or (os.getenv("DBT_PROFILES_DIR") or default_dir)
+                _get_dbt_config_value(
+                    self.config.dbt_profiles_dir, "PROFILES_DIR", default_dir
+                )
             )
         )
 
@@ -402,9 +413,9 @@ class DbtTemplater(JinjaTemplater):
         """
         dbt_project_dir = os.path.abspath(
             os.path.expanduser(
-                self.config.dbt_project_dir
-                or os.getenv("DBT_PROJECT_DIR")
-                or os.getcwd()
+                _get_dbt_config_value(
+                    self.config.dbt_project_dir, "PROJECT_DIR", os.getcwd()
+                )
             )
         )
         if not os.path.exists(dbt_project_dir):
@@ -421,15 +432,15 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_profile(self) -> str:
         """Get a dbt profile name from the configuration."""
-        return self.config.dbt_profile
+        return _get_dbt_config_value(self.config.dbt_profile, "PROFILE")
 
     def _get_target(self):
         """Get a dbt target name from the configuration."""
-        return self.config.dbt_target or os.getenv("DBT_TARGET")
+        return _get_dbt_config_value(self.config.dbt_target, "TARGET")
 
     def _get_target_path(self):
         """Get a dbt target path from the configuration."""
-        return self.config.dbt_target_path or os.getenv("DBT_TARGET_PATH")
+        return _get_dbt_config_value(self.config.dbt_target_path, "TARGET_PATH")
 
     def _get_threads(self) -> Optional[int]:
         """Get configured threads, or let dbt use the profiles.yml value."""
@@ -902,7 +913,7 @@ def _get_or_create_templater(
     """
     project_dir = os.path.abspath(
         os.path.expanduser(
-            config.dbt_project_dir or os.getenv("DBT_PROJECT_DIR") or os.getcwd()
+            _get_dbt_config_value(config.dbt_project_dir, "PROJECT_DIR", os.getcwd())
         )
     )
 

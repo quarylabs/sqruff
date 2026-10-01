@@ -9,6 +9,7 @@ import pytest
 
 from sqruff.templaters.dbt_templater import (
     DbtTemplater,
+    _get_dbt_config_value,
     _get_or_create_templater,
     _templater_cache,
     clear_templater_cache,
@@ -36,6 +37,23 @@ class DbtFailedToConnectError(Exception):
 
 
 DbtFailedToConnectError.__module__ = "dbt.adapters.exceptions"
+
+
+@pytest.mark.parametrize(
+    "suffix",
+    ["PROFILES_DIR", "PROJECT_DIR", "PROFILE", "TARGET", "TARGET_PATH"],
+)
+def test_dbt_config_precedence(suffix, monkeypatch):
+    """Explicit sqruff config wins over dbt engine and legacy env vars."""
+    monkeypatch.delenv(f"DBT_ENGINE_{suffix}", raising=False)
+    monkeypatch.delenv(f"DBT_{suffix}", raising=False)
+    assert _get_dbt_config_value(None, suffix, "default") == "default"
+
+    monkeypatch.setenv(f"DBT_{suffix}", "legacy")
+    assert _get_dbt_config_value(None, suffix) == "legacy"
+    monkeypatch.setenv(f"DBT_ENGINE_{suffix}", "engine")
+    assert _get_dbt_config_value(None, suffix) == "engine"
+    assert _get_dbt_config_value("configured", suffix) == "configured"
 
 
 def test_dbt():
@@ -179,11 +197,24 @@ def test_target_and_target_path_from_env(monkeypatch):
     assert templater._get_target() == "dev"
     assert templater._get_target_path() == "custom_target"
 
+    monkeypatch.setenv("DBT_ENGINE_TARGET", "engine_target")
+    monkeypatch.setenv("DBT_ENGINE_TARGET_PATH", "engine_path")
+    assert templater._get_target() == "engine_target"
+    assert templater._get_target_path() == "engine_path"
+
     templater.config = config._replace(
         dbt_target="prod", dbt_target_path="configured_target"
     )
     assert templater._get_target() == "prod"
     assert templater._get_target_path() == "configured_target"
+
+    templater.config = config
+    monkeypatch.setenv("DBT_PROFILE", "legacy_profile")
+    assert templater._get_profile() == "legacy_profile"
+    monkeypatch.setenv("DBT_ENGINE_PROFILE", "engine_profile")
+    assert templater._get_profile() == "engine_profile"
+    templater.config = config._replace(dbt_profile="configured_profile")
+    assert templater._get_profile() == "configured_profile"
 
 
 def test_project_dir_from_env(tmp_path, monkeypatch):
@@ -218,8 +249,47 @@ def test_project_dir_from_env(tmp_path, monkeypatch):
     assert list(_templater_cache) == [str(project_dir.resolve())]
     clear_templater_cache()
 
+    engine_project_dir = tmp_path / "engine_project"
+    engine_project_dir.mkdir()
+    monkeypatch.setenv("DBT_ENGINE_PROJECT_DIR", str(engine_project_dir))
+    assert templater._get_project_dir() == str(engine_project_dir.resolve())
+    assert _get_or_create_templater(config, {}).config == config
+    assert list(_templater_cache) == [str(engine_project_dir.resolve())]
+    clear_templater_cache()
+
     templater.config = config._replace(dbt_project_dir=str(explicit_project_dir))
     assert templater._get_project_dir() == str(explicit_project_dir.resolve())
+
+
+def test_profiles_dir_env_precedence(tmp_path, monkeypatch):
+    """Resolve profiles dir using engine, legacy, then explicit config precedence."""
+    legacy_dir = tmp_path / "legacy_profiles"
+    engine_dir = tmp_path / "engine_profiles"
+    configured_dir = tmp_path / "configured_profiles"
+    for directory in (legacy_dir, engine_dir, configured_dir):
+        directory.mkdir()
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_apply_dbt_builtins=True,
+        jinja_library_paths=None,
+        jinja_templater_paths=None,
+        jinja_exclude_macros_from_path=None,
+        jinja_loader_search_path=None,
+        jinja_ignore_templating=None,
+        dbt_target=None,
+        dbt_profile=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+        dbt_profiles_dir=None,
+    )
+    templater = DbtTemplater(sqlfluff_config=config)
+    monkeypatch.setenv("DBT_PROFILES_DIR", str(legacy_dir))
+    assert templater._get_profiles_dir() == str(legacy_dir.resolve())
+    monkeypatch.setenv("DBT_ENGINE_PROFILES_DIR", str(engine_dir))
+    assert templater._get_profiles_dir() == str(engine_dir.resolve())
+    templater.config = config._replace(dbt_profiles_dir=str(configured_dir))
+    assert templater._get_profiles_dir() == str(configured_dir.resolve())
 
 
 def test_process_passes_project_dir_without_changing_cwd(tmp_path, monkeypatch):

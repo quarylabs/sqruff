@@ -207,7 +207,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "NamedArgumentSegment".into(),
             NodeMatcher::new(SyntaxKind::NamedArgument, |_| {
                 Sequence::new(vec![
-                    Ref::new("NakedIdentifierSegment").to_matchable(),
+                    Ref::new("VariableNameIdentifierSegment").to_matchable(),
                     Ref::new("RightArrowSegment").to_matchable(),
                     Ref::new("ExpressionSegment").to_matchable(),
                 ])

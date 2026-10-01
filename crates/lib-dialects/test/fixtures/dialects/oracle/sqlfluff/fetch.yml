@@ -84,12 +84,12 @@ file:
           - data_type:
             - data_type_identifier: EmpRecTyp
           - keyword: IS
-          - oracle_declare_segment:
-            - naked_identifier: emp_rec
-            - data_type:
-              - data_type_identifier: EmpRecTyp
-            - statement_terminator: ;
           - oracle_begin_end_block:
+            - oracle_declare_segment:
+              - naked_identifier: emp_rec
+              - data_type:
+                - data_type_identifier: EmpRecTyp
+              - statement_terminator: ;
             - keyword: BEGIN
             - statement:
               - oracle_open_statement:

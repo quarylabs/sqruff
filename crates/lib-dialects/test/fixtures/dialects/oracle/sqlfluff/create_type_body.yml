@@ -65,12 +65,12 @@ file:
         - data_type:
           - data_type_identifier: NUMBER
         - keyword: IS
-        - oracle_declare_segment:
-          - naked_identifier: x
-          - data_type:
-            - data_type_identifier: NUMBER
-          - statement_terminator: ;
         - oracle_begin_end_block:
+          - oracle_declare_segment:
+            - naked_identifier: x
+            - data_type:
+              - data_type_identifier: NUMBER
+            - statement_terminator: ;
           - keyword: BEGIN
           - statement:
             - select_statement:

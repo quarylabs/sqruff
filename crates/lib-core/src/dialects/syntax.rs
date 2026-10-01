@@ -1268,6 +1268,7 @@ pub enum SyntaxKind {
     TruncateAuditLogsStatement,
     TruncateStatement,
     TruncateTable,
+    TryCastingOperator,
     TryCatch,
     TsqlVariable,
     Tuple,

@@ -118,6 +118,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | RawComparisonOperator
         | AssignmentOperator
         | CastingOperator
+        | TryCastingOperator
         | LikeOperator
         | GlobOperator
         | UnpackingOperator

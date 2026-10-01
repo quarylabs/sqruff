@@ -1363,6 +1363,28 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // KEEP (DENSE_RANK FIRST/LAST ORDER BY ...) on aggregate functions.
+        (
+            "KeepClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::OracleKeepClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("KEEP").to_matchable(),
+                    Bracketed::new(vec![
+                        Ref::keyword("DENSE_RANK").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("FIRST").to_matchable(),
+                            Ref::keyword("LAST").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("OrderByClauseSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // ListaggOverflowClauseSegment
         (
             "ListaggOverflowClauseSegment".into(),
@@ -3941,6 +3963,7 @@ pub fn raw_dialect() -> Dialect {
         "PostFunctionGrammar",
         AnyNumberOf::new(vec![
             Ref::new("WithinGroupClauseSegment").to_matchable(),
+            Ref::new("KeepClauseSegment").to_matchable(),
             Ref::new("FilterClauseGrammar").to_matchable(),
             Ref::new("OverClauseSegment").optional().to_matchable(),
         ])

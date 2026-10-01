@@ -1,0 +1,274 @@
+file:
+- oracle_batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: employee_id
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - oracle_function_name:
+              - function_name_identifier: max
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: salary
+                - end_bracket: )
+            - oracle_keep_clause:
+              - keyword: KEEP
+              - bracketed:
+                - start_bracket: (
+                - keyword: DENSE_RANK
+                - keyword: FIRST
+                - oracle_order_by_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: hire_date
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: first_salary
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - oracle_function_name:
+              - function_name_identifier: max
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: salary
+                - end_bracket: )
+            - oracle_keep_clause:
+              - keyword: KEEP
+              - bracketed:
+                - start_bracket: (
+                - keyword: DENSE_RANK
+                - keyword: FIRST
+                - oracle_order_by_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: hire_date
+                  - keyword: NULLS
+                  - keyword: LAST
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: first_salary_no_null
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+      - groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: employee_id
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: employee_id
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - oracle_function_name:
+              - function_name_identifier: max
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: salary
+                - end_bracket: )
+            - oracle_keep_clause:
+              - keyword: KEEP
+              - bracketed:
+                - start_bracket: (
+                - keyword: DENSE_RANK
+                - keyword: LAST
+                - oracle_order_by_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: hire_date
+                  - keyword: NULLS
+                  - keyword: FIRST
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: last_salary
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - oracle_function_name:
+              - function_name_identifier: max
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: salary
+                - end_bracket: )
+            - oracle_keep_clause:
+              - keyword: KEEP
+              - bracketed:
+                - start_bracket: (
+                - keyword: DENSE_RANK
+                - keyword: LAST
+                - oracle_order_by_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: hire_date
+                  - keyword: NULLS
+                  - keyword: FIRST
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: last_salary_no_null
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+      - groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: employee_id
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: last_name
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: department_id
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: salary
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - oracle_function_name:
+              - function_name_identifier: min
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: salary
+                - end_bracket: )
+            - oracle_keep_clause:
+              - keyword: KEEP
+              - bracketed:
+                - start_bracket: (
+                - keyword: DENSE_RANK
+                - keyword: FIRST
+                - oracle_order_by_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: commission_pct
+                - end_bracket: )
+            - over_clause:
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: department_id
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: worst_salary
+        - comma: ','
+        - select_clause_element:
+          - function:
+            - oracle_function_name:
+              - function_name_identifier: max
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: salary
+                - end_bracket: )
+            - oracle_keep_clause:
+              - keyword: KEEP
+              - bracketed:
+                - start_bracket: (
+                - keyword: DENSE_RANK
+                - keyword: LAST
+                - oracle_order_by_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                    - naked_identifier: commission_pct
+                - end_bracket: )
+            - over_clause:
+              - keyword: OVER
+              - bracketed:
+                - start_bracket: (
+                - window_specification:
+                  - partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: department_id
+                - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: best_salary
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+      - oracle_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: department_id
+        - comma: ','
+        - column_reference:
+          - naked_identifier: salary
+        - comma: ','
+        - column_reference:
+          - naked_identifier: last_name
+  - statement_terminator: ;

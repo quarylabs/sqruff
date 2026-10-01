@@ -65,7 +65,7 @@ file:
     - keyword: WITH
     - bracketed:
       - start_bracket: (
-      - keyword: bucketed_by
+      - property_name_identifier: bucketed_by
       - comparison_operator:
         - raw_comparison_operator: =
       - typed_array_literal:
@@ -77,17 +77,17 @@ file:
             - naked_identifier: column_name
           - end_square_bracket: ']'
       - comma: ','
-      - keyword: bucket_count
+      - property_name_identifier: bucket_count
       - comparison_operator:
         - raw_comparison_operator: =
       - numeric_literal: '30'
       - comma: ','
-      - keyword: format
+      - property_name_identifier: format
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''PARQUET'''
       - comma: ','
-      - keyword: external_location
+      - property_name_identifier: external_location
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''s3://DOC-EXAMPLE-BUCKET/tables/parquet_table/'''

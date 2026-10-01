@@ -27,22 +27,22 @@ file:
     - keyword: WITH
     - bracketed:
       - start_bracket: (
-      - keyword: format
+      - property_name_identifier: format
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''CSV'''
       - comma: ','
-      - keyword: compression
+      - property_name_identifier: compression
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''gzip'''
       - comma: ','
-      - keyword: field_delimiter
+      - property_name_identifier: field_delimiter
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: ''','''
       - comma: ','
-      - keyword: partitioned_by
+      - property_name_identifier: partitioned_by
       - comparison_operator:
         - raw_comparison_operator: =
       - typed_array_literal:

@@ -1,7 +1,7 @@
 use hashbrown::HashMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::ErasedSegment;
+use sqruff_lib_core::parser::segments::{BlockType, ErasedSegment};
 use sqruff_lib_core::templaters::TemplatedFile;
 
 use crate::core::config::Value;
@@ -110,6 +110,22 @@ fn has_only_literal_indentation_fixes(result: &LintResult) -> bool {
     !result.fixes.is_empty() && result.fixes.iter().all(is_literal_indentation_fix)
 }
 
+fn has_only_consumed_literal_indent_fixes(result: &LintResult) -> bool {
+    !result.fixes.is_empty()
+        && result.fixes.iter().all(|fix| {
+            let LintFix::Replace { anchor, edit, .. } = fix else {
+                return false;
+            };
+            anchor.is_type(SyntaxKind::Placeholder)
+                && anchor.block_type() == Some(BlockType::Literal)
+                && anchor.source_str().contains('\n')
+                && edit.len() == 1
+                && edit[0].raw() == anchor.raw()
+                && edit[0].source_str().chars().all(char::is_whitespace)
+                && !edit[0].get_source_fixes().is_empty()
+        })
+}
+
 impl Rule for RuleLT02 {
     fn load_from_config(&self, _config: &HashMap<String, Value>) -> Result<ErasedRule, String> {
         Ok(RuleLT02.erased())
@@ -189,6 +205,7 @@ FROM foo
                             .iter()
                             .any(|range| range.start <= source_pos && source_pos < range.end)
                             || (line_is_adjacent_to_source_only_slice(templated_file, source_pos)
+                                && !has_only_consumed_literal_indent_fixes(result)
                                 && (!has_only_literal_indentation_fixes(result)
                                     || !source_line_has_non_source_only_non_whitespace(
                                         templated_file,

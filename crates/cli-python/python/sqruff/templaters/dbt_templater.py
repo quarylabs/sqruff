@@ -425,11 +425,11 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_target(self):
         """Get a dbt target name from the configuration."""
-        return self.config.dbt_target
+        return self.config.dbt_target or os.getenv("DBT_TARGET")
 
     def _get_target_path(self):
         """Get a dbt target path from the configuration."""
-        return self.config.dbt_target_path
+        return self.config.dbt_target_path or os.getenv("DBT_TARGET_PATH")
 
     def _get_threads(self) -> Optional[int]:
         """Get configured threads, or let dbt use the profiles.yml value."""

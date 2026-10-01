@@ -232,6 +232,20 @@ pub fn raw_dialect() -> Dialect {
         }
     }
 
+    mariadb.replace_grammar(
+        "AddDropSystemVersioningGrammar",
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::keyword("ADD").to_matchable(),
+                Ref::keyword("DROP").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("SYSTEM").to_matchable(),
+            Ref::keyword("VERSIONING").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     mariadb.replace_grammar("TableOptionsSegment", mariadb_table_options_grammar());
 
     // MariaDB additionally supports PERSISTENT generated columns.

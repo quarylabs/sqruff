@@ -59,6 +59,7 @@ The following rules are available in this create. This list is generated from th
 | LT14 | [layout.keyword_newline](#layoutkeyword_newline) | Keyword clause newline enforcement. |  |
 | LT15 | [layout.newlines](#layoutnewlines) | Too many consecutive blank lines. |  |
 | OR01 | [oracle.empty_batch](#oracleempty_batch) | Remove empty batches. |  |
+| PG01 | [postgres.excessive_locks](#postgresexcessive_locks) | Avoid excessive locks in PostgreSQL DDL statements. |  |
 | RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | ✓ |
 | RF02 | [references.qualification](#referencesqualification) | References should be qualified if select has more than one referenced table/view. |  |
 | RF03 | [references.consistent](#referencesconsistent) | Column references should be qualified consistently in single table statements. |  |
@@ -2178,6 +2179,39 @@ Remove empty batches.
 SELECT 1 FROM DUAL;
 
 /
+```
+
+
+### postgres.excessive_locks
+
+Avoid excessive locks in PostgreSQL DDL statements.
+
+**Code:** `PG01`
+
+**Groups:** `all`, `postgres`
+
+**Fixable:** No
+
+PostgreSQL DDL operations can block reads or writes for the duration of an operation.
+
+**Anti-pattern**
+
+```sql
+CREATE INDEX idx_foo ON bar (tenant_id);
+DROP INDEX idx_foo;
+REINDEX INDEX idx_foo;
+REFRESH MATERIALIZED VIEW my_view;
+ALTER TABLE foo ADD CONSTRAINT fk_bar FOREIGN KEY (bar_id) REFERENCES bar (id);
+```
+
+**Best practice**
+
+```sql
+CREATE INDEX CONCURRENTLY idx_foo ON bar (tenant_id);
+DROP INDEX CONCURRENTLY idx_foo;
+REINDEX INDEX CONCURRENTLY idx_foo;
+REFRESH MATERIALIZED VIEW CONCURRENTLY my_view;
+ALTER TABLE foo ADD CONSTRAINT fk_bar FOREIGN KEY (bar_id) REFERENCES bar (id) NOT VALID;
 ```
 
 

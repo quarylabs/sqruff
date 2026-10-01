@@ -10,6 +10,7 @@ pub mod convention;
 pub mod jinja;
 pub mod layout;
 pub mod oracle;
+pub mod postgres;
 pub mod references;
 pub mod structure;
 pub mod tsql;
@@ -23,6 +24,7 @@ pub fn rules() -> Vec<ErasedRule> {
         jinja::rules(),
         layout::rules(),
         oracle::rules(),
+        postgres::rules(),
         references::rules(),
         structure::rules(),
         tsql::rules()

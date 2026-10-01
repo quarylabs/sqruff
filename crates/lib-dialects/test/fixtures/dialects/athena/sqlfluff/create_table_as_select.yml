@@ -8,17 +8,17 @@ file:
     - keyword: WITH
     - bracketed:
       - start_bracket: (
-      - keyword: format
+      - property_name_identifier: format
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''Parquet'''
       - comma: ','
-      - keyword: external_location
+      - property_name_identifier: external_location
       - comparison_operator:
         - raw_comparison_operator: =
       - quoted_literal: '''s3://my-bucket/my-path-level-1/my-path-level-2'''
       - comma: ','
-      - keyword: partitioned_by
+      - property_name_identifier: partitioned_by
       - comparison_operator:
         - raw_comparison_operator: =
       - typed_array_literal:

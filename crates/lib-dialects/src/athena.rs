@@ -12,14 +12,42 @@ use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
-use sqruff_lib_core::parser::matchable::MatchableTrait;
+use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
-use sqruff_lib_core::parser::parsers::{CaseFold, RegexParser, StringParser, TypedParser};
+use sqruff_lib_core::parser::parsers::{
+    CaseFold, MultiStringParser, RegexParser, StringParser, TypedParser,
+};
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(AthenaDialectConfig {});
+
+const CTAS_COMMON_PROPERTY_NAMES: &[&str] = &[
+    "format",
+    "partitioned_by",
+    "bucketed_by",
+    "bucket_count",
+    "write_compression",
+    "orc_compression",
+    "parquet_compression",
+    "compression_level",
+    "field_delimiter",
+    "is_external",
+    "table_type",
+];
+
+fn property_names(common: &[&str], extra: &[&str]) -> Matchable {
+    MultiStringParser::new(
+        common
+            .iter()
+            .chain(extra)
+            .map(|name| (*name).to_owned())
+            .collect(),
+        SyntaxKind::PropertyNameIdentifier,
+    )
+    .to_matchable()
+}
 
 pub fn dialect(config: Option<&Value>) -> Dialect {
     // Parse and validate dialect configuration, falling back to defaults on failure
@@ -166,23 +194,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "CTASPropertyNameGrammar".into(),
+            property_names(CTAS_COMMON_PROPERTY_NAMES, &["external_location"]).into(),
+        ),
+        (
             "CTASPropertyGrammar".into(),
             Sequence::new(vec![
-                one_of(vec![
-                    Ref::keyword("FORMAT").to_matchable(),
-                    Ref::keyword("PARTITIONED_BY").to_matchable(),
-                    Ref::keyword("BUCKETED_BY").to_matchable(),
-                    Ref::keyword("BUCKET_COUNT").to_matchable(),
-                    Ref::keyword("WRITE_COMPRESSION").to_matchable(),
-                    Ref::keyword("ORC_COMPRESSION").to_matchable(),
-                    Ref::keyword("PARQUET_COMPRESSION").to_matchable(),
-                    Ref::keyword("COMPRESSION_LEVEL").to_matchable(),
-                    Ref::keyword("FIELD_DELIMITER").to_matchable(),
-                    Ref::keyword("IS_EXTERNAL").to_matchable(),
-                    Ref::keyword("TABLE_TYPE").to_matchable(),
-                    Ref::keyword("EXTERNAL_LOCATION").to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("CTASPropertyNameGrammar").to_matchable(),
                 Ref::new("EqualsSegment").to_matchable(),
                 Ref::new("LiteralGrammar").to_matchable(),
             ])
@@ -190,31 +208,26 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "CTASIcebergPropertyNameGrammar".into(),
+            property_names(
+                CTAS_COMMON_PROPERTY_NAMES,
+                &[
+                    "location",
+                    "partitioning",
+                    "vacuum_max_snapshot_age_seconds",
+                    "vacuum_min_snapshots_to_keep",
+                    "optimize_rewrite_min_data_file_size_bytes",
+                    "optimize_rewrite_max_data_file_size_bytes",
+                    "optimize_rewrite_data_file_threshold",
+                    "optimize_rewrite_delete_file_threshold",
+                ],
+            )
+            .into(),
+        ),
+        (
             "CTASIcebergPropertyGrammar".into(),
             Sequence::new(vec![
-                one_of(vec![
-                    Ref::keyword("FORMAT").to_matchable(),
-                    Ref::keyword("PARTITIONED_BY").to_matchable(),
-                    Ref::keyword("BUCKETED_BY").to_matchable(),
-                    Ref::keyword("BUCKET_COUNT").to_matchable(),
-                    Ref::keyword("WRITE_COMPRESSION").to_matchable(),
-                    Ref::keyword("ORC_COMPRESSION").to_matchable(),
-                    Ref::keyword("PARQUET_COMPRESSION").to_matchable(),
-                    Ref::keyword("COMPRESSION_LEVEL").to_matchable(),
-                    Ref::keyword("FIELD_DELIMITER").to_matchable(),
-                    Ref::keyword("IS_EXTERNAL").to_matchable(),
-                    Ref::keyword("TABLE_TYPE").to_matchable(),
-                    // Iceberg-specific properties
-                    Ref::keyword("LOCATION").to_matchable(),
-                    Ref::keyword("PARTITIONING").to_matchable(),
-                    Ref::keyword("VACUUM_MAX_SNAPSHOT_AGE_SECONDS").to_matchable(),
-                    Ref::keyword("VACUUM_MIN_SNAPSHOTS_TO_KEEP").to_matchable(),
-                    Ref::keyword("OPTIMIZE_REWRITE_MIN_DATA_FILE_SIZE_BYTES").to_matchable(),
-                    Ref::keyword("OPTIMIZE_REWRITE_MAX_DATA_FILE_SIZE_BYTES").to_matchable(),
-                    Ref::keyword("OPTIMIZE_REWRITE_DATA_FILE_THRESHOLD").to_matchable(),
-                    Ref::keyword("OPTIMIZE_REWRITE_DELETE_FILE_THRESHOLD").to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("CTASIcebergPropertyNameGrammar").to_matchable(),
                 Ref::new("EqualsSegment").to_matchable(),
                 Ref::new("LiteralGrammar").to_matchable(),
             ])
@@ -236,15 +249,17 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "UnloadPropertyNameGrammar".into(),
+            property_names(
+                &[],
+                &["format", "partitioned_by", "compression", "field_delimiter"],
+            )
+            .into(),
+        ),
+        (
             "UnloadPropertyGrammar".into(),
             Sequence::new(vec![
-                one_of(vec![
-                    Ref::keyword("FORMAT").to_matchable(),
-                    Ref::keyword("PARTITIONED_BY").to_matchable(),
-                    Ref::keyword("COMPRESSION").to_matchable(),
-                    Ref::keyword("FIELD_DELIMITER").to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("UnloadPropertyNameGrammar").to_matchable(),
                 Ref::new("EqualsSegment").to_matchable(),
                 Ref::new("LiteralGrammar").to_matchable(),
             ])

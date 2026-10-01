@@ -1206,3 +1206,23 @@ file:
         - raw_comparison_operator: =
       - naked_identifier: utf8mb4
 - statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo
+    - keyword: ADD
+    - keyword: SYSTEM
+    - keyword: VERSIONING
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo
+    - keyword: DROP
+    - keyword: SYSTEM
+    - keyword: VERSIONING
+- statement_terminator: ;

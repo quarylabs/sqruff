@@ -78,15 +78,17 @@ WHERE my_table.col > 3
                 .rposition(|s| !is_whitespace_or_newline(s));
 
             // Find RHS: first non-whitespace segment after the operator
-            let rhs = subsegments[idx + 1..]
+            let rhs_idx = subsegments[idx + 1..]
                 .iter()
-                .find(|s| !is_whitespace_or_newline(s));
+                .position(|s| !is_whitespace_or_newline(s))
+                .map(|offset| idx + 1 + offset);
 
-            let (lhs_idx, rhs) = match (lhs_idx, rhs) {
-                (Some(lhs_idx), Some(rhs)) => (lhs_idx, rhs),
+            let (lhs_idx, rhs_idx) = match (lhs_idx, rhs_idx) {
+                (Some(lhs_idx), Some(rhs_idx)) => (lhs_idx, rhs_idx),
                 _ => continue,
             };
             let lhs = &subsegments[lhs_idx];
+            let rhs = &subsegments[rhs_idx];
 
             // Skip templated segments
             if lhs.is_templated() || rhs.is_templated() {
@@ -97,14 +99,17 @@ WHERE my_table.col > 3
                 .iter()
                 .rev()
                 .find(|s| !is_whitespace_or_newline(s));
+            let next_after_rhs = subsegments[rhs_idx + 1..]
+                .iter()
+                .find(|s| !is_whitespace_or_newline(s));
 
             // The pieces immediately left and right of `=` are its operands after
             // AND or OR (e.g. `... OR 1 = 2`). After another binary operator they
-            // are not (e.g. `num % 2 = 0`), so leave those expressions alone.
-            if previous_before_lhs.is_some_and(|previous| {
-                previous.is_type(SyntaxKind::BinaryOperator)
-                    && !matches!(previous.raw().to_uppercase_smolstr().as_str(), "AND" | "OR")
-            }) {
+            // are not (e.g. `num % 2 = 0` or `flags = flags & @mask`), so leave
+            // those expressions alone.
+            if previous_before_lhs.is_some_and(is_non_boolean_binary_operator)
+                || next_after_rhs.is_some_and(is_non_boolean_binary_operator)
+            {
                 continue;
             }
 
@@ -145,6 +150,15 @@ WHERE my_table.col > 3
 
 fn is_whitespace_or_newline(seg: &ErasedSegment) -> bool {
     matches!(seg.get_type(), SyntaxKind::Whitespace | SyntaxKind::Newline)
+}
+
+fn is_non_boolean_binary_operator(seg: &ErasedSegment) -> bool {
+    let raw = seg.raw();
+    (seg.is_type(SyntaxKind::BinaryOperator)
+        && !matches!(raw.to_uppercase_smolstr().as_str(), "AND" | "OR"))
+        // Sqruff's bitwise operators are wrapped as comparison operators.
+        || (seg.is_type(SyntaxKind::ComparisonOperator)
+            && matches!(raw.as_str(), "&" | "|" | "<<" | ">>"))
 }
 
 fn is_literal(seg: &ErasedSegment) -> bool {

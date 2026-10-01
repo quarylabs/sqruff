@@ -582,6 +582,7 @@ pub(crate) fn tsql_unreserved_keywords() -> HashSet<&'static str> {
         "CONTROL",
         "COPY",
         "CREDENTIAL",
+        "CRYPTOGRAPHIC",
         "CURSOR_CLOSE_ON_COMMIT",
         "CURSOR_DEFAULT",
         "DATA_COMPRESSION",

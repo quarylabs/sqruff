@@ -2214,6 +2214,13 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "LabelSafeAliasExpressionGrammar".into(),
+            Ref::new("AliasExpressionSegment")
+                .exclude(Ref::new("LabelSegment"))
+                .to_matchable()
+                .into(),
+        ),
     ]);
 
     // IF...ELSE statement
@@ -3460,7 +3467,9 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("ExpressionSegment").to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                        Ref::new("LabelSafeAliasExpressionGrammar")
+                            .optional()
+                            .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -7035,7 +7044,9 @@ pub fn raw_dialect() -> Dialect {
             // Everything else
             Sequence::new(vec![
                 Ref::new("BaseExpressionElementGrammar").to_matchable(),
-                Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                Ref::new("LabelSafeAliasExpressionGrammar")
+                    .optional()
+                    .to_matchable(),
             ])
             .to_matchable(),
         ])

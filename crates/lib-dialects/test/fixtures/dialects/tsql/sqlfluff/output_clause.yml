@@ -948,3 +948,63 @@ file:
   - statement_terminator: ;
   - go_statement:
     - keyword: GO
+- batch:
+  - statement:
+    - keyword: BEGIN
+    - statement:
+      - delete_statement:
+        - keyword: DELETE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: Sales
+            - dot: .
+            - naked_identifier: ShoppingCartItem
+        - output_clause:
+          - keyword: OUTPUT
+          - keyword: DELETED
+          - dot: .
+          - naked_identifier: ProductID
+    - statement:
+      - naked_identifier: next_step
+      - colon: ':'
+    - keyword: END
+  - go_statement:
+    - keyword: GO
+- batch:
+  - statement:
+    - keyword: BEGIN
+    - statement:
+      - update_statement:
+        - keyword: UPDATE
+        - table_reference:
+          - object_reference:
+            - naked_identifier: HumanResources
+            - dot: .
+            - naked_identifier: Employee
+        - set_clause_list:
+          - keyword: SET
+          - set_clause:
+            - column_reference:
+              - naked_identifier: VacationHours
+            - assignment_operator:
+              - raw_comparison_operator: =
+            - expression:
+              - column_reference:
+                - naked_identifier: VacationHours
+              - binary_operator: +
+              - integer_literal: '8'
+        - output_clause:
+          - keyword: OUTPUT
+          - keyword: INSERTED
+          - dot: .
+          - naked_identifier: BusinessEntityID
+          - comma: ','
+          - keyword: INSERTED
+          - dot: .
+          - naked_identifier: VacationHours
+    - statement:
+      - naked_identifier: next_step
+      - colon: ':'
+    - keyword: END
+  - go_statement:
+    - keyword: GO

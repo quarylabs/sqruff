@@ -7,7 +7,10 @@ use itertools::{Itertools, chain};
 use nohash_hasher::IntMap;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
-use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder, Tables};
+use sqruff_lib_core::parser::segments::fix::SourceFix;
+use sqruff_lib_core::parser::segments::{
+    BlockType, ErasedSegment, SegmentBuilder, Tables, TemplateInfo,
+};
 
 use super::config::{LinePositionConfig, ReflowConfig, Spacing};
 use super::depth_map::DepthInfo;
@@ -21,16 +24,8 @@ use crate::utils::reflow::respace::{
 
 fn get_consumed_whitespace(segment: Option<&ErasedSegment>) -> Option<String> {
     let segment = segment?;
-
-    if segment.is_type(SyntaxKind::Placeholder) {
-        None
-    } else {
-        // match segment.block_type.as_ref() {
-        //     SyntaxKind::Literal => Some(segment.source_str),
-        //     _ => None,
-        // }
-        None
-    }
+    (segment.is_type(SyntaxKind::Placeholder) && segment.block_type() == Some(BlockType::Literal))
+        .then(|| segment.source_str().to_string())
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -199,7 +194,67 @@ impl ReflowPoint {
             .filter(|indent_seg| indent_seg.is_type(SyntaxKind::Placeholder))
             .is_some()
         {
-            unimplemented!()
+            let indent_seg = indent_seg.unwrap();
+            let marker = indent_seg.get_position_marker().unwrap();
+            let source_text = indent_seg.source_str();
+            let current_indent = source_text.rsplit('\n').next().unwrap();
+            let source_slice =
+                marker.source_slice.end - current_indent.len()..marker.source_slice.end;
+            let source_fix = SourceFix::new(
+                desired_indent.into(),
+                source_slice,
+                marker.templated_slice.clone(),
+            );
+            let mut source_fixes = indent_seg.get_source_fixes();
+            if source_fixes.contains(&source_fix) {
+                return (Vec::new(), self.clone());
+            }
+            source_fixes.push(source_fix);
+            let new_source = format!(
+                "{}{}",
+                &source_text[..source_text.len() - current_indent.len()],
+                desired_indent
+            );
+            let new_placeholder =
+                SegmentBuilder::token(tables.next_id(), indent_seg.raw(), SyntaxKind::Placeholder)
+                    .with_position(marker.clone())
+                    .with_template_info(TemplateInfo {
+                        block_type: BlockType::Literal,
+                        block_uuid: indent_seg.block_uuid(),
+                        source_str: new_source.into(),
+                        is_template: false,
+                    })
+                    .with_source_fixes(source_fixes)
+                    .finish();
+            let new_segments = self
+                .segments
+                .iter()
+                .map(|segment| {
+                    if segment == indent_seg {
+                        new_placeholder.clone()
+                    } else {
+                        segment.clone()
+                    }
+                })
+                .collect();
+            (
+                vec![LintResult::new(
+                    indent_seg.clone().into(),
+                    vec![LintFix::replace(
+                        indent_seg.clone(),
+                        vec![new_placeholder],
+                        None,
+                    )],
+                    description
+                        .map(ToOwned::to_owned)
+                        .unwrap_or_else(|| {
+                            format!("Expected {}.", indent_description(desired_indent))
+                        })
+                        .into(),
+                    source.map(ToOwned::to_owned),
+                )],
+                ReflowPoint::new(new_segments),
+            )
         } else if self.num_newlines() != 0 {
             if let Some(indent_seg) = indent_seg {
                 if indent_seg.raw() == desired_indent {

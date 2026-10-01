@@ -23,10 +23,13 @@ fn has_untemplated_newline(point: &ReflowPoint) -> bool {
         return false;
     }
     point.segments().iter().any(|segment| {
-        segment.is_type(SyntaxKind::Newline)
-            && (segment
+        (segment.is_type(SyntaxKind::Newline)
+            && segment
                 .get_position_marker()
                 .is_none_or(|position_marker| position_marker.is_literal()))
+            || (segment.is_type(SyntaxKind::Placeholder)
+                && segment.block_type() == Some(BlockType::Literal)
+                && segment.source_str().contains('\n'))
     })
 }
 
@@ -572,6 +575,65 @@ fn revise_templated_lines(lines: &mut Vec<IndentLine>, elements: &ReflowSequence
     }
 }
 
+/// Align suppressed loop renderings with the rendered copies of the same
+/// source line. Otherwise a conditional trailing comma can alternate between
+/// two indentation depths on successive fix passes.
+fn revise_loop_repeated_lines(lines: &mut [IndentLine], elements: &ReflowSequenceType) {
+    let mut groups: HashMap<(usize, usize), Vec<usize>> = HashMap::new();
+    for (idx, line) in lines.iter().enumerate() {
+        let Some(first_block) = line.blocks(elements).next() else {
+            continue;
+        };
+        let Some(marker) = first_block.segment().get_position_marker() else {
+            continue;
+        };
+        let source = &marker.source_slice;
+        groups
+            .entry((source.start, source.end))
+            .or_default()
+            .push(idx);
+    }
+
+    for group in groups.values() {
+        if group.len() < 2 {
+            continue;
+        }
+        let mut rendered = Vec::new();
+        let mut unrendered = Vec::new();
+        for &idx in group {
+            if lines[idx].is_all_templates(elements) {
+                unrendered.push(idx);
+            } else {
+                rendered.push(idx);
+            }
+        }
+        align_suppressed_loop_balances(lines, &rendered, &unrendered);
+    }
+}
+
+fn align_suppressed_loop_balances(
+    lines: &mut [IndentLine],
+    rendered: &[usize],
+    unrendered: &[usize],
+) {
+    if unrendered.is_empty() || rendered.is_empty() {
+        return;
+    }
+    let mut counts: HashMap<isize, usize> = HashMap::new();
+    for &idx in rendered {
+        *counts.entry(lines[idx].initial_indent_balance).or_default() += 1;
+    }
+    // Most common rendered balance, with the larger balance winning ties.
+    let target = counts
+        .into_iter()
+        .max_by_key(|(balance, count)| (*count, *balance))
+        .unwrap()
+        .0;
+    for &idx in unrendered {
+        lines[idx].initial_indent_balance = target;
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum IndentUnit {
     Tab,
@@ -963,7 +1025,7 @@ fn deduce_line_current_indent(
     };
 
     if indent_seg.is_type(SyntaxKind::Placeholder) {
-        unimplemented!()
+        indent_seg.source_str().rsplit('\n').next().unwrap().into()
     } else if indent_seg.get_position_marker().is_none() || !indent_seg.is_templated() {
         indent_seg.raw().clone()
     } else {
@@ -1427,6 +1489,7 @@ pub fn lint_indent_points(
 
     revise_skipped_source_lines(&mut lines, &elements);
     revise_templated_lines(&mut lines, &elements);
+    revise_loop_repeated_lines(&mut lines, &elements);
     revise_comment_lines(&mut lines, &elements, ignore_comment_lines);
 
     lines.retain(|line| {
@@ -2175,13 +2238,28 @@ mod tests {
     use sqruff_lib_core::parser::segments::{BlockType, SegmentBuilder, TemplateInfo};
 
     use super::{
-        ImplicitIndents, IndentLine, IndentPoint, calculate_desired_starting_indent,
-        crawl_indent_points,
+        ImplicitIndents, IndentLine, IndentPoint, align_suppressed_loop_balances,
+        calculate_desired_starting_indent, crawl_indent_points,
     };
     use crate::utils::reflow::config::ReflowConfig;
     use crate::utils::reflow::depth_map::DepthInfo;
     use crate::utils::reflow::elements::{ReflowBlock, ReflowPoint};
     use crate::utils::reflow::sequence::ReflowSequence;
+
+    #[test]
+    fn test_align_suppressed_loop_balances_prefers_rendered_majority_and_larger_ties() {
+        let mut lines = [1, 2, 2, 3, 0].map(|initial_indent_balance| IndentLine {
+            initial_indent_balance,
+            indent_points: Vec::new(),
+        });
+
+        align_suppressed_loop_balances(&mut lines, &[0, 1, 2, 3], &[4]);
+        assert_eq!(lines[4].initial_indent_balance, 2);
+
+        lines[4].initial_indent_balance = 0;
+        align_suppressed_loop_balances(&mut lines, &[0, 3], &[4]);
+        assert_eq!(lines[4].initial_indent_balance, 3);
+    }
 
     #[test]
     fn test_reflow_point_get_indent() {

@@ -40,6 +40,8 @@ struct TestCase {
     line_numbers: Option<Vec<usize>>,
     #[serde(default)]
     expect_no_fix: bool,
+    #[serde(default)]
+    roundtrip: bool,
     #[serde(flatten)]
     kind: TestCaseKind,
     #[serde(default)]
@@ -329,6 +331,11 @@ dialect = {dialect}
                 assert_fix_compatible(linter, &fail_str, &actual);
 
                 pretty_assertions::assert_eq!(actual, fix_str);
+                if case.roundtrip {
+                    let relinted = linter.lint_string_wrapped(&fix_str, true).unwrap();
+                    pretty_assertions::assert_eq!(relinted.violations(), &[]);
+                    pretty_assertions::assert_eq!(relinted.fix_string(), fix_str);
+                }
             }
         }
     }

@@ -10,9 +10,7 @@ use sqruff_lib_core::dialects::init::{DialectConfig, DialectKind};
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
-use sqruff_lib_core::parser::grammar::anyof::{
-    AnyNumberOf, any_set_of, one_of, optionally_bracketed,
-};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, any_set_of, one_of};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::matchable::Matchable;
@@ -152,13 +150,33 @@ fn quoted_or_identifier() -> Matchable {
     .to_matchable()
 }
 
+fn quoted_or_identifier_or_default() -> Matchable {
+    one_of(vec![
+        Ref::new("QuotedLiteralSegment").to_matchable(),
+        Ref::new("NakedIdentifierSegment").to_matchable(),
+        Ref::keyword("DEFAULT").to_matchable(),
+    ])
+    .to_matchable()
+}
+
+fn charset_grammar() -> Matchable {
+    one_of(vec![
+        Sequence::new(vec![
+            Ref::keyword("CHARACTER").to_matchable(),
+            Ref::keyword("SET").to_matchable(),
+        ])
+        .to_matchable(),
+        Ref::keyword("CHARSET").to_matchable(),
+    ])
+    .to_matchable()
+}
+
 fn charset_table_option() -> Matchable {
     Sequence::new(vec![
         Ref::keyword("DEFAULT").optional().to_matchable(),
-        Ref::keyword("CHARACTER").to_matchable(),
-        Ref::keyword("SET").to_matchable(),
+        charset_grammar(),
         Ref::new("EqualsSegment").optional().to_matchable(),
-        quoted_or_identifier(),
+        quoted_or_identifier_or_default(),
     ])
     .to_matchable()
 }
@@ -168,7 +186,7 @@ fn collate_table_option() -> Matchable {
         Ref::keyword("DEFAULT").optional().to_matchable(),
         Ref::keyword("COLLATE").to_matchable(),
         Ref::new("EqualsSegment").optional().to_matchable(),
-        quoted_or_identifier(),
+        quoted_or_identifier_or_default(),
     ])
     .to_matchable()
 }
@@ -520,54 +538,6 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
         ])
         .to_matchable(),
-    );
-
-    // `CREATE [OR REPLACE] [TEMPORARY] TABLE`, additionally allowing the
-    // `CREATE ... [AS] SELECT` form without a bracketed column list.
-    // https://mariadb.com/kb/en/create-table/
-    mariadb.replace_grammar(
-        "CreateTableStatementSegment",
-        mysql::create_table_grammar(
-            one_of(vec![
-                // Columns and comment syntax, optionally followed by AS SELECT:
-                Sequence::new(vec![
-                    Bracketed::new(vec![
-                        Delimited::new(vec![
-                            one_of(vec![
-                                Ref::new("TableConstraintSegment").to_matchable(),
-                                Ref::new("ColumnDefinitionSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::new("CommentClauseSegment").optional().to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("AS").optional().to_matchable(),
-                        optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
-                            .to_matchable(),
-                    ])
-                    .config(|this| this.optional())
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-                // Create AS syntax (AS optional):
-                Sequence::new(vec![
-                    Ref::keyword("AS").optional().to_matchable(),
-                    optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
-                        .to_matchable(),
-                ])
-                .to_matchable(),
-                // Create like syntax:
-                Sequence::new(vec![
-                    Ref::keyword("LIKE").to_matchable(),
-                    Ref::new("TableReferenceSegment").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .to_matchable(),
-        ),
     );
 
     // `FLUSH` statement.

@@ -1016,6 +1016,7 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    Ref::new("CommentClauseSegment").optional().to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("AS").optional().to_matchable(),
                         optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
@@ -1023,7 +1024,6 @@ pub fn raw_dialect() -> Dialect {
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
-                    Ref::new("CommentClauseSegment").optional().to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
@@ -4348,11 +4348,7 @@ fn table_option(with_default: bool) -> Matchable {
     items.push(
         one_of(vec![
             Ref::new("ParameterNameSegment").to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("CHARACTER").to_matchable(),
-                Ref::keyword("SET").to_matchable(),
-            ])
-            .to_matchable(),
+            charset_grammar(),
             Sequence::new(vec![
                 one_of(vec![
                     Ref::keyword("DATA").to_matchable(),
@@ -4378,6 +4374,7 @@ fn table_option(with_default: bool) -> Matchable {
             Ref::new("QuotedLiteralSegment").to_matchable(),
             Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
             Ref::new("NumericLiteralSegment").to_matchable(),
+            Ref::keyword("DEFAULT").to_matchable(),
             Bracketed::new(vec![
                 Delimited::new(vec![Ref::new("TableReferenceSegment").to_matchable()])
                     .to_matchable(),
@@ -4544,13 +4541,33 @@ fn quoted_or_identifier() -> Matchable {
     .to_matchable()
 }
 
+fn charset_grammar() -> Matchable {
+    one_of(vec![
+        Sequence::new(vec![
+            Ref::keyword("CHARACTER").to_matchable(),
+            Ref::keyword("SET").to_matchable(),
+        ])
+        .to_matchable(),
+        Ref::keyword("CHARSET").to_matchable(),
+    ])
+    .to_matchable()
+}
+
+fn quoted_or_identifier_or_default() -> Matchable {
+    one_of(vec![
+        Ref::new("QuotedLiteralSegment").to_matchable(),
+        Ref::new("NakedIdentifierSegment").to_matchable(),
+        Ref::keyword("DEFAULT").to_matchable(),
+    ])
+    .to_matchable()
+}
+
 fn charset_alter_table_option() -> Matchable {
     Sequence::new(vec![
         Ref::keyword("DEFAULT").optional().to_matchable(),
-        Ref::keyword("CHARACTER").to_matchable(),
-        Ref::keyword("SET").to_matchable(),
+        charset_grammar(),
         Ref::new("EqualsSegment").optional().to_matchable(),
-        quoted_or_identifier(),
+        quoted_or_identifier_or_default(),
     ])
     .to_matchable()
 }
@@ -4560,7 +4577,7 @@ fn collate_alter_table_option() -> Matchable {
         Ref::keyword("DEFAULT").optional().to_matchable(),
         Ref::keyword("COLLATE").to_matchable(),
         Ref::new("EqualsSegment").optional().to_matchable(),
-        quoted_or_identifier(),
+        quoted_or_identifier_or_default(),
     ])
     .to_matchable()
 }
@@ -4779,12 +4796,12 @@ pub(crate) fn column_constraint_grammar(allow_persistent: bool) -> Matchable {
             Ref::new("CollateGrammar").to_matchable(),
             // MySQL-specific CHARACTER SET constraint.
             Sequence::new(vec![
-                Ref::keyword("CHARACTER").to_matchable(),
-                Ref::keyword("SET").to_matchable(),
+                charset_grammar(),
                 one_of(vec![
                     Ref::new("SingleIdentifierGrammar").to_matchable(),
                     Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
                     Ref::new("DoubleQuotedIdentifierSegment").to_matchable(),
+                    Ref::keyword("DEFAULT").to_matchable(),
                 ])
                 .to_matchable(),
             ])

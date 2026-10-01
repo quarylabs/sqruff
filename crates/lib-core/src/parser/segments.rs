@@ -550,10 +550,21 @@ impl ErasedSegment {
                     // The slices must never go backwards so the end of the slice
                     // must be >= the start. This can happen when source positions
                     // are non-monotonic due to template expansion.
+                    let templated_slice =
+                        templated_idx..patch_start_pos.templated_slice.start.max(templated_idx);
+                    let source_slice = if start_diff > 0 && fixed_raw.is_empty() {
+                        templated_file
+                            .templated_slice_to_source_slice(templated_slice.clone())
+                            .unwrap_or_else(|_| {
+                                source_idx..patch_start_pos.source_slice.start.max(source_idx)
+                            })
+                    } else {
+                        source_idx..patch_start_pos.source_slice.start.max(source_idx)
+                    };
                     acc.push(FixPatch::new(
-                        templated_idx..patch_start_pos.templated_slice.start.max(templated_idx),
+                        templated_slice,
                         fixed_raw.into(),
-                        source_idx..patch_start_pos.source_slice.start.max(source_idx),
+                        source_slice,
                         String::new(),
                         String::new(),
                     ));

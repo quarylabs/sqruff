@@ -37,6 +37,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 pub fn raw_dialect() -> Dialect {
     let mut mysql = ansi::raw_dialect();
     mysql.name = DialectKind::Mysql;
+    mysql
+        .sets_mut("bare_functions")
+        .extend(["NOW", "LOCALTIME", "LOCALTIMESTAMP"]);
 
     mysql.add([(
         "NullSafeEqualsSegment".into(),
@@ -904,6 +907,47 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // Parenthesized timestamp functions in MySQL/MariaDB column defaults.
+    mysql.add([
+        (
+            "CurrentTimestampLikeFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                one_of(vec![
+                    Ref::keyword("CURRENT_TIMESTAMP").to_matchable(),
+                    Ref::keyword("NOW").to_matchable(),
+                    Ref::keyword("LOCALTIME").to_matchable(),
+                    Ref::keyword("LOCALTIMESTAMP").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CurrentTimestampLikeFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("NumericLiteralSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CurrentTimestampLikeFunctionSegment".into(),
+            NodeMatcher::new(SyntaxKind::Function, |_| {
+                Sequence::new(vec![
+                    Ref::new("CurrentTimestampLikeFunctionNameSegment").to_matchable(),
+                    Ref::new("CurrentTimestampLikeFunctionContentsSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // ColumnDefinitionSegment.
     mysql.replace_grammar(
         "ColumnDefinitionSegment",
@@ -937,19 +981,8 @@ pub fn raw_dialect() -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("DEFAULT").to_matchable(),
                             one_of(vec![
-                                Sequence::new(vec![
-                                    one_of(vec![
-                                        Ref::keyword("CURRENT_TIMESTAMP").to_matchable(),
-                                        Ref::keyword("NOW").to_matchable(),
-                                    ])
-                                    .to_matchable(),
-                                    Bracketed::new(vec![
-                                        Ref::new("NumericLiteralSegment").optional().to_matchable(),
-                                    ])
-                                    .config(|this| this.optional())
-                                    .to_matchable(),
-                                ])
-                                .to_matchable(),
+                                Ref::new("CurrentTimestampLikeFunctionSegment").to_matchable(),
+                                Ref::new("BareFunctionSegment").to_matchable(),
                                 Ref::new("NumericLiteralSegment").to_matchable(),
                                 Ref::new("QuotedLiteralSegment").to_matchable(),
                                 Ref::keyword("NULL").to_matchable(),
@@ -963,13 +996,8 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("ON").to_matchable(),
                             Ref::keyword("UPDATE").to_matchable(),
                             one_of(vec![
-                                Ref::keyword("CURRENT_TIMESTAMP").to_matchable(),
-                                Ref::keyword("NOW").to_matchable(),
-                                Bracketed::new(vec![
-                                    Ref::new("NumericLiteralSegment").optional().to_matchable(),
-                                ])
-                                .config(|this| this.optional())
-                                .to_matchable(),
+                                Ref::new("CurrentTimestampLikeFunctionSegment").to_matchable(),
+                                Ref::new("BareFunctionSegment").to_matchable(),
                             ])
                             .config(|this| this.optional())
                             .to_matchable(),

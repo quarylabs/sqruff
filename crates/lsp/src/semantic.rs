@@ -897,6 +897,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | DropCatalogStatement
         | DropCollationStatement
         | DropColumnClause
+        | DropCredentialStatement
         | DropDynamicTableSegment
         | DropEventStatement
         | DropExternalVolumeStatement

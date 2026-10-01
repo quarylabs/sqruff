@@ -617,3 +617,112 @@ file:
       - raw_comparison_operator: =
     - parameter: InnoDB
 - statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo_min_1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - keyword: CHARACTER
+    - keyword: SET
+    - parameter: utf8mb4
+    - parameter: COLLATE
+    - parameter: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo_min_2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - parameter: InnoDB
+    - parameter: CHARSET
+    - parameter: utf8mb4
+    - parameter: COLLATE
+    - parameter: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo_min_3
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - keyword: CHARACTER
+    - keyword: SET
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - parameter: utf8mb4
+    - parameter: COLLATE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - parameter: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: foo_min_4
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - parameter: CHARSET
+    - parameter: DEFAULT
+    - parameter: COLLATE
+    - parameter: DEFAULT
+- statement_terminator: ;

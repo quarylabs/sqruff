@@ -1161,6 +1161,54 @@ rules = all
     }
 
     #[test]
+    fn default_max_parse_depth_allows_nested_tsql_function_calls() {
+        // SQLFluff #7805: ordinary nested calls can exceed the old 255-depth default.
+        let config = FluffConfig::from_source("[sqruff]\ndialect = tsql\n", None);
+        let linter = Linter::new(config, None, None, true).unwrap();
+        let sql = r#"CREATE FUNCTION [dbo].[fn_StringWithoutSpace]
+(
+    @string NVARCHAR(MAX)
+)
+RETURNS NVARCHAR(MAX)
+WITH INLINE = OFF
+AS
+BEGIN
+    RETURN (
+        SELECT LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(REPLACE(
+            @string,
+            CHAR(160), CHAR(32)),
+            CHAR(32),  '()'),
+            ')(',      ''),
+            '()',      CHAR(32))))
+    )
+END
+"#;
+        let parsed = linter.parse_string(&Tables::default(), sql, None).unwrap();
+
+        assert!(
+            parsed
+                .violations
+                .iter()
+                .all(|error| !error.description.contains("Maximum parse depth exceeded")),
+            "unexpected parse-depth violation: {:?}",
+            parsed.violations
+        );
+
+        let old_config =
+            FluffConfig::from_source("[sqruff]\ndialect = tsql\nmax_parse_depth = 255\n", None);
+        let old_linter = Linter::new(old_config, None, None, true).unwrap();
+        let old_result = old_linter
+            .parse_string(&Tables::default(), sql, None)
+            .unwrap();
+        assert!(
+            old_result
+                .violations
+                .iter()
+                .any(|error| error.description.contains("Maximum parse depth exceeded"))
+        );
+    }
+
+    #[test]
     fn zero_max_parse_depth_disables_the_limit() {
         let config =
             FluffConfig::from_source("[sqruff]\ndialect = ansi\nmax_parse_depth = 0\n", None);

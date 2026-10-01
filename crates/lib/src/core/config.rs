@@ -1263,10 +1263,10 @@ mod tests {
     }
 
     #[test]
-    fn max_parse_depth_defaults_to_255() {
+    fn max_parse_depth_defaults_to_600() {
         let config = FluffConfig::default();
 
-        assert_eq!(config.raw["core"]["max_parse_depth"].as_int(), Some(255));
+        assert_eq!(config.raw["core"]["max_parse_depth"].as_int(), Some(600));
     }
 
     #[test]

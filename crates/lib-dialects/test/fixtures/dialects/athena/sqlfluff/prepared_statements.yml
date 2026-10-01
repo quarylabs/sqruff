@@ -167,7 +167,7 @@ file:
       - keyword: WITH
       - bracketed:
         - start_bracket: (
-        - keyword: format
+        - property_name_identifier: format
         - comparison_operator:
           - raw_comparison_operator: =
         - quoted_literal: '''PARQUET'''

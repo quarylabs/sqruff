@@ -21,19 +21,19 @@ file:
       - data_type:
         - data_type_identifier: NUMBER
       - keyword: IS
-      - oracle_declare_segment:
-        - naked_identifier: acc_bal
-        - data_type:
-          - data_type_identifier: NUMBER
-          - bracketed_arguments:
-            - bracketed:
-              - start_bracket: (
-              - numeric_literal: '11'
-              - comma: ','
-              - numeric_literal: '2'
-              - end_bracket: )
-        - statement_terminator: ;
       - oracle_begin_end_block:
+        - oracle_declare_segment:
+          - naked_identifier: acc_bal
+          - data_type:
+            - data_type_identifier: NUMBER
+            - bracketed_arguments:
+              - bracketed:
+                - start_bracket: (
+                - numeric_literal: '11'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
+          - statement_terminator: ;
         - keyword: BEGIN
         - statement:
           - select_statement:
@@ -142,12 +142,12 @@ file:
           - data_type:
             - data_type_identifier: NUMBER
           - keyword: AS
-          - oracle_declare_segment:
-            - naked_identifier: original_squared
-            - data_type:
-              - data_type_identifier: NUMBER
-            - statement_terminator: ;
           - oracle_begin_end_block:
+            - oracle_declare_segment:
+              - naked_identifier: original_squared
+              - data_type:
+                - data_type_identifier: NUMBER
+              - statement_terminator: ;
             - keyword: BEGIN
             - statement:
               - assignment_segment_statement:
@@ -496,3 +496,26 @@ file:
   - statement_terminator: ;
   - slash_buffer_executor:
     - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_create_function_statement:
+      - keyword: FUNCTION
+      - oracle_function_name:
+        - function_name_identifier: ex_func
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - parameter: some_string
+          - keyword: IN
+          - data_type:
+            - data_type_identifier: VARCHAR2
+          - end_bracket: )
+      - keyword: RETURN
+      - data_type:
+        - data_type_identifier: RAW
+      - keyword: AS
+      - keyword: LANGUAGE
+      - keyword: JAVA
+      - keyword: NAME
+      - quoted_literal: '''exClass.someMethod(java.lang.String) return byte[]'''
+      - statement_terminator: ;

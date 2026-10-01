@@ -209,12 +209,12 @@ file:
           - data_type:
             - data_type_identifier: NUMBER
           - keyword: IS
-          - oracle_declare_segment:
-            - naked_identifier: new_empno
-            - data_type:
-              - data_type_identifier: NUMBER
-            - statement_terminator: ;
           - oracle_begin_end_block:
+            - oracle_declare_segment:
+              - naked_identifier: new_empno
+              - data_type:
+                - data_type_identifier: NUMBER
+              - statement_terminator: ;
             - keyword: BEGIN
             - statement:
               - select_statement:
@@ -329,12 +329,12 @@ file:
           - data_type:
             - data_type_identifier: NUMBER
           - keyword: IS
-          - oracle_declare_segment:
-            - naked_identifier: new_deptno
-            - data_type:
-              - data_type_identifier: NUMBER
-            - statement_terminator: ;
           - oracle_begin_end_block:
+            - oracle_declare_segment:
+              - naked_identifier: new_deptno
+              - data_type:
+                - data_type_identifier: NUMBER
+              - statement_terminator: ;
             - keyword: BEGIN
             - statement:
               - select_statement:
@@ -761,15 +761,15 @@ file:
           - data_type:
             - data_type_identifier: VARCHAR2
           - keyword: IS
-          - oracle_declare_segment:
-            - naked_identifier: var_1
-            - data_type:
-              - data_type_identifier: NUMBER
-            - oracle_assignment_operator: :=
-            - expression:
-              - numeric_literal: '0'
-            - statement_terminator: ;
           - oracle_begin_end_block:
+            - oracle_declare_segment:
+              - naked_identifier: var_1
+              - data_type:
+                - data_type_identifier: NUMBER
+              - oracle_assignment_operator: :=
+              - expression:
+                - numeric_literal: '0'
+              - statement_terminator: ;
             - keyword: BEGIN
             - statement:
               - oracle_begin_end_block:

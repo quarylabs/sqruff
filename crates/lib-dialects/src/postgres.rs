@@ -7133,7 +7133,7 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 AnyNumberOf::new(vec![
                     Sequence::new(vec![
-                        Ref::new("SelectStatementSegment").to_matchable(),
+                        Ref::new("SelectableGrammar").to_matchable(),
                         Ref::new("MetaCommandQueryBufferSegment")
                             .optional()
                             .to_matchable(),

@@ -246,6 +246,15 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    mariadb.replace_grammar(
+        "TriggerOrReplaceGrammar",
+        Sequence::new(vec![
+            Ref::keyword("OR").to_matchable(),
+            Ref::keyword("REPLACE").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     mariadb.replace_grammar("TableOptionsSegment", mariadb_table_options_grammar());
 
     // MariaDB additionally supports PERSISTENT generated columns.

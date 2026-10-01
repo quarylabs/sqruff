@@ -17,7 +17,7 @@ use crate::parser::segments::file::FileSegment;
 use context::ParseContext;
 use segments::{ErasedSegment, Tables};
 
-pub const DEFAULT_MAX_PARSE_DEPTH: usize = 255;
+pub const DEFAULT_MAX_PARSE_DEPTH: usize = 600;
 pub const DEFAULT_MAX_PARSE_NODES: usize = 100_000;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]

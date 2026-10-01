@@ -3,12 +3,12 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
-use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{
     AnyNumberOf, any_set_of, one_of, optionally_bracketed,
 };
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
+use sqruff_lib_core::parser::grammar::{Nothing, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
@@ -2524,6 +2524,13 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Dialect-specific ALTER TABLE actions are disabled for MySQL. MariaDB
+    // replaces this grammar to support ADD/DROP SYSTEM VERSIONING.
+    mysql.add([(
+        "AddDropSystemVersioningGrammar".into(),
+        Nothing::new().to_matchable().into(),
+    )]);
+
     // AlterTableStatementSegment.
     mysql.replace_grammar(
         "AlterTableStatementSegment",
@@ -2537,6 +2544,7 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("TableOptionsSegment").to_matchable(),
                     // Online DDL options
                     Ref::new("AlterTableOnlineDDLOptionSegment").to_matchable(),
+                    Ref::new("AddDropSystemVersioningGrammar").to_matchable(),
                     // ADD column
                     Sequence::new(vec![
                         Ref::keyword("ADD").to_matchable(),

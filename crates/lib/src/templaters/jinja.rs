@@ -571,6 +571,24 @@ apply_dbt_builtins = True
     }
 
     #[test]
+    fn test_jinja_dbt_config_allows_start_of_file_fix() {
+        let sql =
+            "\n{{\n    config(\n        materialized = \"ephemeral\",\n    )\n}}\n\nSELECT 1\n";
+        let config = FluffConfig::from_source(
+            "[sqruff]\ndialect = databricks\nrules = LT13\ntemplater = jinja\n\
+             [sqruff:templater:jinja]\napply_dbt_builtins = True\n",
+            None,
+        );
+        let linter = Linter::new(config, None, None, false).unwrap();
+
+        let linted = linter
+            .lint_string(sql, Some("test.sql".to_string()), true)
+            .unwrap();
+
+        assert_eq!(linted.fix_string(), &sql[1..]);
+    }
+
+    #[test]
     fn test_jinja_templater_dynamic_variable_no_violations() {
         let source = r"
     [sqruff]

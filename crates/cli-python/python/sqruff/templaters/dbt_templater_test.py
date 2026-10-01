@@ -151,6 +151,41 @@ def test_dbt_compile_failure_reports_reason(
     clear_templater_cache()
 
 
+def test_target_and_target_path_from_env(monkeypatch):
+    """Use dbt environment defaults unless sqruff config explicitly sets them."""
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_apply_dbt_builtins=True,
+        jinja_library_paths=None,
+        jinja_templater_paths=None,
+        jinja_exclude_macros_from_path=None,
+        jinja_loader_search_path=None,
+        jinja_ignore_templating=None,
+        dbt_target=None,
+        dbt_profile=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+        dbt_profiles_dir=None,
+    )
+    templater = DbtTemplater(sqlfluff_config=config)
+    monkeypatch.delenv("DBT_TARGET", raising=False)
+    monkeypatch.delenv("DBT_TARGET_PATH", raising=False)
+    assert templater._get_target() is None
+    assert templater._get_target_path() is None
+
+    monkeypatch.setenv("DBT_TARGET", "dev")
+    monkeypatch.setenv("DBT_TARGET_PATH", "custom_target")
+    assert templater._get_target() == "dev"
+    assert templater._get_target_path() == "custom_target"
+
+    templater.config = config._replace(
+        dbt_target="prod", dbt_target_path="configured_target"
+    )
+    assert templater._get_target() == "prod"
+    assert templater._get_target_path() == "configured_target"
+
+
 def test_project_dir_from_env(tmp_path, monkeypatch):
     """Use DBT_PROJECT_DIR when no project directory is configured."""
     project_dir = tmp_path / "env_project"

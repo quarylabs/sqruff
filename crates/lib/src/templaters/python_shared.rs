@@ -124,7 +124,10 @@ impl From<&FluffConfig> for PythonFluffConfig {
                 .templater_value(TemplaterKind::Dbt, "profiles_dir")
                 .and_then(|value| value.as_string())
                 .map(ToString::to_string),
-            dbt_target: None,
+            dbt_target: value
+                .templater_value(TemplaterKind::Dbt, "target")
+                .and_then(|value| value.as_string())
+                .map(ToString::to_string),
             dbt_target_path: value
                 .templater_value(TemplaterKind::Dbt, "target_path")
                 .and_then(|value| value.as_string())
@@ -353,6 +356,23 @@ exclude_macros_from_path = macros/excluded
             ]
         );
         fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_dbt_target_is_serialized() {
+        let source = r"
+[sqruff]
+templater = dbt
+[sqruff:templater:dbt]
+target = production
+";
+        let config = FluffConfig::from_source(source, None);
+        let python_fluff_config = PythonFluffConfig::from(config);
+
+        assert_eq!(
+            python_fluff_config.dbt_target.as_deref(),
+            Some("production")
+        );
     }
 
     #[test]

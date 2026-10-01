@@ -479,6 +479,7 @@ pub enum SyntaxKind {
     DropColumnClause,
     DropConnectionStatement,
     DropConsumerGroupStatement,
+    DropCredentialStatement,
     DropDatabaseStatement,
     DropDatashareStatement,
     DropDictionaryStatement,

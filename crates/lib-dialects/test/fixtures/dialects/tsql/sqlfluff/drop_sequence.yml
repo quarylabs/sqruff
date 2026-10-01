@@ -1,0 +1,50 @@
+file:
+- batch:
+  - statement:
+    - drop_sequence_statement:
+      - keyword: DROP
+      - keyword: SEQUENCE
+      - column_reference:
+        - naked_identifier: my_seq
+  - statement_terminator: ;
+  - statement:
+    - drop_sequence_statement:
+      - keyword: DROP
+      - keyword: SEQUENCE
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: my_seq
+  - statement_terminator: ;
+  - statement:
+    - drop_sequence_statement:
+      - keyword: DROP
+      - keyword: SEQUENCE
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+        - naked_identifier: my_seq
+  - statement_terminator: ;
+  - statement:
+    - drop_sequence_statement:
+      - keyword: DROP
+      - keyword: SEQUENCE
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+        - naked_identifier: my_seq
+      - comma: ','
+      - column_reference:
+        - naked_identifier: my_other_seq
+  - statement_terminator: ;
+  - statement:
+    - drop_sequence_statement:
+      - keyword: DROP
+      - keyword: SEQUENCE
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: my_seq
+  - statement_terminator: ;

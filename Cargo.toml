@@ -23,6 +23,10 @@ codegen-units = 1
 debug = false
 strip = true
 
+[profile.bench]
+debug = true
+strip = false
+
 [workspace.dependencies]
 log = "0.4"
 indexmap = "2.14.0"

@@ -4051,6 +4051,73 @@ pub fn raw_dialect() -> Dialect {
     );
 
     sparksql_dialect.replace_grammar(
+        "MergeMatchSegment",
+        AnyNumberOf::new(vec![
+            Ref::new("MergeMatchedClauseSegment").to_matchable(),
+            Ref::new("MergeNotMatchedClauseSegment").to_matchable(),
+            Ref::new("MergeNotMatchedBySourceClauseSegment").to_matchable(),
+        ])
+        .config(|this| this.min_times(1))
+        .to_matchable(),
+    );
+
+    sparksql_dialect.replace_grammar(
+        "MergeNotMatchedClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("WHEN").to_matchable(),
+            Ref::keyword("NOT").to_matchable(),
+            Ref::keyword("MATCHED").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("BY").to_matchable(),
+                Ref::keyword("TARGET").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("AND").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::keyword("THEN").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            Ref::new("MergeInsertClauseSegment").to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    sparksql_dialect.add([(
+        "MergeNotMatchedBySourceClauseSegment".into(),
+        NodeMatcher::new(SyntaxKind::MergeWhenNotMatchedBySourceClause, |_| {
+            Sequence::new(vec![
+                Ref::keyword("WHEN").to_matchable(),
+                Ref::keyword("NOT").to_matchable(),
+                Ref::keyword("MATCHED").to_matchable(),
+                Ref::keyword("BY").to_matchable(),
+                Ref::keyword("SOURCE").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("AND").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("THEN").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                one_of(vec![
+                    Ref::new("MergeUpdateClauseSegment").to_matchable(),
+                    Ref::new("MergeDeleteClauseSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    sparksql_dialect.replace_grammar(
         "UpdateStatementSegment",
         Sequence::new(vec![
             Ref::keyword("UPDATE").to_matchable(),

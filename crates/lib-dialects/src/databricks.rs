@@ -2330,7 +2330,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Delimited::new(vec![
                     Sequence::new(vec![
                         Ref::new("ColumnReferenceSegment").to_matchable(),
-                        Ref::new("CommentGrammar").optional().to_matchable(),
+                        Ref::new("CommentClauseSegment").optional().to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -2339,7 +2339,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .config(|this| this.optional())
             .to_matchable(),
             AnyNumberOf::new(vec![
-                Ref::new("CommentGrammar").to_matchable(),
+                Ref::new("CommentClauseSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("DEFAULT").to_matchable(),
                     Ref::keyword("COLLATION").to_matchable(),

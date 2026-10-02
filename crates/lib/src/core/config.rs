@@ -447,6 +447,13 @@ impl ConfigLoader {
             .map(PathBuf::from)
     }
 
+    fn expand_user_path(path: &Path) -> PathBuf {
+        path.strip_prefix("~")
+            .ok()
+            .and_then(|suffix| Self::user_home_dir().map(|home| home.join(suffix)))
+            .unwrap_or_else(|| path.to_path_buf())
+    }
+
     fn iter_config_locations_up_to_path(
         path: &Path,
         working_path: Option<&Path>,
@@ -542,10 +549,16 @@ impl ConfigLoader {
         };
 
         if let Some(extra_config_path) = extra_config_path {
-            let path = PathBuf::from(&extra_config_path);
+            let path = Self::expand_user_path(Path::new(&extra_config_path));
             if !path.exists() {
                 return Err(SQLFluffUserError::new(format!(
                     "Extra config path '{extra_config_path}' does not exist."
+                )));
+            }
+
+            if path.is_dir() {
+                return Err(SQLFluffUserError::new(format!(
+                    "Extra config path '{extra_config_path}' is a directory, not a file."
                 )));
             }
 
@@ -566,7 +579,7 @@ impl ConfigLoader {
         &self,
         path: impl AsRef<Path>,
     ) -> Result<HashMap<String, Value>, SQLFluffUserError> {
-        let path = path.as_ref();
+        let path = Self::expand_user_path(path.as_ref());
 
         let filename_options = [
             /* "setup.cfg", "tox.ini", "pep8.ini", */
@@ -582,7 +595,7 @@ impl ConfigLoader {
         if path.is_dir() {
             for fname in filename_options {
                 let path = path.join(fname);
-                if path.exists() {
+                if path.is_file() {
                     ConfigLoader::try_load_config_file(path, &mut configs)?;
                 }
             }
@@ -1384,6 +1397,57 @@ mod tests {
         );
 
         fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_config_discovery_skips_directory_named_sqlfluff() {
+        let root = temp_config_dir("sqlfluff-directory");
+        fs::create_dir(root.join(".sqlfluff")).unwrap();
+        fs::write(
+            root.join("pyproject.toml"),
+            "[tool.sqlfluff.core]\ndialect = \"postgres\"\n",
+        )
+        .unwrap();
+
+        let config = ConfigLoader.try_load_config_at_path(&root).unwrap();
+        assert_eq!(config["core"]["dialect"].as_string(), Some("postgres"));
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_extra_config_directory_returns_user_error() {
+        let root = temp_config_dir("directory-extra-config");
+        let error = ConfigLoader
+            .try_load_config_up_to_path(&root, Some(root.to_string_lossy().into_owned()), true)
+            .unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            format!(
+                "Extra config path '{}' is a directory, not a file.",
+                root.display()
+            )
+        );
+
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_extra_config_expands_home_directory() {
+        let Some(home) = ConfigLoader::user_home_dir() else {
+            return;
+        };
+        if !home.is_dir() {
+            return;
+        }
+
+        let error = ConfigLoader
+            .try_load_config_up_to_path(&home, Some("~".into()), true)
+            .unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "Extra config path '~' is a directory, not a file."
+        );
     }
 
     #[test]

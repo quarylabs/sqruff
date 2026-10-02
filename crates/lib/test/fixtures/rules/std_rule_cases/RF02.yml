@@ -750,3 +750,38 @@ test_fail_unqualified_reference_with_star_except:
   configs:
     core:
       dialect: databricks
+
+test_pass_sparksql_broadcast_hint:
+  # The hint argument names a table alias, not a select-list column.
+  pass_str: |
+    SELECT /*+ BROADCAST(a) */
+        a.col_one,
+        b.col_two
+    FROM table_a AS a
+    JOIN table_b AS b ON a.id = b.id
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_sparksql_merge_hint_multiple_tables:
+  pass_str: |
+    SELECT /*+ MERGE(a, b) */
+        a.col_one,
+        b.col_two
+    FROM table_a AS a
+    JOIN table_b AS b ON a.id = b.id
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_unqualified_reference_with_hint:
+  # Only the reference inside the hint is exempt.
+  fail_str: |
+    SELECT /*+ BROADCAST(a) */
+        col_one,
+        b.col_two
+    FROM table_a AS a
+    JOIN table_b AS b ON a.id = b.id
+  configs:
+    core:
+      dialect: sparksql

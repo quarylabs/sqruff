@@ -1,5 +1,6 @@
 use hashbrown::HashMap;
 use itertools::{Itertools as _, enumerate, multiunzip};
+use smallvec::SmallVec;
 use smol_str::StrExt;
 
 use super::context::ParseContext;
@@ -66,12 +67,12 @@ pub fn prune_options(
     segments: &[ErasedSegment],
     parse_context: &mut ParseContext,
     start_idx: u32,
-) -> Vec<Matchable> {
-    let mut available_options = vec![];
+) -> SmallVec<[Matchable; 8]> {
+    let mut available_options = SmallVec::new();
 
     // Find the first code element to match against.
     let Some((first_raw, first_types)) = first_non_whitespace(segments, start_idx) else {
-        return options.to_vec();
+        return options.iter().cloned().collect();
     };
 
     for opt in options {

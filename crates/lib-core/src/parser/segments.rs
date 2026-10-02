@@ -92,6 +92,7 @@ impl SegmentBuilder {
                 position_marker: None,
                 kind: NodeOrTokenKind::Token(TokenData {
                     raw: raw.into(),
+                    raw_upper: raw.to_uppercase().into(),
                     source_fixes: Vec::new(),
                 }),
                 hash: OnceCell::new(),
@@ -713,13 +714,16 @@ impl ErasedSegment {
         &self.value.class_types
     }
 
-    pub(crate) fn first_non_whitespace_segment_raw_upper(&self) -> Option<String> {
-        for seg in self.get_raw_segments() {
-            if !seg.raw().is_empty() {
-                return Some(seg.raw().to_uppercase());
+    pub(crate) fn first_non_whitespace_segment_raw_upper(&self) -> Option<&str> {
+        match &self.value.kind {
+            NodeOrTokenKind::Token(token) => {
+                (!token.raw.is_empty()).then_some(token.raw_upper.as_str())
             }
+            NodeOrTokenKind::Node(node) => node
+                .segments
+                .iter()
+                .find_map(ErasedSegment::first_non_whitespace_segment_raw_upper),
         }
-        None
     }
 
     pub fn is(&self, other: &ErasedSegment) -> bool {
@@ -1415,6 +1419,7 @@ pub struct NodeData {
 #[derive(Debug, Clone, PartialEq)]
 pub struct TokenData {
     raw: SmolStr,
+    raw_upper: SmolStr,
     source_fixes: Vec<SourceFix>,
 }
 
@@ -1484,6 +1489,38 @@ mod tests {
         let raw_seg = raw_seg();
 
         assert_eq!(raw_seg.raw(), "foobar");
+    }
+
+    #[test]
+    fn test_token_raw_upper_is_cached_and_updated_on_edit() {
+        let templated_file: TemplatedFile = "gzip".into();
+        let position = PositionMarker::new(0..4, 0..4, templated_file, None, None);
+        let token = SegmentBuilder::token(1, "gzip", SyntaxKind::Word)
+            .with_position(position)
+            .finish();
+        assert_eq!(token.first_non_whitespace_segment_raw_upper(), Some("GZIP"));
+
+        let edited = token.edit(2, Some("zip".into()), None);
+        assert_eq!(edited.first_non_whitespace_segment_raw_upper(), Some("ZIP"));
+        assert_eq!(token.first_non_whitespace_segment_raw_upper(), Some("GZIP"));
+    }
+
+    #[test]
+    fn test_first_non_whitespace_raw_upper_borrows_nested_token() {
+        let empty = SegmentBuilder::token(1, "", SyntaxKind::Word).finish();
+        let token = SegmentBuilder::token(2, "straße", SyntaxKind::Word).finish();
+        let node = SegmentBuilder::node(
+            3,
+            SyntaxKind::Expression,
+            DialectKind::Ansi,
+            vec![empty, token],
+        )
+        .finish();
+
+        assert_eq!(
+            node.first_non_whitespace_segment_raw_upper(),
+            Some("STRASSE")
+        );
     }
 
     #[test]

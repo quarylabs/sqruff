@@ -2,7 +2,7 @@ load("//:compiler.bzl", "compiler_targets")
 load("//:clippy.bzl", "cargo_lints", "clippy_config")
 load("//:python_tests.bzl", "python_rust_test")
 load("@crates//:defs.bzl", "aliases", "all_crate_deps", "crate_deps")
-load("@rules_rust//rust:defs.bzl", "rust_test", "rust_library", "rust_shared_library")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_test", "rust_library", "rust_shared_library")
 
 exports_files(["Cargo.toml"])
 
@@ -103,6 +103,7 @@ filegroup(
             "src/**/*.cfg",
             "tests/**/*.rs",
             "benches/**/*.rs",
+            "examples/**/*.rs",
         ],
         allow_empty = True,
     ) + ["Cargo.toml"],
@@ -159,7 +160,9 @@ python_rust_test(
         name = "benchmark_" + benchmark,
         lint_config = ":cargo_lints",
         aliases = aliases(normal_dev = True),
-        srcs = ["benches/" + benchmark + ".rs", "benches/shims/global_alloc_overwrite.rs"],
+        srcs = ["benches/" + benchmark + ".rs"] + (
+            ["benches/tpc_support/mod.rs"] if benchmark == "tpc" else ["benches/shims/global_alloc_overwrite.rs"]
+        ),
         crate_root = "benches/" + benchmark + ".rs",
         crate_features = clippy_config([], _CARGO_FEATURES),
         use_libtest_harness = False,
@@ -170,7 +173,22 @@ python_rust_test(
         ],
         tags = ["manual"],
     )
-    for benchmark in ["depth_map", "fix", "parsing"]
+    for benchmark in ["depth_map", "fix", "parsing", "tpc"]
 ]
 
-compiler_targets(libraries = [":sqruff-lib"])
+rust_binary(
+    name = "time_tpc",
+    lint_config = ":cargo_lints",
+    aliases = aliases(normal_dev = True),
+    srcs = ["examples/time_tpc.rs", "benches/tpc_support/mod.rs"],
+    crate_root = "examples/time_tpc.rs",
+    crate_features = clippy_config([], _CARGO_FEATURES),
+    deps = all_crate_deps(normal_dev = True) + [
+        ":sqruff-lib",
+        "//crates/lib-core:sqruff-lib-core",
+        "@rules_python//python/cc:current_py_cc_libs",
+    ],
+    tags = ["manual"],
+)
+
+compiler_targets(libraries = [":sqruff-lib", ":time_tpc"])

@@ -37,6 +37,10 @@ harness = false
 name = "depth_map"
 harness = false
 
+[[bench]]
+name = "tpc"
+harness = false
+
 [features]
 parser = ["sqruff-lib-core/stringify"]
 python = ["pyo3", "sqruff-lib-core/serde"]

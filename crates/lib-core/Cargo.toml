@@ -18,6 +18,7 @@ stringify = ["dep:serde_yaml", "serde"]
 
 [dependencies]
 smol_str = "0.3.1"
+smallvec = "1.15.1"
 strum.workspace = true
 strum_macros.workspace = true
 indexmap.workspace = true

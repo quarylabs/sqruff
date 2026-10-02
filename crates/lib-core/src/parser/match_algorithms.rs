@@ -51,7 +51,7 @@ pub fn first_trimmed_raw(seg: &ErasedSegment) -> String {
 pub fn first_non_whitespace(
     segments: &[ErasedSegment],
     start_idx: u32,
-) -> Option<(String, &SyntaxSet)> {
+) -> Option<(&str, &SyntaxSet)> {
     for segment in segments.iter().skip(start_idx as usize) {
         if let Some(raw) = segment.first_non_whitespace_segment_raw_upper() {
             return Some((raw, segment.class_types()));
@@ -92,7 +92,7 @@ pub fn prune_options(
         // simple _type_ matching.
 
         // Match Raws
-        if simple_raws.contains(&first_raw) {
+        if simple_raws.contains(first_raw) {
             // If we get here, it's matched the FIRST element of the string buffer.
             available_options.push(opt.clone());
             matched = true;

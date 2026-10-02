@@ -3686,6 +3686,7 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("DropTriggerStatementSegment").to_matchable(),
             Ref::new("CreateDatabaseScopedCredentialStatementSegment").to_matchable(),
             Ref::new("CreateCredentialStatementSegment").to_matchable(),
+            Ref::new("AlterCredentialStatementSegment").to_matchable(),
             Ref::new("DropCredentialStatementSegment").to_matchable(),
             Ref::new("CreateExternalDataSourceStatementSegment").to_matchable(),
             Ref::new("SqlcmdCommandSegment").to_matchable(),
@@ -3894,12 +3895,41 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
-    // https://learn.microsoft.com/en-us/sql/t-sql/statements/drop-credential-transact-sql
+    // ALTER CREDENTIAL and ALTER DATABASE SCOPED CREDENTIAL statements.
+    dialect.add([(
+        "AlterCredentialStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::AlterCredentialStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("ALTER").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DATABASE").to_matchable(),
+                    Ref::keyword("SCOPED").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::keyword("CREDENTIAL").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Ref::keyword("WITH").to_matchable(),
+                Ref::new("CredentialGrammar").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // DROP CREDENTIAL and DROP DATABASE SCOPED CREDENTIAL statements.
     dialect.add([(
         "DropCredentialStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::DropCredentialStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("DROP").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DATABASE").to_matchable(),
+                    Ref::keyword("SCOPED").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
                 Ref::keyword("CREDENTIAL").to_matchable(),
                 Ref::new("ObjectReferenceSegment").to_matchable(),
             ])

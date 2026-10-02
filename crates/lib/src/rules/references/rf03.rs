@@ -171,6 +171,13 @@ fn check_references(
         if this_ref_type == "unqualified" && reference.0.is_templated() {
             continue;
         }
+        // A bare reference to the table's own alias/name denotes the whole
+        // row, not a column. It must not be qualified or affect consistency.
+        if this_ref_type == "unqualified"
+            && reference.0.raw_normalized().as_str() == table_ref_str.as_str()
+        {
+            continue;
+        }
         if this_ref_type == "qualified"
             && is_struct_dialect
             && &reference

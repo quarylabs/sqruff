@@ -1,0 +1,26 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_create_package_statement:
+      - keyword: create
+      - keyword: or
+      - keyword: replace
+      - keyword: package
+      - object_reference:
+        - naked_identifier: ex_pkg
+      - keyword: is
+      - oracle_declare_segment:
+        - keyword: pragma
+        - function:
+          - oracle_function_name:
+            - function_name_identifier: restrict_references
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - keyword: default
+              - end_bracket: )
+        - statement_terminator: ;
+      - keyword: end
+      - object_reference:
+        - naked_identifier: ex_pgk
+  - statement_terminator: ;

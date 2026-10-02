@@ -3983,6 +3983,7 @@ pub fn raw_dialect() -> Dialect {
         one_of(vec![
             Ref::new("ExpressionSegment").to_matchable(),
             Ref::new("NamedArgumentSegment").to_matchable(),
+            Ref::keyword("DEFAULT").to_matchable(),
         ])
         .to_matchable(),
     );

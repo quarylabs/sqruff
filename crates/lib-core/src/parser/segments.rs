@@ -175,26 +175,8 @@ impl ErasedSegment {
 
     /// Return the segment's raw value without identifier quoting delimiters.
     pub fn raw_normalized(&self) -> SmolStr {
-        fn normalize_raw(raw: &str) -> String {
-            if raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2 {
-                return raw[1..raw.len() - 1].replace("]]", "]");
-            }
-
-            if matches!(raw.chars().next(), Some('"') | Some('\'') | Some('`'))
-                && raw.len() >= 2
-                && raw.chars().next() == raw.chars().last()
-            {
-                let quote = raw.chars().next().unwrap();
-                return raw[1..raw.len() - 1]
-                    .replace(&format!("{quote}{quote}"), &quote.to_string())
-                    .replace(&format!("\\{quote}"), &quote.to_string());
-            }
-
-            raw.to_string()
-        }
-
-        if self.segments().is_empty() {
-            return normalize_raw(self.raw()).into();
+        if let NodeOrTokenKind::Token(token) = &self.value.kind {
+            return token.raw.normalized().clone();
         }
 
         self.get_raw_segments()
@@ -1422,17 +1404,28 @@ pub struct TokenData {
 }
 
 /// Keep token text and its uppercase lookup key in sync on construction.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 struct RawString {
     raw: SmolStr,
-    raw_upper: SmolStr,
+    // No duplicate allocation for punctuation, numbers, or already-uppercase text.
+    raw_upper: Option<SmolStr>,
+    // Only quoted tokens need a cached normalized form. Keep it off the common path.
+    normalized: Option<Box<OnceCell<SmolStr>>>,
+}
+
+impl PartialEq for RawString {
+    fn eq(&self, other: &Self) -> bool {
+        self.raw == other.raw
+    }
 }
 
 impl RawString {
     fn new(raw: &str) -> Self {
         Self {
             raw: raw.into(),
-            raw_upper: raw.to_uppercase().into(),
+            raw_upper: (!raw.is_ascii() || raw.bytes().any(|byte| byte.is_ascii_lowercase()))
+                .then(|| raw.to_uppercase().into()),
+            normalized: needs_normalization(raw).then(|| Box::new(OnceCell::new())),
         }
     }
 
@@ -1445,8 +1438,40 @@ impl RawString {
     }
 
     fn upper(&self) -> &str {
-        self.raw_upper.as_str()
+        self.raw_upper.as_deref().unwrap_or(&self.raw)
     }
+
+    fn normalized(&self) -> &SmolStr {
+        self.normalized
+            .as_ref()
+            .map(|cache| cache.get_or_init(|| normalize_raw(&self.raw).into()))
+            .unwrap_or(&self.raw)
+    }
+}
+
+fn needs_normalization(raw: &str) -> bool {
+    (raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2)
+        || (matches!(raw.chars().next(), Some('"') | Some('\'') | Some('`'))
+            && raw.len() >= 2
+            && raw.chars().next() == raw.chars().last())
+}
+
+fn normalize_raw(raw: &str) -> String {
+    if raw.starts_with('[') && raw.ends_with(']') && raw.len() >= 2 {
+        return raw[1..raw.len() - 1].replace("]]", "]");
+    }
+
+    if matches!(raw.chars().next(), Some('"') | Some('\'') | Some('`'))
+        && raw.len() >= 2
+        && raw.chars().next() == raw.chars().last()
+    {
+        let quote = raw.chars().next().unwrap();
+        return raw[1..raw.len() - 1]
+            .replace(&format!("{quote}{quote}"), &quote.to_string())
+            .replace(&format!("\\{quote}"), &quote.to_string());
+    }
+
+    raw.to_string()
 }
 
 #[track_caller]
@@ -1529,6 +1554,41 @@ mod tests {
         let edited = token.edit(2, Some("zip".into()), None);
         assert_eq!(edited.first_non_whitespace_segment_raw_upper(), Some("ZIP"));
         assert_eq!(token.first_non_whitespace_segment_raw_upper(), Some("GZIP"));
+    }
+
+    #[test]
+    fn test_raw_string_skips_redundant_uppercase_copy() {
+        let uppercase = RawString::new("SELECT 42");
+        assert!(uppercase.raw_upper.is_none());
+        assert_eq!(uppercase.upper(), "SELECT 42");
+
+        let lowercase = RawString::new("select");
+        assert_eq!(lowercase.raw_upper.as_deref(), Some("SELECT"));
+
+        let unicode = RawString::new("straße");
+        assert_eq!(unicode.upper(), "STRASSE");
+    }
+
+    #[test]
+    fn test_raw_string_normalization_is_lazy_and_preserved_on_edit() {
+        let plain = RawString::new("plain");
+        assert!(plain.normalized.is_none());
+        assert_eq!(plain.normalized(), "plain");
+
+        let quoted = RawString::new("\"a\"\"b\"");
+        assert!(quoted.normalized.as_ref().unwrap().get().is_none());
+        assert_eq!(quoted.normalized(), "a\"b");
+        assert!(quoted.normalized.as_ref().unwrap().get().is_some());
+
+        let templated_file: TemplatedFile = "\"a\"".into();
+        let position = PositionMarker::new(0..3, 0..3, templated_file, None, None);
+        let token = SegmentBuilder::token(1, "\"a\"", SyntaxKind::QuotedIdentifier)
+            .with_position(position)
+            .finish();
+        assert_eq!(token.raw_normalized(), "a");
+        let edited = token.edit(2, Some("\"b\"".into()), None);
+        assert_eq!(edited.raw_normalized(), "b");
+        assert_eq!(token.raw_normalized(), "a");
     }
 
     #[test]

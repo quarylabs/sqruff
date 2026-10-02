@@ -417,7 +417,7 @@ pub fn rebreak_sequence(
 
             // Generate the text for any issues.
             let pretty_name = loc.pretty_target_name();
-            let desc = if loc.strict {
+            let desc = if loc.strict && !has_newline_after {
                 format!(
                     "{} should always start a new line.",
                     capitalize(&pretty_name)
@@ -433,7 +433,22 @@ pub fn rebreak_sequence(
                 attached_description = Some(desc);
             }
 
-            if loc.next.adj_pt_idx == loc.next.pre_code_pt_idx
+            if !has_newline_after {
+                // Strict mid-line case: insert a newline before the operator.
+                let (new_results, prev_point) = prev_point.indent_to(
+                    tables,
+                    &deduce_line_indent(
+                        loc.target.get_raw_segments().first().unwrap(),
+                        root_segment,
+                    ),
+                    None,
+                    loc.target.clone().into(),
+                    None,
+                    None,
+                );
+                elem_buff[loc.prev.adj_pt_idx as usize] = prev_point.into();
+                new_results
+            } else if loc.next.adj_pt_idx == loc.next.pre_code_pt_idx
                 && elem_buff[loc.next.newline_pt_idx as usize].num_newlines() == 1
             {
                 // Simple case. No comments.
@@ -515,7 +530,7 @@ pub fn rebreak_sequence(
             }
 
             let pretty_name = loc.pretty_target_name();
-            let desc = if loc.strict {
+            let desc = if loc.strict && !has_newline_before {
                 format!(
                     "{} should always be at the end of a line.",
                     capitalize(&pretty_name)
@@ -531,7 +546,22 @@ pub fn rebreak_sequence(
                 attached_description = Some(desc);
             }
 
-            if loc.prev.adj_pt_idx == loc.prev.pre_code_pt_idx
+            if !has_newline_before {
+                // Strict mid-line case: insert a newline after the operator.
+                let (new_results, next_point) = next_point.indent_to(
+                    tables,
+                    &deduce_line_indent(
+                        loc.target.get_raw_segments().last().unwrap(),
+                        root_segment,
+                    ),
+                    loc.target.clone().into(),
+                    None,
+                    None,
+                    None,
+                );
+                elem_buff[loc.next.adj_pt_idx as usize] = next_point.into();
+                new_results
+            } else if loc.prev.adj_pt_idx == loc.prev.pre_code_pt_idx
                 && elem_buff[loc.prev.newline_pt_idx as usize].num_newlines() == 1
             {
                 let (new_results, next_point) = next_point.indent_to(

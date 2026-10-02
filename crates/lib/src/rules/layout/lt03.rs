@@ -151,6 +151,7 @@ FROM foo
                     SyntaxKind::ComparisonOperator,
                     SyntaxKind::AssignmentOperator,
                     SyntaxKind::OracleAssignmentOperator,
+                    SyntaxKind::PipeOperator,
                 ])
             },
         )
@@ -165,6 +166,13 @@ impl RuleLT03 {
         parent: &ErasedSegment,
         line_position: LinePositionConfig,
     ) -> bool {
+        if !matches!(
+            line_position.position(),
+            LinePosition::Leading | LinePosition::Trailing
+        ) {
+            return false;
+        }
+
         let idx = parent
             .segments()
             .iter()
@@ -174,12 +182,18 @@ impl RuleLT03 {
         let has_newline_before = self.seek_newline(parent.segments(), idx, Direction::Backward);
         let has_newline_after = self.seek_newline(parent.segments(), idx, Direction::Forward);
 
-        match line_position.position() {
-            LinePosition::Leading if line_position.is_attached() => !has_newline_after,
-            LinePosition::Leading => has_newline_before || !has_newline_after,
-            LinePosition::Trailing if line_position.is_attached() => !has_newline_before,
-            LinePosition::Trailing => has_newline_after || !has_newline_before,
-            _ => false,
+        let (in_position, opposite) = if line_position.position() == LinePosition::Leading {
+            (has_newline_before, has_newline_after)
+        } else {
+            (has_newline_after, has_newline_before)
+        };
+
+        if line_position.is_attached() {
+            // Attached operators must not float alone on their own line.
+            !opposite && (in_position || !line_position.is_strict())
+        } else {
+            // Strict positioning also rejects mid-line operators.
+            in_position || (!line_position.is_strict() && !opposite)
         }
     }
 

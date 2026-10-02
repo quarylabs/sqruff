@@ -734,6 +734,7 @@ pub enum SyntaxKind {
     InsertRowAlias,
     InsertStatement,
     IntegerLiteral,
+    IntervalDataType,
     IntervalExpression,
     IntervalLiteral,
     IntoClause,

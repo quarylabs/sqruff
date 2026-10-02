@@ -357,9 +357,9 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
-        // PivotForInGrammar
+        // PivotForGrammar
         (
-            "PivotForInGrammar".into(),
+            "PivotForGrammar".into(),
             Sequence::new(vec![
                 Ref::keyword("FOR").to_matchable(),
                 optionally_bracketed(vec![
@@ -367,6 +367,14 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                 ])
                 .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // PivotInGrammar
+        (
+            "PivotInGrammar".into(),
+            Sequence::new(vec![
                 Ref::keyword("IN").to_matchable(),
                 Bracketed::new(vec![
                     Delimited::new(vec![
@@ -375,6 +383,73 @@ pub fn raw_dialect() -> Dialect {
                             Ref::new("AliasExpressionSegment").optional().to_matchable(),
                         ])
                         .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // UNPIVOT labels must all be character literals or all numeric literals.
+        (
+            "UnpivotAsCharacterLiteralGrammar".into(),
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    optionally_bracketed(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AS").to_matchable(),
+                        optionally_bracketed(vec![
+                            Delimited::new(vec![Ref::new("QuotedLiteralSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UnpivotAsNumericLiteralGrammar".into(),
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    optionally_bracketed(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("AS").to_matchable(),
+                        optionally_bracketed(vec![
+                            Delimited::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UnpivotInGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("IN").to_matchable(),
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Ref::new("UnpivotAsCharacterLiteralGrammar").to_matchable(),
+                        Ref::new("UnpivotAsNumericLiteralGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -1321,7 +1396,8 @@ pub fn raw_dialect() -> Dialect {
                             .to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("PivotForInGrammar").to_matchable(),
+                        Ref::new("PivotForGrammar").to_matchable(),
+                        Ref::new("PivotInGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -1343,7 +1419,8 @@ pub fn raw_dialect() -> Dialect {
                                 .to_matchable(),
                         ])
                         .to_matchable(),
-                        Ref::new("PivotForInGrammar").to_matchable(),
+                        Ref::new("PivotForGrammar").to_matchable(),
+                        Ref::new("UnpivotInGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -4230,8 +4307,23 @@ pub fn raw_dialect() -> Dialect {
         ),
     );
 
+    // PIVOT and UNPIVOT belong to the FROM expression so WHERE can follow them.
+    oracle.replace_grammar(
+        "JoinLikeClauseGrammar",
+        Sequence::new(vec![
+            AnyNumberOf::new(vec![
+                Ref::new("PivotSegment").to_matchable(),
+                Ref::new("UnpivotSegment").to_matchable(),
+            ])
+            .config(|this| this.min_times = 1)
+            .to_matchable(),
+            Ref::new("AliasExpressionSegment").optional().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // ---- Override UnorderedSelectStatementSegment ----
-    // SQLFluff inserts HierarchicalQueryClause, Pivot, Unpivot before GroupBy,
+    // SQLFluff inserts HierarchicalQueryClause before GroupBy,
     // and IntoClause/BulkCollectIntoClause before From.
     oracle.replace_grammar(
         "UnorderedSelectStatementSegment",
@@ -4250,8 +4342,6 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("HierarchicalQueryClauseSegment")
                 .optional()
                 .to_matchable(),
-            Ref::new("PivotSegment").optional().to_matchable(),
-            Ref::new("UnpivotSegment").optional().to_matchable(),
             Ref::new("GroupByClauseSegment").optional().to_matchable(),
             Ref::new("HavingClauseSegment").optional().to_matchable(),
             Ref::new("OverlapsClauseSegment").optional().to_matchable(),
@@ -4264,8 +4354,6 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("OrderByClauseSegment").to_matchable(),
             Ref::new("LimitClauseSegment").to_matchable(),
             Ref::new("HierarchicalQueryClauseSegment").to_matchable(),
-            Ref::new("PivotSegment").to_matchable(),
-            Ref::new("UnpivotSegment").to_matchable(),
             Ref::keyword("LOG").to_matchable(),
         ])
         .config(|this| {
@@ -4293,8 +4381,6 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("HierarchicalQueryClauseSegment")
                 .optional()
                 .to_matchable(),
-            Ref::new("PivotSegment").optional().to_matchable(),
-            Ref::new("UnpivotSegment").optional().to_matchable(),
             Ref::new("GroupByClauseSegment").optional().to_matchable(),
             Ref::new("HavingClauseSegment").optional().to_matchable(),
             Ref::new("OverlapsClauseSegment").optional().to_matchable(),

@@ -2423,9 +2423,17 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec![
                         Sequence::new(vec![
                             Ref::new("PartitionSpecGrammar").optional().to_matchable(),
-                            Ref::new("InsertBracketedColumnReferenceListGrammar")
-                                .optional()
+                            one_of(vec![
+                                Ref::new("InsertBracketedColumnReferenceListGrammar")
+                                    .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("BY").to_matchable(),
+                                    Ref::keyword("NAME").to_matchable(),
+                                ])
                                 .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
                             Ref::new("InsertSourceGrammar").to_matchable(),
                         ])
                         .to_matchable(),

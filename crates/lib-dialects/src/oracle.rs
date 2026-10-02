@@ -3986,6 +3986,55 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    oracle.replace_grammar(
+        "TimeWithTZGrammar",
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("TIMESTAMP").to_matchable(),
+                Ref::new("BracketedArguments").optional().to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("LOCAL").to_matchable(),
+                        Ref::keyword("TIME").to_matchable(),
+                        Ref::keyword("ZONE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("WITH").to_matchable(),
+                            Ref::keyword("WITHOUT").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("TIME").to_matchable(),
+                        Ref::keyword("ZONE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("TIME").to_matchable(),
+                Ref::new("BracketedArguments").optional().to_matchable(),
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("WITHOUT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("TIME").to_matchable(),
+                    Ref::keyword("ZONE").to_matchable(),
+                ])
+                .config(|config| config.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // Oracle DROP USER supports an optional CASCADE clause.
     oracle.replace_grammar(
         "DropUserStatementSegment",

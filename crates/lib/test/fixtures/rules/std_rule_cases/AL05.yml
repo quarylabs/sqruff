@@ -641,3 +641,20 @@ test_pass_postgres_json_arrow_operator_alias_reference_reproducer:
   configs:
     core:
       dialect: postgres
+
+test_pass_tsql_nodes_method_requires_alias:
+  # SQLFluff #6733: .nodes() is table-valued and requires a correlation name.
+  pass_str: |
+    SELECT Col.value('.', 'NVARCHAR(MAX)') AS V
+    FROM @Xml.nodes('/a') AS Tbl(Col);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_nodes_method_requires_alias_unreferenced:
+  # The alias is required even when neither it nor its column is referenced.
+  pass_str: |
+    SELECT 1 FROM @Xml.nodes('a') AS Tbl(Col);
+  configs:
+    core:
+      dialect: tsql

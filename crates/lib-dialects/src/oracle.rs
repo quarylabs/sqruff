@@ -3970,6 +3970,55 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // ---- Grammar replacements ----
+    oracle.add([(
+        "IntervalDataTypeSegment".into(),
+        NodeMatcher::new(SyntaxKind::IntervalDataType, |_| {
+            Sequence::new(vec![
+                Ref::keyword("INTERVAL").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("YEAR").to_matchable(),
+                        Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                            .config(|config| config.optional())
+                            .to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        Ref::keyword("MONTH").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DAY").to_matchable(),
+                        Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                            .config(|config| config.optional())
+                            .to_matchable(),
+                        Ref::keyword("TO").to_matchable(),
+                        Ref::keyword("SECOND").to_matchable(),
+                        Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                            .config(|config| config.optional())
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    let ansi_datatype_grammar = oracle
+        .grammar("DatatypeSegment")
+        .match_grammar(&oracle)
+        .unwrap();
+    oracle.replace_grammar(
+        "DatatypeSegment",
+        one_of(vec![
+            Ref::new("IntervalDataTypeSegment").to_matchable(),
+            ansi_datatype_grammar,
+        ])
+        .to_matchable(),
+    );
+
     oracle.replace_grammar(
         "TemporaryGrammar",
         Sequence::new(vec![

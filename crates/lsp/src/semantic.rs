@@ -301,6 +301,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | TimeZoneGrammar
         | BracketedArguments
         | DataType
+        | IntervalDataType
         | AliasExpression
         | ArrayAccessor
         | ArrayLiteral

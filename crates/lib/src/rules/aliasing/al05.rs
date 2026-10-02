@@ -251,10 +251,36 @@ impl RuleAL05 {
                     .extend(table_aliases);
 
                 for r in reference_buffer.into_iter().chain(table_reference_buffer) {
-                    for tr in
-                        r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name)
+                    let table_refs =
+                        r.extract_possible_references(ObjectReferenceLevel::Table, dialect.name);
+                    for tr in &table_refs {
+                        self.resolve_and_mark_reference(query.clone(), tr, dialect.name, payloads);
+                    }
+                    // PostgreSQL and Redshift permit a table alias as a whole-row
+                    // value. A single-part reference has no table-level component,
+                    // but may still refer to an alias in this or a parent query.
+                    if table_refs.is_empty()
+                        && matches!(dialect.name, DialectKind::Postgres | DialectKind::Redshift)
                     {
-                        self.resolve_and_mark_reference(query.clone(), &tr, dialect.name, payloads);
+                        let raw_refs = r.iter_raw_references();
+                        if let [reference] = raw_refs.as_slice()
+                            && reference.segments.len() == 1
+                            && const {
+                                SyntaxSet::new(&[
+                                    SyntaxKind::Identifier,
+                                    SyntaxKind::NakedIdentifier,
+                                    SyntaxKind::QuotedIdentifier,
+                                ])
+                            }
+                            .contains(reference.segments[0].get_type())
+                        {
+                            self.resolve_and_mark_reference(
+                                query.clone(),
+                                reference,
+                                dialect.name,
+                                payloads,
+                            );
+                        }
                     }
                 }
             }

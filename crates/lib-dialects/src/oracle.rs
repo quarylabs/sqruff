@@ -1975,6 +1975,10 @@ pub fn raw_dialect() -> Dialect {
                         .to_matchable(),
                     Ref::keyword("AS").to_matchable(),
                     optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                        .config(|config| {
+                            config.terminators =
+                                vec![Ref::new("BatchDelimiterGrammar").to_matchable()];
+                        })
                         .to_matchable(),
                     Ref::new("WithNoSchemaBindingClauseSegment")
                         .optional()

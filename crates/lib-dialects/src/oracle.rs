@@ -303,8 +303,10 @@ pub fn raw_dialect() -> Dialect {
         // PlusJoinSegment
         (
             "PlusJoinSegment".into(),
-            Bracketed::new(vec![
+            Sequence::new(vec![
+                Ref::new("StartBracketSegment").to_matchable(),
                 StringParser::new("+", SyntaxKind::PlusJoinSymbol).to_matchable(),
+                Ref::new("EndBracketSegment").to_matchable(),
             ])
             .to_matchable()
             .into(),
@@ -317,6 +319,7 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec![
                         Ref::new("ColumnReferenceSegment").to_matchable(),
                         Ref::new("FunctionSegment").to_matchable(),
+                        Ref::new("LiteralGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::new("EqualsSegment").to_matchable(),
@@ -331,6 +334,7 @@ pub fn raw_dialect() -> Dialect {
                     one_of(vec![
                         Ref::new("ColumnReferenceSegment").to_matchable(),
                         Ref::new("FunctionSegment").to_matchable(),
+                        Ref::new("LiteralGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                 ])

@@ -346,6 +346,31 @@ impl RuleAL05 {
                     return true;
                 }
 
+                // T-SQL's XML .nodes() method returns a rowset that requires a
+                // correlation name, even when the alias is never referenced.
+                // Other datatype methods can be scalar, so keep this an allowlist.
+                if dialect_name == DialectKind::Tsql
+                    && segment
+                        .recursive_crawl(
+                            const { &SyntaxSet::single(SyntaxKind::DatatypeMethod) },
+                            false,
+                            &SyntaxSet::EMPTY,
+                            true,
+                        )
+                        .iter()
+                        .any(|method| {
+                            method
+                                .child(
+                                    const {
+                                        &SyntaxSet::single(SyntaxKind::DatatypeMethodNameIdentifier)
+                                    },
+                                )
+                                .is_some_and(|name| name.raw().eq_ignore_ascii_case("nodes"))
+                        })
+                {
+                    return true;
+                }
+
                 return if segment
                     .child(const { &SyntaxSet::new(&[SyntaxKind::ValuesClause]) })
                     .is_some()

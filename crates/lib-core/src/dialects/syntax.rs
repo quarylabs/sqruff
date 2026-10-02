@@ -48,6 +48,7 @@ pub enum SyntaxKind {
     AlterConnectionRotateKeys,
     AlterConsumerGroupStatement,
     AlterCortexSearchServiceStatement,
+    AlterCredentialStatement,
     AlterDatabaseScopedConfigurationStatement,
     AlterDatabaseStatement,
     AlterDefaultPrivilegesGrant,

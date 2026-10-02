@@ -828,6 +828,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateColumnstoreIndexStatement
         | CreateCortexSearchServiceStatement
         | CreateCredentialStatement
+        | AlterCredentialStatement
         | CreateDatabaseRoleStatement
         | CreateDatabaseScopedCredentialStatement
         | CreateDatabaseWithOptions

@@ -2003,6 +2003,7 @@ dependencies = [
  "regex-automata",
  "serde",
  "serde_yaml",
+ "smallvec",
  "smol_str",
  "strum",
  "strum_macros",

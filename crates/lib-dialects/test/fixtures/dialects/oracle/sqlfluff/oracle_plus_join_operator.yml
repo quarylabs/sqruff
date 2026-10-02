@@ -1,0 +1,56 @@
+file:
+- oracle_batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: e1
+            - dot: .
+            - naked_identifier: abc
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: exp1
+            - alias_expression:
+              - naked_identifier: e1
+        - comma: ','
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: exp2
+            - alias_expression:
+              - naked_identifier: e2
+      - where_clause:
+        - keyword: where
+        - expression:
+          - column_reference:
+            - naked_identifier: e1
+            - dot: .
+            - naked_identifier: key
+          - start_bracket: (
+          - plus_join_symbol: +
+          - end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - column_reference:
+            - naked_identifier: e2
+            - dot: .
+            - naked_identifier: key
+          - binary_operator: and
+          - column_reference:
+            - naked_identifier: e1
+            - dot: .
+            - naked_identifier: str
+          - start_bracket: (
+          - plus_join_symbol: +
+          - end_bracket: )
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - quoted_literal: '''smth'''
+  - statement_terminator: ;

@@ -102,6 +102,30 @@ fn get_struct_alias_refs(segment: &ErasedSegment) -> HashSet<u32> {
     struct_alias_ids
 }
 
+/// References inside `SELECT * EXCEPT (...)` name columns to remove from the
+/// wildcard expansion; they are not ordinary references needing qualification.
+fn get_select_except_refs(segment: &ErasedSegment) -> HashSet<u32> {
+    let mut except_ref_ids = HashSet::new();
+
+    for except_clause in segment.recursive_crawl(
+        const { &SyntaxSet::single(SyntaxKind::SelectExceptClause) },
+        true,
+        const { &SyntaxSet::new(&[SyntaxKind::SelectStatement, SyntaxKind::MergeStatement]) },
+        true,
+    ) {
+        for reference in except_clause.recursive_crawl(
+            const { &SyntaxSet::new(&[SyntaxKind::ObjectReference, SyntaxKind::ColumnReference]) },
+            true,
+            const { &SyntaxSet::EMPTY },
+            true,
+        ) {
+            except_ref_ids.insert(reference.id());
+        }
+    }
+
+    except_ref_ids
+}
+
 fn get_object_references_excluding(
     segment: &ErasedSegment,
     exclude_ids: Option<&HashSet<u32>>,
@@ -141,8 +165,9 @@ pub fn get_select_statement_info(
     }
 
     let sc = segment.child(const { &SyntaxSet::new(&[SyntaxKind::SelectClause]) })?;
-    let struct_alias_ids = get_struct_alias_refs(&sc);
-    let mut reference_buffer = get_object_references_excluding(&sc, Some(&struct_alias_ids));
+    let mut exclude_ref_ids = get_struct_alias_refs(&sc);
+    exclude_ref_ids.extend(get_select_except_refs(&sc));
+    let mut reference_buffer = get_object_references_excluding(&sc, Some(&exclude_ref_ids));
     let mut table_reference_buffer = Vec::new();
     for potential_clause in [
         SyntaxKind::WhereClause,

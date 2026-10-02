@@ -55,6 +55,40 @@ test_ignore_postgres_value_table_functions_generate_series:
     core:
       dialect: postgres
 
+test_postgres_row_reference_in_function:
+  # A table alias passed as a whole-row value is used (SQLFluff #7039).
+  pass_str: |
+    SELECT each(hstore(t)) AS x FROM member_plan AS t
+  configs:
+    core:
+      dialect: postgres
+
+test_postgres_whole_row_reference:
+  pass_str: |
+    SELECT t FROM foo AS t
+  configs:
+    core:
+      dialect: postgres
+
+test_postgres_row_reference_in_subquery:
+  pass_str: |
+    SELECT
+        (x).key
+    FROM (
+        SELECT EACH(HSTORE(t)) AS x
+        FROM member_plan AS t
+    ) AS q
+  configs:
+    core:
+      dialect: postgres
+
+test_redshift_whole_row_reference:
+  pass_str: |
+    SELECT t FROM foo AS t
+  configs:
+    core:
+      dialect: redshift
+
 test_fail_table_alias_not_referenced_2:
   # Similar to test_1, but with implicit alias.
   fail_str: SELECT * FROM my_tbl foo

@@ -91,8 +91,7 @@ impl SegmentBuilder {
                 class_types: class_types(syntax_kind),
                 position_marker: None,
                 kind: NodeOrTokenKind::Token(TokenData {
-                    raw: raw.into(),
-                    raw_upper: raw.to_uppercase().into(),
+                    raw: RawString::new(raw),
                     source_fixes: Vec::new(),
                 }),
                 hash: OnceCell::new(),
@@ -170,7 +169,7 @@ impl ErasedSegment {
             NodeOrTokenKind::Node(node) => node.raw.get_or_init(|| {
                 SmolStr::from_iter(self.segments().iter().map(|segment| segment.raw().as_str()))
             }),
-            NodeOrTokenKind::Token(token) => &token.raw,
+            NodeOrTokenKind::Token(token) => token.raw.as_smol_str(),
         }
     }
 
@@ -702,7 +701,7 @@ impl ErasedSegment {
                 todo!()
             }
             NodeOrTokenKind::Token(token) => {
-                let raw = raw.as_deref().unwrap_or(token.raw.as_ref());
+                let raw = raw.as_deref().unwrap_or(token.raw.as_str());
                 SegmentBuilder::token(id, raw, self.value.syntax_kind)
                     .with_position(self.get_position_marker().unwrap().clone())
                     .finish()
@@ -717,7 +716,7 @@ impl ErasedSegment {
     pub(crate) fn first_non_whitespace_segment_raw_upper(&self) -> Option<&str> {
         match &self.value.kind {
             NodeOrTokenKind::Token(token) => {
-                (!token.raw.is_empty()).then_some(token.raw_upper.as_str())
+                (!token.raw.as_str().is_empty()).then_some(token.raw.upper())
             }
             NodeOrTokenKind::Node(node) => node
                 .segments
@@ -1418,9 +1417,36 @@ pub struct NodeData {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TokenData {
+    raw: RawString,
+    source_fixes: Vec<SourceFix>,
+}
+
+/// Keep token text and its uppercase lookup key in sync on construction.
+#[derive(Debug, Clone, PartialEq)]
+struct RawString {
     raw: SmolStr,
     raw_upper: SmolStr,
-    source_fixes: Vec<SourceFix>,
+}
+
+impl RawString {
+    fn new(raw: &str) -> Self {
+        Self {
+            raw: raw.into(),
+            raw_upper: raw.to_uppercase().into(),
+        }
+    }
+
+    fn as_smol_str(&self) -> &SmolStr {
+        &self.raw
+    }
+
+    fn as_str(&self) -> &str {
+        self.raw.as_str()
+    }
+
+    fn upper(&self) -> &str {
+        self.raw_upper.as_str()
+    }
 }
 
 #[track_caller]

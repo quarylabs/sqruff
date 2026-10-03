@@ -14,10 +14,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: TABLE1
-- statement_terminator: |2
-
-
-    -- COMMAND ----------
+- statement_terminator: -- COMMAND ----------
 - statement:
   - select_statement:
     - select_clause:
@@ -33,10 +30,7 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: TABLE2
-- statement_terminator: |2
-
-
-    -- COMMAND ----------
+- statement_terminator: -- COMMAND ----------
 - statement:
   - select_statement:
     - select_clause:

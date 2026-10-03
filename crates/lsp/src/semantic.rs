@@ -1012,6 +1012,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | LogicalFileName
         | LoginUserSegment
         | MagicCellSegment
+        | BareMagicCell
         | MagicLine
         | MagicSingleLine
         | MagicStart

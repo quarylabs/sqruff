@@ -228,8 +228,8 @@ impl Matcher {
                 let raw = format!("{}{}", content_buff, &str_buff[..start]);
 
                 elem_buff.push(Element::new(
-                    trim_post_subdivide.name,
-                    trim_post_subdivide.syntax_kind,
+                    self.pattern.name,
+                    self.pattern.syntax_kind,
                     raw,
                 ));
                 elem_buff.push(mk_element(&str_buff[start..end]));
@@ -317,6 +317,16 @@ impl Pattern {
             name,
             syntax_kind,
             kind: SearchPatternKind::Legacy(starts_with, fancy_regex::Regex::new(&regex).unwrap()),
+        }
+    }
+
+    /// A regex used only for searching inside an already matched lexer span.
+    /// Unlike `legacy`, it must not be anchored to the start of that span.
+    pub fn search_regex(name: &'static str, regex: &'static str, syntax_kind: SyntaxKind) -> Self {
+        Self {
+            name,
+            syntax_kind,
+            kind: SearchPatternKind::Legacy(|_| true, fancy_regex::Regex::new(regex).unwrap()),
         }
     }
 

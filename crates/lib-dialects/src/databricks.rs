@@ -8,7 +8,7 @@ use sqruff_lib_core::parser::grammar::anyof::{
 };
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::Bracketed;
-use sqruff_lib_core::parser::lexer::Matcher;
+use sqruff_lib_core::parser::lexer::{Matcher, Pattern};
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{RegexParser, StringParser, TypedParser};
@@ -116,6 +116,78 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         "inline_comment",
     );
 
+    let newline_subdivider = || Pattern::search_regex("newline", r"\r\n|\n", SyntaxKind::Newline);
+    let notebook_start_trim = || {
+        Pattern::string(
+            "notebook_start",
+            "-- Databricks notebook source",
+            SyntaxKind::NotebookStart,
+        )
+    };
+    let command_trim = || Pattern::string("command", "-- COMMAND ----------", SyntaxKind::Command);
+    let starts_with_newline = |s: &str| s.starts_with('\n') || s.starts_with("\r\n");
+
+    // A bare magic cell at the start of a notebook must consume the header
+    // before the ordinary notebook_start matcher sees it.
+    databricks.insert_lexer_matchers(
+        vec![
+            Matcher::legacy(
+                "notebook_start_bare_magic_sql",
+                |s| s.starts_with("-- Databricks notebook source"),
+                r"-- Databricks notebook source(?:\r?\n)%sql\b[^\r\n]*",
+                SyntaxKind::InlineComment,
+            )
+            .subdivider(newline_subdivider())
+            .post_subdivide(notebook_start_trim()),
+            Matcher::legacy(
+                "notebook_start_bare_magic_cell",
+                |s| s.starts_with("-- Databricks notebook source"),
+                r"(?s)-- Databricks notebook source(?:\r?\n)%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+                SyntaxKind::BareMagicCell,
+            )
+            .subdivider(newline_subdivider())
+            .post_subdivide(notebook_start_trim()),
+        ],
+        "notebook_start",
+    );
+
+    // Match bare magic only at a cell boundary, so `%` elsewhere remains the
+    // modulo operator (including at the start of a later SQL line).
+    databricks.insert_lexer_matchers(
+        vec![
+            Matcher::legacy(
+                "bare_magic_sql",
+                starts_with_newline,
+                r"(\r?\n)+-- COMMAND ----------(\r?\n)+%sql\b[^\r\n]*",
+                SyntaxKind::InlineComment,
+            )
+            .subdivider(newline_subdivider())
+            .post_subdivide(command_trim()),
+            Matcher::legacy(
+                "bare_magic_cell",
+                starts_with_newline,
+                r"(?s)(\r?\n)+-- COMMAND ----------(\r?\n)+%(?:python|scala|r|sh|md|run|fs|pip|conda)\b[^\r\n]*(?:(?!(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)).)*(?=(?:\r?\n){2}-- COMMAND ----------(?:\r?\n)|\Z)",
+                SyntaxKind::BareMagicCell,
+            )
+            .subdivider(newline_subdivider())
+            .post_subdivide(command_trim()),
+        ],
+        "inline_comment",
+    );
+
+    // Keep command delimiters as their own token while preserving their
+    // surrounding newlines as whitespace tokens.
+    databricks.patch_lexer_matchers(vec![
+        Matcher::legacy(
+            "command",
+            starts_with_newline,
+            r"(\r?\n){2}-- COMMAND ----------(\r?\n)",
+            SyntaxKind::Command,
+        )
+        .subdivider(newline_subdivider())
+        .post_subdivide(command_trim()),
+    ]);
+
     databricks.add([
         (
             "CommandCellSegment".into(),
@@ -148,6 +220,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .into(),
         ),
         (
+            "BareMagicCellGrammar".into(),
+            TypedParser::new(SyntaxKind::BareMagicCell, SyntaxKind::BareMagicCell)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "VariableNameIdentifierSegment".into(),
             one_of(vec![
                 Ref::new("NakedIdentifierSegment").to_matchable(),
@@ -172,6 +250,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Ref::new("MagicSingleLineGrammar").optional().to_matchable(),
+                        AnyNumberOf::new(vec![Ref::new("BareMagicCellGrammar").to_matchable()])
+                            .to_matchable(),
                     ])
                     .config(|config| {
                         config.terminators =

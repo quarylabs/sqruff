@@ -1,0 +1,12 @@
+file:
+- statement:
+  - magic_cell_segment:
+    - bare_magic_cell: '%python'
+    - bare_magic_cell: print("first line of the notebook -> real magic cell")
+- statement_terminator: -- COMMAND ----------
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'

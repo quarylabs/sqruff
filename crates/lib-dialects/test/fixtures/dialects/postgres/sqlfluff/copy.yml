@@ -1442,7 +1442,7 @@ file:
       - naked_identifier: tmp_table
     - keyword: FROM
     - psql_variable:
-      - colon: ':'
+      - psql_variable_colon: ':'
       - parameter: source
 - statement_terminator: ;
 - statement:
@@ -1452,7 +1452,7 @@ file:
       - naked_identifier: my_table
     - keyword: FROM
     - psql_variable:
-      - colon: ':'
+      - psql_variable_colon: ':'
       - parameter: source
     - keyword: WITH
     - bracketed:
@@ -1471,7 +1471,7 @@ file:
       - naked_identifier: my_table
     - keyword: TO
     - psql_variable:
-      - colon: ':'
+      - psql_variable_colon: ':'
       - parameter: dest
     - keyword: WITH
     - bracketed:
@@ -1487,7 +1487,7 @@ file:
       - naked_identifier: my_table
     - keyword: FROM
     - psql_variable:
-      - colon: ':'
+      - psql_variable_colon: ':'
       - quoted_literal: '''fname'''
 - statement_terminator: ;
 - statement:
@@ -1497,7 +1497,7 @@ file:
       - naked_identifier: my_table
     - keyword: TO
     - psql_variable:
-      - colon: ':'
+      - psql_variable_colon: ':'
       - parameter: '"out"'
 - statement_terminator: ;
 - statement:
@@ -1508,7 +1508,7 @@ file:
     - keyword: FROM
     - keyword: PROGRAM
     - psql_variable:
-      - colon: ':'
+      - psql_variable_colon: ':'
       - quoted_literal: '''gen_cmd'''
 - statement_terminator: ;
 - statement:
@@ -1519,6 +1519,6 @@ file:
     - keyword: TO
     - keyword: PROGRAM
     - psql_variable:
-      - colon: ':'
+      - psql_variable_colon: ':'
       - parameter: dest_cmd
 - statement_terminator: ;

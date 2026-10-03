@@ -642,6 +642,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | Meta
         | BindColon
         | Colon
+        | PsqlVariableColon
         | TernaryColon
         | StatementTerminator
         | StartSquareBracket

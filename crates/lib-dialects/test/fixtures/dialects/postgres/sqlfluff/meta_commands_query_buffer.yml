@@ -169,7 +169,7 @@ file:
         - keyword: SELECT
         - select_clause_element:
           - psql_variable:
-            - colon: ':'
+            - psql_variable_colon: ':'
             - quoted_literal: '''my_psql_var'''
 - statement_terminator: ;
 - statement:

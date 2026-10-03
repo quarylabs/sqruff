@@ -2411,6 +2411,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("AccessStatementSegment").to_matchable(),
                 Ref::new("CreateStatementSegment").to_matchable(),
                 Ref::new("DefineStatementSegment").to_matchable(),
+                Ref::new("CreateDbtProjectStatementSegment").to_matchable(),
+                Ref::new("CreateDcmProjectStatementSegment").to_matchable(),
                 Ref::new("CreateTaskSegment").to_matchable(),
                 Ref::new("CreateUserSegment").to_matchable(),
                 Ref::new("CreateCloneStatementSegment").to_matchable(),
@@ -8434,6 +8436,80 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "CreateDbtProjectStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateDbtProjectStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("DBT").to_matchable(),
+                    Ref::keyword("PROJECT").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("FROM").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("CommentEqualsClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DBT_VERSION").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DEFAULT_TARGET").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("ExternalAccessIntegrationsEqualsSegment")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CreateDcmProjectStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateDcmProjectStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("DCM").to_matchable(),
+                    Ref::keyword("PROJECT").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("LOG_LEVEL").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("DEBUG").to_matchable(),
+                            Ref::keyword("INFO").to_matchable(),
+                            Ref::keyword("WARN").to_matchable(),
+                            Ref::keyword("ERROR").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("CommentEqualsClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "CreateUserSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateUserStatement, |_| {
                 Sequence::new(vec![
@@ -11249,6 +11325,17 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("STREAMLITS").to_matchable(),
                     Ref::keyword("TASKS").to_matchable(),
                     Ref::keyword("WORKSPACES").to_matchable(),
+                    Ref::keyword("DEPLOYMENTS").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DBT").to_matchable(),
+                        Ref::keyword("PROJECTS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DCM").to_matchable(),
+                        Ref::keyword("PROJECTS").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("USER").to_matchable(),
                         Ref::keyword("FUNCTIONS").to_matchable(),
@@ -11303,6 +11390,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("WAREHOUSE").to_matchable(),
                             Ref::keyword("VIEW").to_matchable(),
                             Ref::keyword("WORKSPACE").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("DBT").to_matchable(),
+                                Ref::keyword("PROJECT").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("DCM").to_matchable(),
+                                Ref::keyword("PROJECT").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Ref::new("ObjectReferenceSegment").optional().to_matchable(),
@@ -12139,6 +12236,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("CORTEX").to_matchable(),
                             Ref::keyword("SEARCH").to_matchable(),
                             Ref::keyword("SERVICE").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DCM").to_matchable(),
+                            Ref::keyword("PROJECT").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DBT").to_matchable(),
+                            Ref::keyword("PROJECT").to_matchable(),
                             Ref::new("ObjectReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
@@ -14031,6 +14140,16 @@ fn snowflake_access_schema_object() -> Matchable {
         Ref::keyword("MODEL").to_matchable(),
         Ref::keyword("WORKSPACE").to_matchable(),
         Sequence::new(vec![
+            Ref::keyword("DBT").to_matchable(),
+            Ref::keyword("PROJECT").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("DCM").to_matchable(),
+            Ref::keyword("PROJECT").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
             Ref::keyword("MATERIALIZED").to_matchable(),
             Ref::keyword("VIEW").to_matchable(),
         ])
@@ -14101,6 +14220,16 @@ fn snowflake_access_schema_plural_object() -> Matchable {
         Ref::keyword("NOTEBOOKS").to_matchable(),
         Ref::keyword("MODELS").to_matchable(),
         Ref::keyword("WORKSPACES").to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("DBT").to_matchable(),
+            Ref::keyword("PROJECTS").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("DCM").to_matchable(),
+            Ref::keyword("PROJECTS").to_matchable(),
+        ])
+        .to_matchable(),
     ])
     .to_matchable()
 }

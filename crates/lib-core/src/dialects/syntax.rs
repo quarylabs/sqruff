@@ -314,6 +314,8 @@ pub enum SyntaxKind {
     CreateDatabaseStatement,
     CreateDatabaseWithOptions,
     CreateDatashareStatement,
+    CreateDbtProjectStatement,
+    CreateDcmProjectStatement,
     CreateDictionaryStatement,
     CreateDomainStatement,
     CreateEventStatement,

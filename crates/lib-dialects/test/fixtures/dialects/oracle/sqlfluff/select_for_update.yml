@@ -218,3 +218,143 @@ file:
       - keyword: FOR
       - keyword: UPDATE
   - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: salary
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+            - alias_expression:
+              - naked_identifier: e
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: employee_id
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '100'
+      - keyword: FOR
+      - keyword: UPDATE
+      - keyword: NOWAIT
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: salary
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+            - alias_expression:
+              - naked_identifier: e
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: employee_id
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '100'
+      - keyword: FOR
+      - keyword: UPDATE
+      - keyword: OF
+      - oracle_table_reference:
+        - naked_identifier: e
+        - dot: .
+        - naked_identifier: salary
+      - keyword: NOWAIT
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: salary
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+            - alias_expression:
+              - naked_identifier: e
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: employee_id
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '100'
+      - keyword: FOR
+      - keyword: UPDATE
+      - keyword: OF
+      - oracle_table_reference:
+        - naked_identifier: e
+        - dot: .
+        - naked_identifier: salary
+      - keyword: WAIT
+      - numeric_literal: '5'
+  - statement_terminator: ;
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: salary
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+            - alias_expression:
+              - naked_identifier: e
+      - where_clause:
+        - keyword: WHERE
+        - expression:
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: employee_id
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - numeric_literal: '100'
+      - keyword: FOR
+      - keyword: UPDATE
+      - keyword: SKIP
+      - keyword: LOCKED
+  - statement_terminator: ;

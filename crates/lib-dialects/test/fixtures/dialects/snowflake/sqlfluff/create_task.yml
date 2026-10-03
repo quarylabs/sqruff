@@ -493,13 +493,17 @@ file:
     - numeric_literal: '10800000'
     - keyword: WHEN
     - snowflake_task_expression_segment:
-      - system_function_name: SYSTEM$STREAM_HAS_DATA
-      - bracketed:
-        - start_bracket: (
-        - quoted_literal: '''SCH.MY_STREAM'''
-        - end_bracket: )
-      - binary_operator: AND
       - expression:
+        - function:
+          - function_name:
+            - system_function_name: SYSTEM$STREAM_HAS_DATA
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: '''SCH.MY_STREAM'''
+              - end_bracket: )
+        - binary_operator: AND
         - numeric_literal: '1'
         - comparison_operator:
           - raw_comparison_operator: =

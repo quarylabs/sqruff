@@ -49,7 +49,13 @@ Enable the dbt templater in your `.sqruff` config file:
 ```ini
 [sqruff]
 templater = dbt
+encoding = utf-8
 ```
+
+Set `encoding = utf-8` explicitly when using `sqruff fix` with dbt. The dbt
+templater reads project files through dbt, while sqruff writes fixed files using
+its configured encoding. This avoids relying on autodetection and can prevent
+`UnicodeDecodeError` when dbt reads a file after sqruff fixes it.
 
 ## Configuration Options
 

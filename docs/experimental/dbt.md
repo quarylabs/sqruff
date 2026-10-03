@@ -16,10 +16,16 @@ To use sqruff with a dbt project, create a `.sqruff` configuration file in your 
 [sqruff]
 dialect = snowflake  # Set to your target database dialect
 templater = dbt
+encoding = utf-8
 
 [sqruff:templater:dbt]
 profiles_dir = ~/.dbt  # Path to your dbt profiles directory (optional)
 ```
+
+Set `encoding = utf-8` explicitly when using `sqruff fix` with dbt. The dbt
+templater reads project files through dbt, while sqruff writes fixed files using
+its configured encoding. This avoids relying on autodetection and can prevent
+`UnicodeDecodeError` when dbt reads a file after sqruff fixes it.
 
 ## Configuration options
 

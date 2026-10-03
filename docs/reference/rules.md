@@ -81,6 +81,7 @@ The following rules are available in this create. This list is generated from th
 | ST12 | [structure.consecutive_semicolons](#structureconsecutive_semicolons) | Remove consecutive semicolons. |  |
 | TQ02 | [tsql.procedure_begin_end](#tsqlprocedure_begin_end) | Procedure body with multiple statements should be wrapped in BEGIN/END block. |  |
 | TQ03 | [tsql.empty_batch](#tsqlempty_batch) | Remove empty batches. |  |
+| TQ04 | [tsql.prefer_as_alias](#tsqlprefer_as_alias) | Use ANSI-style `AS` aliasing instead of `alias = expression`. |  |
 
 ## Rule Details
 
@@ -3030,5 +3031,32 @@ CREATE TABLE dbo.test (
 );
 
 GO
+```
+
+
+### tsql.prefer_as_alias
+
+Use ANSI-style `AS` aliasing instead of `alias = expression`.
+
+**Code:** `TQ04`
+
+**Groups:** `all`, `tsql`
+
+**Fixable:** Yes
+
+T-SQL permits `alias = expression` in SELECT clauses. This opt-in rule
+prefers the ANSI-style `expression AS alias` form. Set `force_enable = true`
+to enable it for the T-SQL dialect.
+
+**Anti-pattern**
+
+```sql
+SELECT help3 = 'hello';
+```
+
+**Best practice**
+
+```sql
+SELECT 'hello' AS help3;
 ```
 

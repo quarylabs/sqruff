@@ -55,6 +55,10 @@ test_pass_with_clause_closing_oneline:
   # with statement oneline
   pass_str: with cte as (select 1) select * from cte
 
+test_pass_with_clause_closing_oneline_multiple_targets:
+  # A single-line CTE stays exempt even with multiple select targets.
+  pass_str: with cte as (select a, b from t) select * from cte
+
 test_pass_with_clause_closing_misaligned_indentation:
   # Fix with statement indentation
   pass_str: |

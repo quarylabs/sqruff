@@ -91,13 +91,18 @@ Don’t wrap top-level statements in brackets.
                 .into_iter()
                 .take_while(to_lift_predicate)
                 .collect::<Vec<_>>();
-            let trailing = filtered_children
-                .clone()
-                .into_iter()
+            // Keep the two ranges disjoint when every child is liftable.
+            // Reversing back preserves source order in the emitted DELETE fixes.
+            let mut trailing = filtered_children
+                .iter()
                 .rev()
-                .take_while(to_lift_predicate)
+                .take_while(|segment| to_lift_predicate(segment))
+                .take(filtered_children.len() - leading.len())
+                .cloned()
                 .collect::<Vec<_>>();
+            trailing.reverse();
 
+            // A Vec preserves the leading-then-trailing order, unlike a set.
             let lift_nodes = leading
                 .iter()
                 .chain(trailing.iter())

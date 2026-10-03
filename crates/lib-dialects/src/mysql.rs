@@ -472,6 +472,17 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Prefix lengths on index key parts should touch the column name, like
+    // bracketed datatype arguments (e.g. VARCHAR(255)).
+    mysql.add([(
+        "IndexColumnPrefixLengthSegment".into(),
+        NodeMatcher::new(SyntaxKind::BracketedArguments, |_| {
+            Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()]).to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // BracketedKeyPartListGrammar - (key_part, ...).
     mysql.add([(
         "BracketedKeyPartListGrammar".into(),
@@ -482,8 +493,7 @@ pub fn raw_dialect() -> Dialect {
                         Ref::new("ColumnReferenceSegment").to_matchable(),
                         Sequence::new(vec![
                             Ref::new("ColumnReferenceSegment").to_matchable(),
-                            Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
-                                .to_matchable(),
+                            Ref::new("IndexColumnPrefixLengthSegment").to_matchable(),
                         ])
                         .to_matchable(),
                         Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])

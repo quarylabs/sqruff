@@ -143,10 +143,11 @@ file:
       - start_bracket: (
       - column_reference:
         - naked_identifier: name
-      - bracketed:
-        - start_bracket: (
-        - numeric_literal: '10'
-        - end_bracket: )
+      - bracketed_arguments:
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '10'
+          - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:

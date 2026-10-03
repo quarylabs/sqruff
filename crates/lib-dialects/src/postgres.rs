@@ -1497,25 +1497,37 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
-    postgres.add([(
-        "PsqlVariableGrammar".into(),
-        NodeMatcher::new(SyntaxKind::PsqlVariable, |_| {
-            Sequence::new(vec![
-                optionally_bracketed(vec![
-                    Ref::new("ColonSegment").to_matchable(),
-                    one_of(vec![
-                        Ref::new("ParameterNameSegment").to_matchable(),
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
+    postgres.add([
+        (
+            "PsqlVariableColonSegment".into(),
+            StringParser::new(":", SyntaxKind::PsqlVariableColon)
+                .to_matchable()
+                .into(),
+        ),
+        (
+            "PsqlVariableGrammar".into(),
+            NodeMatcher::new(SyntaxKind::PsqlVariable, |_| {
+                Sequence::new(vec![
+                    optionally_bracketed(vec![
+                        Sequence::new(vec![
+                            Ref::new("PsqlVariableColonSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .allow_gaps(false)
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
-                .to_matchable(),
-            ])
+                .to_matchable()
+            })
             .to_matchable()
-        })
-        .to_matchable()
-        .into(),
-    )]);
+            .into(),
+        ),
+    ]);
 
     postgres.replace_grammar(
         "ArrayAccessorSegment",

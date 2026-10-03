@@ -1343,6 +1343,24 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // SqlplusSetStatementSegment
+        (
+            "SqlplusSetStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::SqlplusSetStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    StringParser::new("SCAN", SyntaxKind::Keyword).to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("OFF").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // ConnectByClauseSegment
         (
             "ConnectByClauseSegment".into(),
@@ -4323,15 +4341,21 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::OracleBatch, |_| {
             one_of(vec![
                 Sequence::new(vec![
-                    Delimited::new(vec![Ref::new("StatementSegment").to_matchable()])
-                        .config(|this| {
-                            this.allow_trailing();
-                            this.delimiter(
-                                AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
-                                    .config(|config| config.min_times(1)),
-                            );
-                        })
+                    Delimited::new(vec![
+                        one_of(vec![
+                            Ref::new("SqlplusSetStatementSegment").to_matchable(),
+                            Ref::new("StatementSegment").to_matchable(),
+                        ])
                         .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.allow_trailing();
+                        this.delimiter(
+                            AnyNumberOf::new(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                                .config(|config| config.min_times(1)),
+                        );
+                    })
+                    .to_matchable(),
                     Ref::new("BatchDelimiterGrammar").optional().to_matchable(),
                 ])
                 .to_matchable(),

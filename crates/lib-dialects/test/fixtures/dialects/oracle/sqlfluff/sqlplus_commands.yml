@@ -1,5 +1,10 @@
 file:
 - oracle_batch:
+  - sqlplus_set_statement:
+    - keyword: SET
+    - keyword: SCAN
+    - keyword: OFF
+- oracle_batch:
   - statement:
     - select_statement:
       - select_clause:

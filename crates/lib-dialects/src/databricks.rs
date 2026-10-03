@@ -1807,7 +1807,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         Sequence::new(vec![
             Ref::keyword("INSERT").to_matchable(),
             one_of(vec![
-                Ref::new("WildcardIdentifierSegment").to_matchable(),
+                Ref::new("WildcardExpressionSegment").to_matchable(),
                 Sequence::new(vec![
                     MetaSegment::indent().to_matchable(),
                     Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),

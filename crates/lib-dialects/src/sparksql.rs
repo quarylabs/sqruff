@@ -4026,7 +4026,7 @@ pub fn raw_dialect() -> Dialect {
             one_of(vec![
                 Sequence::new(vec![
                     Ref::keyword("SET").to_matchable(),
-                    Ref::new("WildcardIdentifierSegment").to_matchable(),
+                    Ref::new("WildcardExpressionSegment").to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
@@ -4046,7 +4046,7 @@ pub fn raw_dialect() -> Dialect {
         Sequence::new(vec![
             Ref::keyword("INSERT").to_matchable(),
             one_of(vec![
-                Ref::new("WildcardIdentifierSegment").to_matchable(),
+                Ref::new("WildcardExpressionSegment").to_matchable(),
                 Sequence::new(vec![
                     MetaSegment::indent().to_matchable(),
                     Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),

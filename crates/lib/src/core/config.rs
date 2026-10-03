@@ -774,7 +774,12 @@ fn translate_allow_implicit_indents(
     value: &Value,
     logging_reference: &str,
 ) -> Result<Value, SQLFluffUserError> {
-    let Some(value) = value.as_bool() else {
+    // TOML preserves quoted booleans as strings, unlike INI's coerced values.
+    let coerced = value
+        .as_string()
+        .and_then(|value| Value::from_str(value).ok())
+        .unwrap_or_else(|| value.clone());
+    let Some(value) = coerced.as_bool() else {
         return Err(SQLFluffUserError::new(format!(
             "Config file {logging_reference:?} set an invalid value for the deprecated \
              `allow_implicit_indents` option: {value:?}. Expected true or false."
@@ -2241,6 +2246,21 @@ max_line_length = 44
             config.raw["indentation"]["implicit_indents"].as_string(),
             Some("allow")
         );
+
+        for (old_value, expected) in [
+            ("false", "forbid"),
+            ("true", "allow"),
+            ("False", "forbid"),
+            ("True", "allow"),
+        ] {
+            let source =
+                format!("[tool.sqlfluff.indentation]\nallow_implicit_indents = \"{old_value}\"\n");
+            let config =
+                FluffConfig::try_from_source(&source, Some(Path::new("pyproject.toml"))).unwrap();
+            let indentation = config.raw["indentation"].as_map().unwrap();
+            assert_eq!(indentation["implicit_indents"].as_string(), Some(expected));
+            assert!(!indentation.contains_key("allow_implicit_indents"));
+        }
     }
 
     #[cfg(feature = "python")]

@@ -50,6 +50,26 @@ fn test_dialect_ansi_file_lex() {
 }
 
 #[test]
+fn test_dialect_ansi_unlexable_error_message() {
+    let tables = Tables::default();
+    let linter = Linter::new(Default::default(), None, None, false).unwrap();
+    let parsed = linter
+        .parse_string(&tables, "SELECT ¡ FROM t", None)
+        .unwrap();
+
+    let lex_errors: Vec<_> = parsed
+        .violations
+        .iter()
+        .filter(|error| error.rule_code() == "LXR")
+        .collect();
+    assert_eq!(lex_errors.len(), 1);
+    assert_eq!(
+        lex_errors[0].description,
+        "Unable to lex characters: '¡ FROM t'"
+    );
+}
+
+#[test]
 fn test_dialect_ansi_specific_segment_parses() {
     let cases = [
         ("SELECT", "select"),

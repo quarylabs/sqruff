@@ -64,9 +64,7 @@ def open_ports():
         pr
         for pr in prs
         if pr["head"]["ref"].startswith("port/sqlfluff-")
-        or re.search(
-            r"sqlfluff", pr["title"] + "\n" + (pr.get("body") or ""), re.IGNORECASE
-        )
+        and pr["head"]["repo"]["full_name"] == REPO
     ]
 
 

@@ -174,6 +174,7 @@ pub enum SyntaxKind {
     BackQuote,
     BackupStorageRedundancy,
     BareFunction,
+    BareMagicCell,
     Batch,
     BeginEndBlock,
     BeginStatement,

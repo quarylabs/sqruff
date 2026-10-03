@@ -1,13 +1,9 @@
 file:
-- statement:
-  - magic_cell_segment:
-    - magic_start: |
-        -- MAGIC %md
-    - magic_line: '-- MAGIC # Dummy Notebook'
 - statement_terminator: -- COMMAND ----------
 - statement:
   - magic_cell_segment:
-    - magic_single_line: -- MAGIC %run ./Notebook
+    - bare_magic_cell: '%python'
+    - bare_magic_cell: print("Hello world")
 - statement_terminator: -- COMMAND ----------
 - statement:
   - select_statement:
@@ -24,3 +20,8 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: b
+- statement_terminator: ;
+- statement_terminator: -- COMMAND ----------
+- statement:
+  - magic_cell_segment:
+    - bare_magic_cell: '%run ./Notebook'

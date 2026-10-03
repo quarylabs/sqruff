@@ -1,0 +1,66 @@
+file:
+- statement_terminator: -- COMMAND ----------
+- statement:
+  - magic_cell_segment:
+    - bare_magic_cell: '%python'
+    - bare_magic_cell: print("magic cell, not modulo")
+- statement_terminator: -- COMMAND ----------
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: a
+          - binary_operator: '%'
+          - numeric_literal: '2'
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: m1
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: a
+          - binary_operator: '%'
+          - column_reference:
+            - naked_identifier: b
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: m2
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: a
+          - binary_operator: '%'
+          - column_reference:
+            - naked_identifier: r
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: m3
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - column_reference:
+            - naked_identifier: a
+          - binary_operator: '%'
+          - column_reference:
+            - naked_identifier: md
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: m4
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - object_reference:
+                - naked_identifier: t
+- statement_terminator: ;

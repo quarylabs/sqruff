@@ -1,5 +1,6 @@
+use std::cell::OnceCell;
 use std::iter::zip;
-use std::ops::{Index, IndexMut};
+use std::ops::Index;
 
 use hashbrown::{HashMap, HashSet};
 use itertools::{Itertools, enumerate};
@@ -164,10 +165,7 @@ join c using(x)
             .map(|it| it.get_type())
             .eq([SyntaxKind::CreateTableStatement, SyntaxKind::Bracketed]);
 
-        let clone_map = SegmentCloneMap::new(
-            segment.first().unwrap().clone(),
-            segment.first().unwrap().deep_clone(),
-        );
+        let clone_map = SegmentCloneMap::new(segment.first().unwrap().clone());
 
         let mut results = self.lint_query(
             context.tables,
@@ -177,6 +175,12 @@ join c using(x)
             case_preference,
             &clone_map,
         );
+
+        // Most SELECTs have no nested subquery. Avoid cloning their entire
+        // segment tree (and setting up a parser) when there is no fix to build.
+        if results.iter().all(|result| !result.4) {
+            return results.into_iter().map(|result| result.0).collect();
+        }
 
         let mut local_fixes = Vec::new();
         for (_, from_expression, alias_name, _, is_fixable) in &results {
@@ -225,7 +229,7 @@ join c using(x)
         }
         let mut fixes = HashMap::default();
         compute_anchor_edit_info(&mut fixes, local_fixes);
-        let (new_root, _, _, _) = clone_map.root.apply_fixes(&mut fixes, &mut parse_context);
+        let (new_root, _, _, _) = clone_map.root().apply_fixes(&mut fixes, &mut parse_context);
 
         let _segment = Segments::new(new_root, None);
         let output_select = if is_with {
@@ -804,38 +808,65 @@ fn create_table_ref(tables: &Tables, table_name: &str, dialect: &Dialect) -> Era
 }
 
 pub(crate) struct SegmentCloneMap {
-    root: ErasedSegment,
-    segment_map: HashMap<usize, ErasedSegment>,
+    segment: ErasedSegment,
+    clone: OnceCell<(ErasedSegment, HashMap<usize, ErasedSegment>)>,
 }
 
 impl Index<&ErasedSegment> for SegmentCloneMap {
     type Output = ErasedSegment;
 
     fn index(&self, index: &ErasedSegment) -> &Self::Output {
-        &self.segment_map[&index.addr()]
-    }
-}
-
-impl IndexMut<&ErasedSegment> for SegmentCloneMap {
-    fn index_mut(&mut self, index: &ErasedSegment) -> &mut Self::Output {
-        self.segment_map.get_mut(&index.addr()).unwrap()
+        &self.cloned().1[&index.addr()]
     }
 }
 
 impl SegmentCloneMap {
-    fn new(segment: ErasedSegment, segment_copy: ErasedSegment) -> Self {
-        let mut segment_map = HashMap::new();
-
-        for (old_segment, new_segment) in zip(
-            segment.recursive_crawl_all(false),
-            segment_copy.recursive_crawl_all(false),
-        ) {
-            segment_map.insert(old_segment.addr(), new_segment);
-        }
-
+    fn new(segment: ErasedSegment) -> Self {
         Self {
-            root: segment_copy,
-            segment_map,
+            segment,
+            clone: OnceCell::new(),
         }
+    }
+
+    fn cloned(&self) -> &(ErasedSegment, HashMap<usize, ErasedSegment>) {
+        self.clone.get_or_init(|| {
+            let segment_copy = self.segment.deep_clone();
+            let mut segment_map = HashMap::new();
+            for (old_segment, new_segment) in zip(
+                self.segment.recursive_crawl_all(false),
+                segment_copy.recursive_crawl_all(false),
+            ) {
+                segment_map.insert(old_segment.addr(), new_segment);
+            }
+            (segment_copy, segment_map)
+        })
+    }
+
+    fn root(&self) -> &ErasedSegment {
+        &self.cloned().0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn segment_clone_map_builds_on_first_lookup() {
+        let tables = Tables::default();
+        let child = SegmentBuilder::token(tables.next_id(), "SELECT", SyntaxKind::Keyword).finish();
+        let root = SegmentBuilder::node(
+            tables.next_id(),
+            SyntaxKind::SelectStatement,
+            DialectKind::Ansi,
+            vec![child.clone()],
+        )
+        .finish();
+        let clone_map = SegmentCloneMap::new(root.clone());
+
+        assert!(clone_map.clone.get().is_none());
+        assert_eq!(clone_map[&child].raw(), child.raw());
+        assert!(clone_map.clone.get().is_some());
+        assert_eq!(clone_map.root().raw(), root.raw());
     }
 }

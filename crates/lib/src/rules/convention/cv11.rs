@@ -1,5 +1,4 @@
 use hashbrown::HashMap;
-use itertools::chain;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
@@ -209,6 +208,7 @@ FROM foo;
 
                             fixes = cast_fix_list(
                                 context.tables,
+                                context.dialect.name,
                                 context.segment.clone(),
                                 &[convert_content[1].clone()],
                                 convert_content[0].clone(),
@@ -221,6 +221,7 @@ FROM foo;
 
                             fixes = cast_fix_list(
                                 context.tables,
+                                context.dialect.name,
                                 context.segment.clone(),
                                 &[expression_datatype_segment[0].clone()],
                                 expression_datatype_segment[1].clone(),
@@ -250,6 +251,7 @@ FROM foo;
 
                             fixes = convert_fix_list(
                                 context.tables,
+                                context.dialect.name,
                                 context.segment.clone(),
                                 cast_content[1].clone(),
                                 cast_content[0].clone(),
@@ -262,6 +264,7 @@ FROM foo;
 
                             fixes = convert_fix_list(
                                 context.tables,
+                                context.dialect.name,
                                 context.segment.clone(),
                                 expression_datatype_segment[1].clone(),
                                 expression_datatype_segment[0].clone(),
@@ -348,6 +351,7 @@ FROM foo;
                             let segments = get_children(bracketed);
                             fixes = cast_fix_list(
                                 context.tables,
+                                context.dialect.name,
                                 context.segment.clone(),
                                 &[segments[1].clone()],
                                 segments[0].clone(),
@@ -365,6 +369,7 @@ FROM foo;
 
                             fixes = cast_fix_list(
                                 context.tables,
+                                context.dialect.name,
                                 context.segment.clone(),
                                 &expression_datatype_segment[..data_type_idx],
                                 expression_datatype_segment[data_type_idx].clone(),
@@ -390,6 +395,7 @@ FROM foo;
 
                             fixes = convert_fix_list(
                                 context.tables,
+                                context.dialect.name,
                                 context.segment.clone(),
                                 cast_content[1].clone(),
                                 cast_content[0].clone(),
@@ -401,6 +407,7 @@ FROM foo;
 
                             fixes = convert_fix_list(
                                 context.tables,
+                                context.dialect.name,
                                 context.segment.clone(),
                                 cast_content[1].clone(),
                                 cast_content[0].clone(),
@@ -496,106 +503,161 @@ FROM foo;
     }
 }
 
+/// Match the parser's function > function_name/function_contents > bracketed
+/// structure so other rules in the same fix pass see a parse-shaped edit.
+fn build_function(
+    tables: &Tables,
+    dialect: DialectKind,
+    name: &str,
+    contents: Vec<ErasedSegment>,
+) -> ErasedSegment {
+    let mut bracketed = Vec::with_capacity(contents.len() + 2);
+    bracketed.push(SegmentBuilder::token(tables.next_id(), "(", SyntaxKind::StartBracket).finish());
+    bracketed.extend(contents);
+    bracketed.push(SegmentBuilder::token(tables.next_id(), ")", SyntaxKind::EndBracket).finish());
+
+    let function_name = SegmentBuilder::node(
+        tables.next_id(),
+        SyntaxKind::FunctionName,
+        dialect,
+        vec![
+            SegmentBuilder::token(tables.next_id(), name, SyntaxKind::FunctionNameIdentifier)
+                .finish(),
+        ],
+    )
+    .finish();
+    let function_contents = SegmentBuilder::node(
+        tables.next_id(),
+        SyntaxKind::FunctionContents,
+        dialect,
+        vec![
+            SegmentBuilder::node(tables.next_id(), SyntaxKind::Bracketed, dialect, bracketed)
+                .finish(),
+        ],
+    )
+    .finish();
+    SegmentBuilder::node(
+        tables.next_id(),
+        SyntaxKind::Function,
+        dialect,
+        vec![function_name, function_contents],
+    )
+    .finish()
+}
+
 fn convert_fix_list(
     tables: &Tables,
+    dialect: DialectKind,
     root: ErasedSegment,
     convert_arg_1: ErasedSegment,
     convert_arg_2: ErasedSegment,
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
-    use sqruff_lib_core::parser::segments::ErasedSegment;
-
-    let mut edits: Vec<ErasedSegment> = vec![
-        SegmentBuilder::token(
-            tables.next_id(),
-            "convert",
-            SyntaxKind::FunctionNameIdentifier,
-        )
-        .finish(),
-        SegmentBuilder::token(tables.next_id(), "(", SyntaxKind::StartBracket).finish(),
-        convert_arg_1,
-        SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
-        SegmentBuilder::whitespace(tables.next_id(), " "),
-        convert_arg_2,
-        SegmentBuilder::token(tables.next_id(), ")", SyntaxKind::EndBracket).finish(),
-    ];
+    let mut function = build_function(
+        tables,
+        dialect,
+        "convert",
+        vec![
+            convert_arg_1,
+            SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
+            SegmentBuilder::whitespace(tables.next_id(), " "),
+            convert_arg_2,
+        ],
+    );
 
     if let Some(later_types) = later_types {
-        let pre_edits: Vec<ErasedSegment> = vec![
-            SegmentBuilder::token(
-                tables.next_id(),
+        for data_type in later_types.base {
+            function = build_function(
+                tables,
+                dialect,
                 "convert",
-                SyntaxKind::FunctionNameIdentifier,
-            )
-            .finish(),
-            SegmentBuilder::symbol(tables.next_id(), "("),
-        ];
-
-        let in_edits: Vec<ErasedSegment> = vec![
-            SegmentBuilder::symbol(tables.next_id(), ","),
-            SegmentBuilder::whitespace(tables.next_id(), " "),
-        ];
-
-        let post_edits: Vec<ErasedSegment> = vec![SegmentBuilder::symbol(tables.next_id(), ")")];
-
-        for _type in later_types.base {
-            edits = chain(
-                chain(pre_edits.clone(), vec![_type]),
-                chain(in_edits.clone(), chain(edits, post_edits.clone())),
-            )
-            .collect();
+                vec![
+                    data_type,
+                    SegmentBuilder::token(tables.next_id(), ",", SyntaxKind::Comma).finish(),
+                    SegmentBuilder::whitespace(tables.next_id(), " "),
+                    function,
+                ],
+            );
         }
     }
 
-    vec![LintFix::replace(root, edits, None)]
+    vec![LintFix::replace(root, vec![function], None)]
 }
 
 fn cast_fix_list(
     tables: &Tables,
+    dialect: DialectKind,
     root: ErasedSegment,
     cast_arg_1: &[ErasedSegment],
     cast_arg_2: ErasedSegment,
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
-    let mut edits = vec![
-        SegmentBuilder::token(tables.next_id(), "cast", SyntaxKind::FunctionNameIdentifier)
-            .finish(),
-        SegmentBuilder::token(tables.next_id(), "(", SyntaxKind::StartBracket).finish(),
-    ];
-    edits.extend_from_slice(cast_arg_1);
-    edits.extend([
+    let mut contents = cast_arg_1.to_vec();
+    contents.extend([
         SegmentBuilder::whitespace(tables.next_id(), " "),
         SegmentBuilder::keyword(tables.next_id(), "as"),
         SegmentBuilder::whitespace(tables.next_id(), " "),
         cast_arg_2,
-        SegmentBuilder::token(tables.next_id(), ")", SyntaxKind::EndBracket).finish(),
     ]);
+    let mut function = build_function(tables, dialect, "cast", contents);
 
     if let Some(later_types) = later_types {
-        let pre_edits: Vec<ErasedSegment> = vec![
-            SegmentBuilder::token(tables.next_id(), "cast", SyntaxKind::FunctionNameIdentifier)
-                .finish(),
-            SegmentBuilder::symbol(tables.next_id(), "("),
-        ];
-
-        let in_edits: Vec<ErasedSegment> = vec![
-            SegmentBuilder::whitespace(tables.next_id(), " "),
-            SegmentBuilder::keyword(tables.next_id(), "as"),
-            SegmentBuilder::whitespace(tables.next_id(), " "),
-        ];
-
-        let post_edits: Vec<ErasedSegment> = vec![SegmentBuilder::symbol(tables.next_id(), ")")];
-
-        for _type in later_types.base {
-            let mut xs = Vec::new();
-            xs.extend(pre_edits.clone());
-            xs.extend(edits);
-            xs.extend(in_edits.clone());
-            xs.push(_type);
-            xs.extend(post_edits.clone());
-            edits = xs;
+        for data_type in later_types.base {
+            function = build_function(
+                tables,
+                dialect,
+                "cast",
+                vec![
+                    function,
+                    SegmentBuilder::whitespace(tables.next_id(), " "),
+                    SegmentBuilder::keyword(tables.next_id(), "as"),
+                    SegmentBuilder::whitespace(tables.next_id(), " "),
+                    data_type,
+                ],
+            );
         }
     }
 
-    vec![LintFix::replace(root, edits, None)]
+    vec![LintFix::replace(root, vec![function], None)]
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn nested_cast_replacement_has_parse_shape() {
+        let tables = Tables::default();
+        let inner = build_function(
+            &tables,
+            DialectKind::Ansi,
+            "cast",
+            vec![
+                SegmentBuilder::token(tables.next_id(), "1", SyntaxKind::NumericLiteral).finish(),
+                SegmentBuilder::whitespace(tables.next_id(), " "),
+                SegmentBuilder::keyword(tables.next_id(), "as"),
+                SegmentBuilder::whitespace(tables.next_id(), " "),
+                SegmentBuilder::token(tables.next_id(), "int", SyntaxKind::DataType).finish(),
+            ],
+        );
+        let outer = build_function(
+            &tables,
+            DialectKind::Ansi,
+            "cast",
+            vec![
+                inner,
+                SegmentBuilder::whitespace(tables.next_id(), " "),
+                SegmentBuilder::keyword(tables.next_id(), "as"),
+                SegmentBuilder::whitespace(tables.next_id(), " "),
+                SegmentBuilder::token(tables.next_id(), "text", SyntaxKind::DataType).finish(),
+            ],
+        );
+
+        assert_eq!(outer.raw(), "cast(cast(1 as int) as text)");
+        assert!(outer.segments()[0].is_type(SyntaxKind::FunctionName));
+        assert!(outer.segments()[1].is_type(SyntaxKind::FunctionContents));
+        let bracketed = &outer.segments()[1].segments()[0];
+        assert!(bracketed.is_type(SyntaxKind::Bracketed));
+        assert!(bracketed.segments()[1].is_type(SyntaxKind::Function));
+    }
 }

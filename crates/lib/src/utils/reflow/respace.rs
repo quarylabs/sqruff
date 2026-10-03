@@ -118,7 +118,9 @@ pub fn determine_constraints(
             strip_newlines = strip_newlines_inner;
         }
 
-        if prev_block.segment().is_comment() {
+        // A newline on either side of a comment must not be stripped: doing
+        // so can glue SQL to a comment marker and change the statement.
+        if prev_block.segment().is_comment() || next_block.segment().is_comment() {
             strip_newlines = false;
         }
     }
@@ -981,6 +983,26 @@ spacing_after = {spacing_after}
             assert_eq!(new_seq.raw(), "select 1 -- comment\n+ 2");
             assert!(new_seq.results().is_empty());
         }
+    }
+
+    #[test]
+    fn test_reflow_sequence_respace_preserves_newline_before_inline_comment() {
+        let config = FluffConfig::from_source(
+            r#"
+[sqruff]
+dialect = ansi
+
+[sqruff:layout:type:expression]
+spacing_within = single:inline
+"#,
+            None,
+        );
+        let sql = "SELECT * FROM t WHERE a AND\n-- comment\nb\n";
+        let root = parse_string_with_config(sql, &config);
+        let seq = ReflowSequence::from_root(&root, &config);
+        let new_seq = seq.respace(&Tables::default(), false, Filter::All);
+
+        assert_eq!(new_seq.raw(), sql);
     }
 
     #[test]

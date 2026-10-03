@@ -12,6 +12,7 @@ use sqruff_lib_core::errors::SQLFluffUserError;
 pub struct PythonFluffConfig {
     templater_unwrap_wrapped_queries: bool,
     ignore_templating: bool,
+    encoding: String,
 
     jinja_templater_paths: Vec<String>,
     jinja_exclude_macros_from_path: Vec<String>,
@@ -49,6 +50,11 @@ impl From<&FluffConfig> for PythonFluffConfig {
                 .unwrap_or_default()
                 .iter()
                 .any(|value| value.as_string() == Some("templating")),
+            encoding: value
+                .get("encoding", "core")
+                .as_string()
+                .unwrap_or("autodetect")
+                .to_string(),
             jinja_templater_paths: value
                 .templater_value(TemplaterKind::Jinja, "load_macros_from_path")
                 .map(|value| {
@@ -356,6 +362,14 @@ exclude_macros_from_path = macros/excluded
             ]
         );
         fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn test_jinja_encoding_is_serialized() {
+        let source = "[sqruff]\ntemplater = jinja\nencoding = utf-16\n";
+        let config = FluffConfig::from_source(source, None);
+        let python_fluff_config = PythonFluffConfig::from(config);
+        assert_eq!(python_fluff_config.encoding, "utf-16");
     }
 
     #[test]

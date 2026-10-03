@@ -11,7 +11,13 @@ use sqruff_lib_core::dialects::Dialect;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers;
+use sqruff_lib_core::helpers::ToMatchable;
+use sqruff_lib_core::parser::context::ParseContext;
 use sqruff_lib_core::parser::lexer::Lexer;
+use sqruff_lib_core::parser::match_algorithms::{
+    skip_start_index_forward_to_code, skip_stop_index_backward_to_code, trim_to_terminator,
+};
+use sqruff_lib_core::parser::parsers::StringParser;
 use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::parser::{IndentationConfig, Parser};
 use sqruff_lib_core::value::Value;
@@ -370,6 +376,45 @@ fn ansi_partial_greedy_select_preserves_keyword() {
             .iter()
             .any(|segment| segment.is_type(SyntaxKind::Unparsable))
     );
+}
+
+#[test]
+fn stray_closing_bracket_aborts_greedy_terminator_search() {
+    for (dialect_kind, sql, terminator) in [
+        (DialectKind::Ansi, "SELECT 1) FROM t", "FROM"),
+        (
+            DialectKind::Ansi,
+            "SELECT a FROM t) UNION SELECT c",
+            "UNION",
+        ),
+        (DialectKind::Snowflake, "SELECT 1 -} FROM t", "FROM"),
+    ] {
+        let dialect = kind_to_dialect(&dialect_kind, None).unwrap();
+        let tables = Tables::default();
+        let lexer = Lexer::from(&dialect);
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+
+        let mut context = ParseContext::new(&dialect, IndentationConfig::default());
+        let term = StringParser::new(terminator, SyntaxKind::Keyword).to_matchable();
+        let stop = trim_to_terminator(&tokens, 0, &[term], &mut context).unwrap();
+        assert_eq!(
+            stop,
+            skip_stop_index_backward_to_code(&tokens, tokens.len() as u32, 0),
+            "{sql}"
+        );
+    }
+
+    let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let (tokens, lex_errors) = lexer.lex(&tables, "SELECT (1) FROM t");
+    assert!(lex_errors.is_empty());
+    let mut context = ParseContext::new(&dialect, IndentationConfig::default());
+    let from = StringParser::new("FROM", SyntaxKind::Keyword).to_matchable();
+    let stop = trim_to_terminator(&tokens, 0, &[from], &mut context).unwrap();
+    let next_code = skip_start_index_forward_to_code(&tokens, stop, tokens.len() as u32);
+    assert_eq!(tokens[next_code as usize].raw(), "FROM");
 }
 
 #[test]

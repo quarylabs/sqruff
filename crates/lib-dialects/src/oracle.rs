@@ -2640,7 +2640,12 @@ pub fn raw_dialect() -> Dialect {
                         .optional()
                         .to_matchable(),
                     Ref::keyword("RETURN").to_matchable(),
-                    Ref::new("DatatypeSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::new("ColumnTypeReferenceSegment").to_matchable(),
+                        Ref::new("RowTypeReferenceSegment").to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                     Ref::new("SharingClauseGrammar").optional().to_matchable(),
                     AnyNumberOf::new(vec![
                         Ref::new("DefaultCollationClauseGrammar").to_matchable(),

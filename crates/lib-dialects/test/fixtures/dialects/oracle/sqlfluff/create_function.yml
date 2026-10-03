@@ -519,3 +519,47 @@ file:
       - keyword: NAME
       - quoted_literal: '''exClass.someMethod(java.lang.String) return byte[]'''
       - statement_terminator: ;
+- oracle_batch:
+  - statement:
+    - oracle_create_function_statement:
+      - keyword: FUNCTION
+      - oracle_function_name:
+        - function_name_identifier: f_ex
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - parameter: p_ex
+          - keyword: IN
+          - data_type:
+            - data_type_identifier: NUMBER
+          - end_bracket: )
+      - keyword: RETURN
+      - oracle_column_type_reference:
+        - column_reference:
+          - naked_identifier: ex_tab
+          - dot: .
+          - naked_identifier: a
+        - attribute_indicator: '%'
+        - keyword: TYPE
+      - statement_terminator: ;
+- oracle_batch:
+  - statement:
+    - oracle_create_function_statement:
+      - keyword: FUNCTION
+      - oracle_function_name:
+        - function_name_identifier: f_ex
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - parameter: p_ex
+          - keyword: IN
+          - data_type:
+            - data_type_identifier: NUMBER
+          - end_bracket: )
+      - keyword: RETURN
+      - oracle_row_type_reference:
+        - oracle_table_reference:
+          - naked_identifier: ex_tab
+        - attribute_indicator: '%'
+        - keyword: ROWTYPE
+      - statement_terminator: ;

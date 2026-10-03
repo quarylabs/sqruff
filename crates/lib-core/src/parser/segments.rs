@@ -13,10 +13,12 @@ use std::cell::{Cell, OnceCell};
 use std::fmt::Debug;
 use std::hash::{BuildHasher, Hash, Hasher};
 use std::rc::Rc;
+use std::sync::LazyLock;
 
 use hashbrown::{DefaultHashBuilder, HashMap};
 use itertools::enumerate;
 use smol_str::SmolStr;
+use strum::IntoEnumIterator;
 
 use crate::dialects::init::DialectKind;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
@@ -66,7 +68,6 @@ impl SegmentBuilder {
             node_or_token: NodeOrToken {
                 id,
                 syntax_kind,
-                class_types: class_types(syntax_kind),
                 position_marker: None,
                 code_idx: OnceCell::new(),
                 kind: NodeOrTokenKind::Node(NodeData {
@@ -88,7 +89,6 @@ impl SegmentBuilder {
                 id,
                 syntax_kind,
                 code_idx: OnceCell::new(),
-                class_types: class_types(syntax_kind),
                 position_marker: None,
                 kind: NodeOrTokenKind::Token(TokenData {
                     raw: RawString::new(raw),
@@ -339,7 +339,6 @@ impl ErasedSegment {
             value: Rc::new(NodeOrToken {
                 id: self.value.id,
                 syntax_kind: self.value.syntax_kind,
-                class_types: self.value.class_types.clone(),
                 position_marker: None,
                 code_idx: OnceCell::new(),
                 kind: NodeOrTokenKind::Node(NodeData {
@@ -692,7 +691,7 @@ impl ErasedSegment {
     }
 
     pub fn class_types(&self) -> &SyntaxSet {
-        &self.value.class_types
+        &CLASS_TYPES_BY_KIND[self.value.syntax_kind as usize]
     }
 
     pub(crate) fn first_non_whitespace_segment_raw_upper(&self) -> Option<&str> {
@@ -1331,7 +1330,6 @@ pub fn position_segments(
 pub struct NodeOrToken {
     id: u32,
     syntax_kind: SyntaxKind,
-    class_types: SyntaxSet,
     position_marker: Option<PositionMarker>,
     kind: NodeOrTokenKind,
     code_idx: OnceCell<Rc<Vec<usize>>>,
@@ -1500,6 +1498,18 @@ fn class_types(syntax_kind: SyntaxKind) -> SyntaxSet {
     }
 }
 
+/// Class membership is determined entirely by syntax kind. Share one bitset
+/// per kind instead of storing a full bitset on every node and token.
+static CLASS_TYPES_BY_KIND: LazyLock<Vec<SyntaxSet>> = LazyLock::new(|| {
+    SyntaxKind::iter()
+        .enumerate()
+        .map(|(index, kind)| {
+            debug_assert_eq!(index, kind as usize);
+            class_types(kind)
+        })
+        .collect()
+});
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1540,6 +1550,31 @@ mod tests {
         let raw_seg = raw_seg();
 
         assert_eq!(raw_seg.raw(), "foobar");
+    }
+
+    #[test]
+    fn test_class_types_are_shared_by_syntax_kind() {
+        let first = SegmentBuilder::token(1, "a", SyntaxKind::NakedIdentifier).finish();
+        let second = SegmentBuilder::token(2, "b", SyntaxKind::NakedIdentifier).finish();
+        assert!(std::ptr::eq(first.class_types(), second.class_types()));
+        assert!(
+            first
+                .class_types()
+                .intersects(&SyntaxSet::single(SyntaxKind::NakedIdentifier))
+        );
+
+        let column = SegmentBuilder::node(
+            3,
+            SyntaxKind::ColumnReference,
+            DialectKind::Ansi,
+            vec![first],
+        )
+        .finish();
+        assert!(
+            column
+                .class_types()
+                .intersects(&SyntaxSet::single(SyntaxKind::ObjectReference))
+        );
     }
 
     #[test]

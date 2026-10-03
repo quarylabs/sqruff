@@ -1,0 +1,65 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '`jt`'
+          - dot: .
+          - quoted_identifier: '`name`'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '`jt`'
+          - dot: .
+          - quoted_identifier: '`price`'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - function:
+              - function_name:
+                - function_name_identifier: JSON_TABLE
+              - function_contents:
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - variable: '@json'
+                  - comma: ','
+                  - quoted_literal: '''$[*]'''
+                  - json_table_columns_clause:
+                    - keyword: COLUMNS
+                    - bracketed:
+                      - start_bracket: (
+                      - quoted_identifier: '`name`'
+                      - data_type:
+                        - data_type_identifier: VARCHAR
+                        - bracketed_arguments:
+                          - bracketed:
+                            - start_bracket: (
+                            - numeric_literal: '10'
+                            - end_bracket: )
+                      - keyword: PATH
+                      - quoted_literal: '''$.name'''
+                      - comma: ','
+                      - quoted_identifier: '`price`'
+                      - data_type:
+                        - data_type_identifier: DECIMAL
+                        - bracketed_arguments:
+                          - bracketed:
+                            - start_bracket: (
+                            - numeric_literal: '8'
+                            - comma: ','
+                            - numeric_literal: '2'
+                            - end_bracket: )
+                      - keyword: PATH
+                      - quoted_literal: '''$.price'''
+                      - end_bracket: )
+                  - end_bracket: )
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - quoted_identifier: '`jt`'
+- statement_terminator: ;

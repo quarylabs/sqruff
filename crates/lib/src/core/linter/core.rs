@@ -871,9 +871,7 @@ impl Linter {
         let tokens = if templated_file.is_templated() {
             let (t, lvs) =
                 Self::lex_templated_file(tables, templated_file.clone(), &self.config.dialect);
-            if !lvs.is_empty() {
-                unimplemented!("violations.extend(lvs);")
-            }
+            violations.extend(lvs.into_iter().map_into());
             t
         } else {
             None

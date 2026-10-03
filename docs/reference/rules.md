@@ -60,6 +60,7 @@ The following rules are available in this create. This list is generated from th
 | LT15 | [layout.newlines](#layoutnewlines) | Too many consecutive blank lines. |  |
 | OR01 | [oracle.empty_batch](#oracleempty_batch) | Remove empty batches. |  |
 | PG01 | [postgres.excessive_locks](#postgresexcessive_locks) | Avoid excessive locks in PostgreSQL DDL statements. |  |
+| PG02 | [postgres.not_valid_foreign_key](#postgresnot_valid_foreign_key) | Create PostgreSQL foreign keys as NOT VALID before validating separately. |  |
 | RF01 | [references.from](#referencesfrom) | References cannot reference objects not present in 'FROM' clause. | ✓ |
 | RF02 | [references.qualification](#referencesqualification) | References should be qualified if select has more than one referenced table/view. |  |
 | RF03 | [references.consistent](#referencesconsistent) | Column references should be qualified consistently in single table statements. |  |
@@ -2193,6 +2194,8 @@ Avoid excessive locks in PostgreSQL DDL statements.
 **Fixable:** No
 
 PostgreSQL DDL operations can block reads or writes for the duration of an operation.
+This rule is disabled by default; set `force_enable = true` to enable it for
+PostgreSQL.
 
 **Anti-pattern**
 
@@ -2201,7 +2204,6 @@ CREATE INDEX idx_foo ON bar (tenant_id);
 DROP INDEX idx_foo;
 REINDEX INDEX idx_foo;
 REFRESH MATERIALIZED VIEW my_view;
-ALTER TABLE foo ADD CONSTRAINT fk_bar FOREIGN KEY (bar_id) REFERENCES bar (id);
 ```
 
 **Best practice**
@@ -2211,7 +2213,34 @@ CREATE INDEX CONCURRENTLY idx_foo ON bar (tenant_id);
 DROP INDEX CONCURRENTLY idx_foo;
 REINDEX INDEX CONCURRENTLY idx_foo;
 REFRESH MATERIALIZED VIEW CONCURRENTLY my_view;
+```
+
+
+### postgres.not_valid_foreign_key
+
+Create PostgreSQL foreign keys as NOT VALID before validating separately.
+
+**Code:** `PG02`
+
+**Groups:** `all`, `postgres`
+
+**Fixable:** No
+
+Adding a foreign key constraint normally validates existing rows during `ALTER TABLE`.
+On large tables this can hold locks longer than necessary. This PostgreSQL-only
+rule is disabled by default; set `force_enable = true` to enable it.
+
+**Anti-pattern**
+
+```sql
+ALTER TABLE foo ADD CONSTRAINT fk_bar FOREIGN KEY (bar_id) REFERENCES bar (id);
+```
+
+**Best practice**
+
+```sql
 ALTER TABLE foo ADD CONSTRAINT fk_bar FOREIGN KEY (bar_id) REFERENCES bar (id) NOT VALID;
+ALTER TABLE foo VALIDATE CONSTRAINT fk_bar;
 ```
 
 

@@ -351,6 +351,28 @@ fn bigquery_cast_as_float_is_unparsable() {
 }
 
 #[test]
+fn ansi_partial_greedy_select_preserves_keyword() {
+    let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+    let (tokens, lex_errors) = lexer.lex(&tables, "SELECT CASE");
+
+    assert!(lex_errors.is_empty());
+
+    let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+    let segments = tree.recursive_crawl_all(false);
+    assert!(segments.iter().any(|segment| {
+        segment.raw().eq_ignore_ascii_case("SELECT") && segment.is_type(SyntaxKind::Keyword)
+    }));
+    assert!(
+        segments
+            .iter()
+            .any(|segment| segment.is_type(SyntaxKind::Unparsable))
+    );
+}
+
+#[test]
 fn ansi_and_hive_reject_trailing_comma_after_final_cte() {
     for dialect_kind in [DialectKind::Ansi, DialectKind::Hive] {
         let dialect = kind_to_dialect(&dialect_kind, None).unwrap();

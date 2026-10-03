@@ -1802,7 +1802,17 @@ pub fn raw_dialect() -> Dialect {
                 one_of(vec![
                     Sequence::new(vec![
                         Ref::keyword("ADD").to_matchable(),
-                        Ref::new("TableConstraintSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("TableConstraintSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Ref::new("TableConstraintSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![

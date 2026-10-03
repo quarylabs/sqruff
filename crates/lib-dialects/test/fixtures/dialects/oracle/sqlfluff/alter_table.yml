@@ -119,6 +119,82 @@ file:
       - oracle_table_reference:
         - naked_identifier: table_name
       - alter_table_constraint_clauses:
+        - keyword: ADD
+        - bracketed:
+          - start_bracket: (
+          - table_constraint:
+            - keyword: CONSTRAINT
+            - object_reference:
+              - naked_identifier: constraint_name
+            - keyword: FOREIGN
+            - keyword: KEY
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: column_name
+              - end_bracket: )
+            - keyword: REFERENCES
+            - oracle_table_reference:
+              - naked_identifier: other_table_name
+            - referenced_column_list:
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: other_column_name
+                - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: table_name
+      - alter_table_constraint_clauses:
+        - keyword: ADD
+        - bracketed:
+          - start_bracket: (
+          - table_constraint:
+            - keyword: CONSTRAINT
+            - object_reference:
+              - naked_identifier: pk_name
+            - keyword: PRIMARY
+            - keyword: KEY
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: column_name
+              - end_bracket: )
+          - comma: ','
+          - table_constraint:
+            - keyword: CONSTRAINT
+            - object_reference:
+              - naked_identifier: fk_name
+            - keyword: FOREIGN
+            - keyword: KEY
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                - naked_identifier: column_name
+              - end_bracket: )
+            - keyword: REFERENCES
+            - oracle_table_reference:
+              - naked_identifier: other_table_name
+            - referenced_column_list:
+              - bracketed:
+                - start_bracket: (
+                - column_reference:
+                  - naked_identifier: other_column_name
+                - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+    - oracle_alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: table_name
+      - alter_table_constraint_clauses:
         - keyword: RENAME
         - keyword: CONSTRAINT
         - object_reference:

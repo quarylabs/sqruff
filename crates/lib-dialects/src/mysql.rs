@@ -948,6 +948,122 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    // JSON_TABLE column definitions create output identifiers; they are not
+    // references to columns of an enclosing SELECT.
+    mysql.add([
+        (
+            "JsonTableColumnsClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::JsonTableColumnsClause, |_| {
+                let column_definition = one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::keyword("FOR").to_matchable(),
+                        Ref::keyword("ORDINALITY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("NESTED").to_matchable(),
+                        Ref::keyword("PATH").optional().to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("JsonTableColumnsClauseSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
+                        one_of(vec![
+                            Sequence::new(vec![
+                                Ref::keyword("EXISTS").to_matchable(),
+                                Ref::keyword("PATH").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("PATH").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                AnyNumberOf::new(vec![
+                                    Sequence::new(vec![
+                                        one_of(vec![
+                                            Ref::keyword("NULL").to_matchable(),
+                                            Ref::keyword("ERROR").to_matchable(),
+                                            Sequence::new(vec![
+                                                Ref::keyword("DEFAULT").to_matchable(),
+                                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                            ])
+                                            .to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                        Ref::keyword("ON").to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("EMPTY").to_matchable(),
+                                            Ref::keyword("ERROR").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable();
+
+                Sequence::new(vec![
+                    Ref::keyword("COLUMNS").to_matchable(),
+                    Bracketed::new(vec![Delimited::new(vec![column_definition]).to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonTableFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                    Ref::new("JsonTableColumnsClauseSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonTableFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("JSON_TABLE", SyntaxKind::FunctionNameIdentifier).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    let function_grammar = mysql
+        .grammar("FunctionSegment")
+        .as_node_matcher_ref()
+        .unwrap()
+        .match_grammar(&mysql);
+    mysql.replace_grammar(
+        "FunctionSegment",
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::new("JsonTableFunctionNameSegment").to_matchable(),
+                Ref::new("JsonTableFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            function_grammar,
+        ])
+        .to_matchable(),
+    );
+
     // ColumnDefinitionSegment.
     mysql.replace_grammar(
         "ColumnDefinitionSegment",

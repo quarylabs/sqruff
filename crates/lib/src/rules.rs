@@ -57,7 +57,19 @@ pub fn get_ruleset() -> RuleSet {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::config::FluffConfig;
     use crate::core::rules::RuleGroups;
+
+    #[test]
+    fn invalid_rule_option_returns_user_error_from_rulepack() {
+        let config = FluffConfig::from_source(
+            "[sqruff]\nrules = RF06\n[sqruff:rules:references.quoting]\nprefer_quoted_keyword_style = invalid\n",
+            None,
+        );
+
+        let error = get_ruleset().get_rulepack(&config).err().unwrap();
+        assert!(error.value.contains("prefer_quoted_keyword_style"));
+    }
 
     #[test]
     fn no_rule_should_not_include_all_as_that_is_default() {

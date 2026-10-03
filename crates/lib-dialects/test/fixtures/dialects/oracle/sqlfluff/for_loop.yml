@@ -787,3 +787,92 @@ file:
   - statement_terminator: ;
   - slash_buffer_executor:
     - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - for_loop_statement:
+          - keyword: FOR
+          - naked_identifier: i
+          - keyword: IN
+          - numeric_literal: '1'
+          - dot: .
+          - dot: .
+          - function:
+            - oracle_function_name:
+              - function_name_identifier: LENGTH
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: v_str
+                - end_bracket: )
+          - oracle_loop_statement:
+            - keyword: LOOP
+            - statement:
+              - function:
+                - oracle_function_name:
+                  - naked_identifier: DBMS_OUTPUT
+                  - dot: .
+                  - function_name_identifier: PUT_LINE
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: i
+                    - end_bracket: )
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - for_loop_statement:
+          - keyword: FOR
+          - naked_identifier: i
+          - keyword: IN
+          - numeric_literal: '1'
+          - dot: .
+          - dot: .
+          - function:
+            - oracle_function_name:
+              - naked_identifier: v_arr
+              - dot: .
+              - function_name_identifier: COUNT
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
+          - oracle_loop_statement:
+            - keyword: LOOP
+            - statement:
+              - function:
+                - oracle_function_name:
+                  - naked_identifier: DBMS_OUTPUT
+                  - dot: .
+                  - function_name_identifier: PUT_LINE
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: i
+                    - end_bracket: )
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: LOOP
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

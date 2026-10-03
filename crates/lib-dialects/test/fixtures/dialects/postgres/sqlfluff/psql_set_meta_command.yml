@@ -15,6 +15,6 @@ file:
       - keyword: SELECT
       - select_clause_element:
         - psql_variable:
-          - colon: ':'
+          - psql_variable_colon: ':'
           - parameter: myvar
 - statement_terminator: ;

@@ -1026,6 +1026,7 @@ pub enum SyntaxKind {
     PsqlSetCommand,
     PsqlSetMetaCommandStatement,
     PsqlVariable,
+    PsqlVariableColon,
     PublicationObjects,
     PublicationReference,
     PublicationTable,
@@ -1387,7 +1388,7 @@ impl SyntaxKind {
 }
 
 #[derive(Clone, PartialEq, Eq, Default)]
-pub struct SyntaxSet([u64; 21]);
+pub struct SyntaxSet([u64; 22]);
 
 impl std::fmt::Debug for SyntaxSet {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -1396,7 +1397,7 @@ impl std::fmt::Debug for SyntaxSet {
 }
 
 impl SyntaxSet {
-    pub const EMPTY: SyntaxSet = Self([0; 21]);
+    pub const EMPTY: SyntaxSet = Self([0; 22]);
     const SLICE_BITS: u16 = u64::BITS as u16;
 
     pub const fn new(kinds: &[SyntaxKind]) -> Self {

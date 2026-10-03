@@ -13,6 +13,7 @@ use sqruff_lib_core::parser::grammar::{Anything, Ref};
 use sqruff_lib_core::parser::lexer::Matcher;
 use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
+use sqruff_lib_core::parser::parsers::StringParser;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::{DialectElementType, ParseMode};
 use sqruff_lib_core::value::Value;
@@ -145,6 +146,12 @@ fn add_operators(dialect: &mut Dialect) {
     }
     dialect.add([
         (
+            "OverlapsOperatorSegment".into(),
+            StringParser::new("OVERLAPS", SyntaxKind::ComparisonOperator)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "NotEqualToSegment_b".into(),
             NodeMatcher::new(SyntaxKind::ComparisonOperator, |_| {
                 Sequence::new(vec![kw("NOT"), Ref::new("RawEqualsSegment").to_matchable()])
@@ -186,6 +193,7 @@ fn add_operators(dialect: &mut Dialect) {
             Ref::new("NotEqualToSegment_b").to_matchable(),
             Ref::new("NotEqualToSegment_c").to_matchable(),
             Ref::new("LikeOperatorSegment").to_matchable(),
+            Ref::new("OverlapsOperatorSegment").to_matchable(),
             Sequence::new(vec![kw("IS"), kw("DISTINCT"), kw("FROM")]).to_matchable(),
             Sequence::new(vec![kw("IS"), kw("NOT"), kw("DISTINCT"), kw("FROM")]).to_matchable(),
         ])

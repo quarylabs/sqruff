@@ -1183,6 +1183,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ExecuteFileStatement
         | SlashBufferExecutor
         | OracleBatch
+        | SqlplusSetStatement
         | OracleCommentStatement
         | OracleCreateProcedureStatement
         | OracleDropProcedureStatement

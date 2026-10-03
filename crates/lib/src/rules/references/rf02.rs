@@ -123,6 +123,21 @@ LEFT JOIN vee ON vee.a = foo.a
 }
 
 impl RuleRF02 {
+    fn row_reference_key(segment: &ErasedSegment, dialect: DialectKind) -> String {
+        let normalized = segment.raw_normalized();
+        let quoted = segment.is_type(SyntaxKind::QuotedIdentifier)
+            || segment
+                .get_raw_segments()
+                .iter()
+                .any(|part| part.is_type(SyntaxKind::QuotedIdentifier));
+
+        if quoted && matches!(dialect, DialectKind::Postgres | DialectKind::Redshift) {
+            normalized.to_string()
+        } else {
+            normalized.to_lowercase()
+        }
+    }
+
     /// Get any BigQuery variables declared in the linted file.
     ///
     /// BigQuery declarations are limited to the top level or the beginning of a
@@ -213,6 +228,23 @@ impl RuleRF02 {
         }
 
         let sql_variables = Self::find_sql_variables(rule_context);
+        let dialect = rule_context.dialect.name;
+        let row_reference_aliases: HashSet<_> = if matches!(
+            dialect,
+            DialectKind::Bigquery | DialectKind::Postgres | DialectKind::Redshift
+        ) {
+            table_aliases
+                .iter()
+                .filter_map(|alias| {
+                    alias
+                        .segment
+                        .as_ref()
+                        .map(|segment| Self::row_reference_key(segment, dialect))
+                })
+                .collect()
+        } else {
+            HashSet::new()
+        };
 
         let mut violation_buff = Vec::new();
         for r in references {
@@ -248,6 +280,7 @@ impl RuleRF02 {
                 && !col_alias_names.contains(&r.0.raw().as_ref())
                 && !using_cols.contains(r.0.raw())
                 && !standalone_aliases.contains(r.0.raw())
+                && !row_reference_aliases.contains(&Self::row_reference_key(&r.0, dialect))
             {
                 violation_buff.push(LintResult::new(
                     r.0.clone().into(),

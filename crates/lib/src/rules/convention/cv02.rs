@@ -99,6 +99,13 @@ FROM baz;
             return Vec::new();
         }
 
+        // A qualified function name is a user-defined function, not the builtin.
+        if context.parent_stack.last().is_some_and(|parent| {
+            parent.is_type(SyntaxKind::FunctionName) && parent.segments().len() != 1
+        }) {
+            return Vec::new();
+        }
+
         // Create fix to replace "IFNULL" or "NVL" with "COALESCE".
         let fix = LintFix::replace(
             context.segment.clone(),

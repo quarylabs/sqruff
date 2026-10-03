@@ -26,11 +26,11 @@ file:
       - sqlcmd_operator: setvar
       - object_reference:
         - naked_identifier: variable_name
-      - naked_identifier: variable_value
+      - word: variable_value
   - statement:
     - sqlcmd_command_segment:
       - colon: ':'
       - sqlcmd_operator: setvar
       - object_reference:
         - naked_identifier: variable_name
-      - quoted_identifier: '"variable_value"'
+      - double_quote: '"variable_value"'

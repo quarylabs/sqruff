@@ -71,10 +71,11 @@ file:
           - start_bracket: (
           - column_reference:
             - naked_identifier: a
-          - bracketed:
-            - start_bracket: (
-            - numeric_literal: '20'
-            - end_bracket: )
+          - bracketed_arguments:
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '20'
+              - end_bracket: )
           - end_bracket: )
       - comma: ','
       - table_constraint:

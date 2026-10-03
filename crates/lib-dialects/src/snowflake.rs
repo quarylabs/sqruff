@@ -7531,6 +7531,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
                     MetaSegment::indent().to_matchable(),
+                    Ref::new("TagBracketedEqualsSegment")
+                        .optional()
+                        .to_matchable(),
                     AnyNumberOf::new(vec![
                         one_of(vec![
                             Sequence::new(vec![

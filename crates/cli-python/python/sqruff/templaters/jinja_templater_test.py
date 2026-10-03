@@ -222,6 +222,53 @@ def test_jinja_exclude_macros_from_path(tmp_path):
     assert render("{{ foo1() }}/{{ foo2() }}") == "101/102"
 
 
+@pytest.mark.parametrize(
+    ("file_encoding", "config_encoding"),
+    [("utf-8", "utf-8"), ("utf-16", "utf-16"), ("utf-8", "autodetect")],
+)
+@pytest.mark.parametrize("macro_path_is_directory", [False, True])
+def test_jinja_macro_path_uses_configured_encoding(
+    tmp_path, monkeypatch, file_encoding, config_encoding, macro_path_is_directory
+):
+    macro_path = tmp_path / "macros" if macro_path_is_directory else tmp_path
+    macro_path.mkdir(exist_ok=True)
+    macro_file = macro_path / "macros.sql"
+    macro_file.write_text(
+        "{% macro square(n) %}-- Á\n{{ n * n }}{% endmacro %}",
+        encoding=file_encoding,
+    )
+
+    real_open = open
+
+    def cp1252_default_open(file, mode="r", *args, encoding=None, **kwargs):
+        if encoding is None and "b" not in mode:
+            encoding = "cp1252"
+        return real_open(file, mode, *args, encoding=encoding, **kwargs)
+
+    monkeypatch.setattr("builtins.open", cp1252_default_open)
+    config = FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_templater_paths=[
+            str(macro_path if macro_path_is_directory else macro_file)
+        ],
+        jinja_exclude_macros_from_path=[],
+        jinja_loader_search_path=[],
+        jinja_apply_dbt_builtins=False,
+        jinja_ignore_templating=False,
+        jinja_library_paths=[],
+        dbt_profile=None,
+        dbt_profiles_dir=None,
+        dbt_target=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+        encoding=config_encoding,
+    )
+
+    macros = JinjaTemplater()._extract_macros(config, env=Environment(), ctx={})
+    assert "square" in macros
+
+
 def test_jinja_macros_can_call_macros_from_other_files(tmp_path):
     """Macros loaded globally can call macros defined in separate files."""
     macros = tmp_path / "macros"

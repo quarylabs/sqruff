@@ -6,11 +6,13 @@ requires-python = ">=3.10"
 
 [project.optional-dependencies]
 jinja = [
+    "charset-normalizer>=3.0.0",
     "regex",
     "jinja2>=3.0.0",
     "jinja2-simple-tags>=0.3.1"
 ]
 dbt = [
+    "charset-normalizer>=3.0.0",
     "regex",
     "jinja2>=3.0.0",
     "jinja2-simple-tags>=0.3.1",

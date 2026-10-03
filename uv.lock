@@ -1691,6 +1691,7 @@ name = "sqruff"
 version = "0.40.0"
 source = { editable = "." }
 dependencies = [
+    { name = "charset-normalizer" },
     { name = "jinja2" },
     { name = "regex" },
 ]
@@ -1737,6 +1738,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
+    { name = "charset-normalizer", specifier = ">=3.0.0" },
     { name = "claude-code-sdk", marker = "extra == 'dev'" },
     { name = "dbt-core", marker = "extra == 'dbt'", specifier = ">=1.4.1" },
     { name = "dbt-core", marker = "extra == 'dev'", specifier = ">=1.4.1" },

@@ -1,0 +1,98 @@
+file:
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: DBT
+    - keyword: PROJECTS
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: DCM
+    - keyword: PROJECTS
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: DEPLOYMENTS
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: DBT
+    - keyword: PROJECTS
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+      - naked_identifier: analytics
+- statement_terminator: ;
+- statement:
+  - show_statement:
+    - keyword: SHOW
+    - keyword: DCM
+    - keyword: PROJECTS
+    - keyword: IN
+    - keyword: DCM
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dcm_project
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESCRIBE
+    - keyword: DBT
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dbt_project
+- statement_terminator: ;
+- statement:
+  - describe_statement:
+    - keyword: DESC
+    - keyword: DCM
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dcm_project
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: USAGE
+      - keyword: ON
+      - access_object:
+        - access_schema_object:
+          - keyword: DBT
+          - keyword: PROJECT
+        - object_reference:
+          - naked_identifier: my_dbt_project
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: project_reader
+- statement_terminator: ;
+- statement:
+  - access_statement:
+    - grant_statement:
+      - keyword: GRANT
+      - access_permissions:
+        - access_permission:
+          - keyword: USAGE
+      - keyword: ON
+      - access_object:
+        - keyword: ALL
+        - access_schema_plural_object:
+          - keyword: DCM
+          - keyword: PROJECTS
+        - keyword: IN
+        - keyword: SCHEMA
+        - object_reference:
+          - naked_identifier: analytics
+      - keyword: TO
+      - access_target:
+        - keyword: ROLE
+        - role_reference:
+          - naked_identifier: project_reader
+- statement_terminator: ;

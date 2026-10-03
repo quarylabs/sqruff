@@ -833,6 +833,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateDatabaseRoleStatement
         | CreateDatabaseScopedCredentialStatement
         | CreateDatabaseWithOptions
+        | CreateDbtProjectStatement
+        | CreateDcmProjectStatement
         | CreateEventStatement
         | CreateEventTableStatement
         | CreateExternalDataSourceStatement

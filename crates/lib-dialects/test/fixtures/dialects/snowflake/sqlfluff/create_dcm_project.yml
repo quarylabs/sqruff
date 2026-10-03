@@ -1,0 +1,110 @@
+file:
+- statement:
+  - create_dcm_project_statement:
+    - keyword: CREATE
+    - keyword: DCM
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dcm_project
+- statement_terminator: ;
+- statement:
+  - create_dcm_project_statement:
+    - keyword: CREATE
+    - keyword: DCM
+    - keyword: PROJECT
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: my_dcm_project
+- statement_terminator: ;
+- statement:
+  - create_dcm_project_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DCM
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dcm_project
+- statement_terminator: ;
+- statement:
+  - create_dcm_project_statement:
+    - keyword: CREATE
+    - keyword: DCM
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dcm_project
+    - keyword: LOG_LEVEL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: DEBUG
+- statement_terminator: ;
+- statement:
+  - create_dcm_project_statement:
+    - keyword: CREATE
+    - keyword: DCM
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dcm_project
+    - keyword: LOG_LEVEL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: INFO
+- statement_terminator: ;
+- statement:
+  - create_dcm_project_statement:
+    - keyword: CREATE
+    - keyword: DCM
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dcm_project
+    - keyword: LOG_LEVEL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: WARN
+- statement_terminator: ;
+- statement:
+  - create_dcm_project_statement:
+    - keyword: CREATE
+    - keyword: DCM
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dcm_project
+    - keyword: LOG_LEVEL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: ERROR
+- statement_terminator: ;
+- statement:
+  - create_dcm_project_statement:
+    - keyword: CREATE
+    - keyword: DCM
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dcm_project
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''My DCM project'''
+- statement_terminator: ;
+- statement:
+  - create_dcm_project_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: DCM
+    - keyword: PROJECT
+    - object_reference:
+      - naked_identifier: my_dcm_project
+    - keyword: LOG_LEVEL
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: INFO
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''Full DCM project example'''
+- statement_terminator: ;

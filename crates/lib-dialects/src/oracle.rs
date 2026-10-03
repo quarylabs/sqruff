@@ -1359,6 +1359,44 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // XMLATTRIBUTES accepts optional static or dynamic aliases per attribute.
+        (
+            "XmlAttributesFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("XMLATTRIBUTES", SyntaxKind::FunctionNameIdentifier)
+                    .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "XmlAttributesFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ExpressionSegment").to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("AS").to_matchable(),
+                                    Ref::keyword("EVALNAME").to_matchable(),
+                                    Ref::new("ExpressionSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("AliasExpressionSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         // SlashBufferExecutorSegment
         (
             "SlashBufferExecutorSegment".into(),
@@ -7154,13 +7192,18 @@ pub fn raw_dialect() -> Dialect {
         );
     }
 
-    // ---- FunctionSegment: prioritize Oracle JSON_TABLE syntax ----
+    // ---- FunctionSegment: prioritize Oracle-specific function syntax ----
     oracle.replace_grammar(
         "FunctionSegment",
         one_of(vec![
             Sequence::new(vec![
                 Ref::new("JsonTableFunctionNameSegment").to_matchable(),
                 Ref::new("JsonTableFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::new("XmlAttributesFunctionNameSegment").to_matchable(),
+                Ref::new("XmlAttributesFunctionContentsSegment").to_matchable(),
             ])
             .to_matchable(),
             Ref::new("ColumnsExpressionGrammar").to_matchable(),

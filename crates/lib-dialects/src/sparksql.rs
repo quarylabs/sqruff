@@ -154,6 +154,11 @@ pub fn raw_dialect() -> Dialect {
     sparksql_dialect
         .sets_mut("reserved_keywords")
         .extend(RESERVED_KEYWORDS);
+    // Spark's unreserved list overrides inherited ANSI reserved keywords.
+    // Join grammar still matches LEFT and RIGHT explicitly as keywords.
+    sparksql_dialect
+        .sets_mut("reserved_keywords")
+        .retain(|keyword| !UNRESERVED_KEYWORDS.contains(keyword));
 
     sparksql_dialect.update_bracket_sets(
         "angle_bracket_pairs",

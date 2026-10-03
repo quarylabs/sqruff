@@ -1025,6 +1025,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | MetricLevelEquals
         | PsqlCopyCommand
         | PsqlCopyMetaCommandStatement
+        | PostgresCopyStdinDataStatement
         | PsqlSetCommand
         | PsqlSetMetaCommandStatement
         | MlTableExpression

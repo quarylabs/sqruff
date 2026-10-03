@@ -443,6 +443,31 @@ fn greedy_bracketed_unparsable_excludes_trailing_trivia() {
 }
 
 #[test]
+fn ansi_mismatched_bracket_reports_unexpected_closer() {
+    let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+    let (tokens, lex_errors) = lexer.lex(&tables, "SELECT a[)");
+    assert!(lex_errors.is_empty());
+
+    let error = parser.parse(&tables, &tokens).unwrap_err();
+    assert!(
+        error.description.contains("Found unexpected end bracket"),
+        "{error}"
+    );
+    assert_eq!(error.segment.unwrap().raw(), ")");
+
+    let (tokens, lex_errors) = lexer.lex(&tables, "SELECT a[");
+    assert!(lex_errors.is_empty());
+    let error = parser.parse(&tables, &tokens).unwrap_err();
+    assert!(
+        error.description.contains("Couldn't find closing bracket"),
+        "{error}"
+    );
+}
+
+#[test]
 fn ansi_and_hive_reject_trailing_comma_after_final_cte() {
     for dialect_kind in [DialectKind::Ansi, DialectKind::Hive] {
         let dialect = kind_to_dialect(&dialect_kind, None).unwrap();

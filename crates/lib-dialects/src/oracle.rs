@@ -637,6 +637,7 @@ pub fn raw_dialect() -> Dialect {
             "IterationBoundsGrammar".into(),
             one_of(vec![
                 Ref::new("NumericLiteralSegment").to_matchable(),
+                Ref::new("FunctionSegment").to_matchable(),
                 Ref::new("SingleIdentifierGrammar").to_matchable(),
                 Sequence::new(vec![
                     Ref::new("SingleIdentifierGrammar").to_matchable(),

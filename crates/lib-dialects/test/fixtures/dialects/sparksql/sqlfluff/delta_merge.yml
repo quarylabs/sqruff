@@ -225,8 +225,9 @@ file:
         - keyword: THEN
         - merge_insert_clause:
           - keyword: INSERT
-          - wildcard_identifier:
-            - star: '*'
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
 - statement_terminator: ;
 - statement:
   - merge_statement:
@@ -299,8 +300,9 @@ file:
         - keyword: THEN
         - merge_insert_clause:
           - keyword: INSERT
-          - wildcard_identifier:
-            - star: '*'
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
 - statement_terminator: ;
 - statement:
   - merge_statement:

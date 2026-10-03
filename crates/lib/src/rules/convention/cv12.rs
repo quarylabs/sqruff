@@ -111,7 +111,8 @@ JOIN baz ON bar.id = baz.id;
             {
                 continue;
             }
-            encountered_references.insert(from_expression_element_alias(join_table_reference));
+            let this_join_reference = from_expression_element_alias(join_table_reference);
+            encountered_references.insert(this_join_reference.clone());
 
             let join_children = join.segments();
             let join_keywords: Vec<_> = join_children
@@ -164,6 +165,14 @@ JOIN baz ON bar.id = baz.id;
                         encountered_references.iter().any(|table_reference| {
                             raw_upper.starts_with(&format!("{table_reference}."))
                         })
+                    })
+                    // A predicate involving only earlier tables cannot be moved
+                    // into this join without changing the query's semantics.
+                    && qualified_column_references.iter().any(|column_reference| {
+                        column_reference
+                            .raw()
+                            .to_uppercase()
+                            .starts_with(&format!("{this_join_reference}."))
                     })
                 {
                     this_join_subexpressions.insert(subexpression_idx);

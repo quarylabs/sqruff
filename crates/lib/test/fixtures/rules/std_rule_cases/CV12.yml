@@ -25,6 +25,19 @@ test_noop_crossjoin:
   pass_str: |
     SELECT foo.a, bar.b FROM foo CROSS JOIN bar WHERE bar.x > 3
 
+test_fail_natural_join_mixed_with_later_join:
+  # The earlier join's predicate must remain in WHERE.
+  fail_str: |
+    SELECT * FROM a NATURAL JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+  fix_str: |
+    SELECT * FROM a NATURAL JOIN b LEFT JOIN c ON a.m = c.m WHERE a.k = b.k
+
+test_fail_cross_join_mixed_with_later_join:
+  fail_str: |
+    SELECT * FROM a CROSS JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+  fix_str: |
+    SELECT * FROM a CROSS JOIN b LEFT JOIN c ON a.m = c.m WHERE a.k = b.k
+
 test_noop_using:
   pass_str: |
     SELECT foo.id, bar.id FROM foo LEFT JOIN bar USING (id)

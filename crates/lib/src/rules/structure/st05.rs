@@ -446,21 +446,15 @@ impl RuleST05 {
                         continue;
                     }
 
-                    if is_correlated_subquery(
-                        Segments::new(
-                            query
-                                .inner
-                                .borrow()
-                                .selectables
-                                .first()
-                                .unwrap()
-                                .selectable
-                                .clone(),
-                            None,
-                        ),
-                        &select_source_names,
-                        dialect,
-                    ) {
+                    // Set expressions have a selectable for each branch. A
+                    // correlation in any branch prevents hoisting the query.
+                    if query.inner.borrow().selectables.iter().any(|selectable_| {
+                        is_correlated_subquery(
+                            Segments::new(selectable_.selectable.clone(), None),
+                            &select_source_names,
+                            dialect,
+                        )
+                    }) {
                         continue;
                     }
 

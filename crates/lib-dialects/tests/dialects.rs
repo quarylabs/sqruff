@@ -418,6 +418,31 @@ fn stray_closing_bracket_aborts_greedy_terminator_search() {
 }
 
 #[test]
+fn greedy_bracketed_unparsable_excludes_trailing_trivia() {
+    let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "SELECT a FROM t WHERE a IN (1, )",
+        "SELECT a FROM t WHERE a IN (1, -- trailing comment\n)",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        let unparsable = tree
+            .recursive_crawl_all(false)
+            .into_iter()
+            .find(|segment| segment.is_type(SyntaxKind::Unparsable))
+            .unwrap_or_else(|| panic!("expected an unparsable segment: {sql}"));
+        assert!(unparsable.raw().contains(','), "{sql}");
+        assert_eq!(unparsable.raw().trim_end(), unparsable.raw(), "{sql}");
+        assert!(!unparsable.raw().contains("--"), "{sql}");
+    }
+}
+
+#[test]
 fn ansi_and_hive_reject_trailing_comma_after_final_cte() {
     for dialect_kind in [DialectKind::Ansi, DialectKind::Hive] {
         let dialect = kind_to_dialect(&dialect_kind, None).unwrap();

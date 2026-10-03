@@ -16,3 +16,13 @@ file:
       - keyword: quit
       - numeric_literal: '4'
 - statement_terminator: ;
+- statement:
+  - bteq_statement:
+    - dot: .
+    - bteq_key_word_segment:
+      - keyword: RUN
+    - keyword: FILE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bteq_file_path:
+      - naked_identifier: POSTING

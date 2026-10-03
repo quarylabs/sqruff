@@ -187,6 +187,7 @@ pub enum SyntaxKind {
     BracketedArguments,
     BracketedIndexColumnListGrammar,
     BreakStatement,
+    BteqFilePath,
     BteqKeyWordSegment,
     BteqStatement,
     BucketPath,

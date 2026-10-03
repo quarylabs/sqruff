@@ -166,6 +166,7 @@ pub enum SyntaxKind {
     AtSignLiteral,
     AtomicBeginEndBlock,
     Atsign,
+    AttributeIndicator,
     AuthorizationSegment,
     AutoOption,
     AvroFileFormatTypeParameters,

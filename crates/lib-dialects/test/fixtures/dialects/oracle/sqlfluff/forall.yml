@@ -99,7 +99,7 @@ file:
               - naked_identifier: parts1
               - dot: .
               - naked_identifier: pnum
-            - binary_operator: '%'
+            - attribute_indicator: '%'
             - keyword: TYPE
           - keyword: INDEX
           - keyword: BY
@@ -117,7 +117,7 @@ file:
               - naked_identifier: parts1
               - dot: .
               - naked_identifier: pname
-            - binary_operator: '%'
+            - attribute_indicator: '%'
             - keyword: TYPE
           - keyword: INDEX
           - keyword: BY

@@ -10,7 +10,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: last_name
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -59,7 +59,7 @@ file:
         - oracle_column_type_reference:
           - column_reference:
             - naked_identifier: name
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - oracle_assignment_operator: :=
         - expression:

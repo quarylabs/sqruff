@@ -14,7 +14,7 @@ file:
           - oracle_row_type_reference:
             - oracle_table_reference:
               - naked_identifier: employees
-            - binary_operator: '%'
+            - attribute_indicator: '%'
             - keyword: ROWTYPE
         - statement_terminator: ;
         - ref_cursor_type:
@@ -46,7 +46,7 @@ file:
           - oracle_row_type_reference:
             - oracle_table_reference:
               - naked_identifier: departments
-            - binary_operator: '%'
+            - attribute_indicator: '%'
             - keyword: ROWTYPE
         - statement_terminator: ;
         - naked_identifier: dept_cv
@@ -133,7 +133,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: salary
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: sal_multiple
@@ -142,7 +142,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: salary
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: factor
@@ -210,7 +210,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: cv
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -301,7 +301,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: salary
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: sal_multiple
@@ -310,7 +310,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: salary
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: factor
@@ -396,7 +396,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: cv
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -520,7 +520,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: cv
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -711,7 +711,7 @@ file:
           - oracle_row_type_reference:
             - oracle_table_reference:
               - naked_identifier: departments
-            - binary_operator: '%'
+            - attribute_indicator: '%'
             - keyword: ROWTYPE
           - statement_terminator: ;
         - declare_cursor_variable:
@@ -755,7 +755,7 @@ file:
           - oracle_row_type_reference:
             - oracle_table_reference:
               - naked_identifier: departments
-            - binary_operator: '%'
+            - attribute_indicator: '%'
             - keyword: ROWTYPE
           - keyword: IS
           - select_statement:
@@ -788,7 +788,7 @@ file:
           - oracle_row_type_reference:
             - oracle_table_reference:
               - naked_identifier: locations
-            - binary_operator: '%'
+            - attribute_indicator: '%'
             - keyword: ROWTYPE
           - statement_terminator: ;
         - declare_cursor_variable:
@@ -838,7 +838,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: salary
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: sal_multiple
@@ -847,7 +847,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: salary
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: factor
@@ -915,7 +915,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: c1
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -1006,7 +1006,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: salary
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: sal_multiple
@@ -1015,7 +1015,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: salary
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: factor
@@ -1101,7 +1101,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: c1
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -1201,7 +1201,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: c1
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -1304,7 +1304,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: c1
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -1330,7 +1330,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: c1
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -1461,7 +1461,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: last_name
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - statement_terminator: ;
             - naked_identifier: first_name_
@@ -1470,7 +1470,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: first_name
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - statement_terminator: ;
             - naked_identifier: overpayment_
@@ -1479,7 +1479,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: salary
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - statement_terminator: ;
           - oracle_begin_end_block:
@@ -1505,7 +1505,7 @@ file:
                     - keyword: WHEN
                     - expression:
                       - naked_identifier: c
-                      - binary_operator: '%'
+                      - attribute_indicator: '%'
                       - keyword: NOTFOUND
                 - statement_terminator: ;
                 - statement:
@@ -1809,7 +1809,7 @@ file:
                 - naked_identifier: departments
                 - dot: .
                 - naked_identifier: department_name
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - statement_terminator: ;
             - naked_identifier: mgr_name
@@ -1818,7 +1818,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: last_name
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - statement_terminator: ;
             - naked_identifier: city_name
@@ -1827,7 +1827,7 @@ file:
                 - naked_identifier: locations
                 - dot: .
                 - naked_identifier: city
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - statement_terminator: ;
           - oracle_begin_end_block:
@@ -1853,7 +1853,7 @@ file:
                     - keyword: WHEN
                     - expression:
                       - naked_identifier: c
-                      - binary_operator: '%'
+                      - attribute_indicator: '%'
                       - keyword: NOTFOUND
                 - statement_terminator: ;
                 - statement:
@@ -2139,7 +2139,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: last_name
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - statement_terminator: ;
             - naked_identifier: first_name_
@@ -2148,7 +2148,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: first_name
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - statement_terminator: ;
             - naked_identifier: overpayment_
@@ -2157,7 +2157,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: salary
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - statement_terminator: ;
           - oracle_begin_end_block:
@@ -2183,7 +2183,7 @@ file:
                     - keyword: WHEN
                     - expression:
                       - naked_identifier: c
-                      - binary_operator: '%'
+                      - attribute_indicator: '%'
                       - keyword: NOTFOUND
                 - statement_terminator: ;
                 - statement:
@@ -2680,7 +2680,7 @@ file:
             - naked_identifier: departments
             - dot: .
             - naked_identifier: department_name
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: emp_name
@@ -2689,7 +2689,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: last_name
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - declare_cursor_variable:
@@ -2798,7 +2798,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: c1
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -2836,7 +2836,7 @@ file:
                   - keyword: WHEN
                   - expression:
                     - naked_identifier: emp_cur
-                    - binary_operator: '%'
+                    - attribute_indicator: '%'
                     - keyword: NOTFOUND
               - statement_terminator: ;
               - statement:
@@ -2910,7 +2910,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: emp
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -2936,7 +2936,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: c1
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:

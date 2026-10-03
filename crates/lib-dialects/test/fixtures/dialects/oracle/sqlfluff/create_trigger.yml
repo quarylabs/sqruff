@@ -431,7 +431,7 @@ file:
             - oracle_row_type_reference:
               - oracle_table_reference:
                 - naked_identifier: employee_salaries
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: ROWTYPE
             - keyword: INDEX
             - keyword: BY

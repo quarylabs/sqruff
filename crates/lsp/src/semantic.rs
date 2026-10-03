@@ -112,6 +112,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
 
         // Operators.
         BinaryOperator
+        | AttributeIndicator
         | FactorialOperator
         | Commutator
         | ComparisonOperator

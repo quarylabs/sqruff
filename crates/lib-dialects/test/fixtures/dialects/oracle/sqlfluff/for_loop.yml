@@ -533,7 +533,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: employees
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
         - declare_cursor_variable:
@@ -586,7 +586,7 @@ file:
                 - keyword: WHEN
                 - expression:
                   - naked_identifier: c1
-                  - binary_operator: '%'
+                  - attribute_indicator: '%'
                   - keyword: NOTFOUND
             - statement_terminator: ;
             - keyword: END
@@ -610,7 +610,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: employees
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
         - declare_cursor_variable:
@@ -675,7 +675,7 @@ file:
                       - keyword: WHEN
                       - expression:
                         - naked_identifier: c1
-                        - binary_operator: '%'
+                        - attribute_indicator: '%'
                         - keyword: NOTFOUND
                   - statement_terminator: ;
                   - keyword: END
@@ -703,7 +703,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: employees
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
         - declare_cursor_variable:
@@ -768,7 +768,7 @@ file:
                       - keyword: WHEN
                       - expression:
                         - naked_identifier: c1
-                        - binary_operator: '%'
+                        - attribute_indicator: '%'
                         - keyword: NOTFOUND
                   - statement_terminator: ;
                   - keyword: END

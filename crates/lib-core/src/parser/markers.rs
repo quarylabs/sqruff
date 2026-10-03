@@ -281,6 +281,16 @@ impl PositionMarker {
         start_point_marker: &PositionMarker,
         end_point_marker: &PositionMarker,
     ) -> PositionMarker {
+        // Markers in one parse normally share a TemplatedFile allocation. Keep
+        // value equality as a fallback for independently constructed copies.
+        if !start_point_marker
+            .templated_file
+            .ptr_eq(&end_point_marker.templated_file)
+            && start_point_marker.templated_file != end_point_marker.templated_file
+        {
+            panic!("Markers must refer to the same templated file.");
+        }
+
         Self {
             data: PositionMarkerData {
                 source_slice: start_point_marker.source_slice.start
@@ -483,5 +493,31 @@ mod tests {
 
         // Check greater than or equal
         assert!(all_pos.iter().all(|p| c_pos >= **p));
+    }
+
+    #[test]
+    fn test_from_points_accepts_identical_and_equal_templated_files() {
+        let file: TemplatedFile = "abc".into();
+        let same_file = file.clone();
+        let equal_file: TemplatedFile = "abc".into();
+        assert!(file.ptr_eq(&same_file));
+        assert!(!file.ptr_eq(&equal_file));
+        assert_eq!(file, equal_file);
+
+        let start = PositionMarker::from_point(0, 0, file, None, None);
+        for end_file in [same_file, equal_file] {
+            let end = PositionMarker::from_point(3, 3, end_file, None, None);
+            let combined = PositionMarker::from_points(&start, &end);
+            assert_eq!(combined.source_slice, 0..3);
+            assert_eq!(combined.templated_slice, 0..3);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Markers must refer to the same templated file.")]
+    fn test_from_points_rejects_different_templated_files() {
+        let start = PositionMarker::from_point(0, 0, "abc".into(), None, None);
+        let end = PositionMarker::from_point(3, 3, "xyz".into(), None, None);
+        PositionMarker::from_points(&start, &end);
     }
 }

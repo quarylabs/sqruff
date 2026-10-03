@@ -196,6 +196,23 @@ fn add_operators(dialect: &mut Dialect) {
 fn add_segments(dialect: &mut Dialect) {
     dialect.add([
         (
+            "BteqFilePathSegment".into(),
+            NodeMatcher::new(SyntaxKind::BteqFilePath, |_| {
+                AnyNumberOf::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::new("DotSegment").to_matchable(),
+                    Ref::new("SlashSegment").to_matchable(),
+                ])
+                .config(|this| {
+                    this.min_times(1);
+                    this.disallow_gaps();
+                })
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "BteqKeyWordSegment".into(),
             NodeMatcher::new(SyntaxKind::BteqKeyWordSegment, |_| {
                 Sequence::new(vec![
@@ -236,6 +253,16 @@ fn add_segments(dialect: &mut Dialect) {
                     Ref::new("BteqKeyWordSegment").to_matchable(),
                     AnyNumberOf::new(vec![
                         Ref::new("BteqKeyWordSegment").to_matchable(),
+                        Sequence::new(vec![
+                            kw("FILE"),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("BteqFilePathSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                         optional_sequence(vec![
                             Ref::new("ComparisonOperatorGrammar").to_matchable(),
                             Ref::new("LiteralGrammar").to_matchable(),

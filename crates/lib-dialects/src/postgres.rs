@@ -8345,9 +8345,14 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("QuotedLiteralSegment").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("PROGRAM").to_matchable(),
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            Ref::new("PsqlVariableGrammar").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
+                    Ref::new("PsqlVariableGrammar").to_matchable(),
                 ]);
 
                 let _table_definition = Sequence::new(vec![
@@ -8588,6 +8593,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("FROM").to_matchable(),
                             one_of(vec![
                                 Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("PsqlVariableGrammar").to_matchable(),
                                 Ref::keyword("STDIN").to_matchable(),
                             ])
                             .to_matchable(),
@@ -8620,6 +8626,7 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("TO").to_matchable(),
                             one_of(vec![
                                 Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("PsqlVariableGrammar").to_matchable(),
                                 Ref::keyword("STDOUT").to_matchable(),
                             ])
                             .to_matchable(),

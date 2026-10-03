@@ -323,9 +323,11 @@ pub fn raw_dialect() -> Dialect {
     );
 
     // T-SQL specific lexer patches:
-    // 1. T-SQL only uses -- for inline comments, not # (which is used in temp table names)
-    // 2. Allow the full set of T-SQL subsequent identifier characters.
+    // 1. Single quotes escape only by doubling, not with backslashes.
+    // 2. T-SQL only uses -- for inline comments, not # (which is used in temp table names).
+    // 3. Allow the full set of T-SQL subsequent identifier characters.
     dialect.patch_lexer_matchers(vec![
+        Matcher::regex("single_quote", r"'([^']|'')*'", SyntaxKind::SingleQuote),
         Matcher::regex("inline_comment", r"--[^\n]*", SyntaxKind::InlineComment),
         Matcher::regex("word", r"[0-9a-zA-Z_#@$\p{L}]+", SyntaxKind::Word),
     ]);

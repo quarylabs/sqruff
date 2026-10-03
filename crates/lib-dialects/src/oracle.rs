@@ -969,6 +969,23 @@ pub fn raw_dialect() -> Dialect {
                     config.optional();
                 })
                 .to_matchable(),
+                one_of(vec![
+                    Ref::keyword("NOWAIT").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WAIT").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("SKIP").to_matchable(),
+                        Ref::keyword("LOCKED").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|config| {
+                    config.optional();
+                })
+                .to_matchable(),
             ])
             .to_matchable()
             .into(),

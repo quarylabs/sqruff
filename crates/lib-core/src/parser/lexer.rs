@@ -516,9 +516,10 @@ impl Lexer {
                 break;
             }
 
-            // If we STILL can't match, then just panic out.
+            // Preserve an otherwise unlexable span so it can produce a violation.
+            str_buff = res.forward_string;
             let mut resort_res = self.last_resort_lexer.matches(str_buff);
-            if !resort_res.elements.is_empty() {
+            if resort_res.elements.is_empty() {
                 break;
             }
 
@@ -536,23 +537,21 @@ impl Lexer {
             seg.get_mut().set_id(tables.next_id())
         }
 
-        (segments, Vec::new())
+        let violations = Self::violations_from_segments(&segments);
+        (segments, violations)
     }
 
     /// Generate any lexing errors for any un-lex-ables.
     ///
-    /// TODO: Taking in an iterator, also can make the typing better than use
-    /// unwrap.
-    #[allow(dead_code)]
-    fn violations_from_segments(segments: Vec<ErasedSegment>) -> Vec<SQLLexError> {
+    fn violations_from_segments(segments: &[ErasedSegment]) -> Vec<SQLLexError> {
         segments
-            .into_iter()
+            .iter()
             .filter(|s| s.is_type(SyntaxKind::Unlexable))
             .map(|s| {
                 SQLLexError::new(
                     format!(
                         "Unable to lex characters: {}",
-                        s.raw().chars().take(10).collect::<String>()
+                        python_repr_str(&truncate_like_python(s.raw().as_str()))
                     ),
                     s.get_position_marker().unwrap().clone(),
                 )
@@ -660,6 +659,54 @@ impl Lexer {
 
         segments
     }
+}
+
+/// Match Python's `raw[:10] + "..." if len(raw) > 9 else raw` by Unicode codepoint.
+fn truncate_like_python(raw: &str) -> String {
+    if raw.chars().count() > 9 {
+        let mut truncated: String = raw.chars().take(10).collect();
+        truncated.push_str("...");
+        truncated
+    } else {
+        raw.to_string()
+    }
+}
+
+/// Quote and escape unlexable text like Python's `repr()`.
+fn python_repr_str(s: &str) -> String {
+    let quote_char = if s.contains('\'') && !s.contains('"') {
+        '"'
+    } else {
+        '\''
+    };
+
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push(quote_char);
+    for c in s.chars() {
+        match c {
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if c == quote_char => {
+                out.push('\\');
+                out.push(c);
+            }
+            c if c.is_control() || (c.is_whitespace() && c != ' ') => {
+                let cp = c as u32;
+                if cp <= 0xff {
+                    out.push_str(&format!("\\x{cp:02x}"));
+                } else if cp <= 0xffff {
+                    out.push_str(&format!("\\u{cp:04x}"));
+                } else {
+                    out.push_str(&format!("\\U{cp:08x}"));
+                }
+            }
+            c => out.push(c),
+        }
+    }
+    out.push(quote_char);
+    out
 }
 
 /// Tracks template block nesting, pairing block tags with a shared uuid so the
@@ -1231,5 +1278,33 @@ mod tests {
         assert_eq!(res.forward_string, "#");
         assert_eq!(res.elements.len(), 5);
         assert_eq!(res.elements[2].text, "#..#");
+    }
+
+    #[test]
+    fn test_parser_lexer_unlexable_error_message() {
+        let lexer = Lexer::new(&[Matcher::string("word", "SELECT", SyntaxKind::Word)]);
+        let (segments, errors) = lexer.lex(&Tables::default(), "SELECT¡");
+
+        assert_eq!(
+            segments
+                .iter()
+                .filter(|s| s.is_type(SyntaxKind::Unlexable))
+                .count(),
+            1
+        );
+        assert_eq!(errors.len(), 1);
+        assert_eq!(errors[0].to_string(), "Unable to lex characters: '¡'");
+    }
+
+    #[test]
+    fn test_parser_lexer_python_repr_and_truncation() {
+        assert_eq!(truncate_like_python("ééééééééé"), "ééééééééé");
+        assert_eq!(truncate_like_python("ééééééééééé"), "éééééééééé...");
+        assert_eq!(python_repr_str("can't"), "\"can't\"");
+        assert_eq!(python_repr_str("can't \"stop\""), "'can\\'t \"stop\"'");
+        assert_eq!(
+            python_repr_str("\\\n\r\t\x01\u{a0}"),
+            "'\\\\\\n\\r\\t\\x01\\xa0'"
+        );
     }
 }

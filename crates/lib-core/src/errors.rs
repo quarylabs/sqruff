@@ -204,6 +204,19 @@ impl SQLLexError {
     }
 }
 
+impl From<SQLLexError> for SQLBaseError {
+    fn from(value: SQLLexError) -> Self {
+        Self::default().config(|this| {
+            this.description = value.message;
+            this.set_position_marker(value.position_marker);
+            this.rule = Some(ErrorStructRule {
+                name: "lexing",
+                code: "LXR",
+            });
+        })
+    }
+}
+
 #[derive(Debug, Error)]
 #[error("{value}")]
 pub struct SQLFluffSkipFile {

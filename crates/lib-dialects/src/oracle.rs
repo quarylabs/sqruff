@@ -91,6 +91,18 @@ pub fn raw_dialect() -> Dialect {
                 r"PROMPT[^\r\n]*",
                 SyntaxKind::InlineComment,
             ),
+            Matcher::legacy(
+                "accept_command",
+                |s| s.starts_with(['A', 'a']),
+                r"[aA][cC][cC](?:[eE][pP][tT])?[^\S\r\n]+(?:'(?:[^']|'')*'|[^;(\r\n)])*((?=\n)|(?=\r\n)|$)",
+                SyntaxKind::InlineComment,
+            ),
+            Matcher::legacy(
+                "remark_command",
+                |s| s.starts_with(['R', 'r']),
+                r"[rR][eE][mM](?:[aA][rR][kK])?(?:[^\S\r\n]+(?:'(?:[^']|'')*'|[^;(\r\n)])*)?((?=\n)|(?=\r\n)|$)",
+                SyntaxKind::InlineComment,
+            ),
             Matcher::string("at_sign", "@", SyntaxKind::AtSign),
         ],
         "word",

@@ -1,0 +1,96 @@
+file:
+- oracle_batch:
+  - statement:
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: job_id
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - oracle_table_reference:
+                - naked_identifier: employees
+  - statement_terminator: ;
+  - statement:
+    - oracle_begin_end_block:
+      - oracle_declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: acc
+        - data_type:
+          - data_type_identifier: NUMBER
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+        - oracle_null_statement:
+          - keyword: 'NULL'
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - oracle_begin_end_block:
+      - oracle_declare_segment:
+        - keyword: DECLARE
+        - naked_identifier: rem
+        - data_type:
+          - data_type_identifier: NUMBER
+        - statement_terminator: ;
+      - keyword: BEGIN
+      - statement:
+        - oracle_null_statement:
+          - keyword: 'NULL'
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - assignment_segment_statement:
+      - object_reference:
+        - naked_identifier: DECLARE
+      - object_reference:
+        - naked_identifier: acc
+      - oracle_assignment_operator: :=
+      - expression:
+        - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_null_statement:
+          - keyword: 'NULL'
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /
+- oracle_batch:
+  - statement:
+    - assignment_segment_statement:
+      - object_reference:
+        - naked_identifier: DECLARE
+      - object_reference:
+        - naked_identifier: rem
+      - oracle_assignment_operator: :=
+      - expression:
+        - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+    - oracle_begin_end_block:
+      - keyword: BEGIN
+      - statement:
+        - oracle_null_statement:
+          - keyword: 'NULL'
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

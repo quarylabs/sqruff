@@ -1044,6 +1044,63 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "JsonValueFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::new("CommaSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("RETURNING").to_matchable(),
+                        Ref::new("DatatypeSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CHARACTER").to_matchable(),
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("NULL").to_matchable(),
+                                Ref::keyword("ERROR").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("DEFAULT").to_matchable(),
+                                    Ref::new("ExpressionSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("ON").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("EMPTY").to_matchable(),
+                                Ref::keyword("ERROR").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.max_times(2))
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JsonValueFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("JSON_VALUE", SyntaxKind::FunctionNameIdentifier).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     let function_grammar = mysql
@@ -1057,6 +1114,11 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::new("JsonTableFunctionNameSegment").to_matchable(),
                 Ref::new("JsonTableFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::new("JsonValueFunctionNameSegment").to_matchable(),
+                Ref::new("JsonValueFunctionContentsSegment").to_matchable(),
             ])
             .to_matchable(),
             function_grammar,

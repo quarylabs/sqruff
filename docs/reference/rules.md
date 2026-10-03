@@ -67,6 +67,7 @@ The following rules are available in this create. This list is generated from th
 | RF04 | [references.keywords](#referenceskeywords) | Keywords should not be used as identifiers. |  |
 | RF05 | [references.special_chars](#referencesspecial_chars) | Do not use special characters in identifiers. |  |
 | RF06 | [references.quoting](#referencesquoting) | Unnecessary quoted identifier. |  |
+| RF07 | [references.window_alias](#referenceswindow_alias) | Do not reference a column alias inside its own OVER clause. |  |
 | ST01 | [structure.else_null](#structureelse_null) | Do not specify 'else null' in a case when statement (redundant). |  |
 | ST02 | [structure.simple_case](#structuresimple_case) | Unnecessary 'CASE' statement. |  |
 | ST03 | [structure.unused_cte](#structureunused_cte) | Query defines a CTE (common-table expression) but does not use it. | ✓ |
@@ -2488,6 +2489,37 @@ Use quoted identifiers.
 SELECT 123 as "foo" -- For ANSI, ...
 -- or
 SELECT 123 as `foo` -- For BigQuery, MySql, ...
+```
+
+### references.window_alias
+
+Do not reference a column alias inside its own OVER clause.
+
+**Code:** `RF07`
+
+**Groups:** `all`, `references`
+
+**Fixable:** No
+
+Window functions are evaluated before SELECT-list aliases are applied. An
+unqualified reference in PARTITION BY or ORDER BY which matches an alias may
+instead resolve to a column from a joined table. This rule is disabled by
+default; set `force_enable = true` to enable it.
+
+**Anti-pattern**
+
+```sql
+SELECT t1.col1 AS id,
+       ROW_NUMBER() OVER (PARTITION BY id ORDER BY t1.ts) AS rn
+FROM t1 LEFT JOIN t2 ON t1.col1 = t2.id
+```
+
+**Best practice**
+
+```sql
+SELECT t1.col1 AS id,
+       ROW_NUMBER() OVER (PARTITION BY t1.col1 ORDER BY t1.ts) AS rn
+FROM t1 LEFT JOIN t2 ON t1.col1 = t2.id
 ```
 
 ### structure.else_null

@@ -4023,9 +4023,11 @@ pub fn raw_dialect() -> Dialect {
                     .to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
                     one_of(vec![
-                        Ref::new("QuotedLiteralSegment").to_matchable(),
-                        Ref::new("QuotedIdentifierSegment").to_matchable(),
-                        Ref::new("NakedIdentifierSegment").to_matchable(),
+                        TypedParser::new(SyntaxKind::SingleQuote, SyntaxKind::SingleQuote)
+                            .to_matchable(),
+                        TypedParser::new(SyntaxKind::DoubleQuote, SyntaxKind::DoubleQuote)
+                            .to_matchable(),
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::Word).to_matchable(),
                     ])
                     .to_matchable(),
                 ])

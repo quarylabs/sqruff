@@ -529,6 +529,15 @@ pub fn raw_dialect() -> Dialect {
                 r"\$\d+",
                 SyntaxKind::DollarNumericLiteral,
             ),
+            // Inline COPY data is not SQL. Match the command and its data block
+            // through the terminating `\.` as one token, without swallowing a
+            // plain COPY FROM STDIN statement that has no inline data.
+            Matcher::legacy(
+                "postgres_copy_stdin_data_block",
+                |s| s.get(..4).is_some_and(|prefix| prefix.eq_ignore_ascii_case("COPY")),
+                r"(?i)COPY\b(?:[^;']|'(?:[^']|'')*')*?\bFROM\b\s+STDIN\b(?:[^;']|'(?:[^']|'')*')*?;[ \t]*\r?\n(?:[^\r\n]*\r?\n)*?\\\.[ \t]*(?=\r?\n|$)",
+                SyntaxKind::PostgresCopyStdinDataStatement,
+            ),
             Matcher::legacy(
                 "psql_copy_command",
                 |s| s.starts_with("\\copy"),
@@ -721,6 +730,15 @@ pub fn raw_dialect() -> Dialect {
             TypedParser::new(SyntaxKind::PsqlCopyCommand, SyntaxKind::PsqlCopyCommand)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "PostgresCopyStdinDataSegment".into(),
+            TypedParser::new(
+                SyntaxKind::PostgresCopyStdinDataStatement,
+                SyntaxKind::PostgresCopyStdinDataStatement,
+            )
+            .to_matchable()
+            .into(),
         ),
         (
             "PsqlSetMetaCommandSegment".into(),
@@ -7150,6 +7168,14 @@ pub fn raw_dialect() -> Dialect {
 
     postgres.add([
         (
+            "PostgresCopyStdinDataStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::PostgresCopyStdinDataStatement, |_| {
+                Ref::new("PostgresCopyStdinDataSegment").to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "PsqlCopyMetaCommandStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::PsqlCopyMetaCommandStatement, |_| {
                 Ref::new("PsqlCopyMetaCommandSegment").to_matchable()
@@ -10334,6 +10360,7 @@ pub fn raw_dialect() -> Dialect {
     postgres.replace_grammar(
         "FileSegment",
         AnyNumberOf::new(vec![
+            Ref::new("PostgresCopyStdinDataStatementSegment").to_matchable(),
             Ref::new("PsqlCopyMetaCommandStatementSegment").to_matchable(),
             Ref::new("PsqlSetMetaCommandStatementSegment").to_matchable(),
             Delimited::new(vec![Ref::new("StatementSegment").to_matchable()])

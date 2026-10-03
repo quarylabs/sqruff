@@ -998,6 +998,7 @@ pub enum SyntaxKind {
     PlusPriorInverse,
     PostTableExpression,
     PostgisOperator,
+    PostgresCopyStdinDataStatement,
     PowerOperator,
     PragmaReference,
     PragmaStatement,

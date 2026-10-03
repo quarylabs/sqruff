@@ -171,7 +171,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: first_name
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - comma: ','
             - naked_identifier: last
@@ -180,7 +180,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: last_name
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - end_bracket: )
         - statement_terminator: ;
@@ -201,7 +201,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: phone_number
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - end_bracket: )
         - statement_terminator: ;
@@ -344,7 +344,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: phone_number
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - end_bracket: )
         - statement_terminator: ;

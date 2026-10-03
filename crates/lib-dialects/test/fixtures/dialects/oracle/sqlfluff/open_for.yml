@@ -14,7 +14,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: last_name
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: v_jobid
@@ -23,7 +23,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: job_id
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
         - naked_identifier: query_2
@@ -45,7 +45,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: employees
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -112,7 +112,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: cv
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -188,7 +188,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: cv
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - statement:
@@ -388,7 +388,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: employees
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
         - naked_identifier: v_stmt_str
@@ -406,7 +406,7 @@ file:
             - naked_identifier: employees
             - dot: .
             - naked_identifier: job_id
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: TYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -444,7 +444,7 @@ file:
               - keyword: WHEN
               - expression:
                 - naked_identifier: v_emp_cursor
-                - binary_operator: '%'
+                - attribute_indicator: '%'
                 - keyword: NOTFOUND
           - statement_terminator: ;
           - keyword: END

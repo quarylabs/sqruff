@@ -196,6 +196,14 @@ pub fn raw_dialect() -> Dialect {
                 .to_matchable()
                 .into(),
         ),
+        // Attribute indicators in %TYPE, %ROWTYPE, and cursor attributes are
+        // distinct from arithmetic modulo so layout can keep them attached.
+        (
+            "AttributeIndicatorSegment".into(),
+            StringParser::new("%", SyntaxKind::AttributeIndicator)
+                .to_matchable()
+                .into(),
+        ),
         // RightArrowSegment
         (
             "RightArrowSegment".into(),
@@ -970,7 +978,7 @@ pub fn raw_dialect() -> Dialect {
             "ImplicitCursorAttributesGrammar".into(),
             Sequence::new(vec![
                 Ref::new("SingleIdentifierGrammar").to_matchable(),
-                Ref::new("ModuloSegment").to_matchable(),
+                Ref::new("AttributeIndicatorSegment").to_matchable(),
                 one_of(vec![
                     Ref::keyword("ISOPEN").to_matchable(),
                     Ref::keyword("FOUND").to_matchable(),
@@ -2299,7 +2307,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::OracleColumnTypeReference, |_| {
                 Sequence::new(vec![
                     Ref::new("ColumnReferenceSegment").to_matchable(),
-                    Ref::new("ModuloSegment").to_matchable(),
+                    Ref::new("AttributeIndicatorSegment").to_matchable(),
                     Ref::keyword("TYPE").to_matchable(),
                 ])
                 .to_matchable()
@@ -2313,7 +2321,7 @@ pub fn raw_dialect() -> Dialect {
             NodeMatcher::new(SyntaxKind::OracleRowTypeReference, |_| {
                 Sequence::new(vec![
                     Ref::new("TableReferenceSegment").to_matchable(),
-                    Ref::new("ModuloSegment").to_matchable(),
+                    Ref::new("AttributeIndicatorSegment").to_matchable(),
                     Ref::keyword("ROWTYPE").to_matchable(),
                 ])
                 .to_matchable()

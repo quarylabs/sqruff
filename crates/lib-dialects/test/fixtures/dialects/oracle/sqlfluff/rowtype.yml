@@ -8,7 +8,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: departments
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -145,7 +145,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: t1
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -298,7 +298,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: c
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -434,7 +434,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: c2
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -455,7 +455,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: t
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -527,7 +527,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: first_name
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - keyword: DEFAULT
             - expression:
@@ -539,7 +539,7 @@ file:
                 - naked_identifier: employees
                 - dot: .
                 - naked_identifier: last_name
-              - binary_operator: '%'
+              - attribute_indicator: '%'
               - keyword: TYPE
             - keyword: DEFAULT
             - expression:
@@ -576,7 +576,7 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: c
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
       - keyword: BEGIN
@@ -691,7 +691,7 @@ file:
           - oracle_row_type_reference:
             - oracle_table_reference:
               - naked_identifier: table_name
-            - binary_operator: '%'
+            - attribute_indicator: '%'
             - keyword: rowtype
           - end_bracket: )
       - keyword: is

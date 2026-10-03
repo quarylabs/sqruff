@@ -714,6 +714,11 @@ pub fn raw_dialect() -> Dialect {
                 Ref::new("EqualsSegment").optional().to_matchable(),
                 one_of(vec![
                     Ref::new("LiteralGrammar").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                     // when property value is Java Class Name
                     Delimited::new(vec![
                         Ref::new("PropertiesNakedIdentifierSegment").to_matchable(),

@@ -64,3 +64,17 @@ file:
     - dot: .
     - properties_naked_identifier: DefaultCachedBatchSerializer
 - statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - property_name_identifier:
+      - properties_naked_identifier: foo
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - bracketed:
+      - start_bracket: (
+      - numeric_literal: '1'
+      - comma: ','
+      - numeric_literal: '3'
+      - end_bracket: )
+- statement_terminator: ;

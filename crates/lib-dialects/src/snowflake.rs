@@ -349,28 +349,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     snowflake_dialect.name = DialectKind::Snowflake;
 
     snowflake_dialect.replace_grammar(
-        "SelectClauseElementSegment",
-        ansi::select_clause_element().copy(
-            Some(vec![
-                Sequence::new(vec![
-                    Ref::new("SystemFunctionName").to_matchable(),
-                    Bracketed::new(vec![
-                        Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
-                            .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-            ]),
-            None,
-            Some(Ref::new("WildcardExpressionSegment").to_matchable()),
-            None,
-            Vec::new(),
-            false,
-        ),
-    );
-
-    snowflake_dialect.replace_grammar(
         "FromExpressionElementSegment",
         Sequence::new(vec![
             Ref::new("PreTableFunctionKeywordsGrammar")
@@ -2095,6 +2073,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             one_of(vec![
                 Ref::new("FunctionNameIdentifierSegment").to_matchable(),
                 Ref::new("QuotedIdentifierSegment").to_matchable(),
+                Ref::new("SystemFunctionName").to_matchable(),
                 // Snowflake's IDENTIFIER pseudo-function
                 Sequence::new(vec![
                     Ref::keyword("IDENTIFIER").to_matchable(),

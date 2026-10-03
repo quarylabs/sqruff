@@ -441,6 +441,7 @@ FROM foo
 
     fn dialect_skip(&self) -> &'static [DialectKind] {
         &[
+            DialectKind::Athena,
             DialectKind::Bigquery,
             DialectKind::Hive,
             DialectKind::Redshift,

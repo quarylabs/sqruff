@@ -36,6 +36,7 @@ class FluffConfig(NamedTuple):
     dbt_threads: Optional[int] = None
     dbt_skip_compilation_error: bool = True
     ignore_templating: bool = False
+    encoding: str = "autodetect"
 
 
 def fluff_config_from_json(json_stringified: str) -> FluffConfig:

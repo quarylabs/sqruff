@@ -1,5 +1,6 @@
 """Defines the templaters."""
 
+import codecs
 import copy
 import importlib
 import logging
@@ -24,6 +25,7 @@ from typing import (
 
 import jinja2.nodes
 import jinja2.parser
+from charset_normalizer import from_bytes
 from jinja2 import (
     Environment,
     FileSystemLoader,
@@ -34,6 +36,7 @@ from jinja2 import (
 from jinja2.exceptions import TemplateNotFound, UndefinedError
 from jinja2.ext import Extension
 from jinja2.sandbox import SandboxedEnvironment
+
 from sqruff.templaters.jinja_templater_builtins_dbt import DBT_BUILTINS, DbtMacroWrapper
 from sqruff.templaters.jinja_templater_tracers import JinjaAnalyzer, JinjaTrace
 from sqruff.templaters.python_templater import (
@@ -150,6 +153,7 @@ class JinjaTemplater(PythonTemplater):
         env: Environment,
         ctx: Dict[str, Any],
         exclude_paths: Optional[List[str]] = None,
+        config_encoding: str = "autodetect",
     ) -> Dict[str, DbtMacroWrapper]:
         """Take a path and extract macros from it.
 
@@ -158,6 +162,7 @@ class JinjaTemplater(PythonTemplater):
             env (Environment): The environment object.
             ctx (Dict): The context dictionary.
             exclude_paths (Optional[[List][str]]): A list of paths to exclude
+            config_encoding: The configured encoding or autodetect.
 
         Returns:
             dict: A dictionary containing the extracted macros.
@@ -180,7 +185,25 @@ class JinjaTemplater(PythonTemplater):
                     ):
                         continue
                 # It's a file. Extract macros from it.
-                with open(path_entry) as opened_file:
+                if config_encoding == "autodetect":
+                    with open(path_entry, "rb") as binary_file:
+                        data = binary_file.read()
+                    if data.startswith((codecs.BOM_UTF32_BE, codecs.BOM_UTF32_LE)):
+                        encoding = "utf-32"
+                    elif data.startswith((codecs.BOM_UTF16_BE, codecs.BOM_UTF16_LE)):
+                        encoding = "utf-16"
+                    elif data.startswith(codecs.BOM_UTF8):
+                        encoding = "utf-8-sig"
+                    elif data.isascii():
+                        encoding = "ascii"
+                    else:
+                        detected = from_bytes(data).best()
+                        encoding = (
+                            detected.encoding if detected is not None else "utf-8"
+                        )
+                else:
+                    encoding = config_encoding
+                with open(path_entry, encoding=encoding) as opened_file:
                     template = opened_file.read()
                 # Update the context with macros from the file.
                 try:
@@ -205,6 +228,7 @@ class JinjaTemplater(PythonTemplater):
                                     env=env,
                                     ctx=ctx,
                                     exclude_paths=exclude_paths,
+                                    config_encoding=config_encoding,
                                 )
                             )
         return macro_ctx
@@ -224,6 +248,7 @@ class JinjaTemplater(PythonTemplater):
                     env=env,
                     ctx=ctx,
                     exclude_paths=exclude_macros_path,
+                    config_encoding=config.encoding,
                 )
             )
 

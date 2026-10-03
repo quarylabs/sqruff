@@ -13,6 +13,7 @@ use std::iter::FromIterator;
     Copy,
     strum_macros::IntoStaticStr,
     strum_macros::EnumString,
+    strum_macros::EnumIter,
     Hash,
     PartialOrd,
     Ord,

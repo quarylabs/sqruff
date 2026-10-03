@@ -1399,6 +1399,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ShowMaterializedViewsStatement
         | BteqKeyWordSegment
         | BteqStatement
+        | BteqFilePath
         | CollectStatUsingOptionClause
         | CollectStatisticsStatement
         | CreateTableOptionsStatement

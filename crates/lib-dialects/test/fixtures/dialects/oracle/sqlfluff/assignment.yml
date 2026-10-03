@@ -57,14 +57,14 @@ file:
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: employees
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
         - naked_identifier: emp_rec2
         - oracle_row_type_reference:
           - oracle_table_reference:
             - naked_identifier: employees
-          - binary_operator: '%'
+          - attribute_indicator: '%'
           - keyword: ROWTYPE
         - statement_terminator: ;
         - collection_type:

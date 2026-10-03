@@ -614,12 +614,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     dialect.replace_grammar(
         "ArrayTypeSchemaSegment",
-        Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
-            .config(|config| {
-                config.bracket_pairs_set = "angle_bracket_pairs";
-                config.bracket_type = "angle";
-            })
-            .to_matchable(),
+        one_of(vec![
+            Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()])
+                .config(|config| {
+                    config.bracket_pairs_set = "angle_bracket_pairs";
+                    config.bracket_type = "angle";
+                })
+                .to_matchable(),
+            Bracketed::new(vec![Ref::new("DatatypeSegment").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable(),
     );
 
     dialect.replace_grammar(

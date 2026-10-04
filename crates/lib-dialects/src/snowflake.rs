@@ -722,6 +722,41 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "ExecuteAsUserGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("EXECUTE").to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                Ref::keyword("USER").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("USE").to_matchable(),
+                    Ref::keyword("SECONDARY").to_matchable(),
+                    Ref::keyword("ROLES").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ALL").to_matchable(),
+                        Ref::keyword("NONE").to_matchable(),
+                        Delimited::new(vec![Ref::new("RoleReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FrozenWhereGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("FROZEN").to_matchable(),
+                Ref::keyword("WHERE").to_matchable(),
+                Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()]).to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
             "TaskIdentifierValuedParameterGrammar".into(),
             Sequence::new(vec![
                 one_of(vec![
@@ -3991,6 +4026,25 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("CommaSegment").to_matchable(),
+                                    Ref::new("TableReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.min_times(1))
+                            .to_matchable(),
+                            Ref::keyword("REFRESH").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("COPY").to_matchable(),
+                                Ref::keyword("SESSION").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
                             Ref::keyword("REFRESH").to_matchable(),
                             Sequence::new(vec![
                                 Ref::keyword("COPY").to_matchable(),
@@ -4072,6 +4126,34 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     .to_matchable(),
                                 ])
                                 .to_matchable(),
+                                Ref::new("FrozenWhereGrammar").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SCHEDULER").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::keyword("DISABLE").to_matchable(),
+                                        Ref::keyword("ENABLE").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("INITIALIZATION_WAREHOUSE").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    one_of(vec![
+                                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("ExecuteAsUserGrammar").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("ROW_TIMESTAMP").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -4090,6 +4172,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 ])
                                 .to_matchable(),
                                 Ref::keyword("IMMUTABLE").to_matchable(),
+                                Ref::keyword("INITIALIZATION_WAREHOUSE").to_matchable(),
+                                Ref::keyword("ROW_TIMESTAMP").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("FROZEN").to_matchable(),
+                                    Ref::keyword("WHERE").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("EXECUTE").to_matchable(),
+                                    Ref::keyword("AS").to_matchable(),
+                                    Ref::keyword("USER").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("DCM").to_matchable(),
+                                    Ref::keyword("PROJECT").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -7314,6 +7414,26 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SCHEDULER").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("DISABLE").to_matchable(),
+                                Ref::keyword("ENABLE").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Ref::new("FrozenWhereGrammar").optional().to_matchable(),
+                        Ref::new("ExecuteAsUserGrammar").optional().to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ROW_TIMESTAMP").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -7379,6 +7499,42 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("BASE_LOCATION").to_matchable(),
                         Ref::new("EqualsSegment").to_matchable(),
                         Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("TARGET_FILE_SIZE").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PATH_LAYOUT").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("FLAT").to_matchable(),
+                            Ref::keyword("HIERARCHICAL").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ICEBERG_VERSION").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("PARTITION").to_matchable(),
+                        Ref::keyword("BY").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -7668,6 +7824,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("AS").to_matchable(),
                         optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
                             .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("DynamicTableOptionsSegment")
+                            .optional()
+                            .to_matchable(),
+                        Ref::keyword("REFRESH").to_matchable(),
+                        Ref::keyword("USING").to_matchable(),
+                        Bracketed::new(vec![
+                            one_of(vec![
+                                Ref::new("InsertStatementSegment").to_matchable(),
+                                Ref::new("MergeStatementSegment").to_matchable(),
+                                Ref::new("UpdateStatementSegment").to_matchable(),
+                                Ref::new("DeleteStatementSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                     Sequence::new(vec![

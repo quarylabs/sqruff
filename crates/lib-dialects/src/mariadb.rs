@@ -699,6 +699,13 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // MariaDB permits IF NOT EXISTS immediately after VIEW; MySQL does not.
+    // https://mariadb.com/kb/en/create-view/
+    mariadb.replace_grammar(
+        "CreateViewStatementSegment",
+        mysql::create_view_grammar(true),
+    );
+
     // MariaDB CREATE INDEX supports OR REPLACE, IF NOT EXISTS, RTREE,
     // MariaDB-specific index options, WAIT/NOWAIT, ALGORITHM, and LOCK.
     // https://mariadb.com/kb/en/create-index/

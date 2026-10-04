@@ -207,6 +207,7 @@ impl FluffConfig {
 
         normalize_implicit_indents_map(&mut configs, "configuration")
             .expect("invalid implicit_indents configuration");
+        normalize_max_line_length_map(&mut configs, "configuration");
         normalize_max_parse_depth_map(&mut configs, "configuration")
             .expect("invalid max_parse_depth configuration");
         normalize_max_parse_nodes_map(&mut configs, "configuration")
@@ -393,6 +394,7 @@ impl FluffConfig {
         let mut raw = self.raw.clone();
         let mut elems = vec![(parts, value)];
         normalize_implicit_indents_elems(&mut elems, "inline configuration")?;
+        normalize_max_line_length_elems(&mut elems, "inline configuration", false);
         normalize_max_parse_depth_elems(&mut elems, "inline configuration")?;
         normalize_max_parse_nodes_elems(&mut elems, "inline configuration")?;
         for key in ["render_variant_limit", "runaway_limit"] {
@@ -668,6 +670,11 @@ impl ConfigLoader {
         };
 
         normalize_implicit_indents_elems(&mut elems, &config_reference(config_path))?;
+        normalize_max_line_length_elems(
+            &mut elems,
+            &config_reference(config_path),
+            is_toml_config(config_path),
+        );
         normalize_max_parse_depth_elems(&mut elems, &config_reference(config_path))?;
         normalize_max_parse_nodes_elems(&mut elems, &config_reference(config_path))?;
         for key in ["render_variant_limit", "runaway_limit"] {
@@ -870,6 +877,69 @@ fn normalize_implicit_indents_map(
     }
 
     Ok(())
+}
+
+fn warn_max_line_length_migration(logging_reference: &str, duplicate: bool, toml: bool) {
+    let new_key = if toml {
+        "core:max_line_length"
+    } else {
+        "max_line_length"
+    };
+    if duplicate {
+        log::warn!(
+            "Config file {logging_reference} sets both deprecated `rules:max_line_length` and \
+             `{new_key}`; the new value takes precedence."
+        );
+    } else {
+        log::warn!(
+            "Config file {logging_reference} uses deprecated `rules:max_line_length`; \
+             migrate it to `{new_key}`."
+        );
+    }
+}
+
+fn normalize_max_line_length_elems(
+    elems: &mut Vec<(Vec<String>, Value)>,
+    logging_reference: &str,
+    toml: bool,
+) {
+    let is_old =
+        |path: &[String]| path.len() == 2 && path[0] == "rules" && path[1] == "max_line_length";
+    let is_new =
+        |path: &[String]| path.len() == 2 && path[0] == "core" && path[1] == "max_line_length";
+
+    if elems.iter().any(|(path, _)| is_old(path)) {
+        let new_exists = elems.iter().any(|(path, _)| is_new(path));
+        warn_max_line_length_migration(logging_reference, new_exists, toml);
+        if new_exists {
+            elems.retain(|(path, _)| !is_old(path));
+        } else {
+            for (path, _) in elems.iter_mut().filter(|(path, _)| is_old(path)) {
+                *path = vec!["core".into(), "max_line_length".into()];
+            }
+        }
+    }
+}
+
+fn normalize_max_line_length_map(configs: &mut HashMap<String, Value>, logging_reference: &str) {
+    let Some(old_value) = configs
+        .get_mut("rules")
+        .and_then(Value::as_map_mut)
+        .and_then(|rules| rules.remove("max_line_length"))
+    else {
+        return;
+    };
+
+    let core = configs
+        .entry("core".into())
+        .or_insert_with(|| Value::Map(HashMap::new()))
+        .as_map_mut()
+        .expect("core config must be a map");
+    let new_exists = core.contains_key("max_line_length");
+    warn_max_line_length_migration(logging_reference, new_exists, false);
+    if !new_exists {
+        core.insert("max_line_length".into(), old_value);
+    }
 }
 
 fn normalize_max_parse_depth_value(
@@ -2166,6 +2236,102 @@ capitalisation_policy = "upper"
         assert_eq!(
             config.raw["rules"]["capitalisation.keywords"]["capitalisation_policy"].as_string(),
             Some("upper")
+        );
+    }
+
+    #[test]
+    fn test_deprecated_rules_max_line_length_migrates_from_ini() {
+        let config = FluffConfig::from_source(
+            "[sqlfluff]\ndialect = ansi\n\n[sqlfluff:rules]\nmax_line_length = 30\n",
+            None,
+        );
+
+        assert_eq!(config.get("max_line_length", "core").as_int(), Some(30));
+        assert!(
+            config.raw["rules"]
+                .as_map()
+                .unwrap()
+                .get("max_line_length")
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn test_deprecated_rules_max_line_length_migrates_from_pyproject() {
+        let config = FluffConfig::from_source(
+            "[tool.sqlfluff.core]\ndialect = 'ansi'\n\n[tool.sqlfluff.rules]\nmax_line_length = 30\n",
+            Some(Path::new("pyproject.toml")),
+        );
+
+        assert_eq!(config.get("max_line_length", "core").as_int(), Some(30));
+        assert!(
+            config.raw["rules"]
+                .as_map()
+                .unwrap()
+                .get("max_line_length")
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn test_new_max_line_length_takes_precedence_over_deprecated_value() {
+        for (source, path) in [
+            (
+                "[sqlfluff]\nmax_line_length = 50\n\n[sqlfluff:rules]\nmax_line_length = 30\n",
+                None,
+            ),
+            (
+                "[tool.sqlfluff.core]\nmax_line_length = 50\n\n[tool.sqlfluff.rules]\nmax_line_length = 30\n",
+                Some(Path::new("pyproject.toml")),
+            ),
+        ] {
+            let config = FluffConfig::from_source(source, path);
+            assert_eq!(config.get("max_line_length", "core").as_int(), Some(50));
+            assert!(
+                config.raw["rules"]
+                    .as_map()
+                    .unwrap()
+                    .get("max_line_length")
+                    .is_none()
+            );
+        }
+    }
+
+    #[test]
+    fn test_deprecated_rules_max_line_length_migrates_from_raw_config() {
+        let config = FluffConfig::new(
+            HashMap::from([(
+                "rules".into(),
+                Value::Map(HashMap::from([("max_line_length".into(), Value::Int(30))])),
+            )]),
+            None,
+            None,
+        );
+
+        assert_eq!(config.get("max_line_length", "core").as_int(), Some(30));
+        assert!(
+            config.raw["rules"]
+                .as_map()
+                .unwrap()
+                .get("max_line_length")
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn test_deprecated_rules_max_line_length_migrates_from_inline_config() {
+        let mut config = FluffConfig::default();
+        config
+            .process_inline_config("-- sqlfluff:rules:max_line_length:30")
+            .unwrap();
+
+        assert_eq!(config.get("max_line_length", "core").as_int(), Some(30));
+        assert!(
+            config.raw["rules"]
+                .as_map()
+                .unwrap()
+                .get("max_line_length")
+                .is_none()
         );
     }
 

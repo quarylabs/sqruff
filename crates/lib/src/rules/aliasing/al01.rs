@@ -139,11 +139,14 @@ FROM foo AS voo
                     )];
                 }
             } else if self.aliasing != Aliasing::Implicit {
+                // A bracket-only alias has its code inside a bracketed child.
+                // Anchor before that direct child so AS is not inserted inside it.
                 let identifier = rule_cx
                     .segment
-                    .get_raw_segments()
-                    .into_iter()
+                    .segments()
+                    .iter()
                     .find(|seg| seg.is_code())
+                    .cloned()
                     .expect("Failed to find identifier. Raise this as a bug on GitHub.");
 
                 let operator = SegmentBuilder::node(

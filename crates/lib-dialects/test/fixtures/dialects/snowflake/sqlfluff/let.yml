@@ -164,9 +164,9 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - variable: ':'
-        - alias_expression:
-          - naked_identifier: variable
+        - bind_variable:
+          - colon_prefix: ':'
+          - variable: variable
     - from_clause:
       - keyword: FROM
       - from_expression:

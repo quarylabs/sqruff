@@ -357,6 +357,24 @@ fn bigquery_cast_as_float_is_unparsable() {
 }
 
 #[test]
+fn databricks_materialized_view_rejects_invalid_constraint_order() {
+    let dialect = kind_to_dialect(&DialectKind::Databricks, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "CREATE MATERIALIZED VIEW bad_mv (CONSTRAINT c EXPECT (value > 0), value INT) AS SELECT 1 AS value;",
+        "CREATE MATERIALIZED VIEW bad_mv (value INT, CONSTRAINT pk PRIMARY KEY (value), CONSTRAINT c EXPECT (value > 0)) AS SELECT 1 AS value;",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn mysql_rejects_mariadb_alter_table_conditions() {
     let dialect = kind_to_dialect(&DialectKind::Mysql, None).unwrap();
     let tables = Tables::default();

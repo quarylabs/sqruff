@@ -1,0 +1,104 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_create_procedure_statement:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: REPLACE
+      - keyword: PROCEDURE
+      - oracle_function_name:
+        - function_name_identifier: test_proc
+      - function_parameter_list:
+        - bracketed:
+          - start_bracket: (
+          - parameter: out_rec
+          - keyword: OUT
+          - data_type:
+            - data_type_identifier: SYS_REFCURSOR
+          - end_bracket: )
+      - keyword: IS
+      - oracle_declare_segment:
+        - record_type:
+          - keyword: TYPE
+          - naked_identifier: t_rec
+          - keyword: IS
+          - keyword: RECORD
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: a
+            - data_type:
+              - data_type_identifier: NUMBER
+            - comma: ','
+            - naked_identifier: b
+            - data_type:
+              - data_type_identifier: NUMBER
+            - end_bracket: )
+        - statement_terminator: ;
+        - naked_identifier: out_metrics
+        - data_type:
+          - data_type_identifier: t_rec
+        - statement_terminator: ;
+      - oracle_begin_end_block:
+        - keyword: BEGIN
+        - statement:
+          - with_compound_statement:
+            - keyword: WITH
+            - common_table_expression:
+              - naked_identifier: cte1
+              - keyword: AS
+              - bracketed:
+                - start_bracket: (
+                - select_statement:
+                  - select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                      - numeric_literal: '1'
+                      - alias_expression:
+                        - alias_operator:
+                          - keyword: AS
+                        - naked_identifier: x
+                  - from_clause:
+                    - keyword: FROM
+                    - from_expression:
+                      - from_expression_element:
+                        - table_expression:
+                          - oracle_table_reference:
+                            - naked_identifier: dual
+                - end_bracket: )
+            - select_statement:
+              - select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: cte1
+                    - dot: .
+                    - naked_identifier: x
+                - comma: ','
+                - select_clause_element:
+                  - column_reference:
+                    - naked_identifier: cte1
+                    - dot: .
+                    - naked_identifier: x
+              - oracle_into_clause:
+                - keyword: INTO
+                - object_reference:
+                  - naked_identifier: out_metrics
+                  - dot: .
+                  - naked_identifier: a
+                - comma: ','
+                - object_reference:
+                  - naked_identifier: out_metrics
+                  - dot: .
+                  - naked_identifier: b
+              - from_clause:
+                - keyword: FROM
+                - from_expression:
+                  - from_expression_element:
+                    - table_expression:
+                      - oracle_table_reference:
+                        - naked_identifier: cte1
+        - statement_terminator: ;
+        - keyword: END
+      - statement_terminator: ;
+  - slash_buffer_executor:
+    - slash: /

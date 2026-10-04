@@ -3255,46 +3255,7 @@ pub fn raw_dialect() -> Dialect {
     )]);
 
     // CreateViewStatementSegment.
-    mysql.replace_grammar(
-        "CreateViewStatementSegment",
-        Sequence::new(vec![
-            Ref::keyword("CREATE").to_matchable(),
-            Ref::new("OrReplaceGrammar").optional().to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("ALGORITHM").to_matchable(),
-                Ref::new("EqualsSegment").to_matchable(),
-                one_of(vec![
-                    Ref::keyword("UNDEFINED").to_matchable(),
-                    Ref::keyword("MERGE").to_matchable(),
-                    Ref::keyword("TEMPTABLE").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
-            Ref::new("DefinerSegment").optional().to_matchable(),
-            Sequence::new(vec![
-                Ref::keyword("SQL").to_matchable(),
-                Ref::keyword("SECURITY").to_matchable(),
-                one_of(vec![
-                    Ref::keyword("DEFINER").to_matchable(),
-                    Ref::keyword("INVOKER").to_matchable(),
-                ])
-                .to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
-            Ref::keyword("VIEW").to_matchable(),
-            Ref::new("TableReferenceSegment").to_matchable(),
-            Ref::new("BracketedColumnReferenceListGrammar")
-                .optional()
-                .to_matchable(),
-            Ref::keyword("AS").to_matchable(),
-            optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
-            Ref::new("WithCheckOptionSegment").optional().to_matchable(),
-        ])
-        .to_matchable(),
-    );
+    mysql.replace_grammar("CreateViewStatementSegment", create_view_grammar(false));
 
     // RenameTableStatementSegment.
     mysql.add([(
@@ -5089,6 +5050,53 @@ pub(crate) fn create_table_options() -> Matchable {
     .to_matchable();
 
     AnyNumberOf::new(vec![table_option(true), partition_by]).to_matchable()
+}
+
+/// Build CREATE VIEW grammar shared by MySQL and MariaDB. Only MariaDB accepts
+/// IF NOT EXISTS between VIEW and the view name.
+pub(crate) fn create_view_grammar(allow_if_not_exists: bool) -> Matchable {
+    let mut parts = vec![
+        Ref::keyword("CREATE").to_matchable(),
+        Ref::new("OrReplaceGrammar").optional().to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("ALGORITHM").to_matchable(),
+            Ref::new("EqualsSegment").to_matchable(),
+            one_of(vec![
+                Ref::keyword("UNDEFINED").to_matchable(),
+                Ref::keyword("MERGE").to_matchable(),
+                Ref::keyword("TEMPTABLE").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        Ref::new("DefinerSegment").optional().to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("SQL").to_matchable(),
+            Ref::keyword("SECURITY").to_matchable(),
+            one_of(vec![
+                Ref::keyword("DEFINER").to_matchable(),
+                Ref::keyword("INVOKER").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        Ref::keyword("VIEW").to_matchable(),
+    ];
+    if allow_if_not_exists {
+        parts.push(Ref::new("IfNotExistsGrammar").optional().to_matchable());
+    }
+    parts.extend([
+        Ref::new("TableReferenceSegment").to_matchable(),
+        Ref::new("BracketedColumnReferenceListGrammar")
+            .optional()
+            .to_matchable(),
+        Ref::keyword("AS").to_matchable(),
+        optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
+        Ref::new("WithCheckOptionSegment").optional().to_matchable(),
+    ]);
+    Sequence::new(parts).to_matchable()
 }
 
 /// Build UPDATE grammar shared by MySQL and MariaDB; only MariaDB has period DML.

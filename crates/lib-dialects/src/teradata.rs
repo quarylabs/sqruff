@@ -63,9 +63,12 @@ pub fn raw_dialect() -> Dialect {
     let mut dialect = ansi::raw_dialect();
     dialect.name = DialectKind::Teradata;
 
-    dialect.patch_lexer_matchers(vec![Matcher::regex(
+    // Accept scientific notation and leading-dot decimals as single tokens,
+    // while retaining trailing-dot literals such as 1.
+    dialect.patch_lexer_matchers(vec![Matcher::legacy(
         "numeric_literal",
-        r"([0-9]+(\.[0-9]*)?)",
+        |s| s.starts_with(|ch: char| ch.is_ascii_digit() || ch == '.'),
+        r"(?>\d+\.\d+|\d+\.(?![\.\w])|\.\d+|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b))",
         SyntaxKind::NumericLiteral,
     )]);
 

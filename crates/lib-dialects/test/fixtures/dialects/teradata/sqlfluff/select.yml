@@ -151,11 +151,8 @@ file:
                   - keyword: CHARACTER
                   - keyword: SET
                   - naked_identifier: LATIN
-              - expression:
-                - expression:
                   - keyword: NOT
-                  - column_reference:
-                    - naked_identifier: CASESPECIFIC
+                  - keyword: CASESPECIFIC
               - end_bracket: )
         - alias_expression:
           - alias_operator:

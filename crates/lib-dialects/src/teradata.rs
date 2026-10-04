@@ -79,8 +79,6 @@ pub fn raw_dialect() -> Dialect {
     dialect.sets_mut("unreserved_keywords").extend([
         "AUTOINCREMENT",
         "ACTIVITYCOUNT",
-        "CASESPECIFIC",
-        "CS",
         "DAYS",
         "DEL",
         "DUAL",
@@ -122,12 +120,17 @@ pub fn raw_dialect() -> Dialect {
         "STATISTICS",
         "SUMMARY",
         "THRESHOLD",
+    ]);
+    dialect.sets_mut("reserved_keywords").extend([
+        "LOCKING",
+        "UNION",
+        "REPLACE",
+        "TIMESTAMP",
+        "CASESPECIFIC",
+        "CS",
         "UC",
         "UPPERCASE",
     ]);
-    dialect
-        .sets_mut("reserved_keywords")
-        .extend(["LOCKING", "UNION", "REPLACE", "TIMESTAMP"]);
     dialect.sets_mut("bare_functions").insert("DATE");
 
     add_operators(&mut dialect);
@@ -693,22 +696,17 @@ fn comment_segment() -> DialectElementType {
 
 fn column_constraint_segment() -> DialectElementType {
     NodeMatcher::new(SyntaxKind::TdColumnAttributeConstraint, |_| {
-        one_of(vec![
-            Ref::new("CharCharacterSetGrammar").to_matchable(),
-            Sequence::new(vec![
-                kw("COMPRESS"),
-                one_of(vec![
-                    Bracketed::new(vec![
-                        Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
-                            .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::new("LiteralGrammar").to_matchable(),
-                    kw("NULL"),
+        Sequence::new(vec![
+            kw("COMPRESS"),
+            one_of(vec![
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()]).to_matchable(),
                 ])
-                .config(|this| this.optional())
                 .to_matchable(),
+                Ref::new("LiteralGrammar").to_matchable(),
+                kw("NULL"),
             ])
+            .config(|this| this.optional())
             .to_matchable(),
         ])
         .to_matchable()
@@ -912,6 +910,11 @@ fn replace_core_grammars(dialect: &mut Dialect) {
         ])
         .to_matchable(),
     );
+    // Teradata character attributes can follow expressions like COLLATE.
+    dialect.replace_grammar(
+        "CollateGrammar",
+        Bracketed::new(vec![Ref::new("CharCharacterSetGrammar").to_matchable()]).to_matchable(),
+    );
     let from_clause_terminator = dialect.grammar("FromClauseTerminatorGrammar");
     dialect.replace_grammar(
         "FromClauseTerminatorGrammar",
@@ -944,9 +947,22 @@ fn replace_core_grammars(dialect: &mut Dialect) {
                     kw("FORMAT"),
                     Ref::new("QuotedLiteralSegment").to_matchable(),
                 ]),
-                Ref::new("CharCharacterSetGrammar")
-                    .optional()
+                // Each character attribute may appear once, in any order.
+                any_set_of(vec![
+                    Sequence::new(vec![
+                        kw("CHARACTER"),
+                        kw("SET"),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        kw("NOT").optional(),
+                        one_of(vec![kw("CASESPECIFIC"), kw("CS")]).to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![kw("UPPERCASE"), kw("UC")]).to_matchable(),
+                ])
+                .to_matchable(),
             ])
             .to_matchable()
         })

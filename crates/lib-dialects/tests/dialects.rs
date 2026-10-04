@@ -375,6 +375,25 @@ fn databricks_materialized_view_rejects_invalid_constraint_order() {
 }
 
 #[test]
+fn teradata_rejects_duplicate_data_type_attributes() {
+    let dialect = kind_to_dialect(&DialectKind::Teradata, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "CREATE TABLE t (c VARCHAR(10) UPPERCASE UPPERCASE);",
+        "CREATE TABLE t (c VARCHAR(10) CHARACTER SET LATIN CHARACTER SET UNICODE);",
+        "CREATE TABLE t (c VARCHAR(10) CS NOT CS);",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn mysql_rejects_mariadb_alter_table_conditions() {
     let dialect = kind_to_dialect(&DialectKind::Mysql, None).unwrap();
     let tables = Tables::default();

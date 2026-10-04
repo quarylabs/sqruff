@@ -77,12 +77,16 @@ FROM cte1
             .map(|it| (it.to_uppercase_smolstr(), it.clone()))
             .collect();
 
-        for reference in context.segment.recursive_crawl(
-            const { &SyntaxSet::new(&[SyntaxKind::TableReference]) },
-            true,
-            const { &SyntaxSet::EMPTY },
-            true,
-        ) {
+        for reference in
+            context.segment.recursive_crawl(
+                const {
+                    &SyntaxSet::new(&[SyntaxKind::TableReference, SyntaxKind::OracleTableReference])
+                },
+                true,
+                const { &SyntaxSet::EMPTY },
+                true,
+            )
+        {
             remaining_ctes.shift_remove(&normalize_identifier(&reference).to_uppercase_smolstr());
         }
 

@@ -190,6 +190,47 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     clickhouse_dialect.replace_grammar(
+        "LikeGrammar",
+        one_of(vec![
+            Ref::keyword("LIKE").to_matchable(),
+            Ref::keyword("ILIKE").to_matchable(),
+            Ref::keyword("REGEXP").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    clickhouse_dialect.replace_grammar(
+        "LikeExpressionGrammar",
+        Sequence::new(vec![
+            one_of(vec![
+                // LIKE and ILIKE allow NOT and an optional ESCAPE clause.
+                Sequence::new(vec![
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::new("LikeGrammar")
+                        .exclude(Ref::keyword("REGEXP"))
+                        .to_matchable(),
+                    Ref::new("Expression_A_Grammar").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ESCAPE").to_matchable(),
+                        Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                // REGEXP supports neither NOT nor ESCAPE in ClickHouse.
+                Sequence::new(vec![
+                    Ref::keyword("REGEXP").to_matchable(),
+                    Ref::new("Tail_Recurse_Expression_A_Grammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    clickhouse_dialect.replace_grammar(
         "ComparisonOperatorGrammar",
         one_of(vec![
             Ref::new("EqualsSegment").to_matchable(),

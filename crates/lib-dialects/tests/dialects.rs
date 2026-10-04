@@ -399,6 +399,24 @@ fn bigquery_semi_structured_wildcard_accepts_except_replace() {
 }
 
 #[test]
+fn clickhouse_regexp_rejects_not_and_escape() {
+    let dialect = kind_to_dialect(&DialectKind::Clickhouse, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "SELECT 'string' NOT REGEXP '[0-9]'",
+        "SELECT 'string' REGEXP '[0-9]' ESCAPE '|'",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn databricks_materialized_view_rejects_invalid_constraint_order() {
     let dialect = kind_to_dialect(&DialectKind::Databricks, None).unwrap();
     let tables = Tables::default();

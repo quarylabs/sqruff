@@ -1,0 +1,64 @@
+file:
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: market_hours
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: market
+      - comma: ','
+      - column_reference:
+        - naked_identifier: is_open
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: '''Current market status'''
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: market
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: market_open_flag
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: market_hours_source
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: market_hours
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: market
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - naked_identifier: market_open_flag
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - naked_identifier: market_hours_source
+- statement_terminator: ;

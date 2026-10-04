@@ -4476,6 +4476,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .to_matchable(),
     );
 
+    // BigQuery also permits a pipe query after the CTE list, not only inside
+    // an individual CTE body.
+    let with_compound_statement = dialect
+        .grammar("WithCompoundStatementSegment")
+        .match_grammar(&dialect)
+        .unwrap();
+    dialect.replace_grammar(
+        "WithCompoundStatementSegment",
+        with_compound_statement.copy(
+            Some(vec![
+                one_of(vec![
+                    Ref::new("NonWithSelectableGrammar").to_matchable(),
+                    Ref::new("PipeStatementSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ]),
+            None,
+            Some(Ref::new("NonWithSelectableGrammar").to_matchable()),
+            Some(vec![Ref::new("NonWithSelectableGrammar").to_matchable()]),
+            Vec::new(),
+            false,
+        ),
+    );
+
     dialect.expand();
     dialect
 }

@@ -66,14 +66,15 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     // ---- Lexer ----
-    // SQLFluff: numeric_literal regex prevents 1. from consuming dot when followed by another dot
-    // This is critical for FOR i IN 1..5 LOOP syntax
+    // Like ANSI, but reject leading-dot numerics. Accept a trailing dot (1.)
+    // without consuming the first dot in FOR i IN 1..5 LOOP, and keep Oracle
+    // size suffixes (K/M/G/T/P/E) separate from the numeric literal.
     oracle.patch_lexer_matchers(vec![
         Matcher::regex("word", r"[\p{L}][\p{L}\p{N}_$#]*", SyntaxKind::Word),
         Matcher::legacy(
             "numeric_literal",
             |s| s.starts_with(|ch: char| ch.is_ascii_digit() || ch == '.'),
-            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<!\.)|(?=\b))",
+            r"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<=\.)|(?=\b)|(?=[KMGTPEkmgtpe]\b))",
             SyntaxKind::NumericLiteral,
         ),
         Matcher::regex(

@@ -1,0 +1,30 @@
+file:
+- oracle_batch:
+  - statement:
+    - oracle_create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - oracle_table_reference:
+        - naked_identifier: t
+      - bracketed:
+        - start_bracket: (
+        - oracle_column_definition:
+          - naked_identifier: c
+          - data_type:
+            - data_type_identifier: NUMBER
+        - end_bracket: )
+      - oracle_physical_attributes:
+        - storage_clause:
+          - keyword: STORAGE
+          - bracketed:
+            - start_bracket: (
+            - keyword: INITIAL
+            - numeric_literal: '10'
+            - size_prefix: P
+            - keyword: NEXT
+            - numeric_literal: '10'
+            - size_prefix: E
+            - keyword: MINEXTENTS
+            - numeric_literal: '1'
+            - end_bracket: )
+  - statement_terminator: ;

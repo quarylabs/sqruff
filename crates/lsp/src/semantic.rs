@@ -1109,6 +1109,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SelectVariableAssignment
         | SequenceNextValue
         | SequenceReference
+        | SequenceValueForExpression
         | SerdeMethod
         | ServiceObjective
         | SetConfigValue

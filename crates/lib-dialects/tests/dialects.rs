@@ -570,6 +570,21 @@ fn mariadb_delete_history_rejects_delete_modifiers() {
 }
 
 #[test]
+fn mariadb_sequence_value_for_requires_for_and_sequence_name() {
+    let dialect = kind_to_dialect(&DialectKind::Mariadb, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in ["SELECT NEXT VALUE OF s;", "SELECT NEXT VALUE FOR;"] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn ansi_partial_greedy_select_preserves_keyword() {
     let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
     let tables = Tables::default();

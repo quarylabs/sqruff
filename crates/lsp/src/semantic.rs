@@ -817,6 +817,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ColumnTypeReference
         | ColumnsExpression
         | Command
+        | CommandCell
         | CompatibilityLevel
         | CompositeValueExpansion
         | ComputedColumnDefinition

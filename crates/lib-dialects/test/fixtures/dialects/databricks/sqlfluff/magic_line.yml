@@ -4,7 +4,7 @@ file:
     - magic_start: |
         -- MAGIC %md
     - magic_line: '-- MAGIC # Dummy Notebook'
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
   - select_statement:
     - select_clause:
@@ -20,14 +20,14 @@ file:
             - table_reference:
               - object_reference:
                 - naked_identifier: y
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
   - magic_cell_segment:
     - magic_start: |
         -- MAGIC %python
     - magic_line: -- MAGIC foo = 'bar'
     - magic_line: -- MAGIC print(foo)
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
   - select_statement:
     - select_clause:
@@ -44,7 +44,7 @@ file:
               - object_reference:
                 - naked_identifier: b
 - statement_terminator: ;
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
   - magic_cell_segment:
     - magic_start: |

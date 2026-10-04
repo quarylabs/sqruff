@@ -191,7 +191,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     databricks.add([
         (
             "CommandCellSegment".into(),
-            TypedParser::new(SyntaxKind::Command, SyntaxKind::StatementTerminator)
+            TypedParser::new(SyntaxKind::Command, SyntaxKind::CommandCell)
                 .to_matchable()
                 .into(),
         ),

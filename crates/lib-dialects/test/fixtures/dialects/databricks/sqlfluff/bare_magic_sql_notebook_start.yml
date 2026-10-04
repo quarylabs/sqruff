@@ -22,12 +22,12 @@ file:
               - object_reference:
                 - naked_identifier: t
 - statement_terminator: ;
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
   - magic_cell_segment:
     - bare_magic_cell: '%python'
     - bare_magic_cell: print("opaque, not parsed as sql")
-- statement_terminator: -- COMMAND ----------
+- command_cell: -- COMMAND ----------
 - statement:
   - select_statement:
     - select_clause:

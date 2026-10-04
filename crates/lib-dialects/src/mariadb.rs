@@ -150,6 +150,138 @@ fn quoted_or_identifier() -> Matchable {
     .to_matchable()
 }
 
+/// MariaDB's ALTER TABLE ADD constraints allow IF NOT EXISTS, unlike CREATE TABLE.
+fn alter_table_constraint_grammar() -> Matchable {
+    one_of(vec![
+        Sequence::new(vec![
+            Sequence::new(vec![
+                Ref::keyword("CONSTRAINT").to_matchable(),
+                Ref::new("ObjectReferenceSegment").optional().to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("UNIQUE").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("INDEX").to_matchable(),
+                        Ref::keyword("KEY").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("IndexReferenceSegment").optional().to_matchable(),
+                    Ref::new("IndexTypeGrammar").optional().to_matchable(),
+                    Ref::new("BracketedKeyPartListGrammar").to_matchable(),
+                    Ref::new("IndexOptionsSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("PrimaryKeyGrammar").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("IndexTypeGrammar").optional().to_matchable(),
+                    Ref::new("BracketedKeyPartListGrammar").to_matchable(),
+                    Ref::new("IndexOptionsSegment").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::new("ForeignKeyGrammar").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("IndexReferenceSegment").optional().to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    Ref::keyword("REFERENCES").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("BracketedColumnReferenceListGrammar").to_matchable(),
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("ON").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("DELETE").to_matchable(),
+                                Ref::keyword("UPDATE").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("RESTRICT").to_matchable(),
+                                Ref::keyword("CASCADE").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SET").to_matchable(),
+                                    Ref::keyword("NULL").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("NO").to_matchable(),
+                                    Ref::keyword("ACTION").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SET").to_matchable(),
+                                    Ref::keyword("DEFAULT").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("CHECK").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ENFORCED").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("NOT").to_matchable(),
+                            Ref::keyword("ENFORCED").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::keyword("INDEX").to_matchable(),
+                Ref::keyword("KEY").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("IndexReferenceSegment").optional().to_matchable(),
+            Ref::new("IndexTypeGrammar").optional().to_matchable(),
+            Ref::new("BracketedKeyPartListGrammar").to_matchable(),
+            Ref::new("IndexOptionsSegment").optional().to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::keyword("FULLTEXT").to_matchable(),
+                Ref::keyword("SPATIAL").to_matchable(),
+            ])
+            .to_matchable(),
+            one_of(vec![
+                Ref::keyword("INDEX").to_matchable(),
+                Ref::keyword("KEY").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("IndexReferenceSegment").optional().to_matchable(),
+            Ref::new("BracketedKeyPartListGrammar").to_matchable(),
+            Ref::new("IndexOptionsSegment").optional().to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable()
+}
+
 fn quoted_or_identifier_or_default() -> Matchable {
     one_of(vec![
         Ref::new("QuotedLiteralSegment").to_matchable(),
@@ -557,6 +689,43 @@ pub fn raw_dialect() -> Dialect {
             any_set_of(vec![
                 Ref::new("AlgorithmOptionSegment").to_matchable(),
                 Ref::new("LockOptionSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // MariaDB alone accepts IF [NOT] EXISTS on ALTER TABLE index and
+    // constraint actions. Keep CREATE TABLE's shared constraint unchanged.
+    // https://mariadb.com/docs/server/reference/sql-statements/data-definition/alter/alter-table
+    mariadb.replace_grammar(
+        "AlterTableConstraintSegment",
+        NodeMatcher::new(SyntaxKind::TableConstraint, |_| {
+            alter_table_constraint_grammar()
+        })
+        .to_matchable(),
+    );
+    mariadb.replace_grammar(
+        "AlterTableIfExistsGrammar",
+        Ref::new("IfExistsGrammar").to_matchable(),
+    );
+    mariadb.replace_grammar(
+        "AlterTableIndexKeywordGrammar",
+        one_of(vec![
+            Ref::keyword("INDEX").to_matchable(),
+            Ref::keyword("KEY").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    mariadb.replace_grammar(
+        "AlterTableIndexStateGrammar",
+        one_of(vec![
+            Ref::keyword("VISIBLE").to_matchable(),
+            Ref::keyword("INVISIBLE").to_matchable(),
+            Ref::keyword("IGNORED").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("NOT").to_matchable(),
+                Ref::keyword("IGNORED").to_matchable(),
             ])
             .to_matchable(),
         ])

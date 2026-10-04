@@ -357,6 +357,25 @@ fn bigquery_cast_as_float_is_unparsable() {
 }
 
 #[test]
+fn mysql_rejects_mariadb_alter_table_conditions() {
+    let dialect = kind_to_dialect(&DialectKind::Mysql, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "ALTER TABLE t DROP INDEX IF EXISTS idx;",
+        "ALTER TABLE t ADD INDEX IF NOT EXISTS idx (a);",
+        "ALTER TABLE t ALTER KEY IF EXISTS idx NOT IGNORED;",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn ansi_partial_greedy_select_preserves_keyword() {
     let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
     let tables = Tables::default();

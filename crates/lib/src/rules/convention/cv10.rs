@@ -378,12 +378,21 @@ fn normalize_preferred_quoted_literal_style(
 
     let first_quote_pos = s.find(&orig_quote).unwrap_or_default();
     let prefix = s[..first_quote_pos].to_string();
+    let body_start = first_quote_pos + orig_quote.len();
+    let body_end = s.len() - orig_quote.len();
+
+    // A bare quote inside a single-quoted delimiter is a quote-doubling escape.
+    // The conversion below only re-encodes backslash escapes, so converting
+    // this literal would change its value.
+    if orig_quote.len() == 1
+        && contains_unescaped_quote(&s[body_start..body_end], orig_quote.as_bytes()[0])
+    {
+        return s;
+    }
+
     let unescaped_new_quote = Regex::new(&format!(r"(([^\\]|^)(\\\\)*){new_quote}")).unwrap();
     let escaped_new_quote = Regex::new(&format!(r"([^\\]|^)\\((?:\\\\)*){new_quote}")).unwrap();
     let escaped_orig_quote = Regex::new(&format!(r"([^\\]|^)\\((?:\\\\)*){orig_quote}")).unwrap();
-
-    let body_start = first_quote_pos + orig_quote.len();
-    let body_end = s.len() - orig_quote.len();
 
     let mut body = s[body_start..body_end].to_string();
     let mut new_body = if prefix.to_lowercase().contains("r") {
@@ -432,6 +441,21 @@ fn normalize_preferred_quoted_literal_style(
     } else {
         format!("{prefix}{new_quote}{new_body}{new_quote}")
     }
+}
+
+fn contains_unescaped_quote(body: &str, quote: u8) -> bool {
+    let mut backslashes = 0usize;
+    for byte in body.bytes() {
+        if byte == b'\\' {
+            backslashes += 1;
+        } else {
+            if byte == quote && backslashes.is_multiple_of(2) {
+                return true;
+            }
+            backslashes = 0;
+        }
+    }
+    false
 }
 
 fn regex_sub_with_overlap(regex: &Regex, replacement: &str, original: &str) -> String {

@@ -105,6 +105,8 @@ pub fn raw_dialect() -> Dialect {
             Some(vec![
                 Ref::new("ReadOnlyClauseSegment").to_matchable(),
                 Ref::new("IsolationClauseSegment").to_matchable(),
+                Ref::new("RowMovementClauseSegment").to_matchable(),
+                Ref::new("ViewCheckOptionClauseSegment").to_matchable(),
             ]),
             None,
             None,
@@ -128,6 +130,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("OFFSET").to_matchable(),
                     Ref::new("ReadOnlyClauseSegment").to_matchable(),
                     Ref::new("IsolationClauseSegment").to_matchable(),
+                    Ref::new("RowMovementClauseSegment").to_matchable(),
+                    Ref::new("ViewCheckOptionClauseSegment").to_matchable(),
                 ]),
                 None,
                 None,
@@ -783,6 +787,8 @@ pub fn raw_dialect() -> Dialect {
                 vec![
                     Ref::new("ReadOnlyClauseSegment").to_matchable(),
                     Ref::new("IsolationClauseSegment").to_matchable(),
+                    Ref::new("RowMovementClauseSegment").to_matchable(),
+                    Ref::new("ViewCheckOptionClauseSegment").to_matchable(),
                 ],
                 false,
             ),
@@ -803,13 +809,122 @@ pub fn raw_dialect() -> Dialect {
                     None,
                     None,
                     None,
-                    Vec::new(),
+                    vec![
+                        Ref::new("RowMovementClauseSegment").to_matchable(),
+                        Ref::new("ViewCheckOptionClauseSegment").to_matchable(),
+                    ],
                     false,
                 ),
         );
     }
 
     db2_dialect.add([
+        (
+            "CommentOnStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CommentClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("COMMENT").to_matchable(),
+                    Ref::keyword("ON").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("COLUMN").to_matchable(),
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("INDEX").to_matchable(),
+                                    Ref::new("IndexReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SCHEMA").to_matchable(),
+                                    Ref::new("SchemaReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::keyword("ALIAS").to_matchable(),
+                                        Ref::keyword("FUNCTION").to_matchable(),
+                                        Ref::keyword("PACKAGE").to_matchable(),
+                                        Ref::keyword("PROCEDURE").to_matchable(),
+                                        Ref::keyword("ROLE").to_matchable(),
+                                        Ref::keyword("SEQUENCE").to_matchable(),
+                                        Ref::keyword("TABLE").to_matchable(),
+                                        Ref::keyword("TABLESPACE").to_matchable(),
+                                        Ref::keyword("TRIGGER").to_matchable(),
+                                        Ref::keyword("TYPE").to_matchable(),
+                                        Ref::keyword("VARIABLE").to_matchable(),
+                                        Ref::keyword("VIEW").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("IS").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                            Bracketed::new(vec![
+                                Delimited::new(vec![
+                                    Sequence::new(vec![
+                                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                        Ref::keyword("IS").to_matchable(),
+                                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "RowMovementClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::RowMovementClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    Ref::keyword("NO").optional().to_matchable(),
+                    Ref::keyword("ROW").to_matchable(),
+                    Ref::keyword("MOVEMENT").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ViewCheckOptionClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::CheckOptionClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("WITH").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("CASCADED").to_matchable(),
+                        Ref::keyword("LOCAL").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("CHECK").to_matchable(),
+                    Ref::keyword("OPTION").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
         (
             "XmlIndexSpecificationGrammar".into(),
             Sequence::new(vec![
@@ -1025,9 +1140,74 @@ pub fn raw_dialect() -> Dialect {
     );
 
     db2_dialect.replace_grammar(
+        "AccessTargetSegment",
+        NodeMatcher::new(SyntaxKind::AccessTarget, |_| {
+            one_of(vec![
+                Delimited::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("USER").to_matchable(),
+                            Ref::new("UserReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("GROUP").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("ROLE").to_matchable(),
+                            Ref::new("RoleReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::keyword("PUBLIC").to_matchable(),
+                        Ref::new("RoleReferenceSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Delimited::new(vec![Ref::new("FunctionSegment").to_matchable()]).to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
+    db2_dialect.replace_grammar(
+        "CreateViewStatementSegment",
+        NodeMatcher::new(SyntaxKind::CreateViewStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CREATE").to_matchable(),
+                Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                Ref::keyword("VIEW").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::new("BracketedColumnReferenceListGrammar")
+                    .optional()
+                    .to_matchable(),
+                Ref::keyword("AS").to_matchable(),
+                optionally_bracketed(vec![Ref::new("SelectableGrammar").to_matchable()])
+                    .to_matchable(),
+                Ref::new("WithNoSchemaBindingClauseSegment")
+                    .optional()
+                    .to_matchable(),
+                one_of(vec![
+                    Ref::new("RowMovementClauseSegment").to_matchable(),
+                    Ref::new("ViewCheckOptionClauseSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
+    db2_dialect.replace_grammar(
         "StatementSegment",
         super::ansi::statement_segment().copy(
             Some(vec![
+                Ref::new("CommentOnStatementSegment").to_matchable(),
                 Ref::new("CallStoredProcedureSegment").to_matchable(),
                 Ref::new("DeclareGlobalTempTableSegment").to_matchable(),
             ]),

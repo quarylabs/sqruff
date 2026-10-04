@@ -206,6 +206,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ColumnDefinition
         | ColumnConstraintSegment
         | CommentClause
+        | CheckOptionClause
         | TableEndClause
         | MergeMatch
         | MergeWhenNotMatchedBySourceClause
@@ -626,6 +627,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | IcebergTransformation
         | MsckRepairTableStatement
         | RowDataType
+        | RowMovementClause
         | RowFormatClause
         | SkewedByClause
         | Bracketed

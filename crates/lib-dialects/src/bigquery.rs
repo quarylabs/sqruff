@@ -439,11 +439,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "AccessorGrammar".into(),
-            AnyNumberOf::new(vec![
-                Ref::new("ArrayAccessorSegment").to_matchable(),
-                Ref::new("ChainedFunctionCallSegment").to_matchable(),
-                Ref::new("SemiStructuredAccessorSegment").to_matchable(),
+            Sequence::new(vec![
+                AnyNumberOf::new(vec![
+                    Ref::new("ArrayAccessorSegment").to_matchable(),
+                    Ref::new("ChainedFunctionCallSegment").to_matchable(),
+                    Ref::new("SemiStructuredAccessorSegment").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("SemiStructuredWildcardAccessorSegment")
+                    .optional()
+                    .to_matchable(),
             ])
+            .config(|this| this.allow_gaps = true)
             .to_matchable()
             .into(),
         ),
@@ -1698,6 +1705,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     Ref::new("ArrayAccessorSegment").optional().to_matchable(),
+                    // Wildcards are matched by AccessorGrammar after the function,
+                    // so nothing can be chained after the star.
                     Ref::new("SemiStructuredAccessorSegment")
                         .optional()
                         .to_matchable(),
@@ -2116,11 +2125,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 AnyNumberOf::new(vec![
                     Sequence::new(vec![
                         Ref::new("DotSegment").to_matchable(),
-                        one_of(vec![
-                            Ref::new("SingleIdentifierGrammar").to_matchable(),
-                            Ref::new("StarSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
                     ])
                     .config(|this| this.allow_gaps = true)
                     .to_matchable(),
@@ -2131,6 +2136,33 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     this.min_times = 1;
                 })
                 .to_matchable(),
+            ])
+            .config(|this| this.allow_gaps = true)
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    dialect.add([(
+        "SemiStructuredWildcardAccessorSegment".into(),
+        NodeMatcher::new(SyntaxKind::SemiStructuredExpression, |_| {
+            Sequence::new(vec![
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("DotSegment").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .config(|this| this.allow_gaps = true)
+                    .to_matchable(),
+                    Ref::new("ArrayAccessorSegment").optional().to_matchable(),
+                ])
+                .config(|this| this.allow_gaps = true)
+                .to_matchable(),
+                Ref::new("DotSegment").to_matchable(),
+                Ref::new("StarSegment").to_matchable(),
+                Ref::new("ExceptClauseSegment").optional().to_matchable(),
+                Ref::new("ReplaceClauseSegment").optional().to_matchable(),
             ])
             .config(|this| this.allow_gaps = true)
             .to_matchable()

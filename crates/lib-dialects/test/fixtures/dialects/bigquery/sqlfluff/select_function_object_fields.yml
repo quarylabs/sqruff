@@ -23,16 +23,17 @@ file:
           - naked_identifier: field
       - comma: ','
       - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: testFunction
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - end_bracket: )
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: testFunction
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - end_bracket: )
           - semi_structured_expression:
             - dot: .
             - star: '*'
@@ -63,19 +64,21 @@ file:
           - naked_identifier: field_with_field
       - comma: ','
       - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: testFunction
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - end_bracket: )
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: testFunction
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - end_bracket: )
+            - semi_structured_expression:
+              - dot: .
+              - naked_identifier: b
           - semi_structured_expression:
-            - dot: .
-            - naked_identifier: b
             - dot: .
             - star: '*'
         - alias_expression:
@@ -84,29 +87,30 @@ file:
           - naked_identifier: field_with_wildcard
       - comma: ','
       - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: testFunction
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: testFunction
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - end_bracket: )
+            - array_accessor:
+              - start_square_bracket: '['
               - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - end_bracket: )
-          - array_accessor:
-            - start_square_bracket: '['
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: OFFSET
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - numeric_literal: '0'
-                    - end_bracket: )
-            - end_square_bracket: ']'
+                - function:
+                  - function_name:
+                    - function_name_identifier: OFFSET
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '0'
+                      - end_bracket: )
+              - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .
             - star: '*'
@@ -116,29 +120,30 @@ file:
           - naked_identifier: field_with_offset_wildcard
       - comma: ','
       - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: testFunction
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: testFunction
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - end_bracket: )
+            - array_accessor:
+              - start_square_bracket: '['
               - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - end_bracket: )
-          - array_accessor:
-            - start_square_bracket: '['
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: SAFE_OFFSET
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - numeric_literal: '0'
-                    - end_bracket: )
-            - end_square_bracket: ']'
+                - function:
+                  - function_name:
+                    - function_name_identifier: SAFE_OFFSET
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '0'
+                      - end_bracket: )
+              - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .
             - star: '*'
@@ -148,29 +153,30 @@ file:
           - naked_identifier: field_with_safe_offset_wildcard
       - comma: ','
       - select_clause_element:
-        - function:
-          - function_name:
-            - function_name_identifier: testFunction
-          - function_contents:
-            - bracketed:
-              - start_bracket: (
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: testFunction
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - naked_identifier: a
+                - end_bracket: )
+            - array_accessor:
+              - start_square_bracket: '['
               - expression:
-                - column_reference:
-                  - naked_identifier: a
-              - end_bracket: )
-          - array_accessor:
-            - start_square_bracket: '['
-            - expression:
-              - function:
-                - function_name:
-                  - function_name_identifier: ORDINAL
-                - function_contents:
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                      - numeric_literal: '1'
-                    - end_bracket: )
-            - end_square_bracket: ']'
+                - function:
+                  - function_name:
+                    - function_name_identifier: ORDINAL
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - numeric_literal: '1'
+                      - end_bracket: )
+              - end_square_bracket: ']'
           - semi_structured_expression:
             - dot: .
             - star: '*'

@@ -357,6 +357,48 @@ fn bigquery_cast_as_float_is_unparsable() {
 }
 
 #[test]
+fn bigquery_semi_structured_wildcard_is_terminal() {
+    let dialect = kind_to_dialect(&DialectKind::Bigquery, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "SELECT x.y.*.z FROM t",
+        "SELECT results[0].*.z FROM t",
+        "SELECT testFunction(a).b.*.z FROM t",
+        "SELECT testFunction(a).*.z FROM t",
+        "SELECT testFunction(a)[0].b.*.z FROM t",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
+fn bigquery_semi_structured_wildcard_accepts_except_replace() {
+    let dialect = kind_to_dialect(&DialectKind::Bigquery, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "SELECT results[0].* FROM t",
+        "SELECT results[0].* EXCEPT (cola) FROM t",
+        "SELECT results[0].* REPLACE (1 AS cola) FROM t",
+        "SELECT s.arr[0].field.* EXCEPT (cola) FROM t",
+        "SELECT testFunction(a).b.* FROM t",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn databricks_materialized_view_rejects_invalid_constraint_order() {
     let dialect = kind_to_dialect(&DialectKind::Databricks, None).unwrap();
     let tables = Tables::default();

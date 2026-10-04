@@ -238,6 +238,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "MODIFIES",
     "MONTH",
     "MONTHS",
+    "MOVEMENT",
     "NAN",
     "NEW",
     "NEW_TABLE",

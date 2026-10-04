@@ -59,6 +59,8 @@ Lint SQL files via passing a list of files or using stdin
 
 ###### **Options:**
 
+* `-q`, `--quiet` — Suppress routine status output while preserving diagnostics and results
+* `-v`, `--verbose` — Show more detail about processed files. Repeat for higher verbosity
 * `--disregard-sqruffignores` [alias: `disregard-sqlfluffignores`] — Perform the operation regardless of .sqruffignore and .sqlfluffignore configurations
 * `-f`, `--format <FORMAT>`
 
@@ -87,6 +89,8 @@ Fix SQL files via passing a list of files or using stdin
 
 ###### **Options:**
 
+* `-q`, `--quiet` — Suppress routine status output while preserving diagnostics and results
+* `-v`, `--verbose` — Show more detail about processed files. Repeat for higher verbosity
 * `--disregard-sqruffignores` [alias: `disregard-sqlfluffignores`] — Perform the operation regardless of .sqruffignore and .sqlfluffignore configurations
 * `-f`, `--format <FORMAT>` — The output format for the results
 

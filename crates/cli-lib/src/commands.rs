@@ -78,6 +78,12 @@ pub enum Commands {
 
 #[derive(Debug, Parser)]
 pub struct LintArgs {
+    /// Suppress routine status output while preserving diagnostics and results.
+    #[arg(short, long, conflicts_with = "verbose")]
+    pub quiet: bool,
+    /// Show more detail about processed files. Repeat for higher verbosity.
+    #[arg(short, long, action = clap::ArgAction::Count, conflicts_with = "quiet")]
+    pub verbose: u8,
     /// Perform the operation regardless of .sqruffignore and .sqlfluffignore configurations.
     #[arg(long, visible_alias = "disregard-sqlfluffignores")]
     pub disregard_sqruffignores: bool,
@@ -90,6 +96,12 @@ pub struct LintArgs {
 
 #[derive(Debug, Parser)]
 pub struct FixArgs {
+    /// Suppress routine status output while preserving diagnostics and results.
+    #[arg(short, long, conflicts_with = "verbose")]
+    pub quiet: bool,
+    /// Show more detail about processed files. Repeat for higher verbosity.
+    #[arg(short, long, action = clap::ArgAction::Count, conflicts_with = "quiet")]
+    pub verbose: u8,
     /// Perform the operation regardless of .sqruffignore and .sqlfluffignore configurations.
     #[arg(long, visible_alias = "disregard-sqlfluffignores")]
     pub disregard_sqruffignores: bool,

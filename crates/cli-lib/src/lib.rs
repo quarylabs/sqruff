@@ -85,6 +85,18 @@ where
         }
     };
 
+    let output_options = match &cli.command {
+        Commands::Lint(args) => Some((args.quiet, args.verbose)),
+        Commands::Fix(args) => Some((args.quiet, args.verbose)),
+        _ => None,
+    };
+    if let Some((quiet, verbose)) = output_options
+        && (quiet || verbose > 0)
+        && let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut)
+    {
+        core.insert("verbose".to_string(), Value::Int(i32::from(verbose)));
+    }
+
     if (cli.nocolor || cli.color)
         && let Some(core) = config.raw.get_mut("core").and_then(Value::as_map_mut)
     {
@@ -163,6 +175,7 @@ where
             Ok(true) => commands_lint::run_lint_stdin(
                 config,
                 args.format,
+                args.quiet,
                 stdin_filename.as_deref(),
                 &ignorer,
                 args.disregard_sqruffignores,
@@ -178,6 +191,7 @@ where
             Ok(true) => commands_fix::run_fix_stdin(
                 config,
                 args.format,
+                args.quiet,
                 stdin_filename.as_deref(),
                 &ignorer,
                 args.disregard_sqruffignores,
@@ -213,6 +227,8 @@ pub(crate) fn linter(
     config: FluffConfig,
     format: Format,
     collect_parse_errors: bool,
+    quiet: bool,
+    fix_mode: bool,
 ) -> Result<Linter, String> {
     let formatter: Arc<dyn Formatter> = match format {
         Format::Human => {
@@ -221,6 +237,8 @@ pub(crate) fn linter(
                 output_stream,
                 config.get("nocolor", "core").as_bool(),
                 config.get("verbose", "core").as_int().unwrap_or_default(),
+                quiet,
+                quiet && fix_mode,
             );
             Arc::new(formatter)
         }

@@ -2615,6 +2615,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .into(),
     )]);
 
+    clickhouse_dialect.add([(
+        "TruncateDatabaseStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::TruncateDatabase, |_| {
+            Sequence::new(vec![
+                Ref::keyword("TRUNCATE").to_matchable(),
+                Ref::keyword("DATABASE").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Ref::new("DatabaseReferenceSegment").to_matchable(),
+                Ref::new("OnClusterClauseSegment").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     clickhouse_dialect.replace_grammar(
         "DropTableStatementSegment",
         Sequence::new(vec![
@@ -3634,6 +3650,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("SystemStatementSegment").to_matchable(),
                 Ref::new("RenameStatementSegment").to_matchable(),
                 Ref::new("AlterTableStatementSegment").to_matchable(),
+                Ref::new("TruncateDatabaseStatementSegment").to_matchable(),
             ]),
             None,
             None,

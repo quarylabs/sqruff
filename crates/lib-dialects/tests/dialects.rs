@@ -551,6 +551,25 @@ fn redshift_rejects_postgres_merge_extensions() {
 }
 
 #[test]
+fn mariadb_delete_history_rejects_delete_modifiers() {
+    let dialect = kind_to_dialect(&DialectKind::Mariadb, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "DELETE LOW_PRIORITY HISTORY FROM t BEFORE SYSTEM_TIME '2020-01-01';",
+        "DELETE QUICK HISTORY FROM t BEFORE SYSTEM_TIME '2020-01-01';",
+        "DELETE IGNORE HISTORY FROM t BEFORE SYSTEM_TIME '2020-01-01';",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn ansi_partial_greedy_select_preserves_keyword() {
     let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
     let tables = Tables::default();

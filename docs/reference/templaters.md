@@ -26,6 +26,7 @@ Sqruff comes with the following templaters out of the box:
 - [python](#python)
 - [jinja](#jinja)
 - [dbt](#dbt)
+- [sqlmesh](#sqlmesh)
 
 ## Details
 
@@ -440,3 +441,11 @@ WHERE created_at > '2024-01-01'
 ```
 
 The linter then operates on this compiled SQL.
+
+### sqlmesh
+
+The SQLMesh templater processes SQLMesh model files using their project context. Install the Python-enabled sqruff package and SQLMesh with `pip install 'sqruff[sqlmesh]'`.
+
+Enable it with `templater = sqlmesh` in the `[sqruff]` section. Configure the optional `project_dir`, `config`, and `gateway` keys under `[sqruff:templater:sqlmesh]`; `SQLMESH_PROJECT_DIR` or the working directory is used when `project_dir` is unset.
+
+For plain SQL models, sqruff strips the `MODEL (...)` header and lints the remaining SQL with exact source positions without loading SQLMesh. Inline macros are substituted while preserving literal source regions where possible. Structural macros and Jinja queries are rendered through SQLMesh and mapped conservatively as templated regions.

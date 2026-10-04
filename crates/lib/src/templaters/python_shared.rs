@@ -29,6 +29,10 @@ pub struct PythonFluffConfig {
     dbt_project_dir: Option<String>,
     dbt_threads: Option<i32>,
     dbt_skip_compilation_error: bool,
+    sqlmesh_project_dir: Option<String>,
+    sqlmesh_config: Option<String>,
+    sqlmesh_gateway: Option<String>,
+    sqlmesh_dialect: Option<String>,
 }
 
 impl PythonFluffConfig {
@@ -150,6 +154,22 @@ impl From<&FluffConfig> for PythonFluffConfig {
                 .templater_value(TemplaterKind::Dbt, "dbt_skip_compilation_error")
                 .and_then(|value| value.as_bool())
                 .unwrap_or(true),
+            sqlmesh_project_dir: value
+                .templater_value(TemplaterKind::Sqlmesh, "project_dir")
+                .and_then(Value::as_string)
+                .map(ToString::to_string),
+            sqlmesh_config: value
+                .templater_value(TemplaterKind::Sqlmesh, "config")
+                .and_then(Value::as_string)
+                .map(ToString::to_string),
+            sqlmesh_gateway: value
+                .templater_value(TemplaterKind::Sqlmesh, "gateway")
+                .and_then(Value::as_string)
+                .map(ToString::to_string),
+            sqlmesh_dialect: value
+                .get("dialect", "core")
+                .as_string()
+                .map(ToString::to_string),
         }
     }
 }

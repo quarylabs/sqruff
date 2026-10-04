@@ -1,0 +1,6 @@
+[sqruff]
+templater = sqlmesh
+dialect = duckdb
+
+[sqruff:templater:sqlmesh]
+project_dir = .

@@ -615,6 +615,7 @@ PYTEST_VENVS = {
             PYTEST_VENVS[version],
             "//crates/cli-python:python_srcs",
             "//crates/cli-python:dbt_test_fixtures",
+            "//crates/cli-python:sqlmesh_test_fixtures",
         ],
         env = {
             "PYTHON_VENV": "$(rlocationpath {})".format(PYTEST_VENVS[version]),

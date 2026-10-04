@@ -2633,6 +2633,59 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "OrderByClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::OrderbyClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ORDER").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::new("ColumnReferenceSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("ASC").to_matchable(),
+                                Ref::keyword("DESC").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("USING").to_matchable(),
+                                    Ref::new("ComparisonOperatorGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("NULLS").to_matchable(),
+                                one_of(vec![
+                                    Ref::keyword("FIRST").to_matchable(),
+                                    Ref::keyword("LAST").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.terminators = vec![
+                            Ref::new("LimitClauseSegment").to_matchable(),
+                            Ref::new("FrameClauseUnitGrammar").to_matchable(),
+                        ]
+                    })
+                    .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "OffsetClauseSegment".into(),
             NodeMatcher::new(SyntaxKind::OffsetClause, |_| {
                 Sequence::new(vec![

@@ -166,3 +166,50 @@ test_fail_keyword_as_column_name_postgres:
   configs:
     core:
       dialect: postgres
+
+# Charset and collation names are not user identifiers, even when their names
+# happen to be unreserved keywords such as `ascii`.
+test_pass_mysql_column_charset_keyword_name:
+  pass_str: CREATE TABLE t (col1 TEXT CHARACTER SET ascii COLLATE ascii_bin)
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all
+
+test_pass_mysql_alter_convert_charset_keyword_name:
+  pass_str: ALTER TABLE t CONVERT TO CHARACTER SET ascii
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all
+
+test_pass_mysql_alter_default_charset_keyword_name:
+  pass_str: ALTER TABLE t DEFAULT CHARACTER SET ascii
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all
+
+test_pass_mariadb_column_charset_keyword_name:
+  pass_str: CREATE TABLE t (col1 TEXT CHARACTER SET ascii COLLATE ascii_bin)
+  configs:
+    core:
+      dialect: mariadb
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all
+
+test_fail_mysql_keyword_column_name_still_flagged:
+  fail_str: CREATE TABLE t (ascii TEXT)
+  configs:
+    core:
+      dialect: mysql
+    rules:
+      references.keywords:
+        unquoted_identifiers_policy: all

@@ -216,6 +216,7 @@ pub enum SyntaxKind {
     CdcSpecificationSegment,
     ChainedFunctionCall,
     ChangesClause,
+    CharacterSet,
     CharacteristicStatement,
     CheckConstraintGrammar,
     CheckOptionClause,

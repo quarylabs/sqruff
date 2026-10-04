@@ -2800,34 +2800,121 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     clickhouse_dialect.add([(
         "CreateDictionaryStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::CreateDictionaryStatement, |_| {
-            // A dictionary source/layout function such as
-            // `CLICKHOUSE(HOST 'localhost' ...)` or `HASHED()`.
-            let dictionary_function = || {
-                Sequence::new(vec![
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    Bracketed::new(vec![
-                        AnyNumberOf::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
-                                one_of(vec![
-                                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                                    Ref::new("NumericLiteralSegment").to_matchable(),
-                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
-                                    Ref::new("NakedIdentifierSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
+            let dictionary_parameters = || {
+                Bracketed::new(vec![
+                    AnyNumberOf::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("SingleIdentifierGrammar").to_matchable(),
+                            one_of(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                Ref::new("NakedIdentifierSegment").to_matchable(),
                             ])
                             .to_matchable(),
                         ])
-                        .config(|this| {
-                            this.min_times(1);
-                            this.optional();
-                        })
+                        .to_matchable(),
+                    ])
+                    .config(|this| {
+                        this.min_times(1);
+                        this.optional();
+                    })
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            };
+            let dictionary_function = || {
+                Sequence::new(vec![
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    dictionary_parameters(),
+                ])
+                .to_matchable()
+            };
+            let source_clause = Sequence::new(vec![
+                Ref::keyword("SOURCE").to_matchable(),
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::keyword("NULL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    dictionary_parameters(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let layout_clause = Sequence::new(vec![
+                Ref::keyword("LAYOUT").to_matchable(),
+                Bracketed::new(vec![dictionary_function()]).to_matchable(),
+            ])
+            .to_matchable();
+            let lifetime_clause = Sequence::new(vec![
+                Ref::keyword("LIFETIME").to_matchable(),
+                Bracketed::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("MIN").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                            Ref::keyword("MAX").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("NumericLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let range_clause = Sequence::new(vec![
+                Ref::keyword("RANGE").to_matchable(),
+                Bracketed::new(vec![
+                    Ref::keyword("MIN").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::keyword("MAX").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let settings_clause = Sequence::new(vec![
+                Ref::keyword("SETTINGS").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("NakedIdentifierSegment").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("NakedIdentifierSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("BooleanLiteralGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
                         .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
-                .to_matchable()
+                .to_matchable(),
+            ])
+            .to_matchable();
+            let dictionary_clauses = |with_range: bool, with_settings: bool| {
+                let mut clauses = vec![
+                    source_clause.clone(),
+                    layout_clause.clone(),
+                    lifetime_clause.clone(),
+                ];
+                if with_range {
+                    clauses.push(range_clause.clone());
+                }
+                if with_settings {
+                    clauses.push(settings_clause.clone());
+                }
+                let count = clauses.len();
+                any_set_of(clauses)
+                    .config(|this| this.min_times(count))
+                    .to_matchable()
             };
             Sequence::new(vec![
                 Ref::keyword("CREATE").to_matchable(),
@@ -2866,59 +2953,17 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable(),
                 Ref::keyword("PRIMARY").to_matchable(),
                 Ref::keyword("KEY").to_matchable(),
-                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
-                    .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("SOURCE").to_matchable(),
-                    Bracketed::new(vec![dictionary_function()]).to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("LAYOUT").to_matchable(),
-                    Bracketed::new(vec![dictionary_function()]).to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("LIFETIME").to_matchable(),
-                    Bracketed::new(vec![
-                        one_of(vec![
-                            Sequence::new(vec![
-                                Ref::keyword("MIN").to_matchable(),
-                                Ref::new("NumericLiteralSegment").to_matchable(),
-                                Ref::keyword("MAX").to_matchable(),
-                                Ref::new("NumericLiteralSegment").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::new("NumericLiteralSegment").to_matchable(),
-                        ])
+                optionally_bracketed(vec![
+                    Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
                         .to_matchable(),
-                    ])
-                    .to_matchable(),
                 ])
-                .config(|this| this.optional())
                 .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("SETTINGS").to_matchable(),
-                    Bracketed::new(vec![
-                        Delimited::new(vec![
-                            Sequence::new(vec![
-                                Ref::new("NakedIdentifierSegment").to_matchable(),
-                                Ref::new("EqualsSegment").to_matchable(),
-                                one_of(vec![
-                                    Ref::new("NakedIdentifierSegment").to_matchable(),
-                                    Ref::new("NumericLiteralSegment").to_matchable(),
-                                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
+                one_of(vec![
+                    dictionary_clauses(false, false),
+                    dictionary_clauses(true, false),
+                    dictionary_clauses(false, true),
+                    dictionary_clauses(true, true),
                 ])
-                .config(|this| this.optional())
                 .to_matchable(),
                 Ref::new("CommentClauseSegment").optional().to_matchable(),
             ])

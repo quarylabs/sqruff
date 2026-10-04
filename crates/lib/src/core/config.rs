@@ -211,6 +211,10 @@ impl FluffConfig {
             .expect("invalid max_parse_depth configuration");
         normalize_max_parse_nodes_map(&mut configs, "configuration")
             .expect("invalid max_parse_nodes configuration");
+        for key in ["render_variant_limit", "runaway_limit"] {
+            validate_int_config_map(&configs, key, 1, "configuration")
+                .expect("invalid integer limit configuration");
+        }
 
         let values = ConfigLoader::get_config_elems_from_file(
             None,
@@ -391,6 +395,9 @@ impl FluffConfig {
         normalize_implicit_indents_elems(&mut elems, "inline configuration")?;
         normalize_max_parse_depth_elems(&mut elems, "inline configuration")?;
         normalize_max_parse_nodes_elems(&mut elems, "inline configuration")?;
+        for key in ["render_variant_limit", "runaway_limit"] {
+            validate_int_config_elems(&elems, key, 1, "inline configuration")?;
+        }
         ConfigLoader::incorporate_vals(&mut raw, elems);
         *self = Self::new(
             raw,
@@ -663,6 +670,9 @@ impl ConfigLoader {
         normalize_implicit_indents_elems(&mut elems, &config_reference(config_path))?;
         normalize_max_parse_depth_elems(&mut elems, &config_reference(config_path))?;
         normalize_max_parse_nodes_elems(&mut elems, &config_reference(config_path))?;
+        for key in ["render_variant_limit", "runaway_limit"] {
+            validate_int_config_elems(&elems, key, 1, &config_reference(config_path))?;
+        }
         Ok(elems)
     }
 
@@ -960,6 +970,68 @@ fn normalize_max_parse_nodes_map(
         return Ok(());
     };
     normalize_max_parse_nodes_value(value, logging_reference)
+}
+
+fn config_value_repr(value: &Value) -> String {
+    match value {
+        Value::String(text) => format!("'{}'", text.replace('\\', "\\\\").replace('\'', "\\'")),
+        Value::Bool(value) => if *value { "True" } else { "False" }.to_owned(),
+        Value::Int(value) => value.to_string(),
+        Value::Float(value) => format!("{value:?}"),
+        Value::None => "None".to_owned(),
+        _ => format!("{value:?}"),
+    }
+}
+
+fn validate_int_config_value(
+    value: &Value,
+    key: &str,
+    minimum: i32,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    let rendered = config_value_repr(value);
+    match value {
+        Value::Int(number) if *number >= minimum => Ok(()),
+        Value::Int(_) => Err(SQLFluffUserError::new(format!(
+            "Config file {logging_reference:?} set an invalid value for `{key}`: {rendered}. \
+             This value must be an integer of at least {minimum}."
+        ))),
+        _ => Err(SQLFluffUserError::new(format!(
+            "Config file {logging_reference:?} set an invalid value for `{key}`: {rendered}. \
+             This value must be an integer."
+        ))),
+    }
+}
+
+fn validate_int_config_elems(
+    elems: &[(Vec<String>, Value)],
+    key: &str,
+    minimum: i32,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    if let Some((_, value)) = elems
+        .iter()
+        .find(|(path, _)| path.len() == 2 && path[0] == "core" && path[1] == key)
+    {
+        validate_int_config_value(value, key, minimum, logging_reference)?;
+    }
+    Ok(())
+}
+
+fn validate_int_config_map(
+    configs: &HashMap<String, Value>,
+    key: &str,
+    minimum: i32,
+    logging_reference: &str,
+) -> Result<(), SQLFluffUserError> {
+    let Some(value) = configs
+        .get("core")
+        .and_then(Value::as_map)
+        .and_then(|core| core.get(key))
+    else {
+        return Ok(());
+    };
+    validate_int_config_value(value, key, minimum, logging_reference)
 }
 
 fn parse_ini_config_elems(
@@ -2214,6 +2286,63 @@ max_line_length = 44
             .process_inline_config("-- sqlfluff:max_parse_nodes:0")
             .unwrap();
         assert_eq!(config.raw["core"]["max_parse_nodes"].as_int(), Some(0));
+    }
+
+    #[test]
+    fn test_positive_integer_limits_are_validated() {
+        for (key, value) in [("render_variant_limit", 1), ("runaway_limit", 10)] {
+            let source = format!("[sqruff]\n{key} = {value}\n");
+            let config = FluffConfig::try_from_source(&source, None).unwrap();
+            assert_eq!(config.raw["core"][key].as_int(), Some(value));
+        }
+
+        for key in ["render_variant_limit", "runaway_limit"] {
+            for (value, expected_repr, expected_requirement) in [
+                ("lots", "'lots'", "must be an integer."),
+                ("true", "True", "must be an integer."),
+                ("None", "None", "must be an integer."),
+                ("1.5", "1.5", "must be an integer."),
+                ("0", "0", "must be an integer of at least 1."),
+                ("-1", "-1", "must be an integer of at least 1."),
+            ] {
+                let source = format!("[sqruff]\n{key} = {value}\n");
+                let error = FluffConfig::try_from_source(&source, None).unwrap_err();
+                let message = error.to_string();
+                assert!(
+                    message.contains(&format!(
+                        "set an invalid value for `{key}`: {expected_repr}"
+                    )),
+                    "{message}"
+                );
+                assert!(message.contains(expected_requirement), "{message}");
+            }
+        }
+    }
+
+    #[test]
+    fn test_positive_integer_limits_reject_invalid_inline_and_toml_values() {
+        let mut config = FluffConfig::default();
+        let previous = config.clone();
+        for key in ["render_variant_limit", "runaway_limit"] {
+            let error = config
+                .process_inline_config(&format!("-- sqlfluff:{key}:0"))
+                .unwrap_err();
+            assert!(
+                error
+                    .to_string()
+                    .contains(&format!("invalid value for `{key}`"))
+            );
+            assert_eq!(config, previous);
+
+            let source = format!("[tool.sqlfluff.core]\n{key} = true\n");
+            let error = FluffConfig::try_from_source(&source, Some(Path::new("pyproject.toml")))
+                .unwrap_err();
+            assert!(
+                error
+                    .to_string()
+                    .contains(&format!("invalid value for `{key}`"))
+            );
+        }
     }
 
     #[test]

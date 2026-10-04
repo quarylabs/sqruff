@@ -2672,6 +2672,33 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .into(),
     )]);
 
+    clickhouse_dialect.add([(
+        "TruncateTablesStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::TruncateTables, |_| {
+            Sequence::new(vec![
+                Ref::keyword("TRUNCATE").to_matchable(),
+                Ref::keyword("ALL").optional().to_matchable(),
+                Ref::keyword("TABLES").to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Ref::new("DatabaseReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("NOT").optional().to_matchable(),
+                    Ref::new("LikeGrammar")
+                        .exclude(Ref::keyword("REGEXP"))
+                        .to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+                Ref::new("OnClusterClauseSegment").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     clickhouse_dialect.add([
         (
             "ExchangeTablesStatementSegment".into(),
@@ -3741,6 +3768,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("ExchangeTablesStatementSegment").to_matchable(),
                 Ref::new("ExchangeDictionariesStatementSegment").to_matchable(),
                 Ref::new("TruncateDatabaseStatementSegment").to_matchable(),
+                Ref::new("TruncateTablesStatementSegment").to_matchable(),
             ]),
             None,
             None,

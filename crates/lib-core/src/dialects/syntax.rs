@@ -1289,6 +1289,7 @@ pub enum SyntaxKind {
     TruncateDatabase,
     TruncateStatement,
     TruncateTable,
+    TruncateTables,
     TryCastingOperator,
     TryCatch,
     TsqlVariable,

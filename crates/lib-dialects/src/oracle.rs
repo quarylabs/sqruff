@@ -3678,11 +3678,9 @@ pub fn raw_dialect() -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("INTO").to_matchable(),
                     Delimited::new(vec![
-                        one_of(vec![
-                            Ref::new("SingleIdentifierGrammar").to_matchable(),
-                            Ref::new("BindVariableSegment").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        Ref::new("BindVariableSegment").to_matchable(),
                     ])
                     .to_matchable(),
                 ])

@@ -1,0 +1,79 @@
+file:
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - data_type_identifier: INT
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t_explicit
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: x
+        - data_type:
+          - data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: start_timestamp
+        - keyword: TIMESTAMP
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '6'
+            - end_bracket: )
+        - column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: ROW
+          - keyword: START
+      - comma: ','
+      - column_definition:
+        - naked_identifier: end_timestamp
+        - keyword: TIMESTAMP
+        - bracketed_arguments:
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '6'
+            - end_bracket: )
+        - column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - keyword: ROW
+          - keyword: END
+      - comma: ','
+      - table_constraint:
+        - period_segment:
+          - keyword: PERIOD
+          - keyword: FOR
+          - keyword: SYSTEM_TIME
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - naked_identifier: start_timestamp
+            - comma: ','
+            - column_reference:
+              - naked_identifier: end_timestamp
+            - end_bracket: )
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: SYSTEM
+    - parameter: VERSIONING
+- statement_terminator: ;

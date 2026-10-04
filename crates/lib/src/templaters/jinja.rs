@@ -301,6 +301,22 @@ FROM events
     }
 
     #[test]
+    fn test_jinja_literal_fast_path_through_rust() {
+        let config = FluffConfig::from_source("[sqruff]\ntemplater = jinja\n", None);
+        let source = "SELECT 'π'\n";
+        let variants = JinjaTemplater
+            .process_with_variants(&[(source, "test.sql")], &config, &None)
+            .remove(0)
+            .unwrap();
+
+        assert_eq!(variants.len(), 1);
+        assert_eq!(variants[0].templated(), source);
+        assert_eq!(variants[0].sliced_file.len(), 1);
+        assert_eq!(variants[0].sliced_file[0].source_slice, 0..source.len());
+        assert_eq!(variants[0].raw_sliced().len(), 1);
+    }
+
+    #[test]
     fn test_jinja_lints_all_render_variants() {
         let source = r#"-- exercise both branches
 select 1 AS foo, {% if 1 > 2 %}2 AS boo{% else %}3 AS boo{% endif %}"#;

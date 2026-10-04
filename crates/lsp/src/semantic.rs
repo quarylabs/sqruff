@@ -155,7 +155,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SystemFunctionName => Highlight::Function,
 
         // Type names.
-        DataTypeIdentifier | PrimitiveType => Highlight::Type,
+        CharacterSet | DataTypeIdentifier | PrimitiveType => Highlight::Type,
 
         // Parameters.
         Parameter | PipelineParameter => Highlight::Parameter,
@@ -1652,6 +1652,11 @@ mod tests {
                 (0, 22, 1, var),    // t
             ]
         );
+    }
+
+    #[test]
+    fn highlights_character_set_names_as_types() {
+        assert_eq!(classify(SyntaxKind::CharacterSet), Some(Highlight::Type));
     }
 
     #[test]

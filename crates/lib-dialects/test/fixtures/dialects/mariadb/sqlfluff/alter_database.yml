@@ -9,7 +9,7 @@ file:
       - keyword: DEFAULT
       - keyword: CHARACTER
       - keyword: SET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
     - alter_option_segment:
       - keyword: COLLATE
       - collation_reference:
@@ -31,7 +31,7 @@ file:
       - keyword: SET
       - comparison_operator:
         - raw_comparison_operator: =
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
     - alter_option_segment:
       - keyword: COLLATE
       - comparison_operator:
@@ -55,7 +55,7 @@ file:
       - keyword: DEFAULT
       - keyword: CHARACTER
       - keyword: SET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
     - alter_option_segment:
       - keyword: COLLATE
       - collation_reference:

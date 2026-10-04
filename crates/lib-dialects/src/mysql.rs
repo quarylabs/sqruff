@@ -319,6 +319,35 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // Charset names are not identifiers: in particular, RF04 must not flag
+    // unreserved keywords such as ASCII when used as charset names.
+    mysql.add([(
+        "CharacterSetSegment".into(),
+        SegmentGenerator::new(|dialect| {
+            let reserved_keywords = dialect.sets("reserved_keywords");
+            let anti_template = format!("^({})$", reserved_keywords.iter().sorted().join("|"));
+            RegexParser::new(r"[A-Z0-9_]*[A-Z][A-Z0-9_]*", SyntaxKind::CharacterSet)
+                .anti_template(&anti_template)
+                .to_matchable()
+        })
+        .into(),
+    )]);
+
+    // BINARY is a reserved keyword but is also a valid collation name.
+    let collation_reference = mysql
+        .grammar("CollationReferenceSegment")
+        .as_node_matcher_ref()
+        .expect("ANSI collation reference is a node matcher")
+        .match_grammar(&mysql);
+    mysql.replace_grammar(
+        "CollationReferenceSegment",
+        one_of(vec![
+            Ref::keyword("BINARY").to_matchable(),
+            collation_reference,
+        ])
+        .to_matchable(),
+    );
+
     // DoubleQuotedJSONPath.
     mysql.add([(
         "DoubleQuotedJSONPath".into(),
@@ -3771,6 +3800,8 @@ pub fn raw_dialect() -> Dialect {
                         Ref::keyword("SET").to_matchable(),
                         Ref::new("EqualsSegment").optional().to_matchable(),
                         one_of(vec![
+                            Ref::new("CharacterSetSegment").to_matchable(),
+                            Ref::keyword("BINARY").to_matchable(),
                             Ref::new("NakedIdentifierSegment").to_matchable(),
                             Ref::new("QuotedLiteralSegment").to_matchable(),
                         ])
@@ -3832,6 +3863,8 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("SET").to_matchable(),
                     Ref::new("EqualsSegment").optional().to_matchable(),
                     one_of(vec![
+                        Ref::new("CharacterSetSegment").to_matchable(),
+                        Ref::keyword("BINARY").to_matchable(),
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
                         Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
                         Ref::new("DoubleQuotedIdentifierSegment").to_matchable(),
@@ -4809,12 +4842,22 @@ fn quoted_or_identifier_or_default() -> Matchable {
     .to_matchable()
 }
 
+fn charset_value_or_default() -> Matchable {
+    one_of(vec![
+        Ref::new("QuotedLiteralSegment").to_matchable(),
+        Ref::new("CharacterSetSegment").to_matchable(),
+        Ref::keyword("BINARY").to_matchable(),
+        Ref::keyword("DEFAULT").to_matchable(),
+    ])
+    .to_matchable()
+}
+
 fn charset_alter_table_option() -> Matchable {
     Sequence::new(vec![
         Ref::keyword("DEFAULT").optional().to_matchable(),
         charset_grammar(),
         Ref::new("EqualsSegment").optional().to_matchable(),
-        quoted_or_identifier_or_default(),
+        charset_value_or_default(),
     ])
     .to_matchable()
 }
@@ -5210,6 +5253,8 @@ pub(crate) fn column_constraint_grammar(
                 Sequence::new(vec![
                     charset_grammar(),
                     one_of(vec![
+                        Ref::new("CharacterSetSegment").to_matchable(),
+                        Ref::keyword("BINARY").to_matchable(),
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
                         Ref::new("SingleQuotedIdentifierSegment").to_matchable(),
                         Ref::new("DoubleQuotedIdentifierSegment").to_matchable(),

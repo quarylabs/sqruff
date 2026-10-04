@@ -779,7 +779,7 @@ file:
     - alter_option_segment:
       - keyword: CHARACTER
       - keyword: SET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
     - alter_option_segment:
       - keyword: COLLATE
       - collation_reference:
@@ -1189,7 +1189,7 @@ file:
       - naked_identifier: user
     - table_options:
       - keyword: CHARSET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -1200,7 +1200,7 @@ file:
     - table_options:
       - keyword: CHARACTER
       - keyword: SET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -1210,7 +1210,7 @@ file:
       - naked_identifier: user
     - table_options:
       - keyword: CHARSET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
       - keyword: COLLATE
       - naked_identifier: utf8mb4_unicode_ci
 - statement_terminator: ;
@@ -1224,7 +1224,7 @@ file:
       - keyword: DEFAULT
       - keyword: CHARACTER
       - keyword: SET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
       - keyword: COLLATE
       - naked_identifier: utf8mb4_general_ci
 - statement_terminator: ;
@@ -1238,7 +1238,7 @@ file:
       - keyword: CHARSET
       - comparison_operator:
         - raw_comparison_operator: =
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -1251,7 +1251,7 @@ file:
       - keyword: SET
       - comparison_operator:
         - raw_comparison_operator: =
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -1264,7 +1264,7 @@ file:
       - keyword: CHARSET
       - comparison_operator:
         - raw_comparison_operator: =
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
       - keyword: COLLATE
       - comparison_operator:
         - raw_comparison_operator: =
@@ -1282,7 +1282,7 @@ file:
       - keyword: SET
       - comparison_operator:
         - raw_comparison_operator: =
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
 - statement_terminator: ;
 - statement:
   - alter_table_statement:

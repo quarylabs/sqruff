@@ -1591,6 +1591,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .copy(
                     Some(vec![
                         Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                        Ref::new("BindVariableSegment").to_matchable(),
                     ]),
                     None,
                     None,

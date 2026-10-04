@@ -7,5 +7,7 @@ file:
       - naked_identifier: my_task
     - keyword: MODIFY
     - keyword: WHEN
-    - boolean_literal: 'TRUE'
+    - snowflake_task_expression_segment:
+      - expression:
+        - boolean_literal: 'TRUE'
 - statement_terminator: ;

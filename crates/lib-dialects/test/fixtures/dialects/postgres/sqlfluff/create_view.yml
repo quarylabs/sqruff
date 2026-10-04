@@ -509,8 +509,9 @@ file:
                 - casting_operator: '::'
                 - data_type:
                   - keyword: INTEGER
-                  - start_square_bracket: '['
-                  - end_square_bracket: ']'
+                  - array_type_suffix:
+                    - start_square_bracket: '['
+                    - end_square_bracket: ']'
             - alias_expression:
               - alias_operator:
                 - keyword: AS
@@ -534,8 +535,9 @@ file:
                 - casting_operator: '::'
                 - data_type:
                   - keyword: text
-                  - start_square_bracket: '['
-                  - end_square_bracket: ']'
+                  - array_type_suffix:
+                    - start_square_bracket: '['
+                    - end_square_bracket: ']'
             - alias_expression:
               - alias_operator:
                 - keyword: AS
@@ -555,8 +557,9 @@ file:
                 - casting_operator: '::'
                 - data_type:
                   - keyword: INTEGER
-                  - start_square_bracket: '['
-                  - end_square_bracket: ']'
+                  - array_type_suffix:
+                    - start_square_bracket: '['
+                    - end_square_bracket: ']'
             - alias_expression:
               - alias_operator:
                 - keyword: AS

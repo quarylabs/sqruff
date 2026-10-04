@@ -321,14 +321,8 @@ fn build_datatype_segment_grammar(pgvector: bool) -> Matchable {
         ])
         .to_matchable(),
         one_of(vec![
-            AnyNumberOf::new(vec![
-                Bracketed::new(vec![
-                    Ref::new("ExpressionSegment").optional().to_matchable(),
-                ])
-                .config(|this| this.bracket_type("square"))
+            AnyNumberOf::new(vec![Ref::new("ArrayTypeSuffixSegment").to_matchable()])
                 .to_matchable(),
-            ])
-            .to_matchable(),
             Ref::new("ArrayTypeSegment").to_matchable(),
             Ref::new("SizedArrayTypeSegment").to_matchable(),
         ])
@@ -1632,6 +1626,19 @@ pub fn raw_dialect() -> Dialect {
     postgres.replace_grammar("DatatypeSegment", build_datatype_segment_grammar(false));
 
     postgres.replace_grammar("ArrayTypeSegment", Ref::keyword("ARRAY").to_matchable());
+
+    postgres.add([(
+        "ArrayTypeSuffixSegment".into(),
+        NodeMatcher::new(SyntaxKind::ArrayTypeSuffix, |_| {
+            Bracketed::new(vec![
+                Ref::new("ExpressionSegment").optional().to_matchable(),
+            ])
+            .config(|this| this.bracket_type("square"))
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
 
     postgres.replace_grammar(
         "TypedArrayLiteralSegment",

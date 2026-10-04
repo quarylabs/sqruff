@@ -176,3 +176,27 @@ test_pass_alias_expression_oracle_tables:
   configs:
     core:
       dialect: oracle
+
+test_fail_bracketed_column_list_alias_5994:
+  # A bracketed column list has no bare identifier. Insert AS before the
+  # bracketed child, so the fix is a direct child of the alias expression.
+  # https://github.com/sqlfluff/sqlfluff/issues/5994
+  fail_str: select * from (values (1, 2), (3, 4)) (a, b)
+  fix_str: select * from (values (1, 2), (3, 4)) AS (a, b)
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_bracketed_column_list_alias_5994:
+  pass_str: select * from (values (1, 2), (3, 4)) AS (a, b)
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_named_bracketed_column_list_alias:
+  # When an alias has a bare identifier, AS still goes before it.
+  fail_str: select * from (values (1, 2)) v (a, b)
+  fix_str: select * from (values (1, 2)) AS v (a, b)
+  configs:
+    core:
+      dialect: postgres

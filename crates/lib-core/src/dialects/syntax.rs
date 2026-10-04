@@ -1279,6 +1279,7 @@ pub enum SyntaxKind {
     TriggerCorrelationName,
     TriggerReference,
     TruncateAuditLogsStatement,
+    TruncateDatabase,
     TruncateStatement,
     TruncateTable,
     TryCastingOperator,

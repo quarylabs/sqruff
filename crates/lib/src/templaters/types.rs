@@ -1,7 +1,7 @@
 use fancy_regex::Regex;
 
 #[cfg(feature = "python")]
-use super::{DBT_TEMPLATER, JINJA_TEMPLATER, PYTHON_TEMPLATER};
+use super::{DBT_TEMPLATER, JINJA_TEMPLATER, PYTHON_TEMPLATER, SQLMESH_TEMPLATER};
 use super::{PLACEHOLDER_TEMPLATER, RAW_TEMPLATER, Templater};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -14,6 +14,8 @@ pub enum TemplaterKind {
     Jinja,
     #[cfg(feature = "python")]
     Dbt,
+    #[cfg(feature = "python")]
+    Sqlmesh,
 }
 
 impl TemplaterKind {
@@ -27,6 +29,8 @@ impl TemplaterKind {
             Self::Jinja => "jinja",
             #[cfg(feature = "python")]
             Self::Dbt => "dbt",
+            #[cfg(feature = "python")]
+            Self::Sqlmesh => "sqlmesh",
         }
     }
 
@@ -40,6 +44,8 @@ impl TemplaterKind {
             Self::Jinja => &JINJA_TEMPLATER,
             #[cfg(feature = "python")]
             Self::Dbt => &DBT_TEMPLATER,
+            #[cfg(feature = "python")]
+            Self::Sqlmesh => &SQLMESH_TEMPLATER,
         }
     }
 
@@ -56,6 +62,7 @@ impl TemplaterKind {
                 Self::Python,
                 Self::Jinja,
                 Self::Dbt,
+                Self::Sqlmesh,
             ]
         }
 
@@ -75,6 +82,8 @@ impl TemplaterKind {
             "jinja" => Ok(Self::Jinja),
             #[cfg(feature = "python")]
             "dbt" => Ok(Self::Dbt),
+            #[cfg(feature = "python")]
+            "sqlmesh" => Ok(Self::Sqlmesh),
             _ => Err(format!(
                 "Unknown templater '{}'. Available templaters: {}",
                 s,

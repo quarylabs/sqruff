@@ -10,6 +10,7 @@ use crate::templaters::jinja::JinjaTemplater;
 use crate::templaters::placeholder::PlaceholderTemplater;
 use crate::templaters::python::PythonTemplater;
 use crate::templaters::raw::RawTemplater;
+use crate::templaters::sqlmesh::SQLMeshTemplater;
 
 pub mod dbt;
 pub mod jinja;
@@ -18,6 +19,7 @@ pub mod python;
 #[cfg(feature = "python")]
 pub mod python_shared;
 pub mod raw;
+pub mod sqlmesh;
 pub mod types;
 
 pub use types::{PlaceholderStyle, TemplaterKind};
@@ -27,25 +29,28 @@ pub static PLACEHOLDER_TEMPLATER: PlaceholderTemplater = PlaceholderTemplater;
 pub static PYTHON_TEMPLATER: PythonTemplater = PythonTemplater;
 pub static JINJA_TEMPLATER: JinjaTemplater = JinjaTemplater;
 pub static DBT_TEMPLATER: DBTTemplater = DBTTemplater;
+pub static SQLMESH_TEMPLATER: SQLMeshTemplater = SQLMeshTemplater;
 
 /// Documentation for every templater, including templaters whose runtime
 /// implementation requires the optional Python feature.
-pub static TEMPLATER_DOCS: [&'static dyn TemplaterDocumentation; 5] = [
+pub static TEMPLATER_DOCS: [&'static dyn TemplaterDocumentation; 6] = [
     &RAW_TEMPLATER,
     &PLACEHOLDER_TEMPLATER,
     &PYTHON_TEMPLATER,
     &JINJA_TEMPLATER,
     &DBT_TEMPLATER,
+    &SQLMESH_TEMPLATER,
 ];
 
 // templaters returns all the templaters that are available in the library
 #[cfg(feature = "python")]
-pub static TEMPLATERS: [&'static dyn Templater; 5] = [
+pub static TEMPLATERS: [&'static dyn Templater; 6] = [
     &RAW_TEMPLATER,
     &PLACEHOLDER_TEMPLATER,
     &PYTHON_TEMPLATER,
     &JINJA_TEMPLATER,
     &DBT_TEMPLATER,
+    &SQLMESH_TEMPLATER,
 ];
 
 #[cfg(not(feature = "python"))]
@@ -121,6 +126,9 @@ mod tests {
             .map(|templater| templater.name())
             .collect::<Vec<_>>();
 
-        assert_eq!(names, ["raw", "placeholder", "python", "jinja", "dbt"]);
+        assert_eq!(
+            names,
+            ["raw", "placeholder", "python", "jinja", "dbt", "sqlmesh"]
+        );
     }
 }

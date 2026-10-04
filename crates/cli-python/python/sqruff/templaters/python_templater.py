@@ -37,6 +37,10 @@ class FluffConfig(NamedTuple):
     dbt_skip_compilation_error: bool = True
     ignore_templating: bool = False
     encoding: str = "autodetect"
+    sqlmesh_project_dir: Optional[str] = None
+    sqlmesh_config: Optional[str] = None
+    sqlmesh_gateway: Optional[str] = None
+    sqlmesh_dialect: Optional[str] = None
 
 
 def fluff_config_from_json(json_stringified: str) -> FluffConfig:

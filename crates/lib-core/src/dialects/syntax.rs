@@ -257,6 +257,7 @@ pub enum SyntaxKind {
     ColumnsExpression,
     Comma,
     Command,
+    CommandCell,
     Comment,
     CommentClause,
     CommentEqualsClause,

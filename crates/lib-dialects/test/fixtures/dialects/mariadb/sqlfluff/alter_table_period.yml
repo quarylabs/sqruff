@@ -1,0 +1,66 @@
+file:
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: rooms
+    - keyword: ADD
+    - keyword: PERIOD
+    - keyword: FOR
+    - naked_identifier: p
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: checkin
+      - comma: ','
+      - column_reference:
+        - naked_identifier: checkout
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: rooms
+    - keyword: ADD
+    - keyword: PERIOD
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: FOR
+    - naked_identifier: p
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: checkin
+      - comma: ','
+      - column_reference:
+        - naked_identifier: checkout
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: rooms
+    - keyword: DROP
+    - keyword: PERIOD
+    - keyword: FOR
+    - naked_identifier: p
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: rooms
+    - keyword: DROP
+    - keyword: PERIOD
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: FOR
+    - naked_identifier: p
+- statement_terminator: ;

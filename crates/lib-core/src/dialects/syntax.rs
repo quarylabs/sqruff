@@ -1002,6 +1002,7 @@ pub enum SyntaxKind {
     Plus,
     PlusJoinSymbol,
     PlusPriorInverse,
+    PositionalSubstitutionVariable,
     PostTableExpression,
     PostgisOperator,
     PostgresCopyStdinDataStatement,

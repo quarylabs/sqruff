@@ -10,50 +10,42 @@ pub struct FromClauseSegment(pub ErasedSegment);
 
 impl FromClauseSegment {
     pub fn eventual_aliases(&self) -> Vec<(ErasedSegment, AliasInfo)> {
-        let mut buff = Vec::new();
-        let mut direct_table_children = Vec::new();
-        let mut join_clauses = Vec::new();
-
-        for from_expression in self
-            .0
-            .children(const { &SyntaxSet::new(&[SyntaxKind::FromExpression]) })
-        {
-            direct_table_children.extend(
-                from_expression
-                    .children(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }),
-            );
-            join_clauses.extend(
-                from_expression.children(const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) }),
-            );
-        }
-
-        for &clause in &direct_table_children {
-            let tmp;
-
-            let aliases = FromExpressionElementSegment(clause.clone()).eventual_aliases();
-
-            let table_expr = if direct_table_children.contains(&clause) {
-                clause
-            } else {
-                tmp = clause
-                    .child(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) })
-                    .unwrap();
-                &tmp
-            };
-
-            buff.extend(aliases.into_iter().map(|alias| (table_expr.clone(), alias)));
-        }
-
-        for clause in join_clauses {
-            let aliases = JoinClauseSegment(clause.clone()).eventual_aliases();
-
-            if !aliases.is_empty() {
-                buff.extend(aliases);
-            }
-        }
-
-        buff
+        get_from_expression_aliases(&self.0)
     }
+}
+
+/// Resolve aliases in direct FROM expressions, whether they belong to a
+/// FROM clause or to a dialect's UPDATE target.
+pub fn get_from_expression_aliases(segment: &ErasedSegment) -> Vec<(ErasedSegment, AliasInfo)> {
+    let mut buff = Vec::new();
+    let mut direct_table_children = Vec::new();
+    let mut join_clauses = Vec::new();
+
+    for from_expression in
+        segment.children(const { &SyntaxSet::new(&[SyntaxKind::FromExpression]) })
+    {
+        direct_table_children.extend(
+            from_expression
+                .children(const { &SyntaxSet::new(&[SyntaxKind::FromExpressionElement]) }),
+        );
+        join_clauses
+            .extend(from_expression.children(const { &SyntaxSet::new(&[SyntaxKind::JoinClause]) }));
+    }
+
+    for &clause in &direct_table_children {
+        let aliases = FromExpressionElementSegment(clause.clone()).eventual_aliases();
+        buff.extend(aliases.into_iter().map(|alias| (clause.clone(), alias)));
+    }
+
+    for clause in join_clauses {
+        let aliases = JoinClauseSegment(clause.clone()).eventual_aliases();
+
+        if !aliases.is_empty() {
+            buff.extend(aliases);
+        }
+    }
+
+    buff
 }
 
 impl FromExpressionElementSegment {

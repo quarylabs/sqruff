@@ -9,8 +9,8 @@ use crate::dialects::common::AliasInfo;
 use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::helpers::IndexMap;
 use crate::parser::segments::ErasedSegment;
+use crate::parser::segments::from::get_from_expression_aliases;
 use crate::utils::analysis::select::get_select_statement_info;
-use crate::utils::functional::segments::Segments;
 
 const SELECTABLE_TYPES: SyntaxSet = SyntaxSet::new(&[
     SyntaxKind::WithCompoundStatement,
@@ -118,35 +118,61 @@ impl Selectable<'_> {
             return get_select_statement_info(&self.selectable, self.dialect.into(), false);
         }
 
-        let values = Segments::new(self.selectable.clone(), None);
-        let alias_expression = values
-            .children_all()
-            .find_first_where(|it: &ErasedSegment| it.is_type(SyntaxKind::AliasExpression));
-        let name = alias_expression
-            .children_all()
-            .find_first_where(|it: &ErasedSegment| {
-                matches!(
-                    it.get_type(),
-                    SyntaxKind::NakedIdentifier | SyntaxKind::QuotedIdentifier,
-                )
+        let mut table_aliases = Vec::new();
+        for alias_expression in self
+            .selectable
+            .children(const { &SyntaxSet::single(SyntaxKind::AliasExpression) })
+        {
+            let name =
+                alias_expression.child(
+                    const {
+                        &SyntaxSet::new(&[
+                            SyntaxKind::NakedIdentifier,
+                            SyntaxKind::QuotedIdentifier,
+                        ])
+                    },
+                );
+            table_aliases.push(AliasInfo {
+                ref_str: name
+                    .as_ref()
+                    .map_or_else(|| SmolStr::new_static(""), |name| name.raw().clone()),
+                segment: name.clone(),
+                aliased: name.is_some(),
+                from_expression_element: self.selectable.clone(),
+                alias_expression: Some(alias_expression.clone()),
+                object_reference: None,
             });
+        }
 
-        let alias_info = AliasInfo {
-            ref_str: if name.is_empty() {
-                SmolStr::new_static("")
-            } else {
-                name.first().unwrap().raw().clone()
-            },
-            segment: name.first().cloned(),
-            aliased: !name.is_empty(),
-            from_expression_element: self.selectable.clone(),
-            alias_expression: alias_expression.first().cloned(),
-            object_reference: None,
-        };
+        // MySQL UPDATE targets can be nested in one or more from_expressions.
+        // Reuse the FROM-clause resolver so joined and comma-separated targets
+        // are both visible to correlated subqueries.
+        if table_aliases.is_empty()
+            && self
+                .selectable
+                .child(const { &SyntaxSet::single(SyntaxKind::FromExpression) })
+                .is_some()
+        {
+            table_aliases = get_from_expression_aliases(&self.selectable)
+                .into_iter()
+                .map(|(_, alias)| alias)
+                .collect();
+        }
+
+        if table_aliases.is_empty() {
+            table_aliases.push(AliasInfo {
+                ref_str: SmolStr::new_static(""),
+                segment: None,
+                aliased: false,
+                from_expression_element: self.selectable.clone(),
+                alias_expression: None,
+                object_reference: None,
+            });
+        }
 
         SelectStatementColumnsAndTables {
             select_statement: self.selectable.clone(),
-            table_aliases: vec![alias_info],
+            table_aliases,
             standalone_aliases: Vec::new(),
             reference_buffer: Vec::new(),
             select_targets: Vec::new(),

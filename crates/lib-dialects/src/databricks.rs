@@ -2468,6 +2468,40 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
     );
 
     databricks.add([(
+        "MaterializedViewExpectationConstraintSegment".into(),
+        NodeMatcher::new(SyntaxKind::ConstraintStatement, |_| {
+            Sequence::new(vec![
+                Ref::keyword("CONSTRAINT").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Ref::keyword("EXPECT").to_matchable(),
+                Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()]).to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ON").to_matchable(),
+                    Ref::keyword("VIOLATION").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("FAIL").to_matchable(),
+                            Ref::keyword("UPDATE").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DROP").to_matchable(),
+                            Ref::keyword("ROW").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    databricks.add([(
         "CreateMaterializedViewStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::CreateMaterializedViewStatement, |_| {
             Sequence::new(vec![
@@ -2484,10 +2518,31 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
                 Bracketed::new(vec![
-                    Delimited::new(vec![
-                        one_of(vec![
-                            Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
-                            Ref::new("TableConstraintSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("CommaSegment").to_matchable(),
+                                Ref::new("ColumnFieldDefinitionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("CommaSegment").to_matchable(),
+                                Ref::new("MaterializedViewExpectationConstraintSegment")
+                                    .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("CommaSegment").to_matchable(),
+                                Ref::new("TableConstraintSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])

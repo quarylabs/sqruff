@@ -56,6 +56,94 @@ class ConfigAwareJinjaTemplater(JinjaTemplater):
         return super()._get_jinja_analyzer(raw_str, env, config)
 
 
+def _jinja_config(macro_paths=None, library_paths=None):
+    return FluffConfig(
+        templater_unwrap_wrapped_queries=False,
+        jinja_templater_paths=macro_paths or [],
+        jinja_exclude_macros_from_path=[],
+        jinja_loader_search_path=[],
+        jinja_apply_dbt_builtins=False,
+        jinja_ignore_templating=False,
+        jinja_library_paths=library_paths or [],
+        dbt_profile=None,
+        dbt_profiles_dir=None,
+        dbt_target=None,
+        dbt_target_path=None,
+        dbt_context=None,
+        dbt_project_dir=None,
+    )
+
+
+def test_jinja_literal_fast_path_skips_rendering_and_variants(monkeypatch):
+    """Literal-only files do not construct a Jinja environment or extra variant."""
+    templater = JinjaTemplater()
+
+    def fail_if_rendered(**_kwargs):
+        raise AssertionError("Jinja environment should not be constructed")
+
+    monkeypatch.setattr(templater, "construct_render_func", fail_if_rendered)
+    source = "SELECT 1\n"
+    variants = list(
+        templater.process_with_variants(
+            in_str=source, fname="test.sql", config=_jinja_config()
+        )
+    )
+
+    assert len(variants) == 1
+    templated_file, violations = variants[0]
+    assert violations == []
+    assert templated_file.templated_str == source
+    assert len(templated_file.sliced_file) == 1
+    assert templated_file.sliced_file[0].slice_type == "literal"
+    assert templated_file.sliced_file[0].source_slice == slice(0, len(source))
+    assert len(templated_file.raw_sliced) == 1
+    assert templated_file.raw_sliced[0].raw == source
+
+
+def test_jinja_fully_covered_template_constructs_render_func_once(monkeypatch):
+    """No extra render function is needed when all literal slices are covered."""
+    templater = JinjaTemplater()
+    original = templater.construct_render_func
+    calls = 0
+
+    def counted_render_func(**kwargs):
+        nonlocal calls
+        calls += 1
+        return original(**kwargs)
+
+    monkeypatch.setattr(templater, "construct_render_func", counted_render_func)
+    variants = list(
+        templater.process_with_variants(
+            in_str="SELECT {{ 1 }}\n", fname="test.sql", config=_jinja_config()
+        )
+    )
+
+    assert len(variants) == 1
+    assert calls == 1
+
+
+def test_jinja_literal_macro_path_error_is_preserved(tmp_path):
+    """Configured macro loading is still validated for a literal-only file."""
+    config = _jinja_config(macro_paths=[str(tmp_path / "missing_macros")])
+
+    with pytest.raises(ValueError, match="Path does not exist"):
+        JinjaTemplater().process(in_str="SELECT 1\n", fname="test.sql", config=config)
+
+
+def test_jinja_literal_library_path_error_is_preserved(tmp_path):
+    """A broken library import must still raise for a literal-only file."""
+    library_dir = tmp_path / "libs"
+    library_dir.mkdir()
+    (library_dir / "broken.py").write_text("import this_module_does_not_exist_at_all\n")
+
+    with pytest.raises(ModuleNotFoundError):
+        JinjaTemplater().process(
+            in_str="SELECT 1\n",
+            fname="test.sql",
+            config=_jinja_config(library_paths=[str(library_dir)]),
+        )
+
+
 def test_var_emulator_magic_methods():
     """Test the placeholder methods defined on the mocked dbt `var()` result."""
     var = DBT_BUILTINS["var"]("foo")

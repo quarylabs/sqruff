@@ -3851,6 +3851,21 @@ pub fn raw_dialect() -> Dialect {
                 false,
             ),
     );
+    // Redshift inherits PostgreSQL's dialect but not its PostgreSQL 17 MERGE
+    // qualifiers or DO NOTHING actions.
+    for segment in [
+        "MergeMatchSegment",
+        "MergeMatchedClauseSegment",
+        "MergeNotMatchedClauseSegment",
+    ] {
+        redshift_dialect.replace_grammar(
+            segment,
+            ansi_dialect
+                .grammar(segment)
+                .match_grammar(&ansi_dialect)
+                .unwrap(),
+        );
+    }
     redshift_dialect.add([]);
     redshift_dialect.replace_grammar(
         "UnorderedSelectStatementSegment",

@@ -308,7 +308,13 @@ fn charset_table_option() -> Matchable {
         Ref::keyword("DEFAULT").optional().to_matchable(),
         charset_grammar(),
         Ref::new("EqualsSegment").optional().to_matchable(),
-        quoted_or_identifier_or_default(),
+        one_of(vec![
+            Ref::new("QuotedLiteralSegment").to_matchable(),
+            Ref::new("CharacterSetSegment").to_matchable(),
+            Ref::keyword("BINARY").to_matchable(),
+            Ref::keyword("DEFAULT").to_matchable(),
+        ])
+        .to_matchable(),
     ])
     .to_matchable()
 }

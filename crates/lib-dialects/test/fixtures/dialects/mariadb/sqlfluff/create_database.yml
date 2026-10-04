@@ -26,7 +26,7 @@ file:
       - keyword: DEFAULT
       - keyword: CHARACTER
       - keyword: SET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
     - create_option_segment:
       - keyword: COLLATE
       - collation_reference:
@@ -48,7 +48,7 @@ file:
       - keyword: SET
       - comparison_operator:
         - raw_comparison_operator: =
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
     - create_option_segment:
       - keyword: COLLATE
       - comparison_operator:
@@ -72,7 +72,7 @@ file:
       - keyword: DEFAULT
       - keyword: CHARACTER
       - keyword: SET
-      - naked_identifier: utf8mb4
+      - character_set: utf8mb4
     - create_option_segment:
       - keyword: COLLATE
       - collation_reference:
@@ -99,4 +99,19 @@ file:
       - keyword: COLLATE
       - collation_reference:
         - quoted_literal: '"utf8mb4_bin"'
+- statement_terminator: ;
+- statement:
+  - create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+      - naked_identifier: my_database
+    - create_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - keyword: binary
+    - create_option_segment:
+      - keyword: COLLATE
+      - collation_reference:
+        - keyword: binary
 - statement_terminator: ;

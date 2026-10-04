@@ -1,0 +1,176 @@
+file:
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - quoted_identifier: '`v`'
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: v2
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - quoted_identifier: '`a`'
+        - comma: ','
+        - select_clause_element:
+          - column_reference:
+            - quoted_identifier: '`b`'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - quoted_identifier: '`t`'
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: v3
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - naked_identifier: a
+      - comma: ','
+      - column_reference:
+        - naked_identifier: b
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+        - comma: ','
+        - select_clause_element:
+          - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: ALGORITHM
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - keyword: MERGE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: v4
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - definer_segment:
+      - keyword: DEFINER
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - role_reference:
+        - quoted_identifier: '`admin`'
+        - at_sign_literal: '@'
+        - quoted_identifier: '`localhost`'
+    - keyword: SQL
+    - keyword: SECURITY
+    - keyword: INVOKER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - quoted_identifier: '`v5`'
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - quoted_identifier: '`v6`'
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - quoted_identifier: '`a`'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - quoted_identifier: '`t`'
+    - with_check_option:
+      - keyword: WITH
+      - keyword: CASCADED
+      - keyword: CHECK
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - quoted_identifier: '`v`'
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+  - create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+      - quoted_identifier: '`v`'
+    - keyword: AS
+    - select_statement:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - numeric_literal: '1'
+- statement_terminator: ;

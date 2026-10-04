@@ -653,18 +653,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "MapTypeSchemaSegment".into(),
             NodeMatcher::new(SyntaxKind::MapTypeSchema, |_| {
-                Bracketed::new(vec![
-                    Sequence::new(vec![
-                        Ref::new("PrimitiveTypeSegment").to_matchable(),
-                        Ref::new("CommaSegment").to_matchable(),
-                        Ref::new("DatatypeSegment").to_matchable(),
+                one_of(vec![
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("PrimitiveTypeSegment").to_matchable(),
+                            Ref::new("CommaSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.bracket_pairs_set = "angle_bracket_pairs";
+                        config.bracket_type = "angle";
+                    })
+                    .to_matchable(),
+                    Bracketed::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("PrimitiveTypeSegment").to_matchable(),
+                            Ref::new("CommaSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
-                .config(|config| {
-                    config.bracket_pairs_set = "angle_bracket_pairs";
-                    config.bracket_type = "angle";
-                })
                 .to_matchable()
             })
             .to_matchable()

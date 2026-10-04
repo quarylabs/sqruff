@@ -1238,6 +1238,7 @@ pub enum SyntaxKind {
     SystemReplicatedSegment,
     SystemReplicationSegment,
     SystemStatement,
+    SystemTimePartition,
     SystemTtlMergesSegment,
     SystemUnfreezeSegment,
     SystemVariable,

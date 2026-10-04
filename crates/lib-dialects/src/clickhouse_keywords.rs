@@ -56,6 +56,7 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "EPHEMERAL",
     "EVENTS",
     "EXCEPT",
+    "EXCHANGE",
     "EXISTS",
     "EXPLAIN",
     "EXPRESSION",

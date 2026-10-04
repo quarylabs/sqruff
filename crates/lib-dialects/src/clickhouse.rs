@@ -2631,6 +2631,53 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .into(),
     )]);
 
+    clickhouse_dialect.add([
+        (
+            "ExchangeTablesStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExchangeTablesStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXCHANGE").to_matchable(),
+                    Ref::keyword("TABLES").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                            Ref::keyword("AND").to_matchable(),
+                            Ref::new("TableReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("OnClusterClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ExchangeDictionariesStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::ExchangeDictionariesStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXCHANGE").to_matchable(),
+                    Ref::keyword("DICTIONARIES").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Ref::keyword("AND").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("OnClusterClauseSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     clickhouse_dialect.replace_grammar(
         "DropTableStatementSegment",
         Sequence::new(vec![
@@ -3650,6 +3697,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("SystemStatementSegment").to_matchable(),
                 Ref::new("RenameStatementSegment").to_matchable(),
                 Ref::new("AlterTableStatementSegment").to_matchable(),
+                Ref::new("ExchangeTablesStatementSegment").to_matchable(),
+                Ref::new("ExchangeDictionariesStatementSegment").to_matchable(),
                 Ref::new("TruncateDatabaseStatementSegment").to_matchable(),
             ]),
             None,

@@ -1148,6 +1148,8 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | TextimageOnOptionStatement
         | ThrowStatement
         | TraceLevelEquals
+        | ExchangeDictionariesStatement
+        | ExchangeTablesStatement
         | TruncateDatabase
         | TruncateTable
         | TryCatch

@@ -2788,6 +2788,32 @@ pub fn raw_dialect() -> Dialect {
         Nothing::new().to_matchable().into(),
     )]);
 
+    // Dialect extension points for ALTER TABLE. MySQL keeps these forms as-is;
+    // MariaDB replaces them with its conditional and index variants.
+    mysql.add([
+        (
+            "AlterTableConstraintSegment".into(),
+            Ref::new("TableConstraintSegment").to_matchable().into(),
+        ),
+        (
+            "AlterTableIfExistsGrammar".into(),
+            Nothing::new().to_matchable().into(),
+        ),
+        (
+            "AlterTableIndexKeywordGrammar".into(),
+            Ref::keyword("INDEX").to_matchable().into(),
+        ),
+        (
+            "AlterTableIndexStateGrammar".into(),
+            one_of(vec![
+                Ref::keyword("VISIBLE").to_matchable(),
+                Ref::keyword("INVISIBLE").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
     // AlterTableStatementSegment.
     mysql.replace_grammar(
         "AlterTableStatementSegment",
@@ -2863,6 +2889,9 @@ pub fn raw_dialect() -> Dialect {
                     Sequence::new(vec![
                         Ref::keyword("MODIFY").to_matchable(),
                         Ref::keyword("COLUMN").optional().to_matchable(),
+                        Ref::new("AlterTableIfExistsGrammar")
+                            .optional()
+                            .to_matchable(),
                         Ref::new("ColumnDefinitionSegment").to_matchable(),
                         one_of(vec![
                             Ref::keyword("FIRST").to_matchable(),
@@ -2880,13 +2909,16 @@ pub fn raw_dialect() -> Dialect {
                     // ADD constraint
                     Sequence::new(vec![
                         Ref::keyword("ADD").to_matchable(),
-                        Ref::new("TableConstraintSegment").to_matchable(),
+                        Ref::new("AlterTableConstraintSegment").to_matchable(),
                     ])
                     .to_matchable(),
                     // CHANGE column
                     Sequence::new(vec![
                         Ref::keyword("CHANGE").to_matchable(),
                         Ref::keyword("COLUMN").optional().to_matchable(),
+                        Ref::new("AlterTableIfExistsGrammar")
+                            .optional()
+                            .to_matchable(),
                         Ref::new("ColumnReferenceSegment").to_matchable(),
                         Ref::new("ColumnDefinitionSegment").to_matchable(),
                         one_of(vec![
@@ -2907,6 +2939,9 @@ pub fn raw_dialect() -> Dialect {
                         one_of(vec![
                             Sequence::new(vec![
                                 Ref::keyword("COLUMN").optional().to_matchable(),
+                                Ref::new("AlterTableIfExistsGrammar")
+                                    .optional()
+                                    .to_matchable(),
                                 Ref::new("ColumnReferenceSegment").to_matchable(),
                             ])
                             .to_matchable(),
@@ -2917,12 +2952,18 @@ pub fn raw_dialect() -> Dialect {
                                 ])
                                 .config(|this| this.optional())
                                 .to_matchable(),
+                                Ref::new("AlterTableIfExistsGrammar")
+                                    .optional()
+                                    .to_matchable(),
                                 Ref::new("IndexReferenceSegment").to_matchable(),
                             ])
                             .to_matchable(),
                             Ref::new("PrimaryKeyGrammar").to_matchable(),
                             Sequence::new(vec![
                                 Ref::new("ForeignKeyGrammar").to_matchable(),
+                                Ref::new("AlterTableIfExistsGrammar")
+                                    .optional()
+                                    .to_matchable(),
                                 Ref::new("ObjectReferenceSegment").to_matchable(),
                             ])
                             .to_matchable(),
@@ -2932,6 +2973,9 @@ pub fn raw_dialect() -> Dialect {
                                     Ref::keyword("CONSTRAINT").to_matchable(),
                                 ])
                                 .to_matchable(),
+                                Ref::new("AlterTableIfExistsGrammar")
+                                    .optional()
+                                    .to_matchable(),
                                 Ref::new("ObjectReferenceSegment").to_matchable(),
                             ])
                             .to_matchable(),
@@ -2962,13 +3006,12 @@ pub fn raw_dialect() -> Dialect {
                     // ALTER INDEX
                     Sequence::new(vec![
                         Ref::keyword("ALTER").to_matchable(),
-                        Ref::keyword("INDEX").to_matchable(),
+                        Ref::new("AlterTableIndexKeywordGrammar").to_matchable(),
+                        Ref::new("AlterTableIfExistsGrammar")
+                            .optional()
+                            .to_matchable(),
                         Ref::new("IndexReferenceSegment").to_matchable(),
-                        one_of(vec![
-                            Ref::keyword("VISIBLE").to_matchable(),
-                            Ref::keyword("INVISIBLE").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("AlterTableIndexStateGrammar").to_matchable(),
                     ])
                     .to_matchable(),
                     // RENAME

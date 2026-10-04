@@ -254,3 +254,27 @@ file:
         - raw_comparison_operator: =
       - quoted_literal: '''amazing comment'''
 - statement_terminator: ;
+- statement:
+  - create_stream_statement:
+    - keyword: CREATE
+    - keyword: STREAM
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+      - naked_identifier: dynamic_table_stream
+    - keyword: ON
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - object_reference:
+      - naked_identifier: dynamic_table_name
+    - keyword: APPEND_ONLY
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - boolean_literal: 'FALSE'
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''amazing comment'''
+- statement_terminator: ;

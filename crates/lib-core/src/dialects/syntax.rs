@@ -635,6 +635,7 @@ pub enum SyntaxKind {
     ForInStatement,
     ForInStatements,
     ForLoopStatement,
+    ForPortionOfClause,
     ForSystemTimeAsOfSegment,
     ForallStatement,
     FormatClause,

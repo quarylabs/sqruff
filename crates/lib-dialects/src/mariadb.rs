@@ -366,14 +366,38 @@ pub fn raw_dialect() -> Dialect {
 
     mariadb.replace_grammar(
         "AddDropSystemVersioningGrammar",
-        Sequence::new(vec![
-            one_of(vec![
-                Ref::keyword("ADD").to_matchable(),
-                Ref::keyword("DROP").to_matchable(),
+        one_of(vec![
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("ADD").to_matchable(),
+                    Ref::keyword("DROP").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("SYSTEM").to_matchable(),
+                Ref::keyword("VERSIONING").to_matchable(),
             ])
             .to_matchable(),
-            Ref::keyword("SYSTEM").to_matchable(),
-            Ref::keyword("VERSIONING").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("ADD").to_matchable(),
+                Ref::keyword("PERIOD").to_matchable(),
+                Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                Ref::keyword("FOR").to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("PERIOD").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Ref::keyword("FOR").to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+            ])
+            .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -387,13 +411,143 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // Application-time UNIQUE and PRIMARY KEY definitions may include WITHOUT OVERLAPS.
+    mariadb.replace_grammar(
+        "BracketedKeyPartListGrammar",
+        Bracketed::new(vec![
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("ColumnReferenceSegment").to_matchable(),
+                            Ref::new("IndexColumnPrefixLengthSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("ColumnReferenceSegment").to_matchable(),
+                        Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ASC").to_matchable(),
+                        Ref::keyword("DESC").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITHOUT").to_matchable(),
+                        Ref::keyword("OVERLAPS").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    mariadb.add([
+        (
+            "TemporalQuerySegment".into(),
+            NodeMatcher::new(SyntaxKind::TemporalQuery, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::keyword("SYSTEM_TIME").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("ALL").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("AS").to_matchable(),
+                            Ref::keyword("OF").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("BETWEEN").to_matchable(),
+                            Ref::new("Expression_B_Grammar").to_matchable(),
+                            Ref::keyword("AND").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("FROM").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ForPortionOfSegment".into(),
+            NodeMatcher::new(SyntaxKind::ForPortionOfClause, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("FOR").to_matchable(),
+                    Ref::keyword("PORTION").to_matchable(),
+                    Ref::keyword("OF").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    Ref::keyword("TO").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "PeriodSegment".into(),
+            NodeMatcher::new(SyntaxKind::PeriodSegment, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("PERIOD").to_matchable(),
+                    Ref::keyword("FOR").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("SYSTEM_TIME").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+    ]);
+
+    let table_constraint = mariadb.grammar("TableConstraintSegment");
+    let mysql_table_constraint = table_constraint
+        .as_node_matcher_ref()
+        .expect("MySQL table constraint is a node matcher")
+        .match_grammar(&mariadb);
+    mariadb.replace_grammar(
+        "TableConstraintSegment",
+        one_of(vec![
+            Ref::new("PeriodSegment").to_matchable(),
+            mysql_table_constraint,
+        ])
+        .to_matchable(),
+    );
+
     mariadb.replace_grammar("TableOptionsSegment", mariadb_table_options_grammar());
 
     // MariaDB additionally supports PERSISTENT generated columns.
     // https://mariadb.com/kb/en/generated-columns/
     mariadb.replace_grammar(
         "ColumnConstraintSegment",
-        mysql::column_constraint_grammar(true),
+        mysql::column_constraint_grammar(true, true),
     );
 
     // MariaDB's INSERT, single-table DELETE, and REPLACE statements support a
@@ -423,7 +577,11 @@ pub fn raw_dialect() -> Dialect {
     )]);
     mariadb.replace_grammar(
         "DeleteStatementSegment",
-        mysql::delete_statement_grammar(true),
+        mysql::delete_statement_grammar(true, true),
+    );
+    mariadb.replace_grammar(
+        "UpdateStatementSegment",
+        mysql::update_statement_grammar(true),
     );
     mariadb.replace_grammar(
         "InsertStatementSegment",

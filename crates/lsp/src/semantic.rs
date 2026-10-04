@@ -405,6 +405,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | WktGeometryType
         | IntoClause
         | ForClause
+        | ForPortionOfClause
         | AlterRoleStatement
         | ExplainOption
         | CreateTableAsStatement

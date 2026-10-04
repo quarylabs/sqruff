@@ -218,7 +218,7 @@ pub fn raw_dialect() -> Dialect {
     doris.replace_grammar(
         "ColumnConstraintSegment",
         one_of(vec![
-            mysql::column_constraint_grammar(false),
+            mysql::column_constraint_grammar(false, false),
             Sequence::new(vec![
                 Ref::keyword("AS").to_matchable(),
                 Ref::new("ExpressionSegment").to_matchable(),

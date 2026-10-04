@@ -95,6 +95,92 @@ fn mariadb_table_options_grammar() -> Matchable {
     ])
 }
 
+/// The MariaDB-only partitioning clause for system-versioned table history.
+fn system_time_partition_grammar() -> Matchable {
+    Sequence::new(vec![
+        Ref::keyword("PARTITION").to_matchable(),
+        Ref::keyword("BY").to_matchable(),
+        Ref::keyword("SYSTEM_TIME").to_matchable(),
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("INTERVAL").to_matchable(),
+                Ref::new("NumericLiteralSegment").to_matchable(),
+                Ref::new("DatetimeUnitSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("STARTS").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("LIMIT").to_matchable(),
+                Ref::new("NumericLiteralSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        Ref::keyword("AUTO").optional().to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("PARTITIONS").to_matchable(),
+            Ref::new("NumericLiteralSegment").to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("SUBPARTITION").to_matchable(),
+            Ref::keyword("BY").to_matchable(),
+            Ref::keyword("LINEAR").optional().to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("HASH").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("KEY").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("SUBPARTITIONS").to_matchable(),
+                Ref::new("NumericLiteralSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        Bracketed::new(vec![
+            Delimited::new(vec![
+                Sequence::new(vec![
+                    Ref::keyword("PARTITION").to_matchable(),
+                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("HISTORY").to_matchable(),
+                        Ref::keyword("CURRENT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+    ])
+    .to_matchable()
+}
+
 fn optionally_delimited_table_options(options: Vec<Matchable>) -> Matchable {
     Delimited::new(vec![one_of(options).to_matchable()])
         .config(|this| this.optional_delimiter())
@@ -369,6 +455,39 @@ pub fn raw_dialect() -> Dialect {
             mariadb.sets_mut("reserved_keywords").insert(kw);
         }
     }
+
+    mariadb.add([(
+        "SystemTimePartitionSegment".into(),
+        NodeMatcher::new(SyntaxKind::SystemTimePartition, |_| {
+            system_time_partition_grammar()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
+    // Preserve the inherited MySQL CREATE TABLE grammar, inserting this
+    // MariaDB-only clause into its trailing table-option alternatives.
+    let create_table = mariadb
+        .grammar("CreateTableStatementSegment")
+        .as_node_matcher_ref()
+        .expect("MySQL CREATE TABLE is a node matcher")
+        .match_grammar(&mariadb);
+    let mut create_table_elements = create_table.elements().to_vec();
+    let table_options = create_table_elements
+        .pop()
+        .expect("CREATE TABLE ends with table options");
+    create_table_elements.push(table_options.copy(
+        Some(vec![Ref::new("SystemTimePartitionSegment").to_matchable()]),
+        Some(0),
+        None,
+        None,
+        Vec::new(),
+        false,
+    ));
+    mariadb.replace_grammar(
+        "CreateTableStatementSegment",
+        Sequence::new(create_table_elements).to_matchable(),
+    );
 
     mariadb.replace_grammar(
         "AddDropSystemVersioningGrammar",

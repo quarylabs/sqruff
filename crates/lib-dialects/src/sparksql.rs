@@ -3666,6 +3666,36 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
         (
+            "SetConfigValueSegment".into(),
+            NodeMatcher::new(SyntaxKind::SetConfigValue, |_| {
+                one_of(vec![
+                    Ref::new("LiteralGrammar").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("LiteralGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("FunctionSegment").to_matchable(),
+                    Ref::new("BareFunctionSegment").to_matchable(),
+                    Delimited::new(vec![
+                        Ref::new("PropertiesNakedIdentifierSegment").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.delimiter(Ref::new("DotSegment"));
+                        config.min_delimiters = 1;
+                    })
+                    .to_matchable(),
+                    Anything::new()
+                        .terminators(vec![Ref::new("DelimiterGrammar").to_matchable()])
+                        .reset_terminators()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "SetStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::SetStatement, |_| {
                 Sequence::new(vec![
@@ -3674,7 +3704,12 @@ pub fn raw_dialect() -> Dialect {
                         .optional()
                         .to_matchable(),
                     one_of(vec![
-                        Ref::new("PropertyListGrammar").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("PropertyNameSegment").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("SetConfigValueSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                         Ref::new("PropertyNameSegment").to_matchable(),
                     ])
                     .config(|config| {

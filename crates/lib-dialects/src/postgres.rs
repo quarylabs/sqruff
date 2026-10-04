@@ -1865,7 +1865,11 @@ pub fn raw_dialect() -> Dialect {
                                     Ref::new("DatatypeSegment").to_matchable(),
                                     Sequence::new(vec![
                                         Ref::new("ColumnReferenceSegment").to_matchable(),
-                                        Ref::new("DatatypeSegment").to_matchable(),
+                                        one_of(vec![
+                                            Ref::new("DatatypeSegment").to_matchable(),
+                                            Ref::new("ColumnTypeReferenceSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
                                     ])
                                     .to_matchable(),
                                 ])

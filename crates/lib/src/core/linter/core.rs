@@ -602,7 +602,14 @@ impl Linter {
 
         // If we are fixing then we want to loop up to the runaway_limit, otherwise just
         // once for linting.
-        let loop_limit = if fix { 10 } else { 1 };
+        let loop_limit = if fix {
+            self.config
+                .get("runaway_limit", "core")
+                .as_int()
+                .expect("runaway_limit must be validated") as usize
+        } else {
+            1
+        };
         // Look for comment segments which might indicate lines to ignore.
         let (ignore_mask, violations): (Option<IgnoreMask>, Vec<SQLBaseError>) = {
             let disable_noqa = self

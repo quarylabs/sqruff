@@ -1,8 +1,9 @@
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashMap;
 use itertools::{Itertools, chain};
 use smol_str::StrExt;
 use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
 use sqruff_lib_core::lint_fix::LintFix;
+use sqruff_lib_core::parser::parsers::CaseFold;
 use sqruff_lib_core::parser::segments::{ErasedSegment, SegmentBuilder};
 use sqruff_lib_core::utils::functional::segments::Segments;
 
@@ -11,6 +12,12 @@ use crate::core::rules::context::RuleContext;
 use crate::core::rules::crawlers::{Crawler, SegmentSeekerCrawler};
 use crate::core::rules::{Erased, ErasedRule, LintResult, Rule, RuleGroups};
 use crate::utils::functional::context::FunctionalContext;
+
+#[derive(PartialEq, Eq)]
+enum SegmentIdentity {
+    Node(SyntaxKind, Vec<SegmentIdentity>),
+    Leaf(SyntaxKind, String),
+}
 
 #[derive(Default, Debug, Clone)]
 pub struct RuleST02;
@@ -162,22 +169,11 @@ from fancy_table
                 }
             }
 
-            let condition_expression_segments_raw: HashSet<_> = HashSet::from_iter(
-                condition_expression
-                    .segments()
-                    .iter()
-                    .map(|segment| segment.raw().to_uppercase_smolstr()),
-            );
-
-            if condition_expression_segments_raw.contains("IS")
-                && condition_expression_segments_raw.contains("NULL")
-                && condition_expression_segments_raw
-                    .intersection(&HashSet::from_iter(["AND".into(), "OR".into()]))
-                    .next()
-                    .is_none()
+            if let Some(is_segment_index) = condition_expression
+                .segments()
+                .iter()
+                .position(|segment| segment.raw().eq_ignore_ascii_case("IS"))
             {
-                let is_not_prefix = condition_expression_segments_raw.contains("NOT");
-
                 let tmp = Segments::new(condition_expression.clone(), None)
                     .children_where(|it| it.is_type(SyntaxKind::ColumnReference));
 
@@ -185,18 +181,51 @@ from fancy_table
                     return Vec::new();
                 };
 
-                let array_accessor_segment = Segments::new(condition_expression.clone(), None)
-                    .children_where(|it: &ErasedSegment| it.is_type(SyntaxKind::ArrayAccessor))
-                    .first()
-                    .cloned();
+                let condition_operand_segments = condition_expression.segments()
+                    [..is_segment_index]
+                    .iter()
+                    .filter(|segment| !segment.is_whitespace() && !segment.is_meta())
+                    .collect_vec();
+                if condition_operand_segments.is_empty()
+                    || condition_operand_segments.iter().any(|segment| {
+                        !segment.is_type(SyntaxKind::ColumnReference)
+                            && !segment.is_type(SyntaxKind::ArrayAccessor)
+                    })
+                {
+                    return Vec::new();
+                }
 
-                let column_reference_segment_raw_upper = match array_accessor_segment {
-                    Some(array_accessor_segment) => {
-                        column_reference_segment.raw().to_uppercase()
-                            + &array_accessor_segment.raw().to_uppercase()
+                let comparison_segments = condition_expression.segments()[is_segment_index + 1..]
+                    .iter()
+                    .filter(|segment| !segment.is_whitespace() && !segment.is_meta())
+                    .collect_vec();
+                let is_not_prefix = match comparison_segments.as_slice() {
+                    [null] if null.raw().eq_ignore_ascii_case("NULL") => false,
+                    [not, null]
+                        if not.raw().eq_ignore_ascii_case("NOT")
+                            && null.raw().eq_ignore_ascii_case("NULL") =>
+                    {
+                        true
                     }
-                    None => column_reference_segment.raw().to_uppercase(),
+                    _ => return Vec::new(),
                 };
+
+                if condition_operand_segments.iter().any(|segment| {
+                    segment.is_type(SyntaxKind::ArrayAccessor)
+                        && !Self::is_static_array_accessor(segment)
+                }) {
+                    return Vec::new();
+                }
+
+                let casefold = context
+                    .dialect
+                    .grammar("NakedIdentifierSegment")
+                    .as_regex()
+                    .and_then(|parser| parser.casefold);
+                let condition_operand_identity = condition_operand_segments
+                    .iter()
+                    .map(|segment| Self::segment_identity(segment, casefold))
+                    .collect_vec();
 
                 if !else_clauses.is_empty() {
                     let else_expression = else_clauses
@@ -204,13 +233,13 @@ from fancy_table
                         .clone();
 
                     let (coalesce_arg_1, coalesce_arg_2) = if !is_not_prefix
-                        && column_reference_segment_raw_upper
-                            == else_expression.raw().to_uppercase_smolstr()
+                        && condition_operand_identity
+                            == Self::expression_identity(&else_expression, casefold)
                     {
                         (else_expression, then_expression)
                     } else if is_not_prefix
-                        && column_reference_segment_raw_upper
-                            == then_expression.raw().to_uppercase_smolstr()
+                        && condition_operand_identity
+                            == Self::expression_identity(&then_expression, casefold)
                     {
                         (then_expression, else_expression)
                     } else {
@@ -218,8 +247,7 @@ from fancy_table
                     };
 
                     if coalesce_arg_2.raw().eq_ignore_ascii_case("NULL") {
-                        let fixes =
-                            Self::column_only_fix_list(context, column_reference_segment.clone());
+                        let fixes = Self::column_only_fix_list(context, coalesce_arg_1);
                         return vec![LintResult::new(
                             condition_expression.into(),
                             fixes,
@@ -239,12 +267,11 @@ from fancy_table
                             .into(),
                         None,
                     )];
-                } else if column_reference_segment
-                    .raw()
-                    .eq_ignore_ascii_case(then_expression.raw())
+                } else if is_not_prefix
+                    && condition_operand_identity
+                        == Self::expression_identity(&then_expression, casefold)
                 {
-                    let fixes =
-                        Self::column_only_fix_list(context, column_reference_segment.clone());
+                    let fixes = Self::column_only_fix_list(context, then_expression);
 
                     return vec![LintResult::new(
                         condition_expression.into(),
@@ -271,6 +298,62 @@ from fancy_table
 }
 
 impl RuleST02 {
+    fn segment_identity(segment: &ErasedSegment, casefold: Option<CaseFold>) -> SegmentIdentity {
+        if segment.segments().is_empty() {
+            let normalized = segment.raw_normalized().to_string();
+            let normalized = if matches!(
+                segment.get_type(),
+                SyntaxKind::NakedIdentifier
+                    | SyntaxKind::NakedIdentifierAll
+                    | SyntaxKind::Identifier
+                    | SyntaxKind::PropertiesNakedIdentifier
+            ) {
+                casefold.map_or_else(|| normalized.clone(), |fold| fold.apply(&normalized))
+            } else {
+                normalized
+            };
+            SegmentIdentity::Leaf(segment.get_type(), normalized)
+        } else {
+            SegmentIdentity::Node(
+                segment.get_type(),
+                segment
+                    .segments()
+                    .iter()
+                    .filter(|child| !child.is_whitespace() && !child.is_meta())
+                    .map(|child| Self::segment_identity(child, casefold))
+                    .collect(),
+            )
+        }
+    }
+
+    fn expression_identity(
+        expression: &ErasedSegment,
+        casefold: Option<CaseFold>,
+    ) -> Vec<SegmentIdentity> {
+        expression
+            .segments()
+            .iter()
+            .filter(|segment| !segment.is_whitespace() && !segment.is_meta())
+            .map(|segment| Self::segment_identity(segment, casefold))
+            .collect()
+    }
+
+    fn is_static_array_accessor(accessor: &ErasedSegment) -> bool {
+        accessor.recursive_crawl_all(false).iter().all(|child| {
+            !child.is_code()
+                || matches!(
+                    child.get_type(),
+                    SyntaxKind::ArrayAccessor
+                        | SyntaxKind::StartSquareBracket
+                        | SyntaxKind::EndSquareBracket
+                        | SyntaxKind::NumericLiteral
+                        | SyntaxKind::IntegerLiteral
+                        | SyntaxKind::QuotedLiteral
+                        | SyntaxKind::Literal
+                )
+        })
+    }
+
     fn coalesce_fix_list(
         context: &RuleContext,
         coalesce_arg_1: ErasedSegment,
@@ -325,11 +408,11 @@ impl RuleST02 {
 
     fn column_only_fix_list(
         context: &RuleContext,
-        column_reference_segment: ErasedSegment,
+        replacement_segment: ErasedSegment,
     ) -> Vec<LintFix> {
         vec![LintFix::replace(
             context.segment.clone(),
-            vec![column_reference_segment],
+            vec![replacement_segment],
             None,
         )]
     }

@@ -76,5 +76,6 @@ file:
       - properties_naked_identifier: enableChangeDataFeed
     - comparison_operator:
       - raw_comparison_operator: =
-    - boolean_literal: 'true'
+    - set_config_value:
+      - boolean_literal: 'true'
 - statement_terminator: ;

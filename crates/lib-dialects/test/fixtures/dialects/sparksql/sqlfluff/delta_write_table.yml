@@ -61,7 +61,8 @@ file:
       - properties_naked_identifier: userMetadata
     - comparison_operator:
       - raw_comparison_operator: =
-    - quoted_literal: '"overwritten-for-fixing-incorrect-data"'
+    - set_config_value:
+      - quoted_literal: '"overwritten-for-fixing-incorrect-data"'
 - statement_terminator: ;
 - statement:
   - insert_statement:

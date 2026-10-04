@@ -340,6 +340,64 @@ fn dialects() {
 }
 
 #[test]
+fn sparksql_set_config_values() {
+    for dialect_kind in [DialectKind::Sparksql, DialectKind::Databricks] {
+        let dialect = kind_to_dialect(&dialect_kind, None).unwrap();
+        let tables = Tables::default();
+        let lexer = Lexer::from(&dialect);
+        let parser = Parser::from(&dialect);
+
+        for (sql, expected_value) in [
+            ("SET c_date = CURRENT_DATE();", "CURRENT_DATE()"),
+            (
+                "SET path = s3a://bucket/path/to/data;",
+                "s3a://bucket/path/to/data",
+            ),
+            ("SET key = a-b;", "a-b"),
+            (
+                "SET spark.sql.sources.partitionOverwriteMode = dynamic,static;",
+                "dynamic,static",
+            ),
+            ("SET key = foo bar;", "foo bar"),
+            ("SET key = values;", "values"),
+            ("SET key = comment;", "comment"),
+            ("SET key = declare;", "declare"),
+        ] {
+            let (tokens, lex_errors) = lexer.lex(&tables, sql);
+            assert!(lex_errors.is_empty(), "{dialect_kind:?}: {sql}");
+            let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+            assert!(
+                check_no_unparsable_segments(&tree).is_empty(),
+                "{dialect_kind:?}: {sql}"
+            );
+            let values = tree
+                .recursive_crawl_all(false)
+                .into_iter()
+                .filter(|segment| segment.is_type(SyntaxKind::SetConfigValue))
+                .map(|segment| segment.raw().to_string())
+                .collect::<Vec<_>>();
+            assert_eq!(values, [expected_value], "{dialect_kind:?}: {sql}");
+        }
+
+        let sql = "SET key = 200; DROP TABLE t;";
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{dialect_kind:?}: {sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(
+            check_no_unparsable_segments(&tree).is_empty(),
+            "{dialect_kind:?}: {sql}"
+        );
+        let values = tree
+            .recursive_crawl_all(false)
+            .into_iter()
+            .filter(|segment| segment.is_type(SyntaxKind::SetConfigValue))
+            .map(|segment| segment.raw().to_string())
+            .collect::<Vec<_>>();
+        assert_eq!(values, ["200"], "{dialect_kind:?}: {sql}");
+    }
+}
+
+#[test]
 fn bigquery_cast_as_float_is_unparsable() {
     let dialect = kind_to_dialect(&DialectKind::Bigquery, None).unwrap();
     let tables = Tables::default();

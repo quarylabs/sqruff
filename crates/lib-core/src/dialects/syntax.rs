@@ -1145,6 +1145,7 @@ pub enum SyntaxKind {
     SessionParameter,
     SetClause,
     SetClauseList,
+    SetConfigValue,
     SetConstraintStatement,
     SetContextInfoStatement,
     SetDefaultRoleStatement,

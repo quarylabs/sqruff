@@ -565,6 +565,8 @@ pub enum SyntaxKind {
     EscapedSingleQuote,
     ExceptionBlockStatement,
     ExceptionCode,
+    ExchangeDictionariesStatement,
+    ExchangeTablesStatement,
     ExcludeBracketClose,
     ExcludeBracketOpen,
     ExclusionConstraintElement,

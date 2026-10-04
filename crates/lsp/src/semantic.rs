@@ -1108,6 +1108,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | SequenceReference
         | SerdeMethod
         | ServiceObjective
+        | SetConfigValue
         | SetConstraintStatement
         | SetContextInfoStatement
         | SetLanguageStatement

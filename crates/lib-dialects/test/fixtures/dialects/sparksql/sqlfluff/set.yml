@@ -12,7 +12,8 @@ file:
       - properties_naked_identifier: substitute
     - comparison_operator:
       - raw_comparison_operator: =
-    - boolean_literal: 'FALSE'
+    - set_config_value:
+      - boolean_literal: 'FALSE'
 - statement_terminator: ;
 - statement:
   - set_statement:
@@ -50,19 +51,20 @@ file:
       - properties_naked_identifier: serializer
     - comparison_operator:
       - raw_comparison_operator: =
-    - properties_naked_identifier: org
-    - dot: .
-    - properties_naked_identifier: apache
-    - dot: .
-    - properties_naked_identifier: spark
-    - dot: .
-    - properties_naked_identifier: sql
-    - dot: .
-    - properties_naked_identifier: execution
-    - dot: .
-    - properties_naked_identifier: columnar
-    - dot: .
-    - properties_naked_identifier: DefaultCachedBatchSerializer
+    - set_config_value:
+      - properties_naked_identifier: org
+      - dot: .
+      - properties_naked_identifier: apache
+      - dot: .
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: execution
+      - dot: .
+      - properties_naked_identifier: columnar
+      - dot: .
+      - properties_naked_identifier: DefaultCachedBatchSerializer
 - statement_terminator: ;
 - statement:
   - set_statement:
@@ -71,10 +73,11 @@ file:
       - properties_naked_identifier: foo
     - comparison_operator:
       - raw_comparison_operator: =
-    - bracketed:
-      - start_bracket: (
-      - numeric_literal: '1'
-      - comma: ','
-      - numeric_literal: '3'
-      - end_bracket: )
+    - set_config_value:
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '3'
+        - end_bracket: )
 - statement_terminator: ;

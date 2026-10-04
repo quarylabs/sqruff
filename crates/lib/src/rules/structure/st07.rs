@@ -122,8 +122,23 @@ INNER JOIN table_b
 
         let (to_delete, insert_after_anchor) = extract_deletion_sequence_and_anchor(&segment);
 
-        let [table_a, table_b, ..] = &table_aliases[..] else {
-            unreachable!()
+        // The first two SELECT aliases might not be the tables joined here,
+        // e.g. `FROM a, b JOIN c USING (id)` joins b to c.
+        let left_element = tables_in_join.first();
+        let right_element = segment
+            .children_where(|it: &ErasedSegment| it.is_type(SyntaxKind::FromExpressionElement));
+        let table_a = left_element.and_then(|element| {
+            table_aliases
+                .iter()
+                .find(|alias| alias.from_expression_element.id() == element.id())
+        });
+        let table_b = right_element.first().and_then(|element| {
+            table_aliases
+                .iter()
+                .find(|alias| alias.from_expression_element.id() == element.id())
+        });
+        let (Some(table_a), Some(table_b)) = (table_a, table_b) else {
+            return vec![unfixable_result];
         };
 
         let mut edit_segments = vec![

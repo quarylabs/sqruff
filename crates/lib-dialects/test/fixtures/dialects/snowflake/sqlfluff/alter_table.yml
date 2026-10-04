@@ -27,9 +27,10 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: my_existing_table
-    - keyword: ADD
-    - keyword: SEARCH
-    - keyword: OPTIMIZATION
+    - search_optimization_action:
+      - keyword: ADD
+      - keyword: SEARCH
+      - keyword: OPTIMIZATION
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -37,9 +38,10 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: my_existing_table
-    - keyword: DROP
-    - keyword: SEARCH
-    - keyword: OPTIMIZATION
+    - search_optimization_action:
+      - keyword: DROP
+      - keyword: SEARCH
+      - keyword: OPTIMIZATION
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -429,12 +431,24 @@ file:
       - keyword: DROP
       - keyword: CONSTRAINT
       - naked_identifier: constraint1
+- statement_terminator: ;
+- statement:
+  - alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: table1
+    - alter_table_constraint_action:
+      - keyword: DROP
       - keyword: UNIQUE
-      - column_reference:
-        - naked_identifier: pk_col
-      - comma: ','
-      - column_reference:
-        - naked_identifier: pk_col2
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: pk_col
+        - comma: ','
+        - column_reference:
+          - naked_identifier: pk_col2
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
   - alter_table_statement:
@@ -714,11 +728,10 @@ file:
     - keyword: TABLE
     - table_reference:
       - naked_identifier: table1
-    - alter_table_table_column_action:
+    - alter_table_constraint_action:
       - keyword: DROP
       - keyword: CONSTRAINT
-      - object_reference:
-        - naked_identifier: my_constraint
+      - naked_identifier: my_constraint
 - statement_terminator: ;
 - statement:
   - alter_table_statement:

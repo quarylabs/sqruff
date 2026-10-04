@@ -577,7 +577,35 @@ pub fn raw_dialect() -> Dialect {
     )]);
     mariadb.replace_grammar(
         "DeleteStatementSegment",
-        mysql::delete_statement_grammar(true, true),
+        one_of(vec![
+            // System-versioned history purges are distinct from ordinary DELETE:
+            // LOW_PRIORITY, QUICK, and IGNORE do not apply to this form.
+            Sequence::new(vec![
+                Ref::keyword("DELETE").to_matchable(),
+                Ref::keyword("HISTORY").to_matchable(),
+                Ref::keyword("FROM").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::new("SelectPartitionClauseSegment")
+                    .optional()
+                    .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("BEFORE").to_matchable(),
+                    Ref::keyword("SYSTEM_TIME").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("TIMESTAMP").to_matchable(),
+                        Ref::keyword("TRANSACTION").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            mysql::delete_statement_grammar(true, true),
+        ])
+        .to_matchable(),
     );
     mariadb.replace_grammar(
         "UpdateStatementSegment",

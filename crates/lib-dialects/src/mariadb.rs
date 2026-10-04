@@ -13,7 +13,7 @@ use sqruff_lib_core::parser::grammar::Ref;
 use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, any_set_of, one_of};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
-use sqruff_lib_core::parser::matchable::Matchable;
+use sqruff_lib_core::parser::matchable::{Matchable, MatchableTrait};
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -895,6 +895,27 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable(),
         ])
         .to_matchable(),
+    );
+
+    // MariaDB allows IF EXISTS after ALTER TABLE and after DROP PARTITION.
+    mariadb.replace_grammar(
+        "AlterTablePartitionActionGrammar",
+        mysql::alter_table_partition_action_grammar(true),
+    );
+    let alter_table_grammar = mariadb
+        .grammar("AlterTableStatementSegment")
+        .match_grammar(&mariadb)
+        .expect("MySQL ALTER TABLE has a grammar");
+    mariadb.replace_grammar(
+        "AlterTableStatementSegment",
+        alter_table_grammar.copy(
+            Some(vec![Ref::new("IfExistsGrammar").optional().to_matchable()]),
+            None,
+            Some(Ref::new("TableReferenceSegment").to_matchable()),
+            None,
+            vec![],
+            false,
+        ),
     );
 
     // `FLUSH` statement.

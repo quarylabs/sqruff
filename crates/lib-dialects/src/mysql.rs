@@ -2861,6 +2861,11 @@ pub fn raw_dialect() -> Dialect {
         ),
     ]);
 
+    mysql.add([(
+        "AlterTablePartitionActionGrammar".into(),
+        alter_table_partition_action_grammar(false).into(),
+    )]);
+
     // AlterTableStatementSegment.
     mysql.replace_grammar(
         "AlterTableStatementSegment",
@@ -3122,67 +3127,9 @@ pub fn raw_dialect() -> Dialect {
             ])
             .config(|this| this.optional())
             .to_matchable(),
-            Sequence::new(vec![
-                one_of(vec![
-                    Ref::keyword("ADD").to_matchable(),
-                    Ref::keyword("DROP").to_matchable(),
-                    Ref::keyword("DISCARD").to_matchable(),
-                    Ref::keyword("IMPORT").to_matchable(),
-                    Ref::keyword("TRUNCATE").to_matchable(),
-                    Ref::keyword("COALESCE").to_matchable(),
-                    Ref::keyword("REORGANIZE").to_matchable(),
-                    Ref::keyword("EXCHANGE").to_matchable(),
-                    Ref::keyword("ANALYZE").to_matchable(),
-                    Ref::keyword("CHECK").to_matchable(),
-                    Ref::keyword("OPTIMIZE").to_matchable(),
-                    Ref::keyword("REBUILD").to_matchable(),
-                    Ref::keyword("REPAIR").to_matchable(),
-                    Ref::keyword("REMOVE").to_matchable(),
-                ])
+            Ref::new("AlterTablePartitionActionGrammar")
+                .optional()
                 .to_matchable(),
-                one_of(vec![
-                    Ref::keyword("PARTITION").to_matchable(),
-                    Ref::keyword("PARTITIONING").to_matchable(),
-                ])
-                .to_matchable(),
-                one_of(vec![
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
-                    Ref::new("NumericLiteralSegment").to_matchable(),
-                    Ref::keyword("ALL").to_matchable(),
-                    Bracketed::new(vec![
-                        Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
-                            .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::keyword("TABLESPACE").optional().to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("WITH").to_matchable(),
-                    Ref::keyword("TABLE").to_matchable(),
-                    Ref::new("TableReferenceSegment").to_matchable(),
-                    one_of(vec![
-                        Ref::keyword("WITH").to_matchable(),
-                        Ref::keyword("WITHOUT").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::keyword("VALIDATION").to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("INTO").to_matchable(),
-                    Bracketed::new(vec![
-                        Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
-                            .to_matchable(),
-                    ])
-                    .to_matchable(),
-                ])
-                .config(|this| this.optional())
-                .to_matchable(),
-            ])
-            .config(|this| this.optional())
-            .to_matchable(),
         ])
         .to_matchable(),
     );
@@ -5050,6 +4997,93 @@ pub(crate) fn create_table_options() -> Matchable {
     .to_matchable();
 
     AnyNumberOf::new(vec![table_option(true), partition_by]).to_matchable()
+}
+
+/// Build ALTER TABLE partition actions shared by MySQL and MariaDB. MariaDB
+/// additionally accepts `DROP PARTITION IF EXISTS` with multiple names.
+pub(crate) fn alter_table_partition_action_grammar(allow_drop_if_exists: bool) -> Matchable {
+    let mut other_verbs = vec![
+        Ref::keyword("ADD").to_matchable(),
+        Ref::keyword("DISCARD").to_matchable(),
+        Ref::keyword("IMPORT").to_matchable(),
+        Ref::keyword("TRUNCATE").to_matchable(),
+        Ref::keyword("COALESCE").to_matchable(),
+        Ref::keyword("REORGANIZE").to_matchable(),
+        Ref::keyword("EXCHANGE").to_matchable(),
+        Ref::keyword("ANALYZE").to_matchable(),
+        Ref::keyword("CHECK").to_matchable(),
+        Ref::keyword("OPTIMIZE").to_matchable(),
+        Ref::keyword("REBUILD").to_matchable(),
+        Ref::keyword("REPAIR").to_matchable(),
+        Ref::keyword("REMOVE").to_matchable(),
+    ];
+    if !allow_drop_if_exists {
+        other_verbs.insert(1, Ref::keyword("DROP").to_matchable());
+    }
+    let other_action = Sequence::new(vec![
+        one_of(other_verbs).to_matchable(),
+        one_of(vec![
+            Ref::keyword("PARTITION").to_matchable(),
+            Ref::keyword("PARTITIONING").to_matchable(),
+        ])
+        .to_matchable(),
+        one_of(vec![
+            Ref::new("SingleIdentifierGrammar").to_matchable(),
+            Ref::new("NumericLiteralSegment").to_matchable(),
+            Ref::keyword("ALL").to_matchable(),
+            Bracketed::new(vec![
+                Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    ])
+    .to_matchable();
+    let action = if allow_drop_if_exists {
+        one_of(vec![
+            Sequence::new(vec![
+                Ref::keyword("DROP").to_matchable(),
+                Ref::keyword("PARTITION").to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Delimited::new(vec![Ref::new("SingleIdentifierGrammar").to_matchable()])
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+            other_action,
+        ])
+        .to_matchable()
+    } else {
+        other_action
+    };
+    Sequence::new(vec![
+        action,
+        Ref::keyword("TABLESPACE").optional().to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("WITH").to_matchable(),
+            Ref::keyword("TABLE").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            one_of(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("WITHOUT").to_matchable(),
+            ])
+            .to_matchable(),
+            Ref::keyword("VALIDATION").to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("INTO").to_matchable(),
+            Bracketed::new(vec![
+                Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
+                    .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .config(|this| this.optional())
+        .to_matchable(),
+    ])
+    .to_matchable()
 }
 
 /// Build CREATE VIEW grammar shared by MySQL and MariaDB. Only MariaDB accepts

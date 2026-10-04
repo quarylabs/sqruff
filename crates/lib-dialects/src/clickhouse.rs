@@ -2597,6 +2597,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .into(),
     )]);
 
+    // ClickHouse permits TRUNCATE without TABLE, plus IF EXISTS, ON CLUSTER and SYNC.
+    clickhouse_dialect.add([(
+        "TruncateStatementSegment".into(),
+        NodeMatcher::new(SyntaxKind::TruncateTable, |_| {
+            Sequence::new(vec![
+                Ref::keyword("TRUNCATE").to_matchable(),
+                Ref::keyword("TABLE").optional().to_matchable(),
+                Ref::new("IfExistsGrammar").optional().to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+                Ref::new("OnClusterClauseSegment").optional().to_matchable(),
+                Ref::keyword("SYNC").optional().to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     clickhouse_dialect.replace_grammar(
         "DropTableStatementSegment",
         Sequence::new(vec![

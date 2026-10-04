@@ -11,6 +11,7 @@ use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::StringParser;
+use sqruff_lib_core::parser::types::ParseMode;
 use sqruff_lib_core::value::Value;
 
 use crate::impala_keywords::{RESERVED_KEYWORDS, UNRESERVED_KEYWORDS};
@@ -41,6 +42,37 @@ pub fn raw_dialect() -> Dialect {
             impala.sets_mut("reserved_keywords").insert(keyword);
         }
     }
+
+    impala.replace_grammar(
+        "ValuesClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("VALUES").to_matchable(),
+            Delimited::new(vec![
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("DEFAULT").to_matchable(),
+                                Ref::new("LiteralGrammar").to_matchable(),
+                                Ref::new("ExpressionSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("AliasExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("LiteralGrammar").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.parse_mode(ParseMode::Greedy))
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
 
     impala.replace_grammar(
         "DivideSegment",

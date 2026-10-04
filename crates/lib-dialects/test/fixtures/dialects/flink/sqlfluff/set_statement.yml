@@ -7,3 +7,37 @@ file:
       - raw_comparison_operator: =
     - quoted_literal: '''10d'''
 - statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - naked_identifier: execution
+    - dot: .
+    - naked_identifier: runtime
+    - binary_operator: '-'
+    - naked_identifier: mode
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - naked_identifier: streaming
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - naked_identifier: pipeline
+    - dot: .
+    - naked_identifier: name
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''foo'''
+- statement_terminator: ;
+- statement:
+  - set_statement:
+    - keyword: SET
+    - naked_identifier: execution
+    - dot: .
+    - naked_identifier: checkpointing
+    - dot: .
+    - naked_identifier: mode
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - naked_identifier: EXACTLY_ONCE
+- statement_terminator: ;

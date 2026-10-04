@@ -446,9 +446,8 @@ file:
                 - keyword: CHARACTER
                 - keyword: SET
                 - naked_identifier: LATIN
-            - td_column_attribute_constraint:
-              - keyword: NOT
-              - keyword: CASESPECIFIC
+                - keyword: NOT
+                - keyword: CASESPECIFIC
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'
@@ -579,9 +578,8 @@ file:
                 - keyword: CHARACTER
                 - keyword: SET
                 - naked_identifier: LATIN
-            - td_column_attribute_constraint:
-              - keyword: NOT
-              - keyword: CASESPECIFIC
+                - keyword: NOT
+                - keyword: CASESPECIFIC
             - td_column_attribute_constraint:
               - keyword: COMPRESS
               - bracketed:
@@ -1034,9 +1032,8 @@ file:
                 - keyword: CHARACTER
                 - keyword: SET
                 - naked_identifier: LATIN
-            - td_column_attribute_constraint:
-              - keyword: NOT
-              - keyword: CASESPECIFIC
+                - keyword: NOT
+                - keyword: CASESPECIFIC
             - column_constraint_segment:
               - keyword: NOT
               - keyword: 'NULL'

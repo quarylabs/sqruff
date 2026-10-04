@@ -1148,6 +1148,42 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "ConvertFunctionNameSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionName, |_| {
+                StringParser::new("CONVERT", SyntaxKind::FunctionNameIdentifier).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ConvertFunctionContentsSegment".into(),
+            NodeMatcher::new(SyntaxKind::FunctionContents, |_| {
+                Bracketed::new(vec![
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::new("CommaSegment").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("USING").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("BINARY").to_matchable(),
+                                Ref::new("NakedIdentifierSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     let function_grammar = mysql
@@ -1166,6 +1202,11 @@ pub fn raw_dialect() -> Dialect {
             Sequence::new(vec![
                 Ref::new("JsonValueFunctionNameSegment").to_matchable(),
                 Ref::new("JsonValueFunctionContentsSegment").to_matchable(),
+            ])
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::new("ConvertFunctionNameSegment").to_matchable(),
+                Ref::new("ConvertFunctionContentsSegment").to_matchable(),
             ])
             .to_matchable(),
             function_grammar,

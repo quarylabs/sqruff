@@ -1157,6 +1157,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ExchangeTablesStatement
         | TruncateDatabase
         | TruncateTable
+        | TruncateTables
         | TryCatch
         | TupleTypeSchema
         | UndropSchemaStatement

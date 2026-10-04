@@ -110,6 +110,15 @@ pub fn raw_dialect() -> Dialect {
     );
 
     oracle.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "substitution_variable",
+            r"&&?\d+",
+            SyntaxKind::PositionalSubstitutionVariable,
+        )],
+        "ampersand",
+    );
+
+    oracle.insert_lexer_matchers(
         vec![
             Matcher::string("right_arrow", "=>", SyntaxKind::RightArrow),
             Matcher::string(
@@ -1231,10 +1240,21 @@ pub fn raw_dialect() -> Dialect {
         (
             "SubstitutionVariableSegment".into(),
             NodeMatcher::new(SyntaxKind::SubstitutionVariable, |_| {
-                Sequence::new(vec![
-                    Ref::new("AmpersandSegment").to_matchable(),
-                    Ref::new("AmpersandSegment").optional().to_matchable(),
-                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                one_of(vec![
+                    TypedParser::new(
+                        SyntaxKind::PositionalSubstitutionVariable,
+                        SyntaxKind::PositionalSubstitutionVariable,
+                    )
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("AmpersandSegment").to_matchable(),
+                        Ref::new("AmpersandSegment").optional().to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .config(|config| {
+                        config.allow_gaps = false;
+                    })
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

@@ -1069,6 +1069,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | PipeOperatorClause
         | PipeStatement
         | PivotOperator
+        | PositionalSubstitutionVariable
         | PostTableExpression
         | PostgisOperator
         | PrepareSegment

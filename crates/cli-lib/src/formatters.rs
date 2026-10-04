@@ -27,22 +27,26 @@ pub(crate) struct OutputStreamFormatter {
     plain_output: bool,
     filter_empty: bool,
     verbosity: i32,
+    quiet: bool,
+    suppress_fixable: bool,
     output_line_length: usize,
 }
 
 impl Formatter for OutputStreamFormatter {
     fn dispatch_file_violations(&self, linted_file: &LintedFile) {
-        if self.verbosity < 0 {
-            return;
-        }
-
-        let s = self.format_file_violations(linted_file.path(), linted_file.violations());
+        let violations = linted_file
+            .violations()
+            .iter()
+            .filter(|violation| !self.suppress_fixable || !violation.fixable)
+            .cloned()
+            .collect::<Vec<_>>();
+        let s = self.format_file_violations(linted_file.path(), &violations);
 
         self.dispatch(&s);
     }
 
     fn dispatch_file_skip(&self, fname: &str, reason: &str) {
-        if self.verbosity < 0 {
+        if self.quiet {
             return;
         }
         let filename = self.colorize(fname, LIGHT_GREY);
@@ -51,6 +55,9 @@ impl Formatter for OutputStreamFormatter {
     }
 
     fn completion_message(&self, count: usize) {
+        if self.quiet {
+            return;
+        }
         self.dispatch(&format!("The linter processed {count} file(s).\n"));
         self.dispatch(if self.plain_output {
             "All Finished\n"
@@ -65,12 +72,16 @@ impl OutputStreamFormatter {
         output_stream: Option<Stderr>,
         nocolor: Option<bool>,
         verbosity: i32,
+        quiet: bool,
+        suppress_fixable: bool,
     ) -> Self {
         Self {
             output_stream,
             plain_output: should_produce_plain_output(nocolor),
             filter_empty: true,
             verbosity,
+            quiet,
+            suppress_fixable,
             output_line_length: 80,
         }
     }
@@ -93,7 +104,7 @@ impl OutputStreamFormatter {
         let show = !violations.is_empty();
         let success = violations.iter().all(|violation| violation.warning);
 
-        if self.verbosity > 0 || show {
+        if (self.verbosity > 0 && !self.quiet) || show {
             let text = self.format_filename(fname, success);
             text_buffer.push_str(&text);
             text_buffer.push('\n');
@@ -250,7 +261,7 @@ mod tests {
     }
 
     fn mk_formatter() -> OutputStreamFormatter {
-        OutputStreamFormatter::new(None, None, 0)
+        OutputStreamFormatter::new(None, None, 0, false, false)
     }
 
     #[test]

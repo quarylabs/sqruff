@@ -12,13 +12,15 @@ pub(crate) fn run_lint(
     let LintArgs {
         paths,
         format,
+        quiet,
+        verbose: _,
         disregard_sqruffignores,
     } = args;
     let large_file_skip_fail = config
         .get("large_file_skip_fail", "core")
         .as_bool()
         .unwrap_or(false);
-    let mut linter = match linter(config, format, collect_parse_errors) {
+    let mut linter = match linter(config, format, collect_parse_errors, quiet, false) {
         Ok(l) => l,
         Err(e) => {
             eprintln!("{}", e);
@@ -43,6 +45,7 @@ pub(crate) fn run_lint(
 pub(crate) fn run_lint_stdin(
     config: FluffConfig,
     format: Format,
+    quiet: bool,
     stdin_filename: Option<&Path>,
     ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
     disregard_ignores: bool,
@@ -50,7 +53,7 @@ pub(crate) fn run_lint_stdin(
 ) -> i32 {
     let read_in = crate::stdin::read_std_in().unwrap();
 
-    let linter = match linter(config, format, collect_parse_errors) {
+    let linter = match linter(config, format, collect_parse_errors, quiet, false) {
         Ok(l) => l,
         Err(e) => {
             eprintln!("{}", e);

@@ -115,15 +115,15 @@ impl RuleAM04 {
                         }
                     }
                 } else {
-                    let selectable = query.inner.borrow().selectables[0].selectable.clone();
-                    for source in query.crawl_sources(selectable.clone(), false, true) {
+                    let branch_selectable = selectable.selectable.clone();
+                    for source in query.crawl_sources(branch_selectable.clone(), false, true) {
                         if let Source::Query(query) = source {
                             self.analyze_result_columns(query)?;
                             return Ok(());
                         }
                     }
 
-                    return Err(selectable);
+                    return Err(branch_selectable);
                 }
             }
         }

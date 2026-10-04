@@ -18,6 +18,9 @@ dbt = [
     "jinja2-simple-tags>=0.3.1",
     "dbt-core>=1.4.1",
 ]
+sqlmesh = [
+    "sqlmesh>=0.80.0",
+]
 
 [project.scripts]
 sqruff = "sqruff.main:main"

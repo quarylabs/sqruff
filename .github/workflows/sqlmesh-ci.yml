@@ -1,0 +1,38 @@
+name: SQLMesh templater
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/sqlmesh-ci.yml"
+      - "crates/cli-python/python/sqruff/templaters/sqlmesh_templater*"
+      - "crates/cli-python/tests/sqlmesh_sample/**"
+      - "crates/cli-python/pyproject.toml"
+      - "crates/lib/src/templaters/sqlmesh.rs"
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/sqlmesh-ci.yml"
+      - "crates/cli-python/python/sqruff/templaters/sqlmesh_templater*"
+      - "crates/cli-python/tests/sqlmesh_sample/**"
+      - "crates/cli-python/pyproject.toml"
+      - "crates/lib/src/templaters/sqlmesh.rs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sqlmesh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # ratchet:actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+      - name: Install SQLMesh test dependencies
+        run: python -m pip install 'sqlmesh~=0.235.0' 'jinja2>=3' 'jinja2-simple-tags>=0.3.1' 'charset-normalizer>=3' regex pytest
+      - name: Test SQLMesh templater against a real project
+        env:
+          PYTHONPATH: crates/cli-python/python
+          SQLMESH_HOME: ${{ runner.temp }}/sqlmesh
+        run: python -m pytest -q crates/cli-python/python/sqruff/templaters/sqlmesh_templater_test.py -o addopts=

@@ -721,6 +721,25 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "TaskIdentifierValuedParameterGrammar".into(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("ERROR_INTEGRATION").to_matchable(),
+                    Ref::keyword("SUCCESS_INTEGRATION").to_matchable(),
+                    Ref::keyword("FINALIZE").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::new("EqualsSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
 
     // Snowflake supports CTEs with DML statements (INSERT, UPDATE, DELETE, MERGE)
@@ -7549,6 +7568,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("TagBracketedEqualsSegment")
                         .optional()
                         .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("WITH").to_matchable(),
+                        Ref::keyword("CONTACT").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("PurposeGrammar").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     AnyNumberOf::new(vec![
                         one_of(vec![
                             Sequence::new(vec![
@@ -7592,6 +7629,18 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("NumericLiteralSegment").to_matchable(),
                         ])
                         .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("OVERLAP_POLICY").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("NO_OVERLAP").to_matchable(),
+                                Ref::keyword("ALLOW_CHILD_OVERLAP").to_matchable(),
+                                Ref::keyword("ALLOW_ALL_OVERLAP").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("TaskIdentifierValuedParameterGrammar").to_matchable(),
                         Delimited::new(vec![
                             Sequence::new(vec![
                                 Ref::new("ParameterNameSegment").to_matchable(),
@@ -7619,6 +7668,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("AFTER").to_matchable(),
                         Delimited::new(vec![Ref::new("ObjectReferenceSegment").to_matchable()])
                             .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("EXECUTE").to_matchable(),
+                        Ref::keyword("AS").to_matchable(),
+                        Ref::keyword("USER").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -11701,15 +11758,36 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::new("AlterTaskSetClauseSegment").to_matchable(),
                         Ref::new("AlterTaskUnsetClauseSegment").to_matchable(),
                         Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("TagEqualsSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("TAG").to_matchable(),
+                            Delimited::new(vec![Ref::new("TagReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
                             Ref::keyword("MODIFY").to_matchable(),
                             Ref::keyword("AS").to_matchable(),
-                            ansi::explainable_stmt().to_matchable(),
+                            one_of(vec![
+                                ansi::explainable_stmt().to_matchable(),
+                                Ref::new("StatementSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("MODIFY").to_matchable(),
                             Ref::keyword("WHEN").to_matchable(),
-                            Ref::new("BooleanLiteralGrammar").to_matchable(),
+                            Ref::new("TaskExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("REMOVE").to_matchable(),
+                            Ref::keyword("WHEN").to_matchable(),
                         ])
                         .to_matchable(),
                     ])
@@ -11736,7 +11814,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Sequence::new(vec![
                             Ref::keyword("SCHEDULE").to_matchable(),
                             Ref::new("EqualsSegment").to_matchable(),
-                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("ReferencedVariableNameSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
                         ])
                         .config(|this| this.optional())
                         .to_matchable(),
@@ -11746,6 +11828,36 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("BooleanLiteralGrammar").to_matchable(),
                         ])
                         .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("OVERLAP_POLICY").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("NO_OVERLAP").to_matchable(),
+                                Ref::keyword("ALLOW_CHILD_OVERLAP").to_matchable(),
+                                Ref::keyword("ALLOW_ALL_OVERLAP").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CONTACT").to_matchable(),
+                            Delimited::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("PurposeGrammar").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Ref::new("TaskIdentifierValuedParameterGrammar").to_matchable(),
+                        ])
                         .to_matchable(),
                     ])
                     .config(|this| this.min_times(1))
@@ -11762,13 +11874,17 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Sequence::new(vec![
                     Ref::keyword("SET").to_matchable(),
                     Delimited::new(vec![
-                        Sequence::new(vec![
-                            Ref::new("ParameterNameSegment").to_matchable(),
-                            Ref::new("EqualsSegment").to_matchable(),
-                            one_of(vec![
-                                Ref::new("BooleanLiteralGrammar").to_matchable(),
-                                Ref::new("QuotedLiteralSegment").to_matchable(),
-                                Ref::new("NumericLiteralSegment").to_matchable(),
+                        one_of(vec![
+                            Ref::new("TaskIdentifierValuedParameterGrammar").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("ParameterNameSegment").to_matchable(),
+                                Ref::new("EqualsSegment").to_matchable(),
+                                one_of(vec![
+                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])
@@ -11839,6 +11955,34 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("EXECUTE").to_matchable(),
                     Ref::keyword("TASK").to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("USING").to_matchable(),
+                            Ref::keyword("CONFIG").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                                Ref::new("DollarQuotedUDFBody").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RETRY").to_matchable(),
+                            Ref::keyword("LAST").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RETRY").to_matchable(),
+                            Ref::keyword("GRAPH").to_matchable(),
+                            Ref::keyword("RUN").to_matchable(),
+                            Ref::keyword("GROUP").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })

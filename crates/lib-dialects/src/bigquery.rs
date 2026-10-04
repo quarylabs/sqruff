@@ -4237,6 +4237,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::ExtendClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("EXTEND").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     Delimited::new(vec![
                         Sequence::new(vec![
                             Ref::new("BaseExpressionElementGrammar").to_matchable(),
@@ -4245,6 +4246,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -4361,6 +4363,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::AggregateClause, |_| {
                 Sequence::new(vec![
                     Ref::keyword("AGGREGATE").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
                     Delimited::new(vec![
                         Sequence::new(vec![
                             Ref::new("BaseExpressionElementGrammar").to_matchable(),
@@ -4392,6 +4395,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                     Ref::new("GroupAndOrderByClauseSegment")
                         .optional()
                         .to_matchable(),

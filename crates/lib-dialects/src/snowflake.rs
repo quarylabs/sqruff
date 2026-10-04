@@ -653,9 +653,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .sets_mut("warehouse_scaling_policies")
         .extend(["STANDARD", "ECONOMY"]);
 
-    snowflake_dialect
-        .sets_mut("refreshmode_types")
-        .extend(["AUTO", "FULL", "INCREMENTAL"]);
+    snowflake_dialect.sets_mut("refreshmode_types").extend([
+        "ADAPTIVE",
+        "AUTO",
+        "FULL",
+        "INCREMENTAL",
+    ]);
     snowflake_dialect
         .sets_mut("initialize_types")
         .extend(["ON_CREATE", "ON_SCHEDULE"]);
@@ -7103,6 +7106,17 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .config(|this| this.optional())
                         .to_matchable(),
                         Sequence::new(vec![
+                            Ref::keyword("INITIALIZATION_WAREHOUSE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            one_of(vec![
+                                Ref::new("ObjectReferenceSegment").to_matchable(),
+                                Ref::new("QuotedLiteralSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                        Sequence::new(vec![
                             Ref::keyword("WAREHOUSE").to_matchable(),
                             Ref::new("EqualsSegment").to_matchable(),
                             one_of(vec![
@@ -10776,6 +10790,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             one_of(vec![
                                 Ref::keyword("TABLE").to_matchable(),
                                 Ref::keyword("VIEW").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("DYNAMIC").to_matchable(),
+                                    Ref::keyword("TABLE").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                             Ref::new("ObjectReferenceSegment").to_matchable(),

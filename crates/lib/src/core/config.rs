@@ -1034,6 +1034,15 @@ fn validate_int_config_map(
     validate_int_config_value(value, key, minimum, logging_reference)
 }
 
+/// Jinja context values are user data, not config paths to resolve.
+fn is_jinja_context_key_path(key_path: &[String]) -> bool {
+    key_path.len() >= 3
+        && ["templater", "jinja", "context"]
+            .iter()
+            .zip(key_path)
+            .all(|(expected, actual)| actual.eq_ignore_ascii_case(expected))
+}
+
 fn parse_ini_config_elems(
     content: &str,
     config_path: Option<&Path>,
@@ -1061,19 +1070,20 @@ fn parse_ini_config_elems(
         if let Some(section) = config_map.get(&section) {
             for (name, value) in section {
                 let mut value: Value = value.as_deref().unwrap_or_default().parse().unwrap();
-                let name_lowercase = name.to_lowercase();
-
-                if matches!(
-                    name_lowercase.as_str(),
-                    "load_macros_from_path" | "exclude_macros_from_path" | "loader_search_path"
-                ) {
-                    value = resolve_comma_separated_config_paths(value, config_path);
-                } else if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir") {
-                    value = resolve_relative_config_path(value, config_path);
-                }
-
                 let mut key = key.clone();
                 key.extend(name.split('.').map(ToOwned::to_owned));
+                if !is_jinja_context_key_path(&key) {
+                    let name_lowercase = name.to_lowercase();
+                    if matches!(
+                        name_lowercase.as_str(),
+                        "load_macros_from_path" | "exclude_macros_from_path" | "loader_search_path"
+                    ) {
+                        value = resolve_comma_separated_config_paths(value, config_path);
+                    } else if name_lowercase.ends_with("_path") || name_lowercase.ends_with("_dir")
+                    {
+                        value = resolve_relative_config_path(value, config_path);
+                    }
+                }
                 buff.push((key, value));
             }
         }
@@ -1135,16 +1145,17 @@ fn collect_toml_config_elems(
             }
             value => {
                 let mut value = toml_value_to_config_value(value);
-                if matches!(
-                    name.as_str(),
-                    "load_macros_from_path" | "exclude_macros_from_path" | "loader_search_path"
-                ) {
-                    value = resolve_comma_separated_config_paths(value, config_path);
-                } else if name.ends_with("_path") || name.ends_with("_dir") {
-                    value = resolve_relative_config_path(value, config_path);
-                }
-
                 let key = toml_config_key_path(&section_path, name);
+                if !is_jinja_context_key_path(&key) {
+                    if matches!(
+                        name.as_str(),
+                        "load_macros_from_path" | "exclude_macros_from_path" | "loader_search_path"
+                    ) {
+                        value = resolve_comma_separated_config_paths(value, config_path);
+                    } else if name.ends_with("_path") || name.ends_with("_dir") {
+                        value = resolve_relative_config_path(value, config_path);
+                    }
+                }
                 buff.push((key, value));
             }
         }
@@ -2036,6 +2047,66 @@ simple_key = simple_value
         assert!(context["namespace"]["nullable"].is_none());
         assert_eq!(context["other"]["nested"]["key"].as_string(), Some("value"));
         assert_eq!(context["simple_key"].as_string(), Some("simple_value"));
+    }
+
+    #[test]
+    fn test_config_path_resolution_skips_jinja_context_in_ini_and_toml() {
+        let root = temp_config_dir("jinja-context-paths");
+        let ini_path = root.join(".sqruff");
+        let ini = ConfigLoader::from_source(
+            r#"
+[sqruff:templater:jinja]
+macros_path = data
+context.dotted_path = data
+
+[sqruff:templater:jinja:context]
+tbl_path = data
+is_dir = true
+nested.output_path = data
+"#,
+            Some(&ini_path),
+        );
+        let ini_context = &ini["templater"]["jinja"]["context"];
+        assert_eq!(ini_context["tbl_path"].as_string(), Some("data"));
+        assert_eq!(ini_context["is_dir"].as_bool(), Some(true));
+        assert_eq!(
+            ini_context["nested"]["output_path"].as_string(),
+            Some("data")
+        );
+        assert_eq!(ini_context["dotted_path"].as_string(), Some("data"));
+        assert_eq!(
+            ini["templater"]["jinja"]["macros_path"].as_string(),
+            Some(root.join("data").to_string_lossy().as_ref())
+        );
+
+        let toml_path = root.join("pyproject.toml");
+        let toml = ConfigLoader::from_source(
+            r#"
+[tool.sqlfluff.templater.jinja]
+macros_path = "data"
+
+[tool.sqlfluff.templater.jinja.context]
+tbl_path = "data"
+is_dir = true
+
+[tool.sqlfluff.templater.jinja.context.nested]
+output_path = "data"
+"#,
+            Some(&toml_path),
+        );
+        let toml_context = &toml["templater"]["jinja"]["context"];
+        assert_eq!(toml_context["tbl_path"].as_string(), Some("data"));
+        assert_eq!(toml_context["is_dir"].as_bool(), Some(true));
+        assert_eq!(
+            toml_context["nested"]["output_path"].as_string(),
+            Some("data")
+        );
+        assert_eq!(
+            toml["templater"]["jinja"]["macros_path"].as_string(),
+            Some(root.join("data").to_string_lossy().as_ref())
+        );
+
+        fs::remove_dir_all(root).unwrap();
     }
 
     #[test]

@@ -1373,6 +1373,9 @@ pub enum NodeOrTokenKind {
 
 impl NodeOrToken {
     pub fn set_position_marker(&mut self, position_marker: Option<PositionMarker>) {
+        // The cached hash includes the source position. A cloned segment may
+        // already have a hash when it is repositioned during fixing.
+        self.hash.take();
         self.position_marker = position_marker;
     }
 
@@ -1541,6 +1544,70 @@ mod tests {
             .finish();
 
         assert_eq!(rs1, rs2)
+    }
+
+    #[test]
+    fn test_repositioning_token_invalidates_copied_hash() {
+        let template: TemplatedFile = "foobarfoobar".into();
+        let segment = SegmentBuilder::token(0, "foobar", SyntaxKind::Word)
+            .with_position(PositionMarker::new(
+                0..6,
+                0..6,
+                template.clone(),
+                None,
+                None,
+            ))
+            .finish();
+        let old_hash = segment.hash_value();
+        let mut copied = segment.deep_clone();
+        assert_eq!(copied.value.hash.get(), Some(&old_hash));
+
+        copied
+            .get_mut()
+            .set_position_marker(Some(PositionMarker::new(
+                6..12,
+                6..12,
+                template,
+                None,
+                None,
+            )));
+
+        assert!(copied.value.hash.get().is_none());
+        assert_ne!(copied.hash_value(), old_hash);
+        assert_eq!(segment.hash_value(), old_hash);
+    }
+
+    #[test]
+    fn test_repositioning_node_invalidates_copied_hash() {
+        let template: TemplatedFile = "foobarfoobar".into();
+        let token = SegmentBuilder::token(0, "foobar", SyntaxKind::Word).finish();
+        let segment =
+            SegmentBuilder::node(1, SyntaxKind::Expression, DialectKind::Ansi, vec![token])
+                .with_position(PositionMarker::new(
+                    0..6,
+                    0..6,
+                    template.clone(),
+                    None,
+                    None,
+                ))
+                .finish();
+        let old_hash = segment.hash_value();
+        let mut copied = segment.deep_clone();
+        assert_eq!(copied.value.hash.get(), Some(&old_hash));
+
+        copied
+            .get_mut()
+            .set_position_marker(Some(PositionMarker::new(
+                6..12,
+                6..12,
+                template,
+                None,
+                None,
+            )));
+
+        assert!(copied.value.hash.get().is_none());
+        assert_ne!(copied.hash_value(), old_hash);
+        assert_eq!(segment.hash_value(), old_hash);
     }
 
     #[test]

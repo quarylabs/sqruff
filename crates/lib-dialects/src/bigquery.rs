@@ -80,6 +80,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             optionally_bracketed(vec![Ref::new("SelectStatementSegment").to_matchable()])
                 .to_matchable(),
             Ref::new("NonSetSelectableGrammar").to_matchable(),
+            Ref::new("PipeStatementSegment").to_matchable(),
             Ref::new("UpdateStatementSegment").to_matchable(),
             Ref::new("InsertStatementSegment").to_matchable(),
             Ref::new("DeleteStatementSegment").to_matchable(),
@@ -959,7 +960,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("DropAssignmentStatementSegment").to_matchable(),
                 Ref::new("DropTableFunctionStatementSegment").to_matchable(),
                 Ref::new("CreateTableFunctionStatementSegment").to_matchable(),
-                Ref::new("PipeStatementSegment").to_matchable(),
             ]),
             None,
             None,
@@ -4185,7 +4185,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
-                        Ref::new("SelectableGrammar").to_matchable(),
+                        one_of(vec![
+                            optionally_bracketed(vec![
+                                Ref::new("SelectStatementSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::new("SetExpressionSegment").to_matchable(),
+                            Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
                         Ref::new("AliasExpressionSegment").optional().to_matchable(),
                         AnyNumberOf::new(vec![
                             Ref::new("PipeOperatorClauseSegment").to_matchable(),
@@ -4456,48 +4465,22 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
-    // BigQuery allows pipe statements, including bare FROM clauses, in CTEs.
+    // A pipe query is a selectable, including in CTEs and bracketed set expressions.
     dialect.replace_grammar(
-        "CTEDefinitionSegment",
-        Sequence::new(vec![
-            Ref::new("SingleIdentifierGrammar").to_matchable(),
-            Ref::new("CTEColumnList").optional().to_matchable(),
-            Ref::keyword("AS").optional().to_matchable(),
+        "NonSetSelectableGrammar",
+        one_of(vec![
+            Ref::new("ValuesClauseSegment").to_matchable(),
+            Ref::new("UnorderedSelectStatementSegment").to_matchable(),
+            Bracketed::new(vec![Ref::new("SelectStatementSegment").to_matchable()]).to_matchable(),
             Bracketed::new(vec![
-                one_of(vec![
-                    Ref::new("SelectableGrammar").to_matchable(),
-                    Ref::new("PipeStatementSegment").to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::new("WithCompoundStatementSegment").to_matchable(),
             ])
-            .config(|this| this.parse_mode(ParseMode::Greedy))
             .to_matchable(),
+            Bracketed::new(vec![Ref::new("NonSetSelectableGrammar").to_matchable()]).to_matchable(),
+            Bracketed::new(vec![Ref::new("PipeStatementSegment").to_matchable()]).to_matchable(),
+            Ref::new("BracketedSetExpressionGrammar").to_matchable(),
         ])
         .to_matchable(),
-    );
-
-    // BigQuery also permits a pipe query after the CTE list, not only inside
-    // an individual CTE body.
-    let with_compound_statement = dialect
-        .grammar("WithCompoundStatementSegment")
-        .match_grammar(&dialect)
-        .unwrap();
-    dialect.replace_grammar(
-        "WithCompoundStatementSegment",
-        with_compound_statement.copy(
-            Some(vec![
-                one_of(vec![
-                    Ref::new("NonWithSelectableGrammar").to_matchable(),
-                    Ref::new("PipeStatementSegment").to_matchable(),
-                ])
-                .to_matchable(),
-            ]),
-            None,
-            Some(Ref::new("NonWithSelectableGrammar").to_matchable()),
-            Some(vec![Ref::new("NonWithSelectableGrammar").to_matchable()]),
-            Vec::new(),
-            false,
-        ),
     );
 
     dialect.expand();

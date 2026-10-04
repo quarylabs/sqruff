@@ -131,6 +131,13 @@ JOIN baz ON bar.id = baz.id;
                 continue;
             }
 
+            // Replacing a templated JOIN cannot always be mapped back to the
+            // source. Never remove its condition from WHERE without that edit.
+            if join.is_templated() {
+                results.push(LintResult::new(Some(join), Vec::new(), None, None));
+                continue;
+            }
+
             if !where_clause_simplifiable {
                 results.push(LintResult::new(Some(join), Vec::new(), None, None));
                 continue;

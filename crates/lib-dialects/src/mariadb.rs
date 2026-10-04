@@ -675,6 +675,49 @@ pub fn raw_dialect() -> Dialect {
         mysql::column_constraint_grammar(true, true),
     );
 
+    // MariaDB permits NEXT/PREVIOUS VALUE FOR sequence expressions wherever
+    // expressions are accepted, including SELECT lists and INSERT values.
+    mariadb.add([(
+        "SequenceValueForSegment".into(),
+        NodeMatcher::new(SyntaxKind::SequenceValueForExpression, |_| {
+            Sequence::new(vec![
+                one_of(vec![
+                    Ref::keyword("NEXT").to_matchable(),
+                    Ref::keyword("PREVIOUS").to_matchable(),
+                ])
+                .to_matchable(),
+                Ref::keyword("VALUE").to_matchable(),
+                Ref::keyword("FOR").to_matchable(),
+                Ref::new("SequenceReferenceSegment").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+    let expression_c = mariadb.grammar("Expression_C_Grammar");
+    mariadb.replace_grammar(
+        "Expression_C_Grammar",
+        one_of(vec![
+            Ref::new("SequenceValueForSegment").to_matchable(),
+            expression_c,
+        ])
+        .to_matchable(),
+    );
+
+    // MariaDB accepts both bare and parenthesized sequence expressions as
+    // column defaults; the inherited MySQL default grammar accepts neither.
+    let column_default = mariadb.grammar("ColumnConstraintDefaultGrammar");
+    mariadb.replace_grammar(
+        "ColumnConstraintDefaultGrammar",
+        one_of(vec![
+            Ref::new("SequenceValueForSegment").to_matchable(),
+            Bracketed::new(vec![Ref::new("SequenceValueForSegment").to_matchable()]).to_matchable(),
+            column_default,
+        ])
+        .to_matchable(),
+    );
+
     // MariaDB's INSERT, single-table DELETE, and REPLACE statements support a
     // trailing RETURNING clause.
     // https://mariadb.com/kb/en/insertreturning/

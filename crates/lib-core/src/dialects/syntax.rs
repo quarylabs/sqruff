@@ -1143,6 +1143,7 @@ pub enum SyntaxKind {
     Semicolon,
     SequenceNextValue,
     SequenceReference,
+    SequenceValueForExpression,
     SerdeMethod,
     ServerReference,
     ServiceObjective,

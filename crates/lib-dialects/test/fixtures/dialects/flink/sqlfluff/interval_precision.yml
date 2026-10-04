@@ -1,0 +1,29 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - interval_expression:
+          - keyword: INTERVAL
+          - quoted_literal: '''1'''
+          - date_part: SECOND
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '3'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - interval_expression:
+          - keyword: INTERVAL
+          - numeric_literal: '1'
+          - date_part: SECOND
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '3'
+            - end_bracket: )
+- statement_terminator: ;

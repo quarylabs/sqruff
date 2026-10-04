@@ -6,7 +6,7 @@ use sqruff_lib_core::dialects::init::{DialectConfig, DialectKind};
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::helpers::{Config, ToMatchable};
 use sqruff_lib_core::parser::grammar::Ref;
-use sqruff_lib_core::parser::grammar::anyof::{one_of, optionally_bracketed};
+use sqruff_lib_core::parser::grammar::anyof::{AnyNumberOf, one_of, optionally_bracketed};
 use sqruff_lib_core::parser::grammar::delimited::Delimited;
 use sqruff_lib_core::parser::grammar::sequence::{Bracketed, Sequence};
 use sqruff_lib_core::parser::lexer::Matcher;
@@ -65,6 +65,9 @@ pub fn raw_dialect() -> Dialect {
         "CURRENT_WATERMARK",
         "PROCTIME",
     ]);
+    flink
+        .sets_mut("date_part_function_name")
+        .extend(["TIMESTAMPDIFF"]);
     flink.bracket_sets_mut("angle_bracket_pairs").extend([(
         "angle",
         "StartAngleBracketSegment",
@@ -95,6 +98,55 @@ pub fn raw_dialect() -> Dialect {
             StringParser::new("==", SyntaxKind::DoubleEquals)
                 .to_matchable()
                 .into(),
+        ),
+        (
+            "FlinkPropertyNamePartSegment".into(),
+            Sequence::new(vec![
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::new("MinusSegment").to_matchable(),
+                        Ref::new("SingleIdentifierGrammar").to_matchable(),
+                    ])
+                    .config(|this| this.allow_gaps = false)
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FlinkPropertyNameSegment".into(),
+            one_of(vec![
+                Delimited::new(vec![
+                    Ref::new("FlinkPropertyNamePartSegment").to_matchable(),
+                ])
+                .config(|this| {
+                    this.delimiter(Ref::new("DotSegment"));
+                    this.allow_gaps = false;
+                })
+                .to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "FlinkPropertyValueSegment".into(),
+            one_of(vec![
+                Ref::new("LiteralGrammar").to_matchable(),
+                Delimited::new(vec![
+                    Ref::new("FlinkPropertyNamePartSegment").to_matchable(),
+                ])
+                .config(|this| {
+                    this.delimiter(Ref::new("DotSegment"));
+                    this.allow_gaps = false;
+                })
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
         ),
         (
             "CreateTableConnectorOptionsSegment".into(),
@@ -143,7 +195,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "ComputedColumnDefinitionSegment".into(),
             Sequence::new(vec![
-                Ref::new("NakedIdentifierSegment").to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
                 Ref::keyword("AS").to_matchable(),
                 Ref::new("ExpressionSegment").to_matchable(),
                 Sequence::new(vec![
@@ -159,7 +211,7 @@ pub fn raw_dialect() -> Dialect {
         (
             "MetadataColumnDefinitionSegment".into(),
             Sequence::new(vec![
-                Ref::new("NakedIdentifierSegment").to_matchable(),
+                Ref::new("SingleIdentifierGrammar").to_matchable(),
                 Ref::new("DatatypeSegment").to_matchable(),
                 Ref::keyword("METADATA").to_matchable(),
                 Sequence::new(vec![
@@ -306,6 +358,25 @@ pub fn raw_dialect() -> Dialect {
             .to_matchable()
             .into(),
         ),
+        (
+            "DescriptorSegment".into(),
+            Sequence::new(vec![
+                Ref::keyword("DESCRIPTOR").to_matchable(),
+                Bracketed::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                    .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "TableArgSegment".into(),
+            Sequence::new(vec![
+                Ref::keyword("TABLE").to_matchable(),
+                Ref::new("TableReferenceSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
     ]);
     flink.add([(
         "SingleIdentifierGrammar".into(),
@@ -317,6 +388,57 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable()
         .into(),
     )]);
+    flink.replace_grammar(
+        "FunctionContentsExpressionGrammar",
+        one_of(vec![
+            Ref::new("TableArgSegment").to_matchable(),
+            Ref::new("DescriptorSegment").to_matchable(),
+            Ref::new("ExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    flink.replace_grammar(
+        "TemporalQuerySegment",
+        Sequence::new(vec![
+            Ref::keyword("FOR").to_matchable(),
+            Ref::keyword("SYSTEM_TIME").to_matchable(),
+            Ref::keyword("AS").to_matchable(),
+            Ref::keyword("OF").to_matchable(),
+            Ref::new("ExpressionSegment").to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    flink.replace_grammar(
+        "CreateViewStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("OR").to_matchable(),
+                Ref::keyword("REPLACE").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::new("TemporaryGrammar").optional().to_matchable(),
+            Ref::keyword("VIEW").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            Bracketed::new(vec![
+                Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                    .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("COMMENT").to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::keyword("AS").to_matchable(),
+            Ref::new("SelectableGrammar").to_matchable(),
+        ])
+        .to_matchable(),
+    );
     flink.add([(
         "CreateTableStatementSegment".into(),
         NodeMatcher::new(SyntaxKind::CreateTableStatement, |_| {
@@ -328,6 +450,7 @@ pub fn raw_dialect() -> Dialect {
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
+                Ref::new("TemporaryGrammar").optional().to_matchable(),
                 Ref::keyword("TABLE").to_matchable(),
                 Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                 Ref::new("TableReferenceSegment").to_matchable(),
@@ -474,10 +597,19 @@ pub fn raw_dialect() -> Dialect {
         NodeMatcher::new(SyntaxKind::SetStatement, |_| {
             Sequence::new(vec![
                 Ref::keyword("SET").to_matchable(),
-                Sequence::new(vec![
-                    Ref::new("QuotedLiteralSegment").to_matchable(),
-                    Ref::new("EqualsSegment").to_matchable(),
-                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::new("FlinkPropertyNameSegment").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("FlinkPropertyValueSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                        Ref::new("EqualsSegment").to_matchable(),
+                        Ref::new("QuotedLiteralSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
@@ -615,18 +747,30 @@ pub fn raw_dialect() -> Dialect {
                     Ref::new("NumericLiteralSegment").to_matchable(),
                     one_of(vec![
                         Ref::new("QuotedLiteralSegment").to_matchable(),
-                        Ref::new("DatetimeUnitSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("DatetimeUnitSegment").to_matchable(),
+                            Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
                 .to_matchable(),
+                Ref::new("QuotedLiteralSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::new("QuotedLiteralSegment").to_matchable(),
                     one_of(vec![
                         Ref::new("QuotedLiteralSegment").to_matchable(),
-                        Ref::new("DatetimeUnitSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::new("DatetimeUnitSegment").to_matchable(),
+                            Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                                .config(|this| this.optional())
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
-                    .config(|this| this.optional())
                     .to_matchable(),
                 ])
                 .to_matchable(),

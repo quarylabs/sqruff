@@ -413,6 +413,26 @@ fn mysql_rejects_mariadb_alter_table_conditions() {
 }
 
 #[test]
+fn redshift_rejects_postgres_merge_extensions() {
+    let dialect = kind_to_dialect(&DialectKind::Redshift, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "MERGE INTO t USING s ON t.id = s.id WHEN MATCHED THEN DO NOTHING;",
+        "MERGE INTO t USING s ON t.id = s.id WHEN NOT MATCHED THEN DO NOTHING;",
+        "MERGE INTO t USING s ON t.id = s.id WHEN NOT MATCHED BY TARGET THEN INSERT VALUES (s.id);",
+        "MERGE INTO t USING s ON t.id = s.id WHEN NOT MATCHED BY SOURCE THEN DELETE;",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn ansi_partial_greedy_select_preserves_keyword() {
     let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
     let tables = Tables::default();

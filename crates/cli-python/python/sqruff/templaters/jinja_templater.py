@@ -6,6 +6,7 @@ import importlib
 import logging
 import os.path
 import pkgutil
+import re
 import sys
 from functools import reduce
 from typing import (
@@ -757,6 +758,28 @@ class JinjaTemplater(PythonTemplater):
         #         "object."
         #     )
 
+        # A nonempty file without Jinja markers renders unchanged. Keep macro
+        # and library loading enabled when configured, as either can raise a
+        # user-facing error even for a literal-only file.
+        if (
+            config is not None
+            and in_str
+            and not re.search(r"\{[{%#]", in_str)
+            and not self._get_macros_path(config, "load_macros_from_path")
+            and not config.jinja_library_paths
+        ):
+            full_slice = slice(0, len(in_str))
+            return (
+                TemplatedFile(
+                    source_str=in_str,
+                    templated_str=in_str,
+                    fname=fname,
+                    sliced_file=[TemplatedFileSlice("literal", full_slice, full_slice)],
+                    raw_sliced=[RawFileSlice(in_str, "literal", 0)],
+                ),
+                [],
+            )
+
         env, live_context, render_func = self.construct_render_func(
             fname=fname, config=config, context=context
         )
@@ -1144,6 +1167,9 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.debug(
             "Uncovered literals correspond to slices %s", uncovered_literal_idxs
         )
+
+        if not uncovered_literal_idxs:
+            return
 
         # NOTE: No validation required as all validation done in the `.process()`
         # call above.

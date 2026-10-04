@@ -7889,6 +7889,61 @@ pub fn raw_dialect() -> Dialect {
     );
 
     postgres.replace_grammar(
+        "MergeMatchedClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("WHEN").to_matchable(),
+            Ref::keyword("MATCHED").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("AND").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::keyword("THEN").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            one_of(vec![
+                Ref::new("MergeUpdateClauseSegment").to_matchable(),
+                Ref::new("MergeDeleteClauseSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DO").to_matchable(),
+                    Ref::keyword("NOTHING").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+    postgres.replace_grammar(
+        "MergeNotMatchedClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("WHEN").to_matchable(),
+            Ref::keyword("NOT").to_matchable(),
+            Ref::keyword("MATCHED").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("AND").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+            Ref::keyword("THEN").to_matchable(),
+            MetaSegment::indent().to_matchable(),
+            one_of(vec![
+                Ref::new("MergeInsertClauseSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("DO").to_matchable(),
+                    Ref::keyword("NOTHING").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+            MetaSegment::dedent().to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    postgres.replace_grammar(
         "DropTypeStatementSegment",
         Sequence::new(vec![
             Ref::keyword("DROP").to_matchable(),

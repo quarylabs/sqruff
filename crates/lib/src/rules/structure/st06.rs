@@ -332,7 +332,7 @@ fn is_view_with_explicit_columns(context: &RuleContext) -> bool {
             continue;
         }
 
-        return parent.segments().iter().any(|child| {
+        if parent.segments().iter().any(|child| {
             if !child.is_type(SyntaxKind::Bracketed) {
                 return false;
             }
@@ -340,7 +340,14 @@ fn is_view_with_explicit_columns(context: &RuleContext) -> bool {
             let descendant_types = child.descendant_type_set();
             descendant_types.contains(SyntaxKind::ColumnReference)
                 || descendant_types.contains(SyntaxKind::IndexColumnDefinition)
-        });
+                || descendant_types.contains(SyntaxKind::ColumnDefinition)
+                || child.segments().iter().any(|segment| {
+                    segment.is_type(SyntaxKind::NakedIdentifier)
+                        || segment.is_type(SyntaxKind::QuotedIdentifier)
+                })
+        }) {
+            return true;
+        }
     }
 
     false

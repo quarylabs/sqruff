@@ -14,6 +14,8 @@ pub(crate) fn run_fix(
     let FixArgs {
         paths,
         format,
+        quiet,
+        verbose: _,
         disregard_sqruffignores,
     } = args;
     let fix_even_unparsable = config
@@ -24,7 +26,7 @@ pub(crate) fn run_fix(
         .get("large_file_skip_fail", "core")
         .as_bool()
         .unwrap_or(false);
-    let mut linter = match linter(config, format, collect_parse_errors) {
+    let mut linter = match linter(config, format, collect_parse_errors, quiet, true) {
         Ok(l) => l,
         Err(e) => {
             eprintln!("{}", e);
@@ -46,8 +48,14 @@ pub(crate) fn run_fix(
 
     let skipped_files_should_fail = large_file_skip_fail && result.files_skipped() > 0;
     if !result.has_violations() && !result.has_fixable_violations() {
-        if !matches!(format, Format::None) {
-            println!("{} files processed, nothing to fix.", result.len());
+        match format {
+            Format::Human if !quiet => {
+                println!("{} files processed, nothing to fix.", result.len())
+            }
+            Format::Json | Format::Sarif | Format::GithubAnnotationNative => {
+                linter.formatter().unwrap().completion_message(result.len());
+            }
+            _ => {}
         }
         skipped_files_should_fail as i32
     } else {
@@ -73,6 +81,7 @@ pub(crate) fn run_fix(
 pub(crate) fn run_fix_stdin(
     config: FluffConfig,
     format: Format,
+    quiet: bool,
     stdin_filename: Option<&Path>,
     ignorer: &(dyn Fn(&Path) -> bool + Send + Sync),
     disregard_ignores: bool,
@@ -84,7 +93,7 @@ pub(crate) fn run_fix_stdin(
         .as_bool()
         .unwrap_or(false);
 
-    let linter = match linter(config, format, collect_parse_errors) {
+    let linter = match linter(config, format, collect_parse_errors, quiet, true) {
         Ok(l) => l,
         Err(e) => {
             eprintln!("{}", e);
@@ -149,6 +158,8 @@ mod tests {
         let args = FixArgs {
             paths: vec![path.clone()],
             format: Format::Human,
+            quiet: false,
+            verbose: 0,
             disregard_sqruffignores: false,
         };
         let config = FluffConfig::default();
@@ -167,6 +178,8 @@ mod tests {
         let args = FixArgs {
             paths: vec![tmp.path().to_path_buf()],
             format: Format::None,
+            quiet: false,
+            verbose: 0,
             disregard_sqruffignores: false,
         };
         let config = FluffConfig::from_source(
@@ -187,6 +200,8 @@ mod tests {
         let args = FixArgs {
             paths: vec![tmp.path().to_path_buf()],
             format: Format::None,
+            quiet: false,
+            verbose: 0,
             disregard_sqruffignores: false,
         };
         let config = FluffConfig::from_source(

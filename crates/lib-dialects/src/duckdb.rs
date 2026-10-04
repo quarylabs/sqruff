@@ -72,10 +72,13 @@ pub fn raw_dialect() -> Dialect {
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "OVERWRITE_OR_IGNORE");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "PARQUET_VERSION");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "PARTITION_BY");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "PERCENT");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "POSITIONAL");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "PROGRAM");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "RESERVOIR");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "ROW_GROUP_SIZE");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "ROW_GROUP_SIZE_BYTES");
+    duckdb_dialect.add_keyword_to_set("unreserved_keywords", "SAMPLE");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "SEMI");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "STRUCT");
     duckdb_dialect.add_keyword_to_set("unreserved_keywords", "VIRTUAL");
@@ -118,6 +121,115 @@ pub fn raw_dialect() -> Dialect {
                 Ref::keyword("OR").to_matchable(),
                 Ref::keyword("IGNORE").to_matchable(),
             ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SamplePercentageGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("NumericLiteralSegment").to_matchable(),
+                one_of(vec![
+                    Ref::new("ModuloSegment").to_matchable(),
+                    Ref::keyword("PERCENT").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SampleRowCountGrammar".into(),
+            Sequence::new(vec![
+                Ref::new("NumericLiteralSegment").to_matchable(),
+                Ref::keyword("ROWS").optional().to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "SampleExpressionGrammar".into(),
+            Sequence::new(vec![
+                one_of(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("RESERVOIR").to_matchable(),
+                        Bracketed::new(vec![
+                            one_of(vec![
+                                Ref::new("SamplePercentageGrammar").to_matchable(),
+                                Ref::new("SampleRowCountGrammar").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        one_of(vec![
+                            Ref::keyword("BERNOULLI").to_matchable(),
+                            Ref::keyword("SYSTEM").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Bracketed::new(vec![Ref::new("SamplePercentageGrammar").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SamplePercentageGrammar").to_matchable(),
+                        Bracketed::new(vec![
+                            one_of(vec![
+                                Ref::keyword("RESERVOIR").to_matchable(),
+                                Ref::keyword("BERNOULLI").to_matchable(),
+                                Ref::keyword("SYSTEM").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("CommaSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::new("SampleRowCountGrammar").to_matchable(),
+                        Bracketed::new(vec![
+                            Ref::keyword("RESERVOIR").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::new("CommaSegment").to_matchable(),
+                                Ref::new("NumericLiteralSegment").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                        ])
+                        .config(|this| this.optional())
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("REPEATABLE").to_matchable(),
+                    Bracketed::new(vec![Ref::new("NumericLiteralSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UsingSampleClauseSegment".into(),
+            NodeMatcher::new(SyntaxKind::SampleExpression, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("USING").to_matchable(),
+                    Ref::keyword("SAMPLE").to_matchable(),
+                    Ref::new("SampleExpressionGrammar").to_matchable(),
+                ])
+                .to_matchable()
+            })
             .to_matchable()
             .into(),
         ),
@@ -1439,6 +1551,18 @@ pub fn raw_dialect() -> Dialect {
     ]);
 
     duckdb_dialect.replace_grammar(
+        "SamplingExpressionSegment",
+        NodeMatcher::new(SyntaxKind::SampleExpression, |_| {
+            Sequence::new(vec![
+                Ref::keyword("TABLESAMPLE").to_matchable(),
+                Ref::new("SampleExpressionGrammar").to_matchable(),
+            ])
+            .to_matchable()
+        })
+        .to_matchable(),
+    );
+
+    duckdb_dialect.replace_grammar(
         "SelectClauseElementSegment",
         one_of(vec![
             Ref::new("WildcardExpressionSegment").to_matchable(),
@@ -1453,28 +1577,41 @@ pub fn raw_dialect() -> Dialect {
 
     duckdb_dialect.replace_grammar(
         "SelectStatementSegment",
-        ansi::select_statement().copy(
-            Some(vec![
-                Ref::new("QualifyClauseSegment").optional().to_matchable(),
-            ]),
-            None,
-            Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
-            None,
-            vec![
-                Ref::new("SetOperatorSegment").to_matchable(),
-                Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
-                Ref::new("WithDataClauseSegment").to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("ON").to_matchable(),
-                    Ref::keyword("CONFLICT").to_matchable(),
-                ])
-                .to_matchable(),
-                Ref::keyword("RETURNING").to_matchable(),
-                Ref::new("WithCheckOptionSegment").to_matchable(),
-                Ref::new("MetaCommandQueryBufferSegment").to_matchable(),
-            ],
-            true,
-        ),
+        ansi::select_statement()
+            .copy(
+                Some(vec![
+                    Ref::new("QualifyClauseSegment").optional().to_matchable(),
+                ]),
+                None,
+                Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
+                None,
+                vec![
+                    Ref::new("SetOperatorSegment").to_matchable(),
+                    Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
+                    Ref::new("WithDataClauseSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("CONFLICT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("RETURNING").to_matchable(),
+                    Ref::new("WithCheckOptionSegment").to_matchable(),
+                    Ref::new("MetaCommandQueryBufferSegment").to_matchable(),
+                ],
+                true,
+            )
+            .copy(
+                Some(vec![
+                    Ref::new("UsingSampleClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                ]),
+                None,
+                None,
+                None,
+                Vec::new(),
+                false,
+            ),
     );
 
     duckdb_dialect.replace_grammar(
@@ -1498,6 +1635,9 @@ pub fn raw_dialect() -> Dialect {
             Ref::new("HavingClauseSegment").optional().to_matchable(),
             Ref::new("NamedWindowSegment").optional().to_matchable(),
             Ref::new("QualifyClauseSegment").optional().to_matchable(),
+            Ref::new("UsingSampleClauseSegment")
+                .optional()
+                .to_matchable(),
         ])
         .terminators(vec![
             Ref::new("SetOperatorSegment").to_matchable(),

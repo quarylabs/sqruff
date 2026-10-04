@@ -2777,6 +2777,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::keyword("TIMESTAMP").to_matchable(),
                                 Ref::keyword("OFFSET").to_matchable(),
                                 Ref::keyword("STATEMENT").to_matchable(),
+                                Ref::keyword("STREAM").to_matchable(),
                             ])
                             .to_matchable(),
                             Ref::new("ParameterAssignerSegment").to_matchable(),
@@ -2815,6 +2816,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("TIMESTAMP").to_matchable(),
                             Ref::keyword("OFFSET").to_matchable(),
                             Ref::keyword("STATEMENT").to_matchable(),
+                            Ref::keyword("STREAM").to_matchable(),
                         ])
                         .to_matchable(),
                         Ref::new("ParameterAssignerSegment").to_matchable(),
@@ -2837,6 +2839,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("TIMESTAMP").to_matchable(),
                             Ref::keyword("OFFSET").to_matchable(),
                             Ref::keyword("STATEMENT").to_matchable(),
+                            Ref::keyword("STREAM").to_matchable(),
                         ])
                         .to_matchable(),
                         Ref::new("ParameterAssignerSegment").to_matchable(),
@@ -5225,6 +5228,12 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     one_of(vec![
                         Ref::new("FromAtExpressionSegment").to_matchable(),
                         Ref::new("FromBeforeExpressionSegment").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("COPY").to_matchable(),
+                        Ref::keyword("GRANTS").to_matchable(),
                     ])
                     .config(|this| this.optional())
                     .to_matchable(),
@@ -10831,10 +10840,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             NodeMatcher::new(SyntaxKind::CreateStreamStatement, |_| {
                 Sequence::new(vec![
                     Ref::keyword("CREATE").to_matchable(),
-                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
                     Ref::keyword("STREAM").to_matchable(),
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
                     Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::new("TagBracketedEqualsSegment")
+                        .optional()
+                        .to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("COPY").to_matchable(),
                         Ref::keyword("GRANTS").to_matchable(),
@@ -10849,6 +10861,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Ref::keyword("VIEW").to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("DYNAMIC").to_matchable(),
+                                    Ref::keyword("TABLE").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("EVENT").to_matchable(),
                                     Ref::keyword("TABLE").to_matchable(),
                                 ])
                                 .to_matchable(),

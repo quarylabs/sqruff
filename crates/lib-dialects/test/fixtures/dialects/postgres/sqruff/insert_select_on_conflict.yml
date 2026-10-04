@@ -148,8 +148,9 @@ file:
                           - casting_operator: '::'
                           - data_type:
                             - keyword: uuid
-                            - start_square_bracket: '['
-                            - end_square_bracket: ']'
+                            - array_type_suffix:
+                              - start_square_bracket: '['
+                              - end_square_bracket: ']'
                       - end_bracket: )
           - keyword: ON
           - keyword: CONFLICT

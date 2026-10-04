@@ -157,6 +157,7 @@ pub enum SyntaxKind {
     ArrayLiteral,
     ArrayType,
     ArrayTypeSchema,
+    ArrayTypeSuffix,
     ArrayUnnesting,
     AssertStatement,
     AssignmentOperator,

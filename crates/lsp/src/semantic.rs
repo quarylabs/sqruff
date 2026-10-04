@@ -312,6 +312,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | TypedStructLiteral
         | IntervalExpression
         | ArrayType
+        | ArrayTypeSuffix
         | SizedArrayType
         | SelectStatement
         | OverlapsClause

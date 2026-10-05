@@ -585,6 +585,24 @@ fn mariadb_sequence_value_for_requires_for_and_sequence_name() {
 }
 
 #[test]
+fn snowflake_materialized_view_rejects_invalid_cluster_and_unset_tag() {
+    let dialect = kind_to_dialect(&DialectKind::Snowflake, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    for sql in [
+        "CREATE MATERIALIZED VIEW mv CLUSTER BY a AS SELECT a FROM t;",
+        "ALTER MATERIALIZED VIEW mv UNSET TAG my_tag = 'old value';",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn ansi_partial_greedy_select_preserves_keyword() {
     let dialect = kind_to_dialect(&DialectKind::Ansi, None).unwrap();
     let tables = Tables::default();

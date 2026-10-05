@@ -125,11 +125,7 @@ file:
     - table_reference:
       - naked_identifier: mv1
     - keyword: unset
-    - tag_equals:
-      - keyword: tag
-      - tag_reference:
-        - naked_identifier: my_tag
-      - comparison_operator:
-        - raw_comparison_operator: =
-      - quoted_literal: '''not my tag anymore'''
+    - keyword: tag
+    - tag_reference:
+      - naked_identifier: my_tag
 - statement_terminator: ;

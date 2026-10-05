@@ -451,124 +451,156 @@ impl ErasedSegment {
     pub fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
         let mut acc = Vec::new();
 
-        let templated_raw = &templated_file.templated_str.as_ref().unwrap()
-            [self.get_position_marker().unwrap().templated_slice.clone()];
+        let Some(pos_marker) = self.get_position_marker() else {
+            return acc;
+        };
+
+        let templated_raw =
+            &templated_file.templated_str.as_ref().unwrap()[pos_marker.templated_slice.clone()];
 
         // Always collect source fixes from this segment first
         acc.extend(self.iter_source_fix_patches(templated_file));
 
-        // Check if any descendants have source_fixes
-        let has_descendant_source_fixes = self
-            .recursive_crawl_all(false)
-            .iter()
-            .any(|s| !s.get_source_fixes().is_empty());
-
         if self.raw() == templated_raw {
-            if has_descendant_source_fixes {
-                // Tree raw hasn't changed - only source fix patches are needed.
-                // Avoid generating gap patches that could span template boundaries.
-                // This matches SQLFluff's behavior in _iter_templated_patches.
-                for descendant in self.recursive_crawl_all(false).into_iter().skip(1) {
-                    acc.extend(descendant.iter_source_fix_patches(templated_file));
-                }
+            // Tree raw hasn't changed - only source fix patches are needed.
+            // Avoid generating gap patches that could span template boundaries.
+            // This matches SQLFluff's behavior in _iter_templated_patches.
+            for descendant in self.recursive_crawl_all(false).into_iter().skip(1) {
+                acc.extend(descendant.iter_source_fix_patches(templated_file));
             }
             return acc;
         }
 
-        if self.get_position_marker().is_none() {
-            return Vec::new();
-        }
+        let segments = Self::trim_trailing_meta(self.segments());
 
-        let pos_marker = self.get_position_marker().unwrap();
-        if pos_marker.is_literal() && !has_descendant_source_fixes {
-            acc.extend(self.iter_source_fix_patches(templated_file));
-            acc.push(FixPatch::new(
-                pos_marker.templated_slice.clone(),
-                self.raw().clone(),
-                // SyntaxKind::Literal.into(),
-                pos_marker.source_slice.clone(),
-                templated_file.templated_str.as_ref().unwrap()[pos_marker.templated_slice.clone()]
-                    .to_string(),
-                templated_file.source_str[pos_marker.source_slice.clone()].to_string(),
-            ));
-        } else if self.segments().is_empty() {
-            return acc;
-        } else {
-            let mut segments = self.segments();
-
-            while !segments.is_empty()
-                && matches!(
-                    segments.last().unwrap().get_type(),
-                    SyntaxKind::EndOfFile
-                        | SyntaxKind::Indent
-                        | SyntaxKind::Dedent
-                        | SyntaxKind::Implicit
-                )
-            {
-                segments = &segments[..segments.len() - 1];
-            }
-
-            let pos = self.get_position_marker().unwrap();
-            let mut source_idx = pos.source_slice.start;
-            let mut templated_idx = pos.templated_slice.start;
-            let mut insert_buff = String::new();
-            let mut first_segment_pos = None;
-
-            for segment in segments {
-                let pos_marker = segment.get_position_marker().unwrap();
-                if !segment.raw().is_empty() && pos_marker.is_point() {
-                    insert_buff.push_str(segment.raw().as_ref());
-                    first_segment_pos = first_segment_pos.or(Some(pos_marker));
-                    continue;
-                }
-
-                let start_diff = pos_marker.templated_slice.start - templated_idx;
-
-                if start_diff > 0 || !insert_buff.is_empty() {
-                    let fixed_raw = std::mem::take(&mut insert_buff);
-                    let patch_start_pos = first_segment_pos.unwrap_or(pos_marker);
-
-                    // The slices must never go backwards so the end of the slice
-                    // must be >= the start. This can happen when source positions
-                    // are non-monotonic due to template expansion.
-                    acc.push(FixPatch::new(
-                        templated_idx..patch_start_pos.templated_slice.start.max(templated_idx),
-                        fixed_raw.into(),
-                        source_idx..patch_start_pos.source_slice.start.max(source_idx),
-                        String::new(),
-                        String::new(),
-                    ));
-
-                    first_segment_pos = None;
-                }
-
-                acc.extend(segment.iter_patches(templated_file));
-
-                source_idx = pos_marker.source_slice.end;
-                templated_idx = pos_marker.templated_slice.end;
-            }
-
-            let end_diff = pos.templated_slice.end - templated_idx;
-            if end_diff != 0 || !insert_buff.is_empty() {
-                let source_slice = source_idx..pos.source_slice.end;
-                let templated_slice = templated_idx..pos.templated_slice.end;
-
-                let templated_str = templated_file.templated_str.as_ref().unwrap()
-                    [templated_slice.clone()]
-                .to_owned();
-                let source_str = templated_file.source_str[source_slice.clone()].to_owned();
-
+        if pos_marker.is_literal()
+            && (segments.is_empty() || !Self::children_tile_position(segments, pos_marker))
+        {
+            let has_descendant_source_fixes = self
+                .segments()
+                .iter()
+                .any(|s| !s.get_all_source_fixes().is_empty());
+            if !has_descendant_source_fixes {
                 acc.push(FixPatch::new(
-                    templated_slice,
-                    insert_buff.into(),
-                    source_slice,
-                    templated_str,
-                    source_str,
+                    pos_marker.templated_slice.clone(),
+                    self.raw().clone(),
+                    // SyntaxKind::Literal.into(),
+                    pos_marker.source_slice.clone(),
+                    templated_raw.to_string(),
+                    templated_file.source_str[pos_marker.source_slice.clone()].to_string(),
                 ));
+                return acc;
             }
+        }
+
+        if segments.is_empty() {
+            // It's not literal, but it's also a raw segment. If we were going
+            // to yield a change, we would have done it from the parent.
+            return acc;
+        }
+
+        let mut source_idx = pos_marker.source_slice.start;
+        let mut templated_idx = pos_marker.templated_slice.start;
+        let mut insert_buff = String::new();
+        let mut first_segment_pos = None;
+
+        for segment in segments {
+            let child_pos = segment.get_position_marker().unwrap();
+            if !segment.raw().is_empty() && child_pos.is_point() {
+                insert_buff.push_str(segment.raw().as_ref());
+                first_segment_pos = first_segment_pos.or(Some(child_pos));
+                continue;
+            }
+
+            let start_diff = child_pos.templated_slice.start - templated_idx;
+
+            if start_diff > 0 || !insert_buff.is_empty() {
+                let fixed_raw = std::mem::take(&mut insert_buff);
+
+                let patch_end_pos = if start_diff > 0 {
+                    child_pos
+                } else {
+                    first_segment_pos.unwrap_or(child_pos)
+                };
+
+                // The slices must never go backwards so the end of the slice
+                // must be >= the start. This can happen when source positions
+                // are non-monotonic due to template expansion.
+                acc.push(FixPatch::new(
+                    templated_idx..patch_end_pos.templated_slice.start.max(templated_idx),
+                    fixed_raw.into(),
+                    source_idx..patch_end_pos.source_slice.start.max(source_idx),
+                    String::new(),
+                    String::new(),
+                ));
+
+                first_segment_pos = None;
+            }
+
+            acc.extend(segment.iter_patches(templated_file));
+
+            source_idx = child_pos.source_slice.end;
+            templated_idx = child_pos.templated_slice.end;
+        }
+
+        let end_diff = pos_marker.templated_slice.end - templated_idx;
+        if end_diff != 0 || !insert_buff.is_empty() {
+            let source_slice = source_idx..pos_marker.source_slice.end;
+            let templated_slice = templated_idx..pos_marker.templated_slice.end;
+
+            let templated_str =
+                templated_file.templated_str.as_ref().unwrap()[templated_slice.clone()].to_owned();
+            let source_str = templated_file.source_str[source_slice.clone()].to_owned();
+
+            acc.push(FixPatch::new(
+                templated_slice,
+                insert_buff.into(),
+                source_slice,
+                templated_str,
+                source_str,
+            ));
         }
 
         acc
+    }
+
+    fn trim_trailing_meta(mut segments: &[ErasedSegment]) -> &[ErasedSegment] {
+        while let Some(last) = segments.last()
+            && matches!(
+                last.get_type(),
+                SyntaxKind::EndOfFile
+                    | SyntaxKind::Indent
+                    | SyntaxKind::Dedent
+                    | SyntaxKind::Implicit
+            )
+        {
+            segments = &segments[..segments.len() - 1];
+        }
+        segments
+    }
+
+    fn children_tile_position(segments: &[ErasedSegment], parent_pos: &PositionMarker) -> bool {
+        let mut source_idx = parent_pos.source_slice.start;
+        let mut templated_idx = parent_pos.templated_slice.start;
+
+        for segment in segments {
+            let Some(pos) = segment.get_position_marker() else {
+                return false;
+            };
+            if pos.source_slice.start < source_idx
+                || pos.source_slice.end < pos.source_slice.start
+                || pos.source_slice.end > parent_pos.source_slice.end
+                || pos.templated_slice.start < templated_idx
+                || pos.templated_slice.end < pos.templated_slice.start
+                || pos.templated_slice.end > parent_pos.templated_slice.end
+            {
+                return false;
+            }
+            source_idx = pos.source_slice.end;
+            templated_idx = pos.templated_slice.end;
+        }
+
+        true
     }
 
     pub fn descendant_type_set(&self) -> &SyntaxSet {

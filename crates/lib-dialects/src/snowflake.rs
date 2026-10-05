@@ -9097,10 +9097,41 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::new("AlterOrReplaceGrammar").optional().to_matchable(),
                     any_set_of(vec![
                         Ref::keyword("SECURE").to_matchable(),
-                        Ref::keyword("RECURSIVE").to_matchable(),
+                        Ref::keyword("INTERACTIVE").to_matchable(),
                     ])
                     .to_matchable(),
-                    Ref::new("TemporaryGrammar").optional().to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("RECURSIVE").to_matchable(),
+                            Ref::new("TemporaryGrammar").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            one_of(vec![
+                                Ref::keyword("LOCAL").to_matchable(),
+                                Ref::keyword("GLOBAL").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
+                            one_of(vec![
+                                Sequence::new(vec![
+                                    one_of(vec![
+                                        Ref::keyword("TEMP").to_matchable(),
+                                        Ref::keyword("TEMPORARY").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                    Ref::keyword("VOLATILE").optional().to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::keyword("VOLATILE").to_matchable(),
+                            ])
+                            .to_matchable(),
+                            Ref::keyword("RECURSIVE").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     Ref::keyword("MATERIALIZED").optional().to_matchable(),
                     Ref::keyword("VIEW").to_matchable(),
                     Ref::new("IfNotExistsGrammar").optional().to_matchable(),
@@ -9111,6 +9142,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     any_set_of(vec![
                         Ref::keyword("SECURE").to_matchable(),
                         Ref::keyword("RECURSIVE").to_matchable(),
+                        Ref::keyword("INTERACTIVE").to_matchable(),
                     ])
                     .to_matchable(),
                     Ref::keyword("MATERIALIZED").optional().to_matchable(),
@@ -9178,6 +9210,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("CHANGE_TRACKING").to_matchable(),
                     Ref::new("EqualsSegment").to_matchable(),
                     Ref::new("BooleanLiteralGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("CLUSTER").to_matchable(),
+                    Ref::keyword("BY").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
@@ -9379,15 +9421,54 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("SUSPEND").to_matchable(),
                         Ref::keyword("RESUME").to_matchable(),
                         Sequence::new(vec![
-                            one_of(vec![
-                                Ref::keyword("SET").to_matchable(),
-                                Ref::keyword("UNSET").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            one_of(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            any_set_of(vec![
                                 Ref::keyword("SECURE").to_matchable(),
                                 Ref::new("CommentEqualsClauseSegment").to_matchable(),
                                 Ref::new("TagEqualsSegment").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CONTACT").to_matchable(),
+                                    Delimited::new(vec![
+                                        Sequence::new(vec![
+                                            Ref::new("PurposeGrammar").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("DATA_METRIC_SCHEDULE").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.min_times(1))
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Delimited::new(vec![
+                                Ref::keyword("SECURE").to_matchable(),
+                                Ref::keyword("COMMENT").to_matchable(),
+                                Ref::keyword("DATA_METRIC_SCHEDULE").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("TAG").to_matchable(),
+                                    Delimited::new(vec![
+                                        Ref::new("TagReferenceSegment").to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CONTACT").to_matchable(),
+                                    Ref::new("PurposeGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])

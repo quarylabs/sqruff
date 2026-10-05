@@ -1,0 +1,166 @@
+file:
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: UNSET
+    - keyword: SECURE
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+      - naked_identifier: my_tag
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+      - naked_identifier: tag1
+    - comma: ','
+    - tag_reference:
+      - naked_identifier: tag2
+    - comma: ','
+    - tag_reference:
+      - naked_identifier: tag3
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: UNSET
+    - keyword: CONTACT
+    - keyword: STEWARD
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: UNSET
+    - keyword: DATA_METRIC_SCHEDULE
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: SET
+    - keyword: DATA_METRIC_SCHEDULE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''5 MINUTE'''
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: SET
+    - keyword: CONTACT
+    - keyword: STEWARD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_contact
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: SET
+    - keyword: CONTACT
+    - keyword: STEWARD
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_contact
+    - comma: ','
+    - keyword: SUPPORT
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: support_contact
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: SET
+    - keyword: SECURE
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''both at once'''
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: SET
+    - comment_equals_clause:
+      - keyword: COMMENT
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''just a comment'''
+- statement_terminator: ;
+- statement:
+  - alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mv1
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+        - naked_identifier: my_tag
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - quoted_literal: '''my value'''
+- statement_terminator: ;

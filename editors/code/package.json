@@ -68,7 +68,7 @@
     "@vscode/test-web": "^0.0.81",
     "@playwright/test": "catalog:",
     "@vscode/vsce": "^3.9.1",
-    "code-server": "^4.117.0",
+    "code-server": "^4.140.0",
     "esbuild": "^0.28.1",
     "eslint": "catalog:",
     "typescript": "catalog:",

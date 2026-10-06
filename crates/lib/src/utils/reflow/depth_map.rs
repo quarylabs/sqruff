@@ -82,6 +82,15 @@ impl DepthMap {
         Self::new(raws.iter())
     }
 
+    pub(crate) fn subset(&self, raws: &[ErasedSegment]) -> Self {
+        Self {
+            depth_info: raws
+                .iter()
+                .map(|raw| (raw.id(), self.get_depth_info(raw)))
+                .collect(),
+        }
+    }
+
     pub fn from_raws_and_root(
         raw_segments: impl Iterator<Item = ErasedSegment>,
         root_segment: &ErasedSegment,
@@ -99,14 +108,37 @@ impl DepthMap {
 }
 
 /// An object to hold the depth information for a specific raw segment.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone)]
 pub struct DepthInfo {
     pub stack_depth: usize,
     pub stack_hashes: Vec<u64>,
+    /// Ancestors in stack_hashes order, owned by reflow rather than the tree.
+    pub stack_segments: Vec<ErasedSegment>,
     /// This is a convenience cache to speed up operations.
     pub stack_hash_set: IntSet<u64>,
     pub stack_class_types: Vec<SyntaxSet>,
     pub stack_positions: IntMap<u64, StackPosition>,
+}
+
+// Printing whole ancestor trees for every raw segment makes diagnostics enormous.
+impl std::fmt::Debug for DepthInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DepthInfo")
+            .field("stack_depth", &self.stack_depth)
+            .field("stack_hashes", &self.stack_hashes)
+            .field(
+                "stack_segment_ids",
+                &self
+                    .stack_segments
+                    .iter()
+                    .map(ErasedSegment::id)
+                    .collect::<Vec<_>>(),
+            )
+            .field("stack_hash_set", &self.stack_hash_set)
+            .field("stack_class_types", &self.stack_class_types)
+            .field("stack_positions", &self.stack_positions)
+            .finish()
+    }
 }
 
 impl DepthInfo {
@@ -130,6 +162,7 @@ impl DepthInfo {
 
         DepthInfo {
             stack_depth: stack_hashes.len(),
+            stack_segments: stack.iter().map(|path| path.segment.clone()).collect(),
             stack_hashes,
             stack_hash_set,
             stack_class_types,
@@ -164,6 +197,7 @@ impl DepthInfo {
 
         DepthInfo {
             stack_depth: self.stack_depth - amount,
+            stack_segments: self.stack_segments[..self.stack_segments.len() - amount].to_vec(),
             stack_hashes: self.stack_hashes[..self.stack_hashes.len() - amount].to_vec(),
             stack_hash_set: new_hash_set,
             stack_class_types: self.stack_class_types[..self.stack_class_types.len() - amount]
@@ -197,5 +231,34 @@ impl DepthInfo {
             .take(common_depth)
             .copied()
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::DepthMap;
+    use crate::core::test_functions::parse_ansi_string;
+
+    #[test]
+    fn indexed_block_depths_match_paths_for_wide_and_nested_queries() {
+        let unions = (0..100)
+            .map(|idx| format!("SELECT {idx} AS id"))
+            .collect::<Vec<_>>()
+            .join("\nUNION ALL\n");
+        let sql = format!("WITH cte AS ({unions}) SELECT * FROM cte\nUNION ALL\nSELECT 1");
+        let root = parse_ansi_string(&sql);
+        let raws = root.get_raw_segments();
+        let indexed = DepthMap::from_parent(&root);
+        let original = DepthMap::from_raws_and_root(raws.clone().into_iter(), &root);
+        // Co-located indent/dedent tokens can compare equal in path_to().
+        // Reflow blocks use the depths of non-meta tokens only.
+        for raw in raws.iter().filter(|raw| !raw.is_meta()) {
+            assert!(
+                indexed.get_depth_info(raw) == original.get_depth_info(raw),
+                "Depth mismatch for raw {} ({:?})",
+                raw.id(),
+                raw.get_type(),
+            );
+        }
     }
 }

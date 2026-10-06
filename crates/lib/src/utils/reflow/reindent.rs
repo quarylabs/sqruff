@@ -2293,6 +2293,7 @@ mod tests {
         let depth_info = DepthInfo {
             stack_depth: 0,
             stack_hashes: Vec::new(),
+            stack_segments: Vec::new(),
             stack_hash_set: Default::default(),
             stack_class_types: Vec::new(),
             stack_positions: Default::default(),

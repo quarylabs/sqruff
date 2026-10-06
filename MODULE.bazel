@@ -12,7 +12,7 @@ tools = use_extension("//:tools.bzl", "tools")
 use_repo(tools, "cargo_hack", "cargo_machete", "keep_sorted", "ratchet", "uv")
 
 bazel_dep(name = "aspect_rules_js", version = "3.2.2")
-bazel_dep(name = "rules_nodejs", version = "6.7.3")
+bazel_dep(name = "rules_nodejs", version = "6.7.6")
 bazel_dep(name = "rules_playwright", version = "0.6.0")
 
 # rules_playwright 0.6.0 hasn't been published to BCR yet (the upstream publish
@@ -50,7 +50,7 @@ bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "rules_shellcheck", version = "0.4.0")
 
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
-node.toolchain(node_version = "22.22.0")
+node.toolchain(node_version = "24.20.0")
 
 npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
 npm.npm_translate_lock(
@@ -72,7 +72,7 @@ npm.npm_translate_lock(
     lifecycle_hooks_envs = {
         "code-server": [
             "npm_config_ignore_scripts=true",
-            "npm_config_user_agent=npm/10.0.0 node/v22.0.0",
+            "npm_config_user_agent=npm/11.19.0 node/v24.20.0",
         ],
     },
     lifecycle_hooks_execution_requirements = {

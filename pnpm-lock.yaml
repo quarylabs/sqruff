@@ -76,8 +76,8 @@ importers:
         specifier: ^3.9.1
         version: 3.9.2(supports-color@8.1.1)
       code-server:
-        specifier: ^4.117.0
-        version: 4.117.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
+        specifier: ^4.140.0
+        version: 4.140.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
       esbuild:
         specifier: ^0.28.1
         version: 0.28.2
@@ -287,10 +287,6 @@ packages:
     resolution: {integrity: sha512-E8lTAYNB1KW+FH+VGJuZM1ioAx2E6oVlvQFRrf5P8ZZmsiJXYAD9vTFV7yyEURNzgh1dFqMZuO6tUwcARbqFCA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
-
-  '@babel/runtime@7.29.7':
-    resolution: {integrity: sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw==}
-    engines: {node: '>=6.9.0'}
 
   '@babel/template@7.29.7':
     resolution: {integrity: sha512-puq+Gf35oI24FeN11LkoUQFqv9uwNeWpxXZi/Ji3rRIoKAzKnxRaZ+Gkj0vKS9ZCiTESfng1N9LyOyXvo+m+Gg==}
@@ -1502,9 +1498,9 @@ packages:
     resolution: {integrity: sha512-gfrHV6ZPkquExvMh9IOkKsBzNDk6sDuZ6DdBGUBkvFnTCqCxzpuq48RySgP0AnaqQkw2zynOFj9yly6T1Q2G5Q==}
     engines: {node: '>=16'}
 
-  code-server@4.117.0:
-    resolution: {integrity: sha512-FIMu90X/cw9tCAR4wII5ypK4R9Xbg5Zu/2LttqJNH+MuVOP15eODFCnTZHkH44r2d9MjDdaESP8VHSlotpTyQQ==}
-    engines: {node: '22'}
+  code-server@4.140.0:
+    resolution: {integrity: sha512-yZG+23b4jN78Z5znkBzx0/vSPWXQPwsWkLVljY0osR5LIT+RVRLb9Cw+/BgZAjMS0VC/V9tu8v0QaBtqAeU8og==}
+    engines: {node: '24'}
     hasBin: true
 
   color-convert@2.0.1:
@@ -1566,6 +1562,10 @@ packages:
   cookie@0.7.2:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
     engines: {node: '>= 0.6'}
+
+  cookie@1.1.1:
+    resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
+    engines: {node: '>=18'}
 
   cookies@0.9.1:
     resolution: {integrity: sha512-TG2hpqe4ELx54QER/S3HQ9SRVnQnGBtKUz5bLQWtYAQ+o6GpgMs6sYUvaiJjVxb+UXwhRhAEP3m7LbsIZ77Hmw==}
@@ -2254,10 +2254,10 @@ packages:
     resolution: {integrity: sha512-ag87y7cJJ9/3+GxFr8Oy4O5faDsGRGnBGsJj/YjOSsSx/5eadKLYTMPlzuR6obgoCDDm0abAAZitXXQkMOPSpA==}
     engines: {node: '>= 20'}
 
-  i18next@25.10.10:
-    resolution: {integrity: sha512-cqUW2Z3EkRx7NqSyywjkgCLK7KLCL6IFVFcONG7nVYIJ3ekZ1/N5jUsihHV6Bq37NfhgtczxJcxduELtjTwkuQ==}
+  i18next@26.4.2:
+    resolution: {integrity: sha512-RX+R0VLg13IbvRuJSxnqykUFS9vQZTl8wYpWPCIUDWVrSGjsQywB5Y+pjzrkboxGAuYfJZVH1InFTdgBdxq6ug==}
     peerDependencies:
-      typescript: ^5 || ^6
+      typescript: ^5 || ^6 || ^7
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -2513,6 +2513,10 @@ packages:
 
   js-yaml@4.3.2:
     resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
+    hasBin: true
+
+  js-yaml@5.4.2:
+    resolution: {integrity: sha512-m+aqu+LwO1O6sIopafj8HUVl5aawITwZQe/yHpMCKjaWBaA/d07B/QdMb3529REftiU+RMMHL3Vlsw3hON7vWg==}
     hasBin: true
 
   jsesc@3.1.0:
@@ -4214,8 +4218,6 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.8
 
-  '@babel/runtime@7.29.7': {}
-
   '@babel/template@7.29.7':
     dependencies:
       '@babel/code-frame': 7.29.7
@@ -5499,18 +5501,19 @@ snapshots:
 
   cockatiel@3.2.1: {}
 
-  code-server@4.117.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3):
+  code-server@4.140.0(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3):
     dependencies:
       '@coder/logger': 3.0.1
       argon2: 0.44.0
       compression: 1.8.1(supports-color@8.1.1)
+      cookie: 1.1.1
       cookie-parser: 1.4.7
       env-paths: 2.2.1
       express: 5.2.1(supports-color@8.1.1)
       http-proxy: 1.18.1(debug@4.4.3(supports-color@8.1.1))
       httpolyglot: 0.1.2
-      i18next: 25.10.10(typescript@6.0.3)
-      js-yaml: 4.3.2
+      i18next: 26.4.2(typescript@6.0.3)
+      js-yaml: 5.4.2
       limiter: 2.1.0
       pem: 1.14.8
       proxy-agent: 6.5.0(supports-color@8.1.1)
@@ -5577,6 +5580,8 @@ snapshots:
   cookie-signature@1.2.2: {}
 
   cookie@0.7.2: {}
+
+  cookie@1.1.1: {}
 
   cookies@0.9.1:
     dependencies:
@@ -6524,9 +6529,7 @@ snapshots:
       - kerberos
       - supports-color
 
-  i18next@25.10.10(typescript@6.0.3):
-    dependencies:
-      '@babel/runtime': 7.29.7
+  i18next@26.4.2(typescript@6.0.3):
     optionalDependencies:
       typescript: 6.0.3
 
@@ -6757,6 +6760,10 @@ snapshots:
   js-tokens@4.0.0: {}
 
   js-yaml@4.3.2:
+    dependencies:
+      argparse: 2.0.1
+
+  js-yaml@5.4.2:
     dependencies:
       argparse: 2.0.1
 

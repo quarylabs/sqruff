@@ -1688,7 +1688,7 @@ wheels = [
 
 [[package]]
 name = "sqruff"
-version = "0.40.0"
+version = "0.41.0"
 source = { editable = "." }
 dependencies = [
     { name = "charset-normalizer" },

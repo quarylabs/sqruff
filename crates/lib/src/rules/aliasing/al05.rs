@@ -315,7 +315,7 @@ impl RuleAL05 {
             return;
         }
 
-        if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
+        if let Some(parent) = query.parent() {
             self.resolve_and_mark_reference(parent, reference, dialect, payloads);
         }
     }

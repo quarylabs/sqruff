@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
 
 use smol_str::{SmolStr, StrExt, ToSmolStr};
 
@@ -195,7 +195,8 @@ pub struct QueryInner<'me> {
     pub dialect: &'me Dialect,
     pub selectables: Vec<Selectable<'me>>,
     pub ctes: IndexMap<SmolStr, Query<'me>>,
-    pub parent: Option<Query<'me>>,
+    // Parents own their children; the back-reference must not keep them alive.
+    pub parent: Option<Weak<RefCell<QueryInner<'me>>>>,
     pub subqueries: Vec<Query<'me>>,
     pub is_subquery: bool,
     pub cte_definition_segment: Option<ErasedSegment>,
@@ -267,13 +268,17 @@ impl<'me> Query<'me> {
                 .cloned()
         };
 
-        cte.or_else(move || {
-            self.inner
-                .borrow_mut()
-                .parent
-                .as_mut()
-                .and_then(|it| it.lookup_cte(name, pop))
-        })
+        cte.or_else(|| self.parent()?.lookup_cte(name, pop))
+    }
+
+    /// Return the parent while it is still owned by the enclosing query graph.
+    pub fn parent(&self) -> Option<Self> {
+        self.inner
+            .borrow()
+            .parent
+            .as_ref()?
+            .upgrade()
+            .map(|inner| Self { inner })
     }
 
     pub fn id(&self) -> *const RefCell<QueryInner<'me>> {
@@ -281,7 +286,7 @@ impl<'me> Query<'me> {
     }
 
     fn post_init(&self) {
-        let this = self.clone();
+        let this = Rc::downgrade(&self.inner);
 
         for subquery in &RefCell::borrow(&self.inner).subqueries {
             let mut subquery_inner = RefCell::borrow_mut(&subquery.inner);
@@ -402,7 +407,7 @@ impl<'me> Query<'me> {
                 dialect,
                 selectables,
                 ctes: <_>::default(),
-                parent,
+                parent: parent.map(|parent| Rc::downgrade(&parent.inner)),
                 subqueries,
                 is_subquery: false,
                 cte_definition_segment: None,

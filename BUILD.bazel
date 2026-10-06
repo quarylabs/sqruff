@@ -486,6 +486,7 @@ test_suite(
         "//crates/cli-python:integration_tests",
         "//crates/lib:sqruff-lib-test",
         "//crates/lib:rules_test",
+        "//crates/lib:query_memory_test",
         "//crates/lib:templaters_test",
         "//crates/lib-core:sqruff-lib-core-test",
         "//crates/lib-dialects:dialect_tests",

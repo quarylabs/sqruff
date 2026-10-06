@@ -53,11 +53,8 @@ impl RuleRF03 {
                 // at the *parent* query level. Only check if it is a subquery of the
                 // parent.
                 let mut possible_ref_tables = iter_available_targets(query.clone(), None);
-                let (parent, is_subquery) = {
-                    let query_inner = RefCell::borrow(&query.inner);
-                    (query_inner.parent.clone(), query_inner.is_subquery)
-                };
-                if is_subquery && let Some(parent) = parent {
+                let is_subquery = RefCell::borrow(&query.inner).is_subquery;
+                if is_subquery && let Some(parent) = query.parent() {
                     possible_ref_tables.extend(iter_available_targets(parent, Some(query.clone())));
                 }
 

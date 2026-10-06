@@ -668,6 +668,50 @@ pub fn raw_dialect() -> Dialect {
 
     mariadb.replace_grammar("TableOptionsSegment", mariadb_table_options_grammar());
 
+    // MariaDB adds an `IF EXISTS` clause between `INDEX` and the index name on
+    // the standalone `DROP INDEX` statement. MySQL does not support it, so the
+    // change is confined to the MariaDB dialect.
+    // https://mariadb.com/kb/en/drop-index/
+    mariadb.replace_grammar(
+        "DropIndexStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("DROP").to_matchable(),
+            Ref::keyword("INDEX").to_matchable(),
+            Ref::new("IfExistsGrammar").optional().to_matchable(),
+            Ref::new("IndexReferenceSegment").to_matchable(),
+            Ref::keyword("ON").to_matchable(),
+            Ref::new("TableReferenceSegment").to_matchable(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("ALGORITHM").to_matchable(),
+                    Ref::new("EqualsSegment").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::keyword("INPLACE").to_matchable(),
+                        Ref::keyword("COPY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("LOCK").to_matchable(),
+                    Ref::new("EqualsSegment").optional().to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DEFAULT").to_matchable(),
+                        Ref::keyword("NONE").to_matchable(),
+                        Ref::keyword("SHARED").to_matchable(),
+                        Ref::keyword("EXCLUSIVE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // MariaDB additionally supports PERSISTENT generated columns.
     // https://mariadb.com/kb/en/generated-columns/
     mariadb.replace_grammar(

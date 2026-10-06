@@ -30,7 +30,7 @@ jobs:
         run: |
           RELEASE_VERSION=${{ github.event.release.tag_name }}
           STRIPPED_VERSION=${RELEASE_VERSION#v}
-          ./.hacking/scripts/check_versions_match.sh $STRIPPED_VERSION
+          ./.hacking/scripts/check_versions_match.sh "$STRIPPED_VERSION"
   release-vsix:
     name: Release VSIX
     runs-on: ubuntu-latest
@@ -205,6 +205,80 @@ jobs:
         run: cargo publish -p sqruff-sqlinference
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+  check-binstall:
+    name: Check published binstall package (${{ matrix.platform.target }})
+    needs: [publish-to-cargo]
+    runs-on: ${{ matrix.platform.runner }}
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - target: x86_64-unknown-linux-gnu
+            runner: ubuntu-latest
+            run-binary: true
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-latest
+            run-binary: true
+          - target: aarch64-unknown-linux-gnu
+            runner: ubuntu-24.04-arm
+            run-binary: true
+          - target: aarch64-unknown-linux-musl
+            runner: ubuntu-24.04-arm
+            run-binary: true
+          - target: x86_64-apple-darwin
+            runner: ubuntu-latest
+            run-binary: false
+          - target: aarch64-apple-darwin
+            runner: ubuntu-latest
+            run-binary: false
+          - target: x86_64-pc-windows-msvc
+            runner: ubuntu-latest
+            run-binary: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+      - uses: cargo-bins/cargo-binstall@c06f6a0003f7c6165a00c89d1697731c9e8a5c72 # ratchet:cargo-bins/cargo-binstall@v1.25.2
+        with:
+          version: "1.25.2"
+      - name: Read released version
+        run: |
+          python3 -c 'import tomllib; print("SQRUFF_VERSION=" + tomllib.load(open("Cargo.toml", "rb"))["workspace"]["package"]["version"])' >> "$GITHUB_ENV"
+      - name: Download published package
+        shell: bash
+        env:
+          TARGET: ${{ matrix.platform.target }}
+          RUN_BINARY: ${{ matrix.platform.run-binary }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          args=(
+            "sqruff@=$SQRUFF_VERSION"
+            --targets "$TARGET"
+            --no-confirm
+            --disable-strategies "compile,quick-install"
+            --root "$RUNNER_TEMP/binstall-check"
+          )
+          if [[ "$RUN_BINARY" != "true" ]]; then
+            args+=(--dry-run)
+          fi
+          # Allow time for the newly published crate to become available.
+          for attempt in {1..5}; do
+            if cargo-binstall "${args[@]}"; then
+              exit 0
+            fi
+            if [[ "$attempt" == "5" ]]; then
+              exit 1
+            fi
+            sleep 15
+          done
+      - name: Run Linux binary
+        if: matrix.platform.run-binary
+        shell: bash
+        run: |
+          version_output=$("$RUNNER_TEMP/binstall-check/bin/sqruff" --version)
+          echo "$version_output"
+          [[ "$version_output" == "sqruff $SQRUFF_VERSION" ]]
   publish-to-marketplace:
     name: Publish VSIX to VSCode Marketplace
     runs-on: ubuntu-latest

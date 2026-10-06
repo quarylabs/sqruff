@@ -227,6 +227,6 @@ pub fn next_matchable_cache_key() -> MatchableCacheKey {
     // matchers.
     static ID: AtomicU32 = AtomicU32::new(1);
 
-    ID.fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1))
+    ID.try_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1))
         .unwrap()
 }

@@ -712,6 +712,55 @@ pub fn raw_dialect() -> Dialect {
         .to_matchable(),
     );
 
+    // MariaDB adds an `IF NOT EXISTS` clause to `CREATE SEQUENCE`. MySQL/ANSI
+    // do not support it, so the change is confined to the MariaDB dialect.
+    // https://mariadb.com/kb/en/create-sequence/
+    mariadb.replace_grammar(
+        "CreateSequenceStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("CREATE").to_matchable(),
+            Ref::keyword("SEQUENCE").to_matchable(),
+            Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+            Ref::new("SequenceReferenceSegment").to_matchable(),
+            AnyNumberOf::new(vec![
+                Ref::new("CreateSequenceOptionsSegment").to_matchable(),
+            ])
+            .config(|this| this.optional())
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // MariaDB adds an `IF EXISTS` clause to `ALTER SEQUENCE`. MariaDB only.
+    // https://mariadb.com/kb/en/alter-sequence/
+    mariadb.replace_grammar(
+        "AlterSequenceStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("ALTER").to_matchable(),
+            Ref::keyword("SEQUENCE").to_matchable(),
+            Ref::new("IfExistsGrammar").optional().to_matchable(),
+            Ref::new("SequenceReferenceSegment").to_matchable(),
+            AnyNumberOf::new(vec![Ref::new("AlterSequenceOptionsSegment").to_matchable()])
+                .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // MariaDB adds an `IF EXISTS` clause and a comma-separated name list to
+    // `DROP SEQUENCE`. MariaDB only.
+    // https://mariadb.com/kb/en/drop-sequence/
+    mariadb.replace_grammar(
+        "DropSequenceStatementSegment",
+        Sequence::new(vec![
+            Ref::keyword("DROP").to_matchable(),
+            Ref::keyword("SEQUENCE").to_matchable(),
+            Ref::new("IfExistsGrammar").optional().to_matchable(),
+            Delimited::new(vec![Ref::new("SequenceReferenceSegment").to_matchable()])
+                .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     // MariaDB additionally supports PERSISTENT generated columns.
     // https://mariadb.com/kb/en/generated-columns/
     mariadb.replace_grammar(

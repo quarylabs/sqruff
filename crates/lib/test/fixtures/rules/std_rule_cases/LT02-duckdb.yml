@@ -1,0 +1,128 @@
+rule: LT02
+
+test_fix_duckdb_named_parameter_brackets:
+  fail_str: |
+    FROM
+    Stream.Stream
+    WHERE
+    (
+    (
+    $create_at_start IS NULL)
+            OR (create_at >= $create_at_start)
+        )
+        AND (
+            ($create_at_end IS NULL)
+            OR (create_at <= $create_at_end)
+        )
+        AND (
+            ($create_at IS NULL)
+            OR (create_at == $create_at)
+        )
+        AND (
+            ($update_at_start IS NULL)
+            OR (update_at >= $update_at_start)
+        )
+        AND (
+            ($update_at_end IS NULL)
+            OR (update_at <= $update_at_end)
+        )
+        AND (
+            ($update_at IS NULL)
+            OR (update_at == $update_at)
+        )
+        AND (
+            ($channels IS NULL)
+            OR (list_contains($channels, channel))
+        )
+        AND (
+            ($stream_id IS NULL)
+            OR (stream_id == $stream_id)
+        )
+        AND (
+            ($direction IS NULL)
+            OR (direction == $direction::DIRECTION)
+        )
+        AND (
+            ($name IS NULL)
+            OR (name LIKE $name)
+        )
+    ORDER BY
+        channel;
+  fix_str: |
+    FROM
+        Stream.Stream
+    WHERE
+        (
+            (
+                $create_at_start IS NULL
+            )
+            OR (create_at >= $create_at_start)
+        )
+        AND (
+            ($create_at_end IS NULL)
+            OR (create_at <= $create_at_end)
+        )
+        AND (
+            ($create_at IS NULL)
+            OR (create_at == $create_at)
+        )
+        AND (
+            ($update_at_start IS NULL)
+            OR (update_at >= $update_at_start)
+        )
+        AND (
+            ($update_at_end IS NULL)
+            OR (update_at <= $update_at_end)
+        )
+        AND (
+            ($update_at IS NULL)
+            OR (update_at == $update_at)
+        )
+        AND (
+            ($channels IS NULL)
+            OR (list_contains($channels, channel))
+        )
+        AND (
+            ($stream_id IS NULL)
+            OR (stream_id == $stream_id)
+        )
+        AND (
+            ($direction IS NULL)
+            OR (direction == $direction::DIRECTION)
+        )
+        AND (
+            ($name IS NULL)
+            OR (name LIKE $name)
+        )
+    ORDER BY
+        channel;
+  roundtrip: true
+  configs:
+    core:
+      dialect: duckdb
+      templater: raw
+
+test_fix_duckdb_named_parameter_case:
+  fail_str: |
+    SELECT
+        CASE
+        WHEN
+    $target == 'stream_id' THEN stream_id
+            WHEN $target == 'name' THEN name
+        END AS mapping
+    FROM
+        Stream.Mapping;
+  fix_str: |
+    SELECT
+        CASE
+            WHEN
+                $target == 'stream_id' THEN stream_id
+            WHEN $target == 'name' THEN name
+        END AS mapping
+    FROM
+        Stream.Mapping;
+  roundtrip: true
+  configs:
+    core:
+      dialect: duckdb
+      templater: raw

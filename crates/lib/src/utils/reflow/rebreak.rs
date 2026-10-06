@@ -168,7 +168,7 @@ impl RebreakLocation {
 
 pub fn identify_rebreak_spans(
     element_buffer: &ReflowSequenceType,
-    root_segment: &ErasedSegment,
+    _root_segment: &ErasedSegment,
 ) -> Vec<RebreakSpan> {
     let mut spans = Vec::new();
 
@@ -239,9 +239,7 @@ pub fn identify_rebreak_spans(
                     .iter()
                     .position(|it| it == key)
                     .unwrap();
-                let target = root_segment.path_to(&element_buffer[idx].segments()[0])[target_depth]
-                    .segment
-                    .clone();
+                let target = block.depth_info().stack_segments[target_depth].clone();
 
                 let line_position_config = block.line_position_configs()[key];
 

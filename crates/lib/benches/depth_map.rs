@@ -1,4 +1,4 @@
-use criterion::{Criterion, criterion_group, criterion_main};
+use criterion::{BenchmarkId, Criterion, criterion_group, criterion_main};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::utils::reflow::depth_map::DepthMap;
@@ -84,5 +84,32 @@ fn depth_map(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, depth_map);
+// Parse once so the measured growth is LT11 linting, not parser throughput.
+fn lt11(c: &mut Criterion) {
+    let config = FluffConfig::from_source("[sqruff]\ndialect = ansi\nrules = LT11\n", None);
+    let linter = Linter::new(config, None, None, true).unwrap();
+    let mut group = c.benchmark_group("LT11/union_all");
+    for count in [100, 200, 400, 800] {
+        let sql = (0..count)
+            .map(|idx| format!("SELECT {idx} AS id"))
+            .collect::<Vec<_>>()
+            .join("\nUNION ALL\n");
+        let tables = Tables::default();
+        let parsed = linter.parse_string(&tables, &sql, None).unwrap();
+        assert!(parsed.violations.is_empty());
+        assert!(
+            linter
+                .lint_parsed(&tables, parsed.clone(), false)
+                .unwrap()
+                .violations()
+                .is_empty()
+        );
+        group.bench_with_input(BenchmarkId::from_parameter(count), &parsed, |b, parsed| {
+            b.iter(|| black_box(linter.lint_parsed(&tables, parsed.clone(), false).unwrap()));
+        });
+    }
+    group.finish();
+}
+
+criterion_group!(benches, depth_map, lt11);
 criterion_main!(benches);

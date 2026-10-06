@@ -112,3 +112,39 @@ test_fail_simple_fix_bigquery_intersect_distinct_before_and_after:
 
 # NOTE: We used to exclude TSQL from fixing these queries, but
 # the reflow logic now enables this.
+
+test_pass_comments_around_multiple_set_operators:
+  pass_str: |
+      SELECT 1
+      -- before union
+      UNION ALL -- after union
+      SELECT 2
+      /* before intersect */
+      INTERSECT
+      SELECT 3
+
+test_fail_multiple_operators_in_separate_statements:
+  fail_str: |
+      SELECT 1 UNION ALL SELECT 2;
+      SELECT 3 INTERSECT SELECT 4;
+  fix_str: |
+      SELECT 1
+      UNION ALL
+      SELECT 2;
+      SELECT 3
+      INTERSECT
+      SELECT 4;
+
+test_fail_nested_and_outer_set_operators:
+  fail_str: |
+      SELECT * FROM (
+          SELECT 1 UNION ALL SELECT 2
+      ) UNION ALL SELECT 3
+  fix_str: |
+      SELECT * FROM (
+          SELECT 1
+          UNION ALL
+          SELECT 2
+      )
+      UNION ALL
+      SELECT 3

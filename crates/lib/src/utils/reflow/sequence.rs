@@ -25,6 +25,32 @@ pub struct ReflowSequence<'a, 'b> {
     depth_map: DepthMap,
 }
 
+/// Immutable indexes shared by target-local sequences within a rule pass.
+/// Keep these outside the segment tree to avoid reference cycles.
+pub(crate) struct ReflowSequenceIndex {
+    raws: Vec<ErasedSegment>,
+    raw_indices: HashMap<u32, usize>,
+    depth_map: DepthMap,
+}
+
+impl ReflowSequenceIndex {
+    pub(crate) fn from_root(root: &ErasedSegment) -> Self {
+        let raws_with_stack = root.raw_segments_with_ancestors();
+        let depth_map = DepthMap::from_raws_with_stack(&raws_with_stack);
+        let raws: Vec<_> = raws_with_stack.into_iter().map(|(raw, _)| raw).collect();
+        let raw_indices = raws
+            .iter()
+            .enumerate()
+            .map(|(idx, raw)| (raw.id(), idx))
+            .collect();
+        Self {
+            raws,
+            raw_indices,
+            depth_map,
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum TargetSide {
     Both,
@@ -163,9 +189,47 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
             .unwrap()
             + 1;
 
-        let mut pre_idx = pre_idx;
-        let mut post_idx = post_idx;
+        Self::around_target_slice(
+            &all_raws,
+            pre_idx,
+            post_idx,
+            root_segment,
+            sides,
+            config,
+            None,
+        )
+    }
 
+    pub(crate) fn from_around_target_with_index(
+        target_segment: &ErasedSegment,
+        root_segment: &'b ErasedSegment,
+        sides: TargetSide,
+        config: &'a FluffConfig,
+        index: &ReflowSequenceIndex,
+    ) -> ReflowSequence<'a, 'b> {
+        let target_raws = target_segment.get_raw_segments();
+        let pre_idx = index.raw_indices[&target_raws.first().unwrap().id()];
+        let post_idx = index.raw_indices[&target_raws.last().unwrap().id()] + 1;
+        Self::around_target_slice(
+            &index.raws,
+            pre_idx,
+            post_idx,
+            root_segment,
+            sides,
+            config,
+            Some(&index.depth_map),
+        )
+    }
+
+    fn around_target_slice(
+        all_raws: &[ErasedSegment],
+        mut pre_idx: usize,
+        mut post_idx: usize,
+        root_segment: &'b ErasedSegment,
+        sides: TargetSide,
+        config: &'a FluffConfig,
+        depth_map: Option<&DepthMap>,
+    ) -> ReflowSequence<'a, 'b> {
         if sides == TargetSide::Both || sides == TargetSide::Before {
             pre_idx -= 1;
             for i in (0..=pre_idx).rev() {
@@ -187,7 +251,12 @@ impl<'a, 'b> ReflowSequence<'a, 'b> {
         }
 
         let segments = &all_raws[pre_idx..post_idx];
-        ReflowSequence::from_raw_segments(segments.to_vec(), root_segment, config, None)
+        ReflowSequence::from_raw_segments(
+            segments.to_vec(),
+            root_segment,
+            config,
+            depth_map.map(|map| map.subset(segments)),
+        )
     }
 
     pub fn insert(
@@ -523,4 +592,38 @@ pub enum Filter {
     All,
     Inline,
     Newline,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{ReflowSequence, ReflowSequenceIndex, TargetSide};
+    use crate::core::config::FluffConfig;
+    use crate::core::test_functions::parse_ansi_string;
+    use sqruff_lib_core::dialects::syntax::SyntaxKind;
+
+    #[test]
+    fn indexed_sequences_preserve_target_context() {
+        let root = parse_ansi_string(
+            "SELECT * FROM (SELECT 1 /* before */ UNION ALL -- after\n SELECT 2)\nINTERSECT SELECT 3; SELECT 4 EXCEPT SELECT 5",
+        );
+        let config = FluffConfig::default();
+        let index = ReflowSequenceIndex::from_root(&root);
+        for target in root
+            .recursive_crawl_all(false)
+            .iter()
+            .filter(|segment| segment.is_type(SyntaxKind::SetOperator))
+        {
+            for sides in [TargetSide::Both, TargetSide::Before, TargetSide::After] {
+                let original = ReflowSequence::from_around_target(target, &root, sides, &config);
+                let indexed = ReflowSequence::from_around_target_with_index(
+                    target, &root, sides, &config, &index,
+                );
+                assert!(
+                    indexed.elements == original.elements,
+                    "Context mismatch for target {}",
+                    target.id()
+                );
+            }
+        }
+    }
 }

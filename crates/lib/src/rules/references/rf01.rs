@@ -157,7 +157,7 @@ impl RuleRF01 {
         targets.extend(implicit_targets.iter().cloned());
 
         if !object_ref_matches_table(&possible_references, &targets) {
-            if let Some(parent) = RefCell::borrow(&query.inner).parent.clone() {
+            if let Some(parent) = query.parent() {
                 return self.resolve_reference(
                     r,
                     tbl_refs.clone(),

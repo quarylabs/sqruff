@@ -10,6 +10,89 @@ use sqruff_lib_core::parser::context::ParseContext;
 use sqruff_lib_core::parser::matchable::MatchableTrait;
 use sqruff_lib_core::parser::segments::Tables;
 use sqruff_lib_core::parser::segments::test_functions::lex;
+use sqruff_lib_core::utils::analysis::query::Query;
+
+#[test]
+fn test_query_graphs_are_released() {
+    use std::cell::RefCell;
+    use std::rc::{Rc, Weak};
+
+    use sqruff_lib_core::utils::analysis::query::QueryInner;
+
+    fn watch_queries<'a>(query: &Query<'a>) -> Vec<Weak<RefCell<QueryInner<'a>>>> {
+        let mut queries = vec![Rc::downgrade(&query.inner)];
+        for child in query.children() {
+            queries.extend(watch_queries(&child));
+        }
+        queries
+    }
+
+    let dialect = fresh_ansi_dialect();
+    for (sql, expected_queries) in [
+        ("SELECT 1 AS id", 1),
+        (
+            "WITH first AS (SELECT 1 AS id), second AS (SELECT id FROM first), \
+             third AS (SELECT id FROM second) SELECT id FROM third",
+            4,
+        ),
+        ("SELECT id FROM (SELECT 1 AS id) AS child", 2),
+        (
+            "WITH outer_cte AS (WITH inner_cte AS (SELECT 1 AS id) \
+             SELECT id FROM inner_cte) SELECT id FROM outer_cte",
+            3,
+        ),
+    ] {
+        let tables = Tables::default();
+        let (tokens, errors) = dialect.lexer().lex(&tables, sql);
+        assert!(errors.is_empty());
+        let tree = Parser::from(&dialect)
+            .parse(&tables, &tokens)
+            .unwrap()
+            .unwrap();
+        let query = Query::from_root(&tree, &dialect).unwrap();
+        let queries = watch_queries(&query);
+        assert_eq!(queries.len(), expected_queries, "{sql}");
+
+        drop(query);
+        assert!(
+            queries.iter().all(|query| query.upgrade().is_none()),
+            "query graph retained after dropping its owner: {sql}"
+        );
+    }
+}
+
+#[test]
+fn test_query_parent_lookup_and_detached_child() {
+    use std::rc::Rc;
+
+    let dialect = fresh_ansi_dialect();
+    let tables = Tables::default();
+    let sql = "WITH first AS (SELECT 1 AS id), second AS (SELECT id FROM first) \
+               SELECT id FROM second";
+    let (tokens, errors) = dialect.lexer().lex(&tables, sql);
+    assert!(errors.is_empty());
+    let tree = Parser::from(&dialect)
+        .parse(&tables, &tokens)
+        .unwrap()
+        .unwrap();
+    let query = Query::from_root(&tree, &dialect).unwrap();
+    let root = Rc::downgrade(&query.inner);
+    let child = query.lookup_cte("second", false).unwrap();
+    let first = query.lookup_cte("first", false).unwrap();
+
+    assert_eq!(child.lookup_cte("first", false).unwrap().id(), first.id());
+    assert!(child.lookup_cte("missing", false).is_none());
+    assert_eq!(child.lookup_cte("first", true).unwrap().id(), first.id());
+    assert!(query.lookup_cte("first", false).is_none());
+
+    drop(first);
+    drop(query);
+    assert!(
+        root.upgrade().is_none(),
+        "child must not keep its parent alive"
+    );
+    assert!(child.lookup_cte("missing", false).is_none());
+}
 
 #[test]
 fn test_dialect_ansi_file_lex() {

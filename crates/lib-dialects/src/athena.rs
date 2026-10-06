@@ -693,6 +693,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("PrepareStatementSegment").to_matchable(),
                 Ref::new("ExecuteStatementSegment").to_matchable(),
                 Ref::new("ShowStatementSegment").to_matchable(),
+                Ref::new("UsingExternalFunctionSegment").to_matchable(),
             ]),
             None,
             None,
@@ -1429,6 +1430,32 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                     ])
                     .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "UsingExternalFunctionSegment".into(),
+            NodeMatcher::new(SyntaxKind::UsingExternalFunctionStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("USING").to_matchable(),
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("EXTERNAL").to_matchable(),
+                            Ref::keyword("FUNCTION").to_matchable(),
+                            Ref::new("FunctionNameSegment").to_matchable(),
+                            Ref::new("FunctionParameterListGrammar").to_matchable(),
+                            Ref::keyword("RETURNS").to_matchable(),
+                            Ref::new("DatatypeSegment").to_matchable(),
+                            Ref::keyword("LAMBDA").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("SelectableGrammar").to_matchable(),
                 ])
                 .to_matchable()
             })

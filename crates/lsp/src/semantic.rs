@@ -564,6 +564,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateStreamStatement
         | AlterStreamStatement
         | ShowStatement
+        | UsingExternalFunctionStatement
         | AlterUserStatement
         | AlterSessionStatement
         | AlterSessionSetStatement

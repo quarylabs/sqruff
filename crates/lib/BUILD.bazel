@@ -159,6 +159,7 @@ rust_test(
     lint_config = ":cargo_lints",
     srcs = ["tests/query_memory.rs"],
     crate_root = "tests/query_memory.rs",
+    crate_features = clippy_config([], _CARGO_FEATURES),
     deps = [":sqruff-lib"],
 )
 

@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
       - uses: moonrepo/setup-rust@abb2d32350334249b178c401e5ec5836e0cd88d3 # ratchet:moonrepo/setup-rust@v1
         with:
-          channel: 1.98.1
+          channel: 1.99.0
           cache-target: release
           cache-extra-identifier: benchmark-timings
       - name: Fetch pinned TPC benchmark fixtures

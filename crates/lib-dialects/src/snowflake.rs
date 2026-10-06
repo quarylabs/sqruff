@@ -721,6 +721,115 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // Data governance clauses which are shared between the CREATE and ALTER
+        // statements of tables, views, materialized views and dynamic tables.
+        // https://docs.snowflake.com/en/sql-reference/sql/create-table
+        (
+            "ProjectionPolicyGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").optional().to_matchable(),
+                Ref::keyword("PROJECTION").to_matchable(),
+                Ref::keyword("POLICY").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AggregationPolicyGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").optional().to_matchable(),
+                Ref::keyword("AGGREGATION").to_matchable(),
+                Ref::keyword("POLICY").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ENTITY").to_matchable(),
+                    Ref::keyword("KEY").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JoinPolicyGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").optional().to_matchable(),
+                Ref::keyword("JOIN").to_matchable(),
+                Ref::keyword("POLICY").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("ALLOWED").to_matchable(),
+                    Ref::keyword("JOIN").to_matchable(),
+                    Ref::keyword("KEYS").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "StorageLifecyclePolicyGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").optional().to_matchable(),
+                Ref::keyword("STORAGE").to_matchable(),
+                Ref::keyword("LIFECYCLE").to_matchable(),
+                Ref::keyword("POLICY").to_matchable(),
+                Ref::new("ObjectReferenceSegment").to_matchable(),
+                Ref::keyword("ON").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                        .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // WITH CONTACT ( <purpose> = <contact_name> [ , ... ] ), as accepted by the
+        // CREATE statements. The ALTER statements use the unbracketed form.
+        (
+            "ContactBracketedGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("WITH").to_matchable(),
+                Ref::keyword("CONTACT").to_matchable(),
+                Bracketed::new(vec![
+                    Delimited::new(vec![
+                        Sequence::new(vec![
+                            Ref::new("PurposeGrammar").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "CopyTagsGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("COPY").to_matchable(),
+                Ref::keyword("TAGS").to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "ExecuteAsUserGrammar".into(),
             Sequence::new(vec![
@@ -3471,6 +3580,27 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("POLICY").to_matchable(),
                     ])
                     .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ADD").to_matchable(),
+                        Ref::keyword("STORAGE").to_matchable(),
+                        Ref::keyword("LIFECYCLE").to_matchable(),
+                        Ref::keyword("POLICY").to_matchable(),
+                        Ref::new("ObjectReferenceSegment").to_matchable(),
+                        Ref::keyword("ON").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("DROP").to_matchable(),
+                        Ref::keyword("STORAGE").to_matchable(),
+                        Ref::keyword("LIFECYCLE").to_matchable(),
+                        Ref::keyword("POLICY").to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable()
             })
@@ -3566,6 +3696,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 ])
                                 .config(|this| this.optional())
                                 .to_matchable(),
+                                Ref::new("ProjectionPolicyGrammar")
+                                    .optional()
+                                    .to_matchable(),
                                 Ref::new("CommentClauseSegment").optional().to_matchable(),
                             ])
                             .to_matchable(),
@@ -3675,6 +3808,24 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                     Ref::new("ColumnReferenceSegment").to_matchable(),
                                     Ref::keyword("UNSET").to_matchable(),
                                     Ref::keyword("MASKING").to_matchable(),
+                                    Ref::keyword("POLICY").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("COLUMN").to_matchable(),
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    Ref::keyword("SET").to_matchable(),
+                                    Ref::keyword("PROJECTION").to_matchable(),
+                                    Ref::keyword("POLICY").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                    Ref::keyword("FORCE").optional().to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("COLUMN").to_matchable(),
+                                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                                    Ref::keyword("UNSET").to_matchable(),
+                                    Ref::keyword("PROJECTION").to_matchable(),
                                     Ref::keyword("POLICY").to_matchable(),
                                 ])
                                 .to_matchable(),
@@ -7091,6 +7242,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable(),
             ])
             .to_matchable(),
+            Ref::new("ProjectionPolicyGrammar").to_matchable(),
             Ref::new("TagBracketedEqualsSegment")
                 .optional()
                 .to_matchable(),
@@ -7789,6 +7941,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
+                Ref::new("CopyTagsGrammar").optional().to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("WITH").optional().to_matchable(),
                     Ref::keyword("ROW").to_matchable(),
@@ -7804,6 +7957,16 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
+                Ref::new("AggregationPolicyGrammar")
+                    .optional()
+                    .to_matchable(),
+                Ref::new("JoinPolicyGrammar").optional().to_matchable(),
+                Ref::new("StorageLifecyclePolicyGrammar")
+                    .optional()
+                    .to_matchable(),
+                Ref::new("ContactBracketedGrammar")
+                    .optional()
+                    .to_matchable(),
                 Ref::new("IcebergTableOptionsSegment")
                     .optional()
                     .to_matchable(),

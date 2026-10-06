@@ -13,10 +13,28 @@ jobs:
   benchmark:
     name: run benchmark
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: sqlfluff-sha-only
     if: needs.sqlfluff-sha-only.outputs.sqlfluff-sha-only != 'true'
+    env:
+      # CI compares timings; full profiling symbols are only needed locally.
+      # Apply the same settings to both branches checked out by the action.
+      CARGO_BUILD_JOBS: "2"
+      CARGO_PROFILE_BENCH_DEBUG: "false"
+      CARGO_PROFILE_BENCH_STRIP: "symbols"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+      - uses: moonrepo/setup-rust@abb2d32350334249b178c401e5ec5836e0cd88d3 # ratchet:moonrepo/setup-rust@v1
+        with:
+          channel: 1.98.1
+          cache-target: release
+          cache-extra-identifier: benchmark-timings
+      - name: Fetch pinned TPC benchmark fixtures
+        env:
+          SQRUFF_TPC_FIXTURES_DIR: ${{ runner.temp }}/sqruff-tpc-fixtures
+        run: |
+          bash .hacking/scripts/fetch_tpc_queries.sh "$SQRUFF_TPC_FIXTURES_DIR"
+          printf 'SQRUFF_TPC_FIXTURES_DIR=%s\n' "$SQRUFF_TPC_FIXTURES_DIR" >> "$GITHUB_ENV"
       - uses: boa-dev/criterion-compare-action@59f4d964c5f19d7f13d36f5c0944b18ce6652cb0
         with:
           branchName: ${{ github.base_ref }}

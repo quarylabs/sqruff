@@ -4,8 +4,9 @@ This ports SQLFluff #7923's TPC-H (22 queries) and TPC-DS (99 queries) lex/parse
 benchmark coverage to sqruff's existing Criterion setup. The SQL is fetched
 from Apache Doris commit
 [`3a2d9d55f1e8e2d74187179ef89c36c8562815fd`](https://github.com/apache/doris/tree/3a2d9d55f1e8e2d74187179ef89c36c8562815fd),
-not committed to this repository. The fetch is explicit; normal builds and CI
-never access the network for these fixtures.
+not committed to this repository. The fetch is explicit; normal builds and test
+jobs never access the network for these fixtures. The PR benchmark workflow
+fetches this pinned corpus into a shared directory before comparing both branches.
 
 From the repository root:
 

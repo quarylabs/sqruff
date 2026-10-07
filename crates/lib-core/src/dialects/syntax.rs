@@ -1333,6 +1333,7 @@ pub enum SyntaxKind {
     UseStatement,
     UserReference,
     UsingClause,
+    UsingExternalFunctionStatement,
     UsingIndexClause,
     VacuumStatement,
     ValidationModeOption,

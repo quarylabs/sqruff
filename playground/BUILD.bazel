@@ -248,3 +248,47 @@ playwright_test_bin.playwright_test(
         "PLAYWRIGHT_BROWSERS_PATH": "../$(rootpath @playwright//:chromium-headless-shell)/..",
     },
 )
+
+WEBSITE_TEST_DATA = [
+    ":node_modules/@playwright/test",
+    "playwright.website.config.ts",
+    "@playwright//:chromium-headless-shell",
+] + glob([
+    "website-tests/**/*.ts",
+    "website-tests/snapshots/**/*.png",
+    "website-tests/fonts/*",
+], allow_empty = True)
+
+WEBSITE_TEST_ENV = {
+    # Linux screenshots use the bundled fonts rather than runner-installed fonts.
+    "FONTCONFIG_FILE": "website-tests/fonts/fonts.conf",
+    "PLAYWRIGHT_BROWSERS_PATH": "../$(rootpath @playwright//:chromium-headless-shell)/..",
+}
+
+# Included in bazel test //...: test the combined artifact's docs and editor.
+# Usage: bazel test //playground:website_test
+playwright_test_bin.playwright_test(
+    name = "website_test",
+    args = [
+        "test",
+        "--config=playwright.website.config.ts",
+    ],
+    chdir = package_name(),
+    data = VITE_DATA + WEBSITE_TEST_DATA + ["//:website"],
+    env = WEBSITE_TEST_ENV,
+)
+
+# Run the same tests against production after deployment, without rebuilding
+# the website. The manual tag excludes this live check from bazel test //...
+# Usage: bazel test //playground:deployed_website_test --nocache_test_results
+playwright_test_bin.playwright_test(
+    name = "deployed_website_test",
+    args = [
+        "test",
+        "--config=playwright.website.config.ts",
+    ],
+    chdir = package_name(),
+    data = WEBSITE_TEST_DATA,
+    env = dict(WEBSITE_TEST_ENV, WEBSITE_BASE_URL = "https://playground.quary.dev"),
+    tags = ["manual", "requires-network"],
+)

@@ -556,6 +556,7 @@ copy_to_directory(
         "playground/dist": "",
         "docs_site": "docs",
     },
+    visibility = ["//playground:__pkg__"],
 )
 
 # Verify .sqlfluff-sha points to a real commit in sqlfluff/sqlfluff

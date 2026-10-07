@@ -30,6 +30,8 @@ jobs:
         run: sudo apt-get update --yes && sudo apt-get install --yes lld
       - name: Build website
         run: bazelisk build //:website
+      - name: Test website
+        run: bazelisk test //playground:website_test
       - name: Setup Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # ratchet:actions/configure-pages@v6.0.0
       - name: Upload artifact
@@ -39,3 +41,34 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # ratchet:actions/deploy-pages@v5.0.1
+      - name: Upload website visual test failures
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+        with:
+          name: website-visual-before-deploy
+          path: bazel-testlogs/playground/website_test/test.outputs
+          if-no-files-found: ignore
+  verify-deployment:
+    name: Verify deployed docs and editor
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+      - name: Setup Bazel
+        uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # ratchet:bazel-contrib/setup-bazel@0.19.0
+        with:
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - name: Test deployed website
+        run: bazelisk test //playground:deployed_website_test --nocache_test_results
+      - name: Upload website visual test failures
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+        with:
+          name: website-visual-after-deploy
+          path: bazel-testlogs/playground/deployed_website_test/test.outputs
+          if-no-files-found: ignore

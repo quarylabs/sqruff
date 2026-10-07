@@ -71,6 +71,13 @@ jobs:
         run: bazelisk build --config=ci //...
       - name: Run all tests
         run: bazelisk test --config=ci //...
+      - name: Upload website visual test failures
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+        with:
+          name: website-visual-pr
+          path: bazel-testlogs/playground/website_test/test.outputs
+          if-no-files-found: ignore
   build-binaries:
     name: Build binaries for all platforms
     # Master pushes only need to refresh the Bazel cache; skip the binary

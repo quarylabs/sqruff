@@ -100,6 +100,24 @@ FROM foo;
 
 The same modifier can be configured for `binary_operator`.
 
+The available segment types depend on the selected dialect and the SQL being
+parsed. To discover them, inspect the parse tree for a representative query. In
+the [playground](https://playground.quary.dev), select the "Cst" tool to view
+the concrete syntax tree:
+
+```text
+...
+select_clause:
+...
+    comma:                                        ','
+...
+from_clause:
+```
+
+The labels in the parse tree, such as `select_clause`, `comma` and
+`from_clause`, are the segment types to use in `[sqruff:layout:type:<type>]`
+section headings.
+
 ## Attaching operators to adjacent lines
 
 The `leading:attached` and `trailing:attached` modifiers allow an operator in

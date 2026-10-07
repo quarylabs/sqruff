@@ -35,9 +35,13 @@ for (const { path, heading, screenshot } of [
     const title = page.getByRole("heading", { level: 1 });
     await expect(title).toBeVisible();
     await expect(title).toContainText(heading);
-    await expect(page).toHaveScreenshot(screenshot, {
-      // Keep native scrollbar preferences from changing the available width.
-      style: "::-webkit-scrollbar { display: none; }",
+    // Keep native scrollbar preferences from changing the available width.
+    await page.addStyleTag({
+      content: `
+        * { scrollbar-width: none !important; scrollbar-gutter: auto !important; }
+        ::-webkit-scrollbar { display: none !important; }
+      `,
     });
+    await expect(page).toHaveScreenshot(screenshot);
   });
 }

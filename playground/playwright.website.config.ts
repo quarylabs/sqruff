@@ -1,4 +1,11 @@
 import { defineConfig, devices } from "@playwright/test";
+import { resolve } from "node:path";
+
+// Fontconfig searches /etc/fonts for relative paths, ignoring the bundled fonts.
+// Resolve Bazel's path before Playwright starts Chromium and its worker processes.
+if (process.env.FONTCONFIG_FILE) {
+  process.env.FONTCONFIG_FILE = resolve(process.env.FONTCONFIG_FILE);
+}
 
 const deployedURL = process.env.WEBSITE_BASE_URL;
 

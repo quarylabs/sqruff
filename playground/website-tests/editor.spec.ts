@@ -21,4 +21,10 @@ test("the playground editor formats SQL after an edit", async ({ page }) => {
   await expect(page.locator("#secondary-panel")).toContainText(
     "SELECT name FROM users_deployment_check",
   );
+  // Move focus outside the captured editor so its blinking caret is hidden.
+  await page.getByRole("button", { name: "New issue", exact: true }).focus();
+  await page.mouse.move(0, 0);
+  await expect(page.locator("main > .flex-grow")).toHaveScreenshot(
+    "editor.png",
+  );
 });

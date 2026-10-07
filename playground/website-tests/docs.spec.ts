@@ -6,9 +6,13 @@ test.beforeEach(async ({ page }) => {
   await page.route("https://fonts.gstatic.com/**", (route) => route.abort());
 });
 
-for (const { path, heading } of [
-  { path: "/docs/", heading: "Sqruff" },
-  { path: "/docs/getting-started/installation/", heading: "Installation" },
+for (const { path, heading, screenshot } of [
+  { path: "/docs/", heading: "Sqruff", screenshot: "docs-overview.png" },
+  {
+    path: "/docs/getting-started/installation/",
+    heading: "Installation",
+    screenshot: "docs-installation.png",
+  },
 ]) {
   test(`docs load their theme assets at ${path}`, async ({ page }) => {
     const stylesheet = page.waitForResponse((response) =>
@@ -23,16 +27,17 @@ for (const { path, heading } of [
     await page.goto(path, { waitUntil: "domcontentloaded" });
 
     const [css, js] = await Promise.all([stylesheet, script]);
-    expect(css.ok(), `Stylesheet failed: ${css.url()}`).toBe(true);
-    expect(css.headers()["content-type"]).toContain("text/css");
-    expect(js.ok(), `Script failed: ${js.url()}`).toBe(true);
-    expect(js.headers()["content-type"]).toMatch(/javascript/);
+    expect.soft(css.ok(), `Stylesheet failed: ${css.url()}`).toBe(true);
+    expect.soft(css.headers()["content-type"]).toContain("text/css");
+    expect.soft(js.ok(), `Script failed: ${js.url()}`).toBe(true);
+    expect.soft(js.headers()["content-type"]).toMatch(/javascript/);
 
     const title = page.getByRole("heading", { level: 1 });
     await expect(title).toBeVisible();
     await expect(title).toContainText(heading);
-    // Check that the browser actually applied the theme, not just served HTML.
-    await expect(page.locator(".md-header")).toHaveCSS("position", "sticky");
-    await expect(page.locator(".md-sidebar--primary")).toBeVisible();
+    await expect(page).toHaveScreenshot(screenshot, {
+      // Keep native scrollbar preferences from changing the available width.
+      style: "::-webkit-scrollbar { display: none; }",
+    });
   });
 }

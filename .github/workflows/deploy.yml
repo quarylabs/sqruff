@@ -41,6 +41,13 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # ratchet:actions/deploy-pages@v5.0.1
+      - name: Upload website visual test failures
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+        with:
+          name: website-visual-before-deploy
+          path: bazel-testlogs/playground/website_test/test.outputs
+          if-no-files-found: ignore
   verify-deployment:
     name: Verify deployed docs and editor
     needs: deploy
@@ -58,3 +65,10 @@ jobs:
           repository-cache: true
       - name: Test deployed website
         run: bazelisk test //playground:deployed_website_test --nocache_test_results
+      - name: Upload website visual test failures
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # ratchet:actions/upload-artifact@v7.0.1
+        with:
+          name: website-visual-after-deploy
+          path: bazel-testlogs/playground/deployed_website_test/test.outputs
+          if-no-files-found: ignore

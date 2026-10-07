@@ -253,9 +253,15 @@ WEBSITE_TEST_DATA = [
     ":node_modules/@playwright/test",
     "playwright.website.config.ts",
     "@playwright//:chromium-headless-shell",
-] + glob(["website-tests/**/*.ts"])
+] + glob([
+    "website-tests/**/*.ts",
+    "website-tests/snapshots/**/*.png",
+    "website-tests/fonts/*",
+], allow_empty = True)
 
 WEBSITE_TEST_ENV = {
+    # Linux screenshots use the bundled fonts rather than runner-installed fonts.
+    "FONTCONFIG_FILE": "website-tests/fonts/fonts.conf",
     "PLAYWRIGHT_BROWSERS_PATH": "../$(rootpath @playwright//:chromium-headless-shell)/..",
 }
 

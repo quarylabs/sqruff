@@ -17,6 +17,10 @@ WORKDIR="$(mktemp -d)"
 trap 'rm -rf "$WORKDIR"' EXIT
 cp -L zensical.toml "$WORKDIR/"
 cp -rL docs "$WORKDIR/"
+# Zensical's asset discovery skips symlinks. Bazel sandbox inputs are symlinked,
+# so materialize the Python package (including the theme) before building.
+cp -rL "$PYTHON_DIR" "$WORKDIR/python"
+PYTHON_DIR="$WORKDIR/python"
 cd "$WORKDIR"
 
 # Invoke the module directly: installed entry-point scripts contain the

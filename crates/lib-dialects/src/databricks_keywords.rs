@@ -53,6 +53,8 @@ pub(crate) const UNRESERVED_KEYWORDS: &[&str] = &[
     "RELY",
     "ROW",
     "SCHEDULE",
+    "SECOND",
+    "SECONDS",
     "SHALLOW",
     "SOURCE",
     "SQL",

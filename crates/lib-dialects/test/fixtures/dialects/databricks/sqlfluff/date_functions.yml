@@ -107,6 +107,28 @@ file:
       - select_clause_element:
         - function:
           - function_name:
+            - function_name_identifier: DATE_DIFF
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - date_part: SECOND
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: start_dt
+              - comma: ','
+              - expression:
+                - column_reference:
+                  - naked_identifier: end_dt
+              - end_bracket: )
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: datediff_sec
+      - comma: ','
+      - select_clause_element:
+        - function:
+          - function_name:
             - function_name_identifier: DATEADD
           - function_contents:
             - bracketed:

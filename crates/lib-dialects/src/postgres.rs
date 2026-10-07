@@ -5791,8 +5791,14 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("GENERATED").to_matchable(),
                     Ref::keyword("ALWAYS").to_matchable(),
                     Ref::keyword("AS").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
-                    Ref::keyword("STORED").to_matchable(),
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("STORED").to_matchable(),
+                        Ref::keyword("VIRTUAL").to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
@@ -9832,8 +9838,14 @@ pub fn raw_dialect() -> Dialect {
                             Ref::keyword("GENERATED").to_matchable(),
                             Ref::keyword("ALWAYS").to_matchable(),
                             Ref::keyword("AS").to_matchable(),
-                            Ref::new("ExpressionSegment").to_matchable(),
-                            Ref::keyword("STORED").to_matchable(),
+                            Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                                .to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("STORED").to_matchable(),
+                                Ref::keyword("VIRTUAL").to_matchable(),
+                            ])
+                            .config(|this| this.optional())
+                            .to_matchable(),
                         ])
                         .to_matchable(),
                     ])

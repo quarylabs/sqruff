@@ -876,6 +876,7 @@ const POSTGRES_DOCS_KEYWORDS: &[(&str, &str)] = &[
     ("VERSIONING", "not-keyword"),
     ("VIEW", "non-reserved"),
     ("VIEWS", "non-reserved"),
+    ("VIRTUAL", "non-reserved"),
     ("VOLATILE", "non-reserved"),
     ("WHEN", "reserved"),
     ("WHENEVER", "not-keyword"),

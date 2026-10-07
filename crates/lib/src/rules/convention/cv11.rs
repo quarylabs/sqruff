@@ -152,6 +152,14 @@ FROM foo;
             if function_name.raw().eq_ignore_ascii_case("CAST") {
                 TypeCastingStyle::Cast
             } else if function_name.raw().eq_ignore_ascii_case("CONVERT") {
+                // On the dialects whose CONVERT takes its arguments the other
+                // way round, rewriting to CAST swaps them and produces valid SQL
+                // that means something else: CONVERT(b, SIGNED) would become
+                // cast(SIGNED as b). Leave CONVERT alone there rather than
+                // corrupt it silently. CAST and :: are still linted as usual.
+                if is_reversed_convert_dialect(context.dialect.name) {
+                    return Vec::new();
+                }
                 TypeCastingStyle::Convert
             } else {
                 TypeCastingStyle::None
@@ -545,6 +553,16 @@ fn build_function(
     .finish()
 }
 
+/// MySQL spells this `CONVERT(expr, type)`, the opposite way round from the
+/// T-SQL `CONVERT(type, expr)` that this rule assumes. mariadb, doris and
+/// starrocks all inherit the mysql dialect and so inherit the order too.
+fn is_reversed_convert_dialect(dialect: DialectKind) -> bool {
+    matches!(
+        dialect,
+        DialectKind::Mysql | DialectKind::Mariadb | DialectKind::Doris | DialectKind::Starrocks
+    )
+}
+
 fn convert_fix_list(
     tables: &Tables,
     dialect: DialectKind,
@@ -553,6 +571,15 @@ fn convert_fix_list(
     convert_arg_2: ErasedSegment,
     later_types: Option<Segments>,
 ) -> Vec<LintFix> {
+    // Return no fixes on the dialects whose CONVERT takes its arguments the
+    // other way round. The rewrite below emits the T-SQL order, so applying it
+    // there would turn CAST(b AS SIGNED) into convert(SIGNED, b): valid SQL
+    // that means something else. The violation is still reported by the caller,
+    // it just cannot be auto-fixed.
+    if is_reversed_convert_dialect(dialect) {
+        return Vec::new();
+    }
+
     let mut function = build_function(
         tables,
         dialect,

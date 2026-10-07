@@ -177,6 +177,7 @@ fn known_missing_references(dialect: DialectKind) -> &'static [&'static str] {
             "SKIP_LOCKED",
             "SUMMARY",
             "TIMING",
+            "VIRTUAL",
             "WAL",
         ],
         DialectKind::Snowflake => &[

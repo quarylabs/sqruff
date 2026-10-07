@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
 
+test.beforeEach(async ({ page }) => {
+  // Font availability should not block checks of the site's own theme assets.
+  await page.route("https://fonts.googleapis.com/**", (route) => route.abort());
+  await page.route("https://fonts.gstatic.com/**", (route) => route.abort());
+});
+
 for (const { path, heading } of [
   { path: "/docs/", heading: "Sqruff" },
   { path: "/docs/getting-started/installation/", heading: "Installation" },

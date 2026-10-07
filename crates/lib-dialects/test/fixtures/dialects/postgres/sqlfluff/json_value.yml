@@ -153,27 +153,26 @@ file:
           - keyword: GENERATED
           - keyword: ALWAYS
           - keyword: AS
-          - expression:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: json_value
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: raw_data
-                      - comma: ','
-                      - expression:
-                        - quoted_literal: '''$."action_type"'''
-                      - keyword: RETURNING
-                      - data_type:
-                        - keyword: smallint
-                      - end_bracket: )
-              - end_bracket: )
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: json_value
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: raw_data
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''$."action_type"'''
+                    - keyword: RETURNING
+                    - data_type:
+                      - keyword: smallint
+                    - end_bracket: )
+            - end_bracket: )
           - keyword: STORED
         - column_constraint_segment:
           - keyword: NOT
@@ -187,27 +186,26 @@ file:
           - keyword: GENERATED
           - keyword: ALWAYS
           - keyword: AS
-          - expression:
-            - bracketed:
-              - start_bracket: (
-              - expression:
-                - function:
-                  - function_name:
-                    - function_name_identifier: json_value
-                  - function_contents:
-                    - bracketed:
-                      - start_bracket: (
-                      - expression:
-                        - column_reference:
-                          - naked_identifier: raw_data
-                      - comma: ','
-                      - expression:
-                        - quoted_literal: '''$."target_id"'''
-                      - keyword: RETURNING
-                      - data_type:
-                        - keyword: bigint
-                      - end_bracket: )
-              - end_bracket: )
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: json_value
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - column_reference:
+                        - naked_identifier: raw_data
+                    - comma: ','
+                    - expression:
+                      - quoted_literal: '''$."target_id"'''
+                    - keyword: RETURNING
+                    - data_type:
+                      - keyword: bigint
+                    - end_bracket: )
+            - end_bracket: )
           - keyword: STORED
       - end_bracket: )
 - statement_terminator: ;

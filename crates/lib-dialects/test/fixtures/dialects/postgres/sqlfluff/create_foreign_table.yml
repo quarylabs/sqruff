@@ -94,15 +94,14 @@ file:
         - keyword: GENERATED
         - keyword: ALWAYS
         - keyword: AS
-        - expression:
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: simple_column
-              - binary_operator: '*'
-              - numeric_literal: '2'
-            - end_bracket: )
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: simple_column
+            - binary_operator: '*'
+            - numeric_literal: '2'
+          - end_bracket: )
         - keyword: STORED
       - comma: ','
       - column_reference:
@@ -796,15 +795,14 @@ file:
         - keyword: GENERATED
         - keyword: ALWAYS
         - keyword: AS
-        - expression:
-          - bracketed:
-            - start_bracket: (
-            - expression:
-              - column_reference:
-                - naked_identifier: simple_column
-              - binary_operator: '*'
-              - numeric_literal: '2'
-            - end_bracket: )
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - column_reference:
+              - naked_identifier: simple_column
+            - binary_operator: '*'
+            - numeric_literal: '2'
+          - end_bracket: )
         - keyword: STORED
       - comma: ','
       - column_reference:

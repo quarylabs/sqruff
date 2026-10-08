@@ -342,3 +342,184 @@ fn escaped_carriage_returns_in_string_values_are_preserved() {
         expected
     );
 }
+
+#[test]
+fn parser_exposes_sql_bodies_before_linting_and_preserves_raw_source() {
+    use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+    use sqruff_lib_core::parser::{Parser, lexer::Lexer, segments::Tables};
+    let config = FluffConfig::from_source("[sqruff]\ndialect = snowflake\n", None);
+    for (language, body, parsed) in [
+        ("LANGUAGE SQL\n", "$$begin return 1+2; end;$$", true),
+        ("", "'begin\\nreturn ''雪'';\\nend;'", true),
+        ("LANGUAGE JAVASCRIPT\n", "$$begin return 1+2; end;$$", false),
+    ] {
+        let input = procedure(language, body);
+        let tables = Tables::default();
+        let (tokens, errors) = Lexer::from(config.get_dialect()).lex(&tables, input.as_str());
+        assert!(errors.is_empty());
+        let tree = Parser::from(config.get_dialect())
+            .parse(&tables, &tokens)
+            .unwrap()
+            .unwrap();
+        assert_eq!(tree.raw(), input.as_str());
+        let bodies = tree.recursive_crawl(
+            &SyntaxSet::single(SyntaxKind::UdfBody),
+            false,
+            &SyntaxSet::EMPTY,
+            false,
+        );
+        assert_eq!(bodies.len(), 1);
+        assert_eq!(bodies[0].quoted_file().is_some(), parsed);
+        if let Some(file) = bodies[0].quoted_file() {
+            assert!(
+                file.descendant_type_set()
+                    .contains(SyntaxKind::ReturnStatement)
+            );
+            for keyword in file.recursive_crawl(
+                &SyntaxSet::single(SyntaxKind::Keyword),
+                true,
+                &SyntaxSet::EMPTY,
+                false,
+            ) {
+                let marker = keyword.get_position_marker().unwrap();
+                assert_eq!(
+                    marker
+                        .templated_file
+                        .templated_slice_to_source_slice(marker.templated_slice.clone())
+                        .unwrap(),
+                    marker.source_slice
+                );
+                assert_eq!(&input[marker.source_slice.clone()], keyword.raw().as_str());
+            }
+        }
+    }
+}
+
+#[test]
+fn final_newline_rule_applies_after_the_closing_delimiter() {
+    let input = "CREATE PROCEDURE P() RETURNS INTEGER LANGUAGE SQL AS $$BEGIN RETURN 1; END;$$";
+    let linted = linter("LT12").lint_string(input, None, true).unwrap();
+    assert!(!linted.has_parse_or_templating_errors());
+    assert_eq!(linted.fix_string(), format!("{input}\n"));
+}
+
+#[test]
+fn uninitialised_declarations_are_parsed_and_formatted() {
+    let input = procedure(
+        "LANGUAGE SQL\n",
+        "$$\ndeclare\nn integer;\nbegin\nn:=1+2;\nreturn n;\nend;\n$$",
+    );
+    let expected = procedure(
+        "LANGUAGE SQL\n",
+        "$$\nDECLARE\n    n integer;\nBEGIN\n    n := 1 + 2;\n    RETURN n;\nEND;\n$$",
+    );
+    let linted = linter("CP01,LT01,LT02")
+        .lint_string(&input, None, true)
+        .unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert_eq!(linted.fix_string(), expected);
+}
+
+#[test]
+fn all_rules_can_process_quoted_sql_and_produce_stable_output() {
+    let linter = linter("all");
+    let input = procedure(
+        "LANGUAGE SQL\n",
+        "$$\nbegin\nselect 1+2 as total;\nreturn 1;\nend;\n$$",
+    );
+    let linted = linter.lint_string(&input, None, true).unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert!(
+        !linted
+            .violations()
+            .iter()
+            .any(|v| v.description.starts_with("Unexpected exception")),
+        "{:?}",
+        linted.violations()
+    );
+    let fixed = linted.fix_string();
+    assert!(fixed.contains("1 + 2"), "{fixed}");
+    assert_eq!(
+        linter.lint_string(&fixed, None, true).unwrap().fix_string(),
+        fixed
+    );
+}
+
+#[test]
+fn body_noqa_ranges_do_not_leak_into_other_statements() {
+    let first = procedure(
+        "LANGUAGE SQL\n",
+        "$$\n-- noqa: disable=LT01\nBEGIN RETURN 1+2; END;\n$$",
+    );
+    let second = procedure("LANGUAGE SQL\n", "$$BEGIN RETURN 5+6; END;$$");
+    let input = format!("{first}SELECT 3+4;\n{second}");
+    let expected = format!(
+        "{first}SELECT 3 + 4;\n{}",
+        procedure("LANGUAGE SQL\n", "$$BEGIN RETURN 5 + 6; END;$$")
+    );
+    let linted = linter("LT01").lint_string(&input, None, true).unwrap();
+    assert_eq!(linted.fix_string(), expected);
+}
+
+#[test]
+fn parse_node_limit_includes_the_contents_of_all_quoted_bodies() {
+    use sqruff_lib_core::parser::{IndentationConfig, Parser, lexer::Lexer, segments::Tables};
+    let config = FluffConfig::from_source("[sqruff]\ndialect = snowflake\n", None);
+    let input = procedure("LANGUAGE SQL\n", "$$BEGIN RETURN 1; END;$$").repeat(5);
+    let tables = Tables::default();
+    let (tokens, _) = Lexer::from(config.get_dialect()).lex(&tables, input.as_str());
+    let tree = Parser::from(config.get_dialect())
+        .parse(&tables, &tokens)
+        .unwrap()
+        .unwrap();
+    let total = tree.recursive_crawl_all(false).len();
+    let parser = Parser::new_with_limits(
+        config.get_dialect(),
+        IndentationConfig::default(),
+        600,
+        total - 1,
+    );
+    let error = parser.parse(&Tables::default(), &tokens).unwrap_err();
+    assert!(
+        error
+            .description
+            .contains("Maximum parse node count exceeded")
+    );
+    let unlimited =
+        Parser::new_with_limits(config.get_dialect(), IndentationConfig::default(), 600, 0);
+    assert!(unlimited.parse(&Tables::default(), &tokens).is_ok());
+}
+
+#[test]
+fn literal_bodies_are_fixed_when_other_statements_contain_templates() {
+    let linter = Linter::new(
+        FluffConfig::from_source(
+            "[sqruff]\ndialect = snowflake\ntemplater = placeholder\nrules = CP01,LT01\n[sqruff:templater:placeholder]\nparam_style = colon\nvalue = 42\n[sqruff:rules:capitalisation.keywords]\ncapitalisation_policy = upper\n",
+            None,
+        ), None, None, true,
+    ).unwrap();
+    let prefix = "SELECT :value;\n";
+    let input = format!(
+        "{prefix}{}",
+        procedure("LANGUAGE SQL\n", "'begin return 1+2; end;'")
+    );
+    let expected = format!(
+        "{prefix}{}",
+        procedure("LANGUAGE SQL\n", "'BEGIN RETURN 1 + 2; END;'")
+    );
+    let linted = linter.lint_string(&input, None, true).unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert_eq!(linted.fix_string(), expected);
+}

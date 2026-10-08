@@ -169,7 +169,10 @@ rust_test(
     srcs = ["tests/snowflake_procedure_bodies.rs"],
     crate_root = "tests/snowflake_procedure_bodies.rs",
     crate_features = clippy_config([], _CARGO_FEATURES),
-    deps = [":sqruff-lib"],
+    deps = [
+        ":sqruff-lib",
+        "//crates/lib-core:sqruff-lib-core",
+    ],
 )
 
 # Compile the Criterion programs with cfg(test), without running benchmarks.

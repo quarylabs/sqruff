@@ -16,6 +16,8 @@ use sqruff_lib_core::parser::node_matcher::NodeMatcher;
 use sqruff_lib_core::parser::parsers::{
     CaseFold, MultiStringParser, RegexParser, StringParser, TypedParser,
 };
+use sqruff_lib_core::parser::quoted::QuotedBodyParser;
+use sqruff_lib_core::parser::segments::ErasedSegment;
 use sqruff_lib_core::parser::segments::generator::SegmentGenerator;
 use sqruff_lib_core::parser::segments::meta::MetaSegment;
 use sqruff_lib_core::parser::types::ParseMode;
@@ -26,6 +28,19 @@ use sqruff_lib_core::dialects::init::DialectConfig;
 use sqruff_lib_core::value::Value;
 
 sqruff_lib_core::dialect_config!(SnowflakeDialectConfig {});
+
+fn sql_procedure(procedure: &ErasedSegment) -> bool {
+    let mut children = procedure.segments().iter().filter(|child| child.is_code());
+    while let Some(child) = children.next() {
+        if child.is_type(SyntaxKind::Keyword) && child.raw().eq_ignore_ascii_case("LANGUAGE") {
+            return children
+                .next()
+                .is_some_and(|language| language.raw().eq_ignore_ascii_case("SQL"));
+        }
+    }
+    // Snowflake procedures default to SQL when LANGUAGE is omitted.
+    true
+}
 
 fn scripting_declaration() -> Matchable {
     Sequence::new(vec![
@@ -98,6 +113,14 @@ fn scripting_declaration() -> Matchable {
                 .to_matchable(),
             ])
             .to_matchable(),
+            // A typed variable may be declared without an initial value.
+            Ref::new("DatatypeSegment")
+                .exclude(one_of(vec![
+                    Ref::keyword("CURSOR").to_matchable(),
+                    Ref::keyword("RESULTSET").to_matchable(),
+                    Ref::keyword("EXCEPTION").to_matchable(),
+                ]))
+                .to_matchable(),
         ])
         .to_matchable(),
     ])
@@ -14849,6 +14872,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
     ]);
 
+    snowflake_dialect.add_quoted_body_parser(
+        QuotedBodyParser::new(
+            SyntaxKind::CreateProcedureStatement,
+            SyntaxKind::UdfBody,
+            sql_procedure,
+        )
+        .backslash_escapes(),
+    );
     snowflake_dialect.expand();
     snowflake_dialect
 }

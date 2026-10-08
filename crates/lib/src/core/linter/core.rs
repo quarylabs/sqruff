@@ -27,14 +27,6 @@ use sqruff_lib_core::parser::segments::{ErasedSegment, Tables};
 use sqruff_lib_core::templaters::TemplatedFile;
 use sqruff_lib_core::value::Value;
 
-pub(super) type InheritedIgnore<'a> = dyn Fn(&ErasedSegment, &ErasedRule, bool) -> bool + 'a;
-
-struct LintIgnores<'a> {
-    mask: Option<IgnoreMask>,
-    violations: Vec<SQLBaseError>,
-    inherited: Option<&'a InheritedIgnore<'a>>,
-}
-
 pub struct Linter {
     config: FluffConfig,
     formatter: Option<Arc<dyn Formatter>>,
@@ -483,16 +475,6 @@ impl Linter {
         parsed_string: ParsedString,
         fix: bool,
     ) -> Result<LintedFile, SQLFluffUserError> {
-        self.lint_parsed_with_ignore(tables, parsed_string, fix, None)
-    }
-
-    pub(super) fn lint_parsed_with_ignore(
-        &self,
-        tables: &Tables,
-        parsed_string: ParsedString,
-        fix: bool,
-        inherited: Option<&InheritedIgnore<'_>>,
-    ) -> Result<LintedFile, SQLFluffUserError> {
         let tree_is_unparsable = |tree: &ErasedSegment| {
             tree.is_type(SyntaxKind::Unparsable)
                 || tree.descendant_type_set().contains(SyntaxKind::Unparsable)
@@ -515,7 +497,7 @@ impl Linter {
         // The first variant with a parse tree is the root. Parse errors from
         // other branches must not invalidate it.
         let root_index = variants.iter().position(|variant| variant.tree.is_some());
-        let mut has_parse_or_templating_errors = root_index.is_none_or(|index| {
+        let has_parse_or_templating_errors = root_index.is_none_or(|index| {
             !variants[index].violations.is_empty()
                 || variants[index]
                     .tree
@@ -526,24 +508,9 @@ impl Linter {
         let (templated_file, mut violations, ignore_mask) = if let Some(root_index) = root_index {
             let root = variants.remove(root_index);
             let tree = root.tree.expect("Root variant must have a parse tree");
-            let ignores = self.lint_ignores(&tree, inherited)?;
-            let (tree, body_violations, body_parse_errors) = self.lint_sql_procedure_bodies(
-                &tree,
-                &root.templated_file,
-                fix,
-                ignores.mask.as_ref(),
-                inherited,
-            )?;
-            has_parse_or_templating_errors |= body_parse_errors;
-            let (fixed_tree, ignore_mask, linting_errors) = self.lint_fix_parsed_with_ignores(
-                tables,
-                tree,
-                &root.templated_file,
-                fix,
-                ignores,
-            )?;
+            let (fixed_tree, ignore_mask, linting_errors) =
+                self.lint_fix_parsed(tables, tree, &root.templated_file, fix)?;
             let mut violations = root.violations;
-            violations.extend(body_violations);
             violations.extend(linting_errors.into_iter().map_into());
             if fix {
                 source_patch_buffers.push(LintedFile::generate_source_patches(
@@ -554,22 +521,8 @@ impl Linter {
 
             for alternate in variants {
                 if let Some(tree) = alternate.tree {
-                    let ignores = self.lint_ignores(&tree, inherited)?;
-                    let (tree, body_violations, _) = self.lint_sql_procedure_bodies(
-                        &tree,
-                        &alternate.templated_file,
-                        fix,
-                        ignores.mask.as_ref(),
-                        inherited,
-                    )?;
-                    violations.extend(body_violations);
-                    let (fixed_tree, _, linting_errors) = self.lint_fix_parsed_with_ignores(
-                        tables,
-                        tree,
-                        &alternate.templated_file,
-                        fix,
-                        ignores,
-                    )?;
+                    let (fixed_tree, _, linting_errors) =
+                        self.lint_fix_parsed(tables, tree, &alternate.templated_file, fix)?;
                     violations.extend(linting_errors.into_iter().map_into());
                     if fix {
                         source_patch_buffers.push(LintedFile::generate_source_patches(
@@ -631,60 +584,12 @@ impl Linter {
         Ok(linted_file)
     }
 
-    fn lint_ignores<'a>(
-        &self,
-        tree: &ErasedSegment,
-        inherited: Option<&'a InheritedIgnore<'a>>,
-    ) -> Result<LintIgnores<'a>, SQLFluffUserError> {
-        // Look for comment segments which might indicate lines to ignore.
-        let (ignore_mask, violations): (Option<IgnoreMask>, Vec<SQLBaseError>) = {
-            let disable_noqa = self
-                .config
-                .get("disable_noqa", "core")
-                .as_bool()
-                .unwrap_or(false);
-            let disable_noqa_except = self
-                .config
-                .get("disable_noqa_except", "core")
-                .as_string()
-                .filter(|value| !value.is_empty());
-            if disable_noqa && disable_noqa_except.is_none() {
-                (None, Vec::new())
-            } else {
-                let reference_map = Self::allowed_rule_ref_map(
-                    self.rulepack()?.reference_map(),
-                    disable_noqa_except,
-                );
-                let (ignore_mask, errors) = IgnoreMask::from_tree(tree, &reference_map);
-                (Some(ignore_mask), errors)
-            }
-        };
-
-        Ok(LintIgnores {
-            mask: ignore_mask,
-            violations,
-            inherited,
-        })
-    }
-
     pub fn lint_fix_parsed(
-        &self,
-        tables: &Tables,
-        tree: ErasedSegment,
-        templated_file: &TemplatedFile,
-        fix: bool,
-    ) -> Result<(ErasedSegment, Option<IgnoreMask>, Vec<SQLLintError>), SQLFluffUserError> {
-        let ignores = self.lint_ignores(&tree, None)?;
-        self.lint_fix_parsed_with_ignores(tables, tree, templated_file, fix, ignores)
-    }
-
-    fn lint_fix_parsed_with_ignores(
         &self,
         tables: &Tables,
         mut tree: ErasedSegment,
         templated_file: &TemplatedFile,
         fix: bool,
-        ignores: LintIgnores<'_>,
     ) -> Result<(ErasedSegment, Option<IgnoreMask>, Vec<SQLLintError>), SQLFluffUserError> {
         let mut initial_violations = Vec::new();
         let phases: &[_] = if fix {
@@ -705,11 +610,29 @@ impl Linter {
         } else {
             1
         };
-        let LintIgnores {
-            mask: ignore_mask,
-            violations,
-            inherited,
-        } = ignores;
+        // Look for comment segments which might indicate lines to ignore.
+        let (ignore_mask, violations): (Option<IgnoreMask>, Vec<SQLBaseError>) = {
+            let disable_noqa = self
+                .config
+                .get("disable_noqa", "core")
+                .as_bool()
+                .unwrap_or(false);
+            let disable_noqa_except = self
+                .config
+                .get("disable_noqa_except", "core")
+                .as_string()
+                .filter(|value| !value.is_empty());
+            if disable_noqa && disable_noqa_except.is_none() {
+                (None, Vec::new())
+            } else {
+                let reference_map = Self::allowed_rule_ref_map(
+                    self.rulepack()?.reference_map(),
+                    disable_noqa_except,
+                );
+                let (ignore_mask, errors) = IgnoreMask::from_tree(&tree, &reference_map);
+                (Some(ignore_mask), errors)
+            }
+        };
 
         initial_violations.extend(violations.into_iter().map_into());
 
@@ -785,10 +708,6 @@ impl Linter {
 
                             if ignore_mask.as_ref().is_none_or(|ignore_mask| {
                                 !ignore_mask.is_masked(&result, rule.into(), is_first_linter_pass)
-                            }) && inherited.is_none_or(|is_ignored| {
-                                result.anchor.as_ref().is_none_or(|anchor| {
-                                    !is_ignored(anchor, rule, is_first_linter_pass)
-                                })
                             }) {
                                 if !suppress_templated_violation
                                     || (fix && !result.fixes.is_empty())
@@ -1048,10 +967,6 @@ impl Linter {
 
     pub fn config(&self) -> &FluffConfig {
         &self.config
-    }
-
-    pub(super) fn include_parse_errors(&self) -> bool {
-        self.include_parse_errors
     }
 
     pub fn config_mut(&mut self) -> &mut FluffConfig {

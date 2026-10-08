@@ -163,6 +163,15 @@ rust_test(
     deps = [":sqruff-lib"],
 )
 
+rust_test(
+    name = "snowflake_procedure_bodies_test",
+    lint_config = ":cargo_lints",
+    srcs = ["tests/snowflake_procedure_bodies.rs"],
+    crate_root = "tests/snowflake_procedure_bodies.rs",
+    crate_features = clippy_config([], _CARGO_FEATURES),
+    deps = [":sqruff-lib"],
+)
+
 # Compile the Criterion programs with cfg(test), without running benchmarks.
 [
     rust_test(

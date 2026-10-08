@@ -8,6 +8,7 @@ pub mod match_result;
 pub mod matchable;
 pub mod node_matcher;
 pub mod parsers;
+pub mod quoted;
 pub mod segments;
 pub mod types;
 
@@ -181,6 +182,7 @@ impl<'a> Parser<'a> {
         // will use the standard .match()/.parse() route.
         let root =
             FileSegment.root_parse(tables, parse_cx.dialect().name, segments, &mut parse_cx)?;
+        let root = self.parse_quoted_bodies(tables, &root)?;
 
         #[cfg(debug_assertions)]
         {

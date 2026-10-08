@@ -17,6 +17,7 @@ use crate::helpers::ToMatchable;
 use crate::parser::lexer::{Lexer, Matcher};
 use crate::parser::matchable::{Matchable, MatchableTrait};
 use crate::parser::parsers::StringParser;
+use crate::parser::quoted::QuotedBodyParser;
 use crate::parser::types::DialectElementType;
 
 #[derive(Debug, Clone, Default)]
@@ -27,6 +28,7 @@ pub struct Dialect {
     sets: HashMap<&'static str, HashSet<&'static str>>,
     pub bracket_collections: HashMap<&'static str, HashSet<BracketPair>>,
     lexer: Option<Lexer>,
+    quoted_body_parsers: Vec<QuotedBodyParser>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -65,6 +67,15 @@ impl PartialEq for Dialect {
 }
 
 impl Dialect {
+    /// Declare quoted tokens whose contents are SQL in a particular statement.
+    pub fn add_quoted_body_parser(&mut self, parser: QuotedBodyParser) {
+        self.quoted_body_parsers.push(parser);
+    }
+
+    pub(crate) fn quoted_body_parsers(&self) -> &[QuotedBodyParser] {
+        &self.quoted_body_parsers
+    }
+
     pub fn new() -> Self {
         Dialect {
             name: DialectKind::Ansi,

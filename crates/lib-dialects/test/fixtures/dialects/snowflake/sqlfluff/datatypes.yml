@@ -173,8 +173,18 @@ file:
     - keyword: LANGUAGE
     - keyword: SQL
     - keyword: AS
-    - udf_body: |-
-        $$
-            ...
-          $$
+    - udf_body:
+      - file:
+        - statement:
+          - return_statement:
+            - keyword: RETURN
+            - expression:
+              - function:
+                - function_name:
+                  - function_name_identifier: ARRAY_CONSTRUCT
+                - function_contents:
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+        - statement_terminator: ;
 - statement_terminator: ;

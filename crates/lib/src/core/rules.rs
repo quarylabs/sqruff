@@ -339,7 +339,7 @@ impl RulePack {
 }
 
 pub struct RuleSet {
-    pub(crate) register: IndexMap<&'static str, RuleManifest>,
+    register: IndexMap<&'static str, RuleManifest>,
 }
 
 impl RuleSet {
@@ -481,5 +481,29 @@ impl RuleSet {
             rules: instantiated_rules,
             reference_map,
         })
+    }
+}
+
+impl FromIterator<ErasedRule> for RuleSet {
+    fn from_iter<T: IntoIterator<Item = ErasedRule>>(iter: T) -> Self {
+        let mut register = IndexMap::default();
+
+        let iter = iter.into_iter();
+        register.reserve(iter.size_hint().0);
+
+        for rule in iter {
+            register.insert(
+                rule.code(),
+                RuleManifest {
+                    code: rule.code(),
+                    name: rule.name(),
+                    description: rule.description(),
+                    groups: rule.groups(),
+                    rule_class: rule,
+                },
+            );
+        }
+
+        RuleSet { register }
     }
 }

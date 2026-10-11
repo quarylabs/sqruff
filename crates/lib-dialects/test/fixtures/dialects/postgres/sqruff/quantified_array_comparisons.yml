@@ -1,0 +1,487 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: x
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: ANY
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: arr
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: x
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: ANY
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - typed_array_literal:
+                  - array_type:
+                    - keyword: ARRAY
+                  - array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_square_bracket: ']'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: x
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: any
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: arr
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: x
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '>'
+        - function:
+          - function_name:
+            - function_name_identifier: ALL
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: arr
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: x
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - function:
+          - function_name:
+            - function_name_identifier: ALL
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - typed_array_literal:
+                  - array_type:
+                    - keyword: ARRAY
+                  - array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_square_bracket: ']'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: x
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: SOME
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: t
+                  - dot: .
+                  - naked_identifier: arr
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: x
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - function:
+          - function_name:
+            - function_name_identifier: SOME
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - typed_array_literal:
+                  - array_type:
+                    - keyword: ARRAY
+                  - array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_square_bracket: ']'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: x
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: ANY
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: x
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: t2
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: x
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+        - keyword: ALL
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: x
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: t2
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: x
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - keyword: SOME
+        - bracketed:
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - naked_identifier: x
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - naked_identifier: t2
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - database_reference:
+      - naked_identifier: i
+    - keyword: ON
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - index_element:
+        - column_reference:
+          - naked_identifier: x
+      - end_bracket: )
+    - keyword: WHERE
+    - expression:
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - column_reference:
+            - naked_identifier: status
+          - comparison_operator:
+            - raw_comparison_operator: =
+          - function:
+            - function_name:
+              - function_name_identifier: ANY
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - typed_array_literal:
+                    - array_type:
+                      - keyword: ARRAY
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - expression:
+                        - cast_expression:
+                          - quoted_literal: '''a'''
+                          - casting_operator: '::'
+                          - data_type:
+                            - keyword: text
+                      - comma: ','
+                      - expression:
+                        - cast_expression:
+                          - quoted_literal: '''b'''
+                          - casting_operator: '::'
+                          - data_type:
+                            - keyword: text
+                      - end_square_bracket: ']'
+                - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: r
+        - data_type:
+          - keyword: text
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: k
+        - keyword: CHECK
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                  - naked_identifier: r
+                - comparison_operator:
+                  - raw_comparison_operator: =
+                - function:
+                  - function_name:
+                    - function_name_identifier: ANY
+                  - function_contents:
+                    - bracketed:
+                      - start_bracket: (
+                      - expression:
+                        - typed_array_literal:
+                          - array_type:
+                            - keyword: ARRAY
+                          - array_literal:
+                            - start_square_bracket: '['
+                            - expression:
+                              - cast_expression:
+                                - quoted_literal: '''a'''
+                                - casting_operator: '::'
+                                - data_type:
+                                  - keyword: text
+                            - end_square_bracket: ']'
+                      - end_bracket: )
+              - end_bracket: )
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

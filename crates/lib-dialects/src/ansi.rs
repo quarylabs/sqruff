@@ -4912,9 +4912,9 @@ pub fn raw_dialect() -> Dialect {
                     Ref::keyword("SOME").to_matchable(),
                 ])
                 .to_matchable(),
-                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()])
-                    .config(|this| this.parse_mode(ParseMode::Greedy))
-                    .to_matchable(),
+                // Keep this strict so non-subquery operands can use the binary-operator
+                // alternative (e.g. PostgreSQL ANY(array_expression)).
+                Bracketed::new(vec![Ref::new("SelectableGrammar").to_matchable()]).to_matchable(),
             ])
             .to_matchable()
             .into(),

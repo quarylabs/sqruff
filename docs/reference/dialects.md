@@ -5759,7 +5759,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (380)</summary>
+<summary>Segment types (382)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5813,6 +5813,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>array_type</code></li>
 <li><code>array_type_schema</code></li>
 <li><code>assignment_operator</code></li>
+<li><code>auto_event_logging_equals</code></li>
 <li><code>avro_file_format_type_parameters</code></li>
 <li><code>azure_blob_storage_external_stage_parameters</code></li>
 <li><code>back_quote</code></li>
@@ -5826,6 +5827,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>bucket_path</code></li>
 <li><code>call_segment</code></li>
 <li><code>call_statement</code></li>
+<li><code>call_with_anonymous_procedure</code></li>
 <li><code>caret</code></li>
 <li><code>case_expression</code></li>
 <li><code>cast_expression</code></li>

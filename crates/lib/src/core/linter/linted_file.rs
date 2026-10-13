@@ -1,5 +1,6 @@
 use std::ops::Range;
 
+use crate::core::linter::common::NewlineMap;
 use crate::core::rules::noqa::IgnoreMask;
 
 use hashbrown::HashSet;
@@ -13,6 +14,9 @@ pub struct LintedFile {
     pub path: String,
     patches: Vec<FixPatch>,
     templated_file: TemplatedFile,
+    /// Maps offsets in the normalised `templated_file` source back to the
+    /// original input.
+    newline_map: NewlineMap,
     violations: Vec<SQLBaseError>,
     has_parse_or_templating_errors: bool,
     #[expect(dead_code)]
@@ -24,6 +28,7 @@ impl LintedFile {
         path: String,
         patches: Vec<FixPatch>,
         templated_file: TemplatedFile,
+        newline_map: NewlineMap,
         mut violations: Vec<SQLBaseError>,
         has_parse_or_templating_errors: bool,
         ignore_mask: Option<IgnoreMask>,
@@ -44,6 +49,7 @@ impl LintedFile {
             path,
             patches,
             templated_file,
+            newline_map,
             violations,
             has_parse_or_templating_errors,
             ignore_mask,

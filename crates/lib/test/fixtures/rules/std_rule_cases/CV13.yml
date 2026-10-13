@@ -64,6 +64,20 @@ test_pass_no_statements:
     -- just a comment
   configs: *force_enable
 
+test_pass_cte_backed_dml_out_of_scope:
+  # `WITH ... INSERT` is parsed as a with_compound_statement in some dialects
+  # (e.g. Postgres), but it is DML, which the rule explicitly leaves out of
+  # scope, so it must never flag.
+  pass_str: |
+    WITH final AS (SELECT a FROM foo)
+    INSERT INTO bar SELECT * FROM final
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.last_select_star:
+        force_enable: true
+
 test_fail_cte_explicit_columns:
   # The dbt anti-pattern: a final CTE selected with explicit columns.
   fail_str: |

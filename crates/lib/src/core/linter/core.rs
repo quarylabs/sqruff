@@ -4,7 +4,9 @@ use std::sync::{Arc, OnceLock};
 
 use crate::Formatter;
 use crate::core::config::FluffConfig;
-use crate::core::linter::common::{BatchRenderedResult, ParsedString, ParsedVariant, RenderedFile};
+use crate::core::linter::common::{
+    BatchRenderedResult, NewlineMap, ParsedString, ParsedVariant, RenderedFile,
+};
 use crate::core::linter::discovery::paths_from_path;
 use crate::core::linter::linted_file::LintedFile;
 use crate::core::linter::linting_result::LintingResult;
@@ -312,7 +314,8 @@ impl Linter {
             Ok(rendered) => rendered,
             Err(err) => {
                 log::error!("Failed to template file {}: {:?}", fname, err);
-                let source_str = Self::normalise_newlines(&in_str).to_string();
+                let (source_str, newline_map) = Self::normalise_newlines(&in_str);
+                let source_str = source_str.into_owned();
                 RenderedFile {
                     templated_file: TemplatedFile::new(
                         source_str.clone(),
@@ -328,6 +331,7 @@ impl Linter {
                     ))],
                     filename: fname,
                     source_str,
+                    newline_map,
                 }
             }
         }
@@ -362,25 +366,26 @@ impl Linter {
                         templater_violations: vec![],
                         filename: fname.clone(),
                         source_str,
+                        newline_map: NewlineMap::default(),
                     })
                 })
                 .collect();
         }
 
         // Read all files and prepare for batch processing
-        let files: Vec<(String, String)> = fnames
+        let files: Vec<(String, String, NewlineMap)> = fnames
             .iter()
             .map(|fname| {
                 let content = std::fs::read_to_string(fname).unwrap_or_default();
-                let normalized = Self::normalise_newlines(&content).to_string();
-                (normalized, fname.clone())
+                let (normalized, newline_map) = Self::normalise_newlines(&content);
+                (normalized.into_owned(), fname.clone(), newline_map)
             })
             .collect();
 
         // Convert to slice of references for the process method
         let file_refs: Vec<(&str, &str)> = files
             .iter()
-            .map(|(content, fname)| (content.as_str(), fname.as_str()))
+            .map(|(content, fname, _)| (content.as_str(), fname.as_str()))
             .collect();
 
         // Process all files in batch
@@ -391,8 +396,8 @@ impl Linter {
         // Convert results to BatchRenderedResults, preserving order
         results
             .into_iter()
-            .zip(files.iter())
-            .map(|(result, (source_str, fname))| match result {
+            .zip(files)
+            .map(|(result, (source_str, fname, newline_map))| match result {
                 Ok(mut templated_files) if !templated_files.is_empty() => {
                     let variant_limit = self
                         .config
@@ -405,8 +410,9 @@ impl Linter {
                         templated_file: templated_files.remove(0),
                         alternate_templated_files: templated_files,
                         templater_violations: vec![],
-                        filename: fname.clone(),
-                        source_str: source_str.clone(),
+                        filename: fname,
+                        source_str,
+                        newline_map,
                     })
                 }
                 Ok(_) => BatchRenderedResult::Rendered(RenderedFile {
@@ -422,14 +428,15 @@ impl Linter {
                     templater_violations: vec![SQLTemplaterError::new(format!(
                         "Templater returned no variants for file {fname}"
                     ))],
-                    filename: fname.clone(),
-                    source_str: source_str.clone(),
+                    filename: fname,
+                    source_str,
+                    newline_map,
                 }),
                 Err(err) => {
                     let err_str = err.to_string();
                     if let Some(reason) = err_str.strip_prefix("SKIP:") {
                         return BatchRenderedResult::Skipped {
-                            filename: fname.clone(),
+                            filename: fname,
                             reason: reason.to_string(),
                         };
                     }
@@ -451,8 +458,9 @@ impl Linter {
                         templater_violations: vec![SQLTemplaterError::new(format!(
                             "Failed to template file {fname}: {err}"
                         ))],
-                        filename: fname.clone(),
-                        source_str: source_str.clone(),
+                        filename: fname,
+                        source_str,
+                        newline_map,
                     })
                 }
             })
@@ -484,6 +492,7 @@ impl Linter {
             violations: primary_violations,
             templated_file,
             filename,
+            newline_map,
             alternate_variants,
             ..
         } = parsed_string;
@@ -572,6 +581,7 @@ impl Linter {
             filename,
             patches,
             templated_file,
+            newline_map,
             violations,
             has_parse_or_templating_errors,
             ignore_mask,
@@ -787,7 +797,7 @@ impl Linter {
         filename: String,
         config: &FluffConfig,
     ) -> Result<RenderedFile, SQLFluffUserError> {
-        let sql = Self::normalise_newlines(sql);
+        let (sql, newline_map) = Self::normalise_newlines(sql);
 
         if let Some(error) = config.verify_dialect_specified() {
             return Err(error);
@@ -814,6 +824,7 @@ impl Linter {
                     templater_violations,
                     filename,
                     source_str: sql.to_string(),
+                    newline_map,
                 })
             }
             Some(Err(err)) => Err(SQLFluffUserError::new(format!(
@@ -846,6 +857,7 @@ impl Linter {
                 templated_file: rendered.templated_file,
                 filename: rendered.filename,
                 source_str: rendered.source_str,
+                newline_map: rendered.newline_map,
                 config: self.config.clone(),
                 alternate_variants: Vec::new(),
             };
@@ -864,6 +876,7 @@ impl Linter {
             templated_file: primary.templated_file,
             filename: rendered.filename,
             source_str: rendered.source_str,
+            newline_map: rendered.newline_map,
             config: self.config.clone(),
             alternate_variants,
         }
@@ -961,8 +974,8 @@ impl Linter {
     }
 
     /// Normalise newlines to unix-style line endings.
-    fn normalise_newlines(string: &str) -> Cow<'_, str> {
-        lazy_regex::regex!("\r\n|\r").replace_all(string, "\n")
+    fn normalise_newlines(string: &str) -> (Cow<'_, str>, NewlineMap) {
+        NewlineMap::normalise(string)
     }
 
     pub fn config(&self) -> &FluffConfig {
@@ -1411,7 +1424,7 @@ dialect = ansi
         let in_str = "SELECT\r\n foo\n FROM \r \n\r bar;";
         let out_str = "SELECT\n foo\n FROM \n \n\n bar;";
 
-        assert_eq!(Linter::normalise_newlines(in_str), out_str);
+        assert_eq!(Linter::normalise_newlines(in_str).0, out_str);
     }
 
     /// Regression test for https://github.com/quarylabs/sqruff/issues/2354
@@ -1420,7 +1433,7 @@ dialect = ansi
     /// syntax like `{{ ref('stg_users') }}`.
     #[test]
     fn test_templater_error_skips_linting() {
-        use crate::core::linter::common::RenderedFile;
+        use crate::core::linter::common::{NewlineMap, RenderedFile};
         use sqruff_lib_core::errors::SQLTemplaterError;
         use sqruff_lib_core::templaters::TemplatedFile;
 
@@ -1452,6 +1465,7 @@ dialect = ansi
             )],
             filename: "test.sql".to_string(),
             source_str: source.to_string(),
+            newline_map: NewlineMap::default(),
         };
 
         let result = linter.lint_rendered(rendered, false).unwrap();

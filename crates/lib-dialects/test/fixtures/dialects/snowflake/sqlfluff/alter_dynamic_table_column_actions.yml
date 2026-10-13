@@ -1,0 +1,205 @@
+file:
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: c1
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+        - function_name_identifier: mp
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: c1
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+        - naked_identifier: my_db
+        - dot: .
+        - naked_identifier: my_schema
+        - dot: .
+        - function_name_identifier: mp
+      - keyword: USING
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+          - naked_identifier: c1
+        - comma: ','
+        - column_reference:
+          - naked_identifier: c2
+        - end_bracket: )
+      - keyword: FORCE
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: c1
+      - keyword: UNSET
+      - keyword: MASKING
+      - keyword: POLICY
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: MODIFY
+      - column_reference:
+        - naked_identifier: c1
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+        - function_name_identifier: mp
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: c1
+      - keyword: SET
+      - keyword: PROJECTION
+      - keyword: POLICY
+      - object_reference:
+        - naked_identifier: pp
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: c1
+      - keyword: UNSET
+      - keyword: PROJECTION
+      - keyword: POLICY
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: c1
+      - keyword: SET
+      - tag_equals:
+        - keyword: TAG
+        - tag_reference:
+          - naked_identifier: tg
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''v'''
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: c1
+      - keyword: SET
+      - tag_equals:
+        - keyword: TAG
+        - tag_reference:
+          - naked_identifier: tag1
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''v1'''
+        - comma: ','
+        - tag_reference:
+          - naked_identifier: tag2
+        - comparison_operator:
+          - raw_comparison_operator: =
+        - quoted_literal: '''v2'''
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: c1
+      - keyword: UNSET
+      - keyword: TAG
+      - tag_reference:
+        - naked_identifier: tg
+- statement_terminator: ;
+- statement:
+  - alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: t
+    - alter_dynamic_table_column_action:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+        - naked_identifier: c1
+      - keyword: UNSET
+      - keyword: TAG
+      - tag_reference:
+        - naked_identifier: tag1
+      - comma: ','
+      - tag_reference:
+        - naked_identifier: tag2
+- statement_terminator: ;

@@ -830,6 +830,30 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // SET MASKING POLICY <name> [ USING ( <col_name> [ , ... ] ) ], as used
+        // by the column level governance actions of ALTER statements. The USING
+        // clause takes column references per the documentation.
+        // https://docs.snowflake.com/en/sql-reference/sql/alter-table-column
+        (
+            "MaskingPolicyGrammar".into(),
+            Sequence::new(vec![
+                Ref::keyword("MASKING").to_matchable(),
+                Ref::keyword("POLICY").to_matchable(),
+                Ref::new("FunctionNameSegment").to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("USING").to_matchable(),
+                    Bracketed::new(vec![
+                        Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                            .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .config(|this| this.optional())
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "ExecuteAsUserGrammar".into(),
             Sequence::new(vec![
@@ -4154,6 +4178,66 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            // The column level `dataGovnPolicyTagAction` of `ALTER DYNAMIC TABLE`.
+            // https://docs.snowflake.com/en/sql-reference/sql/alter-dynamic-table
+            "AlterDynamicTableColumnActionSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterDynamicTableColumnAction, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("ALTER").to_matchable(),
+                        Ref::keyword("MODIFY").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("COLUMN").optional().to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("MaskingPolicyGrammar").to_matchable(),
+                            Ref::keyword("FORCE").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("MASKING").to_matchable(),
+                            Ref::keyword("POLICY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::keyword("PROJECTION").to_matchable(),
+                            Ref::keyword("POLICY").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                            Ref::keyword("FORCE").optional().to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("PROJECTION").to_matchable(),
+                            Ref::keyword("POLICY").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("TagEqualsSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("TAG").to_matchable(),
+                            Delimited::new(vec![Ref::new("TagReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "AlterDynamicTableStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::AlterDynamicTableStatement, |_| {
                 Sequence::new(vec![
@@ -4208,6 +4292,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                         Ref::new("AlterTableClusteringActionSegment").to_matchable(),
                         Ref::new("TableColumnCommentActionSegment").to_matchable(),
+                        Ref::new("AlterDynamicTableColumnActionSegment").to_matchable(),
                         Ref::new("DataGovernancePolicyTagActionSegment").to_matchable(),
                         Ref::new("SearchOptimizationActionSegment").to_matchable(),
                         Sequence::new(vec![

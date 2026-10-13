@@ -4,7 +4,7 @@ use std::io::Write;
 use std::path::Path;
 
 #[cfg(feature = "codegen-docs")]
-use minijinja::{Environment, context};
+use minijinja::{Environment, context, value::Serde};
 #[cfg(feature = "codegen-docs")]
 use serde::Serialize;
 #[cfg(feature = "codegen-docs")]
@@ -48,7 +48,11 @@ pub(crate) fn codegen_docs(docs_dir: &Path) {
     let file_rules = std::fs::File::create(docs_dir.join("rules.md")).unwrap();
     let mut writer = std::io::BufWriter::new(file_rules);
     writer
-        .write_all(tmpl.render(context!(rules => rules)).unwrap().as_bytes())
+        .write_all(
+            tmpl.render(context!(rules => Serde(rules)))
+                .unwrap()
+                .as_bytes(),
+        )
         .unwrap();
 
     // Templaters Docs
@@ -64,7 +68,7 @@ pub(crate) fn codegen_docs(docs_dir: &Path) {
     let mut writer = std::io::BufWriter::new(file_templaters);
     writer
         .write_all(
-            tmpl.render(context!(templaters => templaters))
+            tmpl.render(context!(templaters => Serde(templaters)))
                 .unwrap()
                 .as_bytes(),
         )
@@ -80,7 +84,7 @@ pub(crate) fn codegen_docs(docs_dir: &Path) {
     let mut writer = std::io::BufWriter::new(file_dialects);
     writer
         .write_all(
-            tmpl.render(context!(dialects => dialects))
+            tmpl.render(context!(dialects => Serde(dialects)))
                 .unwrap()
                 .as_bytes(),
         )

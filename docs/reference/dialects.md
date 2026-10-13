@@ -5759,7 +5759,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (382)</summary>
+<summary>Segment types (383)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5773,6 +5773,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>alias_operator</code></li>
 <li><code>alter_cortex_search_service_statement</code></li>
 <li><code>alter_database_statement</code></li>
+<li><code>alter_dynamic_table_column_action</code></li>
 <li><code>alter_dynamic_table_statement</code></li>
 <li><code>alter_external_table_statement</code></li>
 <li><code>alter_external_volume_statement</code></li>

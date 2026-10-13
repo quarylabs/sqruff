@@ -124,12 +124,20 @@ SELECT * FROM final
             return Vec::new();
         }
 
-        // The "passthrough" is the trailing query element of the WITH statement.
-        let Some(final_select) = final_select(inner) else {
+        // The passthrough is the trailing query element of the WITH statement.
+        // A `WITH ... INSERT/UPDATE/DELETE` has no trailing SELECT or set
+        // expression here (some dialects, e.g. Postgres, still parse it as a
+        // `with_compound_statement`); such DML is out of scope, like any file
+        // ending in DML or DDL.
+        let Some(final_select) = trailing_query(inner) else {
+            return Vec::new();
+        };
+
+        if !final_select.is_type(SyntaxKind::SelectStatement) {
             // The WITH ends in a set expression (e.g. a UNION), which is not a
             // single `SELECT * FROM ...`. Anchor on the whole statement.
             return vec![LintResult::new(Some(inner.clone()), Vec::new(), None, None)];
-        };
+        }
 
         if is_select_star_from(&final_select) {
             return Vec::new();
@@ -148,18 +156,19 @@ SELECT * FROM final
     }
 }
 
-/// Return the trailing `select_statement` of a WITH statement.
+/// Return the trailing query element (a `select_statement` or `set_expression`)
+/// of a WITH statement, or `None` when there is none.
 ///
-/// If the trailing query element is a set expression (e.g. a `UNION`) rather
-/// than a single select, `None` is returned.
-fn final_select(with_statement: &ErasedSegment) -> Option<ErasedSegment> {
-    let last = with_statement
+/// A `WITH ... INSERT/UPDATE/DELETE` has no trailing query element here (its
+/// final child is the DML statement), so the rule can treat it as out of scope,
+/// like any file ending in DML or DDL.
+fn trailing_query(with_statement: &ErasedSegment) -> Option<ErasedSegment> {
+    with_statement
         .children(
             const { &SyntaxSet::new(&[SyntaxKind::SelectStatement, SyntaxKind::SetExpression]) },
         )
-        .last()?;
-    last.is_type(SyntaxKind::SelectStatement)
-        .then(|| last.clone())
+        .last()
+        .cloned()
 }
 
 /// Return whether a select is exactly `SELECT * FROM <source>`.

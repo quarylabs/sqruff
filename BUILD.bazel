@@ -123,8 +123,8 @@ shellcheck_test(
     severity = "warning",
 )
 
-# Check that LICENSE and README.md are synced to editors/code, and that
-# LICENSE is synced to editors/zed
+# Check that README.md is synced to the Python package and editors/code, and
+# that LICENSE is synced to editors/code and editors/zed.
 sh_test(
     name = "check_files_match",
     size = "small",
@@ -132,6 +132,7 @@ sh_test(
     data = [
         "LICENSE",
         "README.md",
+        "//crates/cli-python:README.md",
         "//editors/code:LICENSE",
         "//editors/code:README.md",
         "//editors/zed:LICENSE",

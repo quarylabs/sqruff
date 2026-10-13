@@ -27,14 +27,14 @@ importers:
   .:
     devDependencies:
       '@secretlint/secretlint-formatter-sarif':
-        specifier: ^13.0.4
-        version: 13.0.4
+        specifier: ^13.0.7
+        version: 13.0.7
       '@secretlint/secretlint-rule-no-dotenv':
-        specifier: ^13.0.4
-        version: 13.0.4
+        specifier: ^13.0.7
+        version: 13.0.7
       '@secretlint/secretlint-rule-preset-recommend':
-        specifier: ^13.0.4
-        version: 13.0.4
+        specifier: ^13.0.7
+        version: 13.0.7
       prettier:
         specifier: ^3.9.6
         version: 3.9.6
@@ -751,23 +751,23 @@ packages:
   '@secretlint/secretlint-formatter-sarif@10.2.2':
     resolution: {integrity: sha512-ojiF9TGRKJJw308DnYBucHxkpNovDNu1XvPh7IfUp0A12gzTtxuWDqdpuVezL7/IP8Ua7mp5/VkDMN9OLp1doQ==}
 
-  '@secretlint/secretlint-formatter-sarif@13.0.4':
-    resolution: {integrity: sha512-5IU9N1QJJYq+HA9ejPBKYnNBw1D775xVzMkT6qNDLft2PezdLo2siAGCNFgYc9JDeubptb8p5tZ67Tcl5CkCeg==}
+  '@secretlint/secretlint-formatter-sarif@13.0.7':
+    resolution: {integrity: sha512-dzjEp33ZCGR20pxG/056/xtjrGlgvddaS9M9bynQe0T6VXeW5FtP3qSXVTU/8NP4vUeEgjyxgQxaRcNCUbVVhA==}
 
   '@secretlint/secretlint-rule-no-dotenv@10.2.2':
     resolution: {integrity: sha512-KJRbIShA9DVc5Va3yArtJ6QDzGjg3PRa1uYp9As4RsyKtKSSZjI64jVca57FZ8gbuk4em0/0Jq+uy6485wxIdg==}
     engines: {node: '>=20.0.0'}
 
-  '@secretlint/secretlint-rule-no-dotenv@13.0.4':
-    resolution: {integrity: sha512-jca+uo4EB9ZO3WA8y0QeQhS+MlfBFhYaVMQsOb0OPruhI3tyr/x6uIQwQg65nDKiBE2Hk1HI+HXV405M6lS5Gw==}
+  '@secretlint/secretlint-rule-no-dotenv@13.0.7':
+    resolution: {integrity: sha512-H8yVHUVDFeSyAXkxX6ICsZ+6TTPqBJkEd6DR1NE4E3ftYbm5QWo+/OAGzXFn4ed4sYIVXCP7cxBg548BdhLmeg==}
     engines: {node: '>=22.0.0'}
 
   '@secretlint/secretlint-rule-preset-recommend@10.2.2':
     resolution: {integrity: sha512-K3jPqjva8bQndDKJqctnGfwuAxU2n9XNCPtbXVI5JvC7FnQiNg/yWlQPbMUlBXtBoBGFYp08A94m6fvtc9v+zA==}
     engines: {node: '>=20.0.0'}
 
-  '@secretlint/secretlint-rule-preset-recommend@13.0.4':
-    resolution: {integrity: sha512-Nbcr7tvyKuRF4BKh7RQSCEOaif4gFPH/qjK2ajcoUDGL7HAY/C6PzcsmVR1Y0qQCRqrBuMuXn1onXE+wxNNNsw==}
+  '@secretlint/secretlint-rule-preset-recommend@13.0.7':
+    resolution: {integrity: sha512-hfdYra+ZB6RmviEApxeL/YCx4ovBtpj0d9c+uhlCZaCikObjb8Sb8yqBN6g8/9tt7qD7LXGE3k9RtVvGK1fNVw==}
     engines: {node: '>=22.0.0'}
 
   '@secretlint/source-creator@10.2.2':
@@ -778,8 +778,8 @@ packages:
     resolution: {integrity: sha512-Nqc90v4lWCXyakD6xNyNACBJNJ0tNCwj2WNk/7ivyacYHxiITVgmLUFXTBOeCdy79iz6HtN9Y31uw/jbLrdOAg==}
     engines: {node: '>=20.0.0'}
 
-  '@secretlint/types@13.0.4':
-    resolution: {integrity: sha512-on/DivRDZEFzRD2pZJO0wkIL+AvEY+KOoZLPCWcz4pjZnJ4NzMuHQjvTJc9KY0yht+ugcYg9AmtOUzpEk31IWA==}
+  '@secretlint/types@13.0.7':
+    resolution: {integrity: sha512-5DI1W8vTjBt5ZSrLXNMCX439f+36fzQLrSGi0JPu1vhBKl3QLxPu/ilPJ5x2Ul7pU3aWUrpRva9mvojSAi4h0A==}
     engines: {node: '>=22.0.0'}
 
   '@sindresorhus/merge-streams@2.3.0':
@@ -4633,7 +4633,7 @@ snapshots:
     dependencies:
       node-sarif-builder: 3.4.0
 
-  '@secretlint/secretlint-formatter-sarif@13.0.4':
+  '@secretlint/secretlint-formatter-sarif@13.0.7':
     dependencies:
       node-sarif-builder: 4.1.0
 
@@ -4641,13 +4641,13 @@ snapshots:
     dependencies:
       '@secretlint/types': 10.2.2
 
-  '@secretlint/secretlint-rule-no-dotenv@13.0.4':
+  '@secretlint/secretlint-rule-no-dotenv@13.0.7':
     dependencies:
-      '@secretlint/types': 13.0.4
+      '@secretlint/types': 13.0.7
 
   '@secretlint/secretlint-rule-preset-recommend@10.2.2': {}
 
-  '@secretlint/secretlint-rule-preset-recommend@13.0.4': {}
+  '@secretlint/secretlint-rule-preset-recommend@13.0.7': {}
 
   '@secretlint/source-creator@10.2.2':
     dependencies:
@@ -4656,7 +4656,7 @@ snapshots:
 
   '@secretlint/types@10.2.2': {}
 
-  '@secretlint/types@13.0.4': {}
+  '@secretlint/types@13.0.7': {}
 
   '@sindresorhus/merge-streams@2.3.0': {}
 

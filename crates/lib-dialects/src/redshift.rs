@@ -3033,7 +3033,11 @@ pub fn raw_dialect() -> Dialect {
                 ]),
                 None,
                 None,
-                Some(vec![Ref::new("ShowStatementSegment").to_matchable()]),
+                Some(vec![
+                    Ref::new("ShowStatementSegment").to_matchable(),
+                    // Redshift uses CREATE EXTERNAL TABLE for external data.
+                    Ref::new("CreateForeignTableStatementSegment").to_matchable(),
+                ]),
                 Vec::new(),
                 false,
             ),

@@ -86,6 +86,12 @@ pub fn raw_dialect() -> Dialect {
 
     duckdb_dialect.add([
         (
+            "DollarLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::DollarLiteral, SyntaxKind::DollarLiteral)
+                .to_matchable()
+                .into(),
+        ),
+        (
             "EqualsSegment_a".into(),
             StringParser::new("==", SyntaxKind::ComparisonOperator)
                 .to_matchable()
@@ -792,6 +798,29 @@ pub fn raw_dialect() -> Dialect {
             .into(),
         ),
     ]);
+    // Keep dollar-quoted strings ahead of named bind parameters, and retain
+    // PostgreSQL's separate numeric parameter matcher for $1, $2, etc.
+    duckdb_dialect.insert_lexer_matchers(
+        vec![Matcher::regex(
+            "dollar_literal",
+            r"\$[\p{L}_][\p{L}\p{N}_]*",
+            SyntaxKind::DollarLiteral,
+        )],
+        "dollar_numeric_literal",
+    );
+
+    duckdb_dialect.replace_grammar(
+        "LiteralGrammar",
+        duckdb_dialect.grammar("LiteralGrammar").copy(
+            Some(vec![Ref::new("DollarLiteralSegment").to_matchable()]),
+            None,
+            None,
+            None,
+            Vec::new(),
+            false,
+        ),
+    );
+
     duckdb_dialect.patch_lexer_matchers(vec![
         Matcher::regex("equals", "==?", SyntaxKind::RawComparisonOperator),
         Matcher::regex(
@@ -1576,45 +1605,6 @@ pub fn raw_dialect() -> Dialect {
     );
 
     duckdb_dialect.replace_grammar(
-        "SelectStatementSegment",
-        ansi::select_statement()
-            .copy(
-                Some(vec![
-                    Ref::new("QualifyClauseSegment").optional().to_matchable(),
-                ]),
-                None,
-                Some(Ref::new("OrderByClauseSegment").optional().to_matchable()),
-                None,
-                vec![
-                    Ref::new("SetOperatorSegment").to_matchable(),
-                    Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
-                    Ref::new("WithDataClauseSegment").to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("ON").to_matchable(),
-                        Ref::keyword("CONFLICT").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Ref::keyword("RETURNING").to_matchable(),
-                    Ref::new("WithCheckOptionSegment").to_matchable(),
-                    Ref::new("MetaCommandQueryBufferSegment").to_matchable(),
-                ],
-                true,
-            )
-            .copy(
-                Some(vec![
-                    Ref::new("UsingSampleClauseSegment")
-                        .optional()
-                        .to_matchable(),
-                ]),
-                None,
-                None,
-                None,
-                Vec::new(),
-                false,
-            ),
-    );
-
-    duckdb_dialect.replace_grammar(
         "UnorderedSelectStatementSegment",
         Sequence::new(vec![
             one_of(vec![
@@ -1652,6 +1642,45 @@ pub fn raw_dialect() -> Dialect {
         ])
         .config(|this| this.parse_mode(ParseMode::GreedyOnceStarted))
         .to_matchable(),
+    );
+
+    // Extend DuckDB's SELECT/FROM alternatives rather than ANSI's SELECT-only
+    // grammar, so ORDER BY and LIMIT also work with FROM-first queries.
+    duckdb_dialect.replace_grammar(
+        "SelectStatementSegment",
+        duckdb_dialect
+            .grammar("UnorderedSelectStatementSegment")
+            .match_grammar(&duckdb_dialect)
+            .unwrap()
+            .copy(
+                Some(vec![
+                    Ref::new("OrderByClauseSegment").optional().to_matchable(),
+                    Ref::new("OffsetClauseSegment").optional().to_matchable(),
+                    Ref::new("FetchClauseSegment").optional().to_matchable(),
+                    Ref::new("LimitClauseSegment").optional().to_matchable(),
+                    Ref::new("NamedWindowSegment").optional().to_matchable(),
+                    Ref::new("UsingSampleClauseSegment")
+                        .optional()
+                        .to_matchable(),
+                ]),
+                None,
+                None,
+                None,
+                vec![
+                    Ref::new("SetOperatorSegment").to_matchable(),
+                    Ref::new("WithNoSchemaBindingClauseSegment").to_matchable(),
+                    Ref::new("WithDataClauseSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ON").to_matchable(),
+                        Ref::keyword("CONFLICT").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::keyword("RETURNING").to_matchable(),
+                    Ref::new("WithCheckOptionSegment").to_matchable(),
+                    Ref::new("MetaCommandQueryBufferSegment").to_matchable(),
+                ],
+                true,
+            ),
     );
 
     duckdb_dialect.replace_grammar(

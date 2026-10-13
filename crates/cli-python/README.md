@@ -1,0 +1,84 @@
+<p align="center">
+  <a href="https://quary.dev">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://utfs.io/f/30765a8e-3dd9-4dc3-b905-11de822e71e4-yajpew.png">
+      <img src="https://utfs.io/f/30765a8e-3dd9-4dc3-b905-11de822e71e4-yajpew.png" height="128">
+    </picture>
+    <h1 align="center">sqruff</h1>
+  </a>
+</p>
+
+<p align="center">
+  <a aria-label="Quary logo" href="https://quary.dev/">
+    <img src="https://img.shields.io/badge/MADE%20BY%20Quary-000000.svg?style=for-the-badge&logo=Quary&labelColor=000">
+  </a>
+  <a aria-label="CodSpeed" href="https://codspeed.io/quarylabs/sqruff?utm_source=badge">
+    <img src="https://img.shields.io/endpoint?url=https://codspeed.io/badge.json?utm_source=badge" alt="CodSpeed Badge"/>
+  </a>
+</p>
+
+`sqruff` is a SQL linter and formatter written in Rust.
+
+- Linting: advanced, configurable SQL linting
+- Formatting: automated, configurable formatting
+- Speed: fast and efficient
+- Portability: easy to integrate into dev workflows
+
+Try it in the browser: https://playground.quary.dev
+
+## Table of contents
+
+1. [Quickstart](#quickstart)
+2. [Editor integrations](#editor-integrations)
+3. [Documentation](#documentation)
+
+## Quickstart
+
+### Install (macOS)
+
+```bash
+brew install sqruff
+```
+
+For other platforms (pip, cargo, binary downloads), see the [installation guide](https://playground.quary.dev/docs/getting-started/installation/).
+
+### Lint a project
+
+```bash
+sqruff lint . --dialect postgres
+```
+
+### Configure a project
+
+Create a `.sqruff` file in your project root:
+
+```ini
+[sqruff]
+dialect = postgres
+```
+
+Then run without the `--dialect` flag:
+
+```bash
+sqruff lint .
+```
+
+## Editor integrations
+
+`sqruff` ships an LSP server (`sqruff lsp`) usable from any editor. This repo
+maintains two integrations:
+
+- VS Code: [`editors/code`](editors/code)
+- Zed: [`editors/zed`](editors/zed)
+
+## Documentation
+
+Full documentation: [playground.quary.dev/docs](https://playground.quary.dev/docs/)
+
+Key entry points:
+
+- [Installation](https://playground.quary.dev/docs/getting-started/installation/)
+- [Usage](https://playground.quary.dev/docs/usage/lint/)
+- [Configuration](https://playground.quary.dev/docs/usage/configuration/)
+- [Rules](https://playground.quary.dev/docs/reference/rules/)
+- [CLI reference](https://playground.quary.dev/docs/reference/cli/)

@@ -1,5 +1,20 @@
 rule: CV12
 
+test_fail_sqlite_left_join_without_fix:
+  fail_str: SELECT a.k, b.k FROM a LEFT JOIN b WHERE a.k = b.k;
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_ansi_left_join_without_fix:
+  fail_str: SELECT a.k, b.k FROM a LEFT JOIN b WHERE a.k = b.k;
+
+test_fail_ansi_right_join_without_fix:
+  fail_str: SELECT a.k, b.k FROM a RIGHT JOIN b WHERE a.k = b.k;
+
+test_fail_ansi_full_outer_join_without_fix:
+  fail_str: SELECT a.k, b.k FROM a FULL OUTER JOIN b WHERE a.k = b.k;
+
 test_noop_select_comma:
   # this syntax is currently not covered by CV12
   pass_str: |
@@ -28,15 +43,54 @@ test_noop_crossjoin:
 test_fail_natural_join_mixed_with_later_join:
   # The earlier join's predicate must remain in WHERE.
   fail_str: |
-    SELECT * FROM a NATURAL JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+    SELECT * FROM a NATURAL JOIN b JOIN c WHERE a.k = b.k AND a.m = c.m
   fix_str: |
-    SELECT * FROM a NATURAL JOIN b LEFT JOIN c ON a.m = c.m WHERE a.k = b.k
+    SELECT * FROM a NATURAL JOIN b JOIN c ON a.m = c.m WHERE a.k = b.k
+
+test_fail_natural_join_mixed_with_later_outer_join:
+  # A later outer join must keep both predicates in WHERE because moving one
+  # into ON could change the result set.
+  fail_str: |
+    SELECT * FROM a NATURAL JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
 
 test_fail_cross_join_mixed_with_later_join:
   fail_str: |
-    SELECT * FROM a CROSS JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+    SELECT * FROM a CROSS JOIN b JOIN c WHERE a.k = b.k AND a.m = c.m
   fix_str: |
-    SELECT * FROM a CROSS JOIN b LEFT JOIN c ON a.m = c.m WHERE a.k = b.k
+    SELECT * FROM a CROSS JOIN b JOIN c ON a.m = c.m WHERE a.k = b.k
+
+test_fail_cross_join_mixed_with_later_outer_join:
+  # The outer join must not move the predicate into its ON clause.
+  fail_str: |
+    SELECT * FROM a CROSS JOIN b LEFT JOIN c WHERE a.k = b.k AND a.m = c.m
+
+test_fail_sparksql_left_semi_join_with_fix:
+  fail_str: |
+    SELECT employee.id
+    FROM employee
+    LEFT SEMI JOIN department
+    WHERE employee.deptno = department.deptno
+  fix_str: |
+    SELECT employee.id
+    FROM employee
+    LEFT SEMI JOIN department ON employee.deptno = department.deptno
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_sparksql_left_anti_join_with_fix:
+  fail_str: |
+    SELECT employee.id
+    FROM employee
+    LEFT ANTI JOIN department
+    WHERE employee.deptno = department.deptno
+  fix_str: |
+    SELECT employee.id
+    FROM employee
+    LEFT ANTI JOIN department ON employee.deptno = department.deptno
+  configs:
+    core:
+      dialect: sparksql
 
 test_noop_using:
   pass_str: |
@@ -188,13 +242,13 @@ test_fail_templated_join_alongside_literal_join:
     select a.id
     from table_a as a
     left join {{ ref('table_b') }} as b
-    left join table_c as c
+    join table_c as c
     where a.region = b.region and a.k = c.k
   fix_str: |
     select a.id
     from table_a as a
     left join {{ ref('table_b') }} as b
-    left join table_c as c ON a.k = c.k
+    join table_c as c ON a.k = c.k
     where a.region = b.region
   configs:
     core:
@@ -238,13 +292,13 @@ test_fail_placeholder_join_alongside_literal_join:
     select a.id
     from table_a as a
     left join ${table_b} as b
-    left join table_c as c
+    join table_c as c
     where a.region = b.region and a.k = c.k
   fix_str: |
     select a.id
     from table_a as a
     left join ${table_b} as b
-    left join table_c as c ON a.k = c.k
+    join table_c as c ON a.k = c.k
     where a.region = b.region
   configs:
     core:
@@ -254,3 +308,12 @@ test_fail_placeholder_join_alongside_literal_join:
       placeholder:
         param_style: dollar
         table_b: table_b
+
+test_pass_sqlite_left_join_with_on_and_where:
+  pass_str: |
+    SELECT a.k, b.k
+    FROM a LEFT JOIN b ON a.k = b.k
+    WHERE a.active
+  configs:
+    core:
+      dialect: sqlite

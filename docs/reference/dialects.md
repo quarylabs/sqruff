@@ -5759,7 +5759,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (383)</summary>
+<summary>Segment types (386)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -5890,6 +5890,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>create_view_statement</code></li>
 <li><code>csv_file_format_type_parameters</code></li>
 <li><code>cte_column_list</code></li>
+<li><code>cube_rollup_clause</code></li>
 <li><code>data_governance_policy_tag_action_segment</code></li>
 <li><code>data_type</code></li>
 <li><code>data_type_identifier</code></li>
@@ -5973,6 +5974,8 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>glob_operator</code></li>
 <li><code>grant_statement</code></li>
 <li><code>groupby_clause</code></li>
+<li><code>grouping_expression_list</code></li>
+<li><code>grouping_sets_clause</code></li>
 <li><code>having_clause</code></li>
 <li><code>iceberg_table_options</code></li>
 <li><code>identifier_list</code></li>

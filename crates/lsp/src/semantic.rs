@@ -763,6 +763,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | AlterBiCapacityStatement
         | AlterCapacityStatement
         | AlterCatalogStatement
+        | AlterDynamicTableColumnAction
         | AlterDynamicTableStatement
         | AlterEventStatement
         | AlterExtensionStatement

@@ -59,6 +59,7 @@ pub enum SyntaxKind {
     AlterDefaultPrivilegesStatement,
     AlterDefaultPrivilegesToFromRoles,
     AlterDomainStatement,
+    AlterDynamicTableColumnAction,
     AlterDynamicTableStatement,
     AlterEventStatement,
     AlterExtensionStatement,

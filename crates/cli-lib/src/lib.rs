@@ -23,7 +23,6 @@ mod commands_dialects;
 mod commands_fix;
 mod commands_info;
 mod commands_lint;
-#[cfg(feature = "parser")]
 mod commands_parse;
 mod commands_rules;
 mod commands_templaters;
@@ -58,7 +57,6 @@ where
     let stdin_input = match &cli.command {
         Commands::Lint(args) => is_std_in_flag_input(&args.paths).unwrap_or(false),
         Commands::Fix(args) => is_std_in_flag_input(&args.paths).unwrap_or(false),
-        #[cfg(feature = "parser")]
         Commands::Parse(args) => {
             args.paths.is_empty() || is_std_in_flag_input(&args.paths).unwrap_or(false)
         }
@@ -218,7 +216,6 @@ where
             commands_templaters::templaters();
             0
         }
-        #[cfg(feature = "parser")]
         Commands::Parse(args) => commands_parse::run_parse(args, config),
     }
 }

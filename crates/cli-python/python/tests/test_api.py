@@ -6,7 +6,10 @@ Requires the package to be built first:
 
 import io
 import pathlib
+import subprocess
+import sys
 import tempfile
+import textwrap
 
 import pytest
 import sqruff
@@ -206,6 +209,31 @@ class TestFluffConfig:
         config = FluffConfig.from_file(f)
         assert str(config.dialect) == "snowflake"
 
+    def test_from_file_with_name(self, tmp_path):
+        path = tmp_path / ".sqruff"
+        path.write_text(
+            "[sqruff]\ndialect = snowflake\n"
+            "[sqruff:templater:dbt]\nproject_dir = project\n",
+        )
+        with path.open() as file:
+            config = FluffConfig.from_file(file)
+        assert str(config.dialect) == "snowflake"
+        assert config.get_templater_value("dbt", "project_dir") == str(
+            tmp_path / "project",
+        )
+
+    def test_from_source_with_path(self, tmp_path):
+        # The path supplies a base for relative values; it need not exist.
+        config = FluffConfig.from_source(
+            "[sqruff]\ndialect = snowflake\n"
+            "[sqruff:templater:dbt]\nproject_dir = project\n",
+            path=str(tmp_path / ".sqruff"),
+        )
+        assert str(config.dialect) == "snowflake"
+        assert config.get_templater_value("dbt", "project_dir") == str(
+            tmp_path / "project",
+        )
+
     def test_from_path_str(self):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".cfg", delete=False) as f:
             f.write("[sqruff]\ndialect = snowflake\n")
@@ -225,6 +253,65 @@ class TestFluffConfig:
 
 
 class TestLinter:
+    @pytest.mark.parametrize("method", ["lint_string", "lint_paths"])
+    def test_shared_linter_does_not_deadlock(self, method, tmp_path):
+        sql_path = tmp_path / "test.sql"
+        sql_path.write_text("SELECT 1\n")
+        # Run in a subprocess so a GIL/mutex deadlock cannot hang pytest itself.
+        script = textwrap.dedent(
+            """
+            import sys
+            from concurrent.futures import ThreadPoolExecutor
+            from threading import Event, Timer
+
+            import sqruff
+            import sqruff.templaters.jinja_templater as jinja
+
+            entered = Event()
+            proceed = Event()
+            original = jinja.process_variants_from_rust
+
+            def process(*args):
+                if not entered.is_set():
+                    entered.set()
+                    assert proceed.wait(timeout=5)
+                return original(*args)
+
+            jinja.process_variants_from_rust = process
+            config = sqruff.FluffConfig.from_source(
+                '[sqruff]\\ntemplater = jinja\\nrules = \\n'
+            )
+            linter = sqruff.Linter(config)
+
+            def lint():
+                if sys.argv[1] == 'lint_string':
+                    return linter.lint_string('SELECT 1\\n')
+                return linter.lint_paths([sys.argv[2]])
+
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                first = pool.submit(lint)
+                assert entered.wait(timeout=5)
+                # This timer must acquire the GIL while the second call waits
+                # for the mutex held by the first call.
+                timer = Timer(0.1, proceed.set)
+                timer.start()
+                try:
+                    assert not lint().has_violations
+                    assert not first.result(timeout=5).has_violations
+                finally:
+                    proceed.set()
+                    timer.join()
+            """,
+        )
+        result = subprocess.run(
+            [sys.executable, "-c", script, method, str(sql_path)],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+        assert result.returncode == 0, result.stderr
+
     def test_default_linter(self):
         linter = Linter()
         result = linter.lint_string(SIMPLE_SQL, filename="test.sql")

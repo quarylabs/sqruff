@@ -4,13 +4,14 @@ use std::str::FromStr;
 use std::sync::Mutex;
 
 use pyo3::prelude::*;
+use pyo3::sync::MutexExt;
 use pyo3::types::{PyDict, PyList};
 use sqruff_lib::core::config::FluffConfig;
 use sqruff_lib::core::linter::core::Linter;
 use sqruff_lib::core::linter::linted_file::LintedFile;
 use sqruff_lib::core::rules::RuleGroups;
-use sqruff_lib::templaters::types::PlaceholderStyle;
 use sqruff_lib::templaters::TemplaterKind;
+use sqruff_lib::templaters::types::PlaceholderStyle;
 use sqruff_lib_core::dialects::init::DialectKind;
 use sqruff_lib_core::errors::SQLBaseError;
 use sqruff_lib_core::value::Value;
@@ -46,7 +47,11 @@ fn violation_into_py(py: Python, v: &SQLBaseError) -> Py<Violation> {
     Py::new(
         py,
         Violation {
-            code: v.rule.as_ref().map(|r| r.code.to_string()).unwrap_or_default(),
+            code: v
+                .rule
+                .as_ref()
+                .map(|r| r.code.to_string())
+                .unwrap_or_default(),
             line_no: v.line_no,
             line_pos: v.line_pos,
             description: v.description.clone(),
@@ -55,8 +60,6 @@ fn violation_into_py(py: Python, v: &SQLBaseError) -> Py<Violation> {
     )
     .unwrap()
 }
-
-
 
 // ── Violation ────────────────────────────────────────────────────────────────
 
@@ -97,12 +100,14 @@ struct PyDialectKind(DialectKind);
 impl PyDialectKind {
     #[new]
     fn new(dialect: &str) -> PyResult<Self> {
-        DialectKind::from_str(dialect).map(PyDialectKind).map_err(|_| {
-            let valid = Self::available().join(", ");
-            PyErr::new::<pyo3::exceptions::PyValueError, _>(format!(
-                "Unknown dialect: {dialect:?}. Valid dialects are: {valid}"
-            ))
-        })
+        DialectKind::from_str(dialect)
+            .map(PyDialectKind)
+            .map_err(|_| {
+                let valid = Self::available().join(", ");
+                PyErr::new::<pyo3::exceptions::PyValueError, _>(format!(
+                    "Unknown dialect: {dialect:?}. Valid dialects are: {valid}"
+                ))
+            })
     }
 
     fn __repr__(&self) -> String {
@@ -126,7 +131,9 @@ impl PyDialectKind {
     /// List all available dialect names.
     #[staticmethod]
     fn available() -> Vec<String> {
-        DialectKind::iter().map(|d| d.as_ref().to_string()).collect()
+        DialectKind::iter()
+            .map(|d| d.as_ref().to_string())
+            .collect()
     }
 }
 
@@ -336,8 +343,14 @@ impl PyFluffConfig {
     #[staticmethod]
     fn from_file(file: &Bound<PyAny>) -> PyResult<Self> {
         let content: String = file.call_method0("read")?.extract()?;
-        let path = file.getattr("name").ok().and_then(|n| n.extract::<String>().ok());
-        Ok(PyFluffConfig(FluffConfig::from_source(&content, path.as_deref().map(Path::new))))
+        let path = file
+            .getattr("name")
+            .ok()
+            .and_then(|n| n.extract::<String>().ok());
+        Ok(PyFluffConfig(FluffConfig::from_source(
+            &content,
+            path.as_deref().map(Path::new),
+        )))
     }
 
     /// Create a config by loading a `.sqruff` file at the given path (str or pathlib.Path).
@@ -375,7 +388,7 @@ impl PyFluffConfig {
     fn set_dialect(&mut self, dialect: &str) -> PyResult<()> {
         self.0
             .override_dialect(PyDialectKind::new(dialect)?.0)
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyValueError, _>(e))
+            .map_err(PyErr::new::<pyo3::exceptions::PyValueError, _>)
     }
 
     /// The currently configured templater.
@@ -384,7 +397,7 @@ impl PyFluffConfig {
         self.0
             .templater_kind()
             .map(PyTemplaterKind)
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))
+            .map_err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>)
     }
 
     /// Get a single config value by key and section name.
@@ -462,49 +475,64 @@ impl PyFluffConfig {
 /// The result of linting a single file or string.
 #[pyclass(name = "LintedFile")]
 struct PyLintedFile {
-    inner: LintedFile,
+    // LintedFile's ignore-mask bookkeeping is Send but not Sync.
+    inner: Mutex<LintedFile>,
 }
 
 #[pymethods]
 impl PyLintedFile {
     /// The file path (or `"<string input>"` when linting a string).
     #[getter]
-    fn path(&self) -> &str {
-        self.inner.path()
+    fn path(&self, py: Python) -> String {
+        self.inner.lock_py_attached(py).unwrap().path().to_owned()
     }
 
     /// List of all violations found.
     #[getter]
     fn violations(&self, py: Python) -> Vec<Py<Violation>> {
-        self.inner.violations().iter().map(|v| violation_into_py(py, v)).collect()
+        let violations = self
+            .inner
+            .lock_py_attached(py)
+            .unwrap()
+            .violations()
+            .to_vec();
+        violations
+            .iter()
+            .map(|v| violation_into_py(py, v))
+            .collect()
     }
 
     #[getter]
-    fn has_violations(&self) -> bool {
-        self.inner.has_violations()
+    fn has_violations(&self, py: Python) -> bool {
+        self.inner.lock_py_attached(py).unwrap().has_violations()
     }
 
     #[getter]
-    fn has_unfixable_violations(&self) -> bool {
-        self.inner.has_unfixable_violations()
+    fn has_unfixable_violations(&self, py: Python) -> bool {
+        self.inner
+            .lock_py_attached(py)
+            .unwrap()
+            .has_unfixable_violations()
     }
 
     #[getter]
-    fn has_fixes(&self) -> bool {
-        self.inner.has_fixes()
+    fn has_fixes(&self, py: Python) -> bool {
+        self.inner.lock_py_attached(py).unwrap().has_fixes()
     }
 
     /// Return the fixed SQL string. Only meaningful when `fix=True` was passed to
     /// `lint_string` / `lint_paths`.
-    fn fix_string(&self) -> String {
-        self.inner.clone().fix_string()
+    fn fix_string(&self, py: Python) -> String {
+        let linted = self.inner.lock_py_attached(py).unwrap().clone();
+        linted.fix_string()
     }
 
-    fn __repr__(&self) -> String {
+    fn __repr__(&self, py: Python) -> String {
+        let linted = self.inner.lock_py_attached(py).unwrap();
         format!(
             "LintedFile(path={:?}, violations={})",
-            self.inner.path(),
-            self.inner.violations().len()
+            linted.path(),
+            linted.violations().len()
         )
     }
 }
@@ -568,8 +596,10 @@ impl PyLinter {
     fn new(config: Option<PyFluffConfig>, include_parse_errors: bool) -> PyResult<Self> {
         let config = config.map(|c| c.0).unwrap_or_default();
         let linter = Linter::new(config, None, None, include_parse_errors)
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e))?;
-        Ok(PyLinter { inner: Mutex::new(linter) })
+            .map_err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>)?;
+        Ok(PyLinter {
+            inner: Mutex::new(linter),
+        })
     }
 
     /// Lint (and optionally fix) a SQL string.
@@ -589,11 +619,16 @@ impl PyLinter {
         filename: Option<String>,
         fix: bool,
     ) -> PyResult<Py<PyLintedFile>> {
-        let linter = self.inner.lock().unwrap();
+        let linter = self.inner.lock_py_attached(py).unwrap();
         let linted = linter
             .lint_string(sql, filename, fix)
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
-        Py::new(py, PyLintedFile { inner: linted })
+        Py::new(
+            py,
+            PyLintedFile {
+                inner: Mutex::new(linted),
+            },
+        )
     }
 
     /// Lint (and optionally fix) a list of file paths.
@@ -612,7 +647,7 @@ impl PyLinter {
         paths: Vec<String>,
         fix: bool,
     ) -> PyResult<Py<PyLintingResult>> {
-        let mut linter = self.inner.lock().unwrap();
+        let mut linter = self.inner.lock_py_attached(py).unwrap();
         let result = linter
             .lint_paths(
                 paths.into_iter().map(PathBuf::from).collect(),
@@ -625,12 +660,24 @@ impl PyLinter {
         let has_unfixable = result.has_unfixable_violations();
         let files: Vec<Py<PyLintedFile>> = result
             .into_iter()
-            .map(|f| Py::new(py, PyLintedFile { inner: f }).unwrap())
+            .map(|f| {
+                Py::new(
+                    py,
+                    PyLintedFile {
+                        inner: Mutex::new(f),
+                    },
+                )
+                .unwrap()
+            })
             .collect();
 
         Py::new(
             py,
-            PyLintingResult { files, has_violations, has_unfixable_violations: has_unfixable },
+            PyLintingResult {
+                files,
+                has_violations,
+                has_unfixable_violations: has_unfixable,
+            },
         )
     }
 }

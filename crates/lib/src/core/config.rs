@@ -1391,6 +1391,22 @@ mod tests {
     use std::fs;
     use std::time::{SystemTime, UNIX_EPOCH};
 
+    #[test]
+    fn test_from_source_with_path_resolves_relative_values() {
+        let config = FluffConfig::from_source(
+            "[sqruff]\ndialect = snowflake\n\
+             [sqruff:templater:dbt]\nproject_dir = target\n",
+            Some(Path::new("project/.sqruff")),
+        );
+
+        assert_eq!(config.dialect_kind(), DialectKind::Snowflake);
+        let expected = std::env::current_dir().unwrap().join("project/target");
+        assert_eq!(
+            config.get_section("templater")["dbt"]["project_dir"].as_string(),
+            expected.to_str(),
+        );
+    }
+
     fn temp_config_dir(name: &str) -> PathBuf {
         let nonce = SystemTime::now()
             .duration_since(UNIX_EPOCH)

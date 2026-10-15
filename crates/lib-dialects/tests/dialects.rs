@@ -570,6 +570,26 @@ fn redshift_rejects_postgres_merge_extensions() {
 }
 
 #[test]
+fn redshift_rejects_comma_before_select_exclude() {
+    let dialect = kind_to_dialect(&DialectKind::Redshift, None).unwrap();
+    let tables = Tables::default();
+    let lexer = Lexer::from(&dialect);
+    let parser = Parser::from(&dialect);
+
+    // A comma before `SELECT ... EXCLUDE` must not parse as a select item.
+    for sql in [
+        "SELECT *, a, EXCLUDE x FROM tbl;",
+        "SELECT col1, EXCLUDE col2 FROM tbl;",
+        "SELECT col1, EXCLUDE (col2) FROM tbl;",
+    ] {
+        let (tokens, lex_errors) = lexer.lex(&tables, sql);
+        assert!(lex_errors.is_empty(), "{sql}");
+        let tree = parser.parse(&tables, &tokens).unwrap().unwrap();
+        assert!(!check_no_unparsable_segments(&tree).is_empty(), "{sql}");
+    }
+}
+
+#[test]
 fn mariadb_delete_history_rejects_delete_modifiers() {
     let dialect = kind_to_dialect(&DialectKind::Mariadb, None).unwrap();
     let tables = Tables::default();

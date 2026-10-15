@@ -4,7 +4,11 @@ set -euo pipefail
 
 RUNFILES="$RUNFILES_DIR"
 BINARY="$RUNFILES/$SQRUFF_NATIVE_TEST_BINARY"
-PYTHON="$RUNFILES/$PYTHON_RUNTIME"
+PYTHON_DEPS="$RUNFILES/$PYTHON_RUNTIME"
+# Use the interpreter that supplies libpython to the native binaries and
+# extension. A standalone uv interpreter can load a second runtime on macOS.
+PYTHON_BIN="$RUNFILES/_main/$PYTHON_INTERPRETER"
+PYTHON="$(dirname "$(dirname "$PYTHON_BIN")")"
 WORK="$TEST_TMPDIR/work"
 mkdir -p "$WORK" "$TEST_TMPDIR/home" "$TEST_TMPDIR/cache" "$TEST_TMPDIR/tmp"
 export HOME="$TEST_TMPDIR/home"
@@ -15,7 +19,7 @@ export PYTHONNOUSERSITE=1
 export SQRUFF_REQUIRE_PYTHON=1
 unset SQRUFF_SKIP_UNSUPPORTED_TEMPLATERS
 export PYTHONHOME="$PYTHON"
-SITE_PACKAGES=("$PYTHON"/lib/python*/site-packages)
+SITE_PACKAGES=("$PYTHON_DEPS"/lib/python*/site-packages)
 export PYTHONPATH="$WORK/python:${SITE_PACKAGES[0]}"
 export LD_LIBRARY_PATH="$PYTHON/lib:${LD_LIBRARY_PATH:-}"
 export DYLD_LIBRARY_PATH="$PYTHON/lib:${DYLD_LIBRARY_PATH:-}"
@@ -47,9 +51,9 @@ export SQRUFF_TEST_MANIFEST_DIR="$WORK/$TEST_CRATE"
 export SQRUFF_PYTHON_BIN="$WORK/bin/sqruff"
 
 # Fail on missing Python support before a fixture harness can silently skip it.
-"$PYTHON/bin/python3" -c 'import sqruff.templaters.jinja_templater, sqruff.templaters.dbt_templater'
+"$PYTHON_BIN" -c 'import sqruff.templaters.jinja_templater, sqruff.templaters.dbt_templater'
 if [[ -n "${SQRUFF_EXTENSION:-}" ]]; then
-    "$PYTHON/bin/python3" -c 'from sqruff._lib_name import run_cli; assert callable(run_cli)'
+    "$PYTHON_BIN" -c 'from sqruff._lib_name import run_cli; assert callable(run_cli)'
 fi
 cd "$WORK/$TEST_CRATE"
 exec "$BINARY" "$@"

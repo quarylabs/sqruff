@@ -15,10 +15,12 @@ def python_rust_test(name, fixtures = [], extension = False, **kwargs):
         ":" + name + "_binary",
         "//:native_test_python",
         "//crates/cli-python:python_runtime_srcs",
+        "@rules_python//python:current_py_toolchain",
     ]
     env = {
         "SQRUFF_NATIVE_TEST_BINARY": "$(rlocationpath :" + name + "_binary)",
         "PYTHON_RUNTIME": "$(rlocationpath //:native_test_python)",
+        "PYTHON_INTERPRETER": "$(PYTHON3_ROOTPATH)",
         "TEST_CRATE": native.package_name(),
     }
     if extension:
@@ -29,6 +31,7 @@ def python_rust_test(name, fixtures = [], extension = False, **kwargs):
         srcs = ["//:.hacking/scripts/python_rust_test.sh"],
         data = data,
         env = env,
+        toolchains = ["@rules_python//python:current_py_toolchain"],
         size = "medium",
         visibility = ["//visibility:public"],
     )

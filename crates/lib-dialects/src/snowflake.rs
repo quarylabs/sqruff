@@ -104,6 +104,30 @@ fn scripting_declaration() -> Matchable {
     .to_matchable()
 }
 
+/// The statement list shared by the Snowflake Scripting loop segments.
+///
+/// The loop segments differ only in their opening and closing keywords, so
+/// they share the body: one or more delimited statements, terminated by the
+/// closing keywords of the given loop type, then a trailing semicolon.
+fn scripting_loop_body(terminator: Matchable) -> Vec<Matchable> {
+    vec![
+        AnyNumberOf::new(vec![
+            Sequence::new(vec![
+                Ref::new("DelimiterGrammar").to_matchable(),
+                Ref::new("StatementSegment").to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .config(move |this| {
+            this.terminators = vec![terminator];
+        })
+        .to_matchable(),
+        // There must be a trailing semicolon
+        Ref::new("DelimiterGrammar").to_matchable(),
+        MetaSegment::dedent().to_matchable(),
+    ]
+}
+
 fn copy_option_matchables() -> Vec<Matchable> {
     vec![
         Sequence::new(vec![
@@ -720,6 +744,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             ])
             .to_matchable()
             .into(),
+        ),
+        // The optional label a Snowflake Scripting loop can be closed with, and
+        // which BREAK and CONTINUE can target.
+        // https://docs.snowflake.com/en/developer-guide/snowflake-scripting/loops
+        (
+            "ScriptingLoopLabelGrammar".into(),
+            Ref::new("NakedIdentifierSegment").to_matchable().into(),
         ),
         // Data governance clauses which are shared between the CREATE and ALTER
         // statements of tables, views, materialized views and dynamic tables.
@@ -2732,6 +2763,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("ScriptingIfStatementSegment").to_matchable(),
                 Ref::new("ScriptingRaiseStatementSegment").to_matchable(),
                 Ref::new("ForInLoopSegment").to_matchable(),
+                Ref::new("ScriptingWhileLoopSegment").to_matchable(),
+                Ref::new("ScriptingLoopSegment").to_matchable(),
+                Ref::new("ScriptingRepeatLoopSegment").to_matchable(),
+                Ref::new("ScriptingBreakStatementSegment").to_matchable(),
+                Ref::new("ScriptingCaseStatementSegment").to_matchable(),
                 Ref::new("CreateEventTableStatementSegment").to_matchable(),
                 Ref::new("CreatePasswordPolicyStatementSegment").to_matchable(),
                 Ref::new("AlterPasswordPolicyStatementSegment").to_matchable(),
@@ -6467,11 +6503,21 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 .to_matchable(),
                             ])
                             .config(|terminator| {
+                                // Don't terminate on the "END" of a nested loop
+                                // or CASE statement, because those are different
+                                // expressions.
                                 terminator.exclude = Some(
                                     Sequence::new(vec![
                                         Ref::new("DelimiterGrammar").to_matchable(),
                                         Ref::keyword("END").to_matchable(),
-                                        Ref::keyword("FOR").to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("FOR").to_matchable(),
+                                            Ref::keyword("WHILE").to_matchable(),
+                                            Ref::keyword("LOOP").to_matchable(),
+                                            Ref::keyword("REPEAT").to_matchable(),
+                                            Ref::keyword("CASE").to_matchable(),
+                                        ])
+                                        .to_matchable(),
                                     ])
                                     .to_matchable(),
                                 );
@@ -6491,37 +6537,285 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         ),
         (
             "ForInLoopSegment".into(),
+            // FOR...IN...DO...END FOR statement. Covers both the
+            // cursor/RESULTSET loop and the counter loop.
+            // https://docs.snowflake.com/en/developer-guide/snowflake-scripting/loops#for-loop
             NodeMatcher::new(SyntaxKind::ForInStatement, |_| {
-                Sequence::new(vec![
+                let mut elements = vec![
                     Ref::keyword("FOR").to_matchable(),
                     Ref::new("LocalVariableNameSegment").to_matchable(),
                     Ref::keyword("IN").to_matchable(),
-                    Ref::new("LocalVariableNameSegment").to_matchable(),
-                    Ref::keyword("DO").to_matchable(),
+                    one_of(vec![
+                        // Counter loop: FOR <var> IN [REVERSE] <start> TO <end>
+                        Sequence::new(vec![
+                            Ref::keyword("REVERSE").optional().to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                            Ref::keyword("TO").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        // Cursor or RESULTSET loop
+                        Ref::new("LocalVariableNameSegment").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DO").to_matchable(),
+                        Ref::keyword("LOOP").to_matchable(),
+                    ])
+                    .to_matchable(),
                     MetaSegment::indent().to_matchable(),
                     Ref::new("StatementSegment").to_matchable(),
+                ];
+                elements.extend(scripting_loop_body(
+                    Sequence::new(vec![
+                        Ref::new("DelimiterGrammar").to_matchable(),
+                        Ref::keyword("END").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("FOR").to_matchable(),
+                            Ref::keyword("LOOP").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ));
+                elements.push(Ref::keyword("END").to_matchable());
+                elements.push(
+                    one_of(vec![
+                        Ref::keyword("FOR").to_matchable(),
+                        Ref::keyword("LOOP").to_matchable(),
+                    ])
+                    .to_matchable(),
+                );
+                elements.push(
+                    Ref::new("ScriptingLoopLabelGrammar")
+                        .optional()
+                        .to_matchable(),
+                );
+                Sequence::new(elements).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ScriptingWhileLoopSegment".into(),
+            // WHILE...DO...END WHILE statement.
+            // https://docs.snowflake.com/en/sql-reference/snowflake-scripting/while
+            NodeMatcher::new(SyntaxKind::WhileLoopStatement, |_| {
+                let mut elements = vec![
+                    Ref::keyword("WHILE").to_matchable(),
+                    // The documented syntax requires the parenthesised condition.
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("DO").to_matchable(),
+                        Ref::keyword("LOOP").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("StatementSegment").to_matchable(),
+                ];
+                elements.extend(scripting_loop_body(
+                    Sequence::new(vec![
+                        Ref::new("DelimiterGrammar").to_matchable(),
+                        Ref::keyword("END").to_matchable(),
+                        one_of(vec![
+                            Ref::keyword("WHILE").to_matchable(),
+                            Ref::keyword("LOOP").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ));
+                elements.push(Ref::keyword("END").to_matchable());
+                elements.push(
+                    one_of(vec![
+                        Ref::keyword("WHILE").to_matchable(),
+                        Ref::keyword("LOOP").to_matchable(),
+                    ])
+                    .to_matchable(),
+                );
+                elements.push(
+                    Ref::new("ScriptingLoopLabelGrammar")
+                        .optional()
+                        .to_matchable(),
+                );
+                Sequence::new(elements).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ScriptingLoopSegment".into(),
+            // LOOP...END LOOP statement.
+            // https://docs.snowflake.com/en/sql-reference/snowflake-scripting/loop
+            NodeMatcher::new(SyntaxKind::LoopStatement, |_| {
+                let mut elements = vec![
+                    Ref::keyword("LOOP").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("StatementSegment").to_matchable(),
+                ];
+                elements.extend(scripting_loop_body(
+                    Sequence::new(vec![
+                        Ref::new("DelimiterGrammar").to_matchable(),
+                        Ref::keyword("END").to_matchable(),
+                        Ref::keyword("LOOP").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ));
+                elements.push(Ref::keyword("END").to_matchable());
+                elements.push(Ref::keyword("LOOP").to_matchable());
+                elements.push(
+                    Ref::new("ScriptingLoopLabelGrammar")
+                        .optional()
+                        .to_matchable(),
+                );
+                Sequence::new(elements).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ScriptingRepeatLoopSegment".into(),
+            // REPEAT...UNTIL...END REPEAT statement.
+            // https://docs.snowflake.com/en/sql-reference/snowflake-scripting/repeat
+            NodeMatcher::new(SyntaxKind::RepeatLoopStatement, |_| {
+                let mut elements = vec![
+                    Ref::keyword("REPEAT").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("StatementSegment").to_matchable(),
+                ];
+                elements.extend(scripting_loop_body(
+                    Sequence::new(vec![
+                        Ref::new("DelimiterGrammar").to_matchable(),
+                        Ref::keyword("UNTIL").to_matchable(),
+                    ])
+                    .to_matchable(),
+                ));
+                elements.push(Ref::keyword("UNTIL").to_matchable());
+                // The documented syntax requires the parenthesised condition.
+                elements.push(
+                    Bracketed::new(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .to_matchable(),
+                );
+                elements.push(Ref::keyword("END").to_matchable());
+                elements.push(Ref::keyword("REPEAT").to_matchable());
+                elements.push(
+                    Ref::new("ScriptingLoopLabelGrammar")
+                        .optional()
+                        .to_matchable(),
+                );
+                Sequence::new(elements).to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ScriptingBreakStatementSegment".into(),
+            // BREAK / CONTINUE statement for SQL scripting.
+            // https://docs.snowflake.com/en/sql-reference/snowflake-scripting/break
+            // https://docs.snowflake.com/en/sql-reference/snowflake-scripting/continue
+            NodeMatcher::new(SyntaxKind::ScriptingBreakStatement, |_| {
+                Sequence::new(vec![
+                    one_of(vec![
+                        Ref::keyword("BREAK").to_matchable(),
+                        Ref::keyword("CONTINUE").to_matchable(),
+                        Ref::keyword("ITERATE").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Ref::new("ScriptingLoopLabelGrammar")
+                        .optional()
+                        .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ScriptingCaseStatementSegment".into(),
+            // A `CASE` statement for SQL scripting. Unlike the CASE expression,
+            // the branches of a CASE statement hold statements rather than
+            // expressions.
+            // https://docs.snowflake.com/en/sql-reference/snowflake-scripting/case
+            NodeMatcher::new(SyntaxKind::ScriptingCaseStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CASE").to_matchable(),
+                    optionally_bracketed(vec![Ref::new("ExpressionSegment").to_matchable()])
+                        .config(|this| this.optional())
+                        .to_matchable(),
                     AnyNumberOf::new(vec![
                         Sequence::new(vec![
-                            Ref::new("DelimiterGrammar").to_matchable(),
+                            Ref::keyword("WHEN").to_matchable(),
+                            Ref::new("ExpressionSegment").to_matchable(),
+                            Ref::keyword("THEN").to_matchable(),
+                            MetaSegment::indent().to_matchable(),
                             Ref::new("StatementSegment").to_matchable(),
+                            AnyNumberOf::new(vec![
+                                Sequence::new(vec![
+                                    Ref::new("DelimiterGrammar").to_matchable(),
+                                    Ref::new("StatementSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| {
+                                this.terminators = vec![
+                                    Sequence::new(vec![
+                                        Ref::new("DelimiterGrammar").to_matchable(),
+                                        one_of(vec![
+                                            Ref::keyword("WHEN").to_matchable(),
+                                            Ref::keyword("ELSE").to_matchable(),
+                                            Ref::keyword("END").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ];
+                            })
+                            .to_matchable(),
+                            Ref::new("DelimiterGrammar").to_matchable(),
+                            MetaSegment::dedent().to_matchable(),
                         ])
                         .to_matchable(),
                     ])
                     .config(|this| {
+                        this.min_times(1);
                         this.terminators = vec![
-                            Sequence::new(vec![
-                                Ref::new("DelimiterGrammar").to_matchable(),
+                            one_of(vec![
+                                Ref::keyword("ELSE").to_matchable(),
                                 Ref::keyword("END").to_matchable(),
-                                Ref::keyword("FOR").to_matchable(),
                             ])
                             .to_matchable(),
                         ];
                     })
                     .to_matchable(),
-                    Ref::new("DelimiterGrammar").to_matchable(),
-                    MetaSegment::dedent().to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ELSE").to_matchable(),
+                        MetaSegment::indent().to_matchable(),
+                        Ref::new("StatementSegment").to_matchable(),
+                        AnyNumberOf::new(vec![
+                            Sequence::new(vec![
+                                Ref::new("DelimiterGrammar").to_matchable(),
+                                Ref::new("StatementSegment").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .config(|this| {
+                            this.terminators = vec![
+                                Sequence::new(vec![
+                                    Ref::new("DelimiterGrammar").to_matchable(),
+                                    Ref::keyword("END").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ];
+                        })
+                        .to_matchable(),
+                        Ref::new("DelimiterGrammar").to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
                     Ref::keyword("END").to_matchable(),
-                    Ref::keyword("FOR").to_matchable(),
+                    Ref::keyword("CASE").optional().to_matchable(),
                 ])
                 .to_matchable()
             })

@@ -344,10 +344,13 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ForInStatement
         | RepeatStatements
         | RepeatStatement
+        | RepeatLoopStatement
         | IfStatements
         | IfStatement
         | LoopStatements
         | LoopStatement
+        | ScriptingBreakStatement
+        | ScriptingCaseStatement
         | WhileStatements
         | WhileStatement
         | SelectExceptClause

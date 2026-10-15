@@ -384,6 +384,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | ProcedureParameterList
         | ProcedureStatements
         | CallStatement
+        | CallWithAnonymousProcedure
         | ReturnStatement
         | BreakStatement
         | LeaveStatement
@@ -1032,6 +1033,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | MetaCommandQueryBuffer
         | MetaCommandStatement
         | MetricLevelEquals
+        | AutoEventLoggingEquals
         | PsqlCopyCommand
         | PsqlCopyMetaCommandStatement
         | PostgresCopyStdinDataStatement

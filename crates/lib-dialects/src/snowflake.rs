@@ -1428,6 +1428,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             "GroupByContentsGrammar".into(),
             Delimited::new(vec![
                 one_of(vec![
+                    Ref::new("GroupingSetsClauseSegment").to_matchable(),
+                    Ref::new("CubeRollupClauseSegment").to_matchable(),
                     Ref::new("ColumnReferenceSegment").to_matchable(),
                     // Can `GROUP BY 1`
                     Ref::new("NumericLiteralSegment").to_matchable(),
@@ -2325,6 +2327,48 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         .into(),
     )]);
 
+    // Snowflake treats CUBE and ROLLUP as keywords rather than as the
+    // function names the ANSI dialect uses, so keyword capitalisation applies.
+    // https://docs.snowflake.com/en/sql-reference/constructs/group-by
+    snowflake_dialect.replace_grammar(
+        "CubeRollupClauseSegment",
+        Sequence::new(vec![
+            one_of(vec![
+                Ref::keyword("CUBE").to_matchable(),
+                Ref::keyword("ROLLUP").to_matchable(),
+            ])
+            .to_matchable(),
+            Bracketed::new(vec![Ref::new("GroupingExpressionList").to_matchable()]).to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
+    // Unlike the ANSI implementation, the elements of the list are matched one
+    // by one, so a CUBE / ROLLUP entry mixed with ordinary grouping expressions
+    // keeps its dedicated node instead of being swallowed into a single
+    // grouping expression list.
+    // https://docs.snowflake.com/en/sql-reference/constructs/group-by
+    snowflake_dialect.replace_grammar(
+        "GroupingSetsClauseSegment",
+        Sequence::new(vec![
+            Ref::keyword("GROUPING").to_matchable(),
+            Ref::keyword("SETS").to_matchable(),
+            Bracketed::new(vec![
+                Delimited::new(vec![
+                    Ref::new("CubeRollupClauseSegment").to_matchable(),
+                    Ref::new("ColumnReferenceSegment").to_matchable(),
+                    Ref::new("NumericLiteralSegment").to_matchable(),
+                    Ref::new("ExpressionSegment").to_matchable(),
+                    // Allows an empty grouping set
+                    Bracketed::new(vec![]).to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable(),
+        ])
+        .to_matchable(),
+    );
+
     snowflake_dialect.replace_grammar(
         "GroupByClauseSegment",
         Sequence::new(vec![
@@ -2332,21 +2376,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             Ref::keyword("BY").to_matchable(),
             MetaSegment::indent().to_matchable(),
             one_of(vec![
-                Sequence::new(vec![
-                    one_of(vec![
-                        Ref::keyword("CUBE").to_matchable(),
-                        Ref::keyword("ROLLUP").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("GROUPING").to_matchable(),
-                            Ref::keyword("SETS").to_matchable(),
-                        ])
-                        .to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Bracketed::new(vec![Ref::new("GroupByContentsGrammar").to_matchable()])
-                        .to_matchable(),
-                ])
-                .to_matchable(),
                 Ref::keyword("ALL").to_matchable(),
                 Ref::new("GroupByContentsGrammar").to_matchable(),
             ])
@@ -3032,6 +3061,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("PIVOT").to_matchable(),
                     Bracketed::new(vec![
                         Ref::new("FunctionSegment").to_matchable(),
+                        Ref::new("AliasExpressionSegment").optional().to_matchable(),
                         Ref::keyword("FOR").to_matchable(),
                         Ref::new("SingleIdentifierGrammar").to_matchable(),
                         Ref::keyword("IN").to_matchable(),
@@ -3096,7 +3126,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("IN").to_matchable(),
                         Bracketed::new(vec![
                             Delimited::new(vec![
-                                Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::new("SingleIdentifierGrammar").to_matchable(),
+                                    Ref::new("AliasExpressionSegment").optional().to_matchable(),
+                                ])
+                                .to_matchable(),
                             ])
                             .to_matchable(),
                         ])

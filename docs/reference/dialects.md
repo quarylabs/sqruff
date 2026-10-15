@@ -5759,7 +5759,7 @@ Snowflake SQL dialect for cloud data platform.
 ```
 
 <details>
-<summary>Segment types (388)</summary>
+<summary>Segment types (393)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -6003,6 +6003,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>literal</code></li>
 <li><code>local_alias</code></li>
 <li><code>log_level_equals</code></li>
+<li><code>loop_statement</code></li>
 <li><code>map_type</code></li>
 <li><code>match_condition_clause</code></li>
 <li><code>match_recognize_clause</code></li>
@@ -6053,6 +6054,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>raw</code></li>
 <li><code>raw_comparison_operator</code></li>
 <li><code>remove_statement</code></li>
+<li><code>repeat_loop_statement</code></li>
 <li><code>resource_constraint</code></li>
 <li><code>return_statement</code></li>
 <li><code>revoke_statement</code></li>
@@ -6063,6 +6065,8 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>scaling_policy</code></li>
 <li><code>schema_object_properties</code></li>
 <li><code>scripting_block_statement</code></li>
+<li><code>scripting_break_statement</code></li>
+<li><code>scripting_case_statement</code></li>
 <li><code>scripting_declare_statement</code></li>
 <li><code>scripting_if_statement</code></li>
 <li><code>scripting_let_statement</code></li>
@@ -6139,6 +6143,7 @@ Snowflake SQL dialect for cloud data platform.
 <li><code>warehouse_size</code></li>
 <li><code>when_clause</code></li>
 <li><code>where_clause</code></li>
+<li><code>while_loop_statement</code></li>
 <li><code>whitespace</code></li>
 <li><code>wildcard_expression</code></li>
 <li><code>wildcard_identifier</code></li>

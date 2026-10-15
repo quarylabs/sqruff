@@ -656,6 +656,8 @@ sh_test(
         "//crates/cli-python:sqlmesh_test_fixtures",
     ],
     env = {
+        # Bazel schedules test concurrency; avoid SQLMesh forking a second pool.
+        "MAX_FORK_WORKERS": "1",
         "PYTHON_VENV": "$(rlocationpath :sqlmesh_test_venv)",
         "SQRUFF_REQUIRE_SQLMESH": "1",
     },

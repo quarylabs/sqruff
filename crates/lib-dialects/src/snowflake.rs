@@ -1411,6 +1411,14 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 .to_matchable()
                 .into(),
         ),
+        // Generic dollar-quoted string literal (e.g. the YAML specification body
+        // of CREATE MCP SERVER)
+        (
+            "DollarQuotedLiteralSegment".into(),
+            TypedParser::new(SyntaxKind::DollarQuote, SyntaxKind::DollarQuotedLiteral)
+                .to_matchable()
+                .into(),
+        ),
         (
             "StagePath".into(),
             RegexParser::new(r"(?:@[^\s;)]+|'@[^']+')", SyntaxKind::StagePath)
@@ -2707,6 +2715,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateStatementSegment").to_matchable(),
                 Ref::new("DefineStatementSegment").to_matchable(),
                 Ref::new("CreateDbtProjectStatementSegment").to_matchable(),
+                Ref::new("CreateMcpServerStatementSegment").to_matchable(),
                 Ref::new("CreateDcmProjectStatementSegment").to_matchable(),
                 Ref::new("CreateTaskSegment").to_matchable(),
                 Ref::new("CreateUserSegment").to_matchable(),
@@ -9365,6 +9374,25 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .into(),
         ),
         (
+            "CreateMcpServerStatementSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateMcpServerStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("MCP").to_matchable(),
+                    Ref::keyword("SERVER").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::keyword("FROM").to_matchable(),
+                    Ref::keyword("SPECIFICATION").to_matchable(),
+                    Ref::new("DollarQuotedLiteralSegment").to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "CreateDcmProjectStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateDcmProjectStatement, |_| {
                 Sequence::new(vec![
@@ -12341,6 +12369,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     ])
                     .to_matchable(),
                     Sequence::new(vec![
+                        Ref::keyword("MCP").to_matchable(),
+                        Ref::keyword("SERVERS").to_matchable(),
+                    ])
+                    .to_matchable(),
+                    Sequence::new(vec![
                         Ref::keyword("DCM").to_matchable(),
                         Ref::keyword("PROJECTS").to_matchable(),
                     ])
@@ -13347,6 +13380,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::new("ObjectReferenceSegment").to_matchable(),
                         ])
                         .to_matchable(),
+                        // https://docs.snowflake.com/en/sql-reference/sql/create-mcp-server
+                        Sequence::new(vec![
+                            Ref::keyword("MCP").to_matchable(),
+                            Ref::keyword("SERVER").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
                     ])
                     .to_matchable(),
                 ])
@@ -13852,6 +13892,11 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                 Sequence::new(vec![
                                     Ref::keyword("FILE").to_matchable(),
                                     Ref::keyword("FORMAT").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("MCP").to_matchable(),
+                                    Ref::keyword("SERVER").to_matchable(),
                                 ])
                                 .to_matchable(),
                                 Sequence::new(vec![
@@ -15247,6 +15292,11 @@ fn snowflake_access_schema_object() -> Matchable {
         ])
         .to_matchable(),
         Sequence::new(vec![
+            Ref::keyword("MCP").to_matchable(),
+            Ref::keyword("SERVER").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
             Ref::keyword("DCM").to_matchable(),
             Ref::keyword("PROJECT").to_matchable(),
         ])
@@ -15325,6 +15375,11 @@ fn snowflake_access_schema_plural_object() -> Matchable {
         Sequence::new(vec![
             Ref::keyword("DBT").to_matchable(),
             Ref::keyword("PROJECTS").to_matchable(),
+        ])
+        .to_matchable(),
+        Sequence::new(vec![
+            Ref::keyword("MCP").to_matchable(),
+            Ref::keyword("SERVERS").to_matchable(),
         ])
         .to_matchable(),
         Sequence::new(vec![

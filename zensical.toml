@@ -18,6 +18,7 @@ nav = [
   { "Rules" = "reference/rules.md" },
   { "Reference" = [
     { "CLI" = "reference/cli.md" },
+    { "Segment types" = "reference/segment-types.md" },
     { "Templaters" = "reference/templaters.md" },
     { "Sample configurations" = "reference/sample-configurations.md" },
   ] },

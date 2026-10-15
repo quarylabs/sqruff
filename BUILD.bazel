@@ -380,6 +380,7 @@ run_binary(
         "generated-docs/cli.md",
         "generated-docs/dialects.md",
         "generated-docs/rules.md",
+        "generated-docs/segment-types.md",
         "generated-docs/templaters.md",
     ],
     args = ["$(BINDIR)/generated-docs"],
@@ -393,6 +394,7 @@ write_source_files(
         "docs/reference/cli.md": ":generated-docs/cli.md",
         "docs/reference/dialects.md": ":generated-docs/dialects.md",
         "docs/reference/rules.md": ":generated-docs/rules.md",
+        "docs/reference/segment-types.md": ":generated-docs/segment-types.md",
         "docs/reference/templaters.md": ":generated-docs/templaters.md",
     },
 )

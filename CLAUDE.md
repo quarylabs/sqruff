@@ -80,4 +80,5 @@ Do not edit directly - regenerate with `bazel run //:codegen_docs_fix`:
 - `docs/reference/cli.md`
 - `docs/reference/dialects.md`
 - `docs/reference/rules.md`
+- `docs/reference/segment-types.md`
 - `docs/reference/templaters.md`

@@ -978,7 +978,7 @@ file:
       - keyword: KEY
       - bracketed:
         - start_bracket: (
-        - object_reference:
+        - column_reference:
           - naked_identifier: col1
         - end_bracket: )
 - statement_terminator: ;
@@ -998,13 +998,13 @@ file:
       - keyword: KEY
       - bracketed:
         - start_bracket: (
-        - object_reference:
+        - column_reference:
           - naked_identifier: col1
         - comma: ','
-        - object_reference:
+        - column_reference:
           - naked_identifier: col2
         - comma: ','
-        - object_reference:
+        - column_reference:
           - naked_identifier: col3
         - end_bracket: )
 - statement_terminator: ;
@@ -1038,7 +1038,7 @@ file:
       - keyword: KEY
       - bracketed:
         - start_bracket: (
-        - object_reference:
+        - column_reference:
           - naked_identifier: col1
         - end_bracket: )
       - keyword: FORCE

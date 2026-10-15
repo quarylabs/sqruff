@@ -117,6 +117,7 @@ struct Dialect {
     config_section: String,
     config_options: Vec<DialectConfigOption>,
     has_config_options: bool,
+    segment_types: Vec<&'static str>,
 }
 
 #[cfg(feature = "codegen-docs")]
@@ -132,6 +133,14 @@ impl From<DialectKind> for Dialect {
                 })
                 .collect();
         let has_config_options = !config_options.is_empty();
+        let dialect = sqruff_lib_dialects::kind_to_dialect(&value, None)
+            .expect("All documented dialects must be enabled");
+        let mut segment_types = dialect
+            .segment_types()
+            .iter()
+            .map(|kind| kind.as_str())
+            .collect::<Vec<_>>();
+        segment_types.sort_unstable();
         Dialect {
             name: value.name(),
             description: value.description(),
@@ -141,6 +150,7 @@ impl From<DialectKind> for Dialect {
             config_section: value.config_section(),
             config_options,
             has_config_options,
+            segment_types,
         }
     }
 }

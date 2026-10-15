@@ -144,6 +144,13 @@ impl Matcher {
         self.pattern.name
     }
 
+    pub(crate) fn segment_types(&self) -> impl Iterator<Item = SyntaxKind> + '_ {
+        std::iter::once(&self.pattern)
+            .chain(self.subdivider.iter())
+            .chain(self.trim_post_subdivide.iter())
+            .map(|pattern| pattern.syntax_kind)
+    }
+
     #[track_caller]
     pub fn matches<'a>(&self, forward_string: &'a str) -> Match<'a> {
         match self.pattern.matches(forward_string) {

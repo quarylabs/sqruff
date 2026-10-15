@@ -34,3 +34,6 @@ prints a labeled tree; `json` and `yaml` provide structured output. Add
 `--include-meta` to include meta segments and source positions in JSON or YAML.
 Parse errors are reported on stderr with a nonzero exit code, while the
 available tree is printed on stdout.
+
+See the collapsed segment types lists in the [dialect reference](../reference/dialects.md)
+for automatically generated names used in layout configuration.

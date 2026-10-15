@@ -39,6 +39,10 @@ impl TypedParser {
 }
 
 impl MatchableTrait for TypedParser {
+    fn get_type(&self) -> SyntaxKind {
+        self.kind
+    }
+
     fn elements(&self) -> &[Matchable] {
         &[]
     }
@@ -177,6 +181,10 @@ impl StringParser {
 }
 
 impl MatchableTrait for StringParser {
+    fn get_type(&self) -> SyntaxKind {
+        self.kind
+    }
+
     fn elements(&self) -> &[Matchable] {
         &[]
     }
@@ -325,6 +333,10 @@ impl RegexParser {
 }
 
 impl MatchableTrait for RegexParser {
+    fn get_type(&self) -> SyntaxKind {
+        self.kind
+    }
+
     fn elements(&self) -> &[Matchable] {
         &[]
     }
@@ -409,6 +421,10 @@ impl MultiStringParser {
 }
 
 impl MatchableTrait for MultiStringParser {
+    fn get_type(&self) -> SyntaxKind {
+        self.kind
+    }
+
     fn elements(&self) -> &[Matchable] {
         &[]
     }

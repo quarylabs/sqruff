@@ -100,6 +100,36 @@ FROM foo;
 
 The same modifier can be configured for `binary_operator`.
 
+The [dialect reference](../reference/dialects.md) includes a collapsed segment
+types list for each dialect, generated automatically from its grammar and lexer
+using the default dialect configuration. The types present in a query depend
+on the selected dialect and the SQL being parsed.
+To discover them, inspect the concrete syntax tree (CST) for a representative
+query using the CLI:
+
+```shell
+sqruff parse query.sql --dialect ansi
+```
+
+You can also pipe SQL into `sqruff parse --dialect ansi -`. Use `--format json`
+or `--format yaml` for structured output, and add `--include-meta` to include
+meta segments and source positions in those formats. In the
+[playground](https://playground.quary.dev), select the "Cst" tool to view the
+same tree. For example, a query containing a comma and a `FROM` clause includes:
+
+```text
+...
+select_clause:
+...
+    comma: ','
+...
+from_clause:
+```
+
+The labels in the parse tree, such as `select_clause`, `comma` and
+`from_clause`, are the segment types to use in `[sqruff:layout:type:<type>]`
+section headings.
+
 ## Attaching operators to adjacent lines
 
 The `leading:attached` and `trailing:attached` modifiers allow an operator in

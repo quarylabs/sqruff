@@ -35,5 +35,5 @@ prints a labeled tree; `json` and `yaml` provide structured output. Add
 Parse errors are reported on stderr with a nonzero exit code, while the
 available tree is printed on stdout.
 
-See the [segment types reference](../reference/segment-types.md) for an
-automatically generated list of names used in layout configuration.
+See the collapsed segment types lists in the [dialect reference](../reference/dialects.md)
+for automatically generated names used in layout configuration.

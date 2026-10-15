@@ -12,10 +12,10 @@ use hashbrown::{HashMap, HashSet};
 
 use crate::dialects::init::DialectKind;
 use crate::dialects::sets::DialectSetKey;
-use crate::dialects::syntax::SyntaxKind;
+use crate::dialects::syntax::{SyntaxKind, SyntaxSet};
 use crate::helpers::ToMatchable;
 use crate::parser::lexer::{Lexer, Matcher};
-use crate::parser::matchable::{Matchable, MatchableTrait};
+use crate::parser::matchable::{Matchable, MatchableTrait, MatchableTraitImpl};
 use crate::parser::parsers::StringParser;
 use crate::parser::types::DialectElementType;
 
@@ -134,6 +134,74 @@ impl Dialect {
 
     pub fn lexer_matchers(&self) -> &[Matcher] {
         &self.lexer_matchers
+    }
+
+    /// Segment kinds used by the expanded dialect's reachable file grammar and lexer.
+    /// Includes shared parser-error and templater segments, but excludes dormant
+    /// inherited grammars that cannot be reached from `FileSegment`.
+    pub fn segment_types(&self) -> SyntaxSet {
+        let mut types = SyntaxSet::new(&[
+            SyntaxKind::EndOfFile,
+            SyntaxKind::Unparsable,
+            SyntaxKind::Placeholder,
+            SyntaxKind::TemplateLoop,
+            SyntaxKind::Indent,
+            SyntaxKind::Dedent,
+            SyntaxKind::Unlexable,
+        ]);
+        for matcher in &self.lexer_matchers {
+            for kind in matcher.segment_types() {
+                types.insert(kind);
+            }
+        }
+        self.collect_segment_types(
+            &self.grammar("FileSegment"),
+            &mut HashSet::new(),
+            &mut types,
+        );
+        types
+    }
+
+    fn collect_segment_types(
+        &self,
+        matchable: &Matchable,
+        visited: &mut HashSet<usize>,
+        types: &mut SyntaxSet,
+    ) {
+        if !visited.insert(matchable.identity()) {
+            return;
+        }
+        if let Some(kind) = matchable.segment_type() {
+            types.insert(kind);
+        }
+        if let MatchableTraitImpl::Bracketed(bracketed) = &**matchable {
+            types.insert(SyntaxKind::Indent);
+            types.insert(SyntaxKind::Dedent);
+            if self.bracket_sets(bracketed.bracket_pairs_set).iter().any(
+                |(bracket_type, _, _, persists)| {
+                    *bracket_type == bracketed.bracket_type && *persists
+                },
+            ) {
+                types.insert(SyntaxKind::Bracketed);
+            }
+        }
+        if let Some(reference) = matchable.as_ref()
+            && let Some(DialectElementType::Matchable(target)) =
+                self.library.get(reference.reference())
+        {
+            self.collect_segment_types(target, visited, types);
+        }
+        if let Some(grammar) = matchable.match_grammar(self) {
+            self.collect_segment_types(&grammar, visited, types);
+        }
+        for reference in matchable.validation_references(self) {
+            if let Some(DialectElementType::Matchable(target)) = self.library.get(reference) {
+                self.collect_segment_types(target, visited, types);
+            }
+        }
+        for child in matchable.validation_children() {
+            self.collect_segment_types(child, visited, types);
+        }
     }
 
     pub fn insert_lexer_matchers(&mut self, lexer_patch: Vec<Matcher>, before: &str) {
@@ -392,8 +460,111 @@ pub type BracketPair = (&'static str, &'static str, &'static str, bool);
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::parser::grammar::conditional::Conditional;
     use crate::parser::grammar::sequence::Bracketed;
     use crate::parser::grammar::{Anything, Ref};
+    use crate::parser::lexer::Pattern;
+    use crate::parser::node_matcher::NodeMatcher;
+    use crate::parser::parsers::{MultiStringParser, RegexParser, TypedParser};
+    use crate::parser::segments::meta::MetaSegment;
+
+    #[test]
+    fn segment_types_follow_references_and_emitters_without_dormant_inherited_grammar() {
+        let mut dialect = Dialect::new();
+        dialect.add([
+            (
+                "FileSegment".into(),
+                NodeMatcher::new(SyntaxKind::File, |_| {
+                    crate::parser::grammar::sequence::Sequence::new(vec![
+                        Ref::new("FileSegment").to_matchable(),
+                        Ref::new("UnresolvedAlternative").to_matchable(),
+                        Ref::new("CommaSegment").to_matchable(),
+                        TypedParser::new(SyntaxKind::Word, SyntaxKind::NakedIdentifier)
+                            .to_matchable(),
+                        RegexParser::new("[0-9]+", SyntaxKind::NumericLiteral).to_matchable(),
+                        MultiStringParser::new(vec!["TRUE".into()], SyntaxKind::BooleanLiteral)
+                            .to_matchable(),
+                        Conditional::new(MetaSegment::implicit_indent()).to_matchable(),
+                    ])
+                    .to_matchable()
+                })
+                .to_matchable()
+                .into(),
+            ),
+            (
+                "CommaSegment".into(),
+                StringParser::new(",", SyntaxKind::Comma)
+                    .to_matchable()
+                    .into(),
+            ),
+            (
+                "DormantInheritedSegment".into(),
+                NodeMatcher::new(SyntaxKind::PsqlVariable, |_| {
+                    Ref::new("MissingSegment").to_matchable()
+                })
+                .to_matchable()
+                .into(),
+            ),
+        ]);
+        dialect.set_lexer_matchers(vec![
+            Matcher::native("word", |_| false, SyntaxKind::Word)
+                .subdivider(Pattern::string("symbol", ",", SyntaxKind::Symbol))
+                .post_subdivide(Pattern::string("newline", "\n", SyntaxKind::Newline)),
+        ]);
+        dialect.expand();
+
+        let types = dialect.segment_types();
+        for kind in [
+            SyntaxKind::File,
+            SyntaxKind::Comma,
+            SyntaxKind::NakedIdentifier,
+            SyntaxKind::NumericLiteral,
+            SyntaxKind::BooleanLiteral,
+            SyntaxKind::Implicit,
+            SyntaxKind::Word,
+            SyntaxKind::Symbol,
+            SyntaxKind::Newline,
+            SyntaxKind::TemplateLoop,
+        ] {
+            assert!(types.contains(kind), "missing {kind:?}");
+        }
+        assert!(!types.contains(SyntaxKind::PsqlVariable));
+    }
+
+    #[test]
+    fn segment_types_include_persistent_brackets_and_their_delimiters() {
+        let mut dialect = Dialect::new();
+        dialect.update_bracket_sets(
+            "bracket_pairs",
+            vec![("round", "StartBracketSegment", "EndBracketSegment", true)],
+        );
+        dialect.add([
+            (
+                "FileSegment".into(),
+                Bracketed::new(vec![]).to_matchable().into(),
+            ),
+            (
+                "StartBracketSegment".into(),
+                StringParser::new("(", SyntaxKind::StartBracket)
+                    .to_matchable()
+                    .into(),
+            ),
+            (
+                "EndBracketSegment".into(),
+                StringParser::new(")", SyntaxKind::EndBracket)
+                    .to_matchable()
+                    .into(),
+            ),
+        ]);
+        let types = dialect.segment_types();
+        for kind in [
+            SyntaxKind::Bracketed,
+            SyntaxKind::StartBracket,
+            SyntaxKind::EndBracket,
+        ] {
+            assert!(types.contains(kind), "missing {kind:?}");
+        }
+    }
 
     #[test]
     fn validate_reports_reachable_missing_reference_with_path() {

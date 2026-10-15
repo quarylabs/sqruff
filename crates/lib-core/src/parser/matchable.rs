@@ -56,6 +56,20 @@ impl Matchable {
         Arc::as_ptr(&self.inner) as usize
     }
 
+    /// The segment kind emitted directly by this matcher, if any.
+    pub(crate) fn segment_type(&self) -> Option<SyntaxKind> {
+        match self.inner.as_ref() {
+            MatchableTraitImpl::NodeMatcher(_)
+            | MatchableTraitImpl::StringParser(_)
+            | MatchableTraitImpl::TypedParser(_)
+            | MatchableTraitImpl::MultiStringParser(_)
+            | MatchableTraitImpl::RegexParser(_)
+            | MatchableTraitImpl::MetaSegment(_)
+            | MatchableTraitImpl::Conditional(_) => Some(self.get_type()),
+            _ => None,
+        }
+    }
+
     pub fn as_conditional(&self) -> Option<&Conditional> {
         match self.inner.as_ref() {
             MatchableTraitImpl::Conditional(parser) => Some(parser),

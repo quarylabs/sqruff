@@ -36,6 +36,10 @@ impl MetaSegment {
 }
 
 impl MatchableTrait for MetaSegment {
+    fn get_type(&self) -> SyntaxKind {
+        self.kind
+    }
+
     fn elements(&self) -> &[Matchable] {
         &[]
     }

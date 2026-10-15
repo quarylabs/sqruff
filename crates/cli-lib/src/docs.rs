@@ -16,8 +16,6 @@ use sqruff_lib::templaters::{TEMPLATER_DOCS, TemplaterDocumentation};
 #[cfg(feature = "codegen-docs")]
 use sqruff_lib_core::dialects::init::DialectKind;
 #[cfg(feature = "codegen-docs")]
-use sqruff_lib_core::dialects::syntax::SyntaxKind;
-#[cfg(feature = "codegen-docs")]
 use strum::IntoEnumIterator;
 
 #[cfg(feature = "codegen-docs")]
@@ -39,29 +37,6 @@ pub(crate) fn codegen_docs(docs_dir: &Path) {
     let file_cli = std::fs::File::create(docs_dir.join("cli.md")).unwrap();
     let mut writer = std::io::BufWriter::new(file_cli);
     writer.write_all(markdown.as_bytes()).unwrap();
-
-    // Segment type names come directly from the parser, across all dialects.
-    let mut segment_types = SyntaxKind::iter()
-        .map(|kind| kind.as_str())
-        .collect::<Vec<_>>();
-    segment_types.sort_unstable();
-    segment_types.dedup();
-    let mut writer =
-        std::io::BufWriter::new(std::fs::File::create(docs_dir.join("segment-types.md")).unwrap());
-    writeln!(
-        writer,
-        "# Segment types\n\n\
-         <!-- Generated from SyntaxKind. Run bazel run //:codegen_docs_fix to update. -->\n\n\
-         These names are generated from the parser's syntax kinds across all dialects.\n\
-         Use them in `[sqruff:layout:type:<type>]` configuration section headings.\n\
-         Some types are internal or meta segments; the types present in a query depend\n\
-         on its SQL and dialect. Run `sqruff parse query.sql --dialect ansi` to inspect\n\
-         the concrete syntax tree for your query.\n"
-    )
-    .unwrap();
-    for segment_type in segment_types {
-        writeln!(writer, "- `{segment_type}`").unwrap();
-    }
 
     // Rules Docs
     let mut env = Environment::new();
@@ -142,6 +117,7 @@ struct Dialect {
     config_section: String,
     config_options: Vec<DialectConfigOption>,
     has_config_options: bool,
+    segment_types: Vec<&'static str>,
 }
 
 #[cfg(feature = "codegen-docs")]
@@ -157,6 +133,14 @@ impl From<DialectKind> for Dialect {
                 })
                 .collect();
         let has_config_options = !config_options.is_empty();
+        let dialect = sqruff_lib_dialects::kind_to_dialect(&value, None)
+            .expect("All documented dialects must be enabled");
+        let mut segment_types = dialect
+            .segment_types()
+            .iter()
+            .map(|kind| kind.as_str())
+            .collect::<Vec<_>>();
+        segment_types.sort_unstable();
         Dialect {
             name: value.name(),
             description: value.description(),
@@ -166,6 +150,7 @@ impl From<DialectKind> for Dialect {
             config_section: value.config_section(),
             config_options,
             has_config_options,
+            segment_types,
         }
     }
 }

@@ -100,9 +100,10 @@ FROM foo;
 
 The same modifier can be configured for `binary_operator`.
 
-The [segment types reference](../reference/segment-types.md) is generated
-automatically from the parser's syntax kinds across all dialects. The types
-present in a query depend on the selected dialect and the SQL being parsed.
+The [dialect reference](../reference/dialects.md) includes a collapsed segment
+types list for each dialect, generated automatically from its grammar and lexer
+using the default dialect configuration. The types present in a query depend
+on the selected dialect and the SQL being parsed.
 To discover them, inspect the concrete syntax tree (CST) for a representative
 query using the CLI:
 

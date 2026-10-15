@@ -2,6 +2,12 @@
 
 Sqruff currently supports the following SQL dialects:
 
+Each dialect includes a collapsed list of segment types generated from its
+reachable grammar and lexer using the default dialect configuration. Use these
+names in `[sqruff:layout:type:<type>]` configuration section headings. Some types
+are internal or meta segments; run `sqruff parse query.sql --dialect <dialect>`
+to inspect the concrete syntax tree for a particular query.
+
 ## Dialects Index
 {% for dialect in dialects %}
 - [{{ dialect.name }}](#{{ dialect.name }})
@@ -40,5 +46,14 @@ Sqruff currently supports the following SQL dialects:
 {%- endfor %}
 ```
 {% endif %}
+<details>
+<summary>Segment types ({{ dialect.segment_types | length }})</summary>
+<ul>
+{% for segment_type in dialect.segment_types -%}
+<li><code>{{ segment_type }}</code></li>
+{% endfor -%}
+</ul>
+</details>
+
 {% endfor %}
 We are working on adding support for more dialects in the future.

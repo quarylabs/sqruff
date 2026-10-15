@@ -59,6 +59,10 @@ impl Conditional {
 }
 
 impl MatchableTrait for Conditional {
+    fn get_type(&self) -> crate::dialects::syntax::SyntaxKind {
+        self.meta.kind
+    }
+
     fn elements(&self) -> &[Matchable] {
         &[]
     }

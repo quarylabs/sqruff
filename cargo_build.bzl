@@ -445,6 +445,9 @@ echo "Python venv created at $VENV_OUT"
         executable = script_file,
         mnemonic = "UvPythonVenv",
         progress_message = "Syncing Python dependencies for %s" % ctx.label.name,
+        # Native dependencies without wheels (e.g. DuckDB on Python 3.15)
+        # need the host compiler and SDK tools during their source build.
+        env = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin"},
         execution_requirements = {
             "requires-network": "1",
         },

@@ -307,7 +307,7 @@
   "moduleExtensions": {
     "//:tools.bzl%tools": {
       "general": {
-        "bzlTransitiveDigest": "nV13YAmxL+0na82/bB8mRJzcWA/BV/QUdTmdsB2qKzg=",
+        "bzlTransitiveDigest": "NgliQ2afQA00FynoNIPD2n/qG7TRyEUstyVHLr7Ub+0=",
         "usagesDigest": "Im2V7yPlYEv4GHExi3pryxLYa0SN3bEhv6+M92OPojA=",
         "recordedInputs": [],
         "generatedRepoSpecs": {

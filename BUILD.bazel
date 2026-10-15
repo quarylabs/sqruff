@@ -618,6 +618,7 @@ PYTEST_VENVS = {
         name = "pytest_py{}".format(version.replace(".", "")),
         size = "large",
         srcs = [".hacking/scripts/pytest_uv.sh"],
+        args = ["--ignore=crates/cli-python/python/tests"],
         data = [
             PYTEST_VENVS[version],
             "//crates/cli-python:python_srcs",
@@ -663,7 +664,10 @@ sh_test(
     },
 )
 
-exports_files([".hacking/scripts/python_rust_test.sh"])
+exports_files([
+    ".hacking/scripts/pytest_uv.sh",
+    ".hacking/scripts/python_rust_test.sh",
+])
 
 filegroup(
     name = "native_test_python",

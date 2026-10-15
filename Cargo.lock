@@ -1939,7 +1939,7 @@ version = "0.41.0"
 dependencies = [
  "assert_cmd",
  "expect-test",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "pyo3",
  "sqruff-cli-lib",
  "sqruff-lib",

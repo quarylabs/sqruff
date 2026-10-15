@@ -631,6 +631,36 @@ PYTEST_VENVS = {
     for version in PYTEST_PYTHON_VERSIONS
 ]
 
+uv_python_venv(
+    name = "sqlmesh_test_venv",
+    extra = "sqlmesh-test",
+    locked = True,
+    srcs = ["pyproject.toml", "uv.lock"],
+    python = [":pytest_py312_python"],
+    uv = ["@uv//:uv"],
+)
+
+sh_test(
+    name = "sqlmesh_templater_test",
+    size = "medium",
+    srcs = [".hacking/scripts/pytest_uv.sh"],
+    args = [
+        "-q",
+        "crates/cli-python/python/sqruff/templaters/sqlmesh_templater_test.py",
+        "-o",
+        "addopts=",
+    ],
+    data = [
+        ":sqlmesh_test_venv",
+        "//crates/cli-python:python_srcs",
+        "//crates/cli-python:sqlmesh_test_fixtures",
+    ],
+    env = {
+        "PYTHON_VENV": "$(rlocationpath :sqlmesh_test_venv)",
+        "SQRUFF_REQUIRE_SQLMESH": "1",
+    },
+)
+
 exports_files([".hacking/scripts/python_rust_test.sh"])
 
 filegroup(

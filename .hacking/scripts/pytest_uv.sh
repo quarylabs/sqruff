@@ -22,6 +22,7 @@ export PYTHONPYCACHEPREFIX="$STATE_DIR/pycache"
 export TMPDIR="$STATE_DIR/tmp"
 export COVERAGE_FILE="$STATE_DIR/.coverage"
 export PYTHONNOUSERSITE=1
+export SQLMESH_HOME="$STATE_DIR/sqlmesh"
 
 # Copy project files to temp directory (use -L to follow symlinks from runfiles)
 cp -rL "$RUNFILES_DIR/_main/crates" "$WORKDIR/"
@@ -40,8 +41,14 @@ PYTHON_BIN="$VENV_DIR/bin/python3"
 SITE_PACKAGES="$(echo "$VENV_DIR"/lib/python*/site-packages)"
 export PYTHONPATH="$SITE_PACKAGES${PYTHONPATH:+:$PYTHONPATH}"
 
+# The dedicated SQLMesh target must exercise the optional dependency rather
+# than silently skipping its project-rendering tests.
+if [[ "${SQRUFF_REQUIRE_SQLMESH:-0}" == "1" ]]; then
+    "$PYTHON_BIN" -c 'import sqlmesh'
+fi
+
 # Run pytest using the cached venv's Python
 echo "Running pytest..."
-"$PYTHON_BIN" -m pytest
+"$PYTHON_BIN" -m pytest "$@"
 
 echo "All Python tests passed!"

@@ -854,6 +854,102 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
             .to_matchable()
             .into(),
         ),
+        // The SET/UNSET actions those policies share between the ALTER
+        // statements of tables, views and dynamic tables.
+        (
+            "AggregationPolicyActionGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::keyword("AGGREGATION").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Sequence::new(vec![
+                        Ref::keyword("ENTITY").to_matchable(),
+                        Ref::keyword("KEY").to_matchable(),
+                        Bracketed::new(vec![
+                            Delimited::new(vec![Ref::new("ColumnReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .config(|this| this.optional())
+                    .to_matchable(),
+                    Ref::keyword("FORCE").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("UNSET").to_matchable(),
+                    Ref::keyword("AGGREGATION").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "JoinPolicyActionGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::keyword("JOIN").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::keyword("FORCE").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("UNSET").to_matchable(),
+                    Ref::keyword("JOIN").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        // Column level masking and projection policy actions.
+        (
+            "MaskingPolicyActionGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::new("MaskingPolicyGrammar").to_matchable(),
+                    Ref::keyword("FORCE").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("UNSET").to_matchable(),
+                    Ref::keyword("MASKING").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "ProjectionPolicyActionGrammar".into(),
+            one_of(vec![
+                Sequence::new(vec![
+                    Ref::keyword("SET").to_matchable(),
+                    Ref::keyword("PROJECTION").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    Ref::keyword("FORCE").optional().to_matchable(),
+                ])
+                .to_matchable(),
+                Sequence::new(vec![
+                    Ref::keyword("UNSET").to_matchable(),
+                    Ref::keyword("PROJECTION").to_matchable(),
+                    Ref::keyword("POLICY").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .to_matchable()
+            .into(),
+        ),
         (
             "ExecuteAsUserGrammar".into(),
             Sequence::new(vec![
@@ -3598,47 +3694,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         Ref::keyword("POLICIES").to_matchable(),
                     ])
                     .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("SET").to_matchable(),
-                        Ref::keyword("AGGREGATION").to_matchable(),
-                        Ref::keyword("POLICY").to_matchable(),
-                        Ref::new("ObjectReferenceSegment").to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("ENTITY").to_matchable(),
-                            Ref::keyword("KEY").to_matchable(),
-                            Bracketed::new(vec![
-                                Delimited::new(vec![
-                                    Ref::new("ObjectReferenceSegment").to_matchable(),
-                                ])
-                                .to_matchable(),
-                            ])
-                            .to_matchable(),
-                        ])
-                        .config(|this| this.optional())
-                        .to_matchable(),
-                        Ref::keyword("FORCE").optional().to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("UNSET").to_matchable(),
-                        Ref::keyword("AGGREGATION").to_matchable(),
-                        Ref::keyword("POLICY").to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("SET").to_matchable(),
-                        Ref::keyword("JOIN").to_matchable(),
-                        Ref::keyword("POLICY").to_matchable(),
-                        Ref::new("ObjectReferenceSegment").to_matchable(),
-                        Ref::keyword("FORCE").optional().to_matchable(),
-                    ])
-                    .to_matchable(),
-                    Sequence::new(vec![
-                        Ref::keyword("UNSET").to_matchable(),
-                        Ref::keyword("JOIN").to_matchable(),
-                        Ref::keyword("POLICY").to_matchable(),
-                    ])
-                    .to_matchable(),
+                    Ref::new("AggregationPolicyActionGrammar").to_matchable(),
+                    Ref::new("JoinPolicyActionGrammar").to_matchable(),
                     Sequence::new(vec![
                         Ref::keyword("ADD").to_matchable(),
                         Ref::keyword("STORAGE").to_matchable(),
@@ -4225,32 +4282,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     Ref::keyword("COLUMN").optional().to_matchable(),
                     Ref::new("ColumnReferenceSegment").to_matchable(),
                     one_of(vec![
-                        Sequence::new(vec![
-                            Ref::keyword("SET").to_matchable(),
-                            Ref::new("MaskingPolicyGrammar").to_matchable(),
-                            Ref::keyword("FORCE").optional().to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("UNSET").to_matchable(),
-                            Ref::keyword("MASKING").to_matchable(),
-                            Ref::keyword("POLICY").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("SET").to_matchable(),
-                            Ref::keyword("PROJECTION").to_matchable(),
-                            Ref::keyword("POLICY").to_matchable(),
-                            Ref::new("ObjectReferenceSegment").to_matchable(),
-                            Ref::keyword("FORCE").optional().to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            Ref::keyword("UNSET").to_matchable(),
-                            Ref::keyword("PROJECTION").to_matchable(),
-                            Ref::keyword("POLICY").to_matchable(),
-                        ])
-                        .to_matchable(),
+                        Ref::new("MaskingPolicyActionGrammar").to_matchable(),
+                        Ref::new("ProjectionPolicyActionGrammar").to_matchable(),
                         Sequence::new(vec![
                             Ref::keyword("SET").to_matchable(),
                             Ref::new("TagEqualsSegment").to_matchable(),
@@ -9649,6 +9682,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             ])
                             .config(|this| this.optional())
                             .to_matchable(),
+                            Ref::new("ProjectionPolicyGrammar")
+                                .optional()
+                                .to_matchable(),
                             Ref::new("TagBracketedEqualsSegment")
                                 .optional()
                                 .to_matchable(),
@@ -9673,6 +9709,10 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     .to_matchable(),
                 ])
                 .to_matchable(),
+                Ref::new("AggregationPolicyGrammar").to_matchable(),
+                Ref::new("JoinPolicyGrammar").to_matchable(),
+                Ref::new("ContactBracketedGrammar").to_matchable(),
+                Ref::new("CopyTagsGrammar").to_matchable(),
                 Ref::new("TagBracketedEqualsSegment").to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("CHANGE_TRACKING").to_matchable(),
@@ -9722,20 +9762,6 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                         .to_matchable(),
                         Ref::new("CommentEqualsClauseSegment").to_matchable(),
                         Sequence::new(vec![
-                            Ref::keyword("UNSET").to_matchable(),
-                            Ref::keyword("COMMENT").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
-                            one_of(vec![
-                                Ref::keyword("SET").to_matchable(),
-                                Ref::keyword("UNSET").to_matchable(),
-                            ])
-                            .to_matchable(),
-                            Ref::keyword("SECURE").to_matchable(),
-                        ])
-                        .to_matchable(),
-                        Sequence::new(vec![
                             Ref::keyword("SET").to_matchable(),
                             Ref::new("TagEqualsSegment").to_matchable(),
                         ])
@@ -9745,6 +9771,66 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                             Ref::keyword("TAG").to_matchable(),
                             Delimited::new(vec![Ref::new("TagReferenceSegment").to_matchable()])
                                 .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        // ALTER VIEW ... SET <view_property> [ <view_property> ... ]
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            any_set_of(vec![
+                                Ref::keyword("SECURE").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CHANGE_TRACKING").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("BooleanLiteralGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CONTACT").to_matchable(),
+                                    Delimited::new(vec![
+                                        Sequence::new(vec![
+                                            Ref::new("PurposeGrammar").to_matchable(),
+                                            Ref::new("EqualsSegment").to_matchable(),
+                                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                                        ])
+                                        .to_matchable(),
+                                    ])
+                                    .to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                            ])
+                            .config(|this| this.min_times(1))
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Delimited::new(vec![
+                                Ref::keyword("SECURE").to_matchable(),
+                                Ref::keyword("COMMENT").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CONTACT").to_matchable(),
+                                    Ref::new("PurposeGrammar").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("DCM").to_matchable(),
+                                    Ref::keyword("PROJECT").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        // Aggregation and join policies
+                        Ref::new("AggregationPolicyActionGrammar").to_matchable(),
+                        Ref::new("JoinPolicyActionGrammar").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("DROP").to_matchable(),
+                            Ref::keyword("ALL").to_matchable(),
+                            Ref::keyword("ROW").to_matchable(),
+                            Ref::keyword("ACCESS").to_matchable(),
+                            Ref::keyword("POLICIES").to_matchable(),
                         ])
                         .to_matchable(),
                         Delimited::new(vec![
@@ -9786,34 +9872,9 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                                         Ref::keyword("COLUMN").optional().to_matchable(),
                                         Ref::new("ColumnReferenceSegment").to_matchable(),
                                         one_of(vec![
-                                            Sequence::new(vec![
-                                                Ref::keyword("SET").to_matchable(),
-                                                Ref::keyword("MASKING").to_matchable(),
-                                                Ref::keyword("POLICY").to_matchable(),
-                                                Ref::new("FunctionNameSegment").to_matchable(),
-                                                Sequence::new(vec![
-                                                    Ref::keyword("USING").to_matchable(),
-                                                    Bracketed::new(vec![
-                                                        Delimited::new(vec![
-                                                            Ref::new("ColumnReferenceSegment")
-                                                                .to_matchable(),
-                                                        ])
-                                                        .to_matchable(),
-                                                    ])
-                                                    .config(|this| this.optional())
-                                                    .to_matchable(),
-                                                ])
-                                                .config(|this| this.optional())
+                                            Ref::new("MaskingPolicyActionGrammar").to_matchable(),
+                                            Ref::new("ProjectionPolicyActionGrammar")
                                                 .to_matchable(),
-                                                Ref::keyword("FORCE").optional().to_matchable(),
-                                            ])
-                                            .to_matchable(),
-                                            Sequence::new(vec![
-                                                Ref::keyword("UNSET").to_matchable(),
-                                                Ref::keyword("MASKING").to_matchable(),
-                                                Ref::keyword("POLICY").to_matchable(),
-                                            ])
-                                            .to_matchable(),
                                             Sequence::new(vec![
                                                 Ref::keyword("SET").to_matchable(),
                                                 Ref::new("TagEqualsSegment").to_matchable(),

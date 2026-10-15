@@ -48,6 +48,12 @@ fn get_last_segment(mut segment: Segments) -> (Vec<ErasedSegment>, Segments) {
     let mut parent_stack = Vec::new();
 
     loop {
+        if segment
+            .first()
+            .is_some_and(|segment| segment.quoted_file().is_some())
+        {
+            return (parent_stack, segment);
+        }
         let children = segment.children_all();
 
         if !children.is_empty() {
@@ -424,6 +430,10 @@ Add trailing newline to the end. The $ character represents end of file.
         } else {
             vec![]
         }
+    }
+
+    fn is_file_boundary(&self) -> bool {
+        true
     }
 
     fn is_fix_compatible(&self) -> bool {

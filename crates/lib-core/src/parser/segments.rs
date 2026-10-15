@@ -27,6 +27,7 @@ use crate::parser::Parser;
 use crate::parser::context::ParseContext;
 use crate::parser::markers::PositionMarker;
 use crate::parser::matchable::MatchableTrait;
+use crate::parser::quoted::QuotedSql;
 use crate::parser::segments::fix::{FixPatch, SourceFix};
 use crate::parser::segments::object_reference::{ObjectReferenceKind, ObjectReferenceSegment};
 use crate::segments::AnchorEditInfo;
@@ -76,6 +77,8 @@ impl SegmentBuilder {
                     raw: Default::default(),
                     source_fixes: vec![],
                     descendant_type_set: Default::default(),
+                    quoted_sql: None,
+                    contains_quoted_sql: OnceCell::new(),
                 }),
                 hash: OnceCell::new(),
                 template_info: None,
@@ -130,6 +133,13 @@ impl SegmentBuilder {
         self
     }
 
+    pub(crate) fn with_quoted_sql(mut self, quoted_sql: QuotedSql) -> Self {
+        if let NodeOrTokenKind::Node(node) = &mut self.node_or_token.kind {
+            node.quoted_sql = Some(Box::new(quoted_sql));
+        }
+        self
+    }
+
     pub fn finish(self) -> ErasedSegment {
         ErasedSegment {
             value: Rc::new(self.node_or_token),
@@ -167,6 +177,9 @@ impl ErasedSegment {
     pub fn raw(&self) -> &SmolStr {
         match &self.value.kind {
             NodeOrTokenKind::Node(node) => node.raw.get_or_init(|| {
+                if let Some(quoted) = &node.quoted_sql {
+                    return quoted.raw(&node.segments[0]);
+                }
                 SmolStr::from_iter(self.segments().iter().map(|segment| segment.raw().as_str()))
             }),
             NodeOrTokenKind::Token(token) => token.raw.as_smol_str(),
@@ -196,6 +209,24 @@ impl ErasedSegment {
         match &self.value.kind {
             NodeOrTokenKind::Node(node) => &node.segments,
             NodeOrTokenKind::Token(_) => &[],
+        }
+    }
+
+    /// The decoded SQL parse root inside a quoted token, if this is one.
+    pub fn quoted_file(&self) -> Option<&ErasedSegment> {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(node) if node.quoted_sql.is_some() => node.segments.first(),
+            _ => None,
+        }
+    }
+
+    /// Whether this subtree contains SQL parsed inside a quoted token.
+    pub fn contains_quoted_sql(&self) -> bool {
+        match &self.value.kind {
+            NodeOrTokenKind::Node(node) => *node.contains_quoted_sql.get_or_init(|| {
+                node.quoted_sql.is_some() || node.segments.iter().any(Self::contains_quoted_sql)
+            }),
+            NodeOrTokenKind::Token(_) => false,
         }
     }
 
@@ -258,9 +289,12 @@ impl ErasedSegment {
     }
 
     pub fn get_raw_segments(&self) -> Vec<ErasedSegment> {
-        self.recursive_crawl_all(false)
-            .into_iter()
-            .filter(|it| it.segments().is_empty())
+        if self.segments().is_empty() || self.quoted_file().is_some() {
+            return vec![self.clone()];
+        }
+        self.segments()
+            .iter()
+            .flat_map(Self::get_raw_segments)
             .collect()
     }
 
@@ -324,6 +358,9 @@ impl ErasedSegment {
                 if !node.source_fixes.is_empty() {
                     builder = builder.with_source_fixes(node.source_fixes.clone());
                 }
+                if let Some(quoted_sql) = &node.quoted_sql {
+                    builder = builder.with_quoted_sql((**quoted_sql).clone());
+                }
                 builder.finish()
             }
             NodeOrTokenKind::Token(_) => self.deep_clone(),
@@ -347,6 +384,8 @@ impl ErasedSegment {
                     raw: node.raw.clone(),
                     source_fixes: node.source_fixes.clone(),
                     descendant_type_set: node.descendant_type_set.clone(),
+                    quoted_sql: node.quoted_sql.clone(),
+                    contains_quoted_sql: node.contains_quoted_sql.clone(),
                 }),
                 hash: OnceCell::new(),
                 template_info: self.value.template_info.clone(),
@@ -444,6 +483,22 @@ impl ErasedSegment {
     }
 
     pub fn iter_patches(&self, templated_file: &TemplatedFile) -> Vec<FixPatch> {
+        // Decoded children use their own templated coordinates. Patch the
+        // encoded token at its outer coordinates instead of descending into it.
+        if self.quoted_file().is_some() {
+            let marker = self.get_position_marker().unwrap();
+            return if self.raw().as_str() == marker.source_str() {
+                Vec::new()
+            } else {
+                vec![FixPatch::new(
+                    marker.templated_slice.clone(),
+                    self.raw().clone(),
+                    marker.source_slice.clone(),
+                    templated_file.templated()[marker.templated_slice.clone()].into(),
+                    marker.source_str().into(),
+                )]
+            };
+        }
         let mut acc = Vec::new();
 
         let templated_raw = &templated_file.templated_str.as_ref().unwrap()
@@ -810,7 +865,7 @@ impl ErasedSegment {
                         code_idxs: code_idxs.clone(),
                     }];
 
-                    if seg.segments().is_empty() {
+                    if seg.segments().is_empty() || seg.quoted_file().is_some() {
                         buffer.push((seg.clone(), new_step));
                     } else {
                         let child_ancestors = seg.raw_segments_with_ancestors();
@@ -872,6 +927,18 @@ impl ErasedSegment {
     ) -> (ErasedSegment, Vec<ErasedSegment>, Vec<ErasedSegment>, bool) {
         if fixes.is_empty() || self.segments().is_empty() {
             return (self.clone(), Vec::new(), Vec::new(), true);
+        }
+
+        if let Some(file) = self.quoted_file() {
+            let (file, _, _, valid) =
+                file.apply_fixes_with_options(fixes, parse_context, fix_even_unparsable);
+            let NodeOrTokenKind::Node(node) = &self.value.kind else {
+                unreachable!()
+            };
+            if !valid || !node.quoted_sql.as_ref().unwrap().can_encode(&file) {
+                return (self.clone(), Vec::new(), Vec::new(), true);
+            }
+            return (self.new(vec![file]), Vec::new(), Vec::new(), true);
         }
 
         let mut seg_buffer = Vec::new();
@@ -1311,6 +1378,7 @@ pub fn position_segments(
             .iter()
             .any(|child| child.get_position_marker().is_none());
         let mut new_seg = if !segment.segments().is_empty()
+            && segment.quoted_file().is_none()
             && (old_position != Some(&new_position) || has_unpositioned_children)
         {
             let child_segments = position_segments(segment.segments(), &new_position);
@@ -1391,6 +1459,8 @@ pub struct NodeData {
     raw: OnceCell<SmolStr>,
     source_fixes: Vec<SourceFix>,
     descendant_type_set: OnceCell<SyntaxSet>,
+    quoted_sql: Option<Box<QuotedSql>>,
+    contains_quoted_sql: OnceCell<bool>,
     // NOTE: raw_segments_with_ancestors is intentionally NOT cached here.
     // Caching it in a OnceCell created Rc reference cycles (PathStep stores
     // an Rc<NodeOrToken> back to ancestor nodes) that prevented the entire

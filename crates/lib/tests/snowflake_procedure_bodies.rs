@@ -1,0 +1,525 @@
+use sqruff_lib::core::config::FluffConfig;
+use sqruff_lib::core::linter::core::Linter;
+
+fn linter(rules: &str) -> Linter {
+    Linter::new(
+        FluffConfig::from_source(
+            &format!("[sqruff]\ndialect = snowflake\nrules = {rules}\n[sqruff:rules:capitalisation.keywords]\ncapitalisation_policy = upper\n"),
+            None,
+        ),
+        None,
+        None,
+        true,
+    )
+    .unwrap()
+}
+
+fn procedure(language: &str, body: &str) -> String {
+    format!("CREATE OR REPLACE PROCEDURE P()\nRETURNS INTEGER\n{language}AS\n{body};\n")
+}
+
+#[test]
+fn formats_dollar_quoted_sql_and_is_idempotent() {
+    let linter = linter("CP01,LT01,LT02,LT12,LT13");
+    let input = procedure(
+        "LANGUAGE SQL\n",
+        "$$\nbegin\nselect 1+2 as total;\nreturn 1;\nend;\n$$",
+    );
+    let expected = procedure(
+        "LANGUAGE SQL\n",
+        "$$\nBEGIN\n    SELECT 1 + 2 AS total;\n    RETURN 1;\nEND;\n$$",
+    );
+    let linted = linter.lint_string(&input, None, true).unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert_eq!(linted.fix_string(), expected);
+    let linted = linter.lint_string(&expected, None, true).unwrap();
+    assert!(linted.violations().is_empty(), "{:?}", linted.violations());
+    assert_eq!(linted.fix_string(), expected);
+}
+
+#[test]
+fn omitted_language_defaults_to_sql() {
+    let linter = linter("CP01");
+    let input = procedure("", "$$begin return 1; end;$$");
+    assert_eq!(
+        linter.lint_string(&input, None, true).unwrap().fix_string(),
+        procedure("", "$$BEGIN RETURN 1; END;$$")
+    );
+}
+
+#[test]
+fn non_sql_bodies_and_literals_are_preserved() {
+    let linter = linter("CP01,LT01,LT02");
+    for language in ["JAVASCRIPT", "PYTHON", "JAVA", "SCALA"] {
+        // Even SQL-looking contents must stay untouched in another language.
+        let input = procedure(
+            &format!("LANGUAGE {language}\n"),
+            "$$begin return 1+2; end;$$",
+        );
+        let linted = linter.lint_string(&input, None, true).unwrap();
+        assert!(linted.violations().is_empty(), "{:?}", linted.violations());
+        assert_eq!(linted.fix_string(), input);
+    }
+    let input = "SELECT $$select 1+2$$;\n";
+    assert_eq!(
+        linter.lint_string(input, None, true).unwrap().fix_string(),
+        input
+    );
+}
+
+#[test]
+fn single_quoted_bodies_preserve_string_values() {
+    let linter = linter("CP01,LT01");
+    let input = procedure("LANGUAGE SQL\n", "'begin return ''a\\\\b''''c''; end;'");
+    let expected = procedure("LANGUAGE SQL\n", "'BEGIN RETURN ''a\\\\b''''c''; END;'");
+    let linted = linter.lint_string(&input, None, true).unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert_eq!(linted.fix_string(), expected);
+    assert_eq!(
+        linter
+            .lint_string(&expected, None, true)
+            .unwrap()
+            .fix_string(),
+        expected
+    );
+}
+
+#[test]
+fn lint_positions_refer_to_the_containing_file() {
+    let input = procedure(
+        "LANGUAGE SQL\n",
+        "$$\nBEGIN\nSELECT 1+2;\nRETURN 1;\nEND;\n$$",
+    );
+    let linted = linter("LT01").lint_string(&input, None, false).unwrap();
+    let positions: Vec<_> = linted
+        .violations()
+        .iter()
+        .map(|v| (v.line_no, v.line_pos))
+        .collect();
+    assert_eq!(positions, vec![(7, 9), (7, 10)]);
+    for violation in linted.violations() {
+        assert!(matches!(&input[violation.source_slice.clone()], "+" | "2"));
+    }
+}
+
+#[test]
+fn unparsable_body_is_not_modified() {
+    let input = procedure(
+        "LANGUAGE SQL\n",
+        "$$\nbegin\nselect 1+2;\nthis is not valid SQL;\nend;\n$$",
+    );
+    let linted = linter("CP01,LT01,LT02")
+        .lint_string(&input, None, true)
+        .unwrap();
+    assert!(linted.has_parse_or_templating_errors());
+    assert!(
+        linted
+            .violations()
+            .iter()
+            .any(|v| v.description == "Unparsable section")
+    );
+    assert_eq!(linted.fix_string(), input);
+}
+
+#[test]
+fn body_and_wrapper_fixes_are_combined() {
+    let input = "create or replace procedure p()\nreturns integer\nlanguage sql\nas $$begin return 1+2; end;$$;\n";
+    let expected = "CREATE OR REPLACE PROCEDURE p()\nRETURNS integer\nLANGUAGE SQL\nAS $$BEGIN RETURN 1 + 2; END;$$;\n";
+    assert_eq!(
+        linter("CP01,LT01")
+            .lint_string(input, None, true)
+            .unwrap()
+            .fix_string(),
+        expected
+    );
+}
+
+#[test]
+fn multiple_bodies_have_independent_languages() {
+    let sql = procedure("LANGUAGE SQL\n", "$$begin return 1+2; end;$$");
+    let js = procedure("LANGUAGE JAVASCRIPT\n", "$$return 1+2;$$");
+    let implicit = procedure("", "$$begin return 3+4; end;$$");
+    let input = format!("{sql}{js}{implicit}");
+    let expected = format!(
+        "{}{js}{}",
+        procedure("LANGUAGE SQL\n", "$$BEGIN RETURN 1 + 2; END;$$"),
+        procedure("", "$$BEGIN RETURN 3 + 4; END;$$")
+    );
+    assert_eq!(
+        linter("CP01,LT01")
+            .lint_string(&input, None, true)
+            .unwrap()
+            .fix_string(),
+        expected
+    );
+}
+
+#[test]
+fn noqa_inside_and_outside_the_body_prevents_fixes() {
+    let linter = linter("CP01,LT01");
+    let input = procedure(
+        "LANGUAGE SQL\n",
+        "$$\nBEGIN\nRETURN 1+2; -- noqa: LT01\nEND;\n$$",
+    );
+    let linted = linter.lint_string(&input, None, true).unwrap();
+    assert!(linted.violations().is_empty(), "{:?}", linted.violations());
+    assert_eq!(linted.fix_string(), input);
+
+    let input = format!(
+        "-- noqa: disable=LT01\n{}",
+        procedure("LANGUAGE SQL\n", "$$BEGIN RETURN 1+2; END;$$")
+    );
+    let linted = linter.lint_string(&input, None, true).unwrap();
+    assert!(linted.violations().is_empty(), "{:?}", linted.violations());
+    assert_eq!(linted.fix_string(), input);
+}
+
+#[test]
+fn declarations_and_dynamic_sql_use_existing_rules() {
+    let input = procedure(
+        "LANGUAGE SQL\n",
+        "$$\ndeclare\nn integer default 0;\nbegin\nn:=1+2;\nexecute immediate 'select 1+2';\nreturn n;\nend;\n$$",
+    );
+    let expected = procedure(
+        "LANGUAGE SQL\n",
+        "$$\nDECLARE\n    n integer DEFAULT 0;\nBEGIN\n    n := 1 + 2;\n    EXECUTE IMMEDIATE 'select 1+2';\n    RETURN n;\nEND;\n$$",
+    );
+    let linted = linter("CP01,LT01,LT02")
+        .lint_string(&input, None, true)
+        .unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert_eq!(linted.fix_string(), expected);
+}
+
+#[test]
+fn escaped_newlines_and_unicode_diagnostics_map_to_raw_source() {
+    let input = procedure("LANGUAGE SQL\n", "'begin\\nreturn ''雪'';\\nend;'");
+    let linter = linter("CP01");
+    let linted = linter.lint_string(&input, None, false).unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    for violation in linted.violations() {
+        let raw = &input[violation.source_slice.clone()];
+        assert!(matches!(raw, "begin" | "return" | "end"), "{raw:?}");
+        assert_eq!(violation.line_no, 5);
+        let expected_column = input.lines().nth(4).unwrap().find(raw).unwrap();
+        assert_eq!(
+            violation.line_pos,
+            input.lines().nth(4).unwrap()[..expected_column]
+                .chars()
+                .count()
+                + 1
+        );
+    }
+    let expected = procedure("LANGUAGE SQL\n", "'BEGIN\nRETURN ''雪'';\nEND;'");
+    assert_eq!(
+        linter.lint_string(&input, None, true).unwrap().fix_string(),
+        expected
+    );
+}
+
+#[test]
+fn file_boundary_rules_do_not_change_body_delimiters() {
+    let input = procedure("LANGUAGE SQL\n", "$$ BEGIN RETURN 1; END; $$");
+    let linted = linter("LT12,LT13").lint_string(&input, None, true).unwrap();
+    assert!(linted.violations().is_empty(), "{:?}", linted.violations());
+    assert_eq!(linted.fix_string(), input);
+}
+
+#[test]
+fn functions_and_non_snowflake_procedures_keep_their_quoted_bodies() {
+    let input = "CREATE FUNCTION F() RETURNS INTEGER LANGUAGE SQL AS $$select 1+2$$;\n";
+    assert_eq!(
+        linter("CP01,LT01")
+            .lint_string(input, None, true)
+            .unwrap()
+            .fix_string(),
+        input
+    );
+    let linter = Linter::new(
+        FluffConfig::from_source("[sqruff]\ndialect = postgres\nrules = LT01\n", None),
+        None,
+        None,
+        true,
+    )
+    .unwrap();
+    let input = "CREATE PROCEDURE p() LANGUAGE SQL AS $$SELECT 1+2;$$;\n";
+    assert_eq!(
+        linter.lint_string(input, None, true).unwrap().fix_string(),
+        input
+    );
+}
+
+#[test]
+fn template_expansions_are_never_written_into_the_body() {
+    let linter = Linter::new(
+        FluffConfig::from_source(
+            "[sqruff]\ndialect = snowflake\ntemplater = placeholder\nrules = LT01\n[sqruff:templater:placeholder]\nparam_style = colon\nvalue = 42\n",
+            None,
+        ), None, None, true,
+    ).unwrap();
+    let input = procedure("LANGUAGE SQL\n", "$$BEGIN RETURN :value+1; END;$$");
+    let linted = linter.lint_string(&input, None, true).unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert_eq!(linted.fix_string(), input);
+}
+
+#[test]
+fn escaped_crlf_diagnostics_keep_original_positions() {
+    let input = procedure("LANGUAGE SQL\n", "'begin\\r\\nreturn 1;\\r\\nend;'");
+    let linted = linter("CP01").lint_string(&input, None, false).unwrap();
+    let raw: Vec<_> = linted
+        .violations()
+        .iter()
+        .map(|violation| &input[violation.source_slice.clone()])
+        .collect();
+    assert_eq!(raw, vec!["begin", "return", "end"]);
+    let expected = procedure("LANGUAGE SQL\n", "'BEGIN\\r\nRETURN 1;\\r\nEND;'");
+    assert_eq!(
+        linter("CP01")
+            .lint_string(&input, None, true)
+            .unwrap()
+            .fix_string(),
+        expected
+    );
+}
+
+#[test]
+fn indentation_settings_and_rule_exclusions_apply_inside_the_body() {
+    let linter = Linter::new(
+        FluffConfig::from_source(
+            "[sqruff]\ndialect = snowflake\nrules = CP01,LT01,LT02\nexclude_rules = LT01\n[sqruff:indentation]\ntab_space_size = 2\n[sqruff:rules:capitalisation.keywords]\ncapitalisation_policy = lower\n",
+            None,
+        ), None, None, true,
+    ).unwrap();
+    let input = "create procedure p()\nreturns integer\nlanguage sql\nas $$\nBEGIN\nRETURN 1+2;\nEND;\n$$;\n";
+    let expected = "create procedure p()\nreturns integer\nlanguage sql\nas $$\nbegin\n  return 1+2;\nend;\n$$;\n";
+    let linted = linter.lint_string(input, None, true).unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert_eq!(linted.fix_string(), expected);
+}
+
+#[test]
+fn escaped_carriage_returns_in_string_values_are_preserved() {
+    let input = procedure("LANGUAGE SQL\n", "'begin return ''a\\rb''; end;'");
+    let expected = procedure("LANGUAGE SQL\n", "'BEGIN RETURN ''a\\rb''; END;'");
+    let linter = linter("CP01");
+    let linted = linter.lint_string(&input, None, true).unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert_eq!(linted.fix_string(), expected);
+    assert_eq!(
+        linter
+            .lint_string(&expected, None, true)
+            .unwrap()
+            .fix_string(),
+        expected
+    );
+}
+
+#[test]
+fn parser_exposes_sql_bodies_before_linting_and_preserves_raw_source() {
+    use sqruff_lib_core::dialects::syntax::{SyntaxKind, SyntaxSet};
+    use sqruff_lib_core::parser::{Parser, lexer::Lexer, segments::Tables};
+    let config = FluffConfig::from_source("[sqruff]\ndialect = snowflake\n", None);
+    for (language, body, parsed) in [
+        ("LANGUAGE SQL\n", "$$begin return 1+2; end;$$", true),
+        ("", "'begin\\nreturn ''雪'';\\nend;'", true),
+        ("LANGUAGE JAVASCRIPT\n", "$$begin return 1+2; end;$$", false),
+    ] {
+        let input = procedure(language, body);
+        let tables = Tables::default();
+        let (tokens, errors) = Lexer::from(config.get_dialect()).lex(&tables, input.as_str());
+        assert!(errors.is_empty());
+        let tree = Parser::from(config.get_dialect())
+            .parse(&tables, &tokens)
+            .unwrap()
+            .unwrap();
+        assert_eq!(tree.raw(), input.as_str());
+        let bodies = tree.recursive_crawl(
+            &SyntaxSet::single(SyntaxKind::UdfBody),
+            false,
+            &SyntaxSet::EMPTY,
+            false,
+        );
+        assert_eq!(bodies.len(), 1);
+        assert_eq!(bodies[0].quoted_file().is_some(), parsed);
+        if let Some(file) = bodies[0].quoted_file() {
+            assert!(
+                file.descendant_type_set()
+                    .contains(SyntaxKind::ReturnStatement)
+            );
+            for keyword in file.recursive_crawl(
+                &SyntaxSet::single(SyntaxKind::Keyword),
+                true,
+                &SyntaxSet::EMPTY,
+                false,
+            ) {
+                let marker = keyword.get_position_marker().unwrap();
+                assert_eq!(
+                    marker
+                        .templated_file
+                        .templated_slice_to_source_slice(marker.templated_slice.clone())
+                        .unwrap(),
+                    marker.source_slice
+                );
+                assert_eq!(&input[marker.source_slice.clone()], keyword.raw().as_str());
+            }
+        }
+    }
+}
+
+#[test]
+fn final_newline_rule_applies_after_the_closing_delimiter() {
+    let input = "CREATE PROCEDURE P() RETURNS INTEGER LANGUAGE SQL AS $$BEGIN RETURN 1; END;$$";
+    let linted = linter("LT12").lint_string(input, None, true).unwrap();
+    assert!(!linted.has_parse_or_templating_errors());
+    assert_eq!(linted.fix_string(), format!("{input}\n"));
+}
+
+#[test]
+fn uninitialised_declarations_are_parsed_and_formatted() {
+    let input = procedure(
+        "LANGUAGE SQL\n",
+        "$$\ndeclare\nn integer;\nbegin\nn:=1+2;\nreturn n;\nend;\n$$",
+    );
+    let expected = procedure(
+        "LANGUAGE SQL\n",
+        "$$\nDECLARE\n    n integer;\nBEGIN\n    n := 1 + 2;\n    RETURN n;\nEND;\n$$",
+    );
+    let linted = linter("CP01,LT01,LT02")
+        .lint_string(&input, None, true)
+        .unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert_eq!(linted.fix_string(), expected);
+}
+
+#[test]
+fn all_rules_can_process_quoted_sql_and_produce_stable_output() {
+    let linter = linter("all");
+    let input = procedure(
+        "LANGUAGE SQL\n",
+        "$$\nbegin\nselect 1+2 as total;\nreturn 1;\nend;\n$$",
+    );
+    let linted = linter.lint_string(&input, None, true).unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert!(
+        !linted
+            .violations()
+            .iter()
+            .any(|v| v.description.starts_with("Unexpected exception")),
+        "{:?}",
+        linted.violations()
+    );
+    let fixed = linted.fix_string();
+    assert!(fixed.contains("1 + 2"), "{fixed}");
+    assert_eq!(
+        linter.lint_string(&fixed, None, true).unwrap().fix_string(),
+        fixed
+    );
+}
+
+#[test]
+fn body_noqa_ranges_do_not_leak_into_other_statements() {
+    let first = procedure(
+        "LANGUAGE SQL\n",
+        "$$\n-- noqa: disable=LT01\nBEGIN RETURN 1+2; END;\n$$",
+    );
+    let second = procedure("LANGUAGE SQL\n", "$$BEGIN RETURN 5+6; END;$$");
+    let input = format!("{first}SELECT 3+4;\n{second}");
+    let expected = format!(
+        "{first}SELECT 3 + 4;\n{}",
+        procedure("LANGUAGE SQL\n", "$$BEGIN RETURN 5 + 6; END;$$")
+    );
+    let linted = linter("LT01").lint_string(&input, None, true).unwrap();
+    assert_eq!(linted.fix_string(), expected);
+}
+
+#[test]
+fn parse_node_limit_includes_the_contents_of_all_quoted_bodies() {
+    use sqruff_lib_core::parser::{IndentationConfig, Parser, lexer::Lexer, segments::Tables};
+    let config = FluffConfig::from_source("[sqruff]\ndialect = snowflake\n", None);
+    let input = procedure("LANGUAGE SQL\n", "$$BEGIN RETURN 1; END;$$").repeat(5);
+    let tables = Tables::default();
+    let (tokens, _) = Lexer::from(config.get_dialect()).lex(&tables, input.as_str());
+    let tree = Parser::from(config.get_dialect())
+        .parse(&tables, &tokens)
+        .unwrap()
+        .unwrap();
+    let total = tree.recursive_crawl_all(false).len();
+    let parser = Parser::new_with_limits(
+        config.get_dialect(),
+        IndentationConfig::default(),
+        600,
+        total - 1,
+    );
+    let error = parser.parse(&Tables::default(), &tokens).unwrap_err();
+    assert!(
+        error
+            .description
+            .contains("Maximum parse node count exceeded")
+    );
+    let unlimited =
+        Parser::new_with_limits(config.get_dialect(), IndentationConfig::default(), 600, 0);
+    assert!(unlimited.parse(&Tables::default(), &tokens).is_ok());
+}
+
+#[test]
+fn literal_bodies_are_fixed_when_other_statements_contain_templates() {
+    let linter = Linter::new(
+        FluffConfig::from_source(
+            "[sqruff]\ndialect = snowflake\ntemplater = placeholder\nrules = CP01,LT01\n[sqruff:templater:placeholder]\nparam_style = colon\nvalue = 42\n[sqruff:rules:capitalisation.keywords]\ncapitalisation_policy = upper\n",
+            None,
+        ), None, None, true,
+    ).unwrap();
+    let prefix = "SELECT :value;\n";
+    let input = format!(
+        "{prefix}{}",
+        procedure("LANGUAGE SQL\n", "'begin return 1+2; end;'")
+    );
+    let expected = format!(
+        "{prefix}{}",
+        procedure("LANGUAGE SQL\n", "'BEGIN RETURN 1 + 2; END;'")
+    );
+    let linted = linter.lint_string(&input, None, true).unwrap();
+    assert!(
+        !linted.has_parse_or_templating_errors(),
+        "{:?}",
+        linted.violations()
+    );
+    assert_eq!(linted.fix_string(), expected);
+}

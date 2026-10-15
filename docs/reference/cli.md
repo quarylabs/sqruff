@@ -12,6 +12,7 @@ This document contains the help content for the `sqruff` command-line program.
 * [`sqruff rules`↴](#sqruff-rules)
 * [`sqruff dialects`↴](#sqruff-dialects)
 * [`sqruff templaters`↴](#sqruff-templaters)
+* [`sqruff parse`↴](#sqruff-parse)
 
 ## `sqruff`
 
@@ -28,6 +29,7 @@ sqruff is a sql formatter and linter
 * `rules` — Explain the available rules
 * `dialects` — List available dialects
 * `templaters` — List available templaters
+* `parse` — Parse SQL and output the concrete syntax tree (CST)
 
 ###### **Options:**
 
@@ -144,6 +146,33 @@ List available dialects
 List available templaters
 
 **Usage:** `sqruff templaters`
+
+
+
+## `sqruff parse`
+
+Parse SQL and output the concrete syntax tree (CST)
+
+**Usage:** `sqruff parse [OPTIONS] [PATHS]...`
+
+###### **Arguments:**
+
+* `<PATHS>` — Files to parse. Use `-` or omit paths to read from stdin
+
+###### **Options:**
+
+* `-f`, `--format <FORMAT>` — The output format for the parse tree
+
+  Default value: `pretty`
+
+  Possible values:
+  - `json`
+  - `yaml`
+  - `pretty`
+  - `none`:
+    Produce no output. Used mostly for testing
+
+* `--include-meta` — Include meta segments and source position information in JSON or YAML output
 
 
 

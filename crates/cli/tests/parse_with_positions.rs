@@ -1,5 +1,3 @@
-#![cfg(feature = "parser")]
-
 use assert_cmd::Command;
 use serde_json::Value;
 
@@ -87,5 +85,30 @@ fn parse_without_include_meta_omits_positions_and_meta_segments() {
         assert!(!contains_key(&parsed, "start_line_no"));
         assert!(!contains_key(&parsed, "indent"));
         assert!(!contains_key(&parsed, "dedent"));
+    }
+}
+
+#[test]
+fn parse_stdin_does_not_add_a_final_newline() {
+    // The linter normalizes CRLF to LF before parsing, for files and stdin alike.
+    for (sql, end_file_pos) in [("SELECT 1", 8), ("SELECT\n1\n", 9), ("SELECT\r\n1\r\n", 9)] {
+        let output = Command::new(sqruff_path())
+            .args([
+                "parse",
+                "--dialect",
+                "ansi",
+                "--format",
+                "json",
+                "--include-meta",
+                "-",
+            ])
+            .write_stdin(sql)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let parsed: Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(parsed["end_file_pos"], end_file_pos);
     }
 }

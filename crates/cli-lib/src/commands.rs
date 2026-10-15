@@ -68,10 +68,9 @@ pub enum Commands {
     Dialects,
     #[command(name = "templaters", about = "List available templaters")]
     Templaters,
-    #[cfg(feature = "parser")]
     #[command(
         name = "parse",
-        about = "Parse SQL and output the parse tree for debugging"
+        about = "Parse SQL and output the concrete syntax tree (CST)"
     )]
     Parse(ParseArgs),
 }
@@ -115,7 +114,7 @@ pub struct FixArgs {
 
 #[derive(Debug, Parser)]
 pub struct ParseArgs {
-    /// Files or directories to parse. Use `-` to read from stdin.
+    /// Files to parse. Use `-` or omit paths to read from stdin.
     pub paths: Vec<PathBuf>,
     /// The output format for the parse tree.
     #[arg(default_value_t, short, long)]

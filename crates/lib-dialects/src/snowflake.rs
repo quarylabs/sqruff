@@ -7049,7 +7049,13 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
         (
             "ScriptingRaiseStatementSegment".into(),
             NodeMatcher::new(SyntaxKind::ScriptingRaiseStatement, |_| {
-                Ref::keyword("RAISE").to_matchable()
+                Sequence::new(vec![
+                    Ref::keyword("RAISE").to_matchable(),
+                    // The exception name is omitted only when re-raising the exception
+                    // currently being handled from inside an exception handler.
+                    Ref::new("NakedIdentifierSegment").optional().to_matchable(),
+                ])
+                .to_matchable()
             })
             .to_matchable()
             .into(),

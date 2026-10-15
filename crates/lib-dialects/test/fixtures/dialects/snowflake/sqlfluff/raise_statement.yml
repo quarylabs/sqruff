@@ -22,3 +22,79 @@ file:
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;
+- statement:
+  - scripting_declare_statement:
+    - keyword: DECLARE
+    - variable: MY_EXCEPTION
+    - keyword: EXCEPTION
+    - bracketed:
+      - start_bracket: (
+      - sign_indicator: '-'
+      - exception_code: '20002'
+      - comma: ','
+      - quoted_literal: '''Raised MY_EXCEPTION.'''
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+      - scripting_raise_statement:
+        - keyword: RAISE
+        - naked_identifier: MY_EXCEPTION
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+  - scripting_block_statement:
+    - keyword: BEGIN
+    - statement:
+      - scripting_let_statement:
+        - keyword: LET
+        - variable: v
+        - data_type:
+          - data_type_identifier: INTEGER
+        - assignment_operator: :=
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - numeric_literal: '1'
+            - end_bracket: )
+    - statement_terminator: ;
+    - statement:
+      - scripting_declare_statement:
+        - keyword: DECLARE
+        - variable: e_bad
+        - keyword: EXCEPTION
+        - bracketed:
+          - start_bracket: (
+          - sign_indicator: '-'
+          - exception_code: '20980'
+          - comma: ','
+          - quoted_literal: '''nope'''
+          - end_bracket: )
+    - statement_terminator: ;
+    - statement:
+      - scripting_block_statement:
+        - keyword: BEGIN
+        - statement:
+          - scripting_raise_statement:
+            - keyword: RAISE
+            - naked_identifier: e_bad
+        - statement_terminator: ;
+        - keyword: END
+    - statement_terminator: ;
+    - statement:
+      - return_statement:
+        - keyword: RETURN
+        - expression:
+          - column_reference:
+            - naked_identifier: v
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

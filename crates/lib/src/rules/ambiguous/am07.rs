@@ -47,7 +47,7 @@ SELECT
 
 **Best practice**
 
-Always specify columns when writing set queries and ensure that they all seleect same number of columns.
+Always specify columns when writing set queries and ensure that they all select same number of columns.
 
 ```sql
 WITH cte AS (

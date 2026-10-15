@@ -7,9 +7,9 @@ file:
         - wildcard_expression:
           - wildcard_identifier:
             - star: '*'
-          - select_exclude_clause:
-            - keyword: EXCLUDE
-            - naked_identifier: col1
+      - select_exclude_clause:
+        - keyword: EXCLUDE
+        - naked_identifier: col1
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -26,13 +26,165 @@ file:
         - wildcard_expression:
           - wildcard_identifier:
             - star: '*'
-          - select_exclude_clause:
-            - keyword: EXCLUDE
-            - naked_identifier: col1
+      - select_exclude_clause:
+        - keyword: EXCLUDE
+        - naked_identifier: col1
+        - comma: ','
+        - naked_identifier: col2
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+      - select_exclude_clause:
+        - keyword: EXCLUDE
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: col1
+          - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+      - select_exclude_clause:
+        - keyword: EXCLUDE
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: col1
+          - comma: ','
+          - naked_identifier: col2
+          - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+      - comma: ','
+      - select_clause_element:
+        - null_literal: 'NULL'
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: example
+      - select_exclude_clause:
+        - keyword: EXCLUDE
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: col1
+          - comma: ','
+          - naked_identifier: col2
+          - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+      - comma: ','
+      - select_clause_element:
+        - numeric_literal: '1'
+      - select_exclude_clause:
+        - keyword: EXCLUDE
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: col1
+          - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - select_exclude_clause:
+        - keyword: EXCLUDE
+        - naked_identifier: x
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
       - comma: ','
       - select_clause_element:
         - column_reference:
           - naked_identifier: col2
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col3
+      - select_exclude_clause:
+        - keyword: EXCLUDE
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: col2
+          - end_bracket: )
     - from_clause:
       - keyword: FROM
       - from_expression:
@@ -46,14 +198,110 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
         - wildcard_expression:
           - wildcard_identifier:
+            - naked_identifier: b
+            - dot: .
             - star: '*'
-          - select_exclude_clause:
-            - keyword: EXCLUDE
+      - select_exclude_clause:
+        - keyword: EXCLUDE
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: col2
+          - comma: ','
+          - naked_identifier: col3
+          - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: a
+      - comma: ','
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table2
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: b
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: EXCLUDE
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: EXCLUDE
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: col1
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - quoted_identifier: '"EXCLUDE"'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: EXCLUDE
+          - function_contents:
             - bracketed:
               - start_bracket: (
-              - naked_identifier: col1
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
               - end_bracket: )
     - from_clause:
       - keyword: FROM
@@ -68,17 +316,56 @@ file:
     - select_clause:
       - keyword: SELECT
       - select_clause_element:
-        - wildcard_expression:
-          - wildcard_identifier:
-            - star: '*'
-          - select_exclude_clause:
-            - keyword: EXCLUDE
+        - function:
+          - function_name:
+            - naked_identifier: schema
+            - dot: .
+            - function_name_identifier: EXCLUDE
+          - function_contents:
             - bracketed:
               - start_bracket: (
-              - naked_identifier: col1
-              - comma: ','
-              - naked_identifier: col2
+              - expression:
+                - column_reference:
+                  - naked_identifier: col1
               - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - numeric_literal: '1'
+        - alias_expression:
+          - alias_operator:
+            - keyword: AS
+          - naked_identifier: EXCLUDE
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: table1
+- statement_terminator: ;
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: b
+      - comma: ','
     - from_clause:
       - keyword: FROM
       - from_expression:

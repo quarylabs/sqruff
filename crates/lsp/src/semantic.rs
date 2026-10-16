@@ -660,6 +660,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | Semicolon
         | BackQuote
         | DollarQuote
+        | DollarQuotedLiteral
         | Question
         | EndCurlyBracket
         | Dedent
@@ -845,6 +846,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CreateDatabaseWithOptions
         | CreateDbtProjectStatement
         | CreateDcmProjectStatement
+        | CreateMcpServerStatement
         | CreateEventStatement
         | CreateEventTableStatement
         | CreateExternalDataSourceStatement

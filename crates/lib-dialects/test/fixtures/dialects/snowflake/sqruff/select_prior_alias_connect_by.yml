@@ -1,0 +1,47 @@
+file:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - naked_identifier: prior
+          - dot: .
+          - naked_identifier: c1
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - naked_identifier: t
+          - alias_expression:
+            - alias_operator:
+              - keyword: AS
+            - naked_identifier: prior
+        - connectby_clause:
+          - keyword: START
+          - keyword: WITH
+          - expression:
+            - column_reference:
+              - naked_identifier: prior
+              - dot: .
+              - naked_identifier: c1
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - numeric_literal: '1'
+          - keyword: CONNECT
+          - keyword: BY
+          - expression:
+            - keyword: PRIOR
+            - column_reference:
+              - naked_identifier: prior
+              - dot: .
+              - naked_identifier: c1
+            - comparison_operator:
+              - raw_comparison_operator: =
+            - column_reference:
+              - naked_identifier: prior
+              - dot: .
+              - naked_identifier: parent_c1
+- statement_terminator: ;

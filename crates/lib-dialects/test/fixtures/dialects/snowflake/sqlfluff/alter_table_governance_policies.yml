@@ -229,7 +229,7 @@ file:
       - keyword: KEY
       - bracketed:
         - start_bracket: (
-        - object_reference:
+        - column_reference:
           - naked_identifier: id
         - end_bracket: )
       - keyword: FORCE

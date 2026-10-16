@@ -173,6 +173,7 @@ rust_test(
             ["benches/tpc_support/mod.rs"] if benchmark == "tpc" else ["benches/shims/global_alloc_overwrite.rs"]
         ),
         crate_root = "benches/" + benchmark + ".rs",
+        compile_data = ["benches/superlong.sql"] if benchmark == "parsing" else [],
         crate_features = clippy_config([], _CARGO_FEATURES),
         use_libtest_harness = False,
         deps = all_crate_deps(normal_dev = True) + [

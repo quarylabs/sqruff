@@ -17,6 +17,13 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# Include Python modules and their bundled license in release distributions.
+filegroup(
+    name = "package_srcs",
+    srcs = glob(["python/**/*.py", "python/**/*.md"]) + ["README.md", "pyproject.toml"],
+    visibility = ["//visibility:public"],
+)
+
 # Test fixtures for Python tests
 filegroup(
     name = "test_fixtures",
@@ -55,7 +62,7 @@ filegroup(
 )
 
 # Runtime extension for native tests, built with the workspace's PyO3 version.
-# Wheel/ABI packaging remains validated by the maturin CI matrix.
+# Wheel/ABI packaging is validated by //:python_wheel_check and release CI.
 rust_shared_library(
     name = "sqruff-extension",
     crate_name = "sqruff_cli_python",

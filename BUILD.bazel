@@ -12,6 +12,7 @@ load(":cargo_build.bzl", "cargo_vendor", "cargo_vendor_provider", "python_venv_p
 load(":compiler.bzl", "workspace_compile")
 load(":cargo_hack.bzl", "cargo_hack_packages")
 load(":linters.bzl", "keep_sorted_test")
+load(":python_dist.bzl", "python_dist")
 load(":rustfmt.bzl", "rustfmt_sources_test")
 
 # Link all npm packages into node_modules
@@ -664,6 +665,92 @@ sh_test(
 )
 
 exports_files([".hacking/scripts/python_rust_test.sh"])
+
+# Match python-ci.yml's installed-wheel checks on the host platform. Release
+# CI retains the cross-platform/manylinux matrix and publishing steps.
+PYTHON_WHEEL_RUNTIMES = {
+    "3.14": ":pytest_py314_python",
+    "3.14t": ":wheel_py314t_python",
+    "3.15": ":pytest_py315_python",
+    "3.15t": ":wheel_py315t_python",
+}
+
+[
+    uv_python_install(
+        name = "wheel_py{}_python".format(version.replace(".", "")),
+        python_version = version,
+        uv = ["@uv//:uv"],
+    )
+    for version in ["3.14t", "3.15t"]
+]
+
+uv_python_venv(
+    name = "python_package_tools",
+    srcs = ["pyproject.toml", "uv.lock"],
+    extra = "cargo-test",
+    locked = True,
+    python = [":pytest_py312_python"],
+    uv = ["@uv//:uv"],
+)
+
+py_binary(
+    name = "build_python_dist",
+    srcs = [".hacking/scripts/build_python_dist.py"],
+    main = ".hacking/scripts/build_python_dist.py",
+    tags = ["manual"],
+)
+
+python_dist(
+    name = "python_dist",
+    srcs = [
+        ":cargo_srcs",
+        "LICENSE",
+        "//crates/cli-python:package_srcs",
+    ],
+    interpreters = [
+        ":pytest_py314_python",
+        ":wheel_py314t_python",
+        ":wheel_py315t_python",
+    ],
+    tools_python = ":python_package_tools",
+    vendor = ":cargo_deps",
+)
+
+filegroup(
+    name = "python_wheels",
+    srcs = [":python_dist"],
+    output_group = "wheels",
+)
+
+filegroup(
+    name = "python_sdist",
+    srcs = [":python_dist"],
+    output_group = "sdist",
+)
+
+[
+    sh_test(
+        name = "python_wheel_check_py{}".format(version.replace(".", "")),
+        size = "small",
+        srcs = [".hacking/scripts/check_python_wheel.sh"],
+        data = [
+            ":python_wheels",
+            PYTHON_WHEEL_RUNTIMES[version],
+            "@uv//:uv",
+        ],
+        env = {
+            "PYTHON_RUNTIME": "$(rlocationpath {})".format(PYTHON_WHEEL_RUNTIMES[version]),
+            "PYTHON_WHEELS": "$(rlocationpath :python_wheels)",
+            "UV": "$(rlocationpath @uv//:uv)",
+        },
+    )
+    for version in PYTHON_WHEEL_RUNTIMES
+]
+
+test_suite(
+    name = "python_wheel_check",
+    tests = [":python_wheel_check_py{}".format(version.replace(".", "")) for version in PYTHON_WHEEL_RUNTIMES],
+)
 
 filegroup(
     name = "native_test_python",

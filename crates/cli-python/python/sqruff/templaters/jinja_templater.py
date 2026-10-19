@@ -394,9 +394,7 @@ class JinjaTemplater(PythonTemplater):
                 line_pos=pos,
             )
 
-    def _get_jinja_env_kwargs(
-        self, config: Optional[FluffConfig]
-    ) -> Dict[str, str]:
+    def _get_jinja_env_kwargs(self, config: Optional[FluffConfig]) -> Dict[str, str]:
         """Read optional Jinja delimiter overrides from config.
 
         Returns a dict of kwargs to splat into SandboxedEnvironment.
@@ -905,7 +903,9 @@ class JinjaTemplater(PythonTemplater):
 
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str[:80])
-        analyzer = self._get_jinja_analyzer(raw_str, self._get_jinja_env(config), config)
+        analyzer = self._get_jinja_analyzer(
+            raw_str, self._get_jinja_env(config), config
+        )
         tracer = analyzer.analyze(render_func)
         trace = tracer.trace(append_to_templated=append_to_templated)
         return trace.raw_sliced, trace.sliced_file, trace.templated_str

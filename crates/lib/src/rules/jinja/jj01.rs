@@ -1,5 +1,4 @@
 use hashbrown::HashMap;
-use regex::Regex;
 use smol_str::SmolStr;
 use sqruff_lib_core::dialects::syntax::SyntaxKind;
 use sqruff_lib_core::lint_fix::LintFix;
@@ -24,29 +23,51 @@ struct JinjaTagComponents {
 
 /// Parse the whitespace structure of a Jinja tag.
 ///
-/// Given a raw Jinja tag like `{{ my_variable }}`, this function extracts:
+/// Given a raw Jinja tag like `{{ my_variable }}` and its open (`{{`) and
+/// close (`}}`) delimiters, this function extracts:
 /// - opening: `{{`
 /// - leading_ws: ` `
 /// - content: `my_variable`
 /// - trailing_ws: ` `
 /// - closing: `}}`
-fn get_whitespace_ends(raw: &str) -> Option<JinjaTagComponents> {
-    // Regex to match Jinja tags: {{ }}, {% %}, {# #}
-    // Captures: opening bracket (with optional modifier), content, closing bracket (with optional
-    // modifier)
-    let re = Regex::new(r"^(\{[\{%#][-+]?)(.*?)([-+]?[\}%#]\})$").ok()?;
+///
+/// The delimiters are passed in rather than hardcoded so that custom Jinja
+/// delimiters (e.g. Snowflake CLI's `<% %>`) are handled. Ported from
+/// SQLFluff #8277.
+fn get_whitespace_ends(
+    raw: &str,
+    open_delim: &str,
+    close_delim: &str,
+) -> Option<JinjaTagComponents> {
+    if !raw.starts_with(open_delim) || !raw.ends_with(close_delim) {
+        return None;
+    }
+    let pre_len = open_delim.len();
+    let post_len = close_delim.len();
+    if raw.len() < pre_len + post_len {
+        return None;
+    }
 
-    let captures = re.captures(raw)?;
+    let mut main = &raw[pre_len..raw.len() - post_len];
+    let mut opening = raw[..pre_len].to_string();
+    let mut closing = raw[raw.len() - post_len..].to_string();
 
-    let opening = captures.get(1)?.as_str().to_string();
-    let inner = captures.get(2)?.as_str();
-    let closing = captures.get(3)?.as_str().to_string();
+    // Optionally Jinja tags may also have plus or minus whitespace-control
+    // notation adjacent to the delimiters (e.g. `{{- foo -}}`).
+    if matches!(main.chars().next(), Some('+' | '-')) {
+        main = &main[1..];
+        opening = raw[..pre_len + 1].to_string();
+    }
+    if matches!(main.chars().last(), Some('+' | '-')) {
+        main = &main[..main.len() - 1];
+        closing = raw[raw.len() - post_len - 1..].to_string();
+    }
 
     // Extract leading and trailing whitespace from inner content
-    let inner_len = inner.len();
-    let trimmed_start = inner.trim_start();
+    let inner_len = main.len();
+    let trimmed_start = main.trim_start();
     let leading_ws_len = inner_len - trimmed_start.len();
-    let leading_ws = inner[..leading_ws_len].to_string();
+    let leading_ws = main[..leading_ws_len].to_string();
 
     let trimmed = trimmed_start.trim_end();
     let trailing_ws = trimmed_start[trimmed.len()..].to_string();
@@ -60,6 +81,49 @@ fn get_whitespace_ends(raw: &str) -> Option<JinjaTagComponents> {
         trailing_ws,
         closing,
     })
+}
+
+/// Build the (open, close) Jinja delimiter pairs for the current config.
+///
+/// Any delimiter that is not explicitly overridden keeps its Jinja default,
+/// so custom variable delimiters can coexist with default block/comment tags.
+/// Pairs are sorted so the longest open delimiter is matched first; that stops
+/// a shorter prefix (e.g. `<`) from shadowing a longer one (e.g. `<%`) that
+/// also starts the tag.
+fn delimiter_pairs(config: &crate::core::config::FluffConfig) -> Vec<(String, String)> {
+    // Read a single value from the `[templater:jinja]` config section. The
+    // `TemplaterKind::Jinja` enum variant only exists with the `python`
+    // feature, so look the value up through the raw config map instead; this
+    // rule is only reached when the jinja (or dbt) templater is active.
+    let jinja_value = |key: &str| -> Option<String> {
+        config
+            .raw
+            .get("templater")
+            .and_then(Value::as_map)
+            .and_then(|templater| templater.get("jinja"))
+            .and_then(Value::as_map)
+            .and_then(|jinja| jinja.get(key))
+            .and_then(Value::as_string)
+            .map(ToString::to_string)
+    };
+
+    let defaults = [
+        ("variable", "{{", "}}"),
+        ("block", "{%", "%}"),
+        ("comment", "{#", "#}"),
+    ];
+    let mut pairs: Vec<(String, String)> = defaults
+        .iter()
+        .map(|(kind, d_open, d_close)| {
+            let open =
+                jinja_value(&format!("{kind}_start_string")).unwrap_or_else(|| d_open.to_string());
+            let close =
+                jinja_value(&format!("{kind}_end_string")).unwrap_or_else(|| d_close.to_string());
+            (open, close)
+        })
+        .collect();
+    pairs.sort_by_key(|pair| std::cmp::Reverse(pair.0.len()));
+    pairs
 }
 
 /// Check if whitespace is acceptable.
@@ -137,6 +201,10 @@ SELECT {{ a }} from {{ ref('foo') }};
             return Vec::new();
         }
 
+        // Read the configured Jinja delimiters so we can match tags that use
+        // custom delimiters (e.g. Snowflake CLI's `<% var %>`).
+        let delim_pairs = delimiter_pairs(context.config);
+
         let mut results = Vec::new();
         let mut all_source_fixes = Vec::new();
 
@@ -163,13 +231,16 @@ SELECT {{ a }} from {{ ref('foo') }};
 
             let raw = raw_slice.raw();
 
-            // Check if it looks like a Jinja tag (starts with { and ends with })
-            if !raw.starts_with('{') || !raw.ends_with('}') {
+            // Match the tag against a delimiter pair (open and close together),
+            // trying the longest open delimiter first.
+            let Some((open_delim, close_delim)) = delim_pairs.iter().find(|(d_open, d_close)| {
+                raw.starts_with(d_open.as_str()) && raw.ends_with(d_close.as_str())
+            }) else {
                 continue;
-            }
+            };
 
             // Parse the whitespace structure
-            let Some(components) = get_whitespace_ends(raw) else {
+            let Some(components) = get_whitespace_ends(raw, open_delim, close_delim) else {
                 continue;
             };
 
@@ -292,7 +363,7 @@ mod tests {
 
     #[test]
     fn test_get_whitespace_ends_basic() {
-        let result = get_whitespace_ends("{{ foo }}").unwrap();
+        let result = get_whitespace_ends("{{ foo }}", "{{", "}}").unwrap();
         assert_eq!(result.opening, "{{");
         assert_eq!(result.leading_ws, " ");
         assert_eq!(result.content, "foo");
@@ -302,7 +373,7 @@ mod tests {
 
     #[test]
     fn test_get_whitespace_ends_no_whitespace() {
-        let result = get_whitespace_ends("{{foo}}").unwrap();
+        let result = get_whitespace_ends("{{foo}}", "{{", "}}").unwrap();
         assert_eq!(result.opening, "{{");
         assert_eq!(result.leading_ws, "");
         assert_eq!(result.content, "foo");
@@ -312,7 +383,7 @@ mod tests {
 
     #[test]
     fn test_get_whitespace_ends_excessive_whitespace() {
-        let result = get_whitespace_ends("{{   foo   }}").unwrap();
+        let result = get_whitespace_ends("{{   foo   }}", "{{", "}}").unwrap();
         assert_eq!(result.opening, "{{");
         assert_eq!(result.leading_ws, "   ");
         assert_eq!(result.content, "foo");
@@ -322,7 +393,7 @@ mod tests {
 
     #[test]
     fn test_get_whitespace_ends_block() {
-        let result = get_whitespace_ends("{% if x %}").unwrap();
+        let result = get_whitespace_ends("{% if x %}", "{%", "%}").unwrap();
         assert_eq!(result.opening, "{%");
         assert_eq!(result.leading_ws, " ");
         assert_eq!(result.content, "if x");
@@ -332,7 +403,7 @@ mod tests {
 
     #[test]
     fn test_get_whitespace_ends_comment() {
-        let result = get_whitespace_ends("{# comment #}").unwrap();
+        let result = get_whitespace_ends("{# comment #}", "{#", "#}").unwrap();
         assert_eq!(result.opening, "{#");
         assert_eq!(result.leading_ws, " ");
         assert_eq!(result.content, "comment");
@@ -342,12 +413,39 @@ mod tests {
 
     #[test]
     fn test_get_whitespace_ends_with_modifier() {
-        let result = get_whitespace_ends("{{- foo -}}").unwrap();
+        let result = get_whitespace_ends("{{- foo -}}", "{{", "}}").unwrap();
         assert_eq!(result.opening, "{{-");
         assert_eq!(result.leading_ws, " ");
         assert_eq!(result.content, "foo");
         assert_eq!(result.trailing_ws, " ");
         assert_eq!(result.closing, "-}}");
+    }
+
+    #[test]
+    fn test_get_whitespace_ends_custom_variable_delimiter() {
+        // Snowflake CLI style `<% var %>` delimiters.
+        let result = get_whitespace_ends("<%foo%>", "<%", "%>").unwrap();
+        assert_eq!(result.opening, "<%");
+        assert_eq!(result.leading_ws, "");
+        assert_eq!(result.content, "foo");
+        assert_eq!(result.trailing_ws, "");
+        assert_eq!(result.closing, "%>");
+    }
+
+    #[test]
+    fn test_get_whitespace_ends_custom_delimiter_with_whitespace() {
+        let result = get_whitespace_ends("<<  foo >>", "<<", ">>").unwrap();
+        assert_eq!(result.opening, "<<");
+        assert_eq!(result.leading_ws, "  ");
+        assert_eq!(result.content, "foo");
+        assert_eq!(result.trailing_ws, " ");
+        assert_eq!(result.closing, ">>");
+    }
+
+    #[test]
+    fn test_get_whitespace_ends_mismatched_delimiter() {
+        // A tag whose ends don't match the supplied delimiter pair is ignored.
+        assert!(get_whitespace_ends("<%foo%>", "{{", "}}").is_none());
     }
 
     #[test]

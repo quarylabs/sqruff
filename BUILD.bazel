@@ -700,6 +700,17 @@ py_binary(
     tags = ["manual"],
 )
 
+py_test(
+    name = "build_python_dist_test",
+    size = "small",
+    srcs = [
+        ".hacking/scripts/build_python_dist.py",
+        ".hacking/scripts/build_python_dist_test.py",
+    ],
+    main = ".hacking/scripts/build_python_dist_test.py",
+    imports = [".hacking/scripts"],
+)
+
 python_dist(
     name = "python_dist",
     srcs = [

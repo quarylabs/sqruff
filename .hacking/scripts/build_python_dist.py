@@ -14,7 +14,10 @@ def build(specification):
         name: str(Path(specification[name]).resolve())
         for name in ["cargo", "rustc", "cc", "cxx", "ar"]
     }
-    python = Path(specification["tools_python"]).resolve() / "bin/python3"
+    # uv installs maturin's native executable in bin/. Launch it directly:
+    # relocated standalone Python runtimes can lose their site-packages on
+    # Linux, and `python -I -m maturin` cannot recover through PYTHONPATH.
+    maturin = Path(specification["tools_python"]).resolve() / "bin/maturin"
     interpreters = [
         str(Path(path).resolve() / "bin/python3")
         for path in specification["interpreters"]
@@ -64,10 +67,7 @@ def build(specification):
         # for each explicitly supplied interpreter, just as the release CI does.
         subprocess.run(
             [
-                str(python),
-                "-I",
-                "-m",
-                "maturin",
+                str(maturin),
                 "build",
                 "--release",
                 "--locked",
@@ -83,7 +83,7 @@ def build(specification):
             check=True,
         )
         subprocess.run(
-            [str(python), "-I", "-m", "maturin", "sdist", "--out", sdist, *manifest],
+            [str(maturin), "sdist", "--out", sdist, *manifest],
             cwd=workspace,
             env=environment,
             check=True,

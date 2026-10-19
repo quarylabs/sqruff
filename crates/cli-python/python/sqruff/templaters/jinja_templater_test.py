@@ -2351,8 +2351,7 @@ def test_jinja_custom_block_delimiters():
     )
     templated_file, violations = JinjaTemplater().process(
         in_str=(
-            "<% for c in cols %> << c >>"
-            "<% if not loop.last %>, <% endif %><% endfor %>"
+            "<% for c in cols %> << c >><% if not loop.last %>, <% endif %><% endfor %>"
         ),
         fname="test.sql",
         context={"cols": ["a", "b", "c"]},

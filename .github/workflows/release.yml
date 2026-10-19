@@ -239,7 +239,7 @@ jobs:
             run-binary: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - uses: cargo-bins/cargo-binstall@c06f6a0003f7c6165a00c89d1697731c9e8a5c72 # ratchet:cargo-bins/cargo-binstall@v1.25.2
+      - uses: cargo-bins/cargo-binstall@3be4ad2b146f3302f92e5956c54fedbb6ae8cccc # ratchet:cargo-bins/cargo-binstall@v1.25.3
         with:
           version: "1.25.2"
       - name: Read released version

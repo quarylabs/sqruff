@@ -716,6 +716,7 @@ pub enum SyntaxKind {
     IdentityGrammar,
     IfClause,
     IfStatement,
+    IfStatementList,
     IfStatements,
     IfThenStatement,
     ImpersonateStatement,

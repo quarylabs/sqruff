@@ -999,6 +999,7 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | IdentifierClauseSegment
         | IdentityGrammar
         | IfClause
+        | IfStatementList
         | IfThenStatement
         | IndexHintClause
         | IndexOption

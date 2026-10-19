@@ -2101,36 +2101,67 @@ pub fn raw_dialect() -> Dialect {
         .into(),
     )]);
 
+    // IfStatementListSegment - statements within an IF...END IF statement.
+    mysql.add([(
+        "IfStatementListSegment".into(),
+        NodeMatcher::new(SyntaxKind::IfStatementList, |_| {
+            AnyNumberOf::new(vec![
+                Sequence::new(vec![
+                    Ref::new("StatementSegment")
+                        .exclude(one_of(vec![
+                            Ref::keyword("ELSEIF").to_matchable(),
+                            Ref::keyword("ELSE").to_matchable(),
+                            Sequence::new(vec![
+                                Ref::keyword("END").to_matchable(),
+                                Ref::keyword("IF").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ]))
+                        .to_matchable(),
+                    Ref::new("DelimiterGrammar").to_matchable(),
+                ])
+                .to_matchable(),
+            ])
+            .config(|this| this.min_times = 1)
+            .to_matchable()
+        })
+        .to_matchable()
+        .into(),
+    )]);
+
     // IfExpressionStatement.
     mysql.add([(
         "IfExpressionStatement".into(),
         NodeMatcher::new(SyntaxKind::IfThenStatement, |_| {
-            AnyNumberOf::new(vec![
-                Sequence::new(vec![
-                    Ref::keyword("IF").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
-                    Ref::keyword("THEN").to_matchable(),
-                    Ref::new("StatementSegment").to_matchable(),
-                ])
-                .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("ELSEIF").to_matchable(),
-                    Ref::new("ExpressionSegment").to_matchable(),
-                    Ref::keyword("THEN").to_matchable(),
-                    Ref::new("StatementSegment").to_matchable(),
+            Sequence::new(vec![
+                Ref::keyword("IF").to_matchable(),
+                Ref::new("ExpressionSegment").to_matchable(),
+                Ref::keyword("THEN").to_matchable(),
+                MetaSegment::indent().to_matchable(),
+                Ref::new("IfStatementListSegment").to_matchable(),
+                MetaSegment::dedent().to_matchable(),
+                AnyNumberOf::new(vec![
+                    Sequence::new(vec![
+                        Ref::keyword("ELSEIF").to_matchable(),
+                        Ref::new("ExpressionSegment").to_matchable(),
+                        Ref::keyword("THEN").to_matchable(),
+                        MetaSegment::indent().to_matchable(),
+                        Ref::new("IfStatementListSegment").to_matchable(),
+                        MetaSegment::dedent().to_matchable(),
+                    ])
+                    .to_matchable(),
                 ])
                 .to_matchable(),
                 Sequence::new(vec![
                     Ref::keyword("ELSE").to_matchable(),
-                    Ref::new("StatementSegment").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("IfStatementListSegment").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
                 ])
                 .config(|this| this.optional())
                 .to_matchable(),
-                Sequence::new(vec![
-                    Ref::keyword("END").to_matchable(),
-                    Ref::keyword("IF").to_matchable(),
-                ])
-                .to_matchable(),
+                Ref::keyword("END").to_matchable(),
+                Ref::keyword("IF").to_matchable(),
             ])
             .to_matchable()
         })

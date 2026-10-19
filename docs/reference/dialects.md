@@ -1682,7 +1682,7 @@ Apache Doris SQL dialect, based on MySQL.
 ```
 
 <details>
-<summary>Segment types (273)</summary>
+<summary>Segment types (274)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -1822,6 +1822,7 @@ Apache Doris SQL dialect, based on MySQL.
 <li><code>having_clause</code></li>
 <li><code>help_statement</code></li>
 <li><code>identifier_list</code></li>
+<li><code>if_statement_list</code></li>
 <li><code>if_then_statement</code></li>
 <li><code>implicit</code></li>
 <li><code>indent</code></li>
@@ -3758,7 +3759,7 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 ```
 
 <details>
-<summary>Segment types (274)</summary>
+<summary>Segment types (275)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -3895,6 +3896,7 @@ MariaDB SQL dialect, a community-developed fork of MySQL.
 <li><code>having_clause</code></li>
 <li><code>help_statement</code></li>
 <li><code>identifier_list</code></li>
+<li><code>if_statement_list</code></li>
 <li><code>if_then_statement</code></li>
 <li><code>implicit</code></li>
 <li><code>indent</code></li>
@@ -4363,7 +4365,7 @@ MySQL SQL dialect for the popular open-source database.
 ```
 
 <details>
-<summary>Segment types (266)</summary>
+<summary>Segment types (267)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -4501,6 +4503,7 @@ MySQL SQL dialect for the popular open-source database.
 <li><code>having_clause</code></li>
 <li><code>help_statement</code></li>
 <li><code>identifier_list</code></li>
+<li><code>if_statement_list</code></li>
 <li><code>if_then_statement</code></li>
 <li><code>implicit</code></li>
 <li><code>indent</code></li>
@@ -6671,7 +6674,7 @@ StarRocks SQL dialect for real-time analytical workloads.
 ```
 
 <details>
-<summary>Segment types (282)</summary>
+<summary>Segment types (283)</summary>
 <ul>
 <li><code>access_object</code></li>
 <li><code>access_permission</code></li>
@@ -6813,6 +6816,7 @@ StarRocks SQL dialect for real-time analytical workloads.
 <li><code>having_clause</code></li>
 <li><code>help_statement</code></li>
 <li><code>identifier_list</code></li>
+<li><code>if_statement_list</code></li>
 <li><code>if_then_statement</code></li>
 <li><code>implicit</code></li>
 <li><code>indent</code></li>

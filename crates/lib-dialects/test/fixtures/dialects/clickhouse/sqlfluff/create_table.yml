@@ -608,12 +608,12 @@ file:
         - data_type:
           - data_type_identifier: String
       - comma: ','
-      - column_definition:
-        - naked_identifier: CONSTRAINT
-        - data_type:
-          - data_type_identifier: constraint_name_1
-        - column_constraint_segment:
-          - keyword: CHECK
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: constraint_name_1
+        - keyword: CHECK
+        - expression:
           - bracketed:
             - start_bracket: (
             - expression:
@@ -786,4 +786,41 @@ file:
       - keyword: TO
       - keyword: DISK
       - quoted_literal: '''bbb'''
+- statement_terminator: ;
+- statement:
+  - create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: name1
+        - data_type:
+          - data_type_identifier: String
+      - comma: ','
+      - table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+          - naked_identifier: constraint_name_1
+        - keyword: ASSUME
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
+                - naked_identifier: name1
+              - comparison_operator:
+                - raw_comparison_operator: =
+              - quoted_literal: '''test'''
+            - end_bracket: )
+      - end_bracket: )
+    - engine:
+      - keyword: ENGINE
+      - comparison_operator:
+        - raw_comparison_operator: =
+      - table_engine_function:
+        - function_name:
+          - function_name_identifier: MergeTree
 - statement_terminator: ;

@@ -2799,6 +2799,8 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                 Ref::new("CreateMcpServerStatementSegment").to_matchable(),
                 Ref::new("CreateDcmProjectStatementSegment").to_matchable(),
                 Ref::new("CreateTaskSegment").to_matchable(),
+                Ref::new("CreateAlertSegment").to_matchable(),
+                Ref::new("AlterAlertSegment").to_matchable(),
                 Ref::new("CreateUserSegment").to_matchable(),
                 Ref::new("CreateCloneStatementSegment").to_matchable(),
                 Ref::new("CreateProcedureStatementSegment").to_matchable(),
@@ -8914,6 +8916,181 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
 
     snowflake_dialect.add([
         (
+            "CreateAlertSegment".into(),
+            NodeMatcher::new(SyntaxKind::CreateAlertStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("CREATE").to_matchable(),
+                    Ref::new("OrReplaceGrammar").optional().to_matchable(),
+                    Ref::keyword("ALERT").to_matchable(),
+                    Ref::new("IfNotExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("TagBracketedEqualsSegment")
+                        .optional()
+                        .to_matchable(),
+                    any_set_of(vec![
+                        Sequence::new(vec![
+                            Ref::keyword("SCHEDULE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("WAREHOUSE").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("ObjectReferenceSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("CONFIG").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("RUNBOOK").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("QuotedLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SUSPEND_ALERT_AFTER_NUM_FAILURES").to_matchable(),
+                            Ref::new("EqualsSegment").to_matchable(),
+                            Ref::new("NumericLiteralSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                    Ref::keyword("IF").to_matchable(),
+                    Bracketed::new(vec![Ref::new("AlertConditionSegment").to_matchable()])
+                        .to_matchable(),
+                    Ref::keyword("THEN").to_matchable(),
+                    MetaSegment::indent().to_matchable(),
+                    Ref::new("StatementSegment").to_matchable(),
+                    MetaSegment::dedent().to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlertConditionSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlertCondition, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("EXISTS").to_matchable(),
+                    Bracketed::new(vec![
+                        one_of(vec![
+                            Ref::new("SelectableGrammar").to_matchable(),
+                            Ref::new("ShowStatementSegment").to_matchable(),
+                            Ref::new("CallStatementSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
+            "AlterAlertSegment".into(),
+            NodeMatcher::new(SyntaxKind::AlterAlertStatement, |_| {
+                Sequence::new(vec![
+                    Ref::keyword("ALTER").to_matchable(),
+                    Ref::keyword("ALERT").to_matchable(),
+                    Ref::new("IfExistsGrammar").optional().to_matchable(),
+                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                    one_of(vec![
+                        Ref::keyword("RESUME").to_matchable(),
+                        Ref::keyword("SUSPEND").to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            Ref::new("TagEqualsSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Ref::keyword("TAG").to_matchable(),
+                            Delimited::new(vec![Ref::new("TagReferenceSegment").to_matchable()])
+                                .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("SET").to_matchable(),
+                            any_set_of(vec![
+                                Sequence::new(vec![
+                                    Ref::keyword("WAREHOUSE").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("ObjectReferenceSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SCHEDULE").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Ref::new("CommentEqualsClauseSegment").to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("CONFIG").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("RUNBOOK").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("QuotedLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                                Sequence::new(vec![
+                                    Ref::keyword("SUSPEND_ALERT_AFTER_NUM_FAILURES").to_matchable(),
+                                    Ref::new("EqualsSegment").to_matchable(),
+                                    Ref::new("NumericLiteralSegment").to_matchable(),
+                                ])
+                                .to_matchable(),
+                            ])
+                            .config(|this| this.min_times = 1)
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("UNSET").to_matchable(),
+                            Delimited::new(vec![
+                                Ref::keyword("WAREHOUSE").to_matchable(),
+                                Ref::keyword("COMMENT").to_matchable(),
+                                Ref::keyword("CONFIG").to_matchable(),
+                                Ref::keyword("RUNBOOK").to_matchable(),
+                                Ref::keyword("SUSPEND_ALERT_AFTER_NUM_FAILURES").to_matchable(),
+                            ])
+                            .to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("MODIFY").to_matchable(),
+                            Ref::keyword("CONDITION").to_matchable(),
+                            Ref::new("AlertConditionSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                        Sequence::new(vec![
+                            Ref::keyword("MODIFY").to_matchable(),
+                            Ref::keyword("ACTION").to_matchable(),
+                            Ref::new("StatementSegment").to_matchable(),
+                        ])
+                        .to_matchable(),
+                    ])
+                    .to_matchable(),
+                ])
+                .to_matchable()
+            })
+            .to_matchable()
+            .into(),
+        ),
+        (
             "CreateTaskSegment".into(),
             NodeMatcher::new(SyntaxKind::CreateTaskStatement, |_| {
                 Sequence::new(vec![
@@ -14415,6 +14592,7 @@ pub fn dialect(config: Option<&Value>) -> Dialect {
                     one_of(vec![
                         Sequence::new(vec![
                             one_of(vec![
+                                Ref::keyword("ALERT").to_matchable(),
                                 Ref::keyword("CONNECTION").to_matchable(),
                                 Sequence::new(vec![
                                     Ref::keyword("CORTEX").to_matchable(),

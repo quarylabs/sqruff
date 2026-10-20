@@ -542,6 +542,9 @@ pub(crate) fn classify(kind: SyntaxKind) -> Option<Highlight> {
         | CopyOptions
         | SchemaObjectProperties
         | CreateTaskStatement
+        | CreateAlertStatement
+        | AlterAlertStatement
+        | AlertCondition
         | SnowflakeTaskExpressionSegment
         | CreateStatement
         | DefineStatement

@@ -1,0 +1,84 @@
+file:
+- statement:
+  - create_alert_statement:
+    - keyword: CREATE
+    - keyword: ALERT
+    - object_reference:
+      - naked_identifier: show_alert
+    - keyword: WAREHOUSE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_warehouse
+    - keyword: SCHEDULE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''60 MINUTE'''
+    - keyword: IF
+    - bracketed:
+      - start_bracket: (
+      - alert_condition:
+        - keyword: EXISTS
+        - bracketed:
+          - start_bracket: (
+          - show_statement:
+            - keyword: SHOW
+            - keyword: TABLES
+          - end_bracket: )
+      - end_bracket: )
+    - keyword: THEN
+    - statement:
+      - call_segment:
+        - keyword: CALL
+        - function:
+          - function_name:
+            - function_name_identifier: my_procedure
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+  - create_alert_statement:
+    - keyword: CREATE
+    - keyword: ALERT
+    - object_reference:
+      - naked_identifier: call_alert
+    - keyword: WAREHOUSE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - object_reference:
+      - naked_identifier: my_warehouse
+    - keyword: SCHEDULE
+    - comparison_operator:
+      - raw_comparison_operator: =
+    - quoted_literal: '''60 MINUTE'''
+    - keyword: IF
+    - bracketed:
+      - start_bracket: (
+      - alert_condition:
+        - keyword: EXISTS
+        - bracketed:
+          - start_bracket: (
+          - call_statement:
+            - keyword: CALL
+            - function_name:
+              - function_name_identifier: my_condition_procedure
+            - function_contents:
+              - bracketed:
+                - start_bracket: (
+                - end_bracket: )
+          - end_bracket: )
+      - end_bracket: )
+    - keyword: THEN
+    - statement:
+      - call_segment:
+        - keyword: CALL
+        - function:
+          - function_name:
+            - function_name_identifier: my_procedure
+          - function_contents:
+            - bracketed:
+              - start_bracket: (
+              - end_bracket: )
+- statement_terminator: ;
